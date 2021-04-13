@@ -3,13 +3,6 @@ package com.erehealth.ps.service.muster16;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
-
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.common.PDRectangle;
-import org.apache.pdfbox.text.PDFTextStripper;
-import org.apache.pdfbox.util.Matrix;
 import org.junit.jupiter.api.Test;
 
 class Muster16FormDataExtractorServiceTest {
