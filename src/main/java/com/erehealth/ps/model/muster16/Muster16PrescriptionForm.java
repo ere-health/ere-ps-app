@@ -11,6 +11,7 @@ public class Muster16PrescriptionForm {
     private String patientStreetNumber;
     private String patientCity;
     private String patientZipCode;
+    private String patientInsuranceId;
     private String patientDateOfBirth;
     private String clinicId;
     private String doctorId;
@@ -25,6 +26,7 @@ public class Muster16PrescriptionForm {
             String patientStreetNumber,
             String patientCity,
             String patientZipCode,
+            String patientInsuranceId,
             String patientDateOfBirth,
             String clinicId,
             String doctorId,
@@ -38,6 +40,7 @@ public class Muster16PrescriptionForm {
         this.patientStreetNumber = patientStreetNumber;
         this.patientCity = patientCity;
         this.patientZipCode = patientZipCode;
+        this.setPatientInsuranceId(patientInsuranceId);
         this.patientDateOfBirth = patientDateOfBirth;
         this.clinicId = clinicId;
         this.doctorId = doctorId;
@@ -151,5 +154,13 @@ public class Muster16PrescriptionForm {
 
     public void setPrescriptionList(List<String> prescriptionList) {
         this.prescriptionList = prescriptionList;
+    }
+
+    public String getPatientInsuranceId() {
+        return patientInsuranceId;
+    }
+
+    public void setPatientInsuranceId(String patientInsuranceId) {
+        this.patientInsuranceId = patientInsuranceId;
     }
 }

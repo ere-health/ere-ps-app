@@ -86,4 +86,10 @@ public class Muster16FormDataParser {
 
         return prescriptionList;
     }
+
+    public String parsePatientInsuranceId() {
+        String patientInsuranceId = "";
+
+        return patientInsuranceId;
+    }
 }
