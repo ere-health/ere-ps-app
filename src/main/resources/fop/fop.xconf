@@ -1,0 +1,12 @@
+<fop version="1.0">
+    <renderers>
+        <renderer mime="application/pdf">
+            <fonts>
+                <!--  Finds all fonts but is quite slow (20s) needs fontbox 1.8.5 -->
+                <!-- <auto-detect />  -->
+                <!--  -->
+                <directory>__WILL_BE_REPLACED_IN_DocumentService__</directory>
+            </fonts>
+        </renderer>
+    </renderers>
+</fop>

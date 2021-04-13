@@ -20,7 +20,7 @@ public class PrinterService {
     Muster16FormDataExtractorService muster16FormDataExtractor;
 
     public void print(InputStream muster16file) throws IOException {
-        String pdfText = muster16FormDataExtractor.extractData(muster16file);
+        String pdfText = Muster16FormDataExtractorService.extractData(muster16file);
 
         Muster16PrescriptionForm muster16PrescriptionForm =
                 muster16FormDataExtractor.extractData(pdfText);
