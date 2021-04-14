@@ -2,6 +2,7 @@ package com.erehealth.ps.service.fhir.bundle;
 
 import com.erehealth.ps.model.muster16.Muster16PrescriptionForm;
 
+import org.hl7.fhir.r4.model.BooleanType;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Composition;
@@ -14,14 +15,14 @@ import org.hl7.fhir.r4.model.Organization;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Practitioner;
 
-import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
-
-import ca.uhn.fhir.model.primitive.BooleanDt;
 
 public class PrescriptionBundleBuilder {
+    private static final String DEFAULT_DATE_FORMAT = "dd.MM.yyyy";
+    private static final String DEFAULT_SHORT_DATE_FORMAT = "dd.MM.yy";
     private Muster16PrescriptionForm muster16PrescriptionForm;
 
     public PrescriptionBundleBuilder(Muster16PrescriptionForm muster16PrescriptionForm) {
@@ -105,6 +106,10 @@ public class PrescriptionBundleBuilder {
         return bundle;
     }
 
+    private String getDataFormat(String date) {
+        return date.length() == 8? DEFAULT_SHORT_DATE_FORMAT : DEFAULT_DATE_FORMAT;
+    }
+
     public Patient createPatientResource() throws ParseException {
         Patient patient = new Patient();
 
@@ -125,8 +130,10 @@ public class PrescriptionBundleBuilder {
                 .setFamily(muster16PrescriptionForm.getPatientLastName())
                 .addGiven(muster16PrescriptionForm.getPatientFirstName());
 
-        patient.setBirthDate(DateFormat.getDateInstance(DateFormat.LONG, Locale.GERMANY).
-                parse(muster16PrescriptionForm.getPatientDateOfBirth()));
+        String patientDob = muster16PrescriptionForm.getPatientDateOfBirth();
+
+        patient.setBirthDate(new SimpleDateFormat(getDataFormat(patientDob))
+                    .parse(patientDob, new ParsePosition(0)));
 
         patient.addAddress()
                 .setCity(muster16PrescriptionForm.getPatientCity())
@@ -154,6 +161,8 @@ public class PrescriptionBundleBuilder {
         identifier.setSystem("https://fhir.kbv.de/NamingSystem/KBV_NS_Base_ANR");
         identifier.setValue("456456534"); //TODO: Generate/get unique ID value. Need to check this.
 
+        //TODO: Ensure to set at least the doctor's family name which seems to be required.
+
         return practitioner;
     }
 
@@ -176,8 +185,12 @@ public class PrescriptionBundleBuilder {
         coverage.setStatus(Coverage.CoverageStatus.ACTIVE);
         coverage.getBeneficiary().setReference(
                 "Patient/" + muster16PrescriptionForm.getPatientInsuranceId());
-        coverage.getPeriod().setEnd(DateFormat.getDateInstance(DateFormat.LONG, Locale.GERMANY)
-                .parse(muster16PrescriptionForm.getPrescriptionDate()));
+
+        //TODO: Get actual insurance coverage period.
+        String coveragePeriod = muster16PrescriptionForm.getPrescriptionDate();
+
+        coverage.getPeriod().setEnd(new SimpleDateFormat(getDataFormat(coveragePeriod))
+                .parse(coveragePeriod, new ParsePosition(0)));
 
         return coverage;
     }
@@ -215,8 +228,10 @@ public class PrescriptionBundleBuilder {
         medicationRequest.getSubject().setReference(
                 "Patient/" + muster16PrescriptionForm.getPatientInsuranceId());
 
-        medicationRequest.setAuthoredOn(DateFormat.getDateInstance(DateFormat.LONG,
-                Locale.GERMANY).parse(muster16PrescriptionForm.getPrescriptionDate()));
+        String prescriptionDate = muster16PrescriptionForm.getPrescriptionDate();
+
+        medicationRequest.setAuthoredOn(new SimpleDateFormat(getDataFormat(prescriptionDate))
+                .parse(prescriptionDate, new ParsePosition(0)));
 
         medicationRequest.getRequester().setReference(
                 "Practitioner/" + muster16PrescriptionForm.getDoctorId());
@@ -227,7 +242,7 @@ public class PrescriptionBundleBuilder {
         muster16PrescriptionForm.getPrescriptionList().stream().forEach(prescription -> {
             medicationRequest.addDosageInstruction().setText(prescription).addExtension().setUrl(
                     "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_DosageFlag"
-            ).setValue(new BooleanDt(true));
+            ).setValue(new BooleanType(true));
         });
 
         return medicationRequest;

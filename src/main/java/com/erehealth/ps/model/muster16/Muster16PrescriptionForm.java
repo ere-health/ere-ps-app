@@ -121,7 +121,7 @@ public class Muster16PrescriptionForm {
     }
 
     public void setPatientDateOfBirth(String patientDateOfBirth) {
-        this.patientDateOfBirth = patientDateOfBirth;
+        this.patientDateOfBirth = patientDateOfBirth.trim();
     }
 
     public String getClinicId() {
@@ -145,7 +145,7 @@ public class Muster16PrescriptionForm {
     }
 
     public void setPrescriptionDate(String prescriptionDate) {
-        this.prescriptionDate = prescriptionDate;
+        this.prescriptionDate = prescriptionDate.trim();
     }
 
     public List<String> getPrescriptionList() {
