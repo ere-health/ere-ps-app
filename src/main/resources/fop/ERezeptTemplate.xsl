@@ -106,12 +106,12 @@
                     <fo:table-cell width="auto" number-rows-spanned="5">
                         <fo:block margin-left="12mm">
                             <fo:instream-foreign-object>
-                                <barcode:barcode orientation="90">
+                                <barcode:barcode>
                                     <xsl:attribute name="message">
                                         <xsl:value-of select="//fhir:MedicationRequest/fhir:id/@value" />
                                     </xsl:attribute>
                                     <barcode:datamatrix>
-                                        <barcode:height>50mm</barcode:height>
+                                        <barcode:module-width>1mm</barcode:module-width>
                                     </barcode:datamatrix>
                                 </barcode:barcode>
                             </fo:instream-foreign-object>
@@ -181,13 +181,12 @@
                     <fo:table-row>
                         <fo:table-cell width="20mm"><fo:block>
                             <fo:instream-foreign-object>
-                                <barcode:barcode
-                                    orientation="90">
+                                <barcode:barcode>
                                     <xsl:attribute name="message">
                                         <xsl:value-of select="fhir:id/@value" />
                                     </xsl:attribute>
                                     <barcode:datamatrix>
-                                        <barcode:height>8mm</barcode:height>
+                                        <barcode:module-width>0.8mm</barcode:module-width>
                                     </barcode:datamatrix>
                                 </barcode:barcode>
                             </fo:instream-foreign-object>
