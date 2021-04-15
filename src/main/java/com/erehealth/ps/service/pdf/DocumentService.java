@@ -1,5 +1,6 @@
 package com.erehealth.ps.service.pdf;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -68,25 +69,32 @@ public class DocumentService {
 	private void initConfiguration(FopFactoryBuilder fopFactoryBuilder) throws URISyntaxException {
 		Configuration cfg;
 		try {
-			cfg = new DefaultConfigurationBuilder().build(getClass().getResourceAsStream("/fop/fop.xconf"));
 			URI uri = getClass().getResource("/fop/fonts/").toURI();
 			File physicalFile = new File(uri);
 			String absolutePath = physicalFile.getAbsolutePath();
-			List<String> fonts = Arrays.asList("arial.ttf", "arialbd.ttf", "arialbi.ttf", "ariali.ttf", "ARIALN.TTF",
-					"ARIALNB.TTF", "ARIALNBI.TTF", "ARIALNI.TTF", "ARIALUNI.TTF", "ARIALUNIB.TTF", "ariblk.ttf",
-					"Symbola.ttf");
-			for (String font : fonts) {
-				uri = getClass().getResource("/fop/fonts/" + font).toURI();
-				log.info("Font found: " + uri);
-			}
+			String config = Files.readString(new File(getClass().getResource("/fop/fop.xconf").toURI()).toPath())
+					.replaceAll("__WILL_BE_REPLACED_IN_DocumentService__", absolutePath);
+			cfg = new DefaultConfigurationBuilder().build(new ByteArrayInputStream(config.getBytes()));
+			// This is needed to extract the fonts from the war
+			// It is unknown yet how quarkus behaves
+			// List<String> fonts = Arrays.asList("arial.ttf", "arialbd.ttf", "arialbi.ttf",
+			// "ariali.ttf", "ARIALN.TTF",
+			// "ARIALNB.TTF", "ARIALNBI.TTF", "ARIALNI.TTF", "ARIALUNI.TTF",
+			// "ARIALUNIB.TTF", "ariblk.ttf",
+			// "Symbola.ttf");
+			// for (String font : fonts) {
+			// uri = getClass().getResource("/fop/fonts/" + font).toURI();
+			// log.info("Font found: " + uri);
+			// }
 			// log.log(Level.INFO, "Setting fonts path to: {0}", absolutePath);
-			// Configuration fontConfig = cfg.getChildren("renderers")[0].getChildren("renderer")[0]
+			// Configuration fontConfig =
+			// cfg.getChildren("renderers")[0].getChildren("renderer")[0]
 			// .getChildren("fonts")[0].getChildren("directory")[0];
 			// ((DefaultConfiguration)fontConfig)
 			// .setValue(absolutePath);
 
 			fopFactoryBuilder.setConfiguration(cfg);
-		} catch (IllegalArgumentException | ConfigurationException | ArrayIndexOutOfBoundsException e) {
+		} catch (IllegalArgumentException | ConfigurationException | ArrayIndexOutOfBoundsException | IOException e) {
 			log.log(Level.WARNING, "Could not configure FOP from file in classpath: /fonts/fop.xconf", e);
 		}
 	}
