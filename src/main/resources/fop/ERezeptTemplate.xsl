@@ -9,6 +9,7 @@
                 xmlns:xs="http://www.w3.org/2001/XMLSchema"
                 xmlns:pdf="http://xmlgraphics.apache.org/fop/extensions/pdf"
                 xmlns:barcode="http://barcode4j.krysalis.org/ns"
+                xmlns:fox="http://xmlgraphics.apache.org/fop/extensions"
                 xsi:schemaLocation="http://www.w3.org/1999/XSL/Transform http://www.w3.org/2007/schema-for-xslt20.xsd http://www.w3.org/1999/XSL/Format https://svn.apache.org/repos/asf/xmlgraphics/fop/trunk/fop/src/foschema/fop.xsd">
 
     <xsl:decimal-format name="de" decimal-separator=',' grouping-separator='.'/>
@@ -23,15 +24,13 @@
             <fo:layout-master-set>
                 <fo:simple-page-master master-name="DIN-A5"
                                        page-width="148mm" page-height="105mm"
-                                       margin-top="0mm" margin-bottom="0mm"
-                                       margin-left="0mm" margin-right="0mm">
+                                       margin-top="5mm" margin-bottom="5mm"
+                                       margin-left="10mm" margin-right="10mm">
                     <fo:region-body region-name="body"
-                                    margin-top="27mm" margin-bottom="17mm"
-                                    margin-left="25mm" margin-right="10mm"/>
-                    <fo:region-before region-name="header" extent="27mm"/>
-                    <fo:region-after region-name="footer" extent="17mm"/>
-                    <fo:region-start region-name="left" extent="25mm"/>
-                    <fo:region-end region-name="right" extent="10mm"/>
+                                    margin-top="0mm" margin-bottom="0mm"
+                                    margin-left="0mm" margin-right="0mm"/>
+                    <fo:region-before region-name="header" extent="55mm"/>
+                    <fo:region-after region-name="footer" extent="15mm"/>
                 </fo:simple-page-master>
             </fo:layout-master-set>
             <fo:declarations>
@@ -65,9 +64,6 @@
                 <fo:static-content flow-name="footer">
                     <xsl:call-template name="footer"/>
                 </fo:static-content>
-                <fo:static-content flow-name="left">
-                    <xsl:call-template name="left"/>
-                </fo:static-content>
                 <fo:flow flow-name="body">
                     <xsl:call-template name="body"/>
                 </fo:flow>
@@ -76,13 +72,68 @@
     </xsl:template>
 
     <xsl:template name="header">
-        <fo:table table-layout="fixed" width="100%" >
+        <fo:block padding-top="0mm" line-height="0mm" >
+            <fo:external-graphic content-height="8mm" content-width="scale-to-fit"
+                                    src="url('img/logo.svg')"/>
+        </fo:block>
+    
+        <fo:block>
+            Ausdruck zur Einlösung Ihrer E-Verordnung 
+        </fo:block>
+        <fo:block>
+            Versicherte Person<fo:block />
+            <xsl:value-of select="//fhir:Patient/fhir:name/fhir:prefix/@value" />
+            <xsl:value-of select="//fhir:Patient/fhir:name/fhir:given/@value" />
+            <xsl:value-of select="//fhir:Patient/fhir:name/fhir:family/@value" />
+            
+            <fo:block>
+                geb. am <xsl:value-of select="//fhir:Patient/fhir:birthDate/@value" />
+            </fo:block>
+        </fo:block>
+
+        <fo:block>
+            <fo:block>
+                ausgestellt am <xsl:value-of select="//fhir:MedicationRequest/fhir:authoredOn/@value" />
+            </fo:block>
+            Austellende Person<fo:block />
+            <xsl:value-of select="//fhir:Practitioner/fhir:name/fhir:prefix/@value" />
+            <xsl:value-of select="//fhir:Practitioner/fhir:name/fhir:given/@value" />
+            <xsl:value-of select="//fhir:Practitioner/fhir:name/fhir:family/@value" />
+            <fo:block />
+            <xsl:value-of select="//fhir:Practitioner/fhir:qualification/fhir:code/fhir:text" />
+            <!-- https://simplifier.net/for/kbvcsforqualificationtype -->
+            <!-- <xsl:choose>
+                <xsl:when test="//fhir:Practitioner/fhir:qualification/fhir:code/fhir:coding/fhir:code/@value = '01'">
+                    Zahnarzt
+                </xsl:when>
+                <xsl:when test="//fhir:Practitioner/fhir:qualification/fhir:code/fhir:coding/fhir:code/@value = '02'">
+                    Hebamme
+                </xsl:when>
+                <xsl:when test="//fhir:Practitioner/fhir:qualification/fhir:code/fhir:coding/fhir:code/@value = '03'">
+                    Arzt in Weiterbildung
+                </xsl:when>
+                <xsl:when test="//fhir:Practitioner/fhir:qualification/fhir:code/fhir:coding/fhir:code/@value = '04'">
+                    Arzt als Vertreter
+                </xsl:when>
+                <xsl:otherwise>
+                    Arzt
+                </xsl:otherwise>
+            </xsl:choose> -->
+            Tel. <xsl:value-of select="//fhir:Organization/fhir:telecom/fhir:value/@value" />
+        </fo:block>
+        <fo:table table-layout="fixed" fox:border-radius="3mm" width="100%" border-collapse="separate">
+            <fo:table-header>
+                <fo:table-row>
+                    <fo:table-cell><fo:block>Gültig von - bis</fo:block></fo:table-cell>
+                    <fo:table-cell><fo:block /></fo:table-cell>
+                    <fo:table-cell><fo:block>Krankenkasse</fo:block></fo:table-cell>
+                </fo:table-row>
+            </fo:table-header>
             <fo:table-body>
                 <fo:table-row>
-                    <fo:table-cell>
-                        <fo:block padding-top="10mm" line-height="0mm">
-                            <fo:external-graphic content-height="8mm" content-width="scale-to-fit"
-                                                 src="url('img/logo.svg')"/>
+                    <fo:table-cell border="solid 1px black">
+                        <fo:block>
+                            <xsl:value-of select="//fhir:MedicationRequest/fhir:authoredOn/@value" /> + 1 Monat
                         </fo:block>
                     </fo:table-cell>
                     <fo:table-cell>
@@ -119,38 +170,16 @@
         </fo:table>
     </xsl:template>
 
-    <xsl:template name="left">
-        <fo:block-container absolute-position="fixed"
-                            top="87mm" left="1mm" width="6mm" border-top-width="0.2mm"
-                            border-top-style="solid" border-top-color="black">
-            <fo:block/>
-        </fo:block-container>
-        <fo:block-container absolute-position="fixed"
-                            top="148.5mm" left="1mm" width="9mm" border-top-width="0.2mm"
-                            border-top-style="solid" border-top-color="black">
-            <fo:block/>
-        </fo:block-container>
-        <fo:block-container absolute-position="fixed"
-                            top="192mm" left="1mm" width="6mm" border-top-width="0.2mm"
-                            border-top-style="solid" border-top-color="black">
-            <fo:block/>
-        </fo:block-container>
-    </xsl:template>
-
     <xsl:template name="body">
         <fo:block>
-            <xsl:value-of select="//fhir:Patient/fhir:name/fhir:given/@value" />
-            <xsl:value-of select="//fhir:Patient/fhir:name/fhir:family/@value" />
-            <fo:block>
-                <fo:instream-foreign-object>
-                    <barcode:barcode
-                        message="my message" orientation="90">
-                        <barcode:datamatrix>
-                            <barcode:height>8mm</barcode:height>
-                        </barcode:datamatrix>
-                    </barcode:barcode>
-                </fo:instream-foreign-object>
-            </fo:block>
+            <fo:instream-foreign-object>
+                <barcode:barcode
+                    message="my message" orientation="90">
+                    <barcode:datamatrix>
+                        <barcode:height>8mm</barcode:height>
+                    </barcode:datamatrix>
+                </barcode:barcode>
+            </fo:instream-foreign-object>
         </fo:block>
         <fo:block id="end"/>
     </xsl:template>
