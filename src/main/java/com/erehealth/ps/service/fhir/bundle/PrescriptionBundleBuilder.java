@@ -106,7 +106,7 @@ public class PrescriptionBundleBuilder {
         return bundle;
     }
 
-    private String getDataFormat(String date) {
+    private String getDateFormat(String date) {
         return date.length() == 8? DEFAULT_SHORT_DATE_FORMAT : DEFAULT_DATE_FORMAT;
     }
 
@@ -126,13 +126,13 @@ public class PrescriptionBundleBuilder {
         identifier.setValue("M310119800"); //TODO: Source/Generate unique ID.
 
         patient.addName()
-                .setUse(HumanName.NameUse.OFFICIAL)
+//                .setUse(HumanName.NameUse.fromCode("official"))
                 .setFamily(muster16PrescriptionForm.getPatientLastName())
                 .addGiven(muster16PrescriptionForm.getPatientFirstName());
 
         String patientDob = muster16PrescriptionForm.getPatientDateOfBirth();
 
-        patient.setBirthDate(new SimpleDateFormat(getDataFormat(patientDob))
+        patient.setBirthDate(new SimpleDateFormat(getDateFormat(patientDob))
                     .parse(patientDob, new ParsePosition(0)));
 
         patient.addAddress()
@@ -178,18 +178,22 @@ public class PrescriptionBundleBuilder {
     public Coverage createCoverageResource() throws ParseException {
         Coverage coverage = new Coverage();
 
-        coverage.setId(muster16PrescriptionForm.getInsuranceCompanyId())
-                .getMeta()
-                .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Coverage|1.0.3");
-
-        coverage.setStatus(Coverage.CoverageStatus.ACTIVE);
+        coverage.setId(muster16PrescriptionForm.getInsuranceCompanyId());
+//        coverage.getMeta()
+//                .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Coverage|1.0.3");
+        coverage.addPayor()
+                .setDisplay(muster16PrescriptionForm.getInsuranceCompany())
+                .getIdentifier()
+                .setSystem("http://fhir.de/NamingSystem/arge-ik/iknr")
+                .setValue("123456"); // TODO: Get actual unique value
+        coverage.setStatus(Coverage.CoverageStatus.fromCode("active"));
         coverage.getBeneficiary().setReference(
                 "Patient/" + muster16PrescriptionForm.getPatientInsuranceId());
 
         //TODO: Get actual insurance coverage period.
         String coveragePeriod = muster16PrescriptionForm.getPrescriptionDate();
 
-        coverage.getPeriod().setEnd(new SimpleDateFormat(getDataFormat(coveragePeriod))
+        coverage.getPeriod().setEnd(new SimpleDateFormat(getDateFormat(coveragePeriod))
                 .parse(coveragePeriod, new ParsePosition(0)));
 
         return coverage;
@@ -230,7 +234,7 @@ public class PrescriptionBundleBuilder {
 
         String prescriptionDate = muster16PrescriptionForm.getPrescriptionDate();
 
-        medicationRequest.setAuthoredOn(new SimpleDateFormat(getDataFormat(prescriptionDate))
+        medicationRequest.setAuthoredOn(new SimpleDateFormat(getDateFormat(prescriptionDate))
                 .parse(prescriptionDate, new ParsePosition(0)));
 
         medicationRequest.getRequester().setReference(
