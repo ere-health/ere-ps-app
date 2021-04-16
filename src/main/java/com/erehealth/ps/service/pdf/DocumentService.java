@@ -1,42 +1,44 @@
 package com.erehealth.ps.service.pdf;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import org.apache.fop.apps.*;
-import org.apache.fop.configuration.Configuration;
-import org.apache.fop.configuration.ConfigurationException;
-import org.apache.fop.configuration.DefaultConfigurationBuilder;
-import org.apache.fop.configuration.DefaultConfiguration;
-import org.hl7.fhir.r4.model.Bundle;
-import org.xml.sax.SAXException;
-
-import ca.uhn.fhir.context.FhirContext;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.xml.XMLConstants;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.transform.*;
-import javax.xml.transform.sax.SAXResult;
-import javax.xml.transform.stream.StreamSource;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.xml.XMLConstants;
+import javax.xml.transform.ErrorListener;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.sax.SAXResult;
+import javax.xml.transform.stream.StreamSource;
+
+import org.apache.fop.apps.FOPException;
+import org.apache.fop.apps.Fop;
+import org.apache.fop.apps.FopFactory;
+import org.apache.fop.apps.FopFactoryBuilder;
+import org.apache.fop.apps.MimeConstants;
+import org.apache.fop.configuration.Configuration;
+import org.apache.fop.configuration.ConfigurationException;
+import org.apache.fop.configuration.DefaultConfiguration;
+import org.apache.fop.configuration.DefaultConfigurationBuilder;
+import org.hl7.fhir.r4.model.Bundle;
+
+import ca.uhn.fhir.context.FhirContext;
 
 @ApplicationScoped
 public class DocumentService {
@@ -67,25 +69,32 @@ public class DocumentService {
 	private void initConfiguration(FopFactoryBuilder fopFactoryBuilder) throws URISyntaxException {
 		Configuration cfg;
 		try {
-			cfg = new DefaultConfigurationBuilder().build(getClass().getResourceAsStream("/fop/fop.xconf"));
 			URI uri = getClass().getResource("/fop/fonts/").toURI();
 			File physicalFile = new File(uri);
 			String absolutePath = physicalFile.getAbsolutePath();
-			List<String> fonts = Arrays.asList("arial.ttf", "arialbd.ttf", "arialbi.ttf", "ariali.ttf", "ARIALN.TTF",
-					"ARIALNB.TTF", "ARIALNBI.TTF", "ARIALNI.TTF", "ARIALUNI.TTF", "ARIALUNIB.TTF", "ariblk.ttf",
-					"Symbola.ttf");
-			for (String font : fonts) {
-				uri = getClass().getResource("/fop/fonts/" + font).toURI();
-				log.info("Font found: " + uri);
-			}
+			String config = Files.readString(new File(getClass().getResource("/fop/fop.xconf").toURI()).toPath())
+					.replaceAll("__WILL_BE_REPLACED_IN_DocumentService__", absolutePath);
+			cfg = new DefaultConfigurationBuilder().build(new ByteArrayInputStream(config.getBytes()));
+			// This is needed to extract the fonts from the war
+			// It is unknown yet how quarkus behaves
+			// List<String> fonts = Arrays.asList("arial.ttf", "arialbd.ttf", "arialbi.ttf",
+			// "ariali.ttf", "ARIALN.TTF",
+			// "ARIALNB.TTF", "ARIALNBI.TTF", "ARIALNI.TTF", "ARIALUNI.TTF",
+			// "ARIALUNIB.TTF", "ariblk.ttf",
+			// "Symbola.ttf");
+			// for (String font : fonts) {
+			// uri = getClass().getResource("/fop/fonts/" + font).toURI();
+			// log.info("Font found: " + uri);
+			// }
 			// log.log(Level.INFO, "Setting fonts path to: {0}", absolutePath);
-			// ((DefaultConfiguration)
+			// Configuration fontConfig =
 			// cfg.getChildren("renderers")[0].getChildren("renderer")[0]
-			// .getChildren("fonts")[0].getChildren("directory")[0])
+			// .getChildren("fonts")[0].getChildren("directory")[0];
+			// ((DefaultConfiguration)fontConfig)
 			// .setValue(absolutePath);
 
 			fopFactoryBuilder.setConfiguration(cfg);
-		} catch (IllegalArgumentException | ConfigurationException | ArrayIndexOutOfBoundsException e) {
+		} catch (IllegalArgumentException | ConfigurationException | ArrayIndexOutOfBoundsException | IOException e) {
 			log.log(Level.WARNING, "Could not configure FOP from file in classpath: /fonts/fop.xconf", e);
 		}
 	}
