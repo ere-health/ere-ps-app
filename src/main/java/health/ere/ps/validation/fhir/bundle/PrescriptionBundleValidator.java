@@ -5,13 +5,15 @@ import org.hl7.fhir.common.hapi.validation.support.PrePopulatedValidationSupport
 import org.hl7.fhir.common.hapi.validation.support.ValidationSupportChain;
 import org.hl7.fhir.common.hapi.validation.validator.FhirInstanceValidator;
 import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.hl7.fhir.r4.model.CodeSystem;
+import org.hl7.fhir.r4.model.Enumerations;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.context.support.DefaultProfileValidationSupport;
 import ca.uhn.fhir.validation.FhirValidator;
-import ca.uhn.fhir.validation.IValidatorModule;
 import ca.uhn.fhir.validation.SingleValidationMessage;
 import ca.uhn.fhir.validation.ValidationResult;
+import health.ere.ps.validation.fhir.structuredefinition.fhir.kbv.de.v1_0_1.KBV_PR_ERP_Composition_StructureDefinition;
 
 public class PrescriptionBundleValidator {
     private FhirValidator validator;
@@ -31,12 +33,22 @@ public class PrescriptionBundleValidator {
         // Create a PrePopulatedValidationSupport which can be used to load custom definitions.
         // In this example we're loading two things, but in a real scenario we might
         // load many StructureDefinitions, ValueSets, CodeSystems, etc.
-//        PrePopulatedValidationSupport prePopulatedSupport = new PrePopulatedValidationSupport(ctx);
-//        prePopulatedSupport.addStructureDefinition(someStructureDefnition);
+        PrePopulatedValidationSupport prePopulatedSupport = new PrePopulatedValidationSupport(ctx);
+
+        prePopulatedSupport.addStructureDefinition(new KBV_PR_ERP_Composition_StructureDefinition());
+
+        CodeSystem codeSystem = new CodeSystem();
+
+        codeSystem.setId("identifier-type-de-basis");
+        codeSystem.setUrl("http://fhir.de/CodeSystem/identifier-type-de-basis");
+        codeSystem.setContent(CodeSystem.CodeSystemContentMode.COMPLETE);
+        codeSystem.setStatus(Enumerations.PublicationStatus.ACTIVE);
+        prePopulatedSupport.addCodeSystem(codeSystem);
+
 //        prePopulatedSupport.addValueSet(someValueSet);
 
         // Add the custom definitions to the chain
-//        supportChain.addValidationSupport(prePopulatedSupport);
+        supportChain.addValidationSupport(prePopulatedSupport);
 
         // Wrap the chain in a cache to improve performance
         CachingValidationSupport cache = new CachingValidationSupport(supportChain);
@@ -66,6 +78,8 @@ public class PrescriptionBundleValidator {
 
         return validationResult;
     }
+
+
 
     protected void showIssues(ValidationResult validationResult) {
         if(!validationResult.isSuccessful()) {
