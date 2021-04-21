@@ -27,7 +27,7 @@
                                        margin-top="5mm" margin-bottom="5mm"
                                        margin-left="10mm" margin-right="10mm">
                     <fo:region-body region-name="body"
-                                    margin-top="50mm" margin-bottom="0mm"
+                                    margin-top="55mm" margin-bottom="0mm"
                                     margin-left="0mm" margin-right="0mm"/>
                     <fo:region-before region-name="header" extent="55mm"/>
                     <fo:region-after region-name="footer" extent="15mm"/>
@@ -82,8 +82,8 @@
                     </fo:table-cell>
                     <fo:table-cell width="auto">
                         <fo:block text-align="end">
-                            <fo:external-graphic content-height="3mm" content-width="scale-to-fit"
-                                                    src="url('img/logo.svg')"/>
+                            <fo:external-graphic content-height="10mm" content-width="scale-to-fit"
+                                                    src="url('img/cgm.png')"/>
                         </fo:block>
                     </fo:table-cell>
                 </fo:table-row>
