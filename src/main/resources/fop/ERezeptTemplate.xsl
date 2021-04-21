@@ -49,12 +49,12 @@
                         </rdf:Description>
                     </rdf:RDF>
                 </x:xmpmeta>
-                <!-- <pdf:embedded-file filename="Bundle.xml"
+                <pdf:embedded-file filename="Bundle.xml"
                                    description="Embedded Bundle XML">
                      <xsl:attribute name="src">
                         url(<xsl:value-of select="$bundleFileUrl"/>)
                     </xsl:attribute>
-                </pdf:embedded-file> -->
+                </pdf:embedded-file>
             </fo:declarations>
             <fo:page-sequence master-reference="DIN-A5"
                               initial-page-number="1">
