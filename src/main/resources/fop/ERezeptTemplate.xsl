@@ -15,6 +15,8 @@
     <xsl:decimal-format name="de" decimal-separator=',' grouping-separator='.'/>
     <xsl:variable name="root" select="/fhir:Bundle"/>
 
+    <xsl:param name="bundleFileUrl"/>
+
     <xsl:template match="fhir:Bundle">
         <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format"
                  font-family="Verdana,Arial,Symbola" font-size="6pt" text-align="left"
