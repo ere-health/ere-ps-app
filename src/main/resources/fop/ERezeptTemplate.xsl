@@ -15,6 +15,8 @@
     <xsl:decimal-format name="de" decimal-separator=',' grouping-separator='.'/>
     <xsl:variable name="root" select="/fhir:Bundle"/>
 
+    <xsl:param name="bundleFileUrl"/>
+
     <xsl:template match="fhir:Bundle">
         <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format"
                  font-family="Verdana,Arial,Symbola" font-size="6pt" text-align="left"
@@ -49,12 +51,12 @@
                         </rdf:Description>
                     </rdf:RDF>
                 </x:xmpmeta>
-                <!-- <pdf:embedded-file filename="Bundle.xml"
+                <pdf:embedded-file filename="Bundle.xml"
                                    description="Embedded Bundle XML">
                      <xsl:attribute name="src">
                         url(<xsl:value-of select="$bundleFileUrl"/>)
                     </xsl:attribute>
-                </pdf:embedded-file> -->
+                </pdf:embedded-file>
             </fo:declarations>
             <fo:page-sequence master-reference="DIN-A5"
                               initial-page-number="1">
