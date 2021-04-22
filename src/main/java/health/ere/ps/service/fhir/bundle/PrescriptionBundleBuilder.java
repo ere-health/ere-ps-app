@@ -114,7 +114,7 @@ public class PrescriptionBundleBuilder {
 
         patient.setId(muster16PrescriptionForm.getPatientInsuranceId());
         patient.getMeta()
-                .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.0.3");
+                .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient");
 
         Identifier identifier = patient.addIdentifier();
 
@@ -122,7 +122,7 @@ public class PrescriptionBundleBuilder {
                 .addCoding().setSystem("http://fhir.de/CodeSystem/identifier-type-de-basis");
         identifier.getType().addCoding().setCode("GKV");
         identifier.getSystemElement().setValue("http://fhir.de/NamingSystem/gkv/kvid-10");
-        identifier.setValue("M310119800"); //TODO: Source/Generate unique ID.
+//        identifier.setValue("M310119800"); //TODO: Source/Generate unique ID.
 
         patient.addName()
 //                .setUse(HumanName.NameUse.fromCode("official"))

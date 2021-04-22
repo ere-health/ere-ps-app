@@ -87,7 +87,7 @@ class PrescriptionBundleBuilderTest {
 
         String serialized = parser.encodeResourceToString(fhirEPrescriptionBundle);
 
-        System.out.println(serialized);
+//        System.out.println(serialized);
     }
 
     @Test
@@ -105,10 +105,10 @@ class PrescriptionBundleBuilderTest {
 
         String serialized = parser.encodeResourceToString(fhirEPrescriptionBundle);
 
-        System.out.println(serialized);
+//        System.out.println(serialized);
     }
 
-//    @Test
+    @Test
     public void test_Successful_Validation_Of_Patient_Resource()
             throws ParseException {
         Patient patientResource = prescriptionBundleBuilder.createPatientResource();
