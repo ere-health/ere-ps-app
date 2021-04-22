@@ -14,5 +14,6 @@ public class KBV_CS_SFHIR_KBV_FORMULAR_ART_CodeSystem extends CodeSystem {
         setStatus(Enumerations.PublicationStatus.ACTIVE);
         setCaseSensitive(true);
         setContent(CodeSystemContentMode.COMPLETE);
+        addConcept().setCode("e16A");
     }
 }
