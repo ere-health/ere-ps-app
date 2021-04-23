@@ -1,22 +1,27 @@
 package health.ere.ps.service.fhir.bundle;
 
-import health.ere.ps.model.muster16.Muster16PrescriptionForm;
-import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
-
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Coverage;
+import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Patient;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.text.ParseException;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Collections;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.validation.ValidationResult;
+import health.ere.ps.model.muster16.Muster16PrescriptionForm;
+import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PrescriptionBundleBuilderTest {
@@ -86,8 +91,6 @@ class PrescriptionBundleBuilderTest {
         parser.setPrettyPrint(true);
 
         String serialized = parser.encodeResourceToString(fhirEPrescriptionBundle);
-
-//        System.out.println(serialized);
     }
 
     @Test
@@ -104,12 +107,10 @@ class PrescriptionBundleBuilderTest {
         parser.setPrettyPrint(true);
 
         String serialized = parser.encodeResourceToString(fhirEPrescriptionBundle);
-
-//        System.out.println(serialized);
     }
 
     @Test
-    public void test_Successful_Validation_Of_Patient_Resource()
+    public void test_Successful_Validation_Of_An_FHIR_Patient_Resource()
             throws ParseException {
         Patient patientResource = prescriptionBundleBuilder.createPatientResource();
 
@@ -118,8 +119,18 @@ class PrescriptionBundleBuilderTest {
         assertTrue(validationResult.isSuccessful());
     }
 
-//    @Test
-    public void test_Successful_Validation_Of_Coverage_Resource()
+    @Test
+    public void test_Validation_Failure_Of_FHIR_Patient_Resource_With_Missing_Content() {
+        Patient patient = new Patient();
+
+        ValidationResult validationResult =
+                prescriptionBundleValidator.validateResource(patient, true);
+        assertFalse(validationResult.isSuccessful());
+    }
+
+    @Disabled
+    @Test
+    public void test_Successful_Validation_Of_An_FHIR_Coverage_Resource()
             throws ParseException {
         Coverage coverageResource = prescriptionBundleBuilder.createCoverageResource();
 
@@ -127,8 +138,10 @@ class PrescriptionBundleBuilderTest {
                 prescriptionBundleValidator.validateResource(coverageResource, true);
         assertTrue(validationResult.isSuccessful());
     }
-//    @Test
-    public void test_Successful_Validation_Of_XML_Serialization_FHIR_EPrescription_Bundle_Object()
+
+    @Disabled
+    @Test
+    public void test_Successful_Validation_Of_XML_Serialization_Of_FHIR_EPrescription_Bundle_Object()
             throws ParseException {
         Bundle prescriptionBundle = prescriptionBundleBuilder.createBundle();
 

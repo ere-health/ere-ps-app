@@ -52,6 +52,11 @@ public class KBV_PR_FOR_Patient_StructureDefinition extends StructureDefinition 
 
         StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent = getSnapshot();
 
+        initElements(snapshotComponent);
+    }
+
+    protected void initElements(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
         // Patient.id
         initElementPatientId(snapshotComponent);
 
@@ -80,369 +85,109 @@ public class KBV_PR_FOR_Patient_StructureDefinition extends StructureDefinition 
         initElementPatientIdentifierVersichertenId_GKV_Type_Coding_Code(snapshotComponent);
 
         // Patient.identifier:versichertenId_GKV.system
-        ElementDefinition patientIdentifierVersichertenId_GKV_System =
-                snapshotComponent.addElement();
-
-        patientIdentifierVersichertenId_GKV_System.setId(
-                "Patient.identifier:versichertenId_GKV.system");
-
-        patientIdentifierVersichertenId_GKV_System.getPathElement().setValue(
-                "Patient.identifier.system");
-
-        patientIdentifierVersichertenId_GKV_System.getMustSupportElement().setValue(true);
+        initElementPatientIdentifierVersichertenId_GKV_System(snapshotComponent);
 
         // Patient.identifier:versichertenId_GKV.value
-        ElementDefinition patientIdentifierVersichertenId_GKV_Value =
-                snapshotComponent.addElement();
-
-        patientIdentifierVersichertenId_GKV_Value.setId(
-                "Patient.identifier:versichertenId_GKV.value");
-
-        patientIdentifierVersichertenId_GKV_Value.getPathElement().setValue(
-                "Patient.identifier.value");
-
-        patientIdentifierVersichertenId_GKV_Value.getMustSupportElement().setValue(true);
+        initElementPatientIdentifierVersichertenId_GKV_Value(snapshotComponent);
 
         // Patient.identifier:versichertennummer_pkv
-        ElementDefinition patientIdentifierVersichertennummer_PKV = snapshotComponent.addElement();
-
-        patientIdentifierVersichertennummer_PKV.setId("Patient.identifier:versichertennummer_pkv");
-
-        patientIdentifierVersichertennummer_PKV.getPathElement().setValue("Patient.identifier");
-        patientIdentifierVersichertennummer_PKV.getSliceNameElement().setValue(
-                "versichertennummer_pkv");
-        patientIdentifierVersichertennummer_PKV.getMustSupportElement().setValue(true);
+        initElementPatientIdentifierVersichertennummer_PKV(snapshotComponent);
 
         // Patient.identifier:versichertennummer_pkv.type
-        ElementDefinition patientIdentifierVersichertennummer_PKV_Type =
-                snapshotComponent.addElement();
-
-        patientIdentifierVersichertennummer_PKV_Type.setId(
-                "Patient.identifier:versichertennummer_pkv.type");
-
-        patientIdentifierVersichertennummer_PKV_Type.getPathElement().setValue(
-                "Patient.identifier.type");
-
-        patientIdentifierVersichertennummer_PKV_Type.getMustSupportElement().setValue(true);
+        initElementPatientIdentifierVersichertennummer_PKV_Type(snapshotComponent);
 
         // Patient.identifier:versichertennummer_pkv.type.coding
-        ElementDefinition patientIdentifierVersichertennummer_PKV_Type_Coding =
-                snapshotComponent.addElement();
-
-        patientIdentifierVersichertennummer_PKV_Type_Coding.setId(
-                "Patient.identifier:versichertennummer_pkv.type.coding");
-
-        patientIdentifierVersichertennummer_PKV_Type_Coding.getPathElement().setValue(
-                "Patient.identifier.type.coding");
-
-        patientIdentifierVersichertennummer_PKV_Type_Coding.getMustSupportElement().setValue(true);
+        initElementPatientIdentifierVersichertennummer_PKV_Type_Coding(snapshotComponent);
 
         // Patient.identifier:versichertennummer_pkv.type.coding.system
-        ElementDefinition patientIdentifierVersichertennummer_PKV_Type_Coding_System =
-                snapshotComponent.addElement();
-
-        patientIdentifierVersichertennummer_PKV_Type_Coding_System.setId(
-                "Patient.identifier:versichertennummer_pkv.type.coding.system");
-
-        patientIdentifierVersichertennummer_PKV_Type_Coding_System.getPathElement().setValue(
-                "Patient.identifier.type.coding.system");
-
-        patientIdentifierVersichertennummer_PKV_Type_Coding_System.getMustSupportElement().setValue(true);
+        initElementPatientIdentifierVersichertennummer_PKV_Type_Coding_System(snapshotComponent);
 
         // Patient.identifier:versichertennummer_pkv.type.coding.code
-        ElementDefinition patientIdentifierVersichertennummer_PKV_Type_Coding_Code =
-                snapshotComponent.addElement();
-
-        patientIdentifierVersichertennummer_PKV_Type_Coding_Code.setId(
-                "Patient.identifier:versichertennummer_pkv.type.coding.code");
-
-        patientIdentifierVersichertennummer_PKV_Type_Coding_Code.getPathElement().setValue(
-                "Patient.identifier.type.coding.code");
-
-        patientIdentifierVersichertennummer_PKV_Type_Coding_Code.getMustSupportElement().setValue(true);
+        initElementPatientIdentifierVersichertennummer_PKV_Type_Coding_Code(snapshotComponent);
 
         // Patient.identifier:versichertennummer_pkv.system
-        ElementDefinition patientIdentifierVersichertennummer_PKV_System =
-                snapshotComponent.addElement();
-
-        patientIdentifierVersichertennummer_PKV_System.setId(
-                "Patient.identifier:versichertennummer_pkv.system");
-
-        patientIdentifierVersichertennummer_PKV_System.getPathElement().setValue(
-                "Patient.identifier.system");
-
-        patientIdentifierVersichertennummer_PKV_System.getMustSupportElement().setValue(true);
+        initElementPatientIdentifierVersichertennummer_PKV_System(snapshotComponent);
 
         // Patient.identifier:versichertennummer_pkv.value
-        ElementDefinition patientIdentifierVersichertennummer_PKV_Value =
-                snapshotComponent.addElement();
-
-        patientIdentifierVersichertennummer_PKV_Value.setId(
-                "Patient.identifier:versichertennummer_pkv.value");
-
-        patientIdentifierVersichertennummer_PKV_Value.getPathElement().setValue(
-                "Patient.identifier.value");
-
-        patientIdentifierVersichertennummer_PKV_Value.getMustSupportElement().setValue(true);
+        initElementPatientIdentifierVersichertennummer_PKV_Value(snapshotComponent);
 
         // Patient.identifier:versichertennummer_pkv.assigner
-        ElementDefinition patientIdentifierVersichertennummer_PKV_Assigner =
-                snapshotComponent.addElement();
-
-        patientIdentifierVersichertennummer_PKV_Assigner.setId(
-                "Patient.identifier:versichertennummer_pkv.assigner");
-
-        patientIdentifierVersichertennummer_PKV_Assigner.getPathElement().setValue(
-                "Patient.identifier.assigner");
-
-        patientIdentifierVersichertennummer_PKV_Assigner.getMustSupportElement().setValue(true);
+        initElementPatientIdentifierVersichertennummer_PKV_Assigner(snapshotComponent);
 
         // Patient.identifier:versichertennummer_pkv.assigner.display
-        ElementDefinition patientIdentifierVersichertennummer_PKV_Assigner_Display =
-                snapshotComponent.addElement();
-
-        patientIdentifierVersichertennummer_PKV_Assigner_Display.setId(
-                "Patient.identifier:versichertennummer_pkv.assigner.display");
-
-        patientIdentifierVersichertennummer_PKV_Assigner_Display.getPathElement().setValue(
-                "Patient.identifier.assigner.display");
-
-        patientIdentifierVersichertennummer_PKV_Assigner_Display.getMustSupportElement().setValue(true);
+        initElementPatientIdentifierVersichertennummer_PKV_Assigner_Display(snapshotComponent);
 
         // Patient.identifier:versichertennummer_kvk
-        ElementDefinition patientIdentifierVersichertennummer_KVK =
-                snapshotComponent.addElement();
-
-        patientIdentifierVersichertennummer_KVK.setId("Patient.identifier:versichertennummer_kvk");
-        patientIdentifierVersichertennummer_KVK.getPathElement().setValue("Patient.identifier");
-        patientIdentifierVersichertennummer_KVK.getSliceNameElement().setValue("versichertennummer_kvk");
-        patientIdentifierVersichertennummer_KVK.getMustSupportElement().setValue(true);
+        initElementPatientIdentifierVersichertennummer_KVK(snapshotComponent);
 
         // Patient.identifier:versichertennummer_kvk.type
-        ElementDefinition patientIdentifierVersichertennummer_KVK_Type =
-                snapshotComponent.addElement();
-
-        patientIdentifierVersichertennummer_KVK_Type.setId("Patient.identifier:versichertennummer_kvk");
-        patientIdentifierVersichertennummer_KVK_Type.getPathElement().setValue("Patient.identifier.type");
-        patientIdentifierVersichertennummer_KVK_Type.getMustSupportElement().setValue(true);
+        initElementPatientIdentifierVersichertennummer_KVK_Type(snapshotComponent);
 
         // Patient.identifier:versichertennummer_kvk.type.coding
-        ElementDefinition patientIdentifierVersichertennummer_KVK_Type_Coding =
-                snapshotComponent.addElement();
-
-        patientIdentifierVersichertennummer_KVK_Type_Coding.setId(
-                "Patient.identifier:versichertennummer_kvk.type.coding");
-        patientIdentifierVersichertennummer_KVK_Type_Coding.getPathElement().setValue(
-                "Patient.identifier.type.coding");
-        patientIdentifierVersichertennummer_KVK_Type_Coding.getMustSupportElement().setValue(true);
+        initElementPatientIdentifierVersichertennummer_KVK_Type_Coding(snapshotComponent);
 
         // Patient.identifier:versichertennummer_kvk.type.coding.system
-        ElementDefinition patientIdentifierVersichertennummer_KVK_Type_Coding_System =
-                snapshotComponent.addElement();
-
-        patientIdentifierVersichertennummer_KVK_Type_Coding_System.setId(
-                "Patient.identifier:versichertennummer_kvk.type.coding.system");
-        patientIdentifierVersichertennummer_KVK_Type_Coding_System.getPathElement().setValue(
-                "Patient.identifier.type.coding.system");
-        patientIdentifierVersichertennummer_KVK_Type_Coding_System.getMustSupportElement().setValue(true);
+        initElementPatientIdentifierVersichertennummer_KVK_Type_Coding_System(snapshotComponent);
 
         // Patient.identifier:versichertennummer_kvk.type.coding.code
-        ElementDefinition patientIdentifierVersichertennummer_KVK_Type_Coding_Code =
-                snapshotComponent.addElement();
-
-        patientIdentifierVersichertennummer_KVK_Type_Coding_Code.setId(
-                "Patient.identifier:versichertennummer_kvk.type.coding.code");
-        patientIdentifierVersichertennummer_KVK_Type_Coding_Code.getPathElement().setValue(
-                "Patient.identifier.type.coding.code");
-        patientIdentifierVersichertennummer_KVK_Type_Coding_Code.getMustSupportElement().setValue(true);
+        initElementPatientIdentifierVersichertennummer_KVK_Type_Coding_Code(snapshotComponent);
 
         // Patient.name
-        ElementDefinition patientName = snapshotComponent.addElement();
-
-        patientName.setId("Patient.name");
-        patientName.getPathElement().setValue("Patient.name");
-        patientName.getMaxElement().setValue("1");
-        patientName.getMustSupportElement().setValue(true);
+        initElementPatientName(snapshotComponent);
 
         // Patient.name:name
-        ElementDefinition patientName_Name = snapshotComponent.addElement();
-
-        patientName_Name.setId("Patient.name");
-        patientName_Name.getPathElement().setValue("Patient.name");
-        patientName_Name.getSliceNameElement().setValue("name");
-        patientName_Name.getMustSupportElement().setValue(true);
+        initElementPatientName_Name(snapshotComponent);
 
         // Patient.name:name.use
-        ElementDefinition patientName_Name_Use = snapshotComponent.addElement();
-
-        patientName_Name_Use.setId("Patient.name:name.use");
-        patientName_Name_Use.getPathElement().setValue("Patient.name.use");
-        patientName_Name_Use.getMustSupportElement().setValue(true);
+        initElementPatientName_Name_Use(snapshotComponent);
 
         // Patient.name:name.family
-        ElementDefinition patientName_Name_Family = snapshotComponent.addElement();
-
-        patientName_Name_Family.setId("Patient.name:name.family");
-        patientName_Name_Family.getPathElement().setValue("Patient.name.family");
-        patientName_Name_Family.getMustSupportElement().setValue(true);
+        initElementPatientName_Name_Family(snapshotComponent);
 
         // Patient.name:name.family.extension:namenszusatz
-        ElementDefinition patientName_Name_Family_Ext_Namenszusatz = snapshotComponent.addElement();
-
-        patientName_Name_Family_Ext_Namenszusatz.setId(
-                "Patient.name:name.family.extension:namenszusatz");
-        patientName_Name_Family_Ext_Namenszusatz.getPathElement().setValue(
-                "Patient.name.family.extension");
-        patientName_Name_Family_Ext_Namenszusatz.getSliceNameElement().setValue("namenszusatz");
-        patientName_Name_Family_Ext_Namenszusatz.getMustSupportElement().setValue(true);
+        initElementPatientName_Name_Family_Ext_Namenszusatz(snapshotComponent);
 
         // Patient.name:name.family.extension:namenszusatz.value[x]
-        ElementDefinition patientName_Name_Family_Ext_Namenszusatz_Value_x =
-                snapshotComponent.addElement();
-
-        patientName_Name_Family_Ext_Namenszusatz_Value_x.setId(
-                "Patient.name:name.family.extension:namenszusatz.value[x]");
-        patientName_Name_Family_Ext_Namenszusatz_Value_x.getPathElement().setValue(
-                "Patient.name.family.extension.value[x]");
-        patientName_Name_Family_Ext_Namenszusatz_Value_x.getMustSupportElement().setValue(true);
+        initElementPatientName_Name_Family_Ext_Namenszusatz_Value_X(snapshotComponent);
 
         // Patient.name:name.family.extension:namenszusatz.value[x]:valueString
-        ElementDefinition patientName_Name_Family_Ext_Namenszusatz_Value_X_ValueString =
-                snapshotComponent.addElement();
-
-        patientName_Name_Family_Ext_Namenszusatz_Value_X_ValueString.setId(
-                "Patient.name:name.family.extension:namenszusatz.value[x]:valueString");
-        patientName_Name_Family_Ext_Namenszusatz_Value_X_ValueString.getPathElement().setValue(
-                "Patient.name.family.extension.value[x]");
-        patientName_Name_Family_Ext_Namenszusatz_Value_X_ValueString.getSliceNameElement()
-                .setValue("valueString");
-        patientName_Name_Family_Ext_Namenszusatz_Value_X_ValueString.getMustSupportElement().setValue(true);
+        initElementPatientName_Name_Family_Ext_Namenszusatz_Value_X_ValueString(snapshotComponent);
 
         // Patient.name:name.family.extension:nachname
-        ElementDefinition patientName_Name_Family_Ext_Nachname =
-                snapshotComponent.addElement();
-
-        patientName_Name_Family_Ext_Nachname.setId("Patient.name:name.family.extension:nachname");
-        patientName_Name_Family_Ext_Nachname.getPathElement().setValue(
-                "Patient.name.family.extension");
-        patientName_Name_Family_Ext_Nachname.getSliceNameElement()
-                .setValue("nachname");
-        patientName_Name_Family_Ext_Nachname.getMustSupportElement().setValue(true);
+        initElementPatientName_Name_Family_Ext_Nachname(snapshotComponent);
 
         // Patient.name:name.family.extension:nachname.value[x]
-        ElementDefinition patientName_Name_Family_Ext_Nachname_Value_x =
-                snapshotComponent.addElement();
-
-        patientName_Name_Family_Ext_Nachname_Value_x.setId(
-                "Patient.name:name.family.extension:nachname.value[x]");
-        patientName_Name_Family_Ext_Nachname_Value_x.getPathElement().setValue(
-                "Patient.name.family.extension.value[x]");
-        patientName_Name_Family_Ext_Nachname_Value_x.getMustSupportElement().setValue(true);
+        initElementPatientName_Name_Family_Ext_Nachname_Value_X(snapshotComponent);
 
         // Patient.name:name.family.extension:nachname.value[x]:valueString
-        ElementDefinition patientName_Name_Family_Ext_Nachname_Value_X_ValueString =
-                snapshotComponent.addElement();
-
-        patientName_Name_Family_Ext_Nachname_Value_X_ValueString.setId(
-                "Patient.name:name.family.extension:nachname.value[x]:valueString");
-        patientName_Name_Family_Ext_Nachname_Value_X_ValueString.getPathElement().setValue(
-                "Patient.name.family.extension.value[x]");
-        patientName_Name_Family_Ext_Nachname_Value_X_ValueString.getSliceNameElement()
-                .setValue("valueString");
-        patientName_Name_Family_Ext_Nachname_Value_X_ValueString.getMustSupportElement().setValue(true);
+        initElementPatientName_Name_Family_Ext_Nachname_Value_X_ValueString(snapshotComponent);
 
         // Patient.name:name.family.extension:vorsatzwort
-        ElementDefinition patientName_Name_Family_Ext_Vorsatzwort =
-                snapshotComponent.addElement();
-
-        patientName_Name_Family_Ext_Vorsatzwort.setId(
-                "Patient.name:name.family.extension:vorsatzwort");
-        patientName_Name_Family_Ext_Vorsatzwort.getPathElement().setValue(
-                "Patient.name.family.extension");
-        patientName_Name_Family_Ext_Vorsatzwort.getSliceNameElement()
-                .setValue("vorsatzwort");
-        patientName_Name_Family_Ext_Vorsatzwort.getMustSupportElement().setValue(true);
+        initElementPatientName_Name_Family_Ext_Vorsatzwort(snapshotComponent);
 
         // Patient.name:name.family.extension:vorsatzwort.value[x]
-        ElementDefinition patientName_Name_Family_Ext_Vorsatzwort_Value_x =
-                snapshotComponent.addElement();
-
-        patientName_Name_Family_Ext_Vorsatzwort_Value_x.setId(
-                "Patient.name:name.family.extension:vorsatzwort.value[x]");
-        patientName_Name_Family_Ext_Vorsatzwort_Value_x.getPathElement().setValue(
-                "Patient.name.family.extension");
-        patientName_Name_Family_Ext_Vorsatzwort_Value_x.getMustSupportElement().setValue(true);
+        initElementPatientName_Name_Family_Ext_Vorsatzwort_Value_X(snapshotComponent);
 
         // Patient.name:name.family.extension:vorsatzwort.value[x]:valueString
-        ElementDefinition patientName_Name_Family_Ext_Vorsatzwort_Value_X_ValueString =
-                snapshotComponent.addElement();
-
-        patientName_Name_Family_Ext_Vorsatzwort_Value_X_ValueString.setId(
-                "Patient.name:name.family.extension:vorsatzwort.value[x]:valueString");
-        patientName_Name_Family_Ext_Vorsatzwort_Value_X_ValueString.getPathElement().setValue(
-                "Patient.name.family.extension.value[x]");
-        patientName_Name_Family_Ext_Vorsatzwort_Value_X_ValueString.getSliceNameElement()
-                .setValue("valueString");
-        patientName_Name_Family_Ext_Vorsatzwort_Value_X_ValueString.getMustSupportElement().setValue(true);
+        initElementPatientName_Name_Family_Ext_Vorsatzwort_Value_X_ValueString(snapshotComponent);
 
         // Patient.name:name.given
-        ElementDefinition patientName_Name_Given =
-                snapshotComponent.addElement();
-
-        patientName_Name_Given.setId(
-                "Patient.name:name.given");
-        patientName_Name_Given.getPathElement().setValue("Patient.name.given");
-        patientName_Name_Given.getMustSupportElement().setValue(true);
+        initElementPatientName_Name_Given(snapshotComponent);
 
         // Patient.name:name.prefix
-        ElementDefinition patientName_Name_Prefix =
-                snapshotComponent.addElement();
-
-        patientName_Name_Prefix.setId(
-                "Patient.name:name.prefix");
-        patientName_Name_Prefix.getPathElement().setValue("Patient.name.prefix");
-        patientName_Name_Prefix.getMustSupportElement().setValue(true);
+        initElementPatientName_Name_Prefix(snapshotComponent);
 
         // Patient.name:name.prefix.extension:prefix-qualifier
-        ElementDefinition patientName_Name_Prefix_Ext_Prefix_Qualifier =
-                snapshotComponent.addElement();
-
-        patientName_Name_Prefix_Ext_Prefix_Qualifier.setId(
-                "Patient.name:name.prefix.extension:prefix-qualifier");
-        patientName_Name_Prefix_Ext_Prefix_Qualifier.getPathElement().setValue(
-                "Patient.name.prefix.extension");
-        patientName_Name_Prefix_Ext_Prefix_Qualifier.getSliceNameElement()
-                .setValue("prefix-qualifier");
-        patientName_Name_Prefix_Ext_Prefix_Qualifier.getMustSupportElement().setValue(true);
+        initElementPatientName_Name_Prefix_Ext_Prefix_Qualifier(snapshotComponent);
 
         // Patient.name:name.prefix.extension:prefix-qualifier.value[x]
-        ElementDefinition patientName_Name_Prefix_Ext_Prefix_Qualifier_Value_x =
-                snapshotComponent.addElement();
-
-        patientName_Name_Prefix_Ext_Prefix_Qualifier_Value_x.setId(
-                "Patient.name:name.prefix.extension:prefix-qualifier.value[x]");
-        patientName_Name_Prefix_Ext_Prefix_Qualifier_Value_x.getPathElement().setValue(
-                "Patient.name.prefix.extension.value[x]");
-        patientName_Name_Prefix_Ext_Prefix_Qualifier_Value_x.getMustSupportElement().setValue(true);
+        initElementPatientName_Name_Prefix_Ext_Prefix_Qualifier_Value_X(snapshotComponent);
 
         // Patient.name:name.prefix.extension:prefix-qualifier.value[x]:valueCode
-        ElementDefinition patientName_Name_Prefix_Ext_Prefix_Qualifier_Value_X_ValueCode =
-                snapshotComponent.addElement();
-
-        patientName_Name_Prefix_Ext_Prefix_Qualifier_Value_X_ValueCode.setId(
-                "Patient.name:name.prefix.extension:prefix-qualifier.value[x]:valueCode");
-        patientName_Name_Prefix_Ext_Prefix_Qualifier_Value_X_ValueCode.getPathElement().setValue(
-                "Patient.name.prefix.extension.value[x]");
-        patientName_Name_Prefix_Ext_Prefix_Qualifier_Value_X_ValueCode.getSliceNameElement()
-                .setValue("valueCode");
-        patientName_Name_Prefix_Ext_Prefix_Qualifier_Value_X_ValueCode.getMustSupportElement().setValue(true);
+        initElementPatientName_Name_Prefix_Ext_Prefix_Qualifier_Value_X_ValueCode(snapshotComponent);
 
         // Patient.birthDate
-        ElementDefinition patientBirthDate = snapshotComponent.addElement();
-
-        patientBirthDate.setId("Patient.birthDate");
-        patientBirthDate.getPathElement().setValue("Patient.birthDate");
-        patientBirthDate.getMustSupportElement().setValue(true);
+        initElementPatientBirthDate(snapshotComponent);
 
         // Patient.birthDate.extension:data-absent-reason
         initElementPatientBirthDate_Ext_Data_Absent_Reason(snapshotComponent);
@@ -484,6 +229,656 @@ public class KBV_PR_FOR_Patient_StructureDefinition extends StructureDefinition 
         // Patient.address:Strassenanschrift.line.extension:Hausnummer.value[x]:valueString
         initElementPatientAddress_Strassenanschrift_Line_Ext_Hausnummer_Value_X_ValueString(
                 snapshotComponent);
+
+        // Patient.address:Strassenanschrift.line.extension:Adresszusatz
+        initElementPatientAddress_Strassenanschrift_Line_Ext_Adresszusatz(snapshotComponent);
+
+        // Patient.address:Strassenanschrift.line.extension:Adresszusatz.value[x]
+        initElementPatientAddress_Strassenanschrift_Line_Ext_Adresszusatz_Value_X(snapshotComponent);
+
+        // Patient.address:Strassenanschrift.line.extension:Adresszusatz.value[x]:valueString
+        initElementPatientAddress_Strassenanschrift_Line_Ext_Adresszusatz_Value_X_ValueString(
+                snapshotComponent);
+
+        // Patient.address:Strassenanschrift.city
+        initElementPatientAddress_Strassenanschrift_City(snapshotComponent);
+
+        // Patient.address:Strassenanschrift.postalCode
+        initElementPatientAddress_Strassenanschrift_PostalCode(snapshotComponent);
+
+        // Patient.address:Strassenanschrift.country
+        initElementPatientAddress_Strassenanschrift_Country(snapshotComponent);
+
+        // Patient.address:Postfach
+        initElementPatientAddress_Postfach(snapshotComponent);
+
+        // Patient.address:Postfach.type
+        initElementPatientAddress_Postfach_Type(snapshotComponent);
+
+        // Patient.address:Postfach.line
+        initElementPatientAddress_Postfach_Line(snapshotComponent);
+
+        // Patient.address:Postfach.line.extension:Postfach
+        initElementPatientAddress_Postfach_Line_Ext_Postfach(snapshotComponent);
+
+        // Patient.address:Postfach.line.extension:Postfach.value[x]
+        initElementPatientAddress_Postfach_Line_Ext_Postfach_Value_X(snapshotComponent);
+
+        // Patient.address:Postfach.line.extension:Postfach.value[x]:valueString
+        initElementPatientAddress_Postfach_Line_Ext_Postfach_Value_X_ValueString(snapshotComponent);
+
+        // Patient.address:Postfach.city
+        initElementPatientAddress_Postfach_City(snapshotComponent);
+
+        // Patient.address:Postfach.postalCode
+        initElementPatientAddress_Postfach_PostalCode(snapshotComponent);
+
+        // Patient.address:Postfach.country
+        initElementPatientAddress_Postfach_Country(snapshotComponent);
+    }
+
+    protected void initElementPatientAddress_Postfach_Country(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientAddress_Postfach_Country = snapshotComponent.addElement();
+
+        patientAddress_Postfach_Country.setId("Patient.address:Postfach.country");
+        patientAddress_Postfach_Country.getPathElement().setValue("Patient.address.country");
+        patientAddress_Postfach_Country.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientAddress_Postfach_PostalCode(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientAddress_Postfach_PostalCode = snapshotComponent.addElement();
+
+        patientAddress_Postfach_PostalCode.setId("Patient.address:Postfach.postalCode");
+        patientAddress_Postfach_PostalCode.getPathElement().setValue("Patient.address.postalCode");
+        patientAddress_Postfach_PostalCode.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientAddress_Postfach_City(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientAddress_Postfach_City = snapshotComponent.addElement();
+
+        patientAddress_Postfach_City.setId("Patient.address:Postfach.city");
+        patientAddress_Postfach_City.getPathElement().setValue("Patient.address.city");
+        patientAddress_Postfach_City.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientAddress_Postfach_Line_Ext_Postfach_Value_X_ValueString(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientAddress_Postfach_Line_Ext_Postfach_Value_X_ValueString =
+                snapshotComponent.addElement();
+
+        patientAddress_Postfach_Line_Ext_Postfach_Value_X_ValueString.setId(
+                "Patient.address:Postfach.line.extension:Postfach.value[x]:valueString");
+        patientAddress_Postfach_Line_Ext_Postfach_Value_X_ValueString.getPathElement().setValue(
+                "Patient.address.line.extension.value[x]");
+        patientAddress_Postfach_Line_Ext_Postfach_Value_X_ValueString.getSliceNameElement().setValue(
+                "valueString");
+        patientAddress_Postfach_Line_Ext_Postfach_Value_X_ValueString.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientAddress_Postfach_Line_Ext_Postfach_Value_X(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientAddress_Postfach_Line_Ext_Postfach_Value_X =
+                snapshotComponent.addElement();
+
+        patientAddress_Postfach_Line_Ext_Postfach_Value_X.setId(
+                "Patient.address:Postfach.line.extension:Postfach.value[x]");
+        patientAddress_Postfach_Line_Ext_Postfach_Value_X.getPathElement().setValue(
+                "Patient.address.line.extension.value[x]");
+        patientAddress_Postfach_Line_Ext_Postfach_Value_X.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientAddress_Postfach_Line_Ext_Postfach(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientAddress_Postfach_Line_Ext_Postfach =
+                snapshotComponent.addElement();
+
+        patientAddress_Postfach_Line_Ext_Postfach.setId(
+                "Patient.address:Postfach.line.extension:Postfach");
+        patientAddress_Postfach_Line_Ext_Postfach.getPathElement().setValue(
+                "Patient.address.line.extension");
+        patientAddress_Postfach_Line_Ext_Postfach.getSliceNameElement().setValue("Postfach");
+        patientAddress_Postfach_Line_Ext_Postfach.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientAddress_Postfach_Line(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientAddress_Postfach_Line = snapshotComponent.addElement();
+
+        patientAddress_Postfach_Line.setId("Patient.address:Postfach.line");
+        patientAddress_Postfach_Line.getPathElement().setValue("Patient.address.line");
+        patientAddress_Postfach_Line.getMinElement().setValue(1);
+        patientAddress_Postfach_Line.getMaxElement().setValue("1");
+        patientAddress_Postfach_Line.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientAddress_Postfach_Type(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientAddress_Postfach_Type = snapshotComponent.addElement();
+
+        patientAddress_Postfach_Type.setId("Patient.address:Postfach.type");
+        patientAddress_Postfach_Type.getPathElement().setValue("Patient.address.type");
+        patientAddress_Postfach_Type.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientAddress_Postfach(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientAddress_Postfach = snapshotComponent.addElement();
+
+        patientAddress_Postfach.setId("Patient.address:Postfach");
+        patientAddress_Postfach.getPathElement().setValue("Patient.address");
+        patientAddress_Postfach.getSliceNameElement().setValue("Postfach");
+        patientAddress_Postfach.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientAddress_Strassenanschrift_Country(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientAddress_Strassenanschrift_Country =
+                snapshotComponent.addElement();
+
+        patientAddress_Strassenanschrift_Country.setId(
+                "Patient.address:Strassenanschrift.country");
+        patientAddress_Strassenanschrift_Country.getPathElement().setValue(
+                "Patient.address.country");
+        patientAddress_Strassenanschrift_Country.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientAddress_Strassenanschrift_PostalCode(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientAddress_Strassenanschrift_PostalCode =
+                snapshotComponent.addElement();
+
+        patientAddress_Strassenanschrift_PostalCode.setId(
+                "Patient.address:Strassenanschrift.postalCode");
+        patientAddress_Strassenanschrift_PostalCode.getPathElement().setValue(
+                "Patient.address.postalCode");
+        patientAddress_Strassenanschrift_PostalCode.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientAddress_Strassenanschrift_City(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientAddress_Strassenanschrift_City = snapshotComponent.addElement();
+
+        patientAddress_Strassenanschrift_City.setId("Patient.address:Strassenanschrift.city");
+        patientAddress_Strassenanschrift_City.getPathElement().setValue("Patient.address.city");
+        patientAddress_Strassenanschrift_City.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientAddress_Strassenanschrift_Line_Ext_Adresszusatz_Value_X_ValueString(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientAddress_Strassenanschrift_Line_Ext_Adresszusatz_Value_X_ValueString =
+                snapshotComponent.addElement();
+
+        patientAddress_Strassenanschrift_Line_Ext_Adresszusatz_Value_X_ValueString.setId(
+                "Patient.address:Strassenanschrift.line.extension:Adresszusatz.value[x]:valueString");
+        patientAddress_Strassenanschrift_Line_Ext_Adresszusatz_Value_X_ValueString.getPathElement().setValue(
+                "Patient.address.line.extension.value[x]");
+        patientAddress_Strassenanschrift_Line_Ext_Adresszusatz_Value_X_ValueString.getSliceNameElement()
+                .setValue("valueString");
+        patientAddress_Strassenanschrift_Line_Ext_Adresszusatz_Value_X_ValueString.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientAddress_Strassenanschrift_Line_Ext_Adresszusatz_Value_X(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientAddress_Strassenanschrift_Line_Ext_Adresszusatz_Value_x =
+                snapshotComponent.addElement();
+
+        patientAddress_Strassenanschrift_Line_Ext_Adresszusatz_Value_x.setId(
+                "Patient.address:Strassenanschrift.line.extension:Adresszusatz.value[x]");
+        patientAddress_Strassenanschrift_Line_Ext_Adresszusatz_Value_x.getPathElement().setValue(
+                "Patient.address.line.extension.value[x]");
+        patientAddress_Strassenanschrift_Line_Ext_Adresszusatz_Value_x.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientAddress_Strassenanschrift_Line_Ext_Adresszusatz(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientAddress_Strassenanschrift_Line_Ext_Adresszusatz =
+                snapshotComponent.addElement();
+
+        patientAddress_Strassenanschrift_Line_Ext_Adresszusatz.setId(
+                "Patient.address:Strassenanschrift.line.extension:Adresszusatz");
+        patientAddress_Strassenanschrift_Line_Ext_Adresszusatz.getPathElement().setValue(
+                "Patient.address.line.extension");
+        patientAddress_Strassenanschrift_Line_Ext_Adresszusatz.getSliceNameElement()
+                .setValue("Adresszusatz");
+        patientAddress_Strassenanschrift_Line_Ext_Adresszusatz.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientBirthDate(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientBirthDate = snapshotComponent.addElement();
+
+        patientBirthDate.setId("Patient.birthDate");
+        patientBirthDate.getPathElement().setValue("Patient.birthDate");
+        patientBirthDate.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientName_Name_Prefix_Ext_Prefix_Qualifier_Value_X_ValueCode(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientName_Name_Prefix_Ext_Prefix_Qualifier_Value_X_ValueCode =
+                snapshotComponent.addElement();
+
+        patientName_Name_Prefix_Ext_Prefix_Qualifier_Value_X_ValueCode.setId(
+                "Patient.name:name.prefix.extension:prefix-qualifier.value[x]:valueCode");
+        patientName_Name_Prefix_Ext_Prefix_Qualifier_Value_X_ValueCode.getPathElement().setValue(
+                "Patient.name.prefix.extension.value[x]");
+        patientName_Name_Prefix_Ext_Prefix_Qualifier_Value_X_ValueCode.getSliceNameElement()
+                .setValue("valueCode");
+        patientName_Name_Prefix_Ext_Prefix_Qualifier_Value_X_ValueCode.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientName_Name_Prefix_Ext_Prefix_Qualifier_Value_X(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientName_Name_Prefix_Ext_Prefix_Qualifier_Value_x =
+                snapshotComponent.addElement();
+
+        patientName_Name_Prefix_Ext_Prefix_Qualifier_Value_x.setId(
+                "Patient.name:name.prefix.extension:prefix-qualifier.value[x]");
+        patientName_Name_Prefix_Ext_Prefix_Qualifier_Value_x.getPathElement().setValue(
+                "Patient.name.prefix.extension.value[x]");
+        patientName_Name_Prefix_Ext_Prefix_Qualifier_Value_x.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientName_Name_Prefix_Ext_Prefix_Qualifier(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientName_Name_Prefix_Ext_Prefix_Qualifier =
+                snapshotComponent.addElement();
+
+        patientName_Name_Prefix_Ext_Prefix_Qualifier.setId(
+                "Patient.name:name.prefix.extension:prefix-qualifier");
+        patientName_Name_Prefix_Ext_Prefix_Qualifier.getPathElement().setValue(
+                "Patient.name.prefix.extension");
+        patientName_Name_Prefix_Ext_Prefix_Qualifier.getSliceNameElement()
+                .setValue("prefix-qualifier");
+        patientName_Name_Prefix_Ext_Prefix_Qualifier.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientName_Name_Prefix(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientName_Name_Prefix =
+                snapshotComponent.addElement();
+
+        patientName_Name_Prefix.setId(
+                "Patient.name:name.prefix");
+        patientName_Name_Prefix.getPathElement().setValue("Patient.name.prefix");
+        patientName_Name_Prefix.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientName_Name_Given(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientName_Name_Given =
+                snapshotComponent.addElement();
+
+        patientName_Name_Given.setId(
+                "Patient.name:name.given");
+        patientName_Name_Given.getPathElement().setValue("Patient.name.given");
+        patientName_Name_Given.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientName_Name_Family_Ext_Vorsatzwort_Value_X_ValueString(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientName_Name_Family_Ext_Vorsatzwort_Value_X_ValueString =
+                snapshotComponent.addElement();
+
+        patientName_Name_Family_Ext_Vorsatzwort_Value_X_ValueString.setId(
+                "Patient.name:name.family.extension:vorsatzwort.value[x]:valueString");
+        patientName_Name_Family_Ext_Vorsatzwort_Value_X_ValueString.getPathElement().setValue(
+                "Patient.name.family.extension.value[x]");
+        patientName_Name_Family_Ext_Vorsatzwort_Value_X_ValueString.getSliceNameElement()
+                .setValue("valueString");
+        patientName_Name_Family_Ext_Vorsatzwort_Value_X_ValueString.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientName_Name_Family_Ext_Vorsatzwort_Value_X(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientName_Name_Family_Ext_Vorsatzwort_Value_x =
+                snapshotComponent.addElement();
+
+        patientName_Name_Family_Ext_Vorsatzwort_Value_x.setId(
+                "Patient.name:name.family.extension:vorsatzwort.value[x]");
+        patientName_Name_Family_Ext_Vorsatzwort_Value_x.getPathElement().setValue(
+                "Patient.name.family.extension");
+        patientName_Name_Family_Ext_Vorsatzwort_Value_x.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientName_Name_Family_Ext_Vorsatzwort(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientName_Name_Family_Ext_Vorsatzwort =
+                snapshotComponent.addElement();
+
+        patientName_Name_Family_Ext_Vorsatzwort.setId(
+                "Patient.name:name.family.extension:vorsatzwort");
+        patientName_Name_Family_Ext_Vorsatzwort.getPathElement().setValue(
+                "Patient.name.family.extension");
+        patientName_Name_Family_Ext_Vorsatzwort.getSliceNameElement()
+                .setValue("vorsatzwort");
+        patientName_Name_Family_Ext_Vorsatzwort.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientName_Name_Family_Ext_Nachname_Value_X_ValueString(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientName_Name_Family_Ext_Nachname_Value_X_ValueString =
+                snapshotComponent.addElement();
+
+        patientName_Name_Family_Ext_Nachname_Value_X_ValueString.setId(
+                "Patient.name:name.family.extension:nachname.value[x]:valueString");
+        patientName_Name_Family_Ext_Nachname_Value_X_ValueString.getPathElement().setValue(
+                "Patient.name.family.extension.value[x]");
+        patientName_Name_Family_Ext_Nachname_Value_X_ValueString.getSliceNameElement()
+                .setValue("valueString");
+        patientName_Name_Family_Ext_Nachname_Value_X_ValueString.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientName_Name_Family_Ext_Nachname_Value_X(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientName_Name_Family_Ext_Nachname_Value_x =
+                snapshotComponent.addElement();
+
+        patientName_Name_Family_Ext_Nachname_Value_x.setId(
+                "Patient.name:name.family.extension:nachname.value[x]");
+        patientName_Name_Family_Ext_Nachname_Value_x.getPathElement().setValue(
+                "Patient.name.family.extension.value[x]");
+        patientName_Name_Family_Ext_Nachname_Value_x.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientName_Name_Family_Ext_Nachname(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientName_Name_Family_Ext_Nachname =
+                snapshotComponent.addElement();
+
+        patientName_Name_Family_Ext_Nachname.setId("Patient.name:name.family.extension:nachname");
+        patientName_Name_Family_Ext_Nachname.getPathElement().setValue(
+                "Patient.name.family.extension");
+        patientName_Name_Family_Ext_Nachname.getSliceNameElement()
+                .setValue("nachname");
+        patientName_Name_Family_Ext_Nachname.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientName_Name_Family_Ext_Namenszusatz_Value_X_ValueString(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientName_Name_Family_Ext_Namenszusatz_Value_X_ValueString =
+                snapshotComponent.addElement();
+
+        patientName_Name_Family_Ext_Namenszusatz_Value_X_ValueString.setId(
+                "Patient.name:name.family.extension:namenszusatz.value[x]:valueString");
+        patientName_Name_Family_Ext_Namenszusatz_Value_X_ValueString.getPathElement().setValue(
+                "Patient.name.family.extension.value[x]");
+        patientName_Name_Family_Ext_Namenszusatz_Value_X_ValueString.getSliceNameElement()
+                .setValue("valueString");
+        patientName_Name_Family_Ext_Namenszusatz_Value_X_ValueString.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientName_Name_Family_Ext_Namenszusatz_Value_X(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientName_Name_Family_Ext_Namenszusatz_Value_x =
+                snapshotComponent.addElement();
+
+        patientName_Name_Family_Ext_Namenszusatz_Value_x.setId(
+                "Patient.name:name.family.extension:namenszusatz.value[x]");
+        patientName_Name_Family_Ext_Namenszusatz_Value_x.getPathElement().setValue(
+                "Patient.name.family.extension.value[x]");
+        patientName_Name_Family_Ext_Namenszusatz_Value_x.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientName_Name_Family_Ext_Namenszusatz(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientName_Name_Family_Ext_Namenszusatz = snapshotComponent.addElement();
+
+        patientName_Name_Family_Ext_Namenszusatz.setId(
+                "Patient.name:name.family.extension:namenszusatz");
+        patientName_Name_Family_Ext_Namenszusatz.getPathElement().setValue(
+                "Patient.name.family.extension");
+        patientName_Name_Family_Ext_Namenszusatz.getSliceNameElement().setValue("namenszusatz");
+        patientName_Name_Family_Ext_Namenszusatz.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientName_Name_Family(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientName_Name_Family = snapshotComponent.addElement();
+
+        patientName_Name_Family.setId("Patient.name:name.family");
+        patientName_Name_Family.getPathElement().setValue("Patient.name.family");
+        patientName_Name_Family.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientName_Name_Use(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientName_Name_Use = snapshotComponent.addElement();
+
+        patientName_Name_Use.setId("Patient.name:name.use");
+        patientName_Name_Use.getPathElement().setValue("Patient.name.use");
+        patientName_Name_Use.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientName_Name(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientName_Name = snapshotComponent.addElement();
+
+        patientName_Name.setId("Patient.name");
+        patientName_Name.getPathElement().setValue("Patient.name");
+        patientName_Name.getSliceNameElement().setValue("name");
+        patientName_Name.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientName(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientName = snapshotComponent.addElement();
+
+        patientName.setId("Patient.name");
+        patientName.getPathElement().setValue("Patient.name");
+        patientName.getMaxElement().setValue("1");
+        patientName.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientIdentifierVersichertennummer_KVK_Type_Coding_Code(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientIdentifierVersichertennummer_KVK_Type_Coding_Code =
+                snapshotComponent.addElement();
+
+        patientIdentifierVersichertennummer_KVK_Type_Coding_Code.setId(
+                "Patient.identifier:versichertennummer_kvk.type.coding.code");
+        patientIdentifierVersichertennummer_KVK_Type_Coding_Code.getPathElement().setValue(
+                "Patient.identifier.type.coding.code");
+        patientIdentifierVersichertennummer_KVK_Type_Coding_Code.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientIdentifierVersichertennummer_KVK_Type_Coding_System(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientIdentifierVersichertennummer_KVK_Type_Coding_System =
+                snapshotComponent.addElement();
+
+        patientIdentifierVersichertennummer_KVK_Type_Coding_System.setId(
+                "Patient.identifier:versichertennummer_kvk.type.coding.system");
+        patientIdentifierVersichertennummer_KVK_Type_Coding_System.getPathElement().setValue(
+                "Patient.identifier.type.coding.system");
+        patientIdentifierVersichertennummer_KVK_Type_Coding_System.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientIdentifierVersichertennummer_KVK_Type_Coding(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientIdentifierVersichertennummer_KVK_Type_Coding =
+                snapshotComponent.addElement();
+
+        patientIdentifierVersichertennummer_KVK_Type_Coding.setId(
+                "Patient.identifier:versichertennummer_kvk.type.coding");
+        patientIdentifierVersichertennummer_KVK_Type_Coding.getPathElement().setValue(
+                "Patient.identifier.type.coding");
+        patientIdentifierVersichertennummer_KVK_Type_Coding.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientIdentifierVersichertennummer_KVK_Type(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientIdentifierVersichertennummer_KVK_Type =
+                snapshotComponent.addElement();
+
+        patientIdentifierVersichertennummer_KVK_Type.setId("Patient.identifier:versichertennummer_kvk");
+        patientIdentifierVersichertennummer_KVK_Type.getPathElement().setValue("Patient.identifier.type");
+        patientIdentifierVersichertennummer_KVK_Type.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientIdentifierVersichertennummer_KVK(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientIdentifierVersichertennummer_KVK =
+                snapshotComponent.addElement();
+
+        patientIdentifierVersichertennummer_KVK.setId("Patient.identifier:versichertennummer_kvk");
+        patientIdentifierVersichertennummer_KVK.getPathElement().setValue("Patient.identifier");
+        patientIdentifierVersichertennummer_KVK.getSliceNameElement().setValue("versichertennummer_kvk");
+        patientIdentifierVersichertennummer_KVK.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientIdentifierVersichertennummer_PKV_Assigner_Display(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientIdentifierVersichertennummer_PKV_Assigner_Display =
+                snapshotComponent.addElement();
+
+        patientIdentifierVersichertennummer_PKV_Assigner_Display.setId(
+                "Patient.identifier:versichertennummer_pkv.assigner.display");
+
+        patientIdentifierVersichertennummer_PKV_Assigner_Display.getPathElement().setValue(
+                "Patient.identifier.assigner.display");
+
+        patientIdentifierVersichertennummer_PKV_Assigner_Display.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientIdentifierVersichertennummer_PKV_Assigner(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientIdentifierVersichertennummer_PKV_Assigner =
+                snapshotComponent.addElement();
+
+        patientIdentifierVersichertennummer_PKV_Assigner.setId(
+                "Patient.identifier:versichertennummer_pkv.assigner");
+
+        patientIdentifierVersichertennummer_PKV_Assigner.getPathElement().setValue(
+                "Patient.identifier.assigner");
+
+        patientIdentifierVersichertennummer_PKV_Assigner.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientIdentifierVersichertennummer_PKV_Value(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientIdentifierVersichertennummer_PKV_Value =
+                snapshotComponent.addElement();
+
+        patientIdentifierVersichertennummer_PKV_Value.setId(
+                "Patient.identifier:versichertennummer_pkv.value");
+
+        patientIdentifierVersichertennummer_PKV_Value.getPathElement().setValue(
+                "Patient.identifier.value");
+
+        patientIdentifierVersichertennummer_PKV_Value.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientIdentifierVersichertennummer_PKV_System(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientIdentifierVersichertennummer_PKV_System =
+                snapshotComponent.addElement();
+
+        patientIdentifierVersichertennummer_PKV_System.setId(
+                "Patient.identifier:versichertennummer_pkv.system");
+
+        patientIdentifierVersichertennummer_PKV_System.getPathElement().setValue(
+                "Patient.identifier.system");
+
+        patientIdentifierVersichertennummer_PKV_System.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientIdentifierVersichertennummer_PKV_Type_Coding_Code(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientIdentifierVersichertennummer_PKV_Type_Coding_Code =
+                snapshotComponent.addElement();
+
+        patientIdentifierVersichertennummer_PKV_Type_Coding_Code.setId(
+                "Patient.identifier:versichertennummer_pkv.type.coding.code");
+
+        patientIdentifierVersichertennummer_PKV_Type_Coding_Code.getPathElement().setValue(
+                "Patient.identifier.type.coding.code");
+
+        patientIdentifierVersichertennummer_PKV_Type_Coding_Code.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientIdentifierVersichertennummer_PKV_Type_Coding_System(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientIdentifierVersichertennummer_PKV_Type_Coding_System =
+                snapshotComponent.addElement();
+
+        patientIdentifierVersichertennummer_PKV_Type_Coding_System.setId(
+                "Patient.identifier:versichertennummer_pkv.type.coding.system");
+
+        patientIdentifierVersichertennummer_PKV_Type_Coding_System.getPathElement().setValue(
+                "Patient.identifier.type.coding.system");
+
+        patientIdentifierVersichertennummer_PKV_Type_Coding_System.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientIdentifierVersichertennummer_PKV_Type_Coding (
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientIdentifierVersichertennummer_PKV_Type_Coding =
+                snapshotComponent.addElement();
+
+        patientIdentifierVersichertennummer_PKV_Type_Coding.setId(
+                "Patient.identifier:versichertennummer_pkv.type.coding");
+
+        patientIdentifierVersichertennummer_PKV_Type_Coding.getPathElement().setValue(
+                "Patient.identifier.type.coding");
+
+        patientIdentifierVersichertennummer_PKV_Type_Coding.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientIdentifierVersichertennummer_PKV_Type(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientIdentifierVersichertennummer_PKV_Type =
+                snapshotComponent.addElement();
+
+        patientIdentifierVersichertennummer_PKV_Type.setId(
+                "Patient.identifier:versichertennummer_pkv.type");
+
+        patientIdentifierVersichertennummer_PKV_Type.getPathElement().setValue(
+                "Patient.identifier.type");
+
+        patientIdentifierVersichertennummer_PKV_Type.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientIdentifierVersichertenId_GKV_Value(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientIdentifierVersichertenId_GKV_Value =
+                snapshotComponent.addElement();
+
+        patientIdentifierVersichertenId_GKV_Value.setId(
+                "Patient.identifier:versichertenId_GKV.value");
+
+        patientIdentifierVersichertenId_GKV_Value.getPathElement().setValue(
+                "Patient.identifier.value");
+
+        patientIdentifierVersichertenId_GKV_Value.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientIdentifierVersichertenId_GKV_System(
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientIdentifierVersichertenId_GKV_System =
+                snapshotComponent.addElement();
+
+        patientIdentifierVersichertenId_GKV_System.setId(
+                "Patient.identifier:versichertenId_GKV.system");
+
+        patientIdentifierVersichertenId_GKV_System.getPathElement().setValue(
+                "Patient.identifier.system");
+
+        patientIdentifierVersichertenId_GKV_System.getMustSupportElement().setValue(true);
+    }
+
+    protected void initElementPatientIdentifierVersichertennummer_PKV (
+            StructureDefinition.StructureDefinitionSnapshotComponent snapshotComponent) {
+        ElementDefinition patientIdentifierVersichertennummer_PKV = snapshotComponent.addElement();
+
+        patientIdentifierVersichertennummer_PKV.setId("Patient.identifier:versichertennummer_pkv");
+
+        patientIdentifierVersichertennummer_PKV.getPathElement().setValue("Patient.identifier");
+        patientIdentifierVersichertennummer_PKV.getSliceNameElement().setValue(
+                "versichertennummer_pkv");
+        patientIdentifierVersichertennummer_PKV.getMustSupportElement().setValue(true);
     }
 
     protected void initElementPatientBirthDate_Ext_Data_Absent_Reason (
