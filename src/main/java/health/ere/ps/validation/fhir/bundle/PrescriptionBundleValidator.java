@@ -42,7 +42,12 @@ public class PrescriptionBundleValidator {
         PrePopulatedValidationSupport prePopulatedSupport = new PrePopulatedValidationSupport(ctx);
 
 //        prePopulatedSupport.addStructureDefinition(new KBV_PR_ERP_Composition_StructureDefinition());
-        prePopulatedSupport.addStructureDefinition(new KBV_PR_FOR_Patient_StructureDefinition());
+        KBV_PR_FOR_Patient_StructureDefinition patientFhirStructureDefinition =
+                new KBV_PR_FOR_Patient_StructureDefinition();
+
+        patientFhirStructureDefinition.initAllElements();
+
+        prePopulatedSupport.addStructureDefinition(patientFhirStructureDefinition);
 
 //        prePopulatedSupport.addCodeSystem(new IdentifierTypeDeBasisCodeSystem());
 //        prePopulatedSupport.addCodeSystem(new KBV_CS_SFHIR_KBV_FORMULAR_ART_CodeSystem());
