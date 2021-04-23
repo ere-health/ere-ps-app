@@ -18,6 +18,13 @@ import javax.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class Muster16FormDataExtractorService {
     public static String extractData(InputStream muster16PdfFile) throws IOException {
+        PDDocument document = createDocumentRotate90(muster16PdfFile);
+        String text = new PDFTextStripper().getText(document);
+
+        return text;
+    }
+
+    public static PDDocument createDocumentRotate90(InputStream muster16PdfFile) throws IOException {
         PDDocument document = PDDocument.load(muster16PdfFile);
         PDPage page = document.getDocumentCatalog().getPages().get(0);
         PDPageContentStream cs = new PDPageContentStream(document, page, PDPageContentStream.AppendMode.PREPEND, false,
@@ -29,9 +36,7 @@ public class Muster16FormDataExtractorService {
         cs.transform(Matrix.getRotateInstance(Math.toRadians(90), 0, 0));
         cs.transform(Matrix.getTranslateInstance(-tx, -ty));
         cs.close();
-        String text = new PDFTextStripper().getText(document);
-
-        return text;
+        return document;
     }
 
     public Muster16PrescriptionForm extractData(String muster16PdfFileData) {
