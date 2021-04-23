@@ -1,0 +1,28 @@
+module health.ere.ps {
+    requires java.base;
+    requires java.xml;
+    requires java.logging;
+    requires java.desktop;
+    requires org.hl7.fhir.r4;
+    requires org.hl7.fhir.utilities;
+    requires hapi.fhir.base;
+    requires hapi.fhir.validation;
+    requires hapi.fhir.structures.r4;
+    requires java.ws.rs;
+    requires org.apache.pdfbox;
+    requires jakarta.enterprise.cdi.api;
+    requires jakarta.inject.api;
+    requires jakarta.websocket.api;
+    requires java.annotation;
+    requires fop;
+    requires xmlgraphics.commons;
+    requires jipp.core;
+    requires kotlin.stdlib;
+
+    opens health.ere.ps.service.fhir.bundle;
+    opens health.ere.ps.service.muster16;
+    opens health.ere.ps.resource;
+
+    exports health.ere.ps.validation.fhir.structuredefinition.fhir.kbv.de.v1_0_1;
+
+}
