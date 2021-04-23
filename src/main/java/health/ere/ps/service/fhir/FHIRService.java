@@ -6,9 +6,8 @@ import health.ere.ps.model.muster16.Muster16PrescriptionForm;
 import health.ere.ps.service.fhir.bundle.PrescriptionBundleBuilder;
 
 import org.hl7.fhir.r4.model.Bundle;
-import org.jboss.logmanager.Level;
-
 import java.text.ParseException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -35,7 +34,7 @@ public class FHIRService {
             Bundle bundle = bundleBuilder.createBundle();
             bundleEvent.fire(new BundleEvent(bundle));
         } catch (ParseException e) {
-            log.log(Level.ERROR,
+            log.log(Level.SEVERE,
                     "Exception encountered while generating e-prescription bundle.", e);
             //TODO: Send/publish error notification
         }
