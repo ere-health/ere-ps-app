@@ -43,9 +43,9 @@
      inkscape:window-height="1025"
      id="namedview4"
      showgrid="false"
-     inkscape:zoom="1.682015"
-     inkscape:cx="248.04601"
-     inkscape:cy="138.97284"
+     inkscape:zoom="6.72806"
+     inkscape:cx="408.56777"
+     inkscape:cy="311.3851"
      inkscape:window-x="67"
      inkscape:window-y="27"
      inkscape:window-maximized="1"
@@ -95,6 +95,7 @@
      sodipodi:role="line"
      id="tspan42">frei</tspan></text>
 
+
 <path
    d="m 8.773,241.413 h 13.635 v 13.634 H 8.773 Z"
    style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
@@ -116,6 +117,7 @@
      sodipodi:role="line"
      id="tspan52">pfl.</tspan></text>
 
+
 <path
    d="m 8.773,223.342 h 13.635 v 13.635 H 8.773 Z"
    style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
@@ -132,6 +134,7 @@
      y="0"
      sodipodi:role="line"
      id="tspan60">noctu</tspan></text>
+
 
 <path
    d="m 8.773,199.247 h 13.635 v 13.635 H 8.773 Z"
@@ -150,6 +153,7 @@
      sodipodi:role="line"
      id="tspan68">Sonstige</tspan></text>
 
+
 <path
    d="m 8.773,175.153 h 13.635 v 13.635 H 8.773 Z"
    style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
@@ -166,6 +170,7 @@
      y="0"
      sodipodi:role="line"
      id="tspan76">Unfall</tspan></text>
+
 
 <path
    d="m 8.773,151.059 h 13.635 v 13.634 H 8.773 Z"
@@ -188,6 +193,7 @@
      sodipodi:role="line"
      id="tspan86">unfall</tspan></text>
 
+
 <path
    d="m 8.773,114.917 h 13.635 v 13.634 H 8.773 Z"
    style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
@@ -208,6 +214,7 @@
      y="5.6700001"
      sodipodi:role="line"
      id="tspan96">idem</tspan></text>
+
 
 <path
    d="m 8.773,90.822 h 13.635 v 13.635 H 8.773 Z"
@@ -230,6 +237,7 @@
      sodipodi:role="line"
      id="tspan106">idem</tspan></text>
 
+
 <path
    d="M 8.773,66.728 H 22.408 V 80.362 H 8.773 Z"
    style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
@@ -251,6 +259,7 @@
      sodipodi:role="line"
      id="tspan116">idem</tspan></text>
 
+
 <path
    d="M 8.773,9.851 H 200.679 V 37.347 H 8.773 Z"
    style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
@@ -268,6 +277,7 @@
      sodipodi:role="line"
      id="tspan124">666</tspan></text>
 
+
 <text
    transform="matrix(1,0,0,-1,33.5905,138.8352)"
    style="font-variant:normal;font-weight:bold;font-size:8px;font-family:HelveticaNeue;-inkscape-font-specification:HelveticaNeueLT-Bold;writing-mode:lr-tb;fill:#e82b25;fill-opacity:1;fill-rule:nonzero;stroke:none"
@@ -277,6 +287,7 @@
      sodipodi:role="line"
      id="tspan128">Rp.</tspan></text>
 
+
 <text
    transform="matrix(1,0,0,-1,47.7638,138.8352)"
    style="font-variant:normal;font-weight:normal;font-size:6px;font-family:HelveticaNeue;-inkscape-font-specification:HelveticaNeueLT-Roman;writing-mode:lr-tb;fill:#e82b25;fill-opacity:1;fill-rule:nonzero;stroke:none"
@@ -285,6 +296,7 @@
      y="0"
      sodipodi:role="line"
      id="tspan132">(Bitte Leerräume durchstreichen)</tspan></text>
+
 
 <text
    transform="matrix(1,0,0,-1,8.3498,47.5332)"
@@ -299,6 +311,7 @@
      sodipodi:role="line"
      id="tspan138">auszufüllen!</tspan></text>
 
+
 <text
    transform="matrix(1,0,0,-1,164.4098,56.0352)"
    style="font-variant:normal;font-weight:normal;font-size:6px;font-family:HelveticaNeue;-inkscape-font-specification:HelveticaNeueLT-Roman;writing-mode:lr-tb;fill:#e82b25;fill-opacity:1;fill-rule:nonzero;stroke:none"
@@ -311,6 +324,7 @@
      y="6.3779998"
      sodipodi:role="line"
      id="tspan144">in der Apotheke</tspan></text>
+
 
 <g
    id="g148"
@@ -332,6 +346,7 @@
      y="0"
      sodipodi:role="line"
      id="tspan156">UnfalltagUnfallbetrieb oder Arbeitgebernummer</tspan></text>
+
 
 <g
    id="g160"
@@ -355,6 +370,7 @@
      y="90"
      sodipodi:role="line"
      id="tspan168">Muster 16 (10.2014)</tspan></text>
+
 
 <path
    d="M 257.953,150.236 H 408.189 V 255.118 H 257.953 Z"
@@ -600,6 +616,7 @@
      y="0"
      sodipodi:role="line"
      id="tspan324">Gesamt-Brutto</tspan></text>
+
 
 <g
    id="g328"
@@ -848,6 +865,7 @@
      sodipodi:role="line"
      id="tspan480">Apotheken-Nummer / IK</tspan></text>
 
+
 <g
    id="g484"
    transform="translate(272.126,272.126)"><path
@@ -887,6 +905,7 @@
      sodipodi:role="line"
      id="tspan502">stoff</tspan></text>
 
+
 <text
    transform="matrix(0.85,0,0,-1,300.5394,278.0442)"
    style="font-variant:normal;font-weight:normal;font-size:5px;font-family:HelveticaNeue;-inkscape-font-specification:HelveticaNeueLT-Roman;writing-mode:lr-tb;fill:#e82b25;fill-opacity:1;fill-rule:nonzero;stroke:none"
@@ -900,6 +919,7 @@
      sodipodi:role="line"
      id="tspan508">Bedarf</tspan></text>
 
+
 <text
    transform="matrix(0.9,0,0,-1,320.3921,278.0442)"
    style="font-variant:normal;font-weight:normal;font-size:5px;font-family:HelveticaNeue;-inkscape-font-specification:HelveticaNeueLT-Roman;writing-mode:lr-tb;fill:#e82b25;fill-opacity:1;fill-rule:nonzero;stroke:none"
@@ -912,6 +932,7 @@
      y="4.96"
      sodipodi:role="line"
      id="tspan514">Pflicht</tspan></text>
+
 
 <g
    id="g518"
@@ -946,6 +967,7 @@
      sodipodi:role="line"
      id="tspan534">6789</tspan></text>
 
+
 <text
    transform="matrix(0.85,0,0,-1,259.2235,209.659)"
    style="font-variant:normal;font-weight:normal;font-size:5px;font-family:HelveticaNeue;-inkscape-font-specification:HelveticaNeueLT-Roman;writing-mode:lr-tb;fill:#e82b25;fill-opacity:1;fill-rule:nonzero;stroke:none"
@@ -962,6 +984,7 @@
      y="44.505001"
      sodipodi:role="line"
      id="tspan542">3. Verordnung</tspan></text>
+
 
 <path
    d="m 85.309,48.331 h 75.685 V 65.197 H 85.309 Z"
@@ -1058,6 +1081,7 @@
      sodipodi:role="line"
      id="tspan598">Krankenkasse bzw. Kostenträger</tspan></text>
 
+
 <text
    transform="matrix(1,0,0,-1,145.2394,280.6299)"
    style="font-variant:normal;font-weight:bold;font-size:11px;font-family:HelveticaNeue;-inkscape-font-specification:HelveticaNeueLT-Bold;writing-mode:lr-tb;fill:#e82b25;fill-opacity:1;fill-rule:nonzero;stroke:none"
@@ -1067,6 +1091,7 @@
      sodipodi:role="line"
      id="tspan602">Freigabe 01.09.2014</tspan></text>
 
+
 <text
    transform="matrix(0.93969996,0.34199998,0.34199998,-0.93969996,68.831,202.6003)"
    style="font-variant:normal;font-weight:bold;font-size:12.00000095px;font-family:HelveticaNeue;-inkscape-font-specification:HelveticaNeueLT-Bold;writing-mode:lr-tb;fill:#e82b25;fill-opacity:1;fill-rule:nonzero;stroke:none"
@@ -1075,6 +1100,7 @@
      y="0"
      sodipodi:role="line"
      id="tspan606">Verbindliches Muster</tspan></text>
+
 
 </g></g></g></g></g><g
      inkscape:groupmode="layer"
@@ -1086,18 +1112,18 @@
        height="27.046381"
        x="34.301334"
        y="29.644297" /><rect
-       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:0.97414434;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="nameAndAddress"
-       width="237.21548"
-       height="67.181328"
-       x="33.887924"
-       y="64.511192" /><rect
-       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       width="137.79117"
+       height="75.127991"
+       x="34.301334"
+       y="56.690678" /><rect
+       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1.02329183;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="birthdate"
-       width="64.960373"
-       height="46.367249"
-       x="271.41696"
-       y="85.914093" /><rect
+       width="164.28482"
+       height="75.04689"
+       x="172.09251"
+       y="56.771778" /><rect
        style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="withoutPayment"
        width="18.745333"
@@ -1152,10 +1178,10 @@
        height="18.746666"
        x="11.414668"
        y="289.41733" /><rect
-       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:0.98991984;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="accidentDate"
        width="74.691101"
-       height="28.316463"
+       height="27.74847"
        x="12.030234"
        y="355.96753" /><rect
        style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
@@ -1164,52 +1190,52 @@
        height="27.748463"
        x="86.721336"
        y="355.96753" /><rect
-       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1.02218711;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="payor"
-       width="105.82534"
-       height="22.146748"
-       x="34.015999"
-       y="142.26126" /><rect
-       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       width="97.687714"
+       height="22.183846"
+       x="33.997448"
+       y="142.24271" /><rect
+       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:0.9845556;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="insuranceNumber"
-       width="124.72533"
-       height="22.148073"
-       x="139.84134"
-       y="142.26126" /><rect
+       width="118.60626"
+       height="22.147583"
+       x="131.69153"
+       y="142.26152" /><rect
        style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="status"
-       width="71.810684"
+       width="85.390862"
        height="22.14674"
-       x="264.56665"
+       x="250.98648"
        y="142.26126" /><rect
-       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1.0205307;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="locationNumber"
-       width="105.25867"
-       height="21.826538"
-       x="34.584"
-       y="174.14146" /><rect
-       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       width="96.233406"
+       height="21.577013"
+       x="34.563377"
+       y="174.41161" /><rect
+       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:0.94915271;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="practitionerNumber"
-       width="105.25867"
-       height="21.826538"
-       x="140.41066"
-       y="174.70947" /><rect
-       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       width="95.154251"
+       height="21.577005"
+       x="130.79678"
+       y="174.41161" /><rect
+       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1.01276529;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="date"
-       width="89.983925"
-       height="22.009445"
-       x="245.57788"
-       y="174.61803" /><rect
-       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1.03252983;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       width="109.61078"
+       height="21.577011"
+       x="225.95103"
+       y="174.41161" /><rect
+       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="pharmacyDate"
        width="101.11219"
        height="23.328047"
        x="113.54519"
        y="309.72119" /><rect
-       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1.00673604;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="bvg"
-       width="18.745333"
-       height="22.799643"
+       width="18.897341"
+       height="22.921957"
        x="344.08932"
        y="33.8937" /><rect
        style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
@@ -1218,46 +1244,46 @@
        height="22.799643"
        x="362.98666"
        y="34.016014" /><rect
-       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1.00673604;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="vaccination"
-       width="18.745333"
-       height="22.799643"
-       x="381.884"
+       width="18.897341"
+       height="22.921957"
+       x="381.73199"
        y="33.893703" /><rect
-       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:0.98887795;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="sprBedarf"
-       width="18.745333"
+       width="18.330688"
        height="22.799643"
-       x="400.21466"
-       y="33.325703" /><rect
-       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       x="400.62933"
+       y="33.893703" /><rect
+       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:0.96002311;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="begrPflicht"
-       width="18.745333"
-       height="22.799643"
-       x="426.672"
-       y="33.325703" /><rect
-       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       width="18.046675"
+       height="21.826666"
+       x="427.37067"
+       y="34.298679" /><rect
+       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1.02569747;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="pharmayNumber"
-       width="89.15966"
-       height="21.573708"
-       x="454.7236"
-       y="35.195648" /><rect
-       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       width="90.05661"
+       height="22.470676"
+       x="453.82666"
+       y="34.298679" /><rect
+       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:0.99504173;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="additionalPayment"
-       width="73.374657"
-       height="29.101332"
-       x="343.40134"
-       y="66.709343" /><rect
-       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       width="72.636459"
+       height="29.106291"
+       x="344.14203"
+       y="66.706863" /><rect
+       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1.01312757;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="grossTotal"
-       width="126.57601"
-       height="28.231998"
-       x="416.23999"
+       width="126.04"
+       height="29.101332"
+       x="416.776"
        y="66.709343" /><rect
-       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1.03237081;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="prescription1"
-       width="120.54385"
-       height="17.801538"
+       width="120.52837"
+       height="18.97513"
        x="344.35428"
        y="112.36354" /><rect
        style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
@@ -1272,11 +1298,11 @@
        height="18.959688"
        x="344.36838"
        y="177.57498" /><rect
-       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1.01403511;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="factor1"
-       width="23.545023"
-       height="17.73119"
-       x="464.16965"
+       width="22.832016"
+       height="18.801769"
+       x="464.88266"
        y="112.5369" /><rect
        style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="factor2"
@@ -1290,11 +1316,11 @@
        height="18.959696"
        x="464.88132"
        y="177.57498" /><rect
-       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1.02640462;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="tax1"
-       width="55.639839"
-       height="18.012753"
-       x="488.2645"
+       width="56.189674"
+       height="18.790859"
+       x="487.71466"
        y="112.54781" /><rect
        style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="tax2"
@@ -1302,18 +1328,18 @@
        height="19.513245"
        x="487.55865"
        y="143.9521" /><rect
-       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:0.99332571;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="tax3"
-       width="56.787682"
-       height="19.184769"
-       x="487.46432"
-       y="177.35124" /><rect
-       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1.07949781;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       width="56.693352"
+       height="18.961029"
+       x="487.55865"
+       y="177.57498" /><rect
+       style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1.00307262;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="practitionerText"
-       width="166.24466"
-       height="95.809921"
-       x="383.28256"
-       y="214.92142" /><rect
+       width="166.24159"
+       height="96.401375"
+       x="383.28409"
+       y="214.32843" /><rect
        style="opacity:1;fill:none;fill-opacity:0.86666667;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="medication"
        width="338.23422"

@@ -3,6 +3,7 @@ package health.ere.ps.service.extractor;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -12,9 +13,24 @@ class SVGExtractorTest {
 
     @Test
     void testExtract() throws URISyntaxException {
-        SVGExtractor svgExtractor = new SVGExtractor(getClass().getResource("/svg-extract-templates/Muster-16-Template.svg").toURI());
+        SVGExtractor svgExtractor = new SVGExtractor(getClass().getResource("/svg-extract-templates/Muster-16-Template.svg").toURI(), true);
         Map<String, String> map = svgExtractor.extract(getClass().getResourceAsStream("/muster-16-print-samples/cgm-z1-manuel-blechschmidt.pdf"));
-        // assertEquals("insurance=\nautIdem3=\ndate=\nnoctu=\nother=\nbirthdate=\npharmacyDate=\ngrossTotal=\naccident=\ntax1=\npractitionerText=\ninsuranceNumber=\ntax2=\nbvg=\npayor=\nprescription1=\npharmayNumber=\nprescription2=\nprescription3=\nautIdem1=\ntax3=\nwithPayment=\nautIdem2=\naccidentDate=Dr. Zahn\nadditionalPayment=\nwithoutPayment=\nworkAccident=\nfactor2=\nfactor1=\nmedication=\nnameAndAddress=\nsprBedarf=\nfactor3=\naccidentOrganization=lin 1000mg N2\nh alle 8 Std\nbegrPflicht=\npractitionerNumber=\nlocationNumber=\naid=\nstatus=\nvaccination=", map.entrySet().stream().map((e) -> e.getKey()+"="+e.getValue()).collect(Collectors.joining("\n")));
+
+        // System.out.println(map.entrySet().stream().map((e) -> "        assertEquals(\""+e.getValue().replaceAll("\n", "\\\\n")+"\", map.get(\""+e.getKey()+"\"));").collect(Collectors.joining("\n")));
+        
+        assertEquals("\n", map.get("factor1"));
+        assertEquals("Amoxicillin 1000mg N2\n3x täglich alle 8 Std\n-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -\n", map.get("medication"));
+        assertEquals("Blechschmidt\nManuel               \nDroysenstr. 7\nD 10629 Berlin   \n", map.get("nameAndAddress"));
+        assertEquals("\n", map.get("sprBedarf"));
+        assertEquals("\n", map.get("factor3"));
+        assertEquals("\n", map.get("accidentOrganization"));
+        assertEquals("\n", map.get("begrPflicht"));
+        assertEquals("30001234  \n", map.get("practitionerNumber"));
+        assertEquals(" 30001234  \n", map.get("locationNumber"));
+        assertEquals("\n", map.get("aid"));
+        assertEquals("1000000\n", map.get("status"));
+        assertEquals("\n", map.get("vaccination"));
+ 
     }
 
 }
