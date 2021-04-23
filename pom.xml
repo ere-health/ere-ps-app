@@ -188,11 +188,14 @@
             <artifactId>quarkus-junit5</artifactId>
             <scope>test</scope>
         </dependency>
+        <!--
+            Produces: Modules com.sun.xml.bind and com.sun.istack.runtime export package com.sun.istack.localization to module fop
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
             <scope>test</scope>
         </dependency>
+    -->
     </dependencies>
     <build>
         <plugins>
