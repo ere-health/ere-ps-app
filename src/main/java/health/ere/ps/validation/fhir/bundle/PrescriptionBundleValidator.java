@@ -7,17 +7,12 @@ import org.hl7.fhir.common.hapi.validation.support.PrePopulatedValidationSupport
 import org.hl7.fhir.common.hapi.validation.support.ValidationSupportChain;
 import org.hl7.fhir.common.hapi.validation.validator.FhirInstanceValidator;
 import org.hl7.fhir.instance.model.api.IBaseResource;
-import org.hl7.fhir.r4.model.CodeSystem;
-import org.hl7.fhir.r4.model.Enumerations;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.context.support.DefaultProfileValidationSupport;
 import ca.uhn.fhir.validation.FhirValidator;
 import ca.uhn.fhir.validation.SingleValidationMessage;
 import ca.uhn.fhir.validation.ValidationResult;
-import health.ere.ps.validation.fhir.codesystem.IdentifierTypeDeBasisCodeSystem;
-import health.ere.ps.validation.fhir.codesystem.v1_01.KBV_CS_SFHIR_KBV_FORMULAR_ART_CodeSystem;
-import health.ere.ps.validation.fhir.structuredefinition.fhir.kbv.de.v1_0_1.KBV_PR_ERP_Composition_StructureDefinition;
 import health.ere.ps.validation.fhir.structuredefinition.fhir.kbv.de.v1_0_3.KBV_PR_FOR_Patient_StructureDefinition;
 
 public class PrescriptionBundleValidator {

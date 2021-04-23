@@ -105,7 +105,7 @@ public class PrescriptionBundleBuilder {
         return bundle;
     }
 
-    private String getDateFormat(String date) {
+    public static String getDateFormat(String date) {
         return date.length() == 8? DEFAULT_SHORT_DATE_FORMAT : DEFAULT_DATE_FORMAT;
     }
 
