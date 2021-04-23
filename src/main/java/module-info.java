@@ -22,7 +22,9 @@ module health.ere.ps {
     opens health.ere.ps.service.fhir.bundle;
     opens health.ere.ps.service.muster16;
     opens health.ere.ps.resource;
+    opens health.ere.ps.service.extractor;
 
     exports health.ere.ps.validation.fhir.structuredefinition.fhir.kbv.de.v1_0_1;
+    exports health.ere.ps.validation.fhir.structuredefinition.fhir.kbv.de.v1_0_3;
 
 }

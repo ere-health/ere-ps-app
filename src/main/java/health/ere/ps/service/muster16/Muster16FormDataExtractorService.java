@@ -27,15 +27,7 @@ public class Muster16FormDataExtractorService {
     public static PDDocument createDocumentRotate90(InputStream muster16PdfFile) throws IOException {
         PDDocument document = PDDocument.load(muster16PdfFile);
         PDPage page = document.getDocumentCatalog().getPages().get(0);
-        PDPageContentStream cs = new PDPageContentStream(document, page, PDPageContentStream.AppendMode.PREPEND, false,
-                false);
-        PDRectangle cropBox = page.getCropBox();
-        float tx = (cropBox.getLowerLeftX() + cropBox.getUpperRightX()) / 2;
-        float ty = (cropBox.getLowerLeftY() + cropBox.getUpperRightY()) / 2;
-        cs.transform(Matrix.getTranslateInstance(tx, ty));
-        cs.transform(Matrix.getRotateInstance(Math.toRadians(90), 0, 0));
-        cs.transform(Matrix.getTranslateInstance(-tx, -ty));
-        cs.close();
+        page.setRotation(90);
         return document;
     }
 
