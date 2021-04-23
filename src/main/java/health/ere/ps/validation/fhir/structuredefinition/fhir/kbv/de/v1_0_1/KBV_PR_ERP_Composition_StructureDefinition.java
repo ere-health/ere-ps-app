@@ -11,5 +11,7 @@ public class KBV_PR_ERP_Composition_StructureDefinition extends StructureDefinit
         setKind(StructureDefinition.StructureDefinitionKind.RESOURCE);
         setAbstract(false);
         setType("Composition");
+        setBaseDefinition("http://hl7.org/fhir/StructureDefinition/Composition");
+        setDerivation(TypeDerivationRule.CONSTRAINT);
     }
 }
