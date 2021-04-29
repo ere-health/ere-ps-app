@@ -33,9 +33,34 @@
     </dependencyManagement>
     <dependencies>
         <dependency>
+            <artifactId>commons-io</artifactId>
+            <groupId>commons-io</groupId>
+            <scope>test</scope>
+            <version>2.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.12.0</version>
+        </dependency>
+        <dependency>
+            <artifactId>bcpkix-jdk15on</artifactId>
+            <groupId>org.bouncycastle</groupId>
+        </dependency>
+        <dependency>
             <groupId>org.bitbucket.b_c</groupId>
             <artifactId>jose4j</artifactId>
             <version>0.7.7</version>
+        </dependency>
+        <dependency>
+            <artifactId>unirest-java</artifactId>
+            <groupId>com.konghq</groupId>
+            <version>3.7.04</version>
+        </dependency>
+        <dependency>
+            <artifactId>unirest-objectmapper-jackson</artifactId>
+            <groupId>com.konghq</groupId>
+            <version>3.11.09</version>
         </dependency>
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
