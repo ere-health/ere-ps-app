@@ -43,4 +43,20 @@ public class AuthenticationResponseBuilder {
             throw new RuntimeException(e);
         }
     }
+
+    public static AuthenticationResponseBuilderBuilder builder() {
+        return new AuthenticationResponseBuilderBuilder();
+    }
+
+    public static class AuthenticationResponseBuilderBuilder {
+        private AuthenticationResponseBuilder authenticationResponseBuilder;
+
+        public AuthenticationResponseBuilderBuilder() {
+            authenticationResponseBuilder = new AuthenticationResponseBuilder();
+        }
+
+        public AuthenticationResponseBuilder build() {
+            return authenticationResponseBuilder;
+        }
+    }
 }

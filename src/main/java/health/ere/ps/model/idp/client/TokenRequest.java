@@ -6,6 +6,10 @@ public class TokenRequest {
     private String tokenUrl;
     private String clientId;
     private String code;
+    private String codeVerifier;
+    private String redirectUrl;
+    private String ssoToken;
+    private PublicKey idpEnc;
 
     public TokenRequest(String tokenUrl, String clientId, String code, String codeVerifier,
                         String redirectUrl, String ssoToken, PublicKey idpEnc) {
@@ -19,11 +23,6 @@ public class TokenRequest {
     }
 
     public TokenRequest() {}
-
-    private String codeVerifier;
-    private String redirectUrl;
-    private String ssoToken;
-    private PublicKey idpEnc;
 
     public String getTokenUrl() {
         return tokenUrl;
@@ -79,5 +78,63 @@ public class TokenRequest {
 
     public void setIdpEnc(PublicKey idpEnc) {
         this.idpEnc = idpEnc;
+    }
+
+    public static TokenRequestBuilder builder() {
+        return new TokenRequestBuilder();
+    }
+
+    public static class TokenRequestBuilder {
+        private TokenRequest tokenRequest;
+
+        public TokenRequestBuilder() {
+            tokenRequest = new TokenRequest();
+        }
+
+        public TokenRequestBuilder tokenUrl(String tokenUrl) {
+            tokenRequest.setTokenUrl(tokenUrl);
+
+            return this;
+        }
+
+        public TokenRequestBuilder clientId(String clientId) {
+            tokenRequest.setClientId(clientId);
+
+            return this;
+        }
+
+        public TokenRequestBuilder code(String code) {
+            tokenRequest.setCode(code);
+
+            return this;
+        }
+
+        public TokenRequestBuilder codeVerifier(String codeVerifier) {
+            tokenRequest.setCodeVerifier(codeVerifier);
+
+            return this;
+        }
+
+        public TokenRequestBuilder redirectUrl(String redirectUrl) {
+            tokenRequest.setRedirectUrl(redirectUrl);
+
+            return this;
+        }
+
+        public TokenRequestBuilder ssoToken(String ssoToken) {
+            tokenRequest.setSsoToken(ssoToken);
+
+            return this;
+        }
+
+        public TokenRequestBuilder idpEnc(PublicKey idpEnc) {
+            tokenRequest.setIdpEnc(idpEnc);
+
+            return this;
+        }
+
+        public TokenRequest build() {
+            return tokenRequest;
+        }
     }
 }
