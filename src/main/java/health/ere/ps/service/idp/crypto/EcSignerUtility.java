@@ -1,7 +1,4 @@
-
 package health.ere.ps.service.idp.crypto;
-
-import de.gematik.idp.crypto.exceptions.IdpCryptoException;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -10,11 +7,13 @@ import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import health.ere.ps.exception.idp.crypto.IdpCryptoException;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EcSignerUtility {
+
+    private EcSignerUtility() {
+
+    }
 
     public static byte[] createEcSignature(final byte[] toBeSignedData, final PrivateKey privateKey) {
         try {

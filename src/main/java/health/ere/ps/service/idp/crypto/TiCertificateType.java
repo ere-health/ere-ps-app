@@ -1,4 +1,3 @@
-
 package health.ere.ps.service.idp.crypto;
 
 import java.security.cert.X509Certificate;

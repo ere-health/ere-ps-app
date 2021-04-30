@@ -1,7 +1,4 @@
-
 package health.ere.ps.service.idp.crypto;
-
-import de.gematik.idp.crypto.exceptions.IdpCryptoException;
 
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x509.CertificatePolicies;
@@ -13,18 +10,19 @@ import java.io.IOException;
 import java.security.cert.X509Certificate;
 import java.util.stream.Stream;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
+import health.ere.ps.exception.idp.crypto.IdpCryptoException;
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CertificateAnalysis {
 
     private static final String OID_HBA_AUT = "1.2.276.0.76.4.75"; // A_4445, gemSpec_oid
     private static final String OID_SMC_B_AUT = "1.2.276.0.76.4.77"; // A_4445, gemSpec_oid
     private static final String OID_EGK_AUT = "1.2.276.0.76.4.70"; // A_4445, gemSpec_oid
 
+    private CertificateAnalysis() {
+    }
+
     public static boolean doesCertificateContainPolicyExtensionOid(final X509Certificate certificate,
-        final ASN1ObjectIdentifier policyOid) {
+                                                                   final ASN1ObjectIdentifier policyOid) {
         try {
             final byte[] policyBytes = certificate.getExtensionValue(Extension.certificatePolicies.toString());
             if (policyBytes == null) {
@@ -42,16 +40,16 @@ public class CertificateAnalysis {
     }
 
 
-    public static de.gematik.idp.crypto.TiCertificateType determineCertificateType(final X509Certificate certificate) {
+    public static TiCertificateType determineCertificateType(final X509Certificate certificate) {
         if (doesCertificateContainPolicyExtensionOid(certificate, new ASN1ObjectIdentifier(OID_HBA_AUT))) {
-            return de.gematik.idp.crypto.TiCertificateType.HBA;
+            return TiCertificateType.HBA;
         }
         if (doesCertificateContainPolicyExtensionOid(certificate, new ASN1ObjectIdentifier(OID_SMC_B_AUT))) {
-            return de.gematik.idp.crypto.TiCertificateType.SMCB;
+            return TiCertificateType.SMCB;
         }
         if (doesCertificateContainPolicyExtensionOid(certificate, new ASN1ObjectIdentifier(OID_EGK_AUT))) {
-            return de.gematik.idp.crypto.TiCertificateType.EGK;
+            return TiCertificateType.EGK;
         }
-        return de.gematik.idp.crypto.TiCertificateType.UNKNOWN;
+        return TiCertificateType.UNKNOWN;
     }
 }

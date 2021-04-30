@@ -1,7 +1,4 @@
-
 package health.ere.ps.service.idp.crypto;
-
-import de.gematik.idp.crypto.exceptions.IdpCryptoException;
 
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
@@ -26,24 +23,20 @@ import java.util.stream.Stream;
 
 import javax.security.auth.x500.X500Principal;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
+import health.ere.ps.exception.idp.crypto.IdpCryptoException;
+import health.ere.ps.model.idp.crypto.CertificateExtractedFieldEnum;
 
-import static de.gematik.idp.crypto.CertificateAnalysis.determineCertificateType;
-import static de.gematik.idp.crypto.model.CertificateExtractedFieldEnum.*;
-import static de.gematik.idp.crypto.model.CertificateExtractedFieldEnum.FAMILY_NAME;
-import static de.gematik.idp.crypto.model.CertificateExtractedFieldEnum.GIVEN_NAME;
-import static de.gematik.idp.crypto.model.CertificateExtractedFieldEnum.ID_NUMMER;
-import static de.gematik.idp.crypto.model.CertificateExtractedFieldEnum.ORGANIZATION_NAME;
-import static de.gematik.idp.crypto.model.CertificateExtractedFieldEnum.PROFESSION_OID;
 
 /**
  * Implements the extraction of claims from certificates according to A_20524
  */
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class X509ClaimExtraction {
 
     private static final int KVNR_LENGTH = 10; // gemSpec_PKI, 4.2
+
+    private X509ClaimExtraction() {
+
+    }
 
     /**
      * Detects the certificate-type and returns a key/value store for claims and the corresponding values.
@@ -57,37 +50,37 @@ public class X509ClaimExtraction {
 
     public static Map<String, Object> extractClaimsFromCertificate(final X509Certificate certificate) {
         final HashMap<String, Object> claimMap = new HashMap<>();
-        final de.gematik.idp.crypto.TiCertificateType certificateType = determineCertificateType(certificate);
-        claimMap.put(GIVEN_NAME.getFieldname(),
+        final TiCertificateType certificateType = TiCertificateType.determineCertificateType(certificate);
+        claimMap.put(CertificateExtractedFieldEnum.GIVEN_NAME.getFieldname(),
             getValueFromDn(certificate.getSubjectX500Principal(), RFC4519Style.givenName)
                 .orElse(null));
-        claimMap.put(FAMILY_NAME.getFieldname(), getValueFromDn(certificate.getSubjectX500Principal(), RFC4519Style.sn)
+        claimMap.put(CertificateExtractedFieldEnum.FAMILY_NAME.getFieldname(), getValueFromDn(certificate.getSubjectX500Principal(), RFC4519Style.sn)
             .orElse(null));
 
-        if (certificateType == de.gematik.idp.crypto.TiCertificateType.HBA) {
-            claimMap.put(ORGANIZATION_NAME.getFieldname(), null);
-        } else if (certificateType == de.gematik.idp.crypto.TiCertificateType.SMCB) {
-            claimMap.put(ORGANIZATION_NAME.getFieldname(),
+        if (certificateType == TiCertificateType.HBA) {
+            claimMap.put(CertificateExtractedFieldEnum.ORGANIZATION_NAME.getFieldname(), null);
+        } else if (certificateType == TiCertificateType.SMCB) {
+            claimMap.put(CertificateExtractedFieldEnum.ORGANIZATION_NAME.getFieldname(),
                 getValueFromDn(certificate.getSubjectX500Principal(), RFC4519Style.o)
                     .orElse(null));
-        } else if (certificateType == de.gematik.idp.crypto.TiCertificateType.EGK) {
-            claimMap.put(ORGANIZATION_NAME.getFieldname(),
+        } else if (certificateType == TiCertificateType.EGK) {
+            claimMap.put(CertificateExtractedFieldEnum.ORGANIZATION_NAME.getFieldname(),
                 getValueFromDn(certificate.getSubjectX500Principal(), RFC4519Style.o)
                     .orElse(null));
         }
 
-        claimMap.put(PROFESSION_OID.getFieldname(), getProfessionOid(certificate)
+        claimMap.put(CertificateExtractedFieldEnum.PROFESSION_OID.getFieldname(), getProfessionOid(certificate)
             .map(ASN1ObjectIdentifier::toString)
             .orElse(null));
 
-        if (certificateType == de.gematik.idp.crypto.TiCertificateType.HBA) {
-            claimMap.put(ID_NUMMER.getFieldname(), getRegistrationNumber(certificate)
+        if (certificateType == TiCertificateType.HBA) {
+            claimMap.put(CertificateExtractedFieldEnum.ID_NUMMER.getFieldname(), getRegistrationNumber(certificate)
                 .orElse(null));
-        } else if (certificateType == de.gematik.idp.crypto.TiCertificateType.SMCB) {
-            claimMap.put(ID_NUMMER.getFieldname(), getRegistrationNumber(certificate)
+        } else if (certificateType == TiCertificateType.SMCB) {
+            claimMap.put(CertificateExtractedFieldEnum.ID_NUMMER.getFieldname(), getRegistrationNumber(certificate)
                 .orElse(null));
-        } else if (certificateType == de.gematik.idp.crypto.TiCertificateType.EGK) {
-            claimMap.put(ID_NUMMER.getFieldname(),
+        } else if (certificateType == TiCertificateType.EGK) {
+            claimMap.put(CertificateExtractedFieldEnum.ID_NUMMER.getFieldname(),
                 getAllValuesFromDn(certificate.getSubjectX500Principal(), RFC4519Style.ou)
                     .stream()
                     .filter(ou -> ou.length() == KVNR_LENGTH)
