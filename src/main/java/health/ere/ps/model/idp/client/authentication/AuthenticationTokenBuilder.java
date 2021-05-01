@@ -15,6 +15,7 @@ import health.ere.ps.model.idp.client.IdpConstants;
 import health.ere.ps.model.idp.client.field.ClaimName;
 import health.ere.ps.model.idp.client.token.IdpJwe;
 import health.ere.ps.model.idp.client.token.JsonWebToken;
+import health.ere.ps.service.idp.client.authentication.AuthenticationChallengeVerifier;
 import health.ere.ps.service.idp.crypto.CryptoLoader;
 import health.ere.ps.service.idp.crypto.Nonce;
 import health.ere.ps.service.idp.crypto.X509ClaimExtraction;

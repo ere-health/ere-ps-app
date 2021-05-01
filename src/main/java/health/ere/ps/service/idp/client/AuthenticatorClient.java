@@ -9,7 +9,7 @@ import health.ere.ps.model.idp.client.IdpClientRuntimeException;
 import health.ere.ps.model.idp.client.IdpTokenResult;
 import health.ere.ps.model.idp.client.TokenRequest;
 import health.ere.ps.model.idp.client.authentication.AuthenticationChallenge;
-import health.ere.ps.model.idp.client.authentication.UriUtils;
+import health.ere.ps.service.idp.client.authentication.UriUtils;
 import health.ere.ps.model.idp.client.brainPoolExtension.BrainpoolCurves;
 
 import health.ere.ps.model.idp.client.field.IdpScope;
@@ -50,18 +50,8 @@ import kong.unirest.Unirest;
 import kong.unirest.jackson.JacksonObjectMapper;
 import kong.unirest.json.JSONObject;
 
-import static health.ere.ps.model.idp.client.authentication.UriUtils.extractParameterValue;
+import static health.ere.ps.service.idp.client.authentication.UriUtils.extractParameterValue;
 import static health.ere.ps.service.idp.crypto.CryptoLoader.getCertificateFromPem;
-import static health.ere.ps.model.idp.client.field.ClaimName.CLIENT_ID;
-import static health.ere.ps.model.idp.client.field.ClaimName.CODE_CHALLENGE;
-import static health.ere.ps.model.idp.client.field.ClaimName.CODE_CHALLENGE_METHOD;
-import static health.ere.ps.model.idp.client.field.ClaimName.CODE_VERIFIER;
-import static health.ere.ps.model.idp.client.field.ClaimName.REDIRECT_URI;
-import static health.ere.ps.model.idp.client.field.ClaimName.RESPONSE_TYPE;
-import static health.ere.ps.model.idp.client.field.ClaimName.SCOPE;
-import static health.ere.ps.model.idp.client.field.ClaimName.STATE;
-import static health.ere.ps.model.idp.client.field.ClaimName.TOKEN_KEY;
-import static health.ere.ps.model.idp.client.field.ClaimName.X509_CERTIFICATE_CHAIN;
 import static health.ere.ps.model.idp.client.field.ClaimName.CLIENT_ID;
 import static health.ere.ps.model.idp.client.field.ClaimName.CODE_CHALLENGE;
 import static health.ere.ps.model.idp.client.field.ClaimName.CODE_CHALLENGE_METHOD;

@@ -1,4 +1,4 @@
-package health.ere.ps.model.idp.client;
+package health.ere.ps.service.idp.client;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -14,9 +14,11 @@ import java.util.stream.Collectors;
 
 import javax.crypto.spec.SecretKeySpec;
 
+import health.ere.ps.model.idp.client.IdpConstants;
+import health.ere.ps.model.idp.client.IdpTokenResult;
 import health.ere.ps.model.idp.client.authentication.AuthenticationChallenge;
 import health.ere.ps.model.idp.client.authentication.AuthenticationChallengeBuilder;
-import health.ere.ps.model.idp.client.authentication.AuthenticationChallengeVerifier;
+import health.ere.ps.service.idp.client.authentication.AuthenticationChallengeVerifier;
 import health.ere.ps.model.idp.client.authentication.AuthenticationResponse;
 import health.ere.ps.model.idp.client.authentication.AuthenticationResponseBuilder;
 import health.ere.ps.model.idp.client.authentication.AuthenticationTokenBuilder;

@@ -1,4 +1,4 @@
-package health.ere.ps.model.idp.client.authentication;
+package health.ere.ps.service.idp.client.authentication;
 
 
 import java.net.URI;

@@ -1,4 +1,4 @@
-package health.ere.ps.model.idp.client;
+package health.ere.ps.service.idp.client;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -9,6 +9,8 @@ import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 import java.security.PublicKey;
 import java.util.Base64;
 import java.util.Locale;
+
+import health.ere.ps.model.idp.client.IdpClientRuntimeException;
 
 public class ClientUtilities {
     private static final String UPPER_CASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
