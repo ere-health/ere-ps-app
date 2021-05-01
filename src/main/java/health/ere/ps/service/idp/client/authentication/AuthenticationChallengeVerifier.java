@@ -1,5 +1,6 @@
-package health.ere.ps.model.idp.client.authentication;
+package health.ere.ps.service.idp.client.authentication;
 
+import health.ere.ps.model.idp.client.authentication.AuthenticationResponse;
 import health.ere.ps.model.idp.crypto.PkiIdentity;
 import health.ere.ps.exception.idp.ChallengeExpiredException;
 import health.ere.ps.exception.idp.ChallengeSignatureInvalidException;
