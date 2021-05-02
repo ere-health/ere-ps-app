@@ -35,9 +35,9 @@ public class SVGExtractor {
     private boolean debugRectangles = false;
     private static Logger log = Logger.getLogger(SVGExtractor.class.getName());
 
-    private static final float X_OFFSET = 370f;
-    private static final float Y_OFFSET = 150f;
-    private static final float SCALE = 0.75f;
+    private static final float X_OFFSET = -3f;
+    private static final float Y_OFFSET = -10f;
+    private static final float SCALE = 1f;
 
     public SVGExtractor(URI path, boolean debugRectangles) {
         this.path = path;
@@ -66,10 +66,10 @@ public class SVGExtractor {
                         rectFetchMode = true;
                     } else if(rectFetchMode && "rect".equals(localPart)) {
                         String id = startElement.getAttributeByName(new QName("id")).getValue();
-                        float x = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("x")).getValue())*SCALE+X_OFFSET;
-                        float y = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("y")).getValue())*SCALE+Y_OFFSET;
-                        float width = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("width")).getValue())*SCALE;
-                        float height = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("height")).getValue())*SCALE;
+                        float y = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("x")).getValue())*SCALE+X_OFFSET;
+                        float x = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("y")).getValue())*SCALE+Y_OFFSET;
+                        float height = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("width")).getValue())*SCALE;
+                        float width = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("height")).getValue())*SCALE;
                         if(debugRectangles) {
                             PDPageContentStream contentStream = new PDPageContentStream(document, document.getPage(0), AppendMode.APPEND, true);
                             contentStream.addRect(y, x, height, width);
