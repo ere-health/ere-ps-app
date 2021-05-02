@@ -84,7 +84,7 @@
                     </fo:table-cell>
                     <fo:table-cell width="auto">
                         <fo:block text-align="end">
-                            <fo:external-graphic content-height="3mm" content-width="scale-to-fit"
+                            <fo:external-graphic content-height="4mm" content-width="scale-to-fit"
                                                     src="url('img/logo.svg')"/>
                         </fo:block>
                     </fo:table-cell>
@@ -106,19 +106,19 @@
                         </fo:block>
                     </fo:table-cell>
                     <fo:table-cell width="auto" number-rows-spanned="5">
-                        <fo:block margin-left="12mm">
+                        <fo:block margin-left="4mm">
                             <fo:instream-foreign-object>
                                 <barcode:barcode>
                                     <xsl:attribute name="message">
-                                        <xsl:value-of select="//fhir:MedicationRequest/fhir:id/@value" />
+                                        {"urls":["Task/<xsl:value-of select="fhir:id/@value" />/$accept?ac=777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea"]}
                                     </xsl:attribute>
                                     <barcode:datamatrix>
-                                        <barcode:module-width>1mm</barcode:module-width>
+                                        <barcode:module-width>0.6mm</barcode:module-width>
                                     </barcode:datamatrix>
                                 </barcode:barcode>
                             </fo:instream-foreign-object>
                         </fo:block>
-                        <fo:block margin-left="12mm" font-size="4pt">
+                        <fo:block margin-left="4mm" font-size="4pt">
                             Sammelcode für alle Verordnungen
                         </fo:block>
                     </fo:table-cell>
@@ -185,10 +185,10 @@
                             <fo:instream-foreign-object>
                                 <barcode:barcode>
                                     <xsl:attribute name="message">
-                                        <xsl:value-of select="fhir:id/@value" />
+                                        {"urls":["Task/<xsl:value-of select="fhir:id/@value" />/$accept?ac=777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea"]}
                                     </xsl:attribute>
                                     <barcode:datamatrix>
-                                        <barcode:module-width>0.8mm</barcode:module-width>
+                                        <barcode:module-width>0.4mm</barcode:module-width>
                                     </barcode:datamatrix>
                                 </barcode:barcode>
                             </fo:instream-foreign-object>
