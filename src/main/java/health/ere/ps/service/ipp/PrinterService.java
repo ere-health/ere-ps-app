@@ -1,15 +1,15 @@
 package health.ere.ps.service.ipp;
 
-import health.ere.ps.event.NewMuster16FormEvent;
-import health.ere.ps.model.muster16.Muster16PrescriptionForm;
-import health.ere.ps.service.muster16.Muster16FormDataExtractorService;
-
 import java.io.IOException;
 import java.io.InputStream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+
+import health.ere.ps.event.NewMuster16FormEvent;
+import health.ere.ps.model.muster16.Muster16PrescriptionForm;
+import health.ere.ps.service.muster16.Muster16FormDataExtractorService;
 
 @ApplicationScoped
 public class PrinterService {

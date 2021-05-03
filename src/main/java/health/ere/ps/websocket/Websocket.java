@@ -1,9 +1,7 @@
 package health.ere.ps.websocket;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -12,13 +10,11 @@ import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
-import javax.websocket.server.PathParam;
+import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
 import ca.uhn.fhir.context.FhirContext;
 import health.ere.ps.event.BundleEvent;
-
-import javax.websocket.Session;
 
 @ServerEndpoint("/websocket")
 @ApplicationScoped
