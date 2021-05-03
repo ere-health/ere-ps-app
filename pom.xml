@@ -46,6 +46,12 @@
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>hapi-fhir-validation</artifactId>
             <version>5.3.0</version>
+            <exclusions>
+            	<exclusion>
+            		<groupId>xpp3</groupId>
+            		<artifactId>xpp3</artifactId>
+            	</exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>

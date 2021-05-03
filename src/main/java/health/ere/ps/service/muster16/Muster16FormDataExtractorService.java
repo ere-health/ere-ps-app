@@ -1,19 +1,16 @@
 package health.ere.ps.service.muster16;
 
-import health.ere.ps.model.muster16.Muster16PrescriptionForm;
-import health.ere.ps.service.muster16.parser.Muster16FormDataParser;
-
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.common.PDRectangle;
-import org.apache.pdfbox.text.PDFTextStripper;
-import org.apache.pdfbox.util.Matrix;
-
 import java.io.IOException;
 import java.io.InputStream;
 
 import javax.enterprise.context.ApplicationScoped;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.text.PDFTextStripper;
+
+import health.ere.ps.model.muster16.Muster16PrescriptionForm;
+import health.ere.ps.service.muster16.parser.Muster16FormDataParser;
 
 @ApplicationScoped
 public class Muster16FormDataExtractorService {

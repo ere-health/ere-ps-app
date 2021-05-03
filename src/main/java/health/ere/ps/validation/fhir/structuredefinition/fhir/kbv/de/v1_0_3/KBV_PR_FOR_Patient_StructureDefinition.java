@@ -1,10 +1,10 @@
 package health.ere.ps.validation.fhir.structuredefinition.fhir.kbv.de.v1_0_3;
 
+import java.util.Calendar;
+
 import org.hl7.fhir.r4.model.ElementDefinition;
 import org.hl7.fhir.r4.model.Enumerations;
 import org.hl7.fhir.r4.model.StructureDefinition;
-
-import java.util.Calendar;
 
 public class KBV_PR_FOR_Patient_StructureDefinition extends StructureDefinition {
 

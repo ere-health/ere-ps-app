@@ -1,17 +1,5 @@
 package health.ere.ps.resource;
 
-import health.ere.ps.service.ipp.PrinterService;import com.hp.jipp.encoding.Tag;
-import com.hp.jipp.encoding.IppInputStream;
-import com.hp.jipp.encoding.IppOutputStream;
-import com.hp.jipp.encoding.IppPacket;
-import com.hp.jipp.model.Operation;
-import com.hp.jipp.model.Status;
-import com.hp.jipp.trans.IppPacketData;
-import com.hp.jipp.trans.IppServerTransport;
-import com.hp.jipp.model.JobState;
-import com.hp.jipp.model.JobStateReason;
-import com.hp.jipp.model.Types;
-
 import static com.hp.jipp.encoding.AttributeGroup.groupOf;
 
 import java.io.ByteArrayOutputStream;
@@ -29,6 +17,20 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
+import com.hp.jipp.encoding.IppInputStream;
+import com.hp.jipp.encoding.IppOutputStream;
+import com.hp.jipp.encoding.IppPacket;
+import com.hp.jipp.encoding.Tag;
+import com.hp.jipp.model.JobState;
+import com.hp.jipp.model.JobStateReason;
+import com.hp.jipp.model.Operation;
+import com.hp.jipp.model.Status;
+import com.hp.jipp.model.Types;
+import com.hp.jipp.trans.IppPacketData;
+import com.hp.jipp.trans.IppServerTransport;
+
+import health.ere.ps.service.ipp.PrinterService;
 
 @Path("ipp")
 public class PrinterResource implements IppServerTransport {
