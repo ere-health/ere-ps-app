@@ -8,16 +8,19 @@ import static org.mockito.Mockito.mock;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import health.ere.ps.model.idp.client.DiscoveryDocumentResponse;
 import health.ere.ps.model.idp.crypto.PkiIdentity;
+import health.ere.ps.service.idp.tests.PkiKeyResolver;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(PkiKeyResolver.class)
 public class IdpClientTest {
-
     private IdpClient idpClient;
     private AuthenticatorClient authenticatorClient;
 
@@ -55,8 +58,7 @@ public class IdpClientTest {
             //swallow
         }
 
-        assertThat(callCounter.get())
-                .isOne();
+        assertEquals(1, callCounter.get());
     }
 
     @Test
@@ -73,7 +75,6 @@ public class IdpClientTest {
             //swallow
         }
 
-        assertThat(callCounter.get())
-                .isOne();
+        assertEquals(1, callCounter.get());
     }
 }
