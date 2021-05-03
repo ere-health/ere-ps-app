@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Collections;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -33,6 +34,8 @@ import javax.ws.rs.core.UriInfo;
 public class PrinterResource implements IppServerTransport {
     @Inject
     PrinterService printerService;
+
+    private static final AtomicInteger printJobId = new AtomicInteger(0);
 
     private static Logger log = Logger.getLogger(PrinterResource.class.getName());
 
@@ -78,10 +81,10 @@ public class PrinterResource implements IppServerTransport {
         if(ippPacket.getOperation().equals(Operation.printJob)) {
             // TODO: check for mime type, for the moment, expect PDF
             printerService.print(data.getData());
-            IppPacket responsePacket = IppPacket.jobResponse(Status.successfulOk, ippPacket.getRequestId(), URI.create("ipp://10.0.0.23/ipp/printer/job/1"),
+            IppPacket responsePacket = IppPacket.jobResponse(Status.successfulOk, ippPacket.getRequestId(), uri.resolve("/job/"+printJobId.incrementAndGet()),
             JobState.pending,
             Collections.singletonList(JobStateReason.accountClosed))
-            .putAttributes(Tag.operationAttributes, Types.printerUri.of(URI.create("ipp://10.0.0.23/ipp/printer")))
+            .putAttributes(Tag.operationAttributes, Types.printerUri.of(uri))
             .build();
             IppPacketData serverResponse = new IppPacketData(responsePacket, null);
             log.info("Response: "+serverResponse);
