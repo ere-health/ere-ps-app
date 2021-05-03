@@ -61,6 +61,7 @@ public class PrinterResource implements IppServerTransport {
         log.info("Request: "+data);
         IppPacket ippPacket = data.getPacket();
         if(ippPacket.getOperation().equals(Operation.getPrinterAttributes)) {
+            // Examples for attributes: https://github.com/HPInc/jipp/blob/master/jipp-core/src/test/java/com/hp/jipp/encoding/AttributeGroupTest.java
             IppPacket responsePacket = new IppPacket(Status.successfulOk, ippPacket.getRequestId(),
             groupOf(Tag.operationAttributes, Types.attributesCharset.of("utf-8")),
             groupOf(Tag.printerAttributes));
@@ -81,10 +82,11 @@ public class PrinterResource implements IppServerTransport {
         if(ippPacket.getOperation().equals(Operation.printJob)) {
             // TODO: check for mime type, for the moment, expect PDF
             printerService.print(data.getData());
-            IppPacket responsePacket = IppPacket.jobResponse(Status.successfulOk, ippPacket.getRequestId(), uri.resolve("/job/"+printJobId.incrementAndGet()),
-            JobState.pending,
-            Collections.singletonList(JobStateReason.accountClosed))
-            .putAttributes(Tag.operationAttributes, Types.printerUri.of(uri))
+            IppPacket responsePacket = IppPacket.jobResponse(
+                Status.successfulOk, ippPacket.getRequestId(), uri.resolve("/job/"+printJobId.incrementAndGet()),
+                JobState.pending,
+                Collections.singletonList(JobStateReason.accountClosed))
+                .putAttributes(Tag.operationAttributes, Types.printerUri.of(uri))
             .build();
             IppPacketData serverResponse = new IppPacketData(responsePacket, null);
             log.info("Response: "+serverResponse);
