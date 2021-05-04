@@ -33,6 +33,30 @@
     </dependencyManagement>
     <dependencies>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.12.0</version>
+        </dependency>
+        <dependency>
+            <artifactId>bcpkix-jdk15on</artifactId>
+            <groupId>org.bouncycastle</groupId>
+        </dependency>
+        <dependency>
+            <groupId>org.bitbucket.b_c</groupId>
+            <artifactId>jose4j</artifactId>
+            <version>0.7.7</version>
+        </dependency>
+        <dependency>
+            <artifactId>unirest-java</artifactId>
+            <groupId>com.konghq</groupId>
+            <version>3.7.04</version>
+        </dependency>
+        <dependency>
+            <artifactId>unirest-objectmapper-jackson</artifactId>
+            <groupId>com.konghq</groupId>
+            <version>3.11.09</version>
+        </dependency>
+        <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>hapi-fhir-base</artifactId>
             <version>5.3.0</version>
@@ -96,6 +120,10 @@
             <groupId>net.sf.saxon</groupId>
             <artifactId>Saxon-HE</artifactId>
             <version>10.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.slf4j</groupId>
+            <artifactId>slf4j-jboss-logmanager</artifactId>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -194,6 +222,17 @@
             <artifactId>quarkus-junit5</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-junit5-mockito</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <artifactId>commons-io</artifactId>
+            <groupId>commons-io</groupId>
+            <scope>test</scope>
+            <version>2.7</version>
+        </dependency>
         <!--
             Produces: Modules com.sun.xml.bind and com.sun.istack.runtime export package com.sun.istack.localization to module fop
         <dependency>
@@ -229,8 +268,10 @@
                 <version>${surefire-plugin.version}</version>
                 <configuration>
                     <systemPropertyVariables>
-                        <java.util.logging.manager>org.jboss.logmanager.LogManager
+                        <java.util.logging.manager>
+                            org.jboss.logmanager.LogManager
                         </java.util.logging.manager>
+                        <quarkus.log.level>DEBUG</quarkus.log.level>
                         <maven.home>${maven.home}</maven.home>
                     </systemPropertyVariables>
                 </configuration>
