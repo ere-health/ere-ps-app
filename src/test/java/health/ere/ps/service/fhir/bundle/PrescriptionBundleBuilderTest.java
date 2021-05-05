@@ -87,6 +87,8 @@ class PrescriptionBundleBuilderTest {
         parser.setPrettyPrint(true);
 
         String serialized = parser.encodeResourceToString(fhirEPrescriptionBundle);
+
+        System.out.println(serialized);
     }
 
     @Test

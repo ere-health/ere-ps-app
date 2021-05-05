@@ -11,11 +11,13 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusTest;
 
+@Disabled
 @QuarkusTest
 public class WebsocketIntegrationTest {
 

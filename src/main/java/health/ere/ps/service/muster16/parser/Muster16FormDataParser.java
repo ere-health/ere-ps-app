@@ -16,10 +16,19 @@ public class Muster16FormDataParser {
             muster16PdfDataFields = muster16PdfData.split("\\r?\\n");
         }
     }
+
+    protected boolean isDataFieldPresentAtPosition(String[] muster16PdfDataFields,
+                                                   int fieldPosition) {
+        return muster16PdfDataFields != null && muster16PdfDataFields.length >= fieldPosition;
+    }
     
     public String parseInsuranceCompany() {
-        String insuranceCompany = muster16PdfDataFields[0].trim();
-        
+        String insuranceCompany = "";
+
+        if(isDataFieldPresentAtPosition(muster16PdfDataFields, 0)) {
+            insuranceCompany = muster16PdfDataFields[0].trim();
+        }
+
         return insuranceCompany;
     }
 
@@ -67,11 +76,13 @@ public class Muster16FormDataParser {
 
     public String parsePatientDateOfBirth() {
         String patientDateOfBirth = "";
-        String[] lineElements;
-        boolean found =false;
 
-        for(int i = 0; i < muster16PdfDataFields.length; i++) {
-            lineElements = muster16PdfDataFields[i].split("\\s+");
+        String[] lineElements;
+        boolean found = false;
+
+        for(int i = 0; isDataFieldPresentAtPosition(muster16PdfDataFields, i) &&
+                i < muster16PdfDataFields.length; i++) {
+            lineElements = muster16PdfDataFields[i].split("\\s");
 
             if(lineElements != null) {
                 for(int j = 0; j < lineElements.length; j++) {

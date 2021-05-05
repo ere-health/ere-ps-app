@@ -122,7 +122,7 @@ public class PrescriptionBundleBuilder {
                 .addCoding().setSystem("http://fhir.de/CodeSystem/identifier-type-de-basis");
         identifier.getType().addCoding().setCode("GKV");
         identifier.getSystemElement().setValue("http://fhir.de/NamingSystem/gkv/kvid-10");
-//        identifier.setValue("M310119800"); //TODO: Source/Generate unique ID.
+        identifier.setValue(muster16PrescriptionForm.getPatientInsuranceId());
 
         patient.addName()
 //                .setUse(HumanName.NameUse.fromCode("official"))
@@ -184,7 +184,7 @@ public class PrescriptionBundleBuilder {
                 .setDisplay(muster16PrescriptionForm.getInsuranceCompany())
                 .getIdentifier()
                 .setSystem("http://fhir.de/NamingSystem/arge-ik/iknr")
-                .setValue("123456"); // TODO: Get actual unique value
+                .setValue(muster16PrescriptionForm.getInsuranceCompanyId());
         coverage.setStatus(Coverage.CoverageStatus.fromCode("active"));
         coverage.getBeneficiary().setReference(
                 "Patient/" + muster16PrescriptionForm.getPatientInsuranceId());
