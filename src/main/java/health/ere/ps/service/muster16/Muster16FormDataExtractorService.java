@@ -24,7 +24,7 @@ public class Muster16FormDataExtractorService {
     public static PDDocument createDocumentRotate90(InputStream muster16PdfFile) throws IOException {
         PDDocument document = PDDocument.load(muster16PdfFile);
         PDPage page = document.getDocumentCatalog().getPages().get(0);
-        page.setRotation(90);
+        // page.setRotation(90);
         return document;
     }
 
