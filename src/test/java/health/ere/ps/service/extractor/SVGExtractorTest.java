@@ -40,7 +40,7 @@ class SVGExtractorTest {
     @Test
     void testExtract2() throws URISyntaxException, FileNotFoundException {
         SVGExtractor svgExtractor = new SVGExtractor(getClass().getResource("/svg-extract-templates/Muster-16-Template.svg").toURI(), true);
-        Map<String, String> map = svgExtractor.extract(new FileInputStream("/home/manuel/git" +
+        Map<String, String> map = svgExtractor.extract(new FileInputStream(
                 "/secret-test-print-samples/<secret-customer-name>/test1.pdf"));
 
  
