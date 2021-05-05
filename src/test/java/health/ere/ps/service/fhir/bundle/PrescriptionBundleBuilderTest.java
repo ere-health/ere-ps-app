@@ -2,18 +2,13 @@ package health.ere.ps.service.fhir.bundle;
 
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Coverage;
-import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Patient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.text.ParseException;
-import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
@@ -108,6 +103,8 @@ class PrescriptionBundleBuilderTest {
         parser.setPrettyPrint(true);
 
         String serialized = parser.encodeResourceToString(fhirEPrescriptionBundle);
+
+        System.out.println(serialized);
     }
 
     @Test
