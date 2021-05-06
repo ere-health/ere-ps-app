@@ -5,7 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Muster16FormDataParser {
+public class Muster16FormDataParser implements IMuster16FormParser {
     private String muster16PdfData;
     private String[] muster16PdfDataFields;
 
@@ -15,11 +15,6 @@ public class Muster16FormDataParser {
         if(StringUtils.isNotBlank(muster16PdfData)) {
             muster16PdfDataFields = muster16PdfData.split("\\r?\\n");
         }
-    }
-
-    protected boolean isDataFieldPresentAtPosition(String[] muster16PdfDataFields,
-                                                   int fieldPosition) {
-        return muster16PdfDataFields != null && muster16PdfDataFields.length >= fieldPosition;
     }
     
     public String parseInsuranceCompany() {

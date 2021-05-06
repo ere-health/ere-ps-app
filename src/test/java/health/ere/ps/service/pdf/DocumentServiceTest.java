@@ -8,6 +8,9 @@ import java.nio.file.Paths;
 import org.hl7.fhir.r4.model.Bundle;
 import org.junit.jupiter.api.Test;
 
+import io.quarkus.test.junit.QuarkusTest;
+
+@QuarkusTest
 public class DocumentServiceTest {
 	@Test
 	public void testGenerateERezeptPdf() throws IOException {
