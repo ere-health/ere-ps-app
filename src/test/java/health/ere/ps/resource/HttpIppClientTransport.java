@@ -19,8 +19,7 @@ import com.hp.jipp.trans.IppPacketData;
 
 public class HttpIppClientTransport implements IppClientTransport {
     @Override
-    @NotNull
-    public IppPacketData sendData(@NotNull URI uri, @NotNull IppPacketData request) throws IOException {
+    public IppPacketData sendData(URI uri, IppPacketData request) throws IOException {
         URL url = new URL(uri.toString().replaceAll("^ipp", "http"));
 
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();

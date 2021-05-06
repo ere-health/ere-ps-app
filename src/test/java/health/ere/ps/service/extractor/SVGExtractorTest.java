@@ -1,20 +1,20 @@
 package health.ere.ps.service.extractor;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-class SVGExtractorTest {
+import java.io.FileNotFoundException;
+import java.net.URISyntaxException;
+import java.util.Map;
 
-    @Test @Disabled
+import io.quarkus.test.junit.QuarkusTest;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+@QuarkusTest
+class SVGExtractorTest {
+    @Disabled
+    @Test
     void testExtract() throws URISyntaxException {
         SVGExtractor svgExtractor = new SVGExtractor(getClass().getResource("/svg-extract-templates/Muster-16-Template.svg").toURI(), true);
         Map<String, String> map = svgExtractor.extract(getClass().getResourceAsStream("/muster-16-print-samples/cgm-z1-manuel-blechschmidt.pdf"));
@@ -40,8 +40,7 @@ class SVGExtractorTest {
     @Test
     void testExtract2() throws URISyntaxException, FileNotFoundException {
         SVGExtractor svgExtractor = new SVGExtractor(getClass().getResource("/svg-extract-templates/Muster-16-Template.svg").toURI(), true);
-        Map<String, String> map = svgExtractor.extract(new FileInputStream(
-                "/secret-test-print-samples/<secret-customer-name>/test1.pdf"));
+        Map<String, String> map = svgExtractor.extract(getClass().getResourceAsStream("/muster-16-print-samples/test1.pdf"));
 
  
     }

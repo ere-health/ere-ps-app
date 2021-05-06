@@ -5,11 +5,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
+import javax.inject.Inject;
+
+import io.quarkus.test.junit.QuarkusTest;
+
+@QuarkusTest
 class Muster16FormDataExtractorServiceTest {
+
+    @Inject
+    Muster16FormDataExtractorService muster16FormDataExtractorService;
 
     @Test
     public void testExtractData() throws IOException {
-        String text = Muster16FormDataExtractorService
+        String text = muster16FormDataExtractorService
                 .extractData(getClass().getResourceAsStream("/muster-16-print-samples/cgm-z1-manuel-blechschmidt.pdf"));
         assertEquals("X\n" + "Amoxicillin 1000mg N2\n" + "3x täglich alle 8 Std\n"
                         + "-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -\n" + "1234\n" + "Zahnärzte\n"

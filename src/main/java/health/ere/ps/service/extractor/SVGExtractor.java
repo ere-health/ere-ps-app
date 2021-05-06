@@ -13,6 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -30,7 +31,8 @@ import health.ere.ps.service.muster16.Muster16FormDataExtractorService;
 
 @ApplicationScoped
 public class SVGExtractor {
-
+    @Inject
+    Muster16FormDataExtractorService muster16FormDataExtractorService;
     private URI path;
     private boolean debugRectangles = false;
     private static Logger log = Logger.getLogger(SVGExtractor.class.getName());
@@ -52,7 +54,7 @@ public class SVGExtractor {
 
         Map<String, String> map = new HashMap<>();
         try {
-            PDDocument document = Muster16FormDataExtractorService.createDocumentRotate90(muster16PdfFile);
+            PDDocument document = muster16FormDataExtractorService.createDocumentRotate90(muster16PdfFile);
             XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
             XMLEventReader reader = xmlInputFactory.createXMLEventReader(new FileInputStream(new File(path)));
             boolean rectFetchMode = false;
