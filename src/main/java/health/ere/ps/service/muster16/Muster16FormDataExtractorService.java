@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
 import health.ere.ps.service.muster16.parser.IMuster16FormParser;
@@ -17,6 +18,9 @@ import health.ere.ps.service.muster16.parser.Muster16SvgExtractorParser;
 
 @ApplicationScoped
 public class Muster16FormDataExtractorService {
+    @Inject
+    Muster16SvgExtractorParser parser;
+
     public String extractData(InputStream muster16PdfFile) throws IOException {
         PDDocument document = createDocumentRotate90(muster16PdfFile);
         String text = new PDFTextStripper().getText(document);
@@ -54,7 +58,8 @@ public class Muster16FormDataExtractorService {
     }
 
     public Muster16PrescriptionForm extractDataWithSvgExtractorParser(InputStream muster16PdfFile) throws URISyntaxException {
-        IMuster16FormParser parser = new Muster16SvgExtractorParser(muster16PdfFile);
+        parser.init(muster16PdfFile);
+
         Muster16PrescriptionForm muster16Form = new Muster16PrescriptionForm(
                 parser.parseInsuranceCompany(),
                 parser.parseInsuranceCompanyId(),
