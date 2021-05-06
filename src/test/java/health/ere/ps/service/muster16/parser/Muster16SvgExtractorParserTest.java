@@ -28,7 +28,6 @@ class Muster16SvgExtractorParserTest {
     @Inject
     Muster16SvgExtractorParser parser;
 
-
     private Muster16PrescriptionForm muster16PrescriptionForm;
 
     @BeforeEach
