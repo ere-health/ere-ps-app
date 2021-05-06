@@ -9,16 +9,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+
 import health.ere.ps.service.extractor.SVGExtractor;
 
+@RequestScoped
 public class Muster16SvgExtractorParser implements IMuster16FormParser {
-    private SVGExtractor svgExtractor;
+    @Inject
+    SVGExtractor svgExtractor;
     private Map<String, String> mappedFields;
     private String[] nameAndAddressInfo;
     private String[] prescriptionInfo;
 
-    public Muster16SvgExtractorParser(InputStream muster16PdfFile) throws URISyntaxException {
-        svgExtractor = new SVGExtractor(getClass().getResource(
+    public void init(InputStream muster16PdfFile) throws URISyntaxException {
+        svgExtractor.init(getClass().getResource(
                 "/svg-extract-templates/Muster-16-Template.svg").toURI(), false);
 
         mappedFields = svgExtractor.extract(muster16PdfFile);
@@ -28,6 +33,9 @@ public class Muster16SvgExtractorParser implements IMuster16FormParser {
 
         prescriptionInfo = getMappedFields().getOrDefault(
                 "medication", "").split("\\n");
+    }
+
+    public Muster16SvgExtractorParser() {
     }
 
     @Override

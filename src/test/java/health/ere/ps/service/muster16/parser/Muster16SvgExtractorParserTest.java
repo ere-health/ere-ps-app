@@ -24,16 +24,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class Muster16SvgExtractorParserTest {
     @Inject
     Logger logger;
+
+    @Inject
+    Muster16SvgExtractorParser parser;
+
+
     private Muster16PrescriptionForm muster16PrescriptionForm;
-    private Muster16SvgExtractorParser parser;
 
     @BeforeEach
     void setUp() throws URISyntaxException, IOException {
         logger.info("Setting up parser using SVGExtractor");
 
         try(InputStream muster16PdfFileStream = Muster16SvgExtractorParserTest.class.getResourceAsStream(
-                "/muster-16-print-samples/cgm-z1-manuel-blechschmidt.pdf")) {
-            parser = new Muster16SvgExtractorParser(muster16PdfFileStream);
+                "/muster-16-print-samples/test1.pdf")) {
+            parser.init(muster16PdfFileStream);
 
             muster16PrescriptionForm = new Muster16PrescriptionForm(
                     parser.parseInsuranceCompany(),
@@ -124,8 +128,8 @@ class Muster16SvgExtractorParserTest {
 
     @Test
     void getMappedFields() {
-        parser.getMappedFields().forEach((key, value) -> {
-            logger.info(key + " = " + value);
+        parser.getMappedFields().entrySet().stream().forEach((entry) -> {
+            logger.info(entry.getKey() + " = " + entry.getValue());
         });
     }
 }
