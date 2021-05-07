@@ -98,6 +98,11 @@
             <version>10.3</version>
         </dependency>
         <dependency>
+            <groupId>health.ere</groupId>
+            <artifactId>api-telematik-signature-service</artifactId>
+            <version>OPD4</version>        
+        </dependency>
+        <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-hibernate-orm</artifactId>
         </dependency>
@@ -188,6 +193,12 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-undertow-websockets</artifactId>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.santuario/xmlsec -->
+        <dependency>
+            <groupId>org.apache.santuario</groupId>
+            <artifactId>xmlsec</artifactId>
+            <version>2.2.2</version>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
