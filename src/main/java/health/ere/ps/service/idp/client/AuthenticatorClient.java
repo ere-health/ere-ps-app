@@ -267,7 +267,7 @@ public class AuthenticatorClient {
             .build();
     }
 
-    private X509Certificate retrieveServerCertFromLocation(final String uri) {
+    protected X509Certificate retrieveServerCertFromLocation(final String uri) {
         final HttpResponse<JsonNode> pukAuthResponse = Unirest
             .get(uri)
             .header(HttpHeaders.USER_AGENT, USER_AGENT)
