@@ -3,11 +3,13 @@ package health.ere.ps.service.gematik;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -36,6 +38,7 @@ import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureService;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortType;
 import oasis.names.tc.dss._1_0.core.schema.Base64Data;
 
+@ApplicationScoped
 public class ERezeptWorkflowService {
 
     private static Logger log = Logger.getLogger(ERezeptWorkflowService.class.getName());
@@ -69,8 +72,27 @@ public class ERezeptWorkflowService {
     @ConfigProperty(name = "signature-service.tvMode", defaultValue = "")
     String signatureServiceTvMode;
 
+    public static final String EREZEPT_IDENTIFIER_SYSTEM = "https://gematik.de/fhir/NamingSystem/PrescriptionID";
+
     static {
         org.apache.xml.security.Init.init();
+    }
+
+    /**
+     * This function tries to create BundleWithAccessCodes for all given bundles.
+     * 
+     * When an error is thrown it create an object that contains this error.
+     */
+    public List<BundleWithAccessCodeOrThrowable> createERezeptsOnPresciptionServer(String bearerToken, List<Bundle> bundles) {
+        List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodes = new ArrayList<>();
+        for(Bundle bundle : bundles) {
+            try {
+                bundleWithAccessCodes.add(createERezeptOnPresciptionServer(bearerToken, bundle));
+            } catch(Throwable t) {
+                bundleWithAccessCodes.add(new BundleWithAccessCodeOrThrowable(t));
+            }
+        }
+        return bundleWithAccessCodes;
     }
 
     /**
@@ -88,7 +110,7 @@ public class ERezeptWorkflowService {
      * @throws XMLParserException
      * @throws InvalidCanonicalizerException
      */
-    public BundleWithAccessCode createERezeptOnPresciptionServer(String bearerToken, Bundle bundle)
+    public BundleWithAccessCodeOrThrowable createERezeptOnPresciptionServer(String bearerToken, Bundle bundle)
             throws InvalidCanonicalizerException, XMLParserException, CanonicalizationException, FaultMessage,
             IOException {
 
@@ -99,7 +121,7 @@ public class ERezeptWorkflowService {
 
         // Example:
         // src/test/resources/gematik/Bundle-4fe2013d-ae94-441a-a1b1-78236ae65680.xml
-        BundleWithAccessCode bundleWithAccessCode = updateBundleWithTask(task, bundle);
+        BundleWithAccessCodeOrThrowable bundleWithAccessCode = updateBundleWithTask(task, bundle);
         SignResponse signedDocument = signBundleWithIdentifiers(bundleWithAccessCode.bundle);
 
         updateERezeptTask(bearerToken, task, bundleWithAccessCode, signedDocument);
@@ -113,7 +135,7 @@ public class ERezeptWorkflowService {
      * @param task
      * @param signedDocument
      */
-    public void updateERezeptTask(String bearerToken, Task task, BundleWithAccessCode bundleWithAccessCode,
+    public void updateERezeptTask(String bearerToken, Task task, BundleWithAccessCodeOrThrowable bundleWithAccessCode,
             SignResponse signedDocument) {
         Client client = ClientBuilder.newBuilder().build();
 
@@ -138,19 +160,18 @@ public class ERezeptWorkflowService {
      * @param task
      * @param bundle
      */
-    public BundleWithAccessCode updateBundleWithTask(Task task, Bundle bundle) {
-        String identifierSystem = "https://gematik.de/fhir/NamingSystem/PrescriptionID";
-        String prescriptionID = task.getIdentifier().stream().filter(id -> id.getSystem().equals(identifierSystem))
+    public BundleWithAccessCodeOrThrowable updateBundleWithTask(Task task, Bundle bundle) {
+        String prescriptionID = task.getIdentifier().stream().filter(id -> id.getSystem().equals(EREZEPT_IDENTIFIER_SYSTEM))
                 .findFirst().get().getValue();
         Identifier identifier = new Identifier();
-        identifier.setSystem(identifierSystem);
+        identifier.setSystem(EREZEPT_IDENTIFIER_SYSTEM);
         identifier.setValue(prescriptionID);
         bundle.setIdentifier(identifier);
 
         String accessCode = task.getIdentifier().stream()
                 .filter(id -> id.getSystem().equals("https://gematik.de/fhir/NamingSystem/AccessCode")).findFirst()
                 .get().getValue();
-        return new BundleWithAccessCode(bundle, accessCode);
+        return new BundleWithAccessCodeOrThrowable(bundle, accessCode);
     }
 
     /**
@@ -237,6 +258,23 @@ public class ERezeptWorkflowService {
         log.fine("Task Response: " + taskString);
         Task task = fhirContext.newXmlParser().parseResource(Task.class, new StringReader(taskString));
         return task;
+    }
+
+    /**
+     * This function creates an empty task based on workflow 160 (Muster 16) on the
+     * prescription server.
+     * 
+     * @return
+     */
+    public void abortERezeptTask(String bearerToken, BundleWithAccessCodeOrThrowable bundleWithAccessCode) {
+
+        String prescriptionID = bundleWithAccessCode.bundle.getIdentifier().getValue();
+        Client client = ClientBuilder.newBuilder().build();
+        String s = client.target(prescriptionserverUrl).path("/Task").path("/" + prescriptionID).path("/$abort")
+                .request().header("Authorization", "Bearer " + bearerToken)
+                .header("X-AccessCode", bundleWithAccessCode.accessCode)
+                .post(Entity.entity("", "application/fhir+xml; charset=UTF-8")).readEntity(String.class);
+        log.fine(s);
     }
 
 }
