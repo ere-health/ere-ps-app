@@ -1,4 +1,4 @@
-package health.ere.ps.service.vau;
+package health.ere.ps.vau;
 
 import java.net.URI;
 import java.net.URISyntaxException;
