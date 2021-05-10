@@ -25,7 +25,7 @@ public class ERezeptWorkflowServiceTest {
     void testCreateERezeptOnPresciptionServer() throws InvalidCanonicalizerException, XMLParserException, CanonicalizationException, FaultMessage, IOException {
         ERezeptWorkflowService eRezeptWorkflowService = new ERezeptWorkflowService();
         eRezeptWorkflowService.prescriptionserverUrl = "https://fd.erezept-instanz1.titus.ti-dienste.de";
-        Bundle bundle = fhirContext.newXmlParser().parseResource(Bundle.class, getClass().getResourceAsStream("simplifier_erezept/0428d416-149e-48a4-977c-394887b3d85c.xml"));
+        Bundle bundle = fhirContext.newXmlParser().parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/0428d416-149e-48a4-977c-394887b3d85c.xml"));
         eRezeptWorkflowService.createERezeptOnPresciptionServer(testBearerToken, bundle);
     }
 
