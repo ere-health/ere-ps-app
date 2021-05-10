@@ -255,7 +255,7 @@ public class ERezeptWorkflowService {
                 .header("Authorization", "Bearer " + bearerToken)
                 .post(Entity.entity(parameterString, "application/fhir+xml; charset=UTF-8")).readEntity(String.class);
 
-        log.fine("Task Response: " + taskString);
+        log.info("Task Response: " + taskString);
         Task task = fhirContext.newXmlParser().parseResource(Task.class, new StringReader(taskString));
         return task;
     }
