@@ -38,8 +38,8 @@ public class MockIdpClient implements IIdpClient {
     private String clientId;
     private boolean produceTokensWithInvalidSignature;
     private boolean produceOnlyExpiredTokens;
-    private final String uriIdpServer = IdpConstants.DEFAULT_SERVER_URL;
-    private final String serverSubSalt = "someArbitrarySubSaltValue";
+    private String uriIdpServer = IdpConstants.DEFAULT_SERVER_URL;
+    private String serverSubSalt = "someArbitrarySubSaltValue";
     private AccessTokenBuilder accessTokenBuilder;
     private AuthenticationResponseBuilder authenticationResponseBuilder;
     private AuthenticationTokenBuilder authenticationTokenBuilder;
@@ -67,54 +67,30 @@ public class MockIdpClient implements IIdpClient {
         this.setEncryptionKey(encryptionKey);
     }
 
+    public MockIdpClient(PkiIdentity serverIdentity, String clientId,
+                         boolean produceTokensWithInvalidSignature,
+                         boolean produceOnlyExpiredTokens,
+                         String uriIdpServer, String serverSubSalt,
+                         AccessTokenBuilder accessTokenBuilder,
+                         AuthenticationResponseBuilder authenticationResponseBuilder,
+                         AuthenticationTokenBuilder authenticationTokenBuilder,
+                         AuthenticationChallengeBuilder authenticationChallengeBuilder,
+                         IdpJwtProcessor jwtProcessor, SecretKeySpec encryptionKey) {
+        this.serverIdentity = serverIdentity;
+        this.clientId = clientId;
+        this.produceTokensWithInvalidSignature = produceTokensWithInvalidSignature;
+        this.produceOnlyExpiredTokens = produceOnlyExpiredTokens;
+        this.uriIdpServer = uriIdpServer;
+        this.serverSubSalt = serverSubSalt;
+        this.accessTokenBuilder = accessTokenBuilder;
+        this.authenticationResponseBuilder = authenticationResponseBuilder;
+        this.authenticationTokenBuilder = authenticationTokenBuilder;
+        this.authenticationChallengeBuilder = authenticationChallengeBuilder;
+        this.jwtProcessor = jwtProcessor;
+        this.encryptionKey = encryptionKey;
+    }
+
     public MockIdpClient() {
-    }
-
-    @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer("MockIdpClient{");
-        sb.append("serverIdentity=").append(serverIdentity);
-        sb.append(", clientId='").append(clientId).append('\'');
-        sb.append(", produceTokensWithInvalidSignature=").append(produceTokensWithInvalidSignature);
-        sb.append(", produceOnlyExpiredTokens=").append(produceOnlyExpiredTokens);
-        sb.append(", uriIdpServer='").append(uriIdpServer).append('\'');
-        sb.append(", serverSubSalt='").append(serverSubSalt).append('\'');
-        sb.append(", accessTokenBuilder=").append(accessTokenBuilder);
-        sb.append(", authenticationResponseBuilder=").append(authenticationResponseBuilder);
-        sb.append(", authenticationTokenBuilder=").append(authenticationTokenBuilder);
-        sb.append(", authenticationChallengeBuilder=").append(authenticationChallengeBuilder);
-        sb.append(", jwtProcessor=").append(jwtProcessor);
-        sb.append(", encryptionKey=").append(encryptionKey);
-        sb.append('}');
-        return sb.toString();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof MockIdpClient)) return false;
-        MockIdpClient that = (MockIdpClient) o;
-        return isProduceTokensWithInvalidSignature() == that.isProduceTokensWithInvalidSignature() &&
-                isProduceOnlyExpiredTokens() == that.isProduceOnlyExpiredTokens() &&
-                getServerIdentity().equals(that.getServerIdentity()) &&
-                getClientId().equals(that.getClientId()) &&
-                getUriIdpServer().equals(that.getUriIdpServer()) &&
-                getServerSubSalt().equals(that.getServerSubSalt()) &&
-                getAccessTokenBuilder().equals(that.getAccessTokenBuilder()) &&
-                getAuthenticationResponseBuilder().equals(that.getAuthenticationResponseBuilder()) &&
-                getAuthenticationTokenBuilder().equals(that.getAuthenticationTokenBuilder()) &&
-                getAuthenticationChallengeBuilder().equals(that.getAuthenticationChallengeBuilder()) &&
-                getJwtProcessor().equals(that.getJwtProcessor()) &&
-                getEncryptionKey().equals(that.getEncryptionKey());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getServerIdentity(), getClientId(), isProduceTokensWithInvalidSignature(),
-                isProduceOnlyExpiredTokens(), getUriIdpServer(), getServerSubSalt(),
-                getAccessTokenBuilder(), getAuthenticationResponseBuilder(),
-                getAuthenticationTokenBuilder(), getAuthenticationChallengeBuilder(),
-                getJwtProcessor(), getEncryptionKey());
     }
 
     @Override
@@ -302,6 +278,14 @@ public class MockIdpClient implements IIdpClient {
         this.encryptionKey = encryptionKey;
     }
 
+    public void setUriIdpServer(String uriIdpServer) {
+        this.uriIdpServer = uriIdpServer;
+    }
+
+    public void setServerSubSalt(String serverSubSalt) {
+        this.serverSubSalt = serverSubSalt;
+    }
+
     public static class MockIdpClientBuilder {
         private MockIdpClient mockIdpClient;
 
@@ -369,6 +353,18 @@ public class MockIdpClient implements IIdpClient {
 
         public MockIdpClientBuilder encryptionKey(SecretKeySpec encryptionKey) {
             mockIdpClient.setEncryptionKey(encryptionKey);
+
+            return this;
+        }
+
+        public MockIdpClientBuilder uriIdpServer(String uriIdpServer) {
+            mockIdpClient.setUriIdpServer(uriIdpServer);
+
+            return this;
+        }
+
+        public MockIdpClientBuilder serverSubSalt(String serverSubSalt) {
+            mockIdpClient.setServerSubSalt(serverSubSalt);
 
             return this;
         }
