@@ -6,6 +6,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
+import java.net.MalformedURLException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
@@ -25,7 +26,7 @@ public class IdpClientTest {
     private AuthenticatorClient authenticatorClient;
 
     @BeforeEach
-    public void init(final PkiIdentity ecc) {
+    public void init(final PkiIdentity ecc) throws MalformedURLException {
         authenticatorClient = mock(AuthenticatorClient.class);
         doReturn(DiscoveryDocumentResponse.builder()
                 .authorizationEndpoint("fdsa")

@@ -13,6 +13,7 @@ import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.MalformedURLException;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.Objects;
@@ -334,8 +335,13 @@ public class IdpClient implements IIdpClient {
     @Override
     public IdpClient initialize() {
         LOGGER.info("Initializing using url '{}'", getDiscoveryDocumentUrl());
-        setDiscoveryDocumentResponse(getAuthenticatorClient()
-            .retrieveDiscoveryDocument(getDiscoveryDocumentUrl()));
+        try {
+            setDiscoveryDocumentResponse(getAuthenticatorClient()
+                .retrieveDiscoveryDocument(getDiscoveryDocumentUrl()));
+        } catch (MalformedURLException e) {
+            throw new IllegalStateException("Error initializing with url: " +
+                    getDiscoveryDocumentUrl(), e);
+        }
         return this;
     }
 
