@@ -797,4 +797,8 @@ public class PrinterResource implements IppServerTransport {
         return data;
     }
 
+    public IppPacket getResponsePackage() throws IOException {
+        return new IppInputStream(getClass().getResourceAsStream("/printer-get-attributes/cups-ipp-printer.dat")).readPacket();
+    }
+
 }

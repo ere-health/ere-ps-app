@@ -27,4 +27,10 @@ class PrinterResourceTest {
         System.out.println("Done");
     }
 
+    @Test
+    void testGetResponsePackage() throws IOException {
+        // Attribute Group contains more than one 'pwg-raster-document-type-supported` in
+        IppPacket responsePackage = new PrinterResource().getResponsePackage();
+    }
+
 }
