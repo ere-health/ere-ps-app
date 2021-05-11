@@ -9,10 +9,17 @@ import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import javax.xml.datatype.Duration;
+import javax.xml.ws.BindingProvider;
+import javax.xml.ws.Holder;
+import javax.xml.ws.BindingProvider;
+import javax.ws.rs.core.Response;
 
 import org.apache.xml.security.c14n.CanonicalizationException;
 import org.apache.xml.security.c14n.Canonicalizer;
@@ -23,16 +30,21 @@ import org.hl7.fhir.r4.model.Binary;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Identifier;
+import org.hl7.fhir.r4.model.OperationOutcome;
 import org.hl7.fhir.r4.model.Parameters;
 import org.hl7.fhir.r4.model.Parameters.ParametersParameterComponent;
 import org.hl7.fhir.r4.model.Task;
 
 import ca.uhn.fhir.context.FhirContext;
+import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
+import de.gematik.ws.conn.signatureservice.v7.ComfortSignatureStatusEnum;
 import de.gematik.ws.conn.signatureservice.v7.DocumentType;
+import de.gematik.ws.conn.signatureservice.v7.SessionInfo;
 import de.gematik.ws.conn.signatureservice.v7.SignRequest;
 import de.gematik.ws.conn.signatureservice.v7.SignRequest.OptionalInputs;
 import de.gematik.ws.conn.signatureservice.v7.SignResponse;
+import de.gematik.ws.conn.signatureservice.v7.SignatureModeEnum;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.FaultMessage;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureService;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortType;
@@ -72,10 +84,21 @@ public class ERezeptWorkflowService {
     @ConfigProperty(name = "signature-service.tvMode", defaultValue = "")
     String signatureServiceTvMode;
 
+    SignatureServicePortType signatureService;
+
     public static final String EREZEPT_IDENTIFIER_SYSTEM = "https://gematik.de/fhir/NamingSystem/PrescriptionID";
 
     static {
         org.apache.xml.security.Init.init();
+    }
+
+    @PostConstruct
+    public void init() {
+        signatureService = new SignatureService().getSignatureServicePort();
+
+        /* Set endpoint to configured endpoint */
+        BindingProvider bp = (BindingProvider)signatureService;
+        bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, signatureServiceEndpointAddress);
     }
 
     /**
@@ -124,7 +147,7 @@ public class ERezeptWorkflowService {
         BundleWithAccessCodeOrThrowable bundleWithAccessCode = updateBundleWithTask(task, bundle);
         SignResponse signedDocument = signBundleWithIdentifiers(bundleWithAccessCode.bundle);
 
-        updateERezeptTask(bearerToken, task, bundleWithAccessCode, signedDocument);
+        updateERezeptTask(bearerToken, task, bundleWithAccessCode.accessCode, signedDocument.getSignatureObject().getBase64Signature().getValue());
 
         return bundleWithAccessCode;
     }
@@ -135,8 +158,8 @@ public class ERezeptWorkflowService {
      * @param task
      * @param signedDocument
      */
-    public void updateERezeptTask(String bearerToken, Task task, BundleWithAccessCodeOrThrowable bundleWithAccessCode,
-            SignResponse signedDocument) {
+    public void updateERezeptTask(String bearerToken, Task task, String accessCode,
+            byte[] signedBytes) {
         Client client = ClientBuilder.newBuilder().build();
 
         Parameters parameters = new Parameters();
@@ -144,12 +167,12 @@ public class ERezeptWorkflowService {
         ePrescriptionParameter.setName("ePrescription");
         Binary binary = new Binary();
         binary.setContentType("application/pkcs7-mime");
-        binary.setContent(signedDocument.getSignatureObject().getBase64Signature().getValue());
+        binary.setContent(signedBytes);
         ePrescriptionParameter.setResource(binary);
         parameters.addParameter(ePrescriptionParameter);
         String s = client.target(prescriptionserverUrl).path("/Task").path("/" + task.getId()).path("/$activate")
                 .request().header("Authorization", "Bearer " + bearerToken)
-                .header("X-AccessCode", bundleWithAccessCode.accessCode)
+                .header("X-AccessCode", accessCode)
                 .post(Entity.entity(parameters, "application/fhir+xml; charset=UTF-8")).readEntity(String.class);
         log.fine(s);
     }
@@ -168,10 +191,17 @@ public class ERezeptWorkflowService {
         identifier.setValue(prescriptionID);
         bundle.setIdentifier(identifier);
 
-        String accessCode = task.getIdentifier().stream()
+        String accessCode = ERezeptWorkflowService.getAccessCode(task);
+        return new BundleWithAccessCodeOrThrowable(bundle, accessCode);
+    }
+
+    /**
+     * Extracts the access code from a task
+     */
+    static String getAccessCode(Task task) {
+        return task.getIdentifier().stream()
                 .filter(id -> id.getSystem().equals("https://gematik.de/fhir/NamingSystem/AccessCode")).findFirst()
                 .get().getValue();
-        return new BundleWithAccessCodeOrThrowable(bundle, accessCode);
     }
 
     /**
@@ -187,7 +217,6 @@ public class ERezeptWorkflowService {
      */
     public SignResponse signBundleWithIdentifiers(Bundle bundle) throws FaultMessage, InvalidCanonicalizerException,
             XMLParserException, CanonicalizationException, IOException {
-        SignatureServicePortType signatureService = new SignatureService().getSignatureServicePort();
 
         String bundleXml = fhirContext.newXmlParser().encodeResourceToString(bundle);
 
@@ -214,17 +243,25 @@ public class ERezeptWorkflowService {
         signRequest.setIncludeRevocationInfo(true);
         List<SignRequest> signRequests = Arrays.asList(signRequest);
 
+        ContextType contextType =createContextType();
+
+        String jobNumber = signatureService.getJobNumber(contextType);
+
+        List<SignResponse> signResponse = signatureService.signDocument(signatureServiceCardHandle,
+                signatureServiceCrypt, contextType, signatureServiceTvMode, jobNumber, signRequests);
+        return signResponse.get(0);
+    }
+
+    /**
+     * Create a context type.
+     */
+    ContextType createContextType() {
         ContextType contextType = new ContextType();
         contextType.setMandantId(signatureServiceContextMandantId);
         contextType.setClientSystemId(signatureServiceContextClientSystemId);
         contextType.setWorkplaceId(signatureServiceContextWorkplaceId);
         contextType.setUserId(signatureServiceContextUserId);
-
-        String jobNumber = UUID.randomUUID().toString();
-
-        List<SignResponse> signResponse = signatureService.signDocument(signatureServiceCardHandle,
-                signatureServiceCrypt, contextType, signatureServiceTvMode, jobNumber, signRequests);
-        return signResponse.get(0);
+        return contextType;
     }
 
     /**
@@ -251,9 +288,15 @@ public class ERezeptWorkflowService {
         String parameterString = fhirContext.newXmlParser().encodeResourceToString(parameters);
         log.fine("Parameter String: " + parameterString);
 
-        String taskString = client.target(prescriptionserverUrl).path("/Task/$create").request()
+        Response response = client.target(prescriptionserverUrl).path("/Task/$create").request()
                 .header("Authorization", "Bearer " + bearerToken)
-                .post(Entity.entity(parameterString, "application/fhir+xml; charset=UTF-8")).readEntity(String.class);
+                .post(Entity.entity(parameterString, "application/fhir+xml; charset=UTF-8"));
+
+        String taskString = response.readEntity(String.class);
+        if(Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
+            // OperationOutcome operationOutcome = fhirContext.newXmlParser().parseResource(OperationOutcome.class, new StringReader(taskString));
+            throw new RuntimeException(taskString);
+        }
 
         log.info("Task Response: " + taskString);
         Task task = fhirContext.newXmlParser().parseResource(Task.class, new StringReader(taskString));
@@ -267,7 +310,6 @@ public class ERezeptWorkflowService {
      * @return
      */
     public void abortERezeptTask(String bearerToken, BundleWithAccessCodeOrThrowable bundleWithAccessCode) {
-
         String prescriptionID = bundleWithAccessCode.bundle.getIdentifier().getValue();
         Client client = ClientBuilder.newBuilder().build();
         String s = client.target(prescriptionserverUrl).path("/Task").path("/" + prescriptionID).path("/$abort")
@@ -275,6 +317,36 @@ public class ERezeptWorkflowService {
                 .header("X-AccessCode", bundleWithAccessCode.accessCode)
                 .post(Entity.entity("", "application/fhir+xml; charset=UTF-8")).readEntity(String.class);
         log.fine(s);
+    }
+
+    /**
+     * @throws FaultMessage
+     */
+    public void activateComfortSignature() throws FaultMessage {
+        final Holder<Status> status = new Holder<>();
+        final Holder<SignatureModeEnum> signatureMode = new Holder<>();
+        ContextType contextType =createContextType();
+        signatureService.activateComfortSignature(signatureServiceCardHandle, contextType, status, signatureMode);
+    }
+
+    /**
+     * @throws FaultMessage
+     */
+    public void getSignatureMode() throws FaultMessage {
+        Holder<Status> status = new Holder<>();
+        Holder<ComfortSignatureStatusEnum> comfortSignatureStatus = new Holder<>();
+        Holder<Integer> comfortSignatureMax = new Holder<>();
+        Holder<Duration> comfortSignatureTimer = new Holder<>();
+        Holder<SessionInfo> sessionInfo = new Holder<>();
+        ContextType contextType = createContextType();
+        signatureService.getSignatureMode(signatureServiceCardHandle, contextType, status, comfortSignatureStatus, comfortSignatureMax, comfortSignatureTimer, sessionInfo);
+    }
+
+    /**
+     * @throws FaultMessage
+     */
+    public void deactivateComfortSignature() throws FaultMessage {
+        signatureService.deactivateComfortSignature(Arrays.asList(signatureServiceCardHandle));
     }
 
 }
