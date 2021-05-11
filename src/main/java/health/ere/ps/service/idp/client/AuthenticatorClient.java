@@ -18,9 +18,13 @@ import health.ere.ps.model.idp.client.token.JsonWebToken;
 import health.ere.ps.model.idp.client.token.TokenClaimExtraction;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.jose4j.jwt.JwtClaims;
 
+import java.io.StringReader;
 import java.math.BigInteger;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -36,8 +40,12 @@ import java.util.stream.Collectors;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import kong.unirest.BodyPart;
 import kong.unirest.GetRequest;
@@ -243,7 +251,7 @@ public class AuthenticatorClient {
         return IdpJwe.createWithPayloadAndEncryptWithKey(claims.toJson(), idpEnc, "JSON");
     }
 
-    public DiscoveryDocumentResponse retrieveDiscoveryDocument(final String discoveryDocumentUrl) {
+    public DiscoveryDocumentResponse retrieveDiscoveryDocument(final String discoveryDocumentUrl) throws MalformedURLException {
         //TODO aufräumen, checks hinzufügen...
         final HttpResponse<String> discoveryDocumentResponse = Unirest.get(discoveryDocumentUrl)
             .header(HttpHeaders.USER_AGENT, USER_AGENT)
@@ -267,14 +275,22 @@ public class AuthenticatorClient {
             .build();
     }
 
-    protected X509Certificate retrieveServerCertFromLocation(final String uri) {
-        final HttpResponse<JsonNode> pukAuthResponse = Unirest
-            .get(uri)
-            .header(HttpHeaders.USER_AGENT, USER_AGENT)
-            .asJson();
-        final JSONObject keyObject = pukAuthResponse.getBody().getObject();
-        final String verificationCertificate = keyObject.getJSONArray(X509_CERTIFICATE_CHAIN.getJoseName())
-            .getString(0);
+    protected X509Certificate retrieveServerCertFromLocation(final String baseUrl)
+            throws MalformedURLException {
+        IdpHttpClientService idpHttpClientService = RestClientBuilder.newBuilder()
+                .baseUrl(new URL(baseUrl))
+                .build(IdpHttpClientService.class);
+        Response certResponse = idpHttpClientService.getServerCertsList();
+        String jsonString = certResponse.readEntity(String.class);
+        JsonWebToken jsonWebToken = new JsonWebToken(jsonString);
+        String verificationCertificate = "";
+
+        try(JsonReader jsonReader =
+                    Json.createReader(new StringReader(jsonWebToken.getHeaderDecoded()))) {
+            verificationCertificate = jsonReader.readObject().getJsonArray(
+                    X509_CERTIFICATE_CHAIN.getJoseName()).getString(0);
+        }
+
         return getCertificateFromPem(Base64.getDecoder().decode(verificationCertificate));
     }
 
