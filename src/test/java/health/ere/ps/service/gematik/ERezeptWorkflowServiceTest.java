@@ -45,6 +45,7 @@ public class ERezeptWorkflowServiceTest {
         eRezeptWorkflowService = new ERezeptWorkflowService();
         eRezeptWorkflowService.prescriptionserverUrl = "https://fd.erezept-instanz1.titus.ti-dienste.de";
         eRezeptWorkflowService.signatureServiceEndpointAddress = "https://kon-instanz2.titus.ti-dienste.de:443/soap-api/SignatureService/7.5.4";
+        eRezeptWorkflowService.eventServiceEndpointAddress = "https://kon-instanz2.titus.ti-dienste.de/soap-api/EventService/7.2.0";
         eRezeptWorkflowService.signatureServiceCardHandle = "HBA-5";
         eRezeptWorkflowService.signatureServiceContextMandantId = "Mandant1";
         eRezeptWorkflowService.signatureServiceContextClientSystemId = "ClientID1";
@@ -52,11 +53,16 @@ public class ERezeptWorkflowServiceTest {
         eRezeptWorkflowService.signatureServiceContextUserId = "197610";
         eRezeptWorkflowService.init();
     }
+
+    @Test
+    void testGetCards() throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
+        eRezeptWorkflowService.getCards();
+    }
     
     @Test @Disabled
-    void testCreateERezeptOnPresciptionServer() throws InvalidCanonicalizerException, XMLParserException, CanonicalizationException, FaultMessage, IOException {
+    void testCreateERezeptOnPrescriptionServer() throws InvalidCanonicalizerException, XMLParserException, CanonicalizationException, FaultMessage, IOException {
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/0428d416-149e-48a4-977c-394887b3d85c.xml"));
-        eRezeptWorkflowService.createERezeptOnPresciptionServer(testBearerToken, bundle);
+        eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
     }
 
     @Test
