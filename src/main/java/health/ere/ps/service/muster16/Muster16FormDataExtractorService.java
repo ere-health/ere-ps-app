@@ -17,7 +17,13 @@ public class Muster16FormDataExtractorService {
     public static String extractData(InputStream muster16PdfFile) throws IOException {
         PDDocument document = createDocumentRotate90(muster16PdfFile);
         String text = new PDFTextStripper().getText(document);
+        return text;
+    }
 
+    public static String extractData(PDDocument muster16PdfFile) throws IOException {
+        PDPage page = muster16PdfFile.getDocumentCatalog().getPages().get(0);
+        page.setRotation(90);
+        String text = new PDFTextStripper().getText(muster16PdfFile);
         return text;
     }
 
