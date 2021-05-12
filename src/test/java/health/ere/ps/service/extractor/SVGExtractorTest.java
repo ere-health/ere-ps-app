@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @QuarkusTest
 class SVGExtractorTest {
+
     @Inject
     SVGExtractor svgExtractor;
 
@@ -25,24 +26,31 @@ class SVGExtractorTest {
     @Disabled
     @Test
     void testExtract() throws URISyntaxException {
+
         svgExtractor.init(getClass().getResource("/svg-extract-templates/Muster-16-Template.svg").toURI(), true);
         Map<String, String> map = svgExtractor.extract(getClass().getResourceAsStream("/muster-16-print-samples/cgm-z1-manuel-blechschmidt.pdf"));
 
-        // System.out.println(map.entrySet().stream().map((e) -> "        assertEquals(\""+e.getValue().replaceAll("\n", "\\\\n")+"\", map.get(\""+e.getKey()+"\"));").collect(Collectors.joining("\n")));
-        
-        assertEquals("\n", map.get("factor1"));
-        assertEquals("Amoxicillin 1000mg N2\n3x täglich alle 8 Std\n-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -\n", map.get("medication"));
-        assertEquals("Blechschmidt\nManuel               \nDroysenstr. 7\nD 10629 Berlin   \n", map.get("nameAndAddress"));
-        assertEquals("\n", map.get("sprBedarf"));
-        assertEquals("\n", map.get("factor3"));
-        assertEquals("\n", map.get("accidentOrganization"));
-        assertEquals("\n", map.get("begrPflicht"));
-        assertEquals("30001234  \n", map.get("practitionerNumber"));
-        assertEquals(" 30001234  \n", map.get("locationNumber"));
-        assertEquals("\n", map.get("aid"));
-        assertEquals("1000000\n", map.get("status"));
-        assertEquals("\n", map.get("vaccination"));
- 
+        // System.out.println(map.entrySet().stream().map((e) -> "
+        // assertEquals(\""+e.getValue().replaceAll("\n", "\\\\n")+"\",
+        // map.get(\""+e.getKey()+"\"));").collect(Collectors.joining("\n")));
+
+        String lineSep = System.getProperty("line.separator");
+
+        assertEquals(lineSep, map.get("factor1"));
+        assertEquals("Amoxicillin 1000mg N2" + lineSep + "3x täglich alle 8 Std" + lineSep
+                + "-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -" + lineSep, map.get("medication"));
+        assertEquals("Blechschmidt" + lineSep + "Manuel               " + lineSep + "Droysenstr. 7" + lineSep + "D 10629 Berlin   "
+                + lineSep, map.get("nameAndAddress"));
+        assertEquals(lineSep, map.get("sprBedarf"));
+        assertEquals(lineSep, map.get("factor3"));
+        assertEquals(lineSep, map.get("accidentOrganization"));
+        assertEquals(lineSep, map.get("begrPflicht"));
+        assertEquals("30001234  " + lineSep, map.get("practitionerNumber"));
+        assertEquals(" 30001234  " + lineSep, map.get("locationNumber"));
+        assertEquals(lineSep, map.get("aid"));
+        assertEquals("1000000" + lineSep, map.get("status"));
+        assertEquals(lineSep, map.get("vaccination"));
+
     }
 
     @Test
@@ -50,7 +58,7 @@ class SVGExtractorTest {
         svgExtractor.init(getClass().getResource("/svg-extract-templates/Muster-16-Template.svg").toURI(), true);
         Map<String, String> map = svgExtractor.extract(getClass().getResourceAsStream("/muster-16-print-samples/test1.pdf"));
 
-        map.entrySet().stream().forEach(entry -> logger.info(entry.getKey() +" = " + entry.getValue()));
+        map.entrySet().stream().forEach(entry -> logger.info(entry.getKey() + " = " + entry.getValue()));
     }
 
 }

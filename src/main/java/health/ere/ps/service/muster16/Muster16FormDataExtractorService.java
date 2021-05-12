@@ -18,8 +18,13 @@ import health.ere.ps.service.muster16.parser.Muster16SvgExtractorParser;
 
 @ApplicationScoped
 public class Muster16FormDataExtractorService {
+   
+    private Muster16SvgExtractorParser parser;
+    
     @Inject
-    Muster16SvgExtractorParser parser;
+    public Muster16FormDataExtractorService(Muster16SvgExtractorParser parser) {
+        this.parser = parser;
+    }
 
     public String extractData(InputStream muster16PdfFile) throws IOException {
         PDDocument document = createDocumentRotate90(muster16PdfFile);
