@@ -1,17 +1,23 @@
 package health.ere.ps.service.idp.client;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.jboss.logging.Logger;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.cert.X509Certificate;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
+import health.ere.ps.model.idp.client.AuthorizationRequest;
+import health.ere.ps.model.idp.client.AuthorizationResponse;
+import health.ere.ps.model.idp.client.DiscoveryDocumentResponse;
+import health.ere.ps.model.idp.client.field.CodeChallengeMethod;
+import health.ere.ps.model.idp.client.field.IdpScope;
 import health.ere.ps.model.idp.client.token.JsonWebToken;
 import io.quarkus.test.junit.QuarkusTest;
 
@@ -25,19 +31,56 @@ class AuthenticatorClientTest {
     @ConfigProperty(name = "idp.base.url")
     String idpBaseUrl;
 
-    @Test
-    void test_Successful_Retrieval_Of_Server_Cert_From_Location_Using_Idp_Http_Client()
-            throws MalformedURLException {
-        IdpHttpClientService idpHttpClientService = RestClientBuilder.newBuilder()
-                .baseUrl(new URL(idpBaseUrl))
-                .build(IdpHttpClientService.class);
+    @ConfigProperty(name = "idp.client.id")
+    String idpCientId;
+    
+    @ConfigProperty(name = "idp.redirect.uri")
+    String idpRedirectUri;
 
-        Response certResponse = idpHttpClientService.getServerCertsList();
-        String jsonString = certResponse.readEntity(String.class);
+    @Disabled
+    @Test
+    void test_Successful_Authorization_Request() {
+        AuthenticatorClient authenticatorClient = new AuthenticatorClient();
+
+        AuthorizationResponse authorizationResponse =
+                authenticatorClient.doAuthorizationRequest(AuthorizationRequest.builder()
+                .clientId(idpCientId)
+                .link(authenticatorClient.retrieveDiscoveryDocument(
+                        idpBaseUrl +
+                                IdpHttpClientService.DISCOVERY_DOCUMENT_URI)
+                                .getAuthorizationEndpoint())
+                .codeChallenge(ClientUtilities.generateCodeChallenge(
+                        ClientUtilities.generateCodeVerifier()))
+                .codeChallengeMethod(CodeChallengeMethod.S256)
+                .redirectUri(idpRedirectUri)
+                .state(RandomStringUtils.randomAlphanumeric(20))
+                .scopes(java.util.Set.of(IdpScope.OPENID, IdpScope.EREZEPT))
+                .nonce(RandomStringUtils.randomAlphanumeric(20))
+                .build());
+
+        assertNotNull(authorizationResponse.getAuthenticationChallenge(),
+                "Auth Challenge Present");
+
+        assertNotNull(authorizationResponse.getAuthenticationChallenge().getUserConsent(),
+                "User Consent Present");
+
+        assertNotNull(authorizationResponse.getAuthenticationChallenge().getChallenge(),
+                "Challenge Response Present");
+    }
+
+    @Test
+    void test_Successful_Retrieval_Of_Discovery_Document_Using_Idp_Http_Client()
+            throws MalformedURLException {
+        IdpHttpClientService idpHttpClientService =
+                AuthenticatorClient.getIdpHttpClientInstanceByUrl(
+                        idpBaseUrl + IdpHttpClientService.DISCOVERY_DOCUMENT_URI);
+
+        Response response = idpHttpClientService.doGenericGetRequest();
+        String jsonString = response.readEntity(String.class);
         JsonWebToken jsonWebToken = new JsonWebToken(jsonString);
 
-        logger.info("Status = " + certResponse.getStatus());
-        certResponse.getHeaders().entrySet().stream().forEach(
+        logger.info("Status = " + response.getStatus());
+        response.getHeaders().entrySet().stream().forEach(
                 (entry -> logger.info(entry.getKey() + " = " + entry.getValue())));
         logger.info("Body = " + jsonWebToken.getPayloadDecoded());
 
@@ -45,10 +88,14 @@ class AuthenticatorClientTest {
     }
 
     @Test
-    void test_Successful_Retrieval_Of_Server_Cert_From_Location_Using_Auth_Client() throws MalformedURLException {
+    void test_Successful_Retrieval_Of_Discovery_Document_Using_Auth_Client() {
         AuthenticatorClient authenticatorClient = new AuthenticatorClient();
-        X509Certificate cert = authenticatorClient.retrieveServerCertFromLocation(idpBaseUrl);
+        DiscoveryDocumentResponse discoveryDocumentResponse =
+                authenticatorClient.retrieveDiscoveryDocument(
+                idpBaseUrl + IdpHttpClientService.DISCOVERY_DOCUMENT_URI);
 
-        assertNotNull(cert);
+        assertNotNull(discoveryDocumentResponse, "Discovery Document Present");
+        assertNotNull(discoveryDocumentResponse.getIdpSig(), "Idp Signature Cert Present");
+        assertNotNull(discoveryDocumentResponse.getIdpEnc(), "Idp Pub Key Present");
     }
 }

@@ -202,9 +202,7 @@ public class IdpClient implements IIdpClient {
                         .state(state)
                         .scopes(getScopes())
                         .nonce(nonce)
-                        .build(),
-                        getBeforeAuthorizationMapper(),
-                        getAfterAuthorizationCallback()));
+                        .build()));
 
         // Authentication
         LOGGER.debug("Performing Authentication with remote-URL '{}'",
@@ -266,9 +264,7 @@ public class IdpClient implements IIdpClient {
                         .state(state)
                         .scopes(getScopes())
                         .nonce(nonce)
-                        .build(),
-                        getBeforeAuthorizationMapper(),
-                        getAfterAuthorizationCallback()));
+                        .build()));
 
         // Authentication
         final String ssoChallengeEndpoint = getDiscoveryDocumentResponse().getAuthorizationEndpoint().replace(
@@ -335,13 +331,8 @@ public class IdpClient implements IIdpClient {
     @Override
     public IdpClient initialize() {
         LOGGER.info("Initializing using url '{}'", getDiscoveryDocumentUrl());
-        try {
-            setDiscoveryDocumentResponse(getAuthenticatorClient()
-                .retrieveDiscoveryDocument(getDiscoveryDocumentUrl()));
-        } catch (MalformedURLException e) {
-            throw new IllegalStateException("Error initializing with url: " +
-                    getDiscoveryDocumentUrl(), e);
-        }
+        setDiscoveryDocumentResponse(getAuthenticatorClient()
+            .retrieveDiscoveryDocument(getDiscoveryDocumentUrl()));
         return this;
     }
 
