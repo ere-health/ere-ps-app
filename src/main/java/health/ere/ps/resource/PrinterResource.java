@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -30,12 +31,15 @@ import com.hp.jipp.model.Types;
 import com.hp.jipp.trans.IppPacketData;
 import com.hp.jipp.trans.IppServerTransport;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
+
 import health.ere.ps.service.ipp.PrinterService;
 
 @Path("ipp")
 public class PrinterResource implements IppServerTransport {
+
     @Inject
-    PrinterService printerService;
+    Event<PDDocument> pdDocumentEvent;
 
     private static final AtomicInteger printJobId = new AtomicInteger(0);
 
@@ -83,7 +87,7 @@ public class PrinterResource implements IppServerTransport {
 
         if(ippPacket.getOperation().equals(Operation.printJob)) {
             // TODO: check for mime type, for the moment, expect PDF
-            printerService.print(data.getData());
+            pdDocumentEvent.fireAsync(PDDocument.load(data.getData()));
             IppPacket responsePacket = IppPacket.jobResponse(
                 Status.successfulOk, ippPacket.getRequestId(), uri.resolve("/job/"+printJobId.incrementAndGet()),
                 JobState.pending,
