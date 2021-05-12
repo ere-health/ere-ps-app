@@ -48,6 +48,10 @@ import de.gematik.ws.conn.signatureservice.v7.SignatureModeEnum;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.FaultMessage;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureService;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortType;
+import de.gematik.ws.conn.eventservice.v7.GetCards;
+import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
+import de.gematik.ws.conn.eventservice.wsdl.v7.EventService;
+import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import oasis.names.tc.dss._1_0.core.schema.Base64Data;
 
 @ApplicationScoped
@@ -59,6 +63,9 @@ public class ERezeptWorkflowService {
 
     @ConfigProperty(name = "prescriptionserver.url", defaultValue = "")
     String prescriptionserverUrl;
+
+    @ConfigProperty(name = "event-service.endpointAddress", defaultValue = "")
+    String eventServiceEndpointAddress;
 
     @ConfigProperty(name = "signature-service.endpointAddress", defaultValue = "")
     String signatureServiceEndpointAddress;
@@ -85,6 +92,7 @@ public class ERezeptWorkflowService {
     String signatureServiceTvMode;
 
     SignatureServicePortType signatureService;
+    EventServicePortType eventService;
 
     public static final String EREZEPT_IDENTIFIER_SYSTEM = "https://gematik.de/fhir/NamingSystem/PrescriptionID";
 
@@ -95,10 +103,14 @@ public class ERezeptWorkflowService {
     @PostConstruct
     public void init() {
         signatureService = new SignatureService().getSignatureServicePort();
-
         /* Set endpoint to configured endpoint */
         BindingProvider bp = (BindingProvider)signatureService;
         bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, signatureServiceEndpointAddress);
+        
+        eventService = new EventService().getEventServicePort();
+        /* Set endpoint to configured endpoint */
+        bp = (BindingProvider)eventService;
+        bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, eventServiceEndpointAddress);
     }
 
     /**
@@ -106,11 +118,11 @@ public class ERezeptWorkflowService {
      * 
      * When an error is thrown it create an object that contains this error.
      */
-    public List<BundleWithAccessCodeOrThrowable> createERezeptsOnPresciptionServer(String bearerToken, List<Bundle> bundles) {
+    public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(String bearerToken, List<Bundle> bundles) {
         List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodes = new ArrayList<>();
         for(Bundle bundle : bundles) {
             try {
-                bundleWithAccessCodes.add(createERezeptOnPresciptionServer(bearerToken, bundle));
+                bundleWithAccessCodes.add(createERezeptOnPrescriptionServer(bearerToken, bundle));
             } catch(Throwable t) {
                 bundleWithAccessCodes.add(new BundleWithAccessCodeOrThrowable(t));
             }
@@ -133,7 +145,7 @@ public class ERezeptWorkflowService {
      * @throws XMLParserException
      * @throws InvalidCanonicalizerException
      */
-    public BundleWithAccessCodeOrThrowable createERezeptOnPresciptionServer(String bearerToken, Bundle bundle)
+    public BundleWithAccessCodeOrThrowable createERezeptOnPrescriptionServer(String bearerToken, Bundle bundle)
             throws InvalidCanonicalizerException, XMLParserException, CanonicalizationException, FaultMessage,
             IOException {
 
@@ -347,6 +359,15 @@ public class ERezeptWorkflowService {
      */
     public void deactivateComfortSignature() throws FaultMessage {
         signatureService.deactivateComfortSignature(Arrays.asList(signatureServiceCardHandle));
+    }
+
+    /**
+     * @throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage
+     */
+    public GetCardsResponse getCards() throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
+        GetCards parameter = new GetCards();
+        parameter.setContext(createContextType());
+        return eventService.getCards(parameter);
     }
 
 }
