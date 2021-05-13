@@ -2,36 +2,39 @@ package health.ere.ps.service.fhir.bundle;
 
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Coverage;
-import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Patient;
+import org.jboss.logging.Logger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import java.net.URISyntaxException;
 import java.text.ParseException;
-import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
+
+import javax.inject.Inject;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.validation.ValidationResult;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
 import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
+import io.quarkus.test.junit.QuarkusTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@QuarkusTest
 class PrescriptionBundleBuilderTest {
+    @Inject
+    Logger logger;
     private PrescriptionBundleValidator prescriptionBundleValidator;
     private Muster16PrescriptionForm muster16PrescriptionForm;
     private PrescriptionBundleBuilder prescriptionBundleBuilder;
 
     @BeforeEach
-    public void initialize() {
+    public void initialize() throws URISyntaxException {
         muster16PrescriptionForm = new Muster16PrescriptionForm();
 
         muster16PrescriptionForm.setClinicId("BS12345678");
@@ -92,6 +95,8 @@ class PrescriptionBundleBuilderTest {
         parser.setPrettyPrint(true);
 
         String serialized = parser.encodeResourceToString(fhirEPrescriptionBundle);
+
+        logger.info(serialized);
     }
 
     @Test
@@ -108,6 +113,8 @@ class PrescriptionBundleBuilderTest {
         parser.setPrettyPrint(true);
 
         String serialized = parser.encodeResourceToString(fhirEPrescriptionBundle);
+
+        logger.info(serialized);
     }
 
     @Test

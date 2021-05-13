@@ -1,19 +1,31 @@
 package health.ere.ps.service.extractor;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import org.jboss.logging.Logger;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-class SVGExtractorTest {
+import java.io.FileNotFoundException;
+import java.net.URISyntaxException;
+import java.util.Map;
 
+import javax.inject.Inject;
+
+import io.quarkus.test.junit.QuarkusTest;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+@QuarkusTest
+class SVGExtractorTest {
+    @Inject
+    SVGExtractor svgExtractor;
+
+    @Inject
+    Logger logger;
+
+    @Disabled
     @Test
     void testExtract() throws URISyntaxException {
-        SVGExtractor svgExtractor = new SVGExtractor(getClass().getResource("/svg-extract-templates/Muster-16-Template.svg").toURI(), true);
+        svgExtractor.init(getClass().getResource("/svg-extract-templates/Muster-16-Template.svg").toURI(), true);
         Map<String, String> map = svgExtractor.extract(getClass().getResourceAsStream("/muster-16-print-samples/cgm-z1-manuel-blechschmidt.pdf"));
 
         // System.out.println(map.entrySet().stream().map((e) -> "        assertEquals(\""+e.getValue().replaceAll("\n", "\\\\n")+"\", map.get(\""+e.getKey()+"\"));").collect(Collectors.joining("\n")));
@@ -31,6 +43,14 @@ class SVGExtractorTest {
         assertEquals("1000000\n", map.get("status"));
         assertEquals("\n", map.get("vaccination"));
  
+    }
+
+    @Test
+    void testExtract2() throws URISyntaxException, FileNotFoundException {
+        svgExtractor.init(getClass().getResource("/svg-extract-templates/Muster-16-Template.svg").toURI(), true);
+        Map<String, String> map = svgExtractor.extract(getClass().getResourceAsStream("/muster-16-print-samples/test1.pdf"));
+
+        map.entrySet().stream().forEach(entry -> logger.info(entry.getKey() +" = " + entry.getValue()));
     }
 
 }
