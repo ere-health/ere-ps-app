@@ -13,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -33,9 +34,8 @@ import javax.xml.stream.events.XMLEvent;
 
 import health.ere.ps.event.PDDocumentEvent;
 import health.ere.ps.event.SVGExtractorResultEvent;
-import health.ere.ps.service.muster16.Muster16FormDataExtractorService;
 
-@RequestScoped
+@ApplicationScoped
 public class SVGExtractor {
 
     private static final Logger log = Logger.getLogger(SVGExtractor.class.getName()); 
@@ -53,32 +53,28 @@ public class SVGExtractor {
     private static final float Y_OFFSET = -10f;
     private static final float SCALE = 1f;
 
-    public SVGExtractor(URI path, boolean debugRectangles) {
-        this.setPath(path);
-        this.setDebugRectangles(debugRectangles);
-    }
-
-    public SVGExtractor() {
-
+    public SVGExtractor() throws URISyntaxException {
+        this(SVGExtractor.class.getResource("/svg-extract-templates/Muster-16-Template.svg").toURI());
     }
 
     public SVGExtractor(URI path) {
         this(path, false);
     }
 
-    public void init(URI path, boolean debugRectangles) {
+    public SVGExtractor(URI path, boolean debugRectangles) {
         this.setPath(path);
         this.setDebugRectangles(debugRectangles);
     }
 
     public void analyzeDocument(@ObservesAsync PDDocumentEvent pDDocumentEvent) {
+        log.info("SVGExtractor.analyzeDocument");
         try {
             PDDocument document = createDocumentRotate90(pDDocumentEvent.pDDocument);
             Map<String, String> extractResult = extract(document);
             sVGExtractorResultEvent.fireAsync(new SVGExtractorResultEvent(extractResult));
-        } catch (IOException | XMLStreamException e) {
+        } catch (Exception e) {
             log.log(Level.SEVERE, "Could not extract results", e);
-            exceptionEvent.fire(e);
+            exceptionEvent.fireAsync(e);
         }
 
     }

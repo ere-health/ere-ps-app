@@ -2,6 +2,7 @@ package health.ere.ps.service.muster16.parser;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,12 @@ public class Muster16SvgExtractorParser implements IMuster16FormParser {
 
     public Muster16SvgExtractorParser(Map<String,String> mappedFields)  {
         this.mappedFields = mappedFields;
+
+        nameAndAddressInfo = getMappedFields().getOrDefault(
+                "nameAndAddress", "").split("\\n");
+
+        prescriptionInfo = getMappedFields().getOrDefault(
+                "medication", "").split("\\n");
     }
 
     @Override
@@ -93,11 +100,15 @@ public class Muster16SvgExtractorParser implements IMuster16FormParser {
 
     @Override
     public List<String> parsePrescriptionList() {
-        List<String> extractedMedicationFields =
-                Arrays.stream(prescriptionInfo).map(med -> med.trim())
-                        .filter(med -> StringUtils.isNotBlank(med)).collect(
-                        Collectors.toList());
-        return extractedMedicationFields;
+        if(prescriptionInfo != null) {
+            List<String> extractedMedicationFields =
+                    Arrays.stream(prescriptionInfo).map(med -> med.trim())
+                            .filter(med -> StringUtils.isNotBlank(med)).collect(
+                            Collectors.toList());
+            return extractedMedicationFields;
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     @Override

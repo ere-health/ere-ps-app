@@ -12,7 +12,7 @@ import javax.inject.Inject;
 import org.hl7.fhir.r4.model.Bundle;
 
 import health.ere.ps.event.BundleEvent;
-import health.ere.ps.event.NewMuster16FormEvent;
+import health.ere.ps.event.Muster16PrescriptionFormEvent;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
 import health.ere.ps.service.fhir.bundle.PrescriptionBundleBuilder;
 
@@ -22,24 +22,25 @@ public class FHIRService {
     @Inject
     Event<BundleEvent> bundleEvent;
 
+    @Inject
+    Event<Exception> exceptionEvent;
+
     private static Logger log = Logger.getLogger(FHIRService.class.getName());
 
-    public void generatePrescriptionBundle(@ObservesAsync NewMuster16FormEvent newMuster16FormEvent) {
-        Muster16PrescriptionForm muster16PrescriptionForm =
-                newMuster16FormEvent.getMuster16PrescriptionForm();
+    public void generatePrescriptionBundle(@ObservesAsync Muster16PrescriptionFormEvent muster16PrescriptionFormEvent) {
+        log.info("FHIRService.generatePrescriptionBundle");
+        Muster16PrescriptionForm muster16PrescriptionForm = muster16PrescriptionFormEvent.muster16PrescriptionForm;
 
         PrescriptionBundleBuilder bundleBuilder =
                 new PrescriptionBundleBuilder(muster16PrescriptionForm);
 
         try {
             Bundle bundle = bundleBuilder.createBundle();
-            bundleEvent.fire(new BundleEvent(bundle));
+            bundleEvent.fireAsync(new BundleEvent(bundle));
         } catch (ParseException e) {
             log.log(Level.SEVERE,
                     "Exception encountered while generating e-prescription bundle.", e);
-            //TODO: Send/publish error notification
+            exceptionEvent.fireAsync(e);
         }
-
-        //TODO: Post process created bundle - e.g. display on web page or send to connector.
     }
 }

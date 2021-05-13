@@ -2,9 +2,6 @@ package health.ere.ps.event;
 
 import org.hl7.fhir.r4.model.Bundle;
 
-import javax.enterprise.context.RequestScoped;
-
-@RequestScoped
 public class BundleEvent {
 
     private Bundle bundle;

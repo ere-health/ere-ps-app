@@ -1,11 +1,14 @@
 package health.ere.ps.websocket;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
+import javax.enterprise.event.ObservesAsync;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -21,10 +24,10 @@ import health.ere.ps.event.BundleEvent;
 public class Websocket {
 
     // Create a FHIR context
-	FhirContext ctx = FhirContext.forR4();
+    FhirContext ctx = FhirContext.forR4();
 
     private static Logger log = Logger.getLogger(Websocket.class.getName());
-    Set<Session> sessions = new HashSet<>(); 
+    Set<Session> sessions = new HashSet<>();
 
     @OnOpen
     public void onOpen(Session session) {
@@ -46,17 +49,35 @@ public class Websocket {
 
     @OnMessage
     public void onMessage(String message) {
-        log.info("Message: "+message);
+        log.info("Message: " + message);
     }
 
-    public void onFhirBundle(@Observes BundleEvent bundleEvent) {
+    public void onFhirBundle(@ObservesAsync BundleEvent bundleEvent) {
         sessions.forEach(s -> {
-            s.getAsyncRemote().sendObject("{\"type\": \"Bundle\", \"payload\": "+
-                ctx.newJsonParser().encodeResourceToString(bundleEvent.getBundle())+"}", result ->  {
-                if (result.getException() != null) {
-                    System.out.println("Unable to send message: " + result.getException());
-                }
-            });
+            s.getAsyncRemote().sendObject("{\"type\": \"Bundle\", \"payload\": "
+                    + ctx.newJsonParser().encodeResourceToString(bundleEvent.getBundle()) + "}", result -> {
+                        if (result.getException() != null) {
+                            System.out.println("Unable to send message: " + result.getException());
+                        }
+                    });
+        });
+    }
+
+    public void onException(@ObservesAsync Exception exception) {
+        sessions.forEach(s -> {
+
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            exception.printStackTrace(pw);
+
+            s.getAsyncRemote()
+                    .sendObject("{\"type\": \"Exception\", \"payload\": { \"class\": \""
+                            + exception.getClass().getName() + "\", \"message\": \"" + exception.getLocalizedMessage()
+                            + "\", \"stacktrace\": \"" + sw.toString().replaceAll("\r?\n", "\\n") + "\"}}", result -> {
+                                if (result.getException() != null) {
+                                    System.out.println("Unable to send message: " + result.getException());
+                                }
+                            });
         });
     }
 
