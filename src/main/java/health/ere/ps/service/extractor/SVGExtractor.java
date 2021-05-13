@@ -49,8 +49,8 @@ public class SVGExtractor {
     private URI path;
     private boolean debugRectangles = false;
 
-    private static final float X_OFFSET = -3f;
-    private static final float Y_OFFSET = -10f;
+    private static final float X_OFFSET = -4f;
+    private static final float Y_OFFSET = -12f;
     private static final float SCALE = 1f;
 
     public SVGExtractor() throws URISyntaxException {
@@ -128,7 +128,7 @@ public class SVGExtractor {
     public String extractTextAtPosition(PDDocument document, String id, float x, float y, float width, float height) throws IOException {
         PDFTextStripperByArea textStripper;
         textStripper = new PDFTextStripperByArea();
-        Float rect = new java.awt.geom.Rectangle2D.Float(x, y, width, height);
+        Float rect = new java.awt.geom.Rectangle2D.Float(y, x, height, width);
         textStripper.addRegion(id, rect);
         PDPage docPage = document.getPage(0);
         textStripper.extractRegions(docPage);

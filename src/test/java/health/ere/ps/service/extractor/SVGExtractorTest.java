@@ -1,7 +1,6 @@
 package health.ere.ps.service.extractor;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.jboss.logging.Logger;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -10,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
 import javax.xml.stream.XMLStreamException;
