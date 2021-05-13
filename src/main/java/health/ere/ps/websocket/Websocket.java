@@ -5,6 +5,7 @@ import java.io.StringWriter;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -17,7 +18,7 @@ import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
 import ca.uhn.fhir.context.FhirContext;
-import health.ere.ps.event.BundleEvent;
+import health.ere.ps.event.BundlesEvent;
 
 @ServerEndpoint("/websocket")
 @ApplicationScoped
@@ -52,15 +53,20 @@ public class Websocket {
         log.info("Message: " + message);
     }
 
-    public void onFhirBundle(@ObservesAsync BundleEvent bundleEvent) {
+    public void onFhirBundle(@ObservesAsync BundlesEvent bundlesEvent) {
         sessions.forEach(s -> {
-            s.getAsyncRemote().sendObject("{\"type\": \"Bundle\", \"payload\": "
-                    + ctx.newJsonParser().encodeResourceToString(bundleEvent.getBundle()) + "}", result -> {
+            s.getAsyncRemote().sendObject(
+                    "{\"type\": \"Bundles\", \"payload\": " + generateBundlesJson(bundlesEvent) + "}", result -> {
                         if (result.getException() != null) {
                             System.out.println("Unable to send message: " + result.getException());
                         }
                     });
         });
+    }
+
+    private String generateBundlesJson(BundlesEvent bundlesEvent) {
+        return bundlesEvent.getBundles().stream().map(bundle -> ctx.newJsonParser().encodeResourceToString(bundle))
+                .collect(Collectors.joining(",\n", "[", "]"));
     }
 
     public void onException(@ObservesAsync Exception exception) {
