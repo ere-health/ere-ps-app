@@ -2,40 +2,19 @@ package health.ere.ps.service.muster16.parser;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-
-import health.ere.ps.service.extractor.SVGExtractor;
-
-@RequestScoped
 public class Muster16SvgExtractorParser implements IMuster16FormParser {
-    @Inject
-    SVGExtractor svgExtractor;
+
     private Map<String, String> mappedFields;
     private String[] nameAndAddressInfo;
     private String[] prescriptionInfo;
 
-    public void init(InputStream muster16PdfFile) throws URISyntaxException {
-        svgExtractor.init(getClass().getResource(
-                "/svg-extract-templates/Muster-16-Template.svg").toURI(), false);
-
-        mappedFields = svgExtractor.extract(muster16PdfFile);
-
-        nameAndAddressInfo = getMappedFields().getOrDefault(
-                "nameAndAddress", "").split("\\n");
-
-        prescriptionInfo = getMappedFields().getOrDefault(
-                "medication", "").split("\\n");
-    }
-
-    public Muster16SvgExtractorParser() {
+    public Muster16SvgExtractorParser(Map<String,String> mappedFields)  {
+        this.mappedFields = mappedFields;
     }
 
     @Override
