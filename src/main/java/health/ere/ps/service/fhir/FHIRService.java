@@ -11,7 +11,7 @@ import javax.inject.Inject;
 
 import org.hl7.fhir.r4.model.Bundle;
 
-import health.ere.ps.event.BundleEvent;
+import health.ere.ps.event.BundlesEvent;
 import health.ere.ps.event.Muster16PrescriptionFormEvent;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
 import health.ere.ps.service.fhir.bundle.PrescriptionBundleBuilder;
@@ -20,7 +20,7 @@ import health.ere.ps.service.fhir.bundle.PrescriptionBundleBuilder;
 public class FHIRService {
 
     @Inject
-    Event<BundleEvent> bundleEvent;
+    Event<BundlesEvent> bundleEvent;
 
     @Inject
     Event<Exception> exceptionEvent;
@@ -36,7 +36,7 @@ public class FHIRService {
 
         try {
             Bundle bundle = bundleBuilder.createBundle();
-            bundleEvent.fireAsync(new BundleEvent(bundle));
+            bundleEvent.fireAsync(new BundlesEvent(bundle));
         } catch (ParseException e) {
             log.log(Level.SEVERE,
                     "Exception encountered while generating e-prescription bundle.", e);
