@@ -41,14 +41,14 @@ import com.hp.jipp.trans.IppServerTransport;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 
-import health.ere.ps.service.ipp.PrinterService;
+import health.ere.ps.event.PDDocumentEvent;
 import kotlin.ranges.IntRange;
 
 @Path("ipp")
 public class PrinterResource implements IppServerTransport {
 
     @Inject
-    Event<PDDocument> pdDocumentEvent;
+    Event<PDDocumentEvent> pdDocumentEvent;
 
     private static final AtomicInteger printJobId = new AtomicInteger(0);
 
@@ -786,7 +786,7 @@ public class PrinterResource implements IppServerTransport {
 
         if(ippPacket.getOperation().equals(Operation.printJob)) {
             // TODO: check for mime type, for the moment, expect PDF
-            pdDocumentEvent.fireAsync(PDDocument.load(data.getData()));
+            pdDocumentEvent.fireAsync(new PDDocumentEvent(PDDocument.load(data.getData())));
             IppPacket responsePacket = IppPacket.jobResponse(
                 Status.successfulOk, ippPacket.getRequestId(), uri.resolve("/job/"+printJobId.incrementAndGet()),
                 JobState.pending,

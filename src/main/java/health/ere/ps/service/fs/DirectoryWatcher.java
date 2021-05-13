@@ -26,6 +26,7 @@ import java.io.IOException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
+import health.ere.ps.event.PDDocumentEvent;
 import io.quarkus.runtime.Startup;
 import io.quarkus.scheduler.Scheduled;
 
@@ -38,7 +39,7 @@ import io.quarkus.scheduler.Scheduled;
 public class DirectoryWatcher {
 
     @Inject
-    Event<PDDocument> pdDocumentEvent;
+    Event<PDDocumentEvent> pdDocumentEvent;
 
     private static Logger log = Logger.getLogger(DirectoryWatcher.class.getName());
 
@@ -87,8 +88,8 @@ public class DirectoryWatcher {
                 Path filePath = ((Path) watchEvent.context());
                 log.info("Processing file: " + filePath);
                 try {
-                    pdDocumentEvent.fireAsync(PDDocument
-                            .load(new File(watchPath.toFile().getAbsolutePath() + "/" + filePath.getFileName())));
+                    pdDocumentEvent.fireAsync(new PDDocumentEvent(PDDocument
+                            .load(new File(watchPath.toFile().getAbsolutePath() + "/" + filePath.getFileName()))));
                 } catch (IOException e) {
                     log.log(Level.SEVERE, "Could not parse PDF", e);
                 }
