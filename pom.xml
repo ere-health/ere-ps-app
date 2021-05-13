@@ -292,4 +292,14 @@
             </properties>
         </profile>
     </profiles>
+    <repositories>
+        <repository>
+                <!-- git clone https://github.com/ere-health/api-telematik -->
+                <!-- cd api-telematik && mvn install -->
+                <!-- cd /home/manuel/git/ere-ps-app/project-repo --> 
+                <!-- cp -r ~/.m2/repository/health/  -->
+                <id>project-repo</id>
+                <url>file://${project.basedir}/project-repo</url>
+        </repository>
+    </repositories>
 </project>

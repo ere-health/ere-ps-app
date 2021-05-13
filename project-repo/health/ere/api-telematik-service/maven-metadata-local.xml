@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>health.ere</groupId>
+  <artifactId>api-telematik-service</artifactId>
+  <versioning>
+    <release>OPD4</release>
+    <versions>
+      <version>OPD4</version>
+    </versions>
+    <lastUpdated>20210513073259</lastUpdated>
+  </versioning>
+</metadata>
