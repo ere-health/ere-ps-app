@@ -4,6 +4,7 @@ import org.jboss.logging.Logger;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.net.URISyntaxException;
 import java.util.Map;
@@ -48,7 +49,7 @@ class SVGExtractorTest {
     @Test
     void testExtract2() throws URISyntaxException, FileNotFoundException {
         svgExtractor.init(getClass().getResource("/svg-extract-templates/Muster-16-Template.svg").toURI(), true);
-        Map<String, String> map = svgExtractor.extract(getClass().getResourceAsStream("/muster-16-print-samples/test1.pdf"));
+        Map<String, String> map = svgExtractor.extract(new FileInputStream("../secret-test-print-samples/CGM-Turbomed/test1.pdf"));
 
         map.entrySet().stream().forEach(entry -> logger.info(entry.getKey() +" = " + entry.getValue()));
     }

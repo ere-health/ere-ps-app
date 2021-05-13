@@ -5,7 +5,11 @@ import java.io.InputStream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
+import javax.enterprise.event.Observes;
+import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
 
 import health.ere.ps.event.NewMuster16FormEvent;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
@@ -19,8 +23,8 @@ public class PrinterService {
     @Inject
     Muster16FormDataExtractorService muster16FormDataExtractor;
 
-    public void print(InputStream muster16file) throws IOException {
-        String pdfText = muster16FormDataExtractor.extractData(muster16file);
+    public void print(@ObservesAsync PDDocument muster16file) throws IOException {
+        String pdfText = Muster16FormDataExtractorService.extractData(muster16file);
 
         Muster16PrescriptionForm muster16PrescriptionForm =
                 muster16FormDataExtractor.extractData(pdfText);
