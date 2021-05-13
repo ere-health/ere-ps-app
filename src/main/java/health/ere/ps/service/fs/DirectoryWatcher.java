@@ -59,6 +59,11 @@ public class DirectoryWatcher {
         try {
             watcher = FileSystems.getDefault().newWatchService();
             watchPath = Paths.get(dir);
+            File watchPathFile = watchPath.toFile();
+            if(!watchPathFile.exists()) {
+                log.info("Creating directory for watching pdf muster 16 forms: "+watchPathFile);
+                watchPathFile.mkdirs();
+            }
             WatchKey key = watchPath.register(watcher, ENTRY_CREATE);
             keys.put(key, watchPath);
         } catch (IOException e) {
