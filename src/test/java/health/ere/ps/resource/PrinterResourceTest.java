@@ -13,7 +13,8 @@ import org.junit.jupiter.api.Test;
 
 class PrinterResourceTest {
 
-    @Test @Disabled
+    @Disabled
+    @Test
     void handle() throws IOException {
         HttpIppClientTransport transport = new HttpIppClientTransport();
         URI uri = URI.create("http://localhost:8080/ipp/print");
