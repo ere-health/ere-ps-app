@@ -9,7 +9,9 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -25,36 +27,30 @@ class Muster16SvgExtractorParserTest {
     @Inject
     Logger logger;
 
-    @Inject
-    Muster16SvgExtractorParser parser;
-
     private Muster16PrescriptionForm muster16PrescriptionForm;
 
     @BeforeEach
     void setUp() throws URISyntaxException, IOException {
         logger.info("Setting up parser using SVGExtractor");
 
-        try(InputStream muster16PdfFileStream = Muster16SvgExtractorParserTest.class.getResourceAsStream(
-                "/muster-16-print-samples/test1.pdf")) {
-            parser.init(muster16PdfFileStream);
-
-            muster16PrescriptionForm = new Muster16PrescriptionForm(
-                    parser.parseInsuranceCompany(),
-                    parser.parseInsuranceCompanyId(),
-                    parser.parsePatientFirstName(),
-                    parser.parsePatientLastName(),
-                    parser.parsePatientStreetName(),
-                    parser.parsePatientStreetNumber(),
-                    parser.parsePatientCity(),
-                    parser.parsePatientZipCode(),
-                    parser.parsePatientDateOfBirth(),
-                    parser.parsePatientInsuranceId(),
-                    parser.parseClinicId(),
-                    parser.parseDoctorId(),
-                    parser.parsePrescriptionDate(),
-                    parser.parsePrescriptionList()
-            );
-        }
+        Map<String, String> mappedFields = new HashMap<>();
+        Muster16SvgExtractorParser parser = new Muster16SvgExtractorParser(mappedFields);
+        muster16PrescriptionForm = new Muster16PrescriptionForm(
+                parser.parseInsuranceCompany(),
+                parser.parseInsuranceCompanyId(),
+                parser.parsePatientFirstName(),
+                parser.parsePatientLastName(),
+                parser.parsePatientStreetName(),
+                parser.parsePatientStreetNumber(),
+                parser.parsePatientCity(),
+                parser.parsePatientZipCode(),
+                parser.parsePatientDateOfBirth(),
+                parser.parsePatientInsuranceId(),
+                parser.parseClinicId(),
+                parser.parseDoctorId(),
+                parser.parsePrescriptionDate(),
+                parser.parsePrescriptionList()
+        );
     }
 
     @Test
@@ -125,8 +121,7 @@ class Muster16SvgExtractorParserTest {
         assertTrue(StringUtils.isNotBlank(muster16PrescriptionForm.getPatientInsuranceId()));
     }
 
-    @Test
-    void getMappedFields() {
+    void getMappedFields(Muster16SvgExtractorParser parser) {
         parser.getMappedFields().entrySet().stream().forEach((entry) -> {
             logger.info(entry.getKey() + " = " + entry.getValue());
         });
