@@ -21,7 +21,7 @@ public interface IMuster16FormParser {
     default boolean isDataFieldPresentAtPosition(String[] muster16PdfDataFields,
                                                  int fieldPosition) {
         return muster16PdfDataFields != null && muster16PdfDataFields.length > 0 &&
-                fieldPosition >= 0 && muster16PdfDataFields.length >= fieldPosition;
+                fieldPosition >= 0 && muster16PdfDataFields.length > fieldPosition;
     }
 
     default String getDataFieldAtPosOrDefault(String[] muster16PdfDataFields,
