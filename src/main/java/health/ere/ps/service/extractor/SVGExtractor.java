@@ -4,6 +4,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.PDPageContentStream.AppendMode;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.text.PDFTextStripperByArea;
 
 import java.awt.Color;
@@ -69,8 +70,7 @@ public class SVGExtractor {
     public void analyzeDocument(@ObservesAsync PDDocumentEvent pDDocumentEvent) {
         log.info("SVGExtractor.analyzeDocument");
         try {
-            PDDocument document = createDocumentRotate90(pDDocumentEvent.pDDocument);
-            Map<String, String> extractResult = extract(document);
+            Map<String, String> extractResult = extract(pDDocumentEvent.pDDocument);
             sVGExtractorResultEvent.fireAsync(new SVGExtractorResultEvent(extractResult));
         } catch (Exception e) {
             log.log(Level.SEVERE, "Could not extract results", e);
@@ -100,15 +100,15 @@ public class SVGExtractor {
                     rectFetchMode = true;
                 } else if(rectFetchMode && "rect".equals(localPart)) {
                     String id = startElement.getAttributeByName(new QName("id")).getValue();
-                    float y = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("x")).getValue())*SCALE+X_OFFSET;
-                    float x = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("y")).getValue())*SCALE+Y_OFFSET;
-                    float height = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("width")).getValue())*SCALE;
-                    float width = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("height")).getValue())*SCALE;
+                    float x = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("x")).getValue())*SCALE+X_OFFSET;
+                    float y = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("y")).getValue())*SCALE+Y_OFFSET;
+                    float width = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("width")).getValue())*SCALE;
+                    float height = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("height")).getValue())*SCALE;
                     if(isDebugRectangles()) {
                         PDPageContentStream contentStream = new PDPageContentStream(document, document.getPage(0), AppendMode.APPEND, true);
-                        contentStream.addRect(y, x, height, width);
+                        contentStream.addRect(x, y, width, height);
                         contentStream.setStrokingColor(Color.RED);  
-                        //Drawing a rectangle  
+                        //Drawing a rectangle
                         contentStream.stroke();
                         contentStream.close();
                     }
@@ -128,9 +128,12 @@ public class SVGExtractor {
     public String extractTextAtPosition(PDDocument document, String id, float x, float y, float width, float height) throws IOException {
         PDFTextStripperByArea textStripper;
         textStripper = new PDFTextStripperByArea();
-        Float rect = new java.awt.geom.Rectangle2D.Float(y, x, height, width);
-        textStripper.addRegion(id, rect);
         PDPage docPage = document.getPage(0);
+        PDRectangle mediaBox = docPage.getMediaBox();
+        // log.info("Page: x "+mediaBox.getLowerLeftX()+" y: "+mediaBox.getLowerLeftY()+" width: "+mediaBox.getWidth()+" "+mediaBox.getHeight());
+        Float rect = new java.awt.geom.Rectangle2D.Float(x, y, width, height);
+        // log.info("Rec: x "+rect.getX()+" y: "+rect.getY()+" width: "+rect.getWidth()+" "+rect.getHeight());
+        textStripper.addRegion(id, rect);
         textStripper.extractRegions(docPage);
         String textForRegion = textStripper.getTextForRegion(id);
         return textForRegion;
