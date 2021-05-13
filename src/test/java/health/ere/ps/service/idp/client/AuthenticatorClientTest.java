@@ -1,14 +1,10 @@
 package health.ere.ps.service.idp.client;
 
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.jboss.logging.Logger;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
-import java.net.MalformedURLException;
-import java.net.URL;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
@@ -22,6 +18,7 @@ import health.ere.ps.model.idp.client.token.JsonWebToken;
 import io.quarkus.test.junit.QuarkusTest;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @QuarkusTest
 class AuthenticatorClientTest {
@@ -34,10 +31,12 @@ class AuthenticatorClientTest {
     @ConfigProperty(name = "idp.client.id")
     String idpCientId;
     
-    @ConfigProperty(name = "idp.redirect.uri")
-    String idpRedirectUri;
+    @ConfigProperty(name = "idp.auth.request.url")
+    String idpAuthRequestUrl;
 
-    @Disabled
+    @ConfigProperty(name = "idp.auth.request.redirect.url")
+    String idpAuthRequestRedirectUrl;
+
     @Test
     void test_Successful_Authorization_Request() {
         AuthenticatorClient authenticatorClient = new AuthenticatorClient();
@@ -45,14 +44,11 @@ class AuthenticatorClientTest {
         AuthorizationResponse authorizationResponse =
                 authenticatorClient.doAuthorizationRequest(AuthorizationRequest.builder()
                 .clientId(idpCientId)
-                .link(authenticatorClient.retrieveDiscoveryDocument(
-                        idpBaseUrl +
-                                IdpHttpClientService.DISCOVERY_DOCUMENT_URI)
-                                .getAuthorizationEndpoint())
+                .link(idpAuthRequestUrl)
                 .codeChallenge(ClientUtilities.generateCodeChallenge(
                         ClientUtilities.generateCodeVerifier()))
                 .codeChallengeMethod(CodeChallengeMethod.S256)
-                .redirectUri(idpRedirectUri)
+                .redirectUri(idpAuthRequestRedirectUrl)
                 .state(RandomStringUtils.randomAlphanumeric(20))
                 .scopes(java.util.Set.of(IdpScope.OPENID, IdpScope.EREZEPT))
                 .nonce(RandomStringUtils.randomAlphanumeric(20))
@@ -64,13 +60,32 @@ class AuthenticatorClientTest {
         assertNotNull(authorizationResponse.getAuthenticationChallenge().getUserConsent(),
                 "User Consent Present");
 
+        assertTrue(
+                MapUtils.isNotEmpty(authorizationResponse.getAuthenticationChallenge()
+                        .getUserConsent().getRequestedClaims()),
+                "User consent requested claims map is present");
+
+        assertTrue(
+                MapUtils.isNotEmpty(authorizationResponse.getAuthenticationChallenge()
+                        .getUserConsent().getRequestedScopes()),
+                "User consent scopes map is present");
+
         assertNotNull(authorizationResponse.getAuthenticationChallenge().getChallenge(),
                 "Challenge Response Present");
+
+        logger.info("User consent scopes: " +
+                authorizationResponse.getAuthenticationChallenge()
+                        .getUserConsent().getRequestedScopes());
+        logger.info("User consent claims: " +
+                authorizationResponse.getAuthenticationChallenge()
+                        .getUserConsent().getRequestedClaims());
+        logger.info("Auth challenge: " +
+                authorizationResponse.getAuthenticationChallenge()
+                        .getChallenge());
     }
 
     @Test
-    void test_Successful_Retrieval_Of_Discovery_Document_Using_Idp_Http_Client()
-            throws MalformedURLException {
+    void test_Successful_Retrieval_Of_Discovery_Document_Using_Idp_Http_Client() {
         IdpHttpClientService idpHttpClientService =
                 AuthenticatorClient.getIdpHttpClientInstanceByUrl(
                         idpBaseUrl + IdpHttpClientService.DISCOVERY_DOCUMENT_URI);
