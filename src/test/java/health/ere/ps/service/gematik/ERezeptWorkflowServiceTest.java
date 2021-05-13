@@ -53,7 +53,8 @@ public class ERezeptWorkflowServiceTest {
         eRezeptWorkflowService.init();
     }
 
-    @Test
+    @Test @Disabled
+    // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testGetCards() throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         eRezeptWorkflowService.getCards();
     }
@@ -64,24 +65,28 @@ public class ERezeptWorkflowServiceTest {
         eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
     }
 
-    @Test
+    @Test @Disabled
+    // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testCreateERezeptTask() throws DataFormatException, IOException {
         Task task = eRezeptWorkflowService.createERezeptTask(testBearerToken);
         Files.write(Paths.get("target/titus-eRezeptWorkflowService-createERezeptTask.xml"), iParser.encodeResourceToString(task).getBytes());
         Files.write(Paths.get("target/titus-eRezeptWorkflowService-accessToken.txt"), ERezeptWorkflowService.getAccessCode(task).getBytes());
     }
 
-    @Test
+    @Test @Disabled
+    // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testActivateComfortSignature() throws FaultMessage {
         eRezeptWorkflowService.activateComfortSignature();
     }
 
-    @Test
+    @Test @Disabled
+    // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testGetSignatureMode() throws FaultMessage {
         eRezeptWorkflowService.getSignatureMode();
     }
     
-    @Test
+    @Test @Disabled
+    // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testUpdateBundleWithTaskAndSignBundleWithIdentifiers() throws InvalidCanonicalizerException, XMLParserException, CanonicalizationException, FaultMessage, IOException {
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/0428d416-149e-48a4-977c-394887b3d85c.xml"));
         Task task = iParser.parseResource(Task.class, new FileInputStream("target/titus-eRezeptWorkflowService-createERezeptTask.xml"));
@@ -89,14 +94,16 @@ public class ERezeptWorkflowServiceTest {
         SignResponse signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundleWithAccessCode.bundle);
         Files.write(Paths.get("target/titus-eRezeptWorkflowService-signBundleWithIdentifiers.dat"), signResponse.getSignatureObject().getBase64Signature().getValue());
     }
-    @Test
+    @Test @Disabled
+    // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testUpdateERezeptTask() throws DataFormatException, IOException {
         Task task = iParser.parseResource(Task.class, new FileInputStream("target/titus-eRezeptWorkflowService-createERezeptTask.xml"));
         byte[] signedBytes = Files.readAllBytes(Paths.get("target/titus-eRezeptWorkflowService-signBundleWithIdentifiers.dat"));
         String accessCode = new String(Files.readAllBytes(Paths.get("target/titus-eRezeptWorkflowService-accessToken.txt")));
         eRezeptWorkflowService.updateERezeptTask(testBearerToken, task, accessCode, signedBytes);
     }
-    @Test
+    @Test @Disabled
+    // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testDeactivateComfortSignature() throws FaultMessage {
         eRezeptWorkflowService.deactivateComfortSignature();
     }
