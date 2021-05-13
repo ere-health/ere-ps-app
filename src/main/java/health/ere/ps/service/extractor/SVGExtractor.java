@@ -50,12 +50,20 @@ public class SVGExtractor {
     private URI path;
     private boolean debugRectangles = false;
 
-    private static final float X_OFFSET = -4f;
-    private static final float Y_OFFSET = -12f;
-    private static final float SCALE = 1f;
+    private SVGExtractorConfiguration configuration = SVGExtractorConfiguration.CGM_Z1;
 
     public SVGExtractor() throws URISyntaxException {
         this(SVGExtractor.class.getResource("/svg-extract-templates/Muster-16-Template.svg").toURI());
+    }
+
+    public SVGExtractor(SVGExtractorConfiguration configuration) throws URISyntaxException {
+        this();
+        this.configuration = configuration;
+    }
+    public SVGExtractor(SVGExtractorConfiguration configuration, boolean debugRectangles) throws URISyntaxException {
+        this();
+        this.configuration = configuration;
+        this.setDebugRectangles(debugRectangles);
     }
 
     public SVGExtractor(URI path) {
@@ -78,14 +86,12 @@ public class SVGExtractor {
         }
 
     }
-
-    public PDDocument createDocumentRotate90(PDDocument document) throws IOException {
-        PDPage page = document.getDocumentCatalog().getPages().get(0);
-        page.setRotation(90);
-        return document;
-    }
-
+    
     public Map<String, String> extract(PDDocument document) throws IOException, XMLStreamException {
+        PDPage page = document.getDocumentCatalog().getPages().get(0);
+        if(configuration.ROTATE_DEGREE != 0) {
+            page.setRotation(configuration.ROTATE_DEGREE);
+        }
         Map<String, String> map = new HashMap<>();
         XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
         XMLEventReader reader = xmlInputFactory.createXMLEventReader(new FileInputStream(new File(getPath())));
@@ -100,13 +106,17 @@ public class SVGExtractor {
                     rectFetchMode = true;
                 } else if(rectFetchMode && "rect".equals(localPart)) {
                     String id = startElement.getAttributeByName(new QName("id")).getValue();
-                    float x = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("x")).getValue())*SCALE+X_OFFSET;
-                    float y = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("y")).getValue())*SCALE+Y_OFFSET;
-                    float width = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("width")).getValue())*SCALE;
-                    float height = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("height")).getValue())*SCALE;
+                    float x = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("x")).getValue())*configuration.SCALE+configuration.X_OFFSET;
+                    float y = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("y")).getValue())*configuration.SCALE+configuration.Y_OFFSET;
+                    float width = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("width")).getValue())*configuration.SCALE;
+                    float height = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("height")).getValue())*configuration.SCALE;
                     if(isDebugRectangles()) {
-                        PDPageContentStream contentStream = new PDPageContentStream(document, document.getPage(0), AppendMode.APPEND, true);
-                        contentStream.addRect(x, y, width, height);
+                        PDPageContentStream contentStream = new PDPageContentStream(document, page, AppendMode.APPEND, true);
+                        if(configuration.ROTATE_DEGREE == 90) {
+                            contentStream.addRect(y, x, height, width);
+                        } else {
+                            contentStream.addRect(x, y, width, height);
+                        }
                         contentStream.setStrokingColor(Color.RED);  
                         //Drawing a rectangle
                         contentStream.stroke();
@@ -118,7 +128,7 @@ public class SVGExtractor {
             }
         }
         if(isDebugRectangles()) {
-            final File file = new File("target/SVGExtractor.pdf");
+            final File file = new File("target/SVGExtractor-"+configuration.NAME+".pdf");
             document.save(file);
             document.close();
         }
@@ -129,7 +139,7 @@ public class SVGExtractor {
         PDFTextStripperByArea textStripper;
         textStripper = new PDFTextStripperByArea();
         PDPage docPage = document.getPage(0);
-        PDRectangle mediaBox = docPage.getMediaBox();
+        // PDRectangle mediaBox = docPage.getMediaBox();
         // log.info("Page: x "+mediaBox.getLowerLeftX()+" y: "+mediaBox.getLowerLeftY()+" width: "+mediaBox.getWidth()+" "+mediaBox.getHeight());
         Float rect = new java.awt.geom.Rectangle2D.Float(x, y, width, height);
         // log.info("Rec: x "+rect.getX()+" y: "+rect.getY()+" width: "+rect.getWidth()+" "+rect.getHeight());
