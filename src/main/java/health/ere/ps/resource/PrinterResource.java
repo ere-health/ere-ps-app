@@ -77,7 +77,7 @@ public class PrinterResource implements IppServerTransport {
         log.info("Request: "+data);
         IppPacket ippPacket = data.getPacket();
         if(ippPacket.getOperation().equals(Operation.getPrinterAttributes)) {
-            return printer.handleGetPrinterAttributesOperation(uri, data);
+            IppPacketData serverResponse = printer.handleGetPrinterAttributesOperation(uri, data);
             log.info("Response: "+serverResponse);
             return serverResponse;
         }
