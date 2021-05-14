@@ -6,10 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
@@ -17,24 +14,19 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import com.hp.jipp.encoding.Attribute;
-import com.hp.jipp.encoding.AttributeImpl;
-import com.hp.jipp.encoding.IntRangeType;
 import com.hp.jipp.encoding.IppInputStream;
 import com.hp.jipp.encoding.IppOutputStream;
 import com.hp.jipp.encoding.IppPacket;
 import com.hp.jipp.encoding.Tag;
 import com.hp.jipp.model.JobState;
 import com.hp.jipp.model.JobStateReason;
-import com.hp.jipp.model.MediaCol;
 import com.hp.jipp.model.Operation;
-import com.hp.jipp.model.PrinterState;
 import com.hp.jipp.model.Status;
 import com.hp.jipp.model.Types;
 import com.hp.jipp.trans.IppPacketData;
@@ -52,6 +44,8 @@ public class PrinterResource implements IppServerTransport {
 
     private final IppPrinter printer = new IppPrinter();
     private final String IPP_MEDIA_TYPE = "application/ipp";
+
+    private AtomicInteger printJobId = new AtomicInteger(0);
 
     private static Logger log = Logger.getLogger(PrinterResource.class.getName());
 
