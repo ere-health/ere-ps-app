@@ -1,84 +1,40 @@
 package health.ere.ps.service.idp.client;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.net.MalformedURLException;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
+import javax.inject.Inject;
 
-import health.ere.ps.model.idp.client.DiscoveryDocumentResponse;
+import health.ere.ps.model.idp.client.IdpTokenResult;
 import health.ere.ps.model.idp.crypto.PkiIdentity;
 import health.ere.ps.service.idp.tests.PkiKeyResolver;
+import io.quarkus.test.junit.QuarkusTest;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-
+@QuarkusTest
 @ExtendWith(PkiKeyResolver.class)
 public class IdpClientTest {
-    private IdpClient idpClient;
+    @Inject
+    IdpClient idpClient;
+
+    private PkiIdentity smc_bPkIdentity;
     private AuthenticatorClient authenticatorClient;
 
-    @Disabled
     @BeforeEach
-    public void init(final PkiIdentity ecc){
-        authenticatorClient = mock(AuthenticatorClient.class);
-        doReturn(DiscoveryDocumentResponse.builder()
-                .authorizationEndpoint("fdsa")
-                .idpSig(ecc.getCertificate())
-                .tokenEndpoint("fdsafds")
-                .build())
-                .when(authenticatorClient)
-                .retrieveDiscoveryDocument(anyString());
+    public void init(
+            @PkiKeyResolver.Filename("109500969_X114428530_c.ch.aut-ecc")
+            final PkiIdentity smc_bPkIdentity) {
 
-        doAnswer(call -> ((Function) call.getArguments()[1]).apply(null))
-                .when(authenticatorClient)
-                .doAuthorizationRequest(any());
-
-        idpClient = IdpClient.builder()
-                .discoveryDocumentUrl("fjnkdslaö")
-                .authenticatorClient(authenticatorClient)
-                .build();
-
+        this.smc_bPkIdentity = smc_bPkIdentity;
         idpClient.initialize();
     }
 
-    @Disabled
     @Test
-    public void testBeforeCallback(final PkiIdentity ecc) {
-        final AtomicInteger callCounter = new AtomicInteger(0);
-        idpClient.setBeforeAuthorizationCallback(r -> callCounter.incrementAndGet());
+    public void test_Successful_Idp_Login() {
+        IdpTokenResult idpTokenResult = idpClient.login(smc_bPkIdentity);
 
-        try {
-            idpClient.login(ecc);
-        } catch (final RuntimeException e) {
-            //swallow
-        }
-
-        assertEquals(1, callCounter.get());
+        Assertions.assertNotNull(idpTokenResult);
     }
 
-    @Disabled
-    @Test
-    public void testBeforeFunction(final PkiIdentity ecc) {
-        final AtomicInteger callCounter = new AtomicInteger(0);
-        idpClient.setBeforeAuthorizationMapper(r -> {
-            callCounter.incrementAndGet();
-            return r;
-        });
-
-        try {
-            idpClient.login(ecc);
-        } catch (final RuntimeException e) {
-            //swallow
-        }
-
-        assertEquals(1, callCounter.get());
-    }
 }

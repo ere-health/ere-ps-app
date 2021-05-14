@@ -42,7 +42,8 @@ public class PkiKeyResolver implements ParameterResolver {
     }
 
     private PkiIdentity retrieveIdentityFromFileSystem(final String fileFilter) {
-        try (final Stream<Path> pathStream = Files.find(Paths.get("src", "test", "resources"), 128,
+        try (final Stream<Path> pathStream = Files.find(Paths.get("src", "test",
+                "resources", "certs"), 128,
             (p, a) -> p.toString().endsWith(".p12")
                 && p.getFileName().toString().toLowerCase().contains(
                 fileFilter.toLowerCase()))) {
@@ -57,7 +58,7 @@ public class PkiKeyResolver implements ParameterResolver {
                 })
                 .map(bytes -> CryptoLoader.getIdentityFromP12(bytes, "00"))
                 .orElseThrow(() -> new IdpCryptoException(
-                    "No matching identity found in src/test/resources and filter '" + fileFilter + "'"));
+                    "No matching identity found in src/test/resources/certs and filter '" + fileFilter + "'"));
         } catch (final IOException e) {
             throw new IdpCryptoException("Error while querying file system", e);
         }

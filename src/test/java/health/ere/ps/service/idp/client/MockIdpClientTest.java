@@ -106,7 +106,7 @@ public class MockIdpClientTest {
 
     @Test
     public void verifyTokenWithEcClientCertificate(
-            @PkiKeyResolver.Filename("833621999741600_c.hci.aut-apo-ecc.p12") final PkiIdentity eccClientIdentity) {
+            @PkiKeyResolver.Filename("certs/833621999741600_c.hci.aut-apo-ecc.p12") final PkiIdentity eccClientIdentity) {
        assertDoesNotThrow(() -> mockIdpClient.login(eccClientIdentity)
                 .getAccessToken()
                 .verify(mockIdpClient.getServerIdentity()
