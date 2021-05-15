@@ -1,6 +1,7 @@
 package health.ere.ps.websocket;
 
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.HashSet;
 import java.util.Set;
@@ -8,8 +9,13 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.enterprise.event.ObservesAsync;
+import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -19,10 +25,14 @@ import javax.websocket.server.ServerEndpoint;
 
 import ca.uhn.fhir.context.FhirContext;
 import health.ere.ps.event.BundlesEvent;
+import health.ere.ps.event.SignAndUploadBundlesEvent;
 
 @ServerEndpoint("/websocket")
 @ApplicationScoped
 public class Websocket {
+
+    @Inject
+    Event<SignAndUploadBundlesEvent> signAndUploadBundlesEvent;
 
     // Create a FHIR context
     FhirContext ctx = FhirContext.forR4();
@@ -51,6 +61,14 @@ public class Websocket {
     @OnMessage
     public void onMessage(String message) {
         log.info("Message: " + message);
+
+        JsonReader jsonReader = Json.createReader(new StringReader(message));
+        JsonObject object = jsonReader.readObject();
+        if("SignAndUploadBundles".equals(object.getString("type"))) {
+            SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(object);
+            signAndUploadBundlesEvent.fireAsync(event);
+        }
+        jsonReader.close();
     }
 
     public void onFhirBundle(@ObservesAsync BundlesEvent bundlesEvent) {
