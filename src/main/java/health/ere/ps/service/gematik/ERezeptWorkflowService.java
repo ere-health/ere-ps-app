@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
 import javax.ws.rs.client.Client;
@@ -50,6 +51,7 @@ import de.gematik.ws.conn.signatureservice.v7.SignatureModeEnum;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.FaultMessage;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureService;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortType;
+import health.ere.ps.event.BundlesWithAccessCodeOrThrowableEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
 import de.gematik.ws.conn.eventservice.v7.GetCards;
 import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
@@ -119,6 +121,10 @@ public class ERezeptWorkflowService {
         bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, eventServiceEndpointAddress);
     }
 
+    /**
+     * This function catches the sign and upload bundle events and does the necessary processing
+     * @param signAndUploadBundlesEvent
+     */
     public void onSignAndUploadBundlesEvent(@ObservesAsync SignAndUploadBundlesEvent signAndUploadBundlesEvent) {
         List<List<BundleWithAccessCodeOrThrowable>> bundleWithAccessCodeOrThrowable = new ArrayList<>();
         for(List<Bundle> bundles : signAndUploadBundlesEvent.listOfListOfBundles)
