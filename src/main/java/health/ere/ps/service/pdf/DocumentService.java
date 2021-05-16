@@ -9,11 +9,15 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.enterprise.event.ObservesAsync;
+import javax.inject.Inject;
 import javax.xml.XMLConstants;
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Result;
@@ -36,6 +40,10 @@ import org.apache.fop.configuration.DefaultConfigurationBuilder;
 import org.hl7.fhir.r4.model.Bundle;
 
 import ca.uhn.fhir.context.FhirContext;
+import health.ere.ps.event.BundlesWithAccessCodeEvent;
+import health.ere.ps.event.ERezeptDocumentsEvent;
+import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
+import health.ere.ps.model.pdf.ERezeptDocument;
 
 @ApplicationScoped
 public class DocumentService {
@@ -46,6 +54,9 @@ public class DocumentService {
 
 	// Create a FHIR context
 	FhirContext ctx = FhirContext.forR4();
+
+	@Inject
+	Event<ERezeptDocumentsEvent> eRezeptDocumentsEvent;
 
 	public DocumentService() {
 
@@ -61,6 +72,15 @@ public class DocumentService {
 		} catch (URISyntaxException ex) {
 			log.log(Level.SEVERE, "FOP Factory not initializable.", ex);
 		}
+	}
+
+	public void onBundlesWithAccessCodes(@ObservesAsync BundlesWithAccessCodeEvent bundlesWithAccessCodeEvent) {
+		ERezeptDocumentsEvent event = new ERezeptDocumentsEvent();
+		for(List<BundleWithAccessCodeOrThrowable> bundles : bundlesWithAccessCodeEvent.bundleWithAccessCodeOrThrowable) {
+			ByteArrayOutputStream boas = generateERezeptPdf(bundles);
+			event.eRezeptDocuments.add(new ERezeptDocument(bundles, boas.toByteArray()));
+		}
+		eRezeptDocumentsEvent.fireAsync(event);
 	}
 
 	private void initConfiguration(FopFactoryBuilder fopFactoryBuilder) throws URISyntaxException {
@@ -170,10 +190,11 @@ public class DocumentService {
 		return tmpFile;
 	}
 
-	public ByteArrayOutputStream generateERezeptPdf(Bundle bundle) {
+	public ByteArrayOutputStream generateERezeptPdf(List<BundleWithAccessCodeOrThrowable> bundles) {
 		File xml;
 		try {
-			xml = createTemporaryXmlFileFromBundle(bundle);
+			// TODO: support multiple bundles
+			xml = createTemporaryXmlFileFromBundle(bundles.get(0).bundle);
 			return generatePdfInOutputStream(xml);
 		} catch (IOException | FOPException | TransformerFactoryConfigurationError | TransformerException e) {
 			log.log(Level.SEVERE, "Could not generate ERezept PDF", e);
