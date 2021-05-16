@@ -51,8 +51,9 @@ import de.gematik.ws.conn.signatureservice.v7.SignatureModeEnum;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.FaultMessage;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureService;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortType;
-import health.ere.ps.event.BundlesWithAccessCodeOrThrowableEvent;
+import health.ere.ps.event.BundlesWithAccessCodeEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
+import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import de.gematik.ws.conn.eventservice.v7.GetCards;
 import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventService;
@@ -100,7 +101,7 @@ public class ERezeptWorkflowService {
     EventServicePortType eventService;
 
     @Inject
-    Event<BundlesWithAccessCodeOrThrowableEvent> bundlesWithAccessCodeOrThrowableEvent;
+    Event<BundlesWithAccessCodeEvent> bundlesWithAccessCodeEvent;
 
     public static final String EREZEPT_IDENTIFIER_SYSTEM = "https://gematik.de/fhir/NamingSystem/PrescriptionID";
 
@@ -127,10 +128,10 @@ public class ERezeptWorkflowService {
      */
     public void onSignAndUploadBundlesEvent(@ObservesAsync SignAndUploadBundlesEvent signAndUploadBundlesEvent) {
         List<List<BundleWithAccessCodeOrThrowable>> bundleWithAccessCodeOrThrowable = new ArrayList<>();
-        for(List<Bundle> bundles : signAndUploadBundlesEvent.listOfListOfBundles)
+        for(List<Bundle> bundles : signAndUploadBundlesEvent.listOfListOfBundles) {
             bundleWithAccessCodeOrThrowable.add(createMultipleERezeptsOnPrescriptionServer(signAndUploadBundlesEvent.bearerToken, bundles));
         }
-        bundlesWithAccessCodeOrThrowableEvent.fireAsync(new BundlesWithAccessCodeOrThrowableEvent(bundleWithAccessCodeOrThrowable));
+        bundlesWithAccessCodeEvent.fireAsync(new BundlesWithAccessCodeEvent(bundleWithAccessCodeOrThrowable));
     }
 
     /**
@@ -140,15 +141,19 @@ public class ERezeptWorkflowService {
      */
     public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(String bearerToken, List<Bundle> bundles) {
         List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodes = new ArrayList<>();
-        this.activateComfortSignature();
-        for(Bundle bundle : bundles) {
-            try {
-                bundleWithAccessCodes.add(createERezeptOnPrescriptionServer(bearerToken, bundle));
-            } catch(Throwable t) {
-                bundleWithAccessCodes.add(new BundleWithAccessCodeOrThrowable(t));
+        try {
+            this.activateComfortSignature();
+            for(Bundle bundle : bundles) {
+                try {
+                    bundleWithAccessCodes.add(createERezeptOnPrescriptionServer(bearerToken, bundle));
+                } catch(Throwable t) {
+                    bundleWithAccessCodes.add(new BundleWithAccessCodeOrThrowable(t));
+                }
             }
+            this.deactivateComfortSignature();
+        } catch (Throwable t) {
+            bundleWithAccessCodes.add(new BundleWithAccessCodeOrThrowable(t));
         }
-        this.deactivateComfortSignature();
         return bundleWithAccessCodes;
     }
 

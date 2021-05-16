@@ -25,6 +25,7 @@ import javax.websocket.server.ServerEndpoint;
 
 import ca.uhn.fhir.context.FhirContext;
 import health.ere.ps.event.BundlesEvent;
+import health.ere.ps.event.ERezeptDocumentsEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
 
 @ServerEndpoint("/websocket")
@@ -74,7 +75,7 @@ public class Websocket {
     public void onFhirBundle(@ObservesAsync BundlesEvent bundlesEvent) {
         sessions.forEach(s -> {
             s.getAsyncRemote().sendObject(
-                    "{\"type\": \"Bundles\", \"payload\": " + generateBundlesJson(bundlesEvent) + "}", result -> {
+                    "{\"type\": \"Bundles\", \"payload\": " + generateJson(bundlesEvent) + "}", result -> {
                         if (result.getException() != null) {
                             System.out.println("Unable to send message: " + result.getException());
                         }
@@ -82,7 +83,23 @@ public class Websocket {
         });
     }
 
-    private String generateBundlesJson(BundlesEvent bundlesEvent) {
+    public void onERezeptDocuments(@ObservesAsync ERezeptDocumentsEvent eRezeptDocumentsEvent) {
+        sessions.forEach(s -> {
+            s.getAsyncRemote().sendObject(
+                    "{\"type\": \"ERezeptDocuments\", \"payload\": " + generateJson(eRezeptDocumentsEvent) + "}", result -> {
+                        if (result.getException() != null) {
+                            System.out.println("Unable to send message: " + result.getException());
+                        }
+                    });
+        });
+    }
+
+    String generateJson(ERezeptDocumentsEvent eRezeptDocumentsEvent) {
+        // TODO: generate JSON
+        return "{}";
+    }
+
+    String generateJson(BundlesEvent bundlesEvent) {
         return bundlesEvent.getBundles().stream().map(bundle -> ctx.newJsonParser().encodeResourceToString(bundle))
                 .collect(Collectors.joining(",\n", "[", "]"));
     }
