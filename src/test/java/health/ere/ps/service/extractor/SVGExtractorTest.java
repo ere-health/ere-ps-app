@@ -110,4 +110,14 @@ class SVGExtractorTest {
 
     }
 
+    @Test @Disabled
+    void testExtractDens() throws URISyntaxException, IOException, XMLStreamException {
+        SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.DENS, true);
+        Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/DENSoffice - Rezept1.pdf")));
+
+        // map.entrySet().stream().forEach(entry -> log.info(entry.getKey() +" = " + entry.getValue()));
+        System.out.println(map.entrySet().stream().map((e) -> "        assertEquals(\""+e.getValue().replaceAll("\n", "\\\\n")+"\", map.get(\""+e.getKey()+"\"));").collect(Collectors.joining("\n")));
+       
+    }
+
 }
