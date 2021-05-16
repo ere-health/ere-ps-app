@@ -20,6 +20,7 @@ import ca.uhn.fhir.parser.DataFormatException;
 import ca.uhn.fhir.parser.IParser;
 import de.gematik.ws.conn.signatureservice.v7.SignResponse;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.FaultMessage;
+import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 
 public class ERezeptWorkflowServiceTest {
 
