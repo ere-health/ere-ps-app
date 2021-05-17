@@ -1,4 +1,4 @@
-package health.ere.ps.service.idp.tests;
+package health.ere.ps.model.idp.crypto;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -17,7 +17,6 @@ import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 import health.ere.ps.exception.idp.crypto.IdpCryptoException;
-import health.ere.ps.model.idp.crypto.PkiIdentity;
 import health.ere.ps.service.idp.crypto.CryptoLoader;
 
 public class PkiKeyResolver implements ParameterResolver {

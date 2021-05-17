@@ -17,7 +17,7 @@ import health.ere.ps.model.idp.client.field.ClaimName;
 import health.ere.ps.model.idp.client.token.JsonWebToken;
 import health.ere.ps.model.idp.crypto.PkiIdentity;
 import health.ere.ps.service.idp.tests.Afo;
-import health.ere.ps.service.idp.tests.PkiKeyResolver;
+import health.ere.ps.model.idp.crypto.PkiKeyResolver;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
