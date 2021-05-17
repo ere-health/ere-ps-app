@@ -117,7 +117,7 @@ public class Websocket {
             s.getAsyncRemote()
                     .sendObject("{\"type\": \"Exception\", \"payload\": { \"class\": \""
                             + exception.getClass().getName() + "\", \"message\": \"" + exception.getLocalizedMessage()
-                            + "\", \"stacktrace\": \"" + sw.toString().replaceAll("\r?\n", "\\n") + "\"}}", result -> {
+                            + "\", \"stacktrace\": \"" + sw.toString().replaceAll("\r?\n", "\\\\n").replaceAll("\t", "\\\\t") + "\"}}", result -> {
                                 if (result.getException() != null) {
                                     System.out.println("Unable to send message: " + result.getException());
                                 }

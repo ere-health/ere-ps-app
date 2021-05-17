@@ -76,8 +76,11 @@ public class DirectoryWatcher {
     public void checkForFilesEverySecond() {
         WatchKey key = null;
         try {
-            key = watcher.take();
-        } catch (InterruptedException | ClosedWatchServiceException e) {
+            key = watcher.poll();
+            if(key == null) {
+                return;
+            }
+        } catch (ClosedWatchServiceException e) {
             log.log(Level.SEVERE, "Could not start directory watcher", e);
         }
         List<WatchEvent<?>> keys = key.pollEvents();

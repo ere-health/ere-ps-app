@@ -58,6 +58,9 @@ public class DocumentService {
 	@Inject
 	Event<ERezeptDocumentsEvent> eRezeptDocumentsEvent;
 
+	@Inject
+    Event<Exception> exceptionEvent;
+
 	public DocumentService() {
 
 	}
@@ -75,12 +78,16 @@ public class DocumentService {
 	}
 
 	public void onBundlesWithAccessCodes(@ObservesAsync BundlesWithAccessCodeEvent bundlesWithAccessCodeEvent) {
-		ERezeptDocumentsEvent event = new ERezeptDocumentsEvent();
-		for(List<BundleWithAccessCodeOrThrowable> bundles : bundlesWithAccessCodeEvent.bundleWithAccessCodeOrThrowable) {
-			ByteArrayOutputStream boas = generateERezeptPdf(bundles);
-			event.eRezeptDocuments.add(new ERezeptDocument(bundles, boas.toByteArray()));
+		try{
+			ERezeptDocumentsEvent event = new ERezeptDocumentsEvent();
+			for(List<BundleWithAccessCodeOrThrowable> bundles : bundlesWithAccessCodeEvent.bundleWithAccessCodeOrThrowable) {
+				ByteArrayOutputStream boas = generateERezeptPdf(bundles);
+				event.eRezeptDocuments.add(new ERezeptDocument(bundles, boas != null ? boas.toByteArray() : null));
+			}
+			eRezeptDocumentsEvent.fireAsync(event);
+		} catch(Exception e) {
+			exceptionEvent.fireAsync(e);
 		}
-		eRezeptDocumentsEvent.fireAsync(event);
 	}
 
 	private void initConfiguration(FopFactoryBuilder fopFactoryBuilder) throws URISyntaxException {
@@ -193,6 +200,10 @@ public class DocumentService {
 	public ByteArrayOutputStream generateERezeptPdf(List<BundleWithAccessCodeOrThrowable> bundles) {
 		File xml;
 		try {
+			if(bundles.get(0).bundle == null) {
+				log.warning("Empty bundle given");
+				return null;
+			}
 			// TODO: support multiple bundles
 			xml = createTemporaryXmlFileFromBundle(bundles.get(0).bundle);
 			return generatePdfInOutputStream(xml);
