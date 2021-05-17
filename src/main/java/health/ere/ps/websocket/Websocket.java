@@ -16,6 +16,8 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -95,8 +97,9 @@ public class Websocket {
     }
 
     String generateJson(ERezeptDocumentsEvent eRezeptDocumentsEvent) {
-        // TODO: generate JSON
-        return "{}";
+        Jsonb jsonb = JsonbBuilder.create();
+        String result = jsonb.toJson(eRezeptDocumentsEvent.eRezeptDocuments);
+        return result;
     }
 
     String generateJson(BundlesEvent bundlesEvent) {
