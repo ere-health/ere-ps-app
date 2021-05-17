@@ -1,5 +1,6 @@
 package health.ere.ps.service.connector.certificate;
 
+import de.gematik.ws.conn.certificateservice.v6.CryptType;
 import de.gematik.ws.conn.certificateservice.v6.ReadCardCertificate;
 import de.gematik.ws.conn.certificateservice.v6.ReadCardCertificateResponse;
 import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateService;
@@ -63,7 +64,7 @@ public class CardCertReadExecutionService {
 
         try {
             certificateService.readCardCertificate(cardHandle, contextType, certRefList,
-                    statusHolder, certHolder);
+                    CryptType.ECC, statusHolder, certHolder);
         } catch (FaultMessage faultMessage) {
             new ConnectorCardCertificateReadException("Exception reading aut certificate",
                     faultMessage);
