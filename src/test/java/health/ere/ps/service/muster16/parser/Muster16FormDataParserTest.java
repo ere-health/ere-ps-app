@@ -5,6 +5,7 @@ import org.apache.pdfbox.text.PDFTextStripper;
 import org.jboss.logging.Logger;
 import org.junit.jupiter.api.Test;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,9 +22,8 @@ class Muster16FormDataParserTest {
 
     @Test
     public void testReadMuster16FormPDF() throws IOException {
-        try (PDDocument document = PDDocument.load(
-                getClass().getResourceAsStream(
-                        "/muster-16-print-samples/test1.pdf"))) {
+        try (PDDocument document = PDDocument
+                .load(new FileInputStream("../secret-test-print-samples/CGM-Turbomed/test1.pdf"))) {
 
             document.getClass();
 

@@ -1,16 +1,17 @@
 package health.ere.ps.service.muster16;
 
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.text.PDFTextStripper;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
 
+import health.ere.ps.event.Muster16PrescriptionFormEvent;
+import health.ere.ps.event.SVGExtractorResultEvent;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
 import health.ere.ps.service.muster16.parser.IMuster16FormParser;
 import health.ere.ps.service.muster16.parser.Muster16FormDataParser;
@@ -18,29 +19,16 @@ import health.ere.ps.service.muster16.parser.Muster16SvgExtractorParser;
 
 @ApplicationScoped
 public class Muster16FormDataExtractorService {
-   
-    private Muster16SvgExtractorParser parser;
-    
+
+    private static Logger log = Logger.getLogger(Muster16FormDataExtractorService.class.getName());
+
     @Inject
-    public Muster16FormDataExtractorService(Muster16SvgExtractorParser parser) {
-        this.parser = parser;
-    }
+    Event<Exception> exceptionEvent;
 
-    public String extractData(InputStream muster16PdfFile) throws IOException {
-        PDDocument document = createDocumentRotate90(muster16PdfFile);
-        String text = new PDFTextStripper().getText(document);
+    @Inject
+    Event<Muster16PrescriptionFormEvent> muster16PrescriptionFormEvent;
 
-        return text;
-    }
-
-    public PDDocument createDocumentRotate90(InputStream muster16PdfFile) throws IOException {
-        PDDocument document = PDDocument.load(muster16PdfFile);
-        PDPage page = document.getDocumentCatalog().getPages().get(0);
-        page.setRotation(90);
-        return document;
-    }
-
-    public Muster16PrescriptionForm extractData(String muster16PdfFileData) {
+    public void extractData(String muster16PdfFileData) {
         IMuster16FormParser parser = new Muster16FormDataParser(muster16PdfFileData);
         Muster16PrescriptionForm muster16Form = new Muster16PrescriptionForm(
                 parser.parseInsuranceCompany(),
@@ -59,29 +47,35 @@ public class Muster16FormDataExtractorService {
                 parser.parsePrescriptionList()
         );
 
-        return muster16Form;
+        muster16PrescriptionFormEvent.fireAsync(new Muster16PrescriptionFormEvent(muster16Form));
     }
 
-    public Muster16PrescriptionForm extractDataWithSvgExtractorParser(InputStream muster16PdfFile) throws URISyntaxException {
-        parser.init(muster16PdfFile);
+    public void extractDataWithSvgExtractorParser(@ObservesAsync SVGExtractorResultEvent sVGExtractorResultEvent) {
+        log.info("Muster16FormDataExtractorService.extractDataWithSvgExtractorParser");
+        try {
+            Muster16SvgExtractorParser parser = new Muster16SvgExtractorParser(sVGExtractorResultEvent.map);
 
-        Muster16PrescriptionForm muster16Form = new Muster16PrescriptionForm(
-                parser.parseInsuranceCompany(),
-                parser.parseInsuranceCompanyId(),
-                parser.parsePatientFirstName(),
-                parser.parsePatientLastName(),
-                parser.parsePatientStreetName(),
-                parser.parsePatientStreetNumber(),
-                parser.parsePatientCity(),
-                parser.parsePatientZipCode(),
-                parser.parsePatientDateOfBirth(),
-                parser.parsePatientInsuranceId(),
-                parser.parseClinicId(),
-                parser.parseDoctorId(),
-                parser.parsePrescriptionDate(),
-                parser.parsePrescriptionList()
-        );
+            Muster16PrescriptionForm muster16Form = new Muster16PrescriptionForm(
+                    parser.parseInsuranceCompany(),
+                    parser.parseInsuranceCompanyId(),
+                    parser.parsePatientFirstName(),
+                    parser.parsePatientLastName(),
+                    parser.parsePatientStreetName(),
+                    parser.parsePatientStreetNumber(),
+                    parser.parsePatientCity(),
+                    parser.parsePatientZipCode(),
+                    parser.parsePatientDateOfBirth(),
+                    parser.parsePatientInsuranceId(),
+                    parser.parseClinicId(),
+                    parser.parseDoctorId(),
+                    parser.parsePrescriptionDate(),
+                    parser.parsePrescriptionList()
+            );
 
-        return muster16Form;
+            muster16PrescriptionFormEvent.fireAsync(new Muster16PrescriptionFormEvent(muster16Form));
+        } catch (Exception e) {
+            log.log(Level.SEVERE, "Could not parse results", e);
+            exceptionEvent.fireAsync(e);
+        }
     }
 }

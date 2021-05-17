@@ -1,75 +1,123 @@
 package health.ere.ps.service.extractor;
 
-import org.jboss.logging.Logger;
-import org.junit.jupiter.api.BeforeEach;
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import health.ere.ps.service.muster16.Muster16FormDataExtractorService;
-import health.ere.ps.service.muster16.parser.Muster16SvgExtractorParser;
-
-import java.io.FileNotFoundException;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Map;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
-import io.quarkus.test.Mock;
+import javax.xml.stream.XMLStreamException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SVGExtractorTest {
 
-    private static final String MUSTER_16_TEMPLATE_SVG = "/svg-extract-templates/Muster-16-Template.svg";
-    private static final String TESTRECIPE_PDF = "/muster-16-print-samples/cgm-z1-manuel-blechschmidt.pdf";
 
-    private SVGExtractor svgExtractor;
+    private static Logger log = Logger.getLogger(SVGExtractorTest.class.getName());
 
-    private Muster16FormDataExtractorService muster16FormDataExtractorService;
-
-    @Mock
-    Muster16SvgExtractorParser parser;
-
-    private Logger logger;
-
-    @BeforeEach
-    public void before() throws Exception {
-        muster16FormDataExtractorService = new Muster16FormDataExtractorService(parser);
-        this.svgExtractor = new SVGExtractor(muster16FormDataExtractorService);
-        this.svgExtractor.init(getClass().getResource(MUSTER_16_TEMPLATE_SVG).toURI(), true);
-        logger = Logger.getLogger(this.getClass());
-    }
-
-    @Disabled
     @Test
-    void testExtract() throws URISyntaxException {
+    void testExtract() throws URISyntaxException, IOException, XMLStreamException {
+        SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.CGM_Z1, true);
+        Map<String, String> map = svgExtractor.extract(PDDocument.load(getClass().getResourceAsStream("/muster-16-print-samples/cgm-z1-manuel-blechschmidt.pdf")));
+
+        // System.out.println(map.entrySet().stream().map((e) -> "        assertEquals(\""+e.getValue().replaceAll("\n", "\\\\n")+"\", map.get(\""+e.getKey()+"\"));").collect(Collectors.joining("\n")));
         
-        Map<String, String> map = svgExtractor.extract(getClass().getResourceAsStream(TESTRECIPE_PDF));
-        String lineSep = System.getProperty("line.separator");
+        assertEquals("\n", map.get("factor1"));
+        assertEquals("Amoxicillin 1000mg N2\n3x täglich alle 8 Std\n-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -\n", map.get("medication"));
+        assertEquals("Blechschmidt\nManuel               \nDroysenstr. 7\nD 10629 Berlin   \n", map.get("nameAndAddress"));
+        assertEquals("\n", map.get("sprBedarf"));
+        assertEquals("\n", map.get("factor3"));
+        assertEquals("\n", map.get("accidentOrganization"));
+        assertEquals("\n", map.get("begrPflicht"));
+        assertEquals("30001234  \n", map.get("practitionerNumber"));
+        assertEquals(" 30001234  \n", map.get("locationNumber"));
+        assertEquals("\n", map.get("aid"));
+        assertEquals("1000000\n", map.get("status"));
+        assertEquals("\n", map.get("vaccination"));
+ 
+    }
 
-        assertEquals(lineSep, map.get("factor1"));
-        assertEquals(
-                "Amoxicillin 1000mg N2" + lineSep + "3x täglich alle 8 Std" + lineSep + "-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -" + lineSep,
-                map.get("medication"));
-        assertEquals("Blechschmidt" + lineSep + "Manuel               " + lineSep + "Droysenstr. 7" + lineSep + "D 10629 Berlin   " + lineSep,
-                map.get("nameAndAddress"));
-        assertEquals(lineSep, map.get("sprBedarf"));
-        assertEquals(lineSep, map.get("factor3"));
-        assertEquals(lineSep, map.get("accidentOrganization"));
-        assertEquals(lineSep, map.get("begrPflicht"));
-        assertEquals("30001234  " + lineSep, map.get("practitionerNumber"));
-        assertEquals(" 30001234  " + lineSep, map.get("locationNumber"));
-        assertEquals(lineSep, map.get("aid"));
-        assertEquals("1000000" + lineSep, map.get("status"));
-        assertEquals(lineSep, map.get("vaccination"));
+    @Test @Disabled
+    void testExtract2() throws URISyntaxException, IOException, XMLStreamException {
+        SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.CGM_TURBO_MED, true);
+        Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/CGM-Turbomed/test1.pdf")));
+
+        // map.entrySet().stream().forEach(entry -> log.info(entry.getKey() +" = " + entry.getValue()));
+        // System.out.println(map.entrySet().stream().map((e) -> "        assertEquals(\""+e.getValue().replaceAll("\n", "\\\\n")+"\", map.get(\""+e.getKey()+"\"));").collect(Collectors.joining("\n")));
+       
+        assertEquals("\n", map.get("insuranceNumber"));
+        assertEquals("\n", map.get("tax2"));
+        assertEquals("\n", map.get("bvg"));
+        assertEquals("109938331\n", map.get("payor"));
+        assertEquals("\n", map.get("prescription1"));
+        assertEquals("\n", map.get("pharmayNumber"));
+        assertEquals("\n", map.get("prescription2"));
+        assertEquals("\n", map.get("prescription3"));
+        assertEquals("\n", map.get("autIdem1"));
+        assertEquals("\n", map.get("tax3"));
+        assertEquals("\n", map.get("withPayment"));
+        assertEquals("\n", map.get("autIdem2"));
+        assertEquals("\n", map.get("accidentDate"));
+        assertEquals("\n", map.get("additionalPayment"));
+        assertEquals("\n", map.get("withoutPayment"));
+        assertEquals("\n", map.get("workAccident"));
+        assertEquals("\n", map.get("factor2"));
+        assertEquals("\n", map.get("factor1"));
+        assertEquals("Novalgin AMP N1 5X2 ml\n-  -  -  -\nPZN04527098\n", map.get("medication"));
+        assertEquals("D 56070 Koblenz\nMaria Trost 21\nDominik\nBanholzer\n", map.get("nameAndAddress"));
+        assertEquals("\n", map.get("sprBedarf"));
+        assertEquals("\n", map.get("factor3"));
+        assertEquals("\n", map.get("accidentOrganization"));
+        assertEquals("\n", map.get("begrPflicht"));
+        assertEquals("471100815\n", map.get("practitionerNumber"));
+        assertEquals("999123456\n", map.get("locationNumber"));
+        assertEquals("\n", map.get("aid"));
+        assertEquals("5000000\n", map.get("status"));
+        assertEquals("\n", map.get("vaccination"));
+
 
     }
 
-  
-    @Test
-    void testExtract2() throws URISyntaxException, FileNotFoundException {
-        svgExtractor.init(getClass().getResource("/svg-extract-templates/Muster-16-Template.svg").toURI(), true);
-        Map<String, String> map = svgExtractor.extract(getClass().getResourceAsStream("/muster-16-print-samples/test1.pdf"));
 
-        map.entrySet().stream().forEach(entry -> logger.info(entry.getKey() + " = " + entry.getValue()));
+    @Test
+    void testExtractApraxos() throws URISyntaxException, IOException, XMLStreamException {
+        SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.APRAXOS, true);
+        Map<String, String> map = svgExtractor.extract(PDDocument.load(getClass().getResourceAsStream("/muster-16-print-samples/apraxos_DIN_A4_Output_F-job_222.pdf")));
+
+        // System.out.println(map.entrySet().stream().map((e) -> "        assertEquals(\""+e.getValue().replaceAll("\n", "\\\\n")+"\", map.get(\""+e.getKey()+"\"));").collect(Collectors.joining("\n")));
+        // map.entrySet().stream().forEach(entry -> log.info(entry.getKey() +" = " + entry.getValue()));
+        // System.out.println(map.entrySet().stream().map((e) -> "        assertEquals(\""+e.getValue().replaceAll("\n", "\\\\n")+"\", map.get(\""+e.getKey()+"\"));").collect(Collectors.joining("\n")));
+        assertEquals("AOK Bayern Die Gesundh.       \n", map.get("insurance"));
+        assertEquals("\n", map.get("autIdem3"));
+        assertEquals("          \n 25.04.21 \n", map.get("date"));
+        assertEquals("\n", map.get("noctu"));
+        assertEquals("\n", map.get("other"));
+        assertEquals("                \n                \n        16.07.86\n                \n                \n", map.get("birthdate"));
+        assertEquals("\n", map.get("pharmacyDate"));
+        assertEquals("\n", map.get("grossTotal"));
+        assertEquals("\n", map.get("accident"));
+        assertEquals("\n", map.get("tax1"));
+        assertEquals("Dr. Hans Topp-Glücklich  \nMusterstr. 1             \n18107 Rostock            \nTel 06151 1111111        \nFax 06151 2222222        \nBSNR 781234567           \nLANR 123456767           \nTopp-Gluecklich@praxis.de\n", map.get("practitionerText"));
+        assertEquals("            \n            \n", map.get("insuranceNumber"));
+        assertEquals("\n", map.get("tax2"));
+        assertEquals("\n", map.get("bvg"));
+        assertEquals("          \n108916641 \n", map.get("payor"));
+
+    }
+
+    @Test @Disabled
+    void testExtractDens() throws URISyntaxException, IOException, XMLStreamException {
+        SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.DENS, true);
+        Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/DENSoffice - Rezept1.pdf")));
+
+        // map.entrySet().stream().forEach(entry -> log.info(entry.getKey() +" = " + entry.getValue()));
+        System.out.println(map.entrySet().stream().map((e) -> "        assertEquals(\""+e.getValue().replaceAll("\n", "\\\\n")+"\", map.get(\""+e.getKey()+"\"));").collect(Collectors.joining("\n")));
+       
     }
 
 }
