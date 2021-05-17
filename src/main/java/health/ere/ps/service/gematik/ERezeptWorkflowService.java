@@ -134,15 +134,21 @@ public class ERezeptWorkflowService {
         bundlesWithAccessCodeEvent.fireAsync(new BundlesWithAccessCodeEvent(bundleWithAccessCodeOrThrowable));
     }
 
+    public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(String bearerToken, List<Bundle> bundles) {
+        return createMultipleERezeptsOnPrescriptionServer(bearerToken, bundles, false);
+    }
+
     /**
      * This function tries to create BundleWithAccessCodes for all given bundles.
      * 
      * When an error is thrown it create an object that contains this error.
      */
-    public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(String bearerToken, List<Bundle> bundles) {
+    public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(String bearerToken, List<Bundle> bundles, boolean comfortSignature) {
         List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodes = new ArrayList<>();
         try {
-            this.activateComfortSignature();
+            if(comfortSignature) {
+                this.activateComfortSignature();
+            }
             for(Bundle bundle : bundles) {
                 try {
                     bundleWithAccessCodes.add(createERezeptOnPrescriptionServer(bearerToken, bundle));
@@ -150,7 +156,9 @@ public class ERezeptWorkflowService {
                     bundleWithAccessCodes.add(new BundleWithAccessCodeOrThrowable(t));
                 }
             }
-            this.deactivateComfortSignature();
+            if(comfortSignature) {
+                this.deactivateComfortSignature();
+            }
         } catch (Throwable t) {
             bundleWithAccessCodes.add(new BundleWithAccessCodeOrThrowable(t));
         }
