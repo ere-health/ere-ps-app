@@ -28,7 +28,7 @@ public class SignAndUploadBundlesEvent {
             List<Bundle> bundles = new ArrayList<>();
             if(jsonValue instanceof JsonArray) {
                 for(JsonValue singleBundle : (JsonArray) jsonValue) {
-                    bundles.add(jsonParser.parseResource(Bundle.class, singleBundle.toString());
+                    bundles.add(jsonParser.parseResource(Bundle.class, singleBundle.toString()));
                 }
             }
             listOfListOfBundles.add(bundles);
