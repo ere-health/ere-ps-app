@@ -31,7 +31,6 @@ public class IppPrinter {
         this.pdDocumentEvent = pdDocumentEvent;
     }
 
-
     private List<Attribute<?>> getPrinterAttributes(URI uri) {
 
         List<Attribute<?>> attributes = new ArrayList<>();
@@ -54,6 +53,15 @@ public class IppPrinter {
 
     public List<Attribute<?>> getOperationAttributes() {
         return Arrays.asList(DefaultAttributes.OPERATION_ATTRIBUTES);
+    }
+
+    private List<Attribute<?>> getJobAttributes(URI uri) {
+        Attribute<?>[] attributes = {
+                jobUri.of(uri.resolve("/job/" + printJobId.incrementAndGet())),
+                jobState.of(JobState.pending),
+                jobStateReasons.of(JobStateReason.accountClosed),
+        };
+        return Arrays.asList(attributes);
     }
 
     private boolean isAcceptingJobs() {
@@ -85,6 +93,22 @@ public class IppPrinter {
         return new IppPacketData(packet, requestPacketData.getData());
     }
 
+    public IppPacketData handlePrintJobOperation(URI uri, IppPacketData data) throws IOException {
+
+        IppPacket requestPacket = data.getPacket();
+        // TODO: check for mime type, for the moment, expect PDF
+        pdDocumentEvent.fireAsync(new PDDocumentEvent(PDDocument.load(data.getData())));
+
+        IppPacket packet = new IppPacket(
+                DefaultAttributes.VERSION_NUMBER,
+                Status.successfulOk.getCode(),
+                requestPacket.getRequestId(),
+                groupOf(Tag.jobAttributes, getJobAttributes(uri)),
+                groupOf(Tag.operationAttributes, getOperationAttributes())
+        );
+        return new IppPacketData(packet, null);
+    }
+
     public IppPacketData handleIppPacketData(URI uri, IppPacketData data) throws IOException {
 
         IppPacket ippPacket = data.getPacket();
@@ -96,17 +120,8 @@ public class IppPrinter {
             return new IppPacketData(responsePacket, null);
         } else if (ippPacket.getOperation().equals(Operation.getPrinterAttributes))
             return handleGetPrinterAttributesOperation(uri, data);
-        else if (ippPacket.getOperation().equals(Operation.printJob)) {
-            // TODO: check for mime type, for the moment, expect PDF
-            pdDocumentEvent.fireAsync(new PDDocumentEvent(PDDocument.load(data.getData())));
-            IppPacket responsePacket = IppPacket.jobResponse(
-                    Status.successfulOk, ippPacket.getRequestId(), uri.resolve("/job/" + printJobId.incrementAndGet()),
-                    JobState.pending,
-                    Collections.singletonList(JobStateReason.accountClosed))
-                    .putAttributes(Tag.operationAttributes, Types.printerUri.of(uri))
-                    .build();
-            return new IppPacketData(responsePacket, null);
-        }
+        else if (ippPacket.getOperation().equals(Operation.printJob))
+            return handlePrintJobOperation(uri, data);
         return data;
     }
 }
