@@ -1,6 +1,5 @@
 package health.ere.ps.service.connector.certificate;
 
-import de.gematik.ws.conn.certificateservice.v6.CryptType;
 import de.gematik.ws.conn.certificateservice.v6.ReadCardCertificate;
 import de.gematik.ws.conn.certificateservice.v6.ReadCardCertificateResponse;
 import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateService;
@@ -11,6 +10,7 @@ import de.gematik.ws.conn.certificateservicecommon.v2.X509DataInfoListType;
 import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 
+import org.apache.cxf.ext.logging.LoggingFeature;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.annotation.PostConstruct;
@@ -48,23 +48,17 @@ public class CardCertReadExecutionService {
     public ReadCardCertificateResponse doReadCardCertificate(
             InvocationContext invocationContext, String cardHandle)
                 throws ConnectorCardCertificateReadException {
-
-        ReadCardCertificate readCardCertificate = new ReadCardCertificate();
         ContextType contextType = invocationContext.convertToContextType();
-        readCardCertificate.setContext(contextType);
-
-        readCardCertificate.setCardHandle(cardHandle);
 
         ReadCardCertificate.CertRefList certRefList = new ReadCardCertificate.CertRefList();
         certRefList.getCertRef().add(CertRefEnum.C_AUT);
-        readCardCertificate.setCertRefList(certRefList);
 
         Holder<Status> statusHolder = new Holder<Status>();
         Holder<X509DataInfoListType> certHolder = new Holder<X509DataInfoListType>();
 
         try {
             certificateService.readCardCertificate(cardHandle, contextType, certRefList,
-                    CryptType.ECC, statusHolder, certHolder);
+                    statusHolder, certHolder);
         } catch (FaultMessage faultMessage) {
             new ConnectorCardCertificateReadException("Exception reading aut certificate",
                     faultMessage);
