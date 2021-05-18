@@ -169,7 +169,7 @@ class SVGExtractorTest {
 
         // map.entrySet().stream().forEach(entry -> log.info(entry.getKey() +" = " + entry.getValue()));
         //logExtraction(map);
-        
+
         assertEquals("DENS GmbH                     " + lineSep, map.get("insurance"));
         assertEquals(lineSep, map.get("autIdem3"));
         assertEquals("  29.04.21" + lineSep, map.get("date"));
@@ -210,6 +210,7 @@ class SVGExtractorTest {
         assertEquals(lineSep, map.get("aid"));
         assertEquals("  3000000" + lineSep, map.get("status"));
         assertEquals(lineSep, map.get("vaccination"));
+
     }
 
    
