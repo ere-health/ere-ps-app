@@ -4,7 +4,16 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.util.logging.Logger;
+
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
 
 import org.apache.xml.security.c14n.CanonicalizationException;
 import org.apache.xml.security.c14n.InvalidCanonicalizerException;
@@ -51,22 +60,41 @@ public class ERezeptWorkflowServiceTest {
         eRezeptWorkflowService.signatureServiceContextClientSystemId = "ClientID1";
         eRezeptWorkflowService.signatureServiceContextWorkplaceId = "CATS";
         eRezeptWorkflowService.signatureServiceContextUserId = "197610";
+
+        
+        try {
+            SSLContext sc = SSLContext.getInstance("TLS");
+            KeyManagerFactory kmf =
+                KeyManagerFactory.getInstance( KeyManagerFactory.getDefaultAlgorithm() );
+    
+            KeyStore ks = KeyStore.getInstance( "PKCS12" );
+            // Download this file from the titus backend
+            // https://frontend.titus.ti-dienste.de/#/platform/mandant
+            ks.load(ERezeptWorkflowServiceTest.class.getResourceAsStream("/ps_erp_incentergy_01.p12"), "00".toCharArray() );
+            kmf.init( ks, "00".toCharArray() );
+            sc.init( kmf.getKeyManagers(), null, null );
+            eRezeptWorkflowService.customSSLContext = sc;
+        } catch (NoSuchAlgorithmException | CertificateException | IOException | KeyStoreException | UnrecoverableKeyException | KeyManagementException e) {
+            e.printStackTrace();
+        }
+
+
         eRezeptWorkflowService.init();
     }
 
-    @Test @Disabled
+    @Test
     // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testGetCards() throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         eRezeptWorkflowService.getCards();
     }
     
-    @Test @Disabled
+    @Test
     void testCreateERezeptOnPrescriptionServer() throws InvalidCanonicalizerException, XMLParserException, CanonicalizationException, FaultMessage, IOException {
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/0428d416-149e-48a4-977c-394887b3d85c.xml"));
         eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
     }
 
-    @Test @Disabled
+    @Test
     // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testCreateERezeptTask() throws DataFormatException, IOException {
         Task task = eRezeptWorkflowService.createERezeptTask(testBearerToken);

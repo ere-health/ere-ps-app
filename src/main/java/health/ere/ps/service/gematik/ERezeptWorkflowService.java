@@ -14,6 +14,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
+import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -103,6 +104,8 @@ public class ERezeptWorkflowService {
     @Inject
     Event<BundlesWithAccessCodeEvent> bundlesWithAccessCodeEvent;
 
+    SSLContext customSSLContext = null;
+
     public static final String EREZEPT_IDENTIFIER_SYSTEM = "https://gematik.de/fhir/NamingSystem/PrescriptionID";
 
     static {
@@ -115,12 +118,19 @@ public class ERezeptWorkflowService {
         /* Set endpoint to configured endpoint */
         BindingProvider bp = (BindingProvider)signatureService;
         bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, signatureServiceEndpointAddress);
+        if(customSSLContext != null) {
+            bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory", customSSLContext.getSocketFactory());
+        }
         
         eventService = new EventService().getEventServicePort();
         /* Set endpoint to configured endpoint */
         bp = (BindingProvider)eventService;
         bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, eventServiceEndpointAddress);
+        if(customSSLContext != null) {
+            bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory", customSSLContext.getSocketFactory());
+        }
     }
+
 
     /**
      * This function catches the sign and upload bundle events and does the necessary processing
