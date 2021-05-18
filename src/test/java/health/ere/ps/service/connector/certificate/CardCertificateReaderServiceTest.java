@@ -28,6 +28,7 @@ class CardCertificateReaderServiceTest {
     @ConfigProperty(name = "idp.connector.card.handle")
     String cardHandle;
 
+    @Disabled
     @Test
     void testReadCardCertificate() throws ConnectorCardCertificateReadException {
         Assertions.assertTrue(ArrayUtils.isNotEmpty(
