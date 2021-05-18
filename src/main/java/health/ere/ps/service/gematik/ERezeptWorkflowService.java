@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
@@ -227,11 +228,17 @@ public class ERezeptWorkflowService {
         binary.setContent(signedBytes);
         ePrescriptionParameter.setResource(binary);
         parameters.addParameter(ePrescriptionParameter);
-        String s = client.target(prescriptionserverUrl).path("/Task").path("/" + task.getId()).path("/$activate")
+        Response response = client.target(prescriptionserverUrl).path("/Task").path("/" + task.getIdElement().getIdPart()).path("/$activate")
                 .request().header("Authorization", "Bearer " + bearerToken)
                 .header("X-AccessCode", accessCode)
-                .post(Entity.entity(parameters, "application/fhir+xml; charset=UTF-8")).readEntity(String.class);
-        log.fine(s);
+                .post(Entity.entity(fhirContext.newXmlParser().encodeResourceToString(parameters), "application/fhir+xml; charset=UTF-8"));
+        String taskString = response.readEntity(String.class);
+        if(Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
+            // OperationOutcome operationOutcome = fhirContext.newXmlParser().parseResource(OperationOutcome.class, new StringReader(taskString));
+            throw new RuntimeException(taskString);
+        }
+
+        log.info("Task $activate Response: " + taskString);
     }
 
     /**
@@ -263,7 +270,7 @@ public class ERezeptWorkflowService {
 
     public SignResponse signBundleWithIdentifiers(Bundle bundle) throws FaultMessage, InvalidCanonicalizerException,
             XMLParserException, CanonicalizationException, IOException {
-                return signBundleWithIdentifiers(bundle, true);
+                return signBundleWithIdentifiers(bundle, false);
     }
 
     /**
@@ -277,7 +284,7 @@ public class ERezeptWorkflowService {
      * @throws CanonicalizationException
      * @throws XMLParserException
      */
-    public SignResponse signBundleWithIdentifiers(Bundle bundle, boolean requestJobNumber) throws FaultMessage, InvalidCanonicalizerException,
+    public SignResponse signBundleWithIdentifiers(Bundle bundle, boolean wait10secondsAfterJobNumber) throws FaultMessage, InvalidCanonicalizerException,
             XMLParserException, CanonicalizationException, IOException {
 
         String bundleXml = fhirContext.newXmlParser().encodeResourceToString(bundle);
@@ -301,6 +308,7 @@ public class ERezeptWorkflowService {
         OptionalInputs optionalInputs = new OptionalInputs();
         optionalInputs.setSignatureType("urn:ietf:rfc:5652");
         optionalInputs.setIncludeEContent(true);
+        signRequest.setOptionalInputs(optionalInputs);
         signRequest.setRequestID(UUID.randomUUID().toString());
         signRequest.setDocument(document);
         signRequest.setIncludeRevocationInfo(true);
@@ -308,7 +316,17 @@ public class ERezeptWorkflowService {
 
         ContextType contextType =createContextType();
 
-        String jobNumber = requestJobNumber ? signatureService.getJobNumber(contextType) : "KON-001";
+        String jobNumber = signatureService.getJobNumber(contextType);
+
+        if(wait10secondsAfterJobNumber) {
+            // Wait 10 seconds to start titus test case
+            log.info("Waiting 10 seconds. Please enable titus test case on https://frontend.titus.ti-dienste.de/#/erezept/vps/testsuiterun");
+            try {
+                Thread.sleep(1000*10);
+            } catch (InterruptedException e) {
+                log.log(Level.SEVERE, "Could not wait", e);
+            }
+        }
 
         List<SignResponse> signResponse = signatureService.signDocument(signatureServiceCardHandle,
                 signatureServiceCrypt, contextType, signatureServiceTvMode, jobNumber, signRequests);

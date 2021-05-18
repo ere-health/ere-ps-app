@@ -38,7 +38,7 @@ public class ERezeptWorkflowServiceTest {
     FhirContext fhirContext = FhirContext.forR4();
     IParser iParser = fhirContext.newXmlParser();
 
-    String testBearerToken = "eyJhbGciOiJCUDI1NlIxIiwidHlwIjoiYXQrSldUIiwia2lkIjoicHVrX2lkcF9zaWcifQ.eyJzdWIiOiJWV3dvVWhROHpRTDh0U1BjVW9VcEJXVUs5UVgtOUpvRURaTmttc0dFSDVrIiwicHJvZmVzc2lvbk9JRCI6IjEuMi4yNzYuMC43Ni40LjUwIiwib3JnYW5pemF0aW9uTmFtZSI6IjIwMjExMDEyMiBOT1QtVkFMSUQiLCJpZE51bW1lciI6IjEtMi1BUlpULVdhbHRyYXV0RHJvbWJ1c2NoMDEiLCJhbXIiOlsibWZhIiwic2MiLCJwaW4iXSwiaXNzIjoiaHR0cHM6Ly9pZHAuemVudHJhbC5pZHAuc3BsaXRkbnMudGktZGllbnN0ZS5kZSIsImdpdmVuX25hbWUiOiJXYWx0cmF1dCIsImNsaWVudF9pZCI6ImVSZXplcHRBcHAiLCJhdWQiOiJodHRwczovL2VycC50ZWxlbWF0aWsuZGUvbG9naW4iLCJhY3IiOiJnZW1hdGlrLWVoZWFsdGgtbG9hLWhpZ2giLCJhenAiOiJlUmV6ZXB0QXBwIiwic2NvcGUiOiJlLXJlemVwdCBvcGVuaWQiLCJhdXRoX3RpbWUiOjE2MjEzNDgwMDcsImV4cCI6MTYyMTM0ODMwNywiZmFtaWx5X25hbWUiOiJEcm9tYnVzY2giLCJpYXQiOjE2MjEzNDgwMDcsImp0aSI6IjU5MDI5ZjdmZTYwOGVlNjQifQ.qTgKvnWSXSCMDBGj_VLpqUikBjYzlJT4UTnZoVehr3E2EWLKFir8YmS2zg3Rsk58RojytPzMAVGpYJMoxY2sfQ";
+    String testBearerToken = "eyJhbGciOiJCUDI1NlIxIiwidHlwIjoiYXQrSldUIiwia2lkIjoicHVrX2lkcF9zaWcifQ.eyJzdWIiOiJWV3dvVWhROHpRTDh0U1BjVW9VcEJXVUs5UVgtOUpvRURaTmttc0dFSDVrIiwicHJvZmVzc2lvbk9JRCI6IjEuMi4yNzYuMC43Ni40LjUwIiwib3JnYW5pemF0aW9uTmFtZSI6IjIwMjExMDEyMiBOT1QtVkFMSUQiLCJpZE51bW1lciI6IjEtMi1BUlpULVdhbHRyYXV0RHJvbWJ1c2NoMDEiLCJhbXIiOlsibWZhIiwic2MiLCJwaW4iXSwiaXNzIjoiaHR0cHM6Ly9pZHAuemVudHJhbC5pZHAuc3BsaXRkbnMudGktZGllbnN0ZS5kZSIsImdpdmVuX25hbWUiOiJXYWx0cmF1dCIsImNsaWVudF9pZCI6ImVSZXplcHRBcHAiLCJhdWQiOiJodHRwczovL2VycC50ZWxlbWF0aWsuZGUvbG9naW4iLCJhY3IiOiJnZW1hdGlrLWVoZWFsdGgtbG9hLWhpZ2giLCJhenAiOiJlUmV6ZXB0QXBwIiwic2NvcGUiOiJlLXJlemVwdCBvcGVuaWQiLCJhdXRoX3RpbWUiOjE2MjEzNjY4MzQsImV4cCI6MTYyMTM2NzEzNCwiZmFtaWx5X25hbWUiOiJEcm9tYnVzY2giLCJpYXQiOjE2MjEzNjY4MzQsImp0aSI6IjJlNjhlMWFlNzZiYmU4NTYifQ.I-HSQYc_Scr_WEe0bzpAB8WhMVFttfADsQsCMHiMhxV5wx7Rk_wBOWSN1Fbtt45VSVm5V2Aq79ZIgmXdwcHHXw";
 
     static ERezeptWorkflowService eRezeptWorkflowService;
 
@@ -89,13 +89,13 @@ public class ERezeptWorkflowServiceTest {
         eRezeptWorkflowService.getCards();
     }
     
-    @Test @Disabled
+    @Test
     void testCreateERezeptOnPrescriptionServer() throws InvalidCanonicalizerException, XMLParserException, CanonicalizationException, FaultMessage, IOException {
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/0428d416-149e-48a4-977c-394887b3d85c.xml"));
         eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
     }
 
-    @Test @Disabled
+    @Test
     // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testCreateERezeptTask() throws DataFormatException, IOException {
         Task task = eRezeptWorkflowService.createERezeptTask(testBearerToken);
@@ -121,10 +121,10 @@ public class ERezeptWorkflowServiceTest {
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/0428d416-149e-48a4-977c-394887b3d85c.xml"));
         Task task = iParser.parseResource(Task.class, new FileInputStream("target/titus-eRezeptWorkflowService-createERezeptTask.xml"));
         BundleWithAccessCodeOrThrowable bundleWithAccessCode = eRezeptWorkflowService.updateBundleWithTask(task, bundle);
-        SignResponse signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundleWithAccessCode.bundle, false);
+        SignResponse signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundleWithAccessCode.bundle, true);
         Files.write(Paths.get("target/titus-eRezeptWorkflowService-signBundleWithIdentifiers.dat"), signResponse.getSignatureObject().getBase64Signature().getValue());
     }
-    @Test @Disabled
+    @Test
     // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testUpdateERezeptTask() throws DataFormatException, IOException {
         Task task = iParser.parseResource(Task.class, new FileInputStream("target/titus-eRezeptWorkflowService-createERezeptTask.xml"));
