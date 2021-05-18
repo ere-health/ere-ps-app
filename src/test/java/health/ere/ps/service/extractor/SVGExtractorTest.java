@@ -168,7 +168,7 @@ class SVGExtractorTest {
         Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/DENSoffice - Rezept2.pdf")));
 
         // map.entrySet().stream().forEach(entry -> log.info(entry.getKey() +" = " + entry.getValue()));
-        System.out.println(map.entrySet().stream().map((e) -> "        assertEquals(\""+e.getValue().replaceAll(lineSep, "\\\\n")+"\", map.get(\""+e.getKey()+"\"));").collect(Collectors.joining(lineSep)));
+        //logExtraction(map);
         
         assertEquals("DENS GmbH                     " + lineSep, map.get("insurance"));
         assertEquals(lineSep, map.get("autIdem3"));
@@ -210,8 +210,64 @@ class SVGExtractorTest {
         assertEquals(lineSep, map.get("aid"));
         assertEquals("  3000000" + lineSep, map.get("status"));
         assertEquals(lineSep, map.get("vaccination"));
-
-       
     }
+
+   
+    @Test @Disabled
+    void testExtractDens3() throws URISyntaxException, IOException, XMLStreamException {
+
+        SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.DENS, true);
+        Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/DENSoffice - Rezept3.pdf")));
+
+        // map.entrySet().stream().forEach(entry -> log.info(entry.getKey() +" = " + entry.getValue()));
+        logExtraction(map);
+        
+        assertEquals("DENS GmbH                     " + lineSep, map.get("insurance"));
+        assertEquals(lineSep, map.get("autIdem3"));
+        assertEquals("  29.04.21" + lineSep, map.get("date"));
+        assertEquals(lineSep, map.get("noctu"));
+        assertEquals(lineSep, map.get("other"));
+        assertEquals("        14.02.76" + lineSep + "12" + lineSep + "           " + lineSep, map.get("birthdate"));
+        assertEquals(lineSep, map.get("pharmacyDate"));
+        assertEquals(lineSep, map.get("grossTotal"));
+        assertEquals(lineSep, map.get("accident"));
+        assertEquals(lineSep, map.get("tax1"));
+        assertEquals("DENS GmbH" + lineSep + "Berliner Str. 13" + lineSep + "14513 Teltow" + lineSep + "03328-334540" + lineSep + "Fax: 03328-334547" + lineSep, map.get("practitionerText"));
+        assertEquals("           " + lineSep, map.get("insuranceNumber"));
+        assertEquals(lineSep, map.get("tax2"));
+        assertEquals(lineSep, map.get("bvg"));
+        assertEquals("          " + lineSep, map.get("payor"));
+        assertEquals(lineSep, map.get("prescription1"));
+        assertEquals(lineSep, map.get("pharmayNumber"));
+        assertEquals(lineSep, map.get("prescription2"));
+        assertEquals(lineSep, map.get("prescription3"));
+        assertEquals(lineSep, map.get("autIdem1"));
+        assertEquals(lineSep, map.get("tax3"));
+        assertEquals("X" + lineSep, map.get("withPayment"));
+        assertEquals(lineSep, map.get("autIdem2"));
+        assertEquals(lineSep, map.get("accidentDate"));
+        assertEquals(lineSep, map.get("additionalPayment"));
+        assertEquals(lineSep, map.get("withoutPayment"));
+        assertEquals(lineSep, map.get("workAccident"));
+        assertEquals(lineSep, map.get("factor2"));
+        assertEquals(lineSep, map.get("factor1"));
+        assertEquals("Azithromycin 500mg 1-0-0 für " + lineSep + "3 Tage" + lineSep + "Amoxicillin 500mg 1-1-1 in " + lineSep + "Kombination mit" + lineSep + "Metronidazol  400mg  1-0-1 " + lineSep, map.get("medication"));
+        assertEquals("Heckner" + lineSep + "Dr. Markus    " + lineSep + "Berliner Str. " + lineSep + "D 14513 Teltow" + lineSep, map.get("nameAndAddress"));
+        assertEquals(lineSep, map.get("sprBedarf"));
+        assertEquals(lineSep, map.get("factor3"));
+        assertEquals(lineSep, map.get("accidentOrganization"));
+        assertEquals(lineSep, map.get("begrPflicht"));
+        assertEquals("  30000000" + lineSep, map.get("practitionerNumber"));
+        assertEquals(" 30000000" + lineSep, map.get("locationNumber"));
+        assertEquals(lineSep, map.get("aid"));
+        assertEquals("  3000000" + lineSep, map.get("status"));
+        assertEquals(lineSep, map.get("vaccination"));
+
+    }
+    
+    private void logExtraction(Map<String, String> map) {
+        System.out.println(map.entrySet().stream().map((e) -> "        assertEquals(\""+e.getValue().replaceAll(lineSep, "\\\\n")+"\", map.get(\""+e.getKey()+"\"));").collect(Collectors.joining(lineSep)));
+    }
+    
 
 }
