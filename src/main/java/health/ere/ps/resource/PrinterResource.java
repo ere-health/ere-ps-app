@@ -5,7 +5,6 @@ import java.io.*;
 import java.net.URI;
 import java.util.logging.Logger;
 
-import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -19,22 +18,15 @@ import com.hp.jipp.encoding.IppInputStream;
 import com.hp.jipp.encoding.IppOutputStream;
 import com.hp.jipp.trans.IppPacketData;
 import com.hp.jipp.trans.IppServerTransport;
-import health.ere.ps.event.PDDocumentEvent;
+import health.ere.ps.service.ipp.PrinterService;
 
 
 @Path("ipp")
 public class PrinterResource implements IppServerTransport {
 
     @Inject
-    Event<PDDocumentEvent> pdDocumentEvent;
+    PrinterService printerService;
 
-    @Inject
-    public PrinterResource(Event<PDDocumentEvent> pdDocumentEvent) {
-        this.pdDocumentEvent = pdDocumentEvent;
-        printer = new IppPrinter(this.pdDocumentEvent);
-    }
-
-    private final IppPrinter printer;
     private final String IPP_MEDIA_TYPE = "application/ipp";
 
     private static Logger log = Logger.getLogger(PrinterResource.class.getName());
@@ -59,7 +51,7 @@ public class PrinterResource implements IppServerTransport {
     public IppPacketData handle(URI uri, IppPacketData data) throws IOException {
         log.info(uri+" was called ");
         log.info("Request: "+data);
-        IppPacketData serverResponse = printer.handleIppPacketData(uri, data);
+        IppPacketData serverResponse = printerService.handleIppPacketData(uri, data);
         log.info("Response: "+serverResponse);
         return serverResponse;
     }
