@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<project
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>health.ere</groupId>
+    <artifactId>api-telematik-service</artifactId>
+    <version>OPD4</version>
+    <properties>
+      <maven.compiler.source>11</maven.compiler.source>
+      <maven.compiler.target>11</maven.compiler.target>
+    </properties>
+  <dependencies>
+    <!-- https://mvnrepository.com/artifact/org.glassfish.main.javaee-api/javax.jws -->
+    <dependency>
+      <groupId>org.glassfish.main.javaee-api</groupId>
+      <artifactId>javax.jws</artifactId>
+      <version>3.1.2.2</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/javax.xml.ws/jaxws-api -->
+    <dependency>
+      <groupId>javax.xml.ws</groupId>
+      <artifactId>jaxws-api</artifactId>
+      <version>2.3.1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.xml.ws</groupId>
+      <artifactId>jaxws-rt</artifactId>
+      <version>2.2.10</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api -->
+    <dependency>
+      <groupId>javax.xml.bind</groupId>
+      <artifactId>jaxb-api</artifactId>
+      <version>2.4.0-b180830.0359</version>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>jaxws-maven-plugin</artifactId>
+        <version>2.6</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>wsimport</goal>
+            </goals>
+            <configuration>
+              <wsdlDirectory>conn/</wsdlDirectory>
+              <wsdlFiles>
+                <wsdlFile>EventService.wsdl</wsdlFile>
+                <wsdlFile>SignatureService.wsdl</wsdlFile>
+                <wsdlFile>SignatureService_V7_4_2.wsdl</wsdlFile>
+                <wsdlFile>SignatureService_V7_5_5.wsdl</wsdlFile>
+                <wsdlFile>CertificateService_v6_0_0.wsdl</wsdlFile>
+              </wsdlFiles>
+              <vmArgs>
+                <vmArg>-Djavax.xml.accessExternalDTD=all</vmArg>
+                <vmArg>-Djavax.xml.accessExternalSchema=all</vmArg>
+              </vmArgs>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
