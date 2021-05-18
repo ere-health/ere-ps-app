@@ -38,7 +38,7 @@ public class ERezeptWorkflowServiceTest {
     FhirContext fhirContext = FhirContext.forR4();
     IParser iParser = fhirContext.newXmlParser();
 
-    String testBearerToken = "eyJhbGciOiJCUDI1NlIxIiwidHlwIjoiYXQrSldUIiwia2lkIjoicHVrX2lkcF9zaWcifQ.eyJzdWIiOiJWV3dvVWhROHpRTDh0U1BjVW9VcEJXVUs5UVgtOUpvRURaTmttc0dFSDVrIiwicHJvZmVzc2lvbk9JRCI6IjEuMi4yNzYuMC43Ni40LjUwIiwib3JnYW5pemF0aW9uTmFtZSI6IjIwMjExMDEyMiBOT1QtVkFMSUQiLCJpZE51bW1lciI6IjEtMi1BUlpULVdhbHRyYXV0RHJvbWJ1c2NoMDEiLCJhbXIiOlsibWZhIiwic2MiLCJwaW4iXSwiaXNzIjoiaHR0cHM6Ly9pZHAuemVudHJhbC5pZHAuc3BsaXRkbnMudGktZGllbnN0ZS5kZSIsImdpdmVuX25hbWUiOiJXYWx0cmF1dCIsImNsaWVudF9pZCI6ImVSZXplcHRBcHAiLCJhdWQiOiJodHRwczovL2VycC50ZWxlbWF0aWsuZGUvbG9naW4iLCJhY3IiOiJnZW1hdGlrLWVoZWFsdGgtbG9hLWhpZ2giLCJhenAiOiJlUmV6ZXB0QXBwIiwic2NvcGUiOiJlLXJlemVwdCBvcGVuaWQiLCJhdXRoX3RpbWUiOjE2MjA3NTc0NDgsImV4cCI6MTYyMDc1Nzc0OCwiZmFtaWx5X25hbWUiOiJEcm9tYnVzY2giLCJpYXQiOjE2MjA3NTc0NDgsImp0aSI6ImQxYTIwOWJhYjU5NzQ5YmIifQ.WHXxvUTurENuM_RanyG7PtJPB1xqK0bBmw5d6s9Q-4djZeJiQOaHSpqa1rzq2CfW8qEjho53L5H13lI-a054sA";
+    String testBearerToken = "eyJhbGciOiJCUDI1NlIxIiwidHlwIjoiYXQrSldUIiwia2lkIjoicHVrX2lkcF9zaWcifQ.eyJzdWIiOiJWV3dvVWhROHpRTDh0U1BjVW9VcEJXVUs5UVgtOUpvRURaTmttc0dFSDVrIiwicHJvZmVzc2lvbk9JRCI6IjEuMi4yNzYuMC43Ni40LjUwIiwib3JnYW5pemF0aW9uTmFtZSI6IjIwMjExMDEyMiBOT1QtVkFMSUQiLCJpZE51bW1lciI6IjEtMi1BUlpULVdhbHRyYXV0RHJvbWJ1c2NoMDEiLCJhbXIiOlsibWZhIiwic2MiLCJwaW4iXSwiaXNzIjoiaHR0cHM6Ly9pZHAuemVudHJhbC5pZHAuc3BsaXRkbnMudGktZGllbnN0ZS5kZSIsImdpdmVuX25hbWUiOiJXYWx0cmF1dCIsImNsaWVudF9pZCI6ImVSZXplcHRBcHAiLCJhdWQiOiJodHRwczovL2VycC50ZWxlbWF0aWsuZGUvbG9naW4iLCJhY3IiOiJnZW1hdGlrLWVoZWFsdGgtbG9hLWhpZ2giLCJhenAiOiJlUmV6ZXB0QXBwIiwic2NvcGUiOiJlLXJlemVwdCBvcGVuaWQiLCJhdXRoX3RpbWUiOjE2MjEzNDgwMDcsImV4cCI6MTYyMTM0ODMwNywiZmFtaWx5X25hbWUiOiJEcm9tYnVzY2giLCJpYXQiOjE2MjEzNDgwMDcsImp0aSI6IjU5MDI5ZjdmZTYwOGVlNjQifQ.qTgKvnWSXSCMDBGj_VLpqUikBjYzlJT4UTnZoVehr3E2EWLKFir8YmS2zg3Rsk58RojytPzMAVGpYJMoxY2sfQ";
 
     static ERezeptWorkflowService eRezeptWorkflowService;
 
@@ -49,17 +49,18 @@ public class ERezeptWorkflowServiceTest {
         System.setProperty("com.sun.xml.internal.ws.transport.http.client.HttpTransportPipe.dump", "true");
         System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
         System.setProperty("com.sun.xml.internal.ws.transport.http.HttpAdapter.dump", "true");
-        System.setProperty("com.sun.xml.internal.ws.transport.http.HttpAdapter.dumpTreshold", "999999");
+        System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dumpTreshold", "999999");
 
         eRezeptWorkflowService = new ERezeptWorkflowService();
         eRezeptWorkflowService.prescriptionserverUrl = "https://fd.erezept-instanz1.titus.ti-dienste.de";
         eRezeptWorkflowService.signatureServiceEndpointAddress = "https://kon-instanz2.titus.ti-dienste.de:443/soap-api/SignatureService/7.5.4";
         eRezeptWorkflowService.eventServiceEndpointAddress = "https://kon-instanz2.titus.ti-dienste.de/soap-api/EventService/7.2.0";
-        eRezeptWorkflowService.signatureServiceCardHandle = "HBA-5";
-        eRezeptWorkflowService.signatureServiceContextMandantId = "Mandant1";
-        eRezeptWorkflowService.signatureServiceContextClientSystemId = "ClientID1";
+        eRezeptWorkflowService.signatureServiceCardHandle = "1-1-ARZT-WaltrautFinkengrund01";
+        eRezeptWorkflowService.signatureServiceContextMandantId = "ps_erp_incentergy_01";
+        eRezeptWorkflowService.signatureServiceContextClientSystemId = "ps_erp_incentergy_01_HBA";
         eRezeptWorkflowService.signatureServiceContextWorkplaceId = "CATS";
         eRezeptWorkflowService.signatureServiceContextUserId = "197610";
+        eRezeptWorkflowService.signatureServiceTvMode = "NONE";
 
         
         try {
@@ -82,19 +83,19 @@ public class ERezeptWorkflowServiceTest {
         eRezeptWorkflowService.init();
     }
 
-    @Test
+    @Test @Disabled
     // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testGetCards() throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         eRezeptWorkflowService.getCards();
     }
     
-    @Test
+    @Test @Disabled
     void testCreateERezeptOnPrescriptionServer() throws InvalidCanonicalizerException, XMLParserException, CanonicalizationException, FaultMessage, IOException {
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/0428d416-149e-48a4-977c-394887b3d85c.xml"));
         eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
     }
 
-    @Test
+    @Test @Disabled
     // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testCreateERezeptTask() throws DataFormatException, IOException {
         Task task = eRezeptWorkflowService.createERezeptTask(testBearerToken);
@@ -120,7 +121,7 @@ public class ERezeptWorkflowServiceTest {
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/0428d416-149e-48a4-977c-394887b3d85c.xml"));
         Task task = iParser.parseResource(Task.class, new FileInputStream("target/titus-eRezeptWorkflowService-createERezeptTask.xml"));
         BundleWithAccessCodeOrThrowable bundleWithAccessCode = eRezeptWorkflowService.updateBundleWithTask(task, bundle);
-        SignResponse signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundleWithAccessCode.bundle);
+        SignResponse signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundleWithAccessCode.bundle, false);
         Files.write(Paths.get("target/titus-eRezeptWorkflowService-signBundleWithIdentifiers.dat"), signResponse.getSignatureObject().getBase64Signature().getValue());
     }
     @Test @Disabled

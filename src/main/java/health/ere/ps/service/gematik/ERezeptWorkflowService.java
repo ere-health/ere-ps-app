@@ -261,6 +261,11 @@ public class ERezeptWorkflowService {
                 .get().getValue();
     }
 
+    public SignResponse signBundleWithIdentifiers(Bundle bundle) throws FaultMessage, InvalidCanonicalizerException,
+            XMLParserException, CanonicalizationException, IOException {
+                return signBundleWithIdentifiers(bundle, true);
+    }
+
     /**
      * This function signs the bundle with the signatureService.signDocument from
      * the connector.
@@ -272,7 +277,7 @@ public class ERezeptWorkflowService {
      * @throws CanonicalizationException
      * @throws XMLParserException
      */
-    public SignResponse signBundleWithIdentifiers(Bundle bundle) throws FaultMessage, InvalidCanonicalizerException,
+    public SignResponse signBundleWithIdentifiers(Bundle bundle, boolean requestJobNumber) throws FaultMessage, InvalidCanonicalizerException,
             XMLParserException, CanonicalizationException, IOException {
 
         String bundleXml = fhirContext.newXmlParser().encodeResourceToString(bundle);
@@ -296,13 +301,14 @@ public class ERezeptWorkflowService {
         OptionalInputs optionalInputs = new OptionalInputs();
         optionalInputs.setSignatureType("urn:ietf:rfc:5652");
         optionalInputs.setIncludeEContent(true);
+        signRequest.setRequestID(UUID.randomUUID().toString());
         signRequest.setDocument(document);
         signRequest.setIncludeRevocationInfo(true);
         List<SignRequest> signRequests = Arrays.asList(signRequest);
 
         ContextType contextType =createContextType();
 
-        String jobNumber = signatureService.getJobNumber(contextType);
+        String jobNumber = requestJobNumber ? signatureService.getJobNumber(contextType) : "KON-001";
 
         List<SignResponse> signResponse = signatureService.signDocument(signatureServiceCardHandle,
                 signatureServiceCrypt, contextType, signatureServiceTvMode, jobNumber, signRequests);
