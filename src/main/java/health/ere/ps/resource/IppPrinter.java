@@ -109,19 +109,25 @@ public class IppPrinter {
         return new IppPacketData(packet, null);
     }
 
+    IppPacketData buildDefaultResponse(IppPacketData data) {
+        IppPacket ippPacket = data.getPacket();
+
+        new IppPacket(0x100, Status.successfulOk.getCode(),
+                ippPacket.getRequestId(),
+                groupOf(Tag.operationAttributes),
+                groupOf(Tag.printerAttributes)
+        );
+        return new IppPacketData(ippPacket, null);
+    }
+
     public IppPacketData handleIppPacketData(URI uri, IppPacketData data) throws IOException {
 
         IppPacket ippPacket = data.getPacket();
-
-        if (ippPacket.getOperation().equals(Operation.getJobs)) {
-            IppPacket responsePacket = new IppPacket(Status.successfulOk, ippPacket.getRequestId(),
-                    groupOf(Tag.operationAttributes),
-                    groupOf(Tag.printerAttributes));
-            return new IppPacketData(responsePacket, null);
-        } else if (ippPacket.getOperation().equals(Operation.getPrinterAttributes))
+        if (ippPacket.getOperation().equals(Operation.getPrinterAttributes))
             return handleGetPrinterAttributesOperation(uri, data);
         else if (ippPacket.getOperation().equals(Operation.printJob))
             return handlePrintJobOperation(uri, data);
-        return data;
+        else
+            return buildDefaultResponse(data);
     }
 }
