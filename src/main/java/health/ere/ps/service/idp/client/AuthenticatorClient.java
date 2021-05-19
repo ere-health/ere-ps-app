@@ -101,7 +101,7 @@ public class AuthenticatorClient {
 
         String jsonString = response.readEntity(String.class);
 
-        JsonObject jsonObject = JsonObject.EMPTY_JSON_OBJECT;
+        JsonObject jsonObject = Json.createObjectBuilder().build();
 
         try (JsonReader jsonReader = Json.createReader(new StringReader(jsonString))) {
             jsonObject = jsonReader.readObject();
@@ -302,7 +302,7 @@ public class AuthenticatorClient {
         Response response = idpHttpClientService.doGenericGetRequest();
         String jsonString = response.readEntity(String.class);
         JsonWebToken jsonWebToken = new JsonWebToken(jsonString);
-        JsonObject keyObject = JsonObject.EMPTY_JSON_OBJECT;
+        JsonObject keyObject = Json.createObjectBuilder().build();
 
         try (JsonReader jsonReader =
                      Json.createReader(new StringReader(jsonWebToken.getRawString()))) {
