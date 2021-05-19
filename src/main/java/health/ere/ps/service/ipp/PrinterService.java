@@ -28,7 +28,7 @@ public class PrinterService {
     @Inject
     IppPrinter printer;
 
-    public IppPacket buildGetPrinterAttributesOperationPacket(URI uri, IppPacketData requestPacketData) {
+    public IppPacket buildPrinterAttributesOperationPacket(URI uri, IppPacketData requestPacketData) {
 
         IppPacket requestPacket = requestPacketData.getPacket();
 
@@ -73,7 +73,7 @@ public class PrinterService {
 
         IppPacket responsePacket;
         if (data.getPacket().getOperation().equals(Operation.getPrinterAttributes))
-            responsePacket = buildGetPrinterAttributesOperationPacket(uri, data);
+            responsePacket = buildPrinterAttributesOperationPacket(uri, data);
         else if (data.getPacket().getOperation().equals(Operation.printJob))
             responsePacket = buildPrintJobOperationPacket(uri, data);
         else
