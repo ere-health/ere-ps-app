@@ -33,9 +33,19 @@
     </dependencyManagement>
     <dependencies>
         <dependency>
+            <groupId>health.ere</groupId>
+            <artifactId>api-telematik-service</artifactId>
+            <version>OPD4</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.12.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>4.4</version>
         </dependency>
         <dependency>
             <artifactId>bcpkix-jdk15on</artifactId>
@@ -298,12 +308,15 @@
     </profiles>
     <repositories>
         <repository>
-                <!-- git clone https://github.com/ere-health/api-telematik -->
-                <!-- cd api-telematik && mvn install -->
-                <!-- cd /home/manuel/git/ere-ps-app/project-repo --> 
-                <!-- cp -r ~/.m2/repository/health/  -->
-                <id>project-repo</id>
-                <url>file://${project.basedir}/project-repo</url>
+            <!-- git clone https://github.com/ere-health/api-telematik -->
+            <!-- cd api-telematik && mvn install -->
+            <!-- cd <some-local-path>/ere-ps-app/project-repo -->
+            <!-- cp -r ~/.m2/repository/health/  -->
+            <id>project-repo</id>
+            <releases>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+            <url>file://${project.basedir}/project-repo</url>
         </repository>
     </repositories>
 </project>

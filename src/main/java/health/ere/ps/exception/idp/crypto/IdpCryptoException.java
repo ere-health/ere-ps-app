@@ -4,6 +4,10 @@ public class IdpCryptoException extends RuntimeException {
 
     private static final long serialVersionUID = 6861433495462078391L;
 
+    public IdpCryptoException() {
+
+    }
+
     public IdpCryptoException(final Exception e) {
         super(e);
     }

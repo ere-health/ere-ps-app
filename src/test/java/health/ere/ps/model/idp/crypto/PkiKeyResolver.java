@@ -1,4 +1,4 @@
-package health.ere.ps.service.idp.tests;
+package health.ere.ps.model.idp.crypto;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -17,7 +17,6 @@ import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 import health.ere.ps.exception.idp.crypto.IdpCryptoException;
-import health.ere.ps.model.idp.crypto.PkiIdentity;
 import health.ere.ps.service.idp.crypto.CryptoLoader;
 
 public class PkiKeyResolver implements ParameterResolver {
@@ -42,7 +41,8 @@ public class PkiKeyResolver implements ParameterResolver {
     }
 
     private PkiIdentity retrieveIdentityFromFileSystem(final String fileFilter) {
-        try (final Stream<Path> pathStream = Files.find(Paths.get("src", "test", "resources"), 128,
+        try (final Stream<Path> pathStream = Files.find(Paths.get("src", "test",
+                "resources", "certs"), 128,
             (p, a) -> p.toString().endsWith(".p12")
                 && p.getFileName().toString().toLowerCase().contains(
                 fileFilter.toLowerCase()))) {
@@ -57,7 +57,7 @@ public class PkiKeyResolver implements ParameterResolver {
                 })
                 .map(bytes -> CryptoLoader.getIdentityFromP12(bytes, "00"))
                 .orElseThrow(() -> new IdpCryptoException(
-                    "No matching identity found in src/test/resources and filter '" + fileFilter + "'"));
+                    "No matching identity found in src/test/resources/certs and filter '" + fileFilter + "'"));
         } catch (final IOException e) {
             throw new IdpCryptoException("Error while querying file system", e);
         }
