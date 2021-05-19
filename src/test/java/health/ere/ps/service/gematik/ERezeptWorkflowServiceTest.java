@@ -38,7 +38,7 @@ public class ERezeptWorkflowServiceTest {
     FhirContext fhirContext = FhirContext.forR4();
     IParser iParser = fhirContext.newXmlParser();
 
-    String testBearerToken = "eyJhbGciOiJCUDI1NlIxIiwidHlwIjoiYXQrSldUIiwia2lkIjoicHVrX2lkcF9zaWcifQ.eyJzdWIiOiJWV3dvVWhROHpRTDh0U1BjVW9VcEJXVUs5UVgtOUpvRURaTmttc0dFSDVrIiwicHJvZmVzc2lvbk9JRCI6IjEuMi4yNzYuMC43Ni40LjUwIiwib3JnYW5pemF0aW9uTmFtZSI6IjIwMjExMDEyMiBOT1QtVkFMSUQiLCJpZE51bW1lciI6IjEtMi1BUlpULVdhbHRyYXV0RHJvbWJ1c2NoMDEiLCJhbXIiOlsibWZhIiwic2MiLCJwaW4iXSwiaXNzIjoiaHR0cHM6Ly9pZHAuemVudHJhbC5pZHAuc3BsaXRkbnMudGktZGllbnN0ZS5kZSIsImdpdmVuX25hbWUiOiJXYWx0cmF1dCIsImNsaWVudF9pZCI6ImVSZXplcHRBcHAiLCJhdWQiOiJodHRwczovL2VycC50ZWxlbWF0aWsuZGUvbG9naW4iLCJhY3IiOiJnZW1hdGlrLWVoZWFsdGgtbG9hLWhpZ2giLCJhenAiOiJlUmV6ZXB0QXBwIiwic2NvcGUiOiJlLXJlemVwdCBvcGVuaWQiLCJhdXRoX3RpbWUiOjE2MjEzNjY4MzQsImV4cCI6MTYyMTM2NzEzNCwiZmFtaWx5X25hbWUiOiJEcm9tYnVzY2giLCJpYXQiOjE2MjEzNjY4MzQsImp0aSI6IjJlNjhlMWFlNzZiYmU4NTYifQ.I-HSQYc_Scr_WEe0bzpAB8WhMVFttfADsQsCMHiMhxV5wx7Rk_wBOWSN1Fbtt45VSVm5V2Aq79ZIgmXdwcHHXw";
+    String testBearerToken = "eyJhbGciOiJCUDI1NlIxIiwidHlwIjoiYXQrSldUIiwia2lkIjoicHVrX2lkcF9zaWcifQ.eyJzdWIiOiJWV3dvVWhROHpRTDh0U1BjVW9VcEJXVUs5UVgtOUpvRURaTmttc0dFSDVrIiwicHJvZmVzc2lvbk9JRCI6IjEuMi4yNzYuMC43Ni40LjUwIiwib3JnYW5pemF0aW9uTmFtZSI6IjIwMjExMDEyMiBOT1QtVkFMSUQiLCJpZE51bW1lciI6IjEtMi1BUlpULVdhbHRyYXV0RHJvbWJ1c2NoMDEiLCJhbXIiOlsibWZhIiwic2MiLCJwaW4iXSwiaXNzIjoiaHR0cHM6Ly9pZHAuemVudHJhbC5pZHAuc3BsaXRkbnMudGktZGllbnN0ZS5kZSIsImdpdmVuX25hbWUiOiJXYWx0cmF1dCIsImNsaWVudF9pZCI6ImVSZXplcHRBcHAiLCJhdWQiOiJodHRwczovL2VycC50ZWxlbWF0aWsuZGUvbG9naW4iLCJhY3IiOiJnZW1hdGlrLWVoZWFsdGgtbG9hLWhpZ2giLCJhenAiOiJlUmV6ZXB0QXBwIiwic2NvcGUiOiJlLXJlemVwdCBvcGVuaWQiLCJhdXRoX3RpbWUiOjE2MjE0MzAxODQsImV4cCI6MTYyMTQzMDQ4NCwiZmFtaWx5X25hbWUiOiJEcm9tYnVzY2giLCJpYXQiOjE2MjE0MzAxODQsImp0aSI6IjgwZDY0NzQ3YmExOTFkMzYifQ.p-G8Q_FRx3ntibPiom5ZeHMUCSeaQ4ci8o87rghLy7MSHsxtvj20sF_WJmartndlcggUemfxHCXdRPCPaceT2w";
 
     static ERezeptWorkflowService eRezeptWorkflowService;
 
@@ -101,6 +101,7 @@ public class ERezeptWorkflowServiceTest {
         Task task = eRezeptWorkflowService.createERezeptTask(testBearerToken);
         Files.write(Paths.get("target/titus-eRezeptWorkflowService-createERezeptTask.xml"), iParser.encodeResourceToString(task).getBytes());
         Files.write(Paths.get("target/titus-eRezeptWorkflowService-accessToken.txt"), ERezeptWorkflowService.getAccessCode(task).getBytes());
+        Files.write(Paths.get("target/titus-eRezeptWorkflowService-taskId.txt"), task.getIdElement().getIdPart().getBytes());
     }
 
     @Test @Disabled
@@ -115,10 +116,10 @@ public class ERezeptWorkflowServiceTest {
         eRezeptWorkflowService.getSignatureMode();
     }
     
-    @Test @Disabled
+    @Test
     // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testUpdateBundleWithTaskAndSignBundleWithIdentifiers() throws InvalidCanonicalizerException, XMLParserException, CanonicalizationException, FaultMessage, IOException {
-        Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/0428d416-149e-48a4-977c-394887b3d85c.xml"));
+        Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/281a985c-f25b-4aae-91a6-41ad744080b0.xml"));
         Task task = iParser.parseResource(Task.class, new FileInputStream("target/titus-eRezeptWorkflowService-createERezeptTask.xml"));
         BundleWithAccessCodeOrThrowable bundleWithAccessCode = eRezeptWorkflowService.updateBundleWithTask(task, bundle);
         SignResponse signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundleWithAccessCode.bundle, true);
@@ -132,6 +133,16 @@ public class ERezeptWorkflowServiceTest {
         String accessCode = new String(Files.readAllBytes(Paths.get("target/titus-eRezeptWorkflowService-accessToken.txt")));
         eRezeptWorkflowService.updateERezeptTask(testBearerToken, task, accessCode, signedBytes);
     }
+
+    @Test
+    // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
+    void testAbortERezeptTask() throws DataFormatException, IOException {
+        String accessCode = new String(Files.readAllBytes(Paths.get("target/titus-eRezeptWorkflowService-accessToken.txt")));
+        String taskId = new String(Files.readAllBytes(Paths.get("target/titus-eRezeptWorkflowService-taskId.txt")));
+        eRezeptWorkflowService.abortERezeptTask(testBearerToken, taskId, accessCode);
+    }
+
+    
     @Test @Disabled
     // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testDeactivateComfortSignature() throws FaultMessage {

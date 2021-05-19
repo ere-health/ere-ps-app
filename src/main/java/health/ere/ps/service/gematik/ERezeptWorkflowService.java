@@ -390,14 +390,18 @@ public class ERezeptWorkflowService {
      * 
      * @return
      */
-    public void abortERezeptTask(String bearerToken, BundleWithAccessCodeOrThrowable bundleWithAccessCode) {
-        String prescriptionID = bundleWithAccessCode.bundle.getIdentifier().getValue();
+    public void abortERezeptTask(String bearerToken, String taskId, String accessCode) {
         Client client = ClientBuilder.newBuilder().build();
-        String s = client.target(prescriptionserverUrl).path("/Task").path("/" + prescriptionID).path("/$abort")
+        Response response = client.target(prescriptionserverUrl).path("/Task").path("/" + taskId).path("/$abort")
                 .request().header("Authorization", "Bearer " + bearerToken)
-                .header("X-AccessCode", bundleWithAccessCode.accessCode)
-                .post(Entity.entity("", "application/fhir+xml; charset=UTF-8")).readEntity(String.class);
-        log.fine(s);
+                .header("X-AccessCode", accessCode)
+                .post(Entity.entity("", "application/fhir+xml; charset=UTF-8"));
+        String taskString = response.readEntity(String.class);
+        if(Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
+            throw new RuntimeException(taskString);
+        }
+
+        log.info("Task $abort Response: " + taskString);
     }
 
     /**
