@@ -1,7 +1,7 @@
 package health.ere.ps.service.ipp;
 
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
@@ -19,7 +19,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import java.io.IOException;
 import java.net.URI;
 
-@ApplicationScoped
+@Dependent
 public class PrinterService {
 
     @Inject
