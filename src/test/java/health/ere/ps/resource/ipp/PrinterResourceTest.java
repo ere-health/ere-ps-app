@@ -1,4 +1,4 @@
-package health.ere.ps.resource;
+package health.ere.ps.resource.ipp;
 
 import com.hp.jipp.encoding.AttributeGroup;
 import com.hp.jipp.encoding.IppPacket;
@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 
+import health.ere.ps.resource.HttpIppClientTransport;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
