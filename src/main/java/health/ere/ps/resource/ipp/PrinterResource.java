@@ -1,4 +1,4 @@
-package health.ere.ps.resource;
+package health.ere.ps.resource.ipp;
 
 
 import java.io.*;
