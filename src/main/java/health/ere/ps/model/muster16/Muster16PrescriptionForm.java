@@ -16,7 +16,17 @@ public class Muster16PrescriptionForm {
     private String clinicId;
     private String doctorId;
     private String prescriptionDate;
-    private List<String> prescriptionList;
+    private String doctorFirstName;
+    private String doctorLastName;
+    private String doctorStreetName;
+    private String doctorStreetNumber;
+    private String doctorCity;
+    private String doctorZipCode;
+    private String doctorNamePrefix;
+    private String doctorBSNR;
+    private String doctorPhone;
+
+    private List<MedicationString> prescriptionList;
 
     public Muster16PrescriptionForm(String insuranceCompany,
             String insuranceCompanyId,
@@ -31,7 +41,7 @@ public class Muster16PrescriptionForm {
             String clinicId,
             String doctorId,
             String prescriptionDate,
-            List<String> prescriptionList) {
+            List<MedicationString> prescriptionList) {
         this.insuranceCompany = insuranceCompany;
         this.insuranceCompanyId = insuranceCompanyId;
         this.patientFirstName = patientFirstName;
@@ -50,6 +60,14 @@ public class Muster16PrescriptionForm {
 
     public Muster16PrescriptionForm() {
 
+    }
+
+    public String getDoctorBSNR() {
+        return this.doctorBSNR;
+    }
+
+    public void setDoctorBSNR(String doctorBSNR) {
+        this.doctorBSNR = doctorBSNR;
     }
 
     public String getInsuranceCompany() {
@@ -148,11 +166,11 @@ public class Muster16PrescriptionForm {
         this.prescriptionDate = prescriptionDate.trim();
     }
 
-    public List<String> getPrescriptionList() {
+    public List<MedicationString> getPrescriptionList() {
         return prescriptionList;
     }
 
-    public void setPrescriptionList(List<String> prescriptionList) {
+    public void setPrescriptionList(List<MedicationString> prescriptionList) {
         this.prescriptionList = prescriptionList;
     }
 
@@ -162,5 +180,69 @@ public class Muster16PrescriptionForm {
 
     public void setPatientInsuranceId(String patientInsuranceId) {
         this.patientInsuranceId = patientInsuranceId;
+    }
+
+    public String getDoctorFirstName() {
+        return this.doctorFirstName;
+    }
+
+    public void setDoctorFirstName(String doctorFirstName) {
+        this.doctorFirstName = doctorFirstName;
+    }
+
+    public String getDoctorLastName() {
+        return this.doctorLastName;
+    }
+
+    public void setDoctorLastName(String doctorLastName) {
+        this.doctorLastName = doctorLastName;
+    }
+
+    public String getDoctorStreetName() {
+        return this.doctorStreetName;
+    }
+
+    public void setDoctorStreetName(String doctorStreetName) {
+        this.doctorStreetName = doctorStreetName;
+    }
+
+    public String getDoctorStreetNumber() {
+        return this.doctorStreetNumber;
+    }
+
+    public void setDoctorStreetNumber(String doctorStreetNumber) {
+        this.doctorStreetNumber = doctorStreetNumber;
+    }
+
+    public String getDoctorCity() {
+        return this.doctorCity;
+    }
+
+    public void setDoctorCity(String doctorCity) {
+        this.doctorCity = doctorCity;
+    }
+
+    public String getDoctorZipCode() {
+        return this.doctorZipCode;
+    }
+
+    public void setDoctorZipCode(String doctorZipCode) {
+        this.doctorZipCode = doctorZipCode;
+    }
+
+    public String getDoctorNamePrefix() {
+        return this.doctorNamePrefix;
+    }
+
+    public void setDoctorNamePrefix(String doctorNamePrefix) {
+        this.doctorNamePrefix = doctorNamePrefix;
+    }
+
+    public String getDoctorPhone() {
+        return this.doctorPhone;
+    }
+
+    public void setDoctorPhone(String doctorPhone) {
+        this.doctorPhone = doctorPhone;
     }
 }
