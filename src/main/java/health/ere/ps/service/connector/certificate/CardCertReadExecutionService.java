@@ -10,32 +10,77 @@ import de.gematik.ws.conn.certificateservicecommon.v2.X509DataInfoListType;
 import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 
-import org.apache.cxf.ext.logging.LoggingFeature;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+import org.apache.cxf.configuration.jsse.TLSClientParameters;
+import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.frontend.ClientProxy;
+import org.apache.cxf.transport.http.HTTPConduit;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.net.ssl.SSLContext;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 
 import health.ere.ps.exception.connector.ConnectorCardCertificateReadException;
+import health.ere.ps.service.common.security.SecretsManagerService;
 
 @ApplicationScoped
 public class CardCertReadExecutionService {
+    @Inject
+    SecretsManagerService secretsManagerService;
+    
     @ConfigProperty(name = "idp.connector.certificate-service.endpoint.address")
     String certificateServiceEndpointAddress;
+
+    @ConfigProperty(name = "idp.cert.store.file")
+    String idpCertStoreFile;
+
+    @ConfigProperty(name = "idp.cert.store.file.password")
+    String idpCertStoreFilePassword;
 
     private CertificateServicePortType certificateService;
 
     @PostConstruct
-    void init() {
+    void init() throws Exception {
         certificateService = new CertificateService().getCertificateServicePort();
 
-        /* Set endpoint to configured endpoint */
+        // Set endpoint to configured endpoint
         BindingProvider bp = (BindingProvider) certificateService;
 
         bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
                 certificateServiceEndpointAddress);
+//        try(InputStream certInputStream = getClass().getResourceAsStream(idpCertStoreFile)) {
+//            SSLContext sc = secretsManagerService.createSSLContext(
+//                    certInputStream, idpCertStoreFilePassword.toCharArray(),
+//                    SecretsManagerService.SslContextType.TLS,
+//                    SecretsManagerService.KeyStoreType.PKCS12);
+//            bp.getRequestContext().put(
+//                    "com.sun.xml.internal.ws.transport.https.client.SSLSocketFactory",
+//                    sc.getSocketFactory());
+//        }
+
+        // TODO: Check with Gematik. The sslcontext code below doesn't provide any results
+        //  whether it's present or not when invoking the Titus Connector CertificateReader API
+        //  endpoint.
+        // Get the underlying http conduit of the client proxy
+        Client client = ClientProxy.getClient(certificateService);
+        HTTPConduit http = (HTTPConduit) client.getConduit();
+
+        // Set the TLS client parameters
+        TLSClientParameters parameters = new TLSClientParameters();
+        try(InputStream certInputStream = getClass().getResourceAsStream(idpCertStoreFile)) {
+            parameters.setSSLSocketFactory(secretsManagerService.createSSLContext(
+                    certInputStream, idpCertStoreFilePassword.toCharArray(),
+                    SecretsManagerService.SslContextType.TLS,
+                    SecretsManagerService.KeyStoreType.PKCS12).getSocketFactory());
+            http.setTlsClientParameters(parameters);
+        }
     }
 
     /**

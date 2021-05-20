@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolver;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -55,7 +56,8 @@ public class PkiKeyResolver implements ParameterResolver {
                         throw new IdpCryptoException(e);
                     }
                 })
-                .map(bytes -> CryptoLoader.getIdentityFromP12(bytes, "00"))
+                .map(bytes -> CryptoLoader.getIdentityFromP12(new ByteArrayInputStream(bytes),
+                        "00"))
                 .orElseThrow(() -> new IdpCryptoException(
                     "No matching identity found in src/test/resources/certs and filter '" + fileFilter + "'"));
         } catch (final IOException e) {
