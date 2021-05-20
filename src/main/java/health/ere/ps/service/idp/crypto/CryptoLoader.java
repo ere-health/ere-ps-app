@@ -2,6 +2,7 @@ package health.ere.ps.service.idp.crypto;
 
 import health.ere.ps.exception.idp.crypto.IdpCryptoException;
 import health.ere.ps.model.idp.crypto.PkiIdentity;
+import health.ere.ps.service.common.security.SecretsManagerService;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
@@ -23,11 +24,15 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Enumeration;
 import java.util.Optional;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 public class CryptoLoader {
 
     private static final BouncyCastleProvider BOUNCY_CASTLE_PROVIDER = new BouncyCastleProvider();
 
-    public static X509Certificate getCertificateFromP12(final byte[] crt, final String p12Password) {
+    public static X509Certificate getCertificateFromP12(final byte[] crt,
+                                                        final String p12Password) {
         try {
             final KeyStore p12 = KeyStore.getInstance("pkcs12", BOUNCY_CASTLE_PROVIDER);
             p12.load(new ByteArrayInputStream(crt), p12Password.toCharArray());
@@ -56,11 +61,15 @@ public class CryptoLoader {
         }
     }
 
-    public static PkiIdentity getIdentityFromP12(final byte[] p12FileContent, final String p12Password) {
+    public static PkiIdentity getIdentityFromP12(InputStream p12FileInputStream,
+                                                 final String p12Password) {
         try {
             final KeyStore p12 = KeyStore.getInstance("pkcs12", BOUNCY_CASTLE_PROVIDER);
-            p12.load(new ByteArrayInputStream(p12FileContent), p12Password.toCharArray());
+
+            p12.load(p12FileInputStream, p12Password.toCharArray());
+
             final Enumeration<String> e = p12.aliases();
+
             while (e.hasMoreElements()) {
                 final String alias = e.nextElement();
                 final X509Certificate certificate = (X509Certificate) p12.getCertificate(alias);
@@ -68,7 +77,7 @@ public class CryptoLoader {
                 return new PkiIdentity(certificate, privateKey, Optional.empty(), null);
             }
         } catch (final IOException | KeyStoreException | NoSuchAlgorithmException
-            | UnrecoverableKeyException | CertificateException e) {
+                | UnrecoverableKeyException | CertificateException e) {
             throw new IdpCryptoException(e);
         }
         throw new IdpCryptoException("Could not find certificate in P12-File");
