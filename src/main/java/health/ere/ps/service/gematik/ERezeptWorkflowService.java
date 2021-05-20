@@ -128,31 +128,35 @@ public class ERezeptWorkflowService {
 
     @PostConstruct
     public void init() {
-        signatureService = new SignatureService().getSignatureServicePort();
-        /* Set endpoint to configured endpoint */
-        BindingProvider bp = (BindingProvider) signatureService;
-        bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, signatureServiceEndpointAddress);
-        if (customSSLContext != null) {
-            bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
-                    customSSLContext.getSocketFactory());
-        }
-
-        eventService = new EventService().getEventServicePort();
-        /* Set endpoint to configured endpoint */
-        bp = (BindingProvider) eventService;
-        bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, eventServiceEndpointAddress);
-        if (titusClientCertificate != null && !("".equals(titusClientCertificate))
-                && !("!".equals(titusClientCertificate))) {
-            try {
-                setUpCustomSSLContext(new FileInputStream(titusClientCertificate));
-            } catch(FileNotFoundException e) {
-                log.log(Level.SEVERE, "Could find file", e);
+        try {
+            signatureService = new SignatureService(getClass().getResource("/SignatureService_V7_5_5.wsdl")).getSignatureServicePort();
+            /* Set endpoint to configured endpoint */
+            BindingProvider bp = (BindingProvider) signatureService;
+            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, signatureServiceEndpointAddress);
+            if (customSSLContext != null) {
+                bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
+                        customSSLContext.getSocketFactory());
             }
-        }
 
-        if (customSSLContext != null) {
-            bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
-                    customSSLContext.getSocketFactory());
+            eventService = new EventService(getClass().getResource("/EventService.wsdl")).getEventServicePort();
+            /* Set endpoint to configured endpoint */
+            bp = (BindingProvider) eventService;
+            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, eventServiceEndpointAddress);
+            if (titusClientCertificate != null && !("".equals(titusClientCertificate))
+                    && !("!".equals(titusClientCertificate))) {
+                try {
+                    setUpCustomSSLContext(new FileInputStream(titusClientCertificate));
+                } catch(FileNotFoundException e) {
+                    log.log(Level.SEVERE, "Could find file", e);
+                }
+            }
+
+            if (customSSLContext != null) {
+                bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
+                        customSSLContext.getSocketFactory());
+            }
+        } catch(Exception ex) {
+            log.log(Level.SEVERE, "Could not init E-Rezept Service", ex);
         }
     }
 
