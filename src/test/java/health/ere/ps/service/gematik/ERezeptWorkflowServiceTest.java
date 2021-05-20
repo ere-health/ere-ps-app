@@ -1,7 +1,10 @@
 package health.ere.ps.service.gematik;
 
+import static org.mockito.ArgumentMatchers.eq;
+
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyManagementException;
@@ -10,6 +13,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.net.ssl.KeyManagerFactory;
@@ -63,21 +67,9 @@ public class ERezeptWorkflowServiceTest {
         eRezeptWorkflowService.signatureServiceTvMode = "NONE";
 
         
-        try {
-            SSLContext sc = SSLContext.getInstance("TLS");
-            KeyManagerFactory kmf =
-                KeyManagerFactory.getInstance( KeyManagerFactory.getDefaultAlgorithm() );
-    
-            KeyStore ks = KeyStore.getInstance( "PKCS12" );
-            // Download this file from the titus backend
-            // https://frontend.titus.ti-dienste.de/#/platform/mandant
-            ks.load(ERezeptWorkflowServiceTest.class.getResourceAsStream("/ps_erp_incentergy_01.p12"), "00".toCharArray() );
-            kmf.init( ks, "00".toCharArray() );
-            sc.init( kmf.getKeyManagers(), null, null );
-            eRezeptWorkflowService.customSSLContext = sc;
-        } catch (NoSuchAlgorithmException | CertificateException | IOException | KeyStoreException | UnrecoverableKeyException | KeyManagementException e) {
-            e.printStackTrace();
-        }
+        InputStream is = ERezeptWorkflowServiceTest.class.getResourceAsStream("/ps_erp_incentergy_01.p12");
+
+        
 
 
         eRezeptWorkflowService.init();
