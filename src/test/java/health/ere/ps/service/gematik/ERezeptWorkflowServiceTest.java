@@ -67,27 +67,24 @@ public class ERezeptWorkflowServiceTest {
         eRezeptWorkflowService.signatureServiceTvMode = "NONE";
 
         
-        InputStream is = ERezeptWorkflowServiceTest.class.getResourceAsStream("/ps_erp_incentergy_01.p12");
-
-        
-
-
+        InputStream p12Certificate = ERezeptWorkflowServiceTest.class.getResourceAsStream("/ps_erp_incentergy_01.p12");
+        eRezeptWorkflowService.setUpCustomSSLContext(p12Certificate);
         eRezeptWorkflowService.init();
     }
 
-    @Test @Disabled
+    @Test
     // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testGetCards() throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         eRezeptWorkflowService.getCards();
     }
     
-    @Test
+    @Test @Disabled
     void testCreateERezeptOnPrescriptionServer() throws InvalidCanonicalizerException, XMLParserException, CanonicalizationException, FaultMessage, IOException {
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/0428d416-149e-48a4-977c-394887b3d85c.xml"));
         eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
     }
 
-    @Test
+    @Test @Disabled
     // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testCreateERezeptTask() throws DataFormatException, IOException {
         Task task = eRezeptWorkflowService.createERezeptTask(testBearerToken);
@@ -108,7 +105,7 @@ public class ERezeptWorkflowServiceTest {
         eRezeptWorkflowService.getSignatureMode();
     }
     
-    @Test
+    @Test @Disabled
     // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testUpdateBundleWithTaskAndSignBundleWithIdentifiers() throws InvalidCanonicalizerException, XMLParserException, CanonicalizationException, FaultMessage, IOException {
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/281a985c-f25b-4aae-91a6-41ad744080b0.xml"));
@@ -117,7 +114,7 @@ public class ERezeptWorkflowServiceTest {
         SignResponse signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundleWithAccessCode.bundle, true);
         Files.write(Paths.get("target/titus-eRezeptWorkflowService-signBundleWithIdentifiers.dat"), signResponse.getSignatureObject().getBase64Signature().getValue());
     }
-    @Test
+    @Test @Disabled
     // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testUpdateERezeptTask() throws DataFormatException, IOException {
         Task task = iParser.parseResource(Task.class, new FileInputStream("target/titus-eRezeptWorkflowService-createERezeptTask.xml"));
@@ -126,7 +123,7 @@ public class ERezeptWorkflowServiceTest {
         eRezeptWorkflowService.updateERezeptTask(testBearerToken, task, accessCode, signedBytes);
     }
 
-    @Test
+    @Test @Disabled
     // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testAbortERezeptTask() throws DataFormatException, IOException {
         String accessCode = new String(Files.readAllBytes(Paths.get("target/titus-eRezeptWorkflowService-accessToken.txt")));
