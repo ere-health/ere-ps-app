@@ -26,15 +26,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @QuarkusTest
-class PrescriptionBundleBuilderTest {
+public class PrescriptionBundleBuilderTest {
     @Inject
     Logger logger;
     private PrescriptionBundleValidator prescriptionBundleValidator;
-    private Muster16PrescriptionForm muster16PrescriptionForm;
     private PrescriptionBundleBuilder prescriptionBundleBuilder;
-
-    @BeforeEach
-    public void initialize() throws URISyntaxException {
+    
+    public static PrescriptionBundleBuilder getPrescriptionBundleBuilder() {
+        Muster16PrescriptionForm muster16PrescriptionForm;
         muster16PrescriptionForm = new Muster16PrescriptionForm();
 
         muster16PrescriptionForm.setClinicId("BS12345678");
@@ -58,9 +57,13 @@ class PrescriptionBundleBuilderTest {
 
         muster16PrescriptionForm.setInsuranceCompanyId("100038825");
 
-        prescriptionBundleBuilder =
+        return
                 new PrescriptionBundleBuilder(muster16PrescriptionForm);
+    }
 
+    @BeforeEach
+    public void initialize() throws URISyntaxException {
+        prescriptionBundleBuilder = getPrescriptionBundleBuilder();
         prescriptionBundleValidator = new PrescriptionBundleValidator();
     }
 

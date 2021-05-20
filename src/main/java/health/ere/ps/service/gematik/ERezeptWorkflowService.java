@@ -129,6 +129,15 @@ public class ERezeptWorkflowService {
     @PostConstruct
     public void init() {
         try {
+            if (titusClientCertificate != null && !("".equals(titusClientCertificate))
+                    && !("!".equals(titusClientCertificate))) {
+                try {
+                    setUpCustomSSLContext(new FileInputStream(titusClientCertificate));
+                } catch(FileNotFoundException e) {
+                    log.log(Level.SEVERE, "Could find file", e);
+                }
+            }
+
             signatureService = new SignatureService(getClass().getResource("/SignatureService_V7_5_5.wsdl")).getSignatureServicePort();
             /* Set endpoint to configured endpoint */
             BindingProvider bp = (BindingProvider) signatureService;
@@ -142,19 +151,11 @@ public class ERezeptWorkflowService {
             /* Set endpoint to configured endpoint */
             bp = (BindingProvider) eventService;
             bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, eventServiceEndpointAddress);
-            if (titusClientCertificate != null && !("".equals(titusClientCertificate))
-                    && !("!".equals(titusClientCertificate))) {
-                try {
-                    setUpCustomSSLContext(new FileInputStream(titusClientCertificate));
-                } catch(FileNotFoundException e) {
-                    log.log(Level.SEVERE, "Could find file", e);
-                }
-            }
-
             if (customSSLContext != null) {
                 bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
                         customSSLContext.getSocketFactory());
             }
+            
         } catch(Exception ex) {
             log.log(Level.SEVERE, "Could not init E-Rezept Service", ex);
         }
