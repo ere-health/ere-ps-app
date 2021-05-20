@@ -4,12 +4,15 @@ import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.UUID;
 
 import org.hl7.fhir.r4.model.BooleanType;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.CodeableConcept;
+import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Composition;
 import org.hl7.fhir.r4.model.Coverage;
+import org.hl7.fhir.r4.model.Extension;
 import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Medication;
 import org.hl7.fhir.r4.model.MedicationRequest;
@@ -31,11 +34,12 @@ public class PrescriptionBundleBuilder {
     public Bundle createBundle() throws ParseException {
         Bundle bundle = new Bundle();
 
-        bundle.setId(""); // TODO: Get bundle ID from Gematik TI.
+        bundle.setId(UUID.randomUUID().toString());
 
-        bundle.getIdentifier()
-                .setSystem("https://gematik.de/fhir/NamingSystem/PrescriptionID")
-                .setValue("123456"); //TODO: Get actual unique signed ID.
+        // This will be set by the erezept workflow
+        // bundle.getIdentifier()
+        //        .setSystem("https://gematik.de/fhir/NamingSystem/PrescriptionID")
+        //        .setValue("123456"); //TODO: Get actual unique signed ID.
 
         bundle.setType(Bundle.BundleType.DOCUMENT);
 
@@ -201,7 +205,7 @@ public class PrescriptionBundleBuilder {
     public Medication createMedicationResource() {
         Medication medication = new Medication();
 
-        medication.setId("123456") // TODO: Get actual prescription ID.
+        medication.setId(UUID.randomUUID().toString()) // TODO: Get actual prescription ID.
                 .getMeta()
                 .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.0.1");
 
@@ -218,7 +222,7 @@ public class PrescriptionBundleBuilder {
     public MedicationRequest createMedicationRequest() throws ParseException {
         MedicationRequest medicationRequest = new MedicationRequest();
 
-        medicationRequest.setId("123456"); //TODO: Get actual ID from Gematik TI
+        medicationRequest.setId(UUID.randomUUID().toString()); //TODO: Get actual ID from Gematik TI
 
         medicationRequest.setStatus(
                 MedicationRequest.MedicationRequestStatus.ACTIVE
@@ -254,12 +258,22 @@ public class PrescriptionBundleBuilder {
     public Composition createComposition() {
         Composition composition = new Composition();
 
-        composition.setId("123456"); // TODO: Get ID from Gematik TI
+        composition.setId(UUID.randomUUID().toString()); // TODO: Get ID from Gematik TI
 
         composition.getMeta().addProfile(
                 "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Composition|1.0.1");
 
-        composition.setStatus(Composition.CompositionStatus.PRELIMINARY)
+        //        <extension url="https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Legal_basis">
+        //            <valueCoding>
+        //                <system value="https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_STATUSKENNZEICHEN" />
+        //                <code value="04" />
+        //            </valueCoding>
+        //        </extension>
+        Coding valueCoding = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_STATUSKENNZEICHEN", "04", null);
+        Extension legalBasis = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Legal_basis", valueCoding);
+        composition.addExtension(legalBasis);
+
+        composition.setStatus(Composition.CompositionStatus.FINAL)
                 .getType()
                 .addCoding()
                 .setSystem("https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_FORMULAR_ART")
