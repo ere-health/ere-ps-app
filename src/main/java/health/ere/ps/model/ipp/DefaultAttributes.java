@@ -1,4 +1,4 @@
-package health.ere.ps.resource;
+package health.ere.ps.model.ipp;
 
 import com.hp.jipp.encoding.Attribute;
 import com.hp.jipp.model.Operation;
@@ -10,16 +10,16 @@ import static com.hp.jipp.model.Types.*;
 
 public class DefaultAttributes {
 
-    final static int VERSION_NUMBER = 0x100;
-    final static String[] VERSIONS_SUPPORTED = {"1.0"};
-    final static String PRINTER_NAME = "ere-printer";
-    final static String CHARSET = "utf-8";
-    final static String LANGUAGE = "de";
-    final static String LOCALE = "de-DE";
-    final static String DEFAULT_FORMAT = "application/pdf";
-    final static String[] SUPPORTED_FORMATS = {"application/pdf", "application/octet-stream"};
+    public static final int VERSION_NUMBER = 0x100;
+    public static final String[] VERSIONS_SUPPORTED = {"1.0"};
+    public static final String PRINTER_NAME = "ere-printer";
+    public static final String CHARSET = "utf-8";
+    public static final String LANGUAGE = "de";
+    public static final String LOCALE = "de-DE";
+    public static final String DEFAULT_FORMAT = "application/pdf";
+    public static final String[] SUPPORTED_FORMATS = {"application/pdf", "application/octet-stream"};
 
-    final static Attribute<?>[] PRINTER_ATTRIBUTES = {
+    public static final Attribute<?>[] PRINTER_ATTRIBUTES = {
             printerName.of(PRINTER_NAME),
             printerState.of(PrinterState.idle),
             ippVersionsSupported.of(Arrays.asList(VERSIONS_SUPPORTED)),
@@ -32,7 +32,7 @@ public class DefaultAttributes {
             documentFormatSupported.of(Arrays.asList(SUPPORTED_FORMATS)),
     };
 
-    final static Attribute<?>[] OPERATION_ATTRIBUTES = {
+    public static final Attribute<?>[] OPERATION_ATTRIBUTES = {
             attributesCharset.of("utf-8"),
             attributesNaturalLanguage.of("en-us")
     };
