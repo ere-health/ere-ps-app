@@ -24,6 +24,7 @@ public class SignAndUploadBundlesEvent {
     }
 
     public SignAndUploadBundlesEvent(JsonObject jsonObject) {
+        this.bearerToken = jsonObject.getString("bearerToken", "");
         for(JsonValue jsonValue : jsonObject.getJsonArray("payload")) {
             List<Bundle> bundles = new ArrayList<>();
             if(jsonValue instanceof JsonArray) {
