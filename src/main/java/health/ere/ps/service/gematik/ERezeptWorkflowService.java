@@ -108,7 +108,7 @@ public class ERezeptWorkflowService {
     @ConfigProperty(name = "signature-service.tvMode", defaultValue = "")
     String signatureServiceTvMode;
 
-    @ConfigProperty(name = "erezept-workflow-service.titusClientCertificate", defaulValue = "!")
+    @ConfigProperty(name = "erezept-workflow-service.titusClientCertificate", defaultValue = "!")
     String titusClientCertificate;
 
     SignatureServicePortType signatureService;
