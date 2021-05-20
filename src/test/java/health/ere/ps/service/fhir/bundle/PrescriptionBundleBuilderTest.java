@@ -17,6 +17,7 @@ import javax.inject.Inject;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.validation.ValidationResult;
+import health.ere.ps.model.muster16.MedicationString;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
 import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 import io.quarkus.test.junit.QuarkusTest;
@@ -39,8 +40,12 @@ public class PrescriptionBundleBuilderTest {
         muster16PrescriptionForm.setClinicId("BS12345678");
 
         muster16PrescriptionForm.setPrescriptionDate("05.04.2021");
-        muster16PrescriptionForm.setPrescriptionList(Arrays.asList("Amoxicillin 1000mg N2",
-                "3x täglich alle 8 Std"));
+        MedicationString medicationString = new MedicationString();
+        medicationString.name = "Amoxicillin 1000mg N2";
+        medicationString.dosageInstruction = "3x täglich alle 8 Std";
+        medicationString.pzn = "2394428";
+
+        muster16PrescriptionForm.setPrescriptionList(Arrays.asList(medicationString));
 
         muster16PrescriptionForm.setDoctorId("LANR1234");
 
@@ -53,7 +58,20 @@ public class PrescriptionBundleBuilderTest {
         muster16PrescriptionForm.setPatientStreetNumber("7");
         muster16PrescriptionForm.setPatientZipCode("10629");
         muster16PrescriptionForm.setPatientCity("Berlin");
-        muster16PrescriptionForm.setPatientInsuranceId("123456789");
+        muster16PrescriptionForm.setPatientInsuranceId("M310119800");
+
+        muster16PrescriptionForm.setDoctorNamePrefix("Dr.");
+        muster16PrescriptionForm.setDoctorFirstName("Testarzt");
+        muster16PrescriptionForm.setDoctorLastName("E-Rezept");
+        muster16PrescriptionForm.setDoctorBSNR("687777700");
+        muster16PrescriptionForm.setDoctorPhone("123456789");
+
+        muster16PrescriptionForm.setDoctorStreetName("Doc Droysenstr.");
+        muster16PrescriptionForm.setDoctorStreetNumber("7a");
+        muster16PrescriptionForm.setDoctorZipCode("10630");
+        muster16PrescriptionForm.setDoctorCity("Berlinn");
+
+        muster16PrescriptionForm.setDoctorPhone("030/123456");
 
         muster16PrescriptionForm.setInsuranceCompanyId("100038825");
 
