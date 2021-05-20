@@ -2,6 +2,7 @@ package health.ere.ps.service.gematik;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -142,7 +143,11 @@ public class ERezeptWorkflowService {
         bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, eventServiceEndpointAddress);
         if (titusClientCertificate != null && !("".equals(titusClientCertificate))
                 && !("!".equals(titusClientCertificate))) {
-            setUpCustomSSLContext(new FileInputStream(titusClientCertificate));
+            try {
+                setUpCustomSSLContext(new FileInputStream(titusClientCertificate));
+            } catch(FileNotFoundException e) {
+                log.log(Level.SEVERE, "Could find file", e);
+            }
         }
 
         if (customSSLContext != null) {
