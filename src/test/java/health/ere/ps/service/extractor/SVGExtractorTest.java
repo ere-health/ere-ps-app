@@ -52,7 +52,6 @@ class SVGExtractorTest {
     @Test
     void testExtractData_CGMTurboMed() throws URISyntaxException, IOException, XMLStreamException {
 
-
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.CGM_TURBO_MED, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/CGM-Turbomed/test1.pdf")));
         logExtraction(map);
@@ -60,29 +59,20 @@ class SVGExtractorTest {
         assertEquals("Bahn - BKK                  " + lineSep, map.get("insurance"));
         assertEquals("X" + lineSep, map.get("withPayment"));
         assertEquals(lineSep, map.get("withoutPayment"));
-
-
-       // assertEquals("19.07.87" + lineSep + "         " + lineSep , map.get("birthdate"));
-      
-       
+        //TODO the order of the field rows is incorrect, debug transformation matrix in pdfbox  
+        assertEquals("D 56070 Koblenz " + lineSep + "Maria Trost 21" + lineSep + "Dominik" + lineSep + "Banholzer" + lineSep, map.get("nameAndAddress"));
+        assertEquals("19.07.87" + lineSep + "         " + lineSep , map.get("birthdate"));
+     
         assertEquals("109938331" + lineSep, map.get("payor"));
         //no insurance number available
         assertEquals("5000000" + lineSep, map.get("status"));
-       
-        
+    
         assertEquals("999123456" + lineSep, map.get("locationNumber"));
         assertEquals("471100815" + lineSep, map.get("practitionerNumber"));
         assertEquals("30.04.21" + lineSep, map.get("date"));
       
-       
-        assertEquals("Novalgin AMP N1 5X2 ml" + lineSep + "-  -  -  -" + lineSep + "PZN04527098" + lineSep, map.get("medication"));
-        
-        
-        // assertEquals("D 56070 Koblenz   " + lineSep + "Maria Trost 21" + lineSep + "Dominik" + lineSep + "Banholzer" + lineSep, map.get("nameAndAddress"));
-         // assertEquals("0261-110110\n56068 Koblenz\nNeustraße 10\nArzt--Hausarzt\nDr. E-Reze pt Testarzt 2\n", map.get("practitionerText"));
-
-
-
+        assertEquals("Novalgin AMP N1 5X2 ml" + lineSep + "-  -  -  -" + lineSep + "-  -  -  -" + lineSep + "PZN04527098" + lineSep, map.get("medication"));
+        assertEquals("0261-110110" + lineSep + "56068 Koblenz" + lineSep + "Neustraße 10" + lineSep + "Arzt--Hausarzt" + lineSep + "Dr. E-Reze pt Testarzt 2" + lineSep, map.get("practitionerText"));
     }
 
 
