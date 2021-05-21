@@ -2,6 +2,8 @@ package health.ere.ps.service.muster16.parser;
 
 import org.apache.commons.lang3.StringUtils;
 
+import health.ere.ps.model.muster16.MedicationString;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -99,12 +101,13 @@ public class Muster16SvgExtractorParser implements IMuster16FormParser {
     }
 
     @Override
-    public List<String> parsePrescriptionList() {
+    public List<MedicationString> parsePrescriptionList() {
         if(prescriptionInfo != null) {
-            List<String> extractedMedicationFields =
+            List<MedicationString> extractedMedicationFields =
                     Arrays.stream(prescriptionInfo).map(med -> med.trim())
-                            .filter(med -> StringUtils.isNotBlank(med)).collect(
-                            Collectors.toList());
+                            .filter(med -> StringUtils.isNotBlank(med))
+                            .map(s -> new MedicationString(s))
+                            .collect(Collectors.toList());
             return extractedMedicationFields;
         } else {
             return new ArrayList<>();
