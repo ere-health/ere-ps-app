@@ -8,13 +8,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Muster16SvgExtractorParser implements IMuster16FormParser {
 
+    private static final Logger log = Logger.getLogger(Muster16SvgExtractorParser.class.getName());
+
+    private static final Pattern ONLY_NUMBERS = Pattern.compile(".*?(\\d+).*?", Pattern.DOTALL);
+
     private Map<String, String> mappedFields;
     private String[] nameAndAddressInfo;
-    private String[] prescriptionInfo;
+    private List<String> prescriptionInfo;
+
+    private static final Pattern PZN_MATCH = Pattern.compile("PZN(\\d+)");
 
     public Muster16SvgExtractorParser(Map<String,String> mappedFields)  {
         this.mappedFields = mappedFields;
@@ -22,8 +31,44 @@ public class Muster16SvgExtractorParser implements IMuster16FormParser {
         nameAndAddressInfo = getMappedFields().getOrDefault(
                 "nameAndAddress", "").split("\\n");
 
-        prescriptionInfo = getMappedFields().getOrDefault(
-                "medication", "").split("\\n");
+        prescriptionInfo = Arrays.asList(getMappedFields().getOrDefault(
+                "medication", "").split("\\n"))
+                .stream()
+                    .filter(s -> !s.contains("-  -  -  -"))
+                    .filter(s -> !s.contains("********"))
+                .collect(Collectors.toList());
+        mergePZNWithNameLine();
+    }
+
+    public void mergePZNWithNameLine() {
+        List<Integer> linesToMerge = new ArrayList<>();
+        for(int i=0;i<prescriptionInfo.size();i++) {
+            Matcher m = PZN_MATCH.matcher(prescriptionInfo.get(i));
+            if(m.matches()) {
+                linesToMerge.add(i-1);
+            }
+        }
+        for(int i : linesToMerge) {
+            prescriptionInfo = merge(prescriptionInfo, i);
+        }
+    }
+
+    public static List<String> merge(final List<String> list, final int index) {
+        if (list.isEmpty()) {
+            // throw new IndexOutOfBoundsException("Cannot merge empty list");
+            return list;
+        } else if (index < 0) {
+            // throw new IndexOutOfBoundsException("Cannot merge negative entry");
+            return list;
+        } else if (index + 1 >= list.size()) {
+            // throw new IndexOutOfBoundsException("Cannot merge last element");
+            return list;
+        } else {
+            final List<String> result = new ArrayList<String>(list);
+            result.set(index, list.get(index) + " " + list.get(index + 1));
+            result.remove(index + 1);
+            return result;
+        }
     }
 
     @Override
@@ -33,7 +78,12 @@ public class Muster16SvgExtractorParser implements IMuster16FormParser {
 
     @Override
     public String parseInsuranceCompanyId() {
-        return getMappedFields().getOrDefault("payor", "");
+        String payorId = getMappedFields().getOrDefault("payor", "");
+        Matcher m = ONLY_NUMBERS.matcher(payorId);
+        if(m.matches()) {
+            payorId = m.group(1);
+        }
+        return payorId;
     }
 
     @Override
@@ -87,12 +137,22 @@ public class Muster16SvgExtractorParser implements IMuster16FormParser {
 
     @Override
     public String parseClinicId() {
-        return getMappedFields().getOrDefault("locationNumber", "");
+        String clinicId = getMappedFields().getOrDefault("locationNumber", "");
+        Matcher m = ONLY_NUMBERS.matcher(clinicId);
+        if(m.matches()) {
+            clinicId = m.group(1);
+        }
+        return clinicId;
     }
 
     @Override
     public String parseDoctorId() {
-        return getMappedFields().getOrDefault("practitionerNumber", "");
+        String doctorId = getMappedFields().getOrDefault("practitionerNumber", "");
+        Matcher m = ONLY_NUMBERS.matcher(doctorId);
+        if(m.matches()) {
+            doctorId = m.group(1);
+        }
+        return doctorId;
     }
 
     @Override
@@ -104,7 +164,7 @@ public class Muster16SvgExtractorParser implements IMuster16FormParser {
     public List<MedicationString> parsePrescriptionList() {
         if(prescriptionInfo != null) {
             List<MedicationString> extractedMedicationFields =
-                    Arrays.stream(prescriptionInfo).map(med -> med.trim())
+                    prescriptionInfo.stream().map(med -> med.trim())
                             .filter(med -> StringUtils.isNotBlank(med))
                             .map(s -> new MedicationString(s))
                             .collect(Collectors.toList());
@@ -116,7 +176,12 @@ public class Muster16SvgExtractorParser implements IMuster16FormParser {
 
     @Override
     public String parsePatientInsuranceId() {
-        return getMappedFields().getOrDefault("insuranceNumber", "");
+        String patientInsuranceId = getMappedFields().getOrDefault("insuranceNumber", "");
+        if(patientInsuranceId != null && "".equals(patientInsuranceId.trim())) {
+            log.warning("No patientInsuranceId found using A123456789");
+            patientInsuranceId = "A123456789";
+        }
+        return patientInsuranceId;
     }
 
     public Map<String, String> getMappedFields() {

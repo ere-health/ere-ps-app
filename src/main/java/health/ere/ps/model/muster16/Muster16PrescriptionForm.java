@@ -1,8 +1,14 @@
 package health.ere.ps.model.muster16;
 
 import java.util.List;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Muster16PrescriptionForm {
+
+    private static final Logger log = Logger.getLogger(Muster16PrescriptionForm.class.getName());
+
     private String insuranceCompany;
     private String insuranceCompanyId;
     private String patientFirstName;
@@ -23,7 +29,6 @@ public class Muster16PrescriptionForm {
     private String doctorCity;
     private String doctorZipCode;
     private String doctorNamePrefix;
-    private String doctorBSNR;
     private String doctorPhone;
 
     private List<MedicationString> prescriptionList;
@@ -53,21 +58,13 @@ public class Muster16PrescriptionForm {
         this.setPatientInsuranceId(patientInsuranceId);
         this.patientDateOfBirth = patientDateOfBirth;
         this.clinicId = clinicId;
-        this.doctorId = doctorId;
+        this.setDoctorId(doctorId);
         this.prescriptionDate = prescriptionDate;
         this.prescriptionList = prescriptionList;
     }
 
     public Muster16PrescriptionForm() {
 
-    }
-
-    public String getDoctorBSNR() {
-        return this.doctorBSNR;
-    }
-
-    public void setDoctorBSNR(String doctorBSNR) {
-        this.doctorBSNR = doctorBSNR;
     }
 
     public String getInsuranceCompany() {
@@ -183,7 +180,7 @@ public class Muster16PrescriptionForm {
     }
 
     public String getDoctorFirstName() {
-        return this.doctorFirstName;
+        return this.doctorFirstName != null ? doctorFirstName : "Doctor First Name";
     }
 
     public void setDoctorFirstName(String doctorFirstName) {
@@ -191,7 +188,7 @@ public class Muster16PrescriptionForm {
     }
 
     public String getDoctorLastName() {
-        return this.doctorLastName;
+        return this.doctorLastName != null ? doctorLastName : "Doctor Last Name";
     }
 
     public void setDoctorLastName(String doctorLastName) {
@@ -199,7 +196,7 @@ public class Muster16PrescriptionForm {
     }
 
     public String getDoctorStreetName() {
-        return this.doctorStreetName;
+        return this.doctorStreetName != null ? doctorStreetName : "Doctor Street Name";
     }
 
     public void setDoctorStreetName(String doctorStreetName) {
@@ -207,7 +204,7 @@ public class Muster16PrescriptionForm {
     }
 
     public String getDoctorStreetNumber() {
-        return this.doctorStreetNumber;
+        return this.doctorStreetNumber != null ? doctorStreetNumber : "Doctor Street Number";
     }
 
     public void setDoctorStreetNumber(String doctorStreetNumber) {
@@ -215,7 +212,7 @@ public class Muster16PrescriptionForm {
     }
 
     public String getDoctorCity() {
-        return this.doctorCity;
+        return this.doctorCity != null ? doctorCity : "Doctor City";
     }
 
     public void setDoctorCity(String doctorCity) {
@@ -223,7 +220,7 @@ public class Muster16PrescriptionForm {
     }
 
     public String getDoctorZipCode() {
-        return this.doctorZipCode;
+        return this.doctorZipCode != null ? doctorCity : "012345";
     }
 
     public void setDoctorZipCode(String doctorZipCode) {
@@ -239,7 +236,7 @@ public class Muster16PrescriptionForm {
     }
 
     public String getDoctorPhone() {
-        return this.doctorPhone;
+        return this.doctorPhone != null ? doctorCity : "030/123456789";
     }
 
     public void setDoctorPhone(String doctorPhone) {

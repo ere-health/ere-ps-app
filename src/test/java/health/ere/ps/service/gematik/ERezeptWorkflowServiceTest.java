@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyManagementException;
@@ -14,12 +15,15 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.text.ParseException;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.xml.stream.XMLStreamException;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.xml.security.c14n.CanonicalizationException;
 import org.apache.xml.security.c14n.InvalidCanonicalizerException;
 import org.apache.xml.security.parser.XMLParserException;
@@ -35,8 +39,13 @@ import ca.uhn.fhir.parser.IParser;
 import de.gematik.ws.conn.signatureservice.v7.SignResponse;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.FaultMessage;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
+import health.ere.ps.model.muster16.Muster16PrescriptionForm;
+import health.ere.ps.service.extractor.SVGExtractor;
+import health.ere.ps.service.extractor.SVGExtractorConfiguration;
 import health.ere.ps.service.fhir.bundle.PrescriptionBundleBuilder;
 import health.ere.ps.service.fhir.bundle.PrescriptionBundleBuilderTest;
+import health.ere.ps.service.muster16.Muster16FormDataExtractorService;
+import health.ere.ps.service.muster16.parser.Muster16SvgExtractorParser;
 
 public class ERezeptWorkflowServiceTest {
 
@@ -45,7 +54,7 @@ public class ERezeptWorkflowServiceTest {
     FhirContext fhirContext = FhirContext.forR4();
     IParser iParser = fhirContext.newXmlParser();
 
-    String testBearerToken = "eyJhbGciOiJCUDI1NlIxIiwidHlwIjoiYXQrSldUIiwia2lkIjoicHVrX2lkcF9zaWcifQ.eyJzdWIiOiJWV3dvVWhROHpRTDh0U1BjVW9VcEJXVUs5UVgtOUpvRURaTmttc0dFSDVrIiwicHJvZmVzc2lvbk9JRCI6IjEuMi4yNzYuMC43Ni40LjUwIiwib3JnYW5pemF0aW9uTmFtZSI6IjIwMjExMDEyMiBOT1QtVkFMSUQiLCJpZE51bW1lciI6IjEtMi1BUlpULVdhbHRyYXV0RHJvbWJ1c2NoMDEiLCJhbXIiOlsibWZhIiwic2MiLCJwaW4iXSwiaXNzIjoiaHR0cHM6Ly9pZHAuemVudHJhbC5pZHAuc3BsaXRkbnMudGktZGllbnN0ZS5kZSIsImdpdmVuX25hbWUiOiJXYWx0cmF1dCIsImNsaWVudF9pZCI6ImVSZXplcHRBcHAiLCJhdWQiOiJodHRwczovL2VycC50ZWxlbWF0aWsuZGUvbG9naW4iLCJhY3IiOiJnZW1hdGlrLWVoZWFsdGgtbG9hLWhpZ2giLCJhenAiOiJlUmV6ZXB0QXBwIiwic2NvcGUiOiJvcGVuaWQgZS1yZXplcHQiLCJhdXRoX3RpbWUiOjE2MjE1MzQ1NTEsImV4cCI6MTYyMTUzNDg1MSwiZmFtaWx5X25hbWUiOiJEcm9tYnVzY2giLCJpYXQiOjE2MjE1MzQ1NTEsImp0aSI6ImUwMDA2ZTA1NGYzMWU3ZDEifQ.YP02JNf7la2pjJbSXVAv-apOSzWnsz1yMi__JXz-wMJciXXZ-Sa4yVFQ0e3YPS8I2PNBonAfS9PYh6Cfr0G0Sg";
+    String testBearerToken = "eyJhbGciOiJCUDI1NlIxIiwidHlwIjoiYXQrSldUIiwia2lkIjoicHVrX2lkcF9zaWcifQ.eyJzdWIiOiJWV3dvVWhROHpRTDh0U1BjVW9VcEJXVUs5UVgtOUpvRURaTmttc0dFSDVrIiwicHJvZmVzc2lvbk9JRCI6IjEuMi4yNzYuMC43Ni40LjUwIiwib3JnYW5pemF0aW9uTmFtZSI6IjIwMjExMDEyMiBOT1QtVkFMSUQiLCJpZE51bW1lciI6IjEtMi1BUlpULVdhbHRyYXV0RHJvbWJ1c2NoMDEiLCJhbXIiOlsibWZhIiwic2MiLCJwaW4iXSwiaXNzIjoiaHR0cHM6Ly9pZHAuemVudHJhbC5pZHAuc3BsaXRkbnMudGktZGllbnN0ZS5kZSIsImdpdmVuX25hbWUiOiJXYWx0cmF1dCIsImNsaWVudF9pZCI6ImVSZXplcHRBcHAiLCJhdWQiOiJodHRwczovL2VycC50ZWxlbWF0aWsuZGUvbG9naW4iLCJhY3IiOiJnZW1hdGlrLWVoZWFsdGgtbG9hLWhpZ2giLCJhenAiOiJlUmV6ZXB0QXBwIiwic2NvcGUiOiJvcGVuaWQgZS1yZXplcHQiLCJhdXRoX3RpbWUiOjE2MjE2MDcxNzUsImV4cCI6MTYyMTYwNzQ3NSwiZmFtaWx5X25hbWUiOiJEcm9tYnVzY2giLCJpYXQiOjE2MjE2MDcxNzUsImp0aSI6IjVhMTJlOWViNGY1ZjczZmQifQ.ZxbABhsU7v88o0hA6OSW7dgf1yO9R_RZFm5GmQlEIcl9jj9qZflHbEKs4TyKzYp_EvGVxwP0n4NDif6p8qE2vg";
 
     static ERezeptWorkflowService eRezeptWorkflowService;
 
@@ -90,6 +99,21 @@ public class ERezeptWorkflowServiceTest {
     @Test @Disabled
     void testCreateERezeptWithPrescriptionBuilderOnPrescriptionServer() throws InvalidCanonicalizerException, XMLParserException, CanonicalizationException, FaultMessage, IOException, ParseException {
         Bundle bundle = PrescriptionBundleBuilderTest.getPrescriptionBundleBuilder().createBundle();
+        log.info(iParser.encodeResourceToString(bundle));
+        eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
+    }
+
+    @Test
+    void testCreateERezeptFromPdfOnPrescriptionServer() throws InvalidCanonicalizerException, XMLParserException, CanonicalizationException, FaultMessage, IOException, ParseException, URISyntaxException, XMLStreamException {
+        SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.CGM_TURBO_MED, true);
+        Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/CGM-Turbomed/test1.pdf")));
+        Muster16SvgExtractorParser muster16Parser = new Muster16SvgExtractorParser(map);
+
+        Muster16PrescriptionForm muster16PrescriptionForm = Muster16FormDataExtractorService.fillForm(muster16Parser);
+        PrescriptionBundleBuilder bundleBuilder =
+                new PrescriptionBundleBuilder(muster16PrescriptionForm);
+
+        Bundle bundle = bundleBuilder.createBundle();
         log.info(iParser.encodeResourceToString(bundle));
         eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
     }
