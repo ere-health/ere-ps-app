@@ -26,7 +26,10 @@ class SVGExtractorTest {
     void testExtractData_CGM_Z1() throws URISyntaxException, IOException, XMLStreamException {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.CGM_Z1, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(getClass().getResourceAsStream("/muster-16-print-samples/cgm-z1-manuel-blechschmidt.pdf")));
+<<<<<<< HEAD
 
+=======
+>>>>>>> fbf7406fea82dcebcc9a71ef827ce0e4d104b1f1
         logExtraction(map);
         
         assertEquals("TK > Brandenburg            83" + lineSep, map.get("insurance"));
@@ -47,10 +50,15 @@ class SVGExtractorTest {
         assertEquals("1234" + lineSep + "Zahnärzte" + lineSep + "Dr. Zahnarzt Ein & Dr. Zahnarzt Zwei" + lineSep + "In der tollen Str.115" + lineSep + "12345 Berlin" + lineSep + "Tel. 030/123 4567" + lineSep, map.get("practitionerText"));
     }
 
+<<<<<<< HEAD
 
     @Test
     void testExtractData_CGMTurboMed() throws URISyntaxException, IOException, XMLStreamException {
 
+=======
+    @Test @Disabled
+    void testExtractCGMTurboMed() throws URISyntaxException, IOException, XMLStreamException {
+>>>>>>> fbf7406fea82dcebcc9a71ef827ce0e4d104b1f1
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.CGM_TURBO_MED, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/CGM-Turbomed/test1.pdf")));
         logExtraction(map);
@@ -59,6 +67,7 @@ class SVGExtractorTest {
         assertEquals("X" + lineSep, map.get("withPayment"));
         assertEquals(lineSep, map.get("withoutPayment"));
 
+<<<<<<< HEAD
 
        // assertEquals("19.07.87" + lineSep + "         " + lineSep , map.get("birthdate"));
       
@@ -78,6 +87,40 @@ class SVGExtractorTest {
         
         // assertEquals("D 56070 Koblenz   " + lineSep + "Maria Trost 21" + lineSep + "Dominik" + lineSep + "Banholzer" + lineSep, map.get("nameAndAddress"));
          // assertEquals("0261-110110\n56068 Koblenz\nNeustraße 10\nArzt--Hausarzt\nDr. E-Reze pt Testarzt 2\n", map.get("practitionerText"));
+=======
+        // map.entrySet().stream().forEach(entry -> log.info(entry.getKey() +" = " + entry.getValue()));
+        //  System.out.println(map.entrySet().stream().map((e) -> "        assertEquals(\""+e.getValue().replaceAll(lineSep, "\\\\n")+"\", map.get(\""+e.getKey()+"\"));").collect(Collectors.joining(lineSep)));
+       
+        assertEquals(lineSep, map.get("insuranceNumber"));
+        assertEquals(lineSep, map.get("tax2"));
+        assertEquals(lineSep, map.get("bvg"));
+        assertEquals("109938331" + lineSep, map.get("payor"));
+        assertEquals(lineSep, map.get("prescription1"));
+        assertEquals(lineSep, map.get("pharmayNumber"));
+        assertEquals(lineSep, map.get("prescription2"));
+        assertEquals(lineSep, map.get("prescription3"));
+        assertEquals(lineSep, map.get("autIdem1"));
+        assertEquals(lineSep, map.get("tax3"));
+        assertEquals(lineSep, map.get("withPayment"));
+        assertEquals(lineSep, map.get("autIdem2"));
+        assertEquals(lineSep, map.get("accidentDate"));
+        assertEquals(lineSep, map.get("additionalPayment"));
+        assertEquals(lineSep, map.get("withoutPayment"));
+        assertEquals(lineSep, map.get("workAccident"));
+        assertEquals(lineSep, map.get("factor2"));
+        assertEquals(lineSep, map.get("factor1"));
+        assertEquals("Novalgin AMP N1 5X2 ml" + lineSep + "-  -  -  -" + lineSep + "PZN04527098" + lineSep, map.get("medication"));
+        assertEquals("D 56070 Koblenz" + lineSep +  "Maria Trost 21" + lineSep +  "Dominik" + lineSep + "Banholzer" + lineSep, map.get("nameAndAddress"));
+        assertEquals(lineSep, map.get("sprBedarf"));
+        assertEquals(lineSep, map.get("factor3"));
+        assertEquals(lineSep, map.get("accidentOrganization"));
+        assertEquals(lineSep, map.get("begrPflicht"));
+        assertEquals("471100815" + lineSep, map.get("practitionerNumber"));
+        assertEquals("999123456" + lineSep, map.get("locationNumber"));
+        assertEquals(lineSep, map.get("aid"));
+        assertEquals("5000000" + lineSep, map.get("status"));
+        assertEquals(lineSep, map.get("vaccination"));
+>>>>>>> fbf7406fea82dcebcc9a71ef827ce0e4d104b1f1
 
 
     }
