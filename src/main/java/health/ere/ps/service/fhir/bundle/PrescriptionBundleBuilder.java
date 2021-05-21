@@ -29,6 +29,7 @@ import org.hl7.fhir.r4.model.MedicationRequest.MedicationRequestSubstitutionComp
 import org.hl7.fhir.r4.model.Practitioner.PractitionerQualificationComponent;
 import org.hl7.fhir.r4.model.HumanName.NameUse;
 
+import health.ere.ps.model.muster16.MedicationString;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
 
 public class PrescriptionBundleBuilder {
@@ -209,7 +210,7 @@ public class PrescriptionBundleBuilder {
                 .setCode("BSNR");
 
         identifier.setSystem("https://fhir.kbv.de/NamingSystem/KBV_NS_Base_BSNR");
-        identifier.setValue(muster16PrescriptionForm.getDoctorBSNR()); //TODO: Generate/get unique ID value. Need to check this.
+        identifier.setValue(muster16PrescriptionForm.getClinicId());
 
         organization.setName(muster16PrescriptionForm.getDoctorNamePrefix()+" "+muster16PrescriptionForm.getDoctorFirstName()+" "+muster16PrescriptionForm.getDoctorLastName());
 
@@ -346,11 +347,13 @@ public class PrescriptionBundleBuilder {
         medicationRequest.addInsurance().setReference(
                 "Coverage/" + muster16PrescriptionForm.getInsuranceCompanyId());
 
-        muster16PrescriptionForm.getPrescriptionList().stream().forEach(prescription -> {
+        if(muster16PrescriptionForm.getPrescriptionList().size() > 0) {
+            MedicationString prescription = muster16PrescriptionForm.getPrescriptionList().get(0);
+
             medicationRequest.addDosageInstruction().setText(prescription.dosageInstruction).addExtension().setUrl(
                     "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_DosageFlag"
             ).setValue(new BooleanType(true));
-        });
+        }
 
         MedicationRequest.MedicationRequestDispenseRequestComponent dispenseRequest = new MedicationRequestDispenseRequestComponent();
         Quantity quantity = new Quantity();
