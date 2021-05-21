@@ -15,6 +15,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import health.ere.ps.model.muster16.MedicationString;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
 import io.quarkus.test.junit.QuarkusTest;
 
@@ -110,7 +111,7 @@ class Muster16SvgExtractorParserTest {
 
     @Test
     void parsePrescriptionList() {
-        List<String> meds = muster16PrescriptionForm.getPrescriptionList();
+        List<MedicationString> meds = muster16PrescriptionForm.getPrescriptionList();
 
         assertNotNull(meds);
         assertTrue(meds.size() > 0);
