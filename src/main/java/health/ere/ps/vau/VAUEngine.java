@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.URI;
 
 import javax.ws.rs.client.Invocation;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import org.apache.http.HttpEntity;
@@ -21,10 +23,13 @@ import de.gematik.ti.vauchannel.protocol.helpers.VAUProtocolCryptoImpl;
 /**
  * Engine for RestEasy inspired by the Gematik implementation of VAU:
  * https://github.com/gematik/ref-ePA-vauchannel/blob/master/vauchannel-cxf/src/main/java/de/gematik/ti/vauchannel/cxf/AESInterceptor.java
+ * 
+ * Certificate can be downloaded here:
+ * https://fd.erezept-instanz1.titus.ti-dienste.de/VAUCertificate
  */
 public class VAUEngine extends ApacheHttpClient43Engine {
     private VAUProtocol vauProtocol;
-    private URI vauHandshakeUri;
+    private URI vauHandshakeUri; 
 
     public VAUEngine(URI vauHandshakeUri) {
         this.vauHandshakeUri = vauHandshakeUri;
@@ -62,6 +67,12 @@ public class VAUEngine extends ApacheHttpClient43Engine {
             // init vauSession
             initVauSession();
         }
+
+        MultivaluedMap<String, Object> newHeaders = request.getHeaders().getHeaders();
+        newHeaders.putSingle("X-erp-user", "l"); //Leistungserbringer
+        newHeaders.putSingle("X-erp-resource", "Task");
+        request.getHeaders().setHeaders(newHeaders);
+
         HttpEntity httpEntity = super.buildEntity(request);
 
         TransportedData transportedData = new TransportedData(httpEntity.getContent().readAllBytes(),
