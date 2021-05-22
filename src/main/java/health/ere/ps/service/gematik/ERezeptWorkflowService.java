@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.net.URI;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -50,6 +51,8 @@ import org.hl7.fhir.r4.model.Parameters;
 import org.hl7.fhir.r4.model.Parameters.ParametersParameterComponent;
 import org.hl7.fhir.r4.model.Task;
 
+import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
+
 import ca.uhn.fhir.context.FhirContext;
 import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
@@ -66,6 +69,7 @@ import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortType;
 import health.ere.ps.event.BundlesWithAccessCodeEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
+import health.ere.ps.vau.VAUEngine;
 import de.gematik.ws.conn.eventservice.v7.GetCards;
 import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventService;
@@ -112,6 +116,12 @@ public class ERezeptWorkflowService {
     @ConfigProperty(name = "erezept-workflow-service.titusClientCertificate", defaultValue = "!")
     String titusClientCertificate;
 
+    @ConfigProperty(name = "erezept-workflow-service.enableVau", defaultValue = "true")
+    Boolean enableVau;
+
+    @ConfigProperty(name = "erezept-workflow-service.userAgent", defaultValue = "IncentergyGmbH-ere.health/SNAPSHOT")
+    String userAgent;
+
     SignatureServicePortType signatureService;
     EventServicePortType eventService;
 
@@ -119,6 +129,8 @@ public class ERezeptWorkflowService {
     Event<BundlesWithAccessCodeEvent> bundlesWithAccessCodeEvent;
 
     SSLContext customSSLContext = null;
+
+    Client client;
 
     public static final String EREZEPT_IDENTIFIER_SYSTEM = "https://gematik.de/fhir/NamingSystem/PrescriptionID";
 
@@ -159,6 +171,16 @@ public class ERezeptWorkflowService {
         } catch(Exception ex) {
             log.log(Level.SEVERE, "Could not init E-Rezept Service", ex);
         }
+
+        ClientBuilder clientBuilder = ClientBuilder.newBuilder();
+        if(enableVau) {
+            try {
+                ((ResteasyClientBuilderImpl)clientBuilder).httpEngine(new VAUEngine(new URI(prescriptionserverUrl+"/VAU/handshake")));
+            } catch(Exception ex) {
+                log.log(Level.SEVERE, "Could not enable VAU", ex);
+            }
+        }
+        client = clientBuilder.build();
     }
 
     public void setUpCustomSSLContext(InputStream p12Certificate) {
@@ -269,7 +291,7 @@ public class ERezeptWorkflowService {
      * @param signedDocument
      */
     public void updateERezeptTask(String bearerToken, Task task, String accessCode, byte[] signedBytes) {
-        Client client = ClientBuilder.newBuilder().build();
+        
 
         Parameters parameters = new Parameters();
         ParametersParameterComponent ePrescriptionParameter = new ParametersParameterComponent();
@@ -281,6 +303,7 @@ public class ERezeptWorkflowService {
         parameters.addParameter(ePrescriptionParameter);
         Response response = client.target(prescriptionserverUrl).path("/Task")
                 .path("/" + task.getIdElement().getIdPart()).path("/$activate").request()
+                .header("User-Agent", userAgent)
                 .header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
                 .post(Entity.entity(fhirContext.newXmlParser().encodeResourceToString(parameters),
                         "application/fhir+xml; charset=UTF-8"));
@@ -419,12 +442,11 @@ public class ERezeptWorkflowService {
         valueCoding.setCode("160");
         parameters.addParameter(workflowTypeParameter);
 
-        Client client = ClientBuilder.newBuilder().build();
-
         String parameterString = fhirContext.newXmlParser().encodeResourceToString(parameters);
         log.fine("Parameter String: " + parameterString);
 
         Response response = client.target(prescriptionserverUrl).path("/Task/$create").request()
+                .header("User-Agent", userAgent)
                 .header("Authorization", "Bearer " + bearerToken)
                 .post(Entity.entity(parameterString, "application/fhir+xml; charset=UTF-8"));
 
@@ -448,9 +470,8 @@ public class ERezeptWorkflowService {
      * @return
      */
     public void abortERezeptTask(String bearerToken, String taskId, String accessCode) {
-        Client client = ClientBuilder.newBuilder().build();
         Response response = client.target(prescriptionserverUrl).path("/Task").path("/" + taskId).path("/$abort")
-                .request().header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
+                .request().header("User-Agent", userAgent).header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
                 .post(Entity.entity("", "application/fhir+xml; charset=UTF-8"));
         String taskString = response.readEntity(String.class);
         if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
