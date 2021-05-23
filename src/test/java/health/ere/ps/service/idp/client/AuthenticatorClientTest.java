@@ -9,9 +9,12 @@ import org.junit.jupiter.api.Test;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
+import health.ere.ps.exception.idp.IdpException;
+import health.ere.ps.exception.idp.IdpJoseException;
 import health.ere.ps.model.idp.client.AuthorizationRequest;
 import health.ere.ps.model.idp.client.AuthorizationResponse;
 import health.ere.ps.model.idp.client.DiscoveryDocumentResponse;
+import health.ere.ps.exception.idp.IdpClientException;
 import health.ere.ps.model.idp.client.field.CodeChallengeMethod;
 import health.ere.ps.model.idp.client.field.IdpScope;
 import health.ere.ps.model.idp.client.token.JsonWebToken;
@@ -22,6 +25,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @QuarkusTest
 class AuthenticatorClientTest {
+
+    @Inject
+    AuthenticatorClient authenticatorClient;
+
     @Inject
     Logger logger;
 
@@ -38,7 +45,7 @@ class AuthenticatorClientTest {
     String idpAuthRequestRedirectUrl;
 
     @Test
-    void test_Successful_Authorization_Request() {
+    void test_Successful_Authorization_Request() throws IdpClientException, IdpException {
         AuthenticatorClient authenticatorClient = new AuthenticatorClient();
 
         AuthorizationResponse authorizationResponse =
@@ -85,26 +92,28 @@ class AuthenticatorClientTest {
     }
 
     @Test
-    void test_Successful_Retrieval_Of_Discovery_Document_Using_Idp_Http_Client() {
+    void test_Successful_Retrieval_Of_Discovery_Document_Using_Idp_Http_Client()
+            throws IdpClientException {
         IdpHttpClientService idpHttpClientService =
-                AuthenticatorClient.getIdpHttpClientInstanceByUrl(
+                authenticatorClient.getIdpHttpClientInstanceByUrl(
                         idpBaseUrl + IdpHttpClientService.DISCOVERY_DOCUMENT_URI);
 
-        Response response = idpHttpClientService.doGenericGetRequest();
-        String jsonString = response.readEntity(String.class);
-        JsonWebToken jsonWebToken = new JsonWebToken(jsonString);
+        try(Response response = idpHttpClientService.doGenericGetRequest()) {
+            String jsonString = response.readEntity(String.class);
+            JsonWebToken jsonWebToken = new JsonWebToken(jsonString);
 
-        logger.info("Status = " + response.getStatus());
-        response.getHeaders().entrySet().stream().forEach(
-                (entry -> logger.info(entry.getKey() + " = " + entry.getValue())));
-        logger.info("Body = " + jsonWebToken.getPayloadDecoded());
+            logger.info("Status = " + response.getStatus());
+            response.getHeaders().entrySet().stream().forEach(
+                    (entry -> logger.info(entry.getKey() + " = " + entry.getValue())));
+            logger.info("Body = " + jsonWebToken.getPayloadDecoded());
 
-        assertNotNull(jsonString);
+            assertNotNull(jsonString);
+        }
     }
 
     @Test
-    void test_Successful_Retrieval_Of_Discovery_Document_Using_Auth_Client() {
-        AuthenticatorClient authenticatorClient = new AuthenticatorClient();
+    void test_Successful_Retrieval_Of_Discovery_Document_Using_Auth_Client()
+            throws IdpClientException, IdpException, IdpJoseException {
         DiscoveryDocumentResponse discoveryDocumentResponse =
                 authenticatorClient.retrieveDiscoveryDocument(
                 idpBaseUrl + IdpHttpClientService.DISCOVERY_DOCUMENT_URI);

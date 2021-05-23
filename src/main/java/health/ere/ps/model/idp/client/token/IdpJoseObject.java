@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
+import health.ere.ps.exception.idp.IdpJoseException;
 import health.ere.ps.service.idp.crypto.CryptoLoader;
 import health.ere.ps.model.idp.client.field.ClaimName;
 import health.ere.ps.model.idp.client.field.IdpScope;

@@ -17,13 +17,11 @@ import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.transport.http.HTTPConduit;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.net.ssl.SSLContext;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 
@@ -38,13 +36,17 @@ public class CardCertReadExecutionService {
     @ConfigProperty(name = "idp.connector.certificate-service.endpoint.address")
     String certificateServiceEndpointAddress;
 
-    @ConfigProperty(name = "idp.cert.store.file")
+    @ConfigProperty(name = "idp.connector.cert.auth.store.file")
     String idpCertStoreFile;
 
-    @ConfigProperty(name = "idp.cert.store.file.password")
+    @ConfigProperty(name = "idp.connector.cert.auth.store.file.password")
     String idpCertStoreFilePassword;
 
     private CertificateServicePortType certificateService;
+
+    static {
+        System.setProperty("javax.xml.accessExternalDTD", "all");
+    }
 
     @PostConstruct
     void init() throws Exception {
@@ -55,15 +57,6 @@ public class CardCertReadExecutionService {
 
         bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
                 certificateServiceEndpointAddress);
-//        try(InputStream certInputStream = getClass().getResourceAsStream(idpCertStoreFile)) {
-//            SSLContext sc = secretsManagerService.createSSLContext(
-//                    certInputStream, idpCertStoreFilePassword.toCharArray(),
-//                    SecretsManagerService.SslContextType.TLS,
-//                    SecretsManagerService.KeyStoreType.PKCS12);
-//            bp.getRequestContext().put(
-//                    "com.sun.xml.internal.ws.transport.https.client.SSLSocketFactory",
-//                    sc.getSocketFactory());
-//        }
 
         // TODO: Check with Gematik. The sslcontext code below doesn't provide any results
         //  whether it's present or not when invoking the Titus Connector CertificateReader API

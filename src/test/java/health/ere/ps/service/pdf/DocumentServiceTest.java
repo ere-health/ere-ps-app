@@ -1,16 +1,13 @@
 package health.ere.ps.service.pdf;
 
+import org.hl7.fhir.r4.model.Bundle;
+import org.junit.jupiter.api.Test;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import org.hl7.fhir.r4.model.Bundle;
-import org.junit.jupiter.api.Test;
-
-import io.quarkus.test.junit.QuarkusTest;
-
-@QuarkusTest
 public class DocumentServiceTest {
 	@Test
 	public void testGenerateERezeptPdf() throws IOException {

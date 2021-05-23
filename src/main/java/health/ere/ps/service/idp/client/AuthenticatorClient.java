@@ -1,6 +1,10 @@
 package health.ere.ps.service.idp.client;
 
+import com.diffplug.common.base.Errors;
+import com.diffplug.common.base.Throwing;
+
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.jose4j.jwt.JwtClaims;
 
@@ -18,25 +22,24 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import javax.enterprise.context.ApplicationScoped;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import health.ere.ps.exception.idp.IdpClientException;
+import health.ere.ps.exception.idp.IdpException;
+import health.ere.ps.exception.idp.IdpJoseException;
 import health.ere.ps.model.idp.client.AuthenticationRequest;
 import health.ere.ps.model.idp.client.AuthenticationResponse;
 import health.ere.ps.model.idp.client.AuthorizationRequest;
 import health.ere.ps.model.idp.client.AuthorizationResponse;
 import health.ere.ps.model.idp.client.DiscoveryDocumentResponse;
-import health.ere.ps.model.idp.client.IdpClientRuntimeException;
 import health.ere.ps.model.idp.client.IdpTokenResult;
 import health.ere.ps.model.idp.client.TokenRequest;
 import health.ere.ps.model.idp.client.authentication.AuthenticationChallenge;
@@ -47,15 +50,6 @@ import health.ere.ps.model.idp.client.token.IdpJwe;
 import health.ere.ps.model.idp.client.token.JsonWebToken;
 import health.ere.ps.model.idp.client.token.TokenClaimExtraction;
 import health.ere.ps.service.idp.client.authentication.UriUtils;
-import kong.unirest.BodyPart;
-import kong.unirest.Header;
-import kong.unirest.HttpRequest;
-import kong.unirest.HttpResponse;
-import kong.unirest.JsonNode;
-import kong.unirest.MultipartBody;
-import kong.unirest.Unirest;
-import kong.unirest.jackson.JacksonObjectMapper;
-import kong.unirest.json.JSONObject;
 
 import static health.ere.ps.model.idp.client.field.ClaimName.CODE_VERIFIER;
 import static health.ere.ps.model.idp.client.field.ClaimName.TOKEN_KEY;
@@ -63,28 +57,16 @@ import static health.ere.ps.model.idp.client.field.ClaimName.X509_CERTIFICATE_CH
 import static health.ere.ps.service.idp.client.authentication.UriUtils.extractParameterValue;
 import static health.ere.ps.service.idp.crypto.CryptoLoader.getCertificateFromPem;
 
+@ApplicationScoped
 public class AuthenticatorClient {
 
-    private static final String USER_AGENT = "IdP-Client";
-
     public AuthenticatorClient() {
-        Unirest.config().reset();
-        Unirest.config().followRedirects(false);
-        Unirest.config().setObjectMapper(new JacksonObjectMapper());
-    }
 
-    public static Map<String, String> getAllHeaderElementsAsMap(final HttpRequest request) {
-        return request.getHeaders().all().stream()
-                .collect(Collectors.toMap(Header::getName, Header::getValue));
-    }
-
-    public static Map<String, Object> getAllFieldElementsAsMap(final MultipartBody request) {
-        return request.multiParts().stream()
-                .collect(Collectors.toMap(BodyPart::getName, BodyPart::getValue));
     }
 
     public AuthorizationResponse doAuthorizationRequest(
-            AuthorizationRequest authorizationRequest) {
+            AuthorizationRequest authorizationRequest)
+            throws IdpClientException, IdpException {
         final String scope = authorizationRequest.getScopes().stream()
                 .map(IdpScope::getJwtValue)
                 .collect(Collectors.joining(" "));
@@ -92,19 +74,16 @@ public class AuthenticatorClient {
         IdpHttpClientService idpHttpClientService =
                 getIdpHttpClientInstanceByUrl(authorizationRequest.getLink());
 
-        Response response = idpHttpClientService.doAuthorizationRequest(scope, "code",
+        JsonObject jsonObject;
+
+        try(Response response = idpHttpClientService.doAuthorizationRequest(scope, "code",
                 authorizationRequest.getRedirectUri(), authorizationRequest.getState(),
                 "S256", authorizationRequest.getNonce(),
-                authorizationRequest.getClientId(), authorizationRequest.getCodeChallenge());
+                authorizationRequest.getClientId(), authorizationRequest.getCodeChallenge())) {
 
-        checkResponseForErrorsAndThrowIfAny(response);
+            checkResponseForErrorsAndThrowIfAny(response);
 
-        String jsonString = response.readEntity(String.class);
-
-        JsonObject jsonObject = JsonObject.EMPTY_JSON_OBJECT;
-
-        try (JsonReader jsonReader = Json.createReader(new StringReader(jsonString))) {
-            jsonObject = jsonReader.readObject();
+            jsonObject = getJsonObject(response);
         }
 
         return new AuthorizationResponse.AuthorizationResponseBuilder().authenticationChallenge(
@@ -123,7 +102,7 @@ public class AuthenticatorClient {
             java.util.Set<String> keySet = jsonObject.keySet();
 
             if (keySet != null && keySet.size() > 0) {
-                keySet.stream().forEach(key -> map.put(key, jsonObject.getString(key)));
+                keySet.forEach(key -> map.put(key, jsonObject.getString(key)));
             }
         }
 
@@ -131,20 +110,21 @@ public class AuthenticatorClient {
     }
 
     public health.ere.ps.model.idp.client.AuthenticationResponse performAuthentication(
-            final AuthenticationRequest authenticationRequest,
-            final Function<MultipartBody, MultipartBody> beforeAuthenticationCallback,
-            final Consumer<HttpResponse<String>> afterAuthenticationCallback) {
+            final AuthenticationRequest authenticationRequest) throws IdpClientException, IdpException {
 
-        final MultipartBody request = Unirest
-                .post(authenticationRequest.getAuthenticationEndpointUrl())
-                .field("signed_challenge", authenticationRequest.getSignedChallenge().getRawString())
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HttpHeaders.USER_AGENT, USER_AGENT);
+        IdpHttpClientService idpHttpClientService =
+                getIdpHttpClientInstanceByUrl(authenticationRequest.getAuthenticationEndpointUrl());
 
-        final HttpResponse<String> loginResponse = beforeAuthenticationCallback.apply(request).asString();
-        afterAuthenticationCallback.accept(loginResponse);
-//        checkResponseForErrorsAndThrowIfAny(loginResponse);
-        final String location = retrieveLocationFromResponse(loginResponse);
+        String location;
+
+        try(Response response =
+                idpHttpClientService.doAuthenticationRequest(
+                        authenticationRequest.getChallengeToken().getRawString())) {
+
+            checkResponseForErrorsAndThrowIfAny(response);
+
+            location = retrieveLocationFromResponse(response);
+        }
 
         return AuthenticationResponse.builder()
                 .code(extractParameterValue(location, "code"))
@@ -153,84 +133,87 @@ public class AuthenticatorClient {
                 .build();
     }
 
-    private void checkResponseForErrorsAndThrowIfAny(final Response loginResponse) {
+    private void checkResponseForErrorsAndThrowIfAny(final Response loginResponse)
+            throws IdpException, IdpClientException {
         if (loginResponse.getStatus() == 302) {
             checkForForwardingExceptionAndThrowIfPresent((String) loginResponse.getHeaders().getFirst(
                     "Location"));
         }
         if (loginResponse.getStatus() / 100 == 4) {
-            throw new IdpClientRuntimeException(
+            throw new IdpClientException(
                     "Unexpected Server-Response: " + loginResponse.getStatus() + " " +
                             loginResponse.readEntity(String.class));
         }
     }
 
-    private void checkForForwardingExceptionAndThrowIfPresent(final String location) {
+    private void checkForForwardingExceptionAndThrowIfPresent(final String location)
+            throws IdpException {
         UriUtils.extractParameterValueOptional(location, "error")
-                .ifPresent(errorCode -> {
-                    throw new IdpClientRuntimeException("Server-Error with message: " +
+                .ifPresent(Errors.rethrow().wrap((Throwing.Consumer<String>) errorCode -> {
+                    throw new IdpClientException("Server-Error with message: " +
                             UriUtils.extractParameterValueOptional(location, "gematik_code")
                                     .map(code -> code + ": ")
                                     .orElse("") +
                             UriUtils.extractParameterValueOptional(location, "error_description")
                                     .orElse(errorCode));
-                });
+                }));
     }
 
     public AuthenticationResponse performAuthenticationWithSsoToken(
-            final AuthenticationRequest authenticationRequest,
-            final Function<MultipartBody, MultipartBody> beforeAuthenticationCallback,
-            final Consumer<HttpResponse<String>> afterAuthenticationCallback) {
-        final MultipartBody request = Unirest.post(authenticationRequest.getAuthenticationEndpointUrl())
-                .field("ssotoken", authenticationRequest.getSsoToken())
-                .field("unsigned_challenge", authenticationRequest.getChallengeToken().getRawString())
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HttpHeaders.USER_AGENT, USER_AGENT)
-                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
-        final HttpResponse<String> loginResponse = beforeAuthenticationCallback.apply(request).asString();
-        afterAuthenticationCallback.accept(loginResponse);
-//        checkResponseForErrorsAndThrowIfAny(loginResponse);
-        final String location = retrieveLocationFromResponse(loginResponse);
+            final AuthenticationRequest authenticationRequest)
+            throws IdpException, IdpClientException {
+        IdpHttpClientService idpHttpClientService =
+                getIdpHttpClientInstanceByUrl(authenticationRequest.getAuthenticationEndpointUrl());
+
+        String location;
+
+        try(Response response =
+                idpHttpClientService.doAuthenticationRequestWithSsoToken(
+                        authenticationRequest.getSsoToken(),
+                        authenticationRequest.getChallengeToken().getRawString())) {
+
+            checkResponseForErrorsAndThrowIfAny(response);
+
+            location = retrieveLocationFromResponse(response);
+        }
+
         return AuthenticationResponse.builder()
                 .code(extractParameterValue(location, "code"))
                 .location(location)
                 .build();
     }
 
-    private String retrieveLocationFromResponse(final HttpResponse<String> response) {
+    private String retrieveLocationFromResponse(final Response response)
+            throws IdpClientException {
         if (response.getStatus() != 302) {
-            throw new IdpClientRuntimeException("Unexpected status code in response: " + response.getStatus());
+            throw new IdpClientException("Unexpected status code in response: " + response.getStatus());
         }
-        return response.getHeaders().getFirst("Location");
+        return (String) response.getHeaders().getFirst("Location");
     }
 
     public IdpTokenResult retrieveAccessToken(
-            final TokenRequest tokenRequest,
-            final Function<MultipartBody, MultipartBody> beforeTokenCallback,
-            final Consumer<HttpResponse<JsonNode>> afterTokenCallback) {
+            final TokenRequest tokenRequest) throws IdpClientException, IdpException {
         final byte[] tokenKeyBytes = RandomStringUtils.randomAlphanumeric(256 / 8).getBytes();
         final SecretKey tokenKey = new SecretKeySpec(tokenKeyBytes, "AES");
         final IdpJwe keyVerifierToken = buildKeyVerifierToken(tokenKeyBytes, tokenRequest.getCodeVerifier(),
                 tokenRequest.getIdpEnc());
 
-        final MultipartBody request = Unirest.post(tokenRequest.getTokenUrl())
-                .field("grant_type", "authorization_code")
-                .field("client_id", tokenRequest.getClientId())
-                .field("code", tokenRequest.getCode())
-                .field("key_verifier", keyVerifierToken.getRawString())
-                .field("redirect_uri", tokenRequest.getRedirectUrl())
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .header(HttpHeaders.USER_AGENT, USER_AGENT)
-                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
+        IdpHttpClientService idpHttpClientService =
+                getIdpHttpClientInstanceByUrl(tokenRequest.getTokenUrl());
 
-        final HttpResponse<JsonNode> tokenResponse = beforeTokenCallback.apply(request)
-                .asJson();
-        afterTokenCallback.accept(tokenResponse);
-//        checkResponseForErrorsAndThrowIfAny(tokenResponse);
-        final JSONObject jsonObject = tokenResponse.getBody().getObject();
+        JsonObject jsonObject;
 
-        final String tokenType = tokenResponse.getBody().getObject().getString("token_type");
-        final int expiresIn = tokenResponse.getBody().getObject().getInt("expires_in");
+        try(Response response = idpHttpClientService.doAccessTokenRequest("authorization_code",
+                tokenRequest.getClientId(), tokenRequest.getCode(),
+                keyVerifierToken.getRawString(), tokenRequest.getRedirectUrl())) {
+
+            checkResponseForErrorsAndThrowIfAny(response);
+
+            jsonObject = getJsonObject(response);
+        }
+
+        final String tokenType = jsonObject.getString("token_type");
+        final int expiresIn = jsonObject.getInt("expires_in");
 
         return IdpTokenResult.builder()
                 .tokenType(tokenType)
@@ -241,13 +224,14 @@ public class AuthenticatorClient {
                 .build();
     }
 
-    private JsonWebToken decryptToken(final SecretKey tokenKey, final Object tokenValue) {
+    private JsonWebToken decryptToken(final SecretKey tokenKey, final Object tokenValue)
+            throws IdpClientException {
         return Optional.ofNullable(tokenValue)
                 .filter(String.class::isInstance)
                 .map(String.class::cast)
                 .map(IdpJwe::new)
                 .map(jwe -> jwe.decryptNestedJwt(tokenKey))
-                .orElseThrow(() -> new IdpClientRuntimeException("Unable to extract Access-Token from response!"));
+                .orElseThrow(() -> new IdpClientException("Unable to extract Access-Token from response!"));
     }
 
     private IdpJwe buildKeyVerifierToken(final byte[] tokenKeyBytes, final String codeVerifier,
@@ -260,13 +244,19 @@ public class AuthenticatorClient {
         return IdpJwe.createWithPayloadAndEncryptWithKey(claims.toJson(), idpEnc, "JSON");
     }
 
-    public DiscoveryDocumentResponse retrieveDiscoveryDocument(final String discoveryDocumentUrl) {
-        //TODO clean up, add checks ...
+    public DiscoveryDocumentResponse retrieveDiscoveryDocument(final String discoveryDocumentUrl)
+            throws IdpClientException, IdpException, IdpJoseException {
         IdpHttpClientService idpHttpClientService = getIdpHttpClientInstanceByUrl(discoveryDocumentUrl);
 
-        Response response = idpHttpClientService.doGenericGetRequest();
-        final Map<String, Object> discoveryClaims = TokenClaimExtraction
-                .extractClaimsFromJwtBody(response.readEntity(String.class));
+        Map<String, Object> discoveryClaims;
+
+        try(Response response = idpHttpClientService.doGenericGetRequest()) {
+
+            checkResponseForErrorsAndThrowIfAny(response);
+
+            discoveryClaims = TokenClaimExtraction
+                    .extractClaimsFromJwtBody(response.readEntity(String.class));
+        }
 
         return DiscoveryDocumentResponse.builder()
                 .authorizationEndpoint(discoveryClaims.get("authorization_endpoint").toString())
@@ -276,15 +266,23 @@ public class AuthenticatorClient {
                 .build();
     }
 
-    protected X509Certificate retrieveServerCertFromLocation(final String url) {
+    protected X509Certificate retrieveServerCertFromLocation(final String url)
+            throws IdpException, IdpClientException {
         //TODO: Add connection retry strategy for failed connection attempts. E.g. exponential
         // backoff for retries.
         IdpHttpClientService idpHttpClientService = getIdpHttpClientInstanceByUrl(url);
 
-        Response response = idpHttpClientService.doGenericGetRequest();
-        String jsonString = response.readEntity(String.class);
+        String jsonString;
+
+        try(Response response = idpHttpClientService.doGenericGetRequest()) {
+
+            checkResponseForErrorsAndThrowIfAny(response);
+
+            jsonString = response.readEntity(String.class);
+        }
+
         JsonWebToken jsonWebToken = new JsonWebToken(jsonString);
-        String verificationCertificate = "";
+        String verificationCertificate;
 
         try (JsonReader jsonReader =
                      Json.createReader(new StringReader(jsonWebToken.getRawString()))) {
@@ -295,14 +293,22 @@ public class AuthenticatorClient {
         return getCertificateFromPem(Base64.getDecoder().decode(verificationCertificate));
     }
 
-    protected PublicKey retrieveServerPuKFromLocation(final String url) {
+    protected PublicKey retrieveServerPuKFromLocation(final String url)
+            throws IdpClientException, IdpException {
 
         IdpHttpClientService idpHttpClientService = getIdpHttpClientInstanceByUrl(url);
 
-        Response response = idpHttpClientService.doGenericGetRequest();
-        String jsonString = response.readEntity(String.class);
+        String jsonString;
+
+        try(Response response = idpHttpClientService.doGenericGetRequest()) {
+
+            checkResponseForErrorsAndThrowIfAny(response);
+
+            jsonString = response.readEntity(String.class);
+        }
+
         JsonWebToken jsonWebToken = new JsonWebToken(jsonString);
-        JsonObject keyObject = JsonObject.EMPTY_JSON_OBJECT;
+        JsonObject keyObject;
 
         try (JsonReader jsonReader =
                      Json.createReader(new StringReader(jsonWebToken.getRawString()))) {
@@ -317,22 +323,36 @@ public class AuthenticatorClient {
         try {
             return KeyFactory.getInstance("EC").generatePublic(keySpec);
         } catch (final InvalidKeySpecException | NoSuchAlgorithmException e) {
-            throw new IdpClientRuntimeException(
+            throw new IdpClientException(
                     "Unable to construct public key from given URL: " + url, e);
         }
     }
 
-    public static IdpHttpClientService getIdpHttpClientInstanceByUrl(String url) {
-        IdpHttpClientService idpHttpClientService = null;
+    public IdpHttpClientService getIdpHttpClientInstanceByUrl(String url)
+            throws IdpClientException {
+        IdpHttpClientService idpHttpClientService;
 
         try {
             idpHttpClientService = RestClientBuilder.newBuilder()
                     .baseUrl(new URL(url))
                     .build(IdpHttpClientService.class);
         } catch (MalformedURLException e) {
-            throw new IdpClientRuntimeException("Bad URL: " + url, e);
+            throw new IdpClientException("Bad URL: " + url, e);
         }
 
         return idpHttpClientService;
+    }
+
+    public JsonObject getJsonObject(Response response) {
+        String jsonString = response.readEntity(String.class);
+        JsonObject jsonObject = JsonObject.EMPTY_JSON_OBJECT;
+
+        if(StringUtils.isNotBlank(jsonString)) {
+            try (JsonReader jsonReader = Json.createReader(new StringReader(jsonString))) {
+                jsonObject = jsonReader.readObject();
+            }
+        }
+
+        return jsonObject;
     }
 }

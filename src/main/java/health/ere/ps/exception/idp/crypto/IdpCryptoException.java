@@ -1,6 +1,6 @@
 package health.ere.ps.exception.idp.crypto;
 
-public class IdpCryptoException extends RuntimeException {
+public class IdpCryptoException extends Exception {
 
     private static final long serialVersionUID = 6861433495462078391L;
 

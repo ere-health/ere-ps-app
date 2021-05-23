@@ -32,7 +32,8 @@ public class CryptoLoader {
     private static final BouncyCastleProvider BOUNCY_CASTLE_PROVIDER = new BouncyCastleProvider();
 
     public static X509Certificate getCertificateFromP12(final byte[] crt,
-                                                        final String p12Password) {
+                                                        final String p12Password)
+            throws IdpCryptoException {
         try {
             final KeyStore p12 = KeyStore.getInstance("pkcs12", BOUNCY_CASTLE_PROVIDER);
             p12.load(new ByteArrayInputStream(crt), p12Password.toCharArray());
@@ -53,16 +54,16 @@ public class CryptoLoader {
             final InputStream in = new ByteArrayInputStream(crt);
             final X509Certificate x509Certificate = (X509Certificate) certFactory.generateCertificate(in);
             if (x509Certificate == null) {
-                throw new IdpCryptoException("Error while loading certificate!");
+                throw new IllegalStateException("Error while loading certificate!");
             }
             return x509Certificate;
         } catch (final CertificateException ex) {
-            throw new IdpCryptoException("Error while loading certificate!", ex);
+            throw new IllegalStateException("Error while loading certificate!", ex);
         }
     }
 
     public static PkiIdentity getIdentityFromP12(InputStream p12FileInputStream,
-                                                 final String p12Password) {
+                                                 final String p12Password) throws IdpCryptoException {
         try {
             final KeyStore p12 = KeyStore.getInstance("pkcs12", BOUNCY_CASTLE_PROVIDER);
 
@@ -83,7 +84,7 @@ public class CryptoLoader {
         throw new IdpCryptoException("Could not find certificate in P12-File");
     }
 
-    public static PublicKey getEcPublicKeyFromBytes(final byte[] keyBytes) {
+    public static PublicKey getEcPublicKeyFromBytes(final byte[] keyBytes) throws IdpCryptoException {
         final X509EncodedKeySpec publicKeyEncoded = new X509EncodedKeySpec(keyBytes);
         try {
             final KeyFactory keyFactory = KeyFactory.getInstance("EC");
