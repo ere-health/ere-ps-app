@@ -1,5 +1,6 @@
 package health.ere.ps.vau;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -12,14 +13,18 @@ import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.xml.bind.DatatypeConverter;
 
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.teletrust.TeleTrusTObjectIdentifiers;
 import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.crypto.BasicAgreement;
+import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.bouncycastle.crypto.agreement.ECDHBasicAgreement;
 import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.engines.AESEngine;
@@ -33,14 +38,23 @@ import org.bouncycastle.crypto.params.ECPublicKeyParameters;
 import org.bouncycastle.crypto.params.HKDFParameters;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.jcajce.provider.asymmetric.dsa.KeyPairGeneratorSpi;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.KeyPairGeneratorSpi.ECDSA;
 import org.bouncycastle.math.ec.ECCurve;
+import org.bouncycastle.math.ec.ECPoint;
 
 public class VAU {
     private String _useragent;
     private String _fachdienstUrl;
 
+    static X9ECParameters x9EC = ECNamedCurveTable.getByOID(new ASN1ObjectIdentifier(TeleTrusTObjectIdentifiers.brainpoolP256r1.getId()));
+
+
     private static final Logger log = Logger.getLogger(VAU.class.getName());
+
+    public VAU() {
+    }
 
     public VAU(String useragent, String fachdienstUrl) {
         _useragent = useragent;
@@ -81,36 +95,53 @@ public class VAU {
             );
     }
 
-    public byte[] Encrypt(String message) {
-        X9ECParameters x9EC = ECNamedCurveTable.getByOID(new ASN1ObjectIdentifier(TeleTrusTObjectIdentifiers.brainpoolP256r1.getId()));
-        ECDomainParameters ecDomain = new ECDomainParameters(x9EC.getCurve(), x9EC.getG(), x9EC.getN(), x9EC.getH(), x9EC.getSeed());
-
+    public byte[] Encrypt(String message) throws NoSuchAlgorithmException, IllegalStateException, InvalidCipherTextException, CertificateException, MalformedURLException, IOException {
         KeyPair myECDHKey = GenerateNewECDHKey();
-        ECPrivateKeyParameters myPrivate = (ECPrivateKeyParameters) myECDHKey.getPrivate();
-        ECPublicKeyParameters myPublic = (ECPublicKeyParameters) myECDHKey.getPublic();
+        KeyCoords vauPublicKeyXY = GetVauPublicKeyXY();
+        return Encrypt(message, myECDHKey, vauPublicKeyXY);
+    }
+
+    public static ECDomainParameters getECDomain() {
+        ECDomainParameters ecDomain = new ECDomainParameters(x9EC.getCurve(), x9EC.getG(), x9EC.getN(), x9EC.getH(), x9EC.getSeed());
+        return ecDomain;
+    }
+
+    public byte[] Encrypt(String message, KeyPair myECDHKey, KeyCoords vauPublicKeyXY) throws IllegalStateException, InvalidCipherTextException {
+        ECDomainParameters ecDomain = getECDomain();
+
+        BCECPrivateKey myPrivate = (BCECPrivateKey) myECDHKey.getPrivate();
+        BCECPublicKey myPublic = (BCECPublicKey) myECDHKey.getPublic();
         log.info("MY public X=" + ByteArrayToHexString(myPublic.getQ().getXCoord().getEncoded()));
         log.info("MY public Y=" + ByteArrayToHexString(myPublic.getQ().getYCoord().getEncoded()));
         log.info("MY private =" + ByteArrayToHexString(myPrivate.getD().toByteArray()));
 
-        KeyCoords vauPublicKeyXY = GetVauPublicKeyXY();
-        var point = x9EC.getCurve().createPoint(vauPublicKeyXY.X, vauPublicKeyXY.Y);
+        
+        ECPoint point = x9EC.getCurve().createPoint(vauPublicKeyXY.X, vauPublicKeyXY.Y);
         ECPublicKeyParameters vauPublicKey = new ECPublicKeyParameters(point, ecDomain);
         log.info("VAU X=" + vauPublicKeyXY.X.toString(16));
         log.info("VAU Y=" + vauPublicKeyXY.Y.toString(16));
 
         //SharedSecret
         BasicAgreement aKeyAgree = new ECDHBasicAgreement();
-        aKeyAgree.init(myPrivate);
+        aKeyAgree.init(new ECPrivateKeyParameters(myPrivate.getD(), ecDomain));
         BigInteger sharedSecret = aKeyAgree.calculateAgreement(vauPublicKey);
         byte[] sharedSecretBytes = sharedSecret.toByteArray();
+        byte[] sharedSecretBytesCopy = new byte[32];
 
         //sharedSecretBytes muss 32 Byte groß sein entweder vorn abschneiden oder mit 0 auffüllen
         if (sharedSecretBytes.length > 32) {
-            sharedSecretBytes = sharedSecretBytes.Skip(sharedSecretBytes.length - 32).ToArray();
+            System.arraycopy(sharedSecretBytes, sharedSecretBytes.length - 32, sharedSecretBytesCopy, 0, 32);
         } else if (sharedSecretBytes.length < 32) {
-            sharedSecretBytes = Enumerable.Repeat((byte) 0, 32 - sharedSecretBytes.Length).Concat(sharedSecretBytes).ToArray();
+            sharedSecretBytesCopy = Arrays
+            .copyOfRange( // Source
+                sharedSecretBytes,
+                // The Start index
+                0,
+                // The end index
+                32);
         }
-        log.info($"SharedSecret={ByteArrayToHexString(sharedSecretBytes)} {sharedSecretBytes.Length}");
+        sharedSecretBytes = sharedSecretBytesCopy;
+        log.info("SharedSecret="+ByteArrayToHexString(sharedSecretBytes)+" "+sharedSecretBytes.length);
 
         //HKDF
         byte[] info = "ecies-vau-transport".getBytes();
@@ -125,18 +156,18 @@ public class VAU {
         byte[] outputAESCGM = new byte[input.length + 16];
 
         //random IV
-        var iv = GetIv();
+        byte[] iv = GetIv();
         log.info("IV =" + ByteArrayToHexString(iv));
 
-        var cipher = new GCMBlockCipher(new AESEngine());
-        var parameters = new AEADParameters(new KeyParameter(aes128Key_CEK), 128, iv);
+        GCMBlockCipher cipher = new GCMBlockCipher(new AESEngine());
+        AEADParameters parameters = new AEADParameters(new KeyParameter(aes128Key_CEK), 128, iv);
         cipher.init(true, parameters);
-        var len = cipher.processBytes(input, 0, input.length, outputAESCGM, 0);
-        var finalData = cipher.doFinal(outputAESCGM, len);
+        int len = cipher.processBytes(input, 0, input.length, outputAESCGM, 0);
+        int finalData = cipher.doFinal(outputAESCGM, len);
 
         log.info(len + " " + finalData);
 
-        var mem = new ByteArrayOutputStream();
+        ByteArrayOutputStream mem = new ByteArrayOutputStream();
         mem.write(0x01); //Version
         mem.write(myPublic.getQ().getXCoord().getEncoded(), 0, myPublic.getQ().getXCoord().getEncoded().length); //XKoordinate VAU Zert
         mem.write(myPublic.getQ().getYCoord().getEncoded(), 0, myPublic.getQ().getYCoord().getEncoded().length); //YKoordinate VAU Zert
@@ -156,59 +187,39 @@ public class VAU {
     }
 
     public static String ByteArrayToHexString(byte[] bytes) {
-        StringBuilder result = new StringBuilder(bytes.length * 2);
-        char[] hexAlphabet = new char[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-
-        for(byte B : bytes) {
-            result.append(hexAlphabet[B >> 4]);
-            result.append(hexAlphabet[B & 0xF]);
-        }
-
-        return result.toString();
+        return DatatypeConverter.printHexBinary(bytes);
     }
 
     public static byte[] HexStringToByteArray(String hex) {
-        byte[] bytes = new byte[hex.length / 2];
-        int[] hexValue = {
-            0x00, 0x01, 0x02, 0x03, 0x04, 0x05,
-            0x06, 0x07, 0x08, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F
-        };
-
-        for (int x = 0, i = 0; i < hex.length; i += 2, x += 1) {
-            bytes[x] = (byte) (hexValue[char.ToUpper(hex[i + 0]) - '0'] << 4 |
-                               hexValue[char.ToUpper(hex[i + 1]) - '0']);
-        }
-        return bytes;
+        return DatatypeConverter.parseHexBinary(hex);
     }
 
-    public byte[] DecryptWithKey(byte[] message, byte[] key) {
-        const int MAC_BIT_SIZE = 128;
-        const int NONCE_BIT_SIZE = 96;
-        const int KEY_LENGTH = 128;
+    public byte[] DecryptWithKey(byte[] message, byte[] key) throws Exception {
+        int MAC_BIT_SIZE = 128;
+        int NONCE_BIT_SIZE = 96;
+        int KEY_LENGTH = 128;
 
-        if (key == null || key.Length != KEY_LENGTH / 8) {
-            throw new Exception($"Key needs to be {KEY_LENGTH} bit!");
+        if (key == null || key.length != KEY_LENGTH / 8) {
+            throw new Exception("Key needs to be "+KEY_LENGTH+" bit!");
         }
-        if (message == null || message.Length == 0) {
+        if (message == null || message.length == 0) {
             throw new Exception("Message required!");
         }
 
-        using var cipherStream = new MemoryStream(message);
-        using var cipherReader = new BinaryReader(cipherStream);
-        var nonSecretPayload = cipherReader.ReadBytes(0);
-        var nonce = cipherReader.ReadBytes(NONCE_BIT_SIZE / 8);
-        var cipher = new GcmBlockCipher(new AesEngine());
-        var parameters = new AeadParameters(new KeyParameter(key), MAC_BIT_SIZE, nonce, nonSecretPayload);
-        cipher.Init(false, parameters);
-        var cipherText = cipherReader.ReadBytes(message.Length - nonce.Length);
-        var plainText = new byte[cipher.GetOutputSize(cipherText.Length)];
-        try {
-            var len = cipher.ProcessBytes(cipherText, 0, cipherText.Length, plainText, 0);
-            cipher.DoFinal(plainText, len);
-        } catch (InvalidCipherTextException) {
-            return null;
-        }
+        var cipherStream = new ByteArrayInputStream(message);
+        byte[] nonSecretPayload = new byte[1];
+        cipherStream.read(nonSecretPayload, 0, 1);
+        byte[] nonce = new byte[NONCE_BIT_SIZE / 8];
+        cipherStream.read(nonce, 0, NONCE_BIT_SIZE / 8);
+        var cipher = new GCMBlockCipher(new AESEngine());
+        var parameters = new AEADParameters(new KeyParameter(key), MAC_BIT_SIZE, nonce, nonSecretPayload);
+        cipher.init(false, parameters);
+        byte[] cipherText = new byte[message.length - nonce.length];
+        cipherStream.read(cipherText, 0, message.length - nonce.length);
+        var plainText = new byte[cipher.getOutputSize(cipherText.length)];
+        var len = cipher.processBytes(cipherText, 0, cipherText.length, plainText, 0);
+        cipher.doFinal(plainText, len);
+
         return plainText;
     }
 }
