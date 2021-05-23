@@ -48,8 +48,8 @@ public class VAU {
     private String _useragent;
     private String _fachdienstUrl;
 
-    static X9ECParameters x9EC = ECNamedCurveTable.getByOID(new ASN1ObjectIdentifier(TeleTrusTObjectIdentifiers.brainpoolP256r1.getId()));
-
+    static X9ECParameters x9EC = ECNamedCurveTable
+            .getByOID(new ASN1ObjectIdentifier(TeleTrusTObjectIdentifiers.brainpoolP256r1.getId()));
 
     private static final Logger log = Logger.getLogger(VAU.class.getName());
 
@@ -86,27 +86,29 @@ public class VAU {
 
     protected KeyCoords GetVauPublicKeyXY() throws CertificateException, MalformedURLException, IOException {
         CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-        X509Certificate z = (X509Certificate) certFactory.generateCertificate(new URL(_fachdienstUrl+"/VAUCertificate").openStream());
+        X509Certificate z = (X509Certificate) certFactory
+                .generateCertificate(new URL(_fachdienstUrl + "/VAUCertificate").openStream());
         ECPublicKeyParameters x = (ECPublicKeyParameters) z.getPublicKey();
 
-        return new KeyCoords(
-            new BigInteger(1, x.getQ().getXCoord().getEncoded()),
-            new BigInteger(1, x.getQ().getYCoord().getEncoded())
-            );
+        return new KeyCoords(new BigInteger(1, x.getQ().getXCoord().getEncoded()),
+                new BigInteger(1, x.getQ().getYCoord().getEncoded()));
     }
 
-    public byte[] Encrypt(String message) throws NoSuchAlgorithmException, IllegalStateException, InvalidCipherTextException, CertificateException, MalformedURLException, IOException {
+    public byte[] Encrypt(String message) throws NoSuchAlgorithmException, IllegalStateException,
+            InvalidCipherTextException, CertificateException, MalformedURLException, IOException {
         KeyPair myECDHKey = GenerateNewECDHKey();
         KeyCoords vauPublicKeyXY = GetVauPublicKeyXY();
-        return Encrypt(message, myECDHKey, vauPublicKeyXY);
+        return Encrypt(message, myECDHKey, vauPublicKeyXY, null);
     }
 
     public static ECDomainParameters getECDomain() {
-        ECDomainParameters ecDomain = new ECDomainParameters(x9EC.getCurve(), x9EC.getG(), x9EC.getN(), x9EC.getH(), x9EC.getSeed());
+        ECDomainParameters ecDomain = new ECDomainParameters(x9EC.getCurve(), x9EC.getG(), x9EC.getN(), x9EC.getH(),
+                x9EC.getSeed());
         return ecDomain;
     }
 
-    public byte[] Encrypt(String message, KeyPair myECDHKey, KeyCoords vauPublicKeyXY) throws IllegalStateException, InvalidCipherTextException {
+    public byte[] Encrypt(String message, KeyPair myECDHKey, KeyCoords vauPublicKeyXY, byte[] ivBytes)
+            throws IllegalStateException, InvalidCipherTextException {
         ECDomainParameters ecDomain = getECDomain();
 
         BCECPrivateKey myPrivate = (BCECPrivateKey) myECDHKey.getPrivate();
@@ -115,35 +117,34 @@ public class VAU {
         log.info("MY public Y=" + ByteArrayToHexString(myPublic.getQ().getYCoord().getEncoded()));
         log.info("MY private =" + ByteArrayToHexString(myPrivate.getD().toByteArray()));
 
-        
         ECPoint point = x9EC.getCurve().createPoint(vauPublicKeyXY.X, vauPublicKeyXY.Y);
         ECPublicKeyParameters vauPublicKey = new ECPublicKeyParameters(point, ecDomain);
         log.info("VAU X=" + vauPublicKeyXY.X.toString(16));
         log.info("VAU Y=" + vauPublicKeyXY.Y.toString(16));
 
-        //SharedSecret
+        // SharedSecret
         BasicAgreement aKeyAgree = new ECDHBasicAgreement();
         aKeyAgree.init(new ECPrivateKeyParameters(myPrivate.getD(), ecDomain));
         BigInteger sharedSecret = aKeyAgree.calculateAgreement(vauPublicKey);
         byte[] sharedSecretBytes = sharedSecret.toByteArray();
         byte[] sharedSecretBytesCopy = new byte[32];
 
-        //sharedSecretBytes muss 32 Byte groß sein entweder vorn abschneiden oder mit 0 auffüllen
+        // sharedSecretBytes muss 32 Byte groß sein entweder vorn abschneiden oder mit 0
+        // auffüllen
         if (sharedSecretBytes.length > 32) {
             System.arraycopy(sharedSecretBytes, sharedSecretBytes.length - 32, sharedSecretBytesCopy, 0, 32);
         } else if (sharedSecretBytes.length < 32) {
-            sharedSecretBytesCopy = Arrays
-            .copyOfRange( // Source
-                sharedSecretBytes,
-                // The Start index
-                0,
-                // The end index
-                32);
+            sharedSecretBytesCopy = Arrays.copyOfRange( // Source
+                    sharedSecretBytes,
+                    // The Start index
+                    0,
+                    // The end index
+                    32);
         }
         sharedSecretBytes = sharedSecretBytesCopy;
-        log.info("SharedSecret="+ByteArrayToHexString(sharedSecretBytes)+" "+sharedSecretBytes.length);
+        log.info("SharedSecret=" + ByteArrayToHexString(sharedSecretBytes) + " " + sharedSecretBytes.length);
 
-        //HKDF
+        // HKDF
         byte[] info = "ecies-vau-transport".getBytes();
         HKDFBytesGenerator hkdfBytesGenerator = new HKDFBytesGenerator(new SHA256Digest());
         hkdfBytesGenerator.init(new HKDFParameters(sharedSecretBytes, new byte[0], info));
@@ -151,12 +152,12 @@ public class VAU {
         hkdfBytesGenerator.generateBytes(aes128Key_CEK, 0, aes128Key_CEK.length);
         log.info("Schlüsselableitung AES128Key=" + ByteArrayToHexString(aes128Key_CEK));
 
-        //AES CGM
+        // AES CGM
         byte[] input = message.getBytes();
         byte[] outputAESCGM = new byte[input.length + 16];
 
-        //random IV
-        byte[] iv = GetIv();
+        // random IV
+        byte[] iv = ivBytes == null ? GetIv() : ivBytes;
         log.info("IV =" + ByteArrayToHexString(iv));
 
         GCMBlockCipher cipher = new GCMBlockCipher(new AESEngine());
@@ -168,9 +169,13 @@ public class VAU {
         log.info(len + " " + finalData);
 
         ByteArrayOutputStream mem = new ByteArrayOutputStream();
-        mem.write(0x01); //Version
-        mem.write(myPublic.getQ().getXCoord().getEncoded(), 0, myPublic.getQ().getXCoord().getEncoded().length); //XKoordinate VAU Zert
-        mem.write(myPublic.getQ().getYCoord().getEncoded(), 0, myPublic.getQ().getYCoord().getEncoded().length); //YKoordinate VAU Zert
+        mem.write(0x01); // Version
+        mem.write(myPublic.getQ().getXCoord().getEncoded(), 0, myPublic.getQ().getXCoord().getEncoded().length); // XKoordinate
+                                                                                                                 // VAU
+                                                                                                                 // Zert
+        mem.write(myPublic.getQ().getYCoord().getEncoded(), 0, myPublic.getQ().getYCoord().getEncoded().length); // YKoordinate
+                                                                                                                 // VAU
+                                                                                                                 // Zert
         mem.write(iv, 0, iv.length);
         mem.write(outputAESCGM, 0, outputAESCGM.length);
         return mem.toByteArray();
@@ -200,7 +205,7 @@ public class VAU {
         int KEY_LENGTH = 128;
 
         if (key == null || key.length != KEY_LENGTH / 8) {
-            throw new Exception("Key needs to be "+KEY_LENGTH+" bit!");
+            throw new Exception("Key needs to be " + KEY_LENGTH + " bit!");
         }
         if (message == null || message.length == 0) {
             throw new Exception("Message required!");
