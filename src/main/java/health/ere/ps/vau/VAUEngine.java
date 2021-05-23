@@ -2,6 +2,8 @@ package health.ere.ps.vau;
 
 import java.io.IOException;
 import java.net.URI;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MultivaluedHashMap;
@@ -12,13 +14,9 @@ import org.apache.http.HttpEntity;
 import org.apache.http.client.entity.EntityBuilder;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
+import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient43Engine;
 import org.jboss.resteasy.client.jaxrs.internal.ClientInvocation;
-
-import de.gematik.ti.vauchannel.protocol.TransportedData;
-import de.gematik.ti.vauchannel.protocol.VAUProtocol;
-import de.gematik.ti.vauchannel.protocol.VAUProtocolSession;
-import de.gematik.ti.vauchannel.protocol.helpers.VAUProtocolCryptoImpl;
 
 /**
  * Engine for RestEasy inspired by the Gematik implementation of VAU:
@@ -28,11 +26,11 @@ import de.gematik.ti.vauchannel.protocol.helpers.VAUProtocolCryptoImpl;
  * https://fd.erezept-instanz1.titus.ti-dienste.de/VAUCertificate
  */
 public class VAUEngine extends ApacheHttpClient43Engine {
-    private VAUProtocol vauProtocol;
-    private URI vauHandshakeUri; 
+    private VAU vau;
+    private String vauURL; 
 
-    public VAUEngine(URI vauHandshakeUri) {
-        this.vauHandshakeUri = vauHandshakeUri;
+    public VAUEngine(String vauURL) {
+        this.vauURL = vauURL;
     }
 
     /**
@@ -40,22 +38,9 @@ public class VAUEngine extends ApacheHttpClient43Engine {
      * https://fachportal.gematik.de/fachportal-import/files/gemSpec_Krypt_V2.19.0.pdf
      * Chapter 6 Page 78
      */
-    public void initVauSession() {
+    public void initVauSession(String userAgent) {
         try {
-            vauProtocol = new VAUProtocol(new VAUProtocolCryptoImpl(true), new VAUProtocolSession(true));
-            byte[] authzToken = null;
-            String vAUClientHello = vauProtocol.handshakeStep1_generate_VAUClientHello_Message(authzToken);
-            HttpPost httpPost = new HttpPost(vauHandshakeUri);
-            httpPost.setEntity(EntityBuilder.create().setText(vAUClientHello)
-                    .setContentType(ContentType.APPLICATION_JSON).build());
-            String vAUServerHello;
-            vAUServerHello = new String(httpClient.execute(httpPost).getEntity().getContent().readAllBytes());
-            String vAUClientSigFin = vauProtocol.handshakeStep3_generate_VAUClientSigFin_Message(vAUServerHello);
-            HttpPost httpPost2 = new HttpPost(vauHandshakeUri);
-            httpPost2.setEntity(EntityBuilder.create().setText(vAUClientSigFin)
-                    .setContentType(ContentType.APPLICATION_JSON).build());
-            String vAUServerFin = new String(httpClient.execute(httpPost).getEntity().getContent().readAllBytes());
-            vauProtocol.handshakeStep5_validate_VAUServerFin_Message(vAUServerFin);
+            vau = new VAU(userAgent, vauURL);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -63,32 +48,41 @@ public class VAUEngine extends ApacheHttpClient43Engine {
 
     @Override
     protected HttpEntity buildEntity(final ClientInvocation request) throws IOException {
-        if (this.vauProtocol == null) {
+        MultivaluedMap<String, Object> newHeaders = request.getHeaders().getHeaders();
+        if (this.vau == null) {
             // init vauSession
-            initVauSession();
+            initVauSession((String) newHeaders.getFirst("User-Agent"));
         }
 
-        MultivaluedMap<String, Object> newHeaders = request.getHeaders().getHeaders();
         newHeaders.putSingle("X-erp-user", "l"); //Leistungserbringer
         newHeaders.putSingle("X-erp-resource", "Task");
         request.getHeaders().setHeaders(newHeaders);
 
         HttpEntity httpEntity = super.buildEntity(request);
 
-        TransportedData transportedData = new TransportedData(httpEntity.getContent().readAllBytes(),
-                httpEntity.getContentType().getValue());
-        byte[] finalMessageData = vauProtocol.encrypt(transportedData);
+        byte[] finalMessageData;
+        try {
+            finalMessageData = vau.encrypt(new String(httpEntity.getContent().readAllBytes()));
+        } catch (NoSuchAlgorithmException | IllegalStateException | InvalidCipherTextException | CertificateException
+                | UnsupportedOperationException e) {
+            throw new RuntimeException(e);
+        }
 
-        return EntityBuilder.create().setBinary(finalMessageData).setContentType(ContentType.APPLICATION_JSON).build();
+        return EntityBuilder.create().setBinary(finalMessageData).setContentType(ContentType.create("application","octet-stream")).build();
     }
 
     @Override
     public Response invoke(Invocation inv) {
         Response response = super.invoke(inv);
 
-        TransportedData transportedData = vauProtocol.decrypt(response.getEntity().toString().getBytes());
+        byte[] transportedData;
+        try {
+            transportedData = vau.decrypt(response.getEntity().toString().getBytes());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
-        return Response.status(response.getStatus()).entity(transportedData.body).type(transportedData.contentType)
+        return Response.status(response.getStatus()).entity(new String(transportedData))
                 .build();
     }
 
