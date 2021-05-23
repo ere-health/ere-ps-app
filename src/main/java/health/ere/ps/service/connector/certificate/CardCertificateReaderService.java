@@ -4,12 +4,21 @@ import de.gematik.ws.conn.certificateservice.v6.ReadCardCertificateResponse;
 import de.gematik.ws.conn.certificateservicecommon.v2.X509DataInfoListType;
 import de.gematik.ws.conn.connectorcommon.v5.Status;
 
+import org.apache.commons.lang3.ArrayUtils;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import health.ere.ps.exception.connector.ConnectorCardCertificateReadException;
+import health.ere.ps.exception.idp.crypto.IdpCryptoException;
+import health.ere.ps.model.idp.client.IdpTokenResult;
+import health.ere.ps.model.idp.crypto.PkiIdentity;
+import health.ere.ps.service.idp.crypto.CryptoLoader;
 
 @ApplicationScoped
 public class CardCertificateReaderService {
@@ -43,6 +52,11 @@ public class CardCertificateReaderService {
             }
         }
 
+        if(ArrayUtils.isEmpty(x509Certificate)) {
+            throw new ConnectorCardCertificateReadException("Could not retrieve connector smart " +
+                    "card certificate from the connector.");
+        }
+
         return x509Certificate;
     }
 
@@ -57,5 +71,24 @@ public class CardCertificateReaderService {
             throws ConnectorCardCertificateReadException {
         return readCardCertificate(new InvocationContext(clientId, clientSystem, workplace, userId),
                 cardHandle);
+    }
+
+    public PkiIdentity retrieveCardCertIdentity(String clientId, String clientSystem,
+                                                String workplace, String cardHandle,
+                                                String connectorCertAuthPassword)
+            throws ConnectorCardCertificateReadException, IdpCryptoException {
+        byte[] connector_cert_auth = readCardCertificate(clientId, clientSystem, workplace,
+                cardHandle);
+        PkiIdentity identity;
+
+        try (InputStream is = new ByteArrayInputStream(connector_cert_auth)) {
+            identity = CryptoLoader.getIdentityFromP12(is, connectorCertAuthPassword);
+
+        } catch (IOException e) {
+           throw new ConnectorCardCertificateReadException("Error getting C_AUTH PKI Identity",
+                   e);
+        }
+
+        return identity;
     }
 }

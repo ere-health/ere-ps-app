@@ -8,15 +8,19 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Map;
+import java.util.Objects;
 
+import health.ere.ps.exception.idp.IdpClientException;
+import health.ere.ps.exception.idp.IdpException;
+import health.ere.ps.exception.idp.IdpJoseException;
 import health.ere.ps.exception.idp.IdpJwtExpiredException;
 import health.ere.ps.exception.idp.IdpJwtSignatureInvalidException;
+import health.ere.ps.exception.idp.crypto.IdpCryptoException;
 import health.ere.ps.model.idp.client.IdpTokenResult;
 import health.ere.ps.model.idp.client.brainPoolExtension.BrainpoolAlgorithmSuiteIdentifiers;
 import health.ere.ps.model.idp.client.field.ClaimName;
 import health.ere.ps.model.idp.client.token.JsonWebToken;
 import health.ere.ps.model.idp.crypto.PkiIdentity;
-import health.ere.ps.service.idp.tests.Afo;
 import health.ere.ps.model.idp.crypto.PkiKeyResolver;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -36,7 +40,8 @@ public class MockIdpClientTest {
     @BeforeEach
     public void startup(
             @PkiKeyResolver.Filename("ecc") final PkiIdentity serverIdentity,
-            @PkiKeyResolver.Filename("C_CH_AUT_R2048") final PkiIdentity rsaClientIdentity) {
+            @PkiKeyResolver.Filename("C_CH_AUT_R2048") final PkiIdentity rsaClientIdentity)
+            throws IdpCryptoException {
         this.serverIdentity = serverIdentity;
         this.rsaClientIdentity = rsaClientIdentity;
 
@@ -46,7 +51,7 @@ public class MockIdpClientTest {
                 .clientId(CLIENT_ID_E_REZEPT_APP)
                 .build();
 
-        mockIdpClient.initialize();
+        mockIdpClient.initializeClient();
     }
 
     @Test
@@ -59,19 +64,20 @@ public class MockIdpClientTest {
     }
 
     @Test
-    public void verifyToken() {
+    public void verifyToken() throws IdpJoseException, IdpCryptoException {
         final IdpTokenResult authToken = mockIdpClient.login(rsaClientIdentity);
         authToken.getAccessToken().verify(mockIdpClient.getServerIdentity().getCertificate().getPublicKey());
     }
 
     @Test
-    public void invalidSignatureTokens_verifyShouldFail() {
+    public void invalidSignatureTokens_verifyShouldFail()
+            throws IdpCryptoException, IdpJoseException, IdpClientException, IdpException {
         final IdpTokenResult authToken = MockIdpClient.builder()
                 .serverIdentity(serverIdentity)
                 .produceTokensWithInvalidSignature(true)
                 .clientId(CLIENT_ID_E_REZEPT_APP)
                 .build()
-                .initialize()
+                .initializeClient()
                 .login(rsaClientIdentity);
 
         assertThrows(IdpJwtSignatureInvalidException.class, () -> authToken.getAccessToken()
@@ -91,13 +97,14 @@ public class MockIdpClientTest {
     }
 
     @Test
-    public void expiredTokens_verifyShouldFail() {
+    public void expiredTokens_verifyShouldFail() throws IdpCryptoException, IdpJoseException,
+            IdpClientException, IdpException {
         final IdpTokenResult authToken = MockIdpClient.builder()
                 .serverIdentity(serverIdentity)
                 .produceOnlyExpiredTokens(true)
                 .clientId(CLIENT_ID_E_REZEPT_APP)
                 .build()
-                .initialize()
+                .initializeClient()
                 .login(rsaClientIdentity);
 
         assertThrows(IdpJwtExpiredException.class, () -> authToken.getAccessToken().verify(
@@ -116,34 +123,36 @@ public class MockIdpClientTest {
 
     @Disabled
     @Test
-    public void verifyServerSignatureEcc() {
+    public void verifyServerSignatureEcc() throws IdpJoseException, IdpCryptoException {
         assertTrue(mockIdpClient.login(rsaClientIdentity)
                 .getAccessToken()
-                .getHeaderClaims().entrySet().stream().anyMatch(entry -> entry.getKey() ==
-                                ClaimName.ALGORITHM.getJoseName() && entry.getValue() ==
+                .getHeaderClaims().entrySet().stream().anyMatch(entry ->
+                        Objects.equals(entry.getKey(), ClaimName.ALGORITHM.getJoseName()) && entry.getValue() ==
                         BrainpoolAlgorithmSuiteIdentifiers.BRAINPOOL256_USING_SHA256));
     }
 
     @Disabled
     @Test
-    public void verifyServerSignatureRsa(@PkiKeyResolver.Filename("rsa") final PkiIdentity rsaIdentity) {
+    public void verifyServerSignatureRsa(@PkiKeyResolver.Filename("rsa") final PkiIdentity rsaIdentity)
+            throws IdpCryptoException, IdpJoseException {
         mockIdpClient = MockIdpClient.builder()
                 .serverIdentity(rsaIdentity)
                 .uriIdpServer(URI_IDP_SERVER)
                 .clientId(CLIENT_ID_E_REZEPT_APP)
                 .build();
-        mockIdpClient.initialize();
+        mockIdpClient.initializeClient();
 
         assertTrue(mockIdpClient.login(rsaClientIdentity)
                 .getAccessToken()
                 .getHeaderClaims().entrySet().stream().anyMatch(entry ->
-                entry.getKey() == ClaimName.ALGORITHM.getJoseName() &&
+                        Objects.equals(entry.getKey(), ClaimName.ALGORITHM.getJoseName()) &&
                         entry.getValue() == "PS256"));
     }
 
     @Disabled
     @Test
-    public void resignTokenWithNewBodyClaim_ShouldContainNewClaim() {
+    public void resignTokenWithNewBodyClaim_ShouldContainNewClaim()
+            throws IdpJoseException, IdpCryptoException {
         final JsonWebToken jwt = mockIdpClient.login(rsaClientIdentity)
                 .getAccessToken();
 
@@ -156,12 +165,13 @@ public class MockIdpClientTest {
                 jwt.getExpiresAtBody());
 
         assertTrue(resignedAccessToken.getBodyClaims().entrySet().stream().anyMatch(entry ->
-                entry.getKey() == "foo" && entry.getValue() == "bar"));
+                Objects.equals(entry.getKey(), "foo") && entry.getValue() == "bar"));
     }
 
     @Disabled
     @Test
-    public void resignTokenWithNewHeaderClaim_ShouldContainNewHeaderClaim() {
+    public void resignTokenWithNewHeaderClaim_ShouldContainNewHeaderClaim()
+            throws IdpJoseException, IdpCryptoException {
         final JsonWebToken jwt = mockIdpClient.login(rsaClientIdentity)
                 .getAccessToken();
 
@@ -176,12 +186,12 @@ public class MockIdpClientTest {
                 jwt.getExpiresAtBody());
 
         assertTrue(resignedAccessToken.getHeaderClaims().entrySet().stream().anyMatch(entry ->
-                entry.getKey() == "foo" && entry.getValue() == "bar"));
+                Objects.equals(entry.getKey(), "foo") && entry.getValue() == "bar"));
     }
 
+    /** A_20297-01 */
     @Test
-    @Afo("A_20297-01")
-    public void verifyAccessTokenIssClaim() {
+    public void verifyAccessTokenIssClaim() throws IdpJoseException, IdpCryptoException {
         final JsonWebToken jwt = mockIdpClient.login(rsaClientIdentity).getAccessToken();
         final Map<String, Object> bodyClaims = jwt.getBodyClaims();
 

@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 
 import javax.crypto.spec.SecretKeySpec;
 
+import health.ere.ps.exception.idp.IdpJoseException;
+import health.ere.ps.exception.idp.crypto.IdpCryptoException;
 import health.ere.ps.model.idp.client.IdpConstants;
 import health.ere.ps.model.idp.client.IdpTokenResult;
 import health.ere.ps.model.idp.client.authentication.AuthenticationChallenge;
@@ -94,7 +96,8 @@ public class MockIdpClient implements IIdpClient {
     }
 
     @Override
-    public IdpTokenResult login(final PkiIdentity clientIdentity) {
+    public IdpTokenResult login(final PkiIdentity clientIdentity)
+            throws IdpJoseException, IdpCryptoException {
         assertThatMockIdClientIsInitialized();
 
         return IdpTokenResult.builder()
@@ -103,7 +106,8 @@ public class MockIdpClient implements IIdpClient {
             .build();
     }
 
-    private JsonWebToken buildAccessToken(final PkiIdentity clientIdentity) {
+    private JsonWebToken buildAccessToken(final PkiIdentity clientIdentity)
+            throws IdpJoseException, IdpCryptoException {
         final AuthenticationChallenge challenge = getAuthenticationChallengeBuilder()
             .buildAuthenticationChallenge(getClientId(), "placeholderValue", "foo", "foo",
                 IdpScope.OPENID.getJwtValue() + " " + IdpScope.EREZEPT.getJwtValue(), "nonceValue");
@@ -140,7 +144,7 @@ public class MockIdpClient implements IIdpClient {
     public JsonWebToken resignToken(
         final Map<String, Object> headerClaims,
         final Map<String, Object> bodyClaims,
-        final ZonedDateTime expiresAt) {
+        final ZonedDateTime expiresAt) throws IdpJoseException, IdpCryptoException {
         Objects.requireNonNull(getJwtProcessor(), "jwtProcessor is null. Did you call initialize()?");
         return getJwtProcessor().buildJwt(new JwtBuilder()
             .addAllBodyClaims(bodyClaims)
@@ -149,7 +153,7 @@ public class MockIdpClient implements IIdpClient {
     }
 
     @Override
-    public MockIdpClient initialize() {
+    public IIdpClient initializeClient() throws IdpCryptoException {
         getServerIdentity().setKeyId(Optional.of("puk_idp_sig"));
         getServerIdentity().setUse(Optional.of("sig"));
         setJwtProcessor(new IdpJwtProcessor(getServerIdentity()));

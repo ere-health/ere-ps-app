@@ -30,7 +30,7 @@ public class AuthenticationChallengeVerifier {
     public AuthenticationChallengeVerifier() {
     }
 
-    public void verifyResponseAndThrowExceptionIfFail(final JsonWebToken authenticationResponse) {
+    public void verifyResponseAndThrowExceptionIfFail(final JsonWebToken authenticationResponse) throws IdpJoseException {
         final X509Certificate clientCertificate = extractClientCertificateFromChallenge(authenticationResponse)
             .orElseThrow(
                 () -> new IdpJoseException("Could not extract client certificate from challenge response header"));
@@ -40,17 +40,17 @@ public class AuthenticationChallengeVerifier {
     }
 
     public void verifyResponseWithCertAndThrowExceptionIfFail(final X509Certificate authCert,
-        final JsonWebToken authenticationResponse) {
+        final JsonWebToken authenticationResponse) throws ChallengeSignatureInvalidException {
         performClientSignatureValidation(authCert, authenticationResponse.getRawString());
     }
 
     public void verifyResponseWithPublicKeyAndThrowExceptionIfFail(final PublicKey publicKey,
-        final JsonWebToken authenticationResponse) {
+        final JsonWebToken authenticationResponse) throws ChallengeSignatureInvalidException {
         performClientSignatureValidationWithKey(publicKey, authenticationResponse.getRawString());
     }
 
     private void performClientSignatureValidation(final X509Certificate clientCertificate,
-        final String authResponse) {
+        final String authResponse) throws ChallengeSignatureInvalidException {
         final JwtConsumer serverJwtConsumer = new JwtConsumerBuilder()
             .setVerificationKey(clientCertificate.getPublicKey())
             .setSkipDefaultAudienceValidation()
@@ -63,7 +63,7 @@ public class AuthenticationChallengeVerifier {
     }
 
     private void performClientSignatureValidationWithKey(final PublicKey publicKey,
-        final String authResponse) {
+        final String authResponse) throws ChallengeSignatureInvalidException {
         final JwtConsumer serverJwtConsumer = new JwtConsumerBuilder()
             .setVerificationKey(publicKey)
             .build();
@@ -74,7 +74,8 @@ public class AuthenticationChallengeVerifier {
         }
     }
 
-    private void performServerSignatureValidationOfNjwt(final JsonWebToken authenticationResponse) {
+    private void performServerSignatureValidationOfNjwt(final JsonWebToken authenticationResponse)
+            throws NoNestedJwtFoundException, ChallengeExpiredException, ChallengeSignatureInvalidException {
         final JsonWebToken serverChallenge = authenticationResponse.getBodyClaim(ClaimName.NESTED_JWT)
             .map(njwt -> new JsonWebToken(njwt.toString()))
             .orElseThrow(NoNestedJwtFoundException::new);

@@ -19,6 +19,7 @@
         <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
         <quarkus.platform.version>1.13.1.Final</quarkus.platform.version>
         <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
+        <cxf.version>3.4.3</cxf.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -56,16 +57,16 @@
             <artifactId>jose4j</artifactId>
             <version>0.7.7</version>
         </dependency>
-        <dependency>
-            <artifactId>unirest-java</artifactId>
-            <groupId>com.konghq</groupId>
-            <version>3.7.04</version>
-        </dependency>
-        <dependency>
-            <artifactId>unirest-objectmapper-jackson</artifactId>
-            <groupId>com.konghq</groupId>
-            <version>3.11.09</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <artifactId>unirest-java</artifactId>-->
+<!--            <groupId>com.konghq</groupId>-->
+<!--            <version>3.7.04</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <artifactId>unirest-objectmapper-jackson</artifactId>-->
+<!--            <groupId>com.konghq</groupId>-->
+<!--            <version>3.11.09</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>hapi-fhir-base</artifactId>
@@ -132,9 +133,40 @@
             <version>10.3</version>
         </dependency>
         <dependency>
-            <groupId>org.jboss.slf4j</groupId>
-            <artifactId>slf4j-jboss-logmanager</artifactId>
+            <artifactId>commons-io</artifactId>
+            <groupId>commons-io</groupId>
+            <version>2.7</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.cxf/cxf-rt-frontend-jaxws -->
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-jaxws</artifactId>
+            <version>${cxf.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.cxf/cxf-rt-transports-http -->
+        <!-- cxf versions over 3.2.7 must use jvm arg -Djavax.xml.accessExternalDTD=all to avoid
+             external DTD access issues.
+        -->
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-transports-http</artifactId>
+            <version>${cxf.version}</version>
+        </dependency>
+        <!-- Needed to enable apache cxf configuration via cxf.xml -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>5.3.7</version>
+        </dependency>
+        <dependency>
+            <groupId>com.diffplug.durian</groupId>
+            <artifactId>durian</artifactId>
+            <version>3.4.0</version>
+        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.jboss.slf4j</groupId>-->
+<!--            <artifactId>slf4j-jboss-logmanager</artifactId>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-hibernate-orm</artifactId>
@@ -237,46 +269,6 @@
             <artifactId>quarkus-junit5-mockito</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <artifactId>commons-io</artifactId>
-            <groupId>commons-io</groupId>
-            <scope>test</scope>
-            <version>2.7</version>
-        </dependency>
-<!--        <dependency>-->
-<!--            <groupId>javax.activation</groupId>-->
-<!--            <artifactId>activation</artifactId>-->
-<!--            <version>1.1.1</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>javax.xml.bind</groupId>-->
-<!--            <artifactId>jaxb-api</artifactId>-->
-<!--            <version>2.4.0-b180830.0359</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.glassfish.jaxb</groupId>-->
-<!--            <artifactId>jaxb-runtime</artifactId>-->
-<!--            <version>3.0.1</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>com.sun.xml.ws</groupId>-->
-<!--            <artifactId>jaxws-tools</artifactId>-->
-<!--            <version>3.0.1</version>-->
-<!--            <scope>compile</scope>-->
-<!--        </dependency>-->
-        <!-- https://mvnrepository.com/artifact/org.apache.cxf/cxf-rt-frontend-jaxws -->
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-frontend-jaxws</artifactId>
-            <version>3.2.7</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.cxf/cxf-rt-transports-http -->
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-transports-http</artifactId>
-            <version>3.2.7</version>
-        </dependency>
-
         <!--
             Produces: Modules com.sun.xml.bind and com.sun.istack.runtime export package com.sun.istack.localization to module fop
         <dependency>

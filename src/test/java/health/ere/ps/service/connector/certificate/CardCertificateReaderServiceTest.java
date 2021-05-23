@@ -28,6 +28,7 @@ class CardCertificateReaderServiceTest {
     @ConfigProperty(name = "idp.connector.card.handle")
     String cardHandle;
     
+    @Disabled("Disabled until Titus Idp Card Certificate Service API Endpoint Is Fixed By Gematik")
     @Test
     void testReadCardCertificate() throws ConnectorCardCertificateReadException {
         Assertions.assertTrue(ArrayUtils.isNotEmpty(
