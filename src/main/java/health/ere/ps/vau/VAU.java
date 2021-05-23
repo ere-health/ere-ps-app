@@ -1,22 +1,38 @@
 package health.ere.ps.vau;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigInteger;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.teletrust.TeleTrusTObjectIdentifiers;
 import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 import org.bouncycastle.asn1.x9.X9ECParameters;
+import org.bouncycastle.crypto.BasicAgreement;
 import org.bouncycastle.crypto.agreement.ECDHBasicAgreement;
+import org.bouncycastle.crypto.digests.SHA256Digest;
+import org.bouncycastle.crypto.engines.AESEngine;
+import org.bouncycastle.crypto.generators.HKDFBytesGenerator;
+import org.bouncycastle.crypto.modes.GCMBlockCipher;
+import org.bouncycastle.crypto.params.AEADParameters;
 import org.bouncycastle.crypto.params.ECDomainParameters;
 import org.bouncycastle.crypto.params.ECKeyParameters;
 import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
 import org.bouncycastle.crypto.params.ECPublicKeyParameters;
+import org.bouncycastle.crypto.params.HKDFParameters;
+import org.bouncycastle.crypto.params.KeyParameter;
+import org.bouncycastle.jcajce.provider.asymmetric.dsa.KeyPairGeneratorSpi;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.KeyPairGeneratorSpi.ECDSA;
 import org.bouncycastle.math.ec.ECCurve;
 
@@ -39,40 +55,42 @@ public class VAU {
         return keyBytes;
     }
 
-    protected virtual byte[] GetIv() {
+    protected byte[] GetIv() {
         byte[] keyBytes = new byte[96 / 8];
         _random.nextBytes(keyBytes);
         return keyBytes;
     }
 
-    protected ECKeyParameters GenerateNewECDHKey() {
+    protected KeyPair GenerateNewECDHKey() throws NoSuchAlgorithmException {
         // eigener Key
-        KeyPairGenerator key = ECDSA.getInstance(TeleTrusTObjectIdentifiers.brainpoolP256r1.getId()); // .Create(ECCurve.NamedCurves.brainpoolP256r1);
-        //var myexportParameters = key.ExportParameters(true);
-        // return myexportParameters;
-        return null;
+        KeyPairGenerator keyGenerator;
+        keyGenerator = ECDSA.getInstance(TeleTrusTObjectIdentifiers.brainpoolP256r1.getId());
+        KeyPair key = keyGenerator.generateKeyPair();
+        return key;
+
     }
 
-    protected KeyCoords GetVauPublicKeyXY() {
+    protected KeyCoords GetVauPublicKeyXY() throws CertificateException, MalformedURLException, IOException {
         CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
         X509Certificate z = (X509Certificate) certFactory.generateCertificate(new URL(_fachdienstUrl+"/VAUCertificate").openStream());
         ECPublicKeyParameters x = (ECPublicKeyParameters) z.getPublicKey();
 
-        return new KeyCoords {
-            X = new BigInteger(1, x.getQ().getXCoord().getEncoded()),
-            Y = new BigInteger(1, x.getQ().getYCoord().getEncoded())
-        };
+        return new KeyCoords(
+            new BigInteger(1, x.getQ().getXCoord().getEncoded()),
+            new BigInteger(1, x.getQ().getYCoord().getEncoded())
+            );
     }
 
     public byte[] Encrypt(String message) {
         X9ECParameters x9EC = ECNamedCurveTable.getByOID(new ASN1ObjectIdentifier(TeleTrusTObjectIdentifiers.brainpoolP256r1.getId()));
         ECDomainParameters ecDomain = new ECDomainParameters(x9EC.getCurve(), x9EC.getG(), x9EC.getN(), x9EC.getH(), x9EC.getSeed());
 
-        ECKeyParameters myECDHKey = GenerateNewECDHKey();
-        ECPrivateKeyParameters myPrivate = new ECPrivateKeyParameters(new BigInteger(1, myECDHKey.D), ecDomain);
-        log.info("MY public X=" + ByteArrayToHexString(myECDHKey.Q.X));
-        log.info("MY public Y=" + ByteArrayToHexString(myECDHKey.Q.Y));
-        log.info("MY private =" + ByteArrayToHexString(myECDHKey.D));
+        KeyPair myECDHKey = GenerateNewECDHKey();
+        ECPrivateKeyParameters myPrivate = (ECPrivateKeyParameters) myECDHKey.getPrivate();
+        ECPublicKeyParameters myPublic = (ECPublicKeyParameters) myECDHKey.getPublic();
+        log.info("MY public X=" + ByteArrayToHexString(myPublic.getQ().getXCoord().getEncoded()));
+        log.info("MY public Y=" + ByteArrayToHexString(myPublic.getQ().getYCoord().getEncoded()));
+        log.info("MY private =" + ByteArrayToHexString(myPrivate.getD().toByteArray()));
 
         KeyCoords vauPublicKeyXY = GetVauPublicKeyXY();
         var point = x9EC.getCurve().createPoint(vauPublicKeyXY.X, vauPublicKeyXY.Y);
@@ -82,49 +100,49 @@ public class VAU {
 
         //SharedSecret
         BasicAgreement aKeyAgree = new ECDHBasicAgreement();
-        aKeyAgree.Init(myPrivate);
-        BigInteger sharedSecret = aKeyAgree.CalculateAgreement(vauPublicKey);
-        byte[] sharedSecretBytes = sharedSecret.ToByteArray().ToArray();
+        aKeyAgree.init(myPrivate);
+        BigInteger sharedSecret = aKeyAgree.calculateAgreement(vauPublicKey);
+        byte[] sharedSecretBytes = sharedSecret.toByteArray();
 
         //sharedSecretBytes muss 32 Byte groß sein entweder vorn abschneiden oder mit 0 auffüllen
-        if (sharedSecretBytes.Length > 32) {
-            sharedSecretBytes = sharedSecretBytes.Skip(sharedSecretBytes.Length - 32).ToArray();
-        } else if (sharedSecretBytes.Length < 32) {
+        if (sharedSecretBytes.length > 32) {
+            sharedSecretBytes = sharedSecretBytes.Skip(sharedSecretBytes.length - 32).ToArray();
+        } else if (sharedSecretBytes.length < 32) {
             sharedSecretBytes = Enumerable.Repeat((byte) 0, 32 - sharedSecretBytes.Length).Concat(sharedSecretBytes).ToArray();
         }
         log.info($"SharedSecret={ByteArrayToHexString(sharedSecretBytes)} {sharedSecretBytes.Length}");
 
         //HKDF
-        byte[] info = Encoding.UTF8.GetBytes("ecies-vau-transport");
-        HkdfBytesGenerator hkdfBytesGenerator = new HkdfBytesGenerator(new Sha256Digest());
-        hkdfBytesGenerator.Init(new HkdfParameters(sharedSecretBytes, new byte[0], info));
+        byte[] info = "ecies-vau-transport".getBytes();
+        HKDFBytesGenerator hkdfBytesGenerator = new HKDFBytesGenerator(new SHA256Digest());
+        hkdfBytesGenerator.init(new HKDFParameters(sharedSecretBytes, new byte[0], info));
         byte[] aes128Key_CEK = new byte[16];
-        hkdfBytesGenerator.GenerateBytes(aes128Key_CEK, 0, aes128Key_CEK.Length);
+        hkdfBytesGenerator.generateBytes(aes128Key_CEK, 0, aes128Key_CEK.length);
         log.info("Schlüsselableitung AES128Key=" + ByteArrayToHexString(aes128Key_CEK));
 
         //AES CGM
-        byte[] input = Encoding.UTF8.GetBytes(message);
-        byte[] outputAESCGM = new byte[input.Length + 16];
+        byte[] input = message.getBytes();
+        byte[] outputAESCGM = new byte[input.length + 16];
 
         //random IV
         var iv = GetIv();
         log.info("IV =" + ByteArrayToHexString(iv));
 
-        var cipher = new GcmBlockCipher(new AesEngine());
-        var parameters = new AeadParameters(new KeyParameter(aes128Key_CEK), 128, iv);
-        cipher.Init(true, parameters);
-        var len = cipher.ProcessBytes(input, 0, input.Length, outputAESCGM, 0);
-        var final = cipher.DoFinal(outputAESCGM, len);
+        var cipher = new GCMBlockCipher(new AESEngine());
+        var parameters = new AEADParameters(new KeyParameter(aes128Key_CEK), 128, iv);
+        cipher.init(true, parameters);
+        var len = cipher.processBytes(input, 0, input.length, outputAESCGM, 0);
+        var finalData = cipher.doFinal(outputAESCGM, len);
 
-        log.info(len + final);
+        log.info(len + " " + finalData);
 
-        using var mem = new MemoryStream();
-        mem.WriteByte(0x01); //Version
-        mem.Write(myECDHKey.Q.X, 0, myECDHKey.Q.X.Length); //XKoordinate VAU Zert
-        mem.Write(myECDHKey.Q.Y, 0, myECDHKey.Q.Y.Length); //YKoordinate VAU Zert
-        mem.Write(iv, 0, iv.Length);
-        mem.Write(outputAESCGM, 0, outputAESCGM.Length);
-        return mem.ToArray();
+        var mem = new ByteArrayOutputStream();
+        mem.write(0x01); //Version
+        mem.write(myPublic.getQ().getXCoord().getEncoded(), 0, myPublic.getQ().getXCoord().getEncoded().length); //XKoordinate VAU Zert
+        mem.write(myPublic.getQ().getYCoord().getEncoded(), 0, myPublic.getQ().getYCoord().getEncoded().length); //YKoordinate VAU Zert
+        mem.write(iv, 0, iv.length);
+        mem.write(outputAESCGM, 0, outputAESCGM.length);
+        return mem.toByteArray();
     }
 
     public class KeyCoords {
@@ -138,26 +156,26 @@ public class VAU {
     }
 
     public static String ByteArrayToHexString(byte[] bytes) {
-        StringBuilder result = new StringBuilder(bytes.Length * 2);
-        const String hexAlphabet = "0123456789ABCDEF";
+        StringBuilder result = new StringBuilder(bytes.length * 2);
+        char[] hexAlphabet = new char[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
-        foreach (byte B in bytes) {
-            result.Append(hexAlphabet[B >> 4]);
-            result.Append(hexAlphabet[B & 0xF]);
+        for(byte B : bytes) {
+            result.append(hexAlphabet[B >> 4]);
+            result.append(hexAlphabet[B & 0xF]);
         }
 
-        return result.ToString();
+        return result.toString();
     }
 
     public static byte[] HexStringToByteArray(String hex) {
-        byte[] bytes = new byte[hex.Length / 2];
+        byte[] bytes = new byte[hex.length / 2];
         int[] hexValue = {
             0x00, 0x01, 0x02, 0x03, 0x04, 0x05,
             0x06, 0x07, 0x08, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F
         };
 
-        for (int x = 0, i = 0; i < hex.Length; i += 2, x += 1) {
+        for (int x = 0, i = 0; i < hex.length; i += 2, x += 1) {
             bytes[x] = (byte) (hexValue[char.ToUpper(hex[i + 0]) - '0'] << 4 |
                                hexValue[char.ToUpper(hex[i + 1]) - '0']);
         }
