@@ -1,11 +1,17 @@
 package health.ere.ps.vau;
 
+import java.io.InputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.cert.CertificateException;
+import java.util.logging.Logger;
 
 import javax.ws.rs.client.Invocation;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
@@ -26,11 +32,13 @@ import org.jboss.resteasy.client.jaxrs.internal.ClientInvocation;
  * https://fd.erezept-instanz1.titus.ti-dienste.de/VAUCertificate
  */
 public class VAUEngine extends ApacheHttpClient43Engine {
+    private static Logger log = Logger.getLogger(VAUEngine.class.getName());
     private VAU vau;
-    private String vauURL; 
+    private String fachdienstUrl;
+    private byte[] aeskey;
 
-    public VAUEngine(String vauURL) {
-        this.vauURL = vauURL;
+    public VAUEngine(String fachdienstUrl) {
+        this.fachdienstUrl = fachdienstUrl;
     }
 
     /**
@@ -40,7 +48,7 @@ public class VAUEngine extends ApacheHttpClient43Engine {
      */
     public void initVauSession(String userAgent) {
         try {
-            vau = new VAU(userAgent, vauURL);
+            vau = new VAU(userAgent, fachdienstUrl);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -48,27 +56,46 @@ public class VAUEngine extends ApacheHttpClient43Engine {
 
     @Override
     protected HttpEntity buildEntity(final ClientInvocation request) throws IOException {
+        HttpEntity httpEntity = super.buildEntity(request);
         MultivaluedMap<String, Object> newHeaders = request.getHeaders().getHeaders();
+        String userAgent = (String) newHeaders.getFirst("User-Agent");
         if (this.vau == null) {
             // init vauSession
-            initVauSession((String) newHeaders.getFirst("User-Agent"));
+            initVauSession(userAgent);
         }
-
+        String authorization = (String) newHeaders.getFirst("Authorization");
+        String contentType = ((MediaType) newHeaders.getFirst("Content-Type")).toString();
         newHeaders.putSingle("X-erp-user", "l"); //Leistungserbringer
         newHeaders.putSingle("X-erp-resource", "Task");
         request.getHeaders().setHeaders(newHeaders);
 
-        HttpEntity httpEntity = super.buildEntity(request);
-
         byte[] finalMessageData;
         try {
-            finalMessageData = vau.encrypt(new String(httpEntity.getContent().readAllBytes()));
+            String content = request.getMethod()+" "+request.getUri().getPath()+" HTTP/1.1\n"+
+            "Host: "+request.getUri().getHost()+"\n"+
+            "Authorization: "+authorization+"\n"+
+            "Content-Type: "+contentType+"\n"+
+            "User-Agent: "+userAgent+"\n"+
+            "Accept: application/fhir+xml;charset=utf-8\n\n"
+            +new String(httpEntity.getContent().readAllBytes());
+
+            String bearer = authorization.substring(7);
+            String requestid = VAU.ByteArrayToHexString(vau.GetRandom(16));
+            aeskey = vau.GetRandom(16);
+            String aeskeyString = VAU.ByteArrayToHexString(aeskey);
+            String p = "1 "+bearer+" "+requestid.toLowerCase()+" "+aeskeyString.toLowerCase()+" "+content;
+
+            log.info(p);
+
+            finalMessageData = vau.encrypt(p);
+            request.setUri(new URI(fachdienstUrl+"/VAU"));
         } catch (NoSuchAlgorithmException | IllegalStateException | InvalidCipherTextException | CertificateException
-                | UnsupportedOperationException e) {
+                | UnsupportedOperationException | NoSuchProviderException | InvalidAlgorithmParameterException | URISyntaxException e) {
             throw new RuntimeException(e);
         }
 
-        return EntityBuilder.create().setBinary(finalMessageData).setContentType(ContentType.create("application","octet-stream")).build();
+
+        return EntityBuilder.create().setBinary(finalMessageData).setContentType(ContentType.create("application/octet-stream")).build();
     }
 
     @Override
@@ -77,7 +104,9 @@ public class VAUEngine extends ApacheHttpClient43Engine {
 
         byte[] transportedData;
         try {
-            transportedData = vau.decrypt(response.getEntity().toString().getBytes());
+            String responseString = new String(((InputStream) response.getEntity()).readAllBytes());
+            log.info(responseString);
+            transportedData = vau.decryptWithKey(responseString.getBytes(), aeskey);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

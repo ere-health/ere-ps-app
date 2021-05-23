@@ -77,7 +77,7 @@ public class ERezeptWorkflowServiceTest {
         eRezeptWorkflowService.signatureServiceContextWorkplaceId = "CATS";
         eRezeptWorkflowService.signatureServiceContextUserId = "197610";
         eRezeptWorkflowService.signatureServiceTvMode = "NONE";
-        eRezeptWorkflowService.enableVau = false;
+        eRezeptWorkflowService.enableVau = true;
         
         InputStream p12Certificate = ERezeptWorkflowServiceTest.class.getResourceAsStream("/ps_erp_incentergy_01.p12");
         eRezeptWorkflowService.setUpCustomSSLContext(p12Certificate);
@@ -118,7 +118,7 @@ public class ERezeptWorkflowServiceTest {
         eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
     }
 
-    @Test @Disabled
+    @Test
     // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testCreateERezeptTask() throws DataFormatException, IOException {
         Task task = eRezeptWorkflowService.createERezeptTask(testBearerToken);
