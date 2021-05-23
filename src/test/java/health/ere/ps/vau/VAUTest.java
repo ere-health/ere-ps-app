@@ -32,8 +32,7 @@ public class VAUTest {
         ECDomainParameters ecDomain = VAU.getECDomain();
         BigInteger x = new BigInteger(EphemeralPublicKeyX, 16);
         BigInteger y = new BigInteger(EphemeralPublicKeyY, 16);
-        ECPoint q = VAU.x9EC.getCurve().createPoint(x,
-                y);
+        ECPoint q = VAU.x9EC.getCurve().createPoint(x, y);
         ECPublicKeyParameters pub = (ECPublicKeyParameters) new ECPublicKeyParameters(q, ecDomain);
         ECPrivateKeyParameters priv = (ECPrivateKeyParameters) new ECPrivateKeyParameters(
                 new BigInteger(VAU.HexStringToByteArray(EccPrivateKey)), ecDomain);
@@ -63,7 +62,8 @@ public class VAUTest {
     @Test
     public void DemoBspAusGemSpecCrypt() throws IllegalStateException, InvalidCipherTextException {
         VAU vau = new VAU();
-        byte[] gesamtoutput = vau.Encrypt(Message, getKeyPair(), getPublicKey(vau), DatatypeConverter.parseHexBinary(IVBytes));
+        byte[] gesamtoutput = vau.Encrypt(Message, getKeyPair(), getPublicKey(vau),
+                DatatypeConverter.parseHexBinary(IVBytes));
         String byteArrayToHexString = VAU.ByteArrayToHexString(gesamtoutput);
         assertEquals(CipherText, byteArrayToHexString);
     }
