@@ -94,11 +94,11 @@ public class VAU {
                 new BigInteger(1, x.getQ().getYCoord().getEncoded()));
     }
 
-    public byte[] Encrypt(String message) throws NoSuchAlgorithmException, IllegalStateException,
+    public byte[] encrypt(String message) throws NoSuchAlgorithmException, IllegalStateException,
             InvalidCipherTextException, CertificateException, MalformedURLException, IOException {
         KeyPair myECDHKey = GenerateNewECDHKey();
         KeyCoords vauPublicKeyXY = GetVauPublicKeyXY();
-        return Encrypt(message, myECDHKey, vauPublicKeyXY, null);
+        return encrypt(message, myECDHKey, vauPublicKeyXY, null);
     }
 
     public static ECDomainParameters getECDomain() {
@@ -107,7 +107,7 @@ public class VAU {
         return ecDomain;
     }
 
-    public byte[] Encrypt(String message, KeyPair myECDHKey, KeyCoords vauPublicKeyXY, byte[] ivBytes)
+    public byte[] encrypt(String message, KeyPair myECDHKey, KeyCoords vauPublicKeyXY, byte[] ivBytes)
             throws IllegalStateException, InvalidCipherTextException {
         ECDomainParameters ecDomain = getECDomain();
 
@@ -199,7 +199,11 @@ public class VAU {
         return DatatypeConverter.parseHexBinary(hex);
     }
 
-    public byte[] DecryptWithKey(byte[] message, byte[] key) throws Exception {
+    public byte[] decrypt(byte[] message) throws Exception {
+        return null;
+    }
+
+    public byte[] decryptWithKey(byte[] message, byte[] key) throws Exception {
         int MAC_BIT_SIZE = 128;
         int NONCE_BIT_SIZE = 96;
         int KEY_LENGTH = 128;
