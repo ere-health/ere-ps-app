@@ -175,7 +175,7 @@ public class ERezeptWorkflowService {
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
         if(enableVau) {
             try {
-                ((ResteasyClientBuilderImpl)clientBuilder).httpEngine(new VAUEngine(new URI(prescriptionserverUrl+"/VAU/handshake")));
+                ((ResteasyClientBuilderImpl)clientBuilder).httpEngine(new VAUEngine(prescriptionserverUrl));
             } catch(Exception ex) {
                 log.log(Level.SEVERE, "Could not enable VAU", ex);
             }

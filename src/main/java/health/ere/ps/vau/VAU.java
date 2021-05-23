@@ -6,10 +6,13 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
+import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -21,7 +24,6 @@ import javax.xml.bind.DatatypeConverter;
 
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.teletrust.TeleTrusTObjectIdentifiers;
-import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.crypto.BasicAgreement;
 import org.bouncycastle.crypto.InvalidCipherTextException;
@@ -41,6 +43,10 @@ import org.bouncycastle.jcajce.provider.asymmetric.dsa.KeyPairGeneratorSpi;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.KeyPairGeneratorSpi.ECDSA;
+import org.bouncycastle.jce.ECNamedCurveTable;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
+import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.math.ec.ECCurve;
 import org.bouncycastle.math.ec.ECPoint;
 
@@ -48,10 +54,14 @@ public class VAU {
     private String _useragent;
     private String _fachdienstUrl;
 
-    static X9ECParameters x9EC = ECNamedCurveTable
+    static X9ECParameters x9EC = org.bouncycastle.asn1.x9.ECNamedCurveTable
             .getByOID(new ASN1ObjectIdentifier(TeleTrusTObjectIdentifiers.brainpoolP256r1.getId()));
 
     private static final Logger log = Logger.getLogger(VAU.class.getName());
+
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+    }
 
     public VAU() {
     }
@@ -75,27 +85,30 @@ public class VAU {
         return keyBytes;
     }
 
-    protected KeyPair GenerateNewECDHKey() throws NoSuchAlgorithmException {
+    protected KeyPair GenerateNewECDHKey() throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
         // eigener Key
         KeyPairGenerator keyGenerator;
-        keyGenerator = ECDSA.getInstance(TeleTrusTObjectIdentifiers.brainpoolP256r1.getId());
+        keyGenerator = KeyPairGenerator.getInstance("ECDH", BouncyCastleProvider.PROVIDER_NAME); //ECDSA.getInstance(TeleTrusTObjectIdentifiers.brainpoolP256r1.getId());
+        // TeleTrusTObjectIdentifiers.brainpoolP256r1.
+        ECNamedCurveParameterSpec parameterSpec = ECNamedCurveTable.getParameterSpec("brainpoolp256r1");
+        keyGenerator.initialize(parameterSpec, _random);
         KeyPair key = keyGenerator.generateKeyPair();
         return key;
 
     }
 
-    protected KeyCoords GetVauPublicKeyXY() throws CertificateException, MalformedURLException, IOException {
-        CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+    protected KeyCoords GetVauPublicKeyXY() throws CertificateException, MalformedURLException, IOException, NoSuchProviderException {
+        CertificateFactory certFactory = CertificateFactory.getInstance("X.509", BouncyCastleProvider.PROVIDER_NAME);
         X509Certificate z = (X509Certificate) certFactory
                 .generateCertificate(new URL(_fachdienstUrl + "/VAUCertificate").openStream());
-        ECPublicKeyParameters x = (ECPublicKeyParameters) z.getPublicKey();
+        BCECPublicKey x = (BCECPublicKey) z.getPublicKey();
 
         return new KeyCoords(new BigInteger(1, x.getQ().getXCoord().getEncoded()),
                 new BigInteger(1, x.getQ().getYCoord().getEncoded()));
     }
 
     public byte[] encrypt(String message) throws NoSuchAlgorithmException, IllegalStateException,
-            InvalidCipherTextException, CertificateException, MalformedURLException, IOException {
+            InvalidCipherTextException, CertificateException, MalformedURLException, IOException, NoSuchProviderException, InvalidAlgorithmParameterException {
         KeyPair myECDHKey = GenerateNewECDHKey();
         KeyCoords vauPublicKeyXY = GetVauPublicKeyXY();
         return encrypt(message, myECDHKey, vauPublicKeyXY, null);
