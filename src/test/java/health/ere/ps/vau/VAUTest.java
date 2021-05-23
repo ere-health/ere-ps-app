@@ -6,6 +6,8 @@ import java.math.BigInteger;
 import java.security.KeyPair;
 import java.util.logging.Logger;
 
+import javax.xml.bind.DatatypeConverter;
+
 import org.bouncycastle.math.ec.ECPoint;
 import org.junit.jupiter.api.Test;
 import org.bouncycastle.crypto.InvalidCipherTextException;
@@ -61,7 +63,7 @@ public class VAUTest {
     @Test
     public void DemoBspAusGemSpecCrypt() throws IllegalStateException, InvalidCipherTextException {
         VAU vau = new VAU();
-        byte[] gesamtoutput = vau.Encrypt(Message, getKeyPair(), getPublicKey(vau));
+        byte[] gesamtoutput = vau.Encrypt(Message, getKeyPair(), getPublicKey(vau), DatatypeConverter.parseHexBinary(IVBytes));
         String byteArrayToHexString = VAU.ByteArrayToHexString(gesamtoutput);
         assertEquals(CipherText, byteArrayToHexString);
     }
