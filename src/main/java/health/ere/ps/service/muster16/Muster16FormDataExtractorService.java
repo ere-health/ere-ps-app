@@ -55,27 +55,31 @@ public class Muster16FormDataExtractorService {
         try {
             Muster16SvgExtractorParser parser = new Muster16SvgExtractorParser(sVGExtractorResultEvent.map);
 
-            Muster16PrescriptionForm muster16Form = new Muster16PrescriptionForm(
-                    parser.parseInsuranceCompany(),
-                    parser.parseInsuranceCompanyId(),
-                    parser.parsePatientFirstName(),
-                    parser.parsePatientLastName(),
-                    parser.parsePatientStreetName(),
-                    parser.parsePatientStreetNumber(),
-                    parser.parsePatientCity(),
-                    parser.parsePatientZipCode(),
-                    parser.parsePatientDateOfBirth(),
-                    parser.parsePatientInsuranceId(),
-                    parser.parseClinicId(),
-                    parser.parseDoctorId(),
-                    parser.parsePrescriptionDate(),
-                    parser.parsePrescriptionList()
-            );
+            Muster16PrescriptionForm muster16Form = fillForm(parser);
 
             muster16PrescriptionFormEvent.fireAsync(new Muster16PrescriptionFormEvent(muster16Form));
         } catch (Exception e) {
             log.log(Level.SEVERE, "Could not parse results", e);
             exceptionEvent.fireAsync(e);
         }
+    }
+
+    public static Muster16PrescriptionForm fillForm(Muster16SvgExtractorParser parser) {
+        return new Muster16PrescriptionForm(
+            parser.parseInsuranceCompany(),
+            parser.parseInsuranceCompanyId(),
+            parser.parsePatientFirstName(),
+            parser.parsePatientLastName(),
+            parser.parsePatientStreetName(),
+            parser.parsePatientStreetNumber(),
+            parser.parsePatientCity(),
+            parser.parsePatientZipCode(),
+            parser.parsePatientInsuranceId(),
+            parser.parsePatientDateOfBirth(),
+            parser.parseClinicId(),
+            parser.parseDoctorId(),
+            parser.parsePrescriptionDate(),
+            parser.parsePrescriptionList()
+        );
     }
 }

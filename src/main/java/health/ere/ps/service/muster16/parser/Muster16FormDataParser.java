@@ -2,6 +2,8 @@ package health.ere.ps.service.muster16.parser;
 
 import org.apache.commons.lang3.StringUtils;
 
+import health.ere.ps.model.muster16.MedicationString;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -114,8 +116,8 @@ public class Muster16FormDataParser implements IMuster16FormParser {
 
         return prescriptionDate;
     }
-    public List<String> parsePrescriptionList() {
-        List<String> prescriptionList = new ArrayList<>(1);
+    public List<MedicationString> parsePrescriptionList() {
+        List<MedicationString> prescriptionList = new ArrayList<>(1);
 
         return prescriptionList;
     }
