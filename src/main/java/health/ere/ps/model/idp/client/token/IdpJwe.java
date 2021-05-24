@@ -60,14 +60,18 @@ public class IdpJwe extends IdpJoseObject {
         try {
             return new IdpJwe(jwe.getCompactSerialization());
         } catch (final JoseException e) {
-            throw new IdpJoseException("Error during token encryption", e);
+            throw new IllegalStateException("Error during token encryption", e);
         }
     }
 
     public JsonWebToken decryptNestedJwt(final Key key) {
         setDecryptionKey(key);
-        return new JsonWebToken(getStringBodyClaim(ClaimName.NESTED_JWT)
-            .orElseThrow(() -> new IdpJoseException("Could not find njwt")));
+        try {
+            return new JsonWebToken(getStringBodyClaim(ClaimName.NESTED_JWT)
+                .orElseThrow(() -> new IdpJoseException("Could not find njwt")));
+        } catch (IdpJoseException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     @Override
@@ -76,7 +80,7 @@ public class IdpJwe extends IdpJoseObject {
             .orElseThrow();
     }
 
-    public String decryptJweAndReturnPayloadString(final Key key) {
+    public String decryptJweAndReturnPayloadString(final Key key) throws IdpJoseException {
         final JsonWebEncryption receiverJwe = new JsonWebEncryption();
 
         receiverJwe.setAlgorithmConstraints(
@@ -104,7 +108,7 @@ public class IdpJwe extends IdpJoseObject {
             jwe.setCompactSerialization(getRawString());
             return JsonUtil.parseJson(jwe.getHeaders().getFullHeaderAsJsonString());
         } catch (final JoseException e) {
-            throw new IdpJoseException(e);
+            throw new IllegalStateException(e);
         }
     }
 
@@ -122,8 +126,8 @@ public class IdpJwe extends IdpJoseObject {
         Objects.requireNonNull(getDecryptionKey(), "Body-claim extraction requires non-null decryption key");
         try {
             return JsonUtil.parseJson(decryptJweAndReturnPayloadString(getDecryptionKey()));
-        } catch (final JoseException e) {
-            throw new IdpJoseException("Exception occurred during body-claim extraction", e);
+        } catch (final JoseException | IdpJoseException e) {
+            throw new IllegalStateException("Exception occurred during body-claim extraction", e);
         }
     }
 

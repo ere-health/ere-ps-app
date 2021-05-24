@@ -28,13 +28,13 @@ public class IdpJwtProcessor {
     private Optional<String> keyId;
     private PrivateKey privateKey;
 
-    public IdpJwtProcessor(final PkiIdentity identity) {
+    public IdpJwtProcessor(final PkiIdentity identity) throws IdpCryptoException {
         this(identity.getCertificate());
         privateKey = identity.getPrivateKey();
         keyId = identity.getKeyId();
     }
 
-    public IdpJwtProcessor(final X509Certificate certificate) {
+    public IdpJwtProcessor(final X509Certificate certificate) throws IdpCryptoException {
         Validate.notNull(certificate);
         this.certificate = certificate;
         if (certificate.getPublicKey() instanceof ECPublicKey) {
@@ -47,7 +47,7 @@ public class IdpJwtProcessor {
         }
     }
 
-    public JsonWebToken buildJwt(final JwtBuilder jwtBuilder) {
+    public JsonWebToken buildJwt(final JwtBuilder jwtBuilder) throws IdpJoseException, IdpCryptoException {
         Validate.notNull(jwtBuilder);
         Objects.requireNonNull(privateKey, "No private key supplied, cancelling JWT signing");
         Objects.requireNonNull(jwtBuilder, "No Descriptor supplied, cancelling JWT signing");
@@ -59,7 +59,7 @@ public class IdpJwtProcessor {
     }
 
     public JsonWebToken buildJws(final String payload, final Map<String, Object> headerClaims,
-        final boolean includeSignerCertificateInHeader) {
+        final boolean includeSignerCertificateInHeader) throws IdpJoseException {
         Validate.notNull(payload);
         Validate.notNull(headerClaims);
 
@@ -84,7 +84,7 @@ public class IdpJwtProcessor {
         }
     }
 
-    public void verifyAndThrowExceptionIfFail(final JsonWebToken jwt) {
+    public void verifyAndThrowExceptionIfFail(final JsonWebToken jwt) throws IdpJoseException {
         Validate.notNull(jwt);
         jwt.verify(certificate.getPublicKey());
     }

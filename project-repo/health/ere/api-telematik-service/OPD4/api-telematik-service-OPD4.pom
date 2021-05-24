@@ -55,6 +55,7 @@
                 <wsdlFile>SignatureService.wsdl</wsdlFile>
                 <wsdlFile>SignatureService_V7_4_2.wsdl</wsdlFile>
                 <wsdlFile>SignatureService_V7_5_5.wsdl</wsdlFile>
+                <wsdlFile>CertificateService_v6_0_0.wsdl</wsdlFile>
               </wsdlFiles>
               <vmArgs>
                 <vmArg>-Djavax.xml.accessExternalDTD=all</vmArg>
