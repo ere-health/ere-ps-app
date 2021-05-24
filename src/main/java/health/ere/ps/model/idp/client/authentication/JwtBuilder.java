@@ -93,7 +93,7 @@ public class JwtBuilder {
         return this;
     }
 
-    public JsonWebToken buildJwt() {
+    public JsonWebToken buildJwt() throws IdpCryptoException, IdpJoseException {
         Objects.requireNonNull(signerKey, "No private key supplied, cancelling JWT signing");
 
         final JwtClaims claims = new JwtClaims();
@@ -120,7 +120,7 @@ public class JwtBuilder {
         }
     }
 
-    private String determineAlgorithm() {
+    private String determineAlgorithm() throws IdpCryptoException {
         if (signerKey instanceof ECPrivateKey) {
             return BRAINPOOL256_USING_SHA256;
         } else if (signerKey instanceof RSAPrivateKey) {

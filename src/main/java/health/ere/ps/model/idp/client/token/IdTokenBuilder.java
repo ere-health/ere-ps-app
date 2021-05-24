@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import health.ere.ps.exception.idp.IdpJoseException;
+import health.ere.ps.exception.idp.crypto.IdpCryptoException;
 import health.ere.ps.model.idp.client.IdpConstants;
 import health.ere.ps.model.idp.client.authentication.IdpJwtProcessor;
 import health.ere.ps.model.idp.client.authentication.JwtBuilder;
@@ -53,27 +54,39 @@ public class IdTokenBuilder {
             .filter(pair -> pair.getValue().isPresent())
             .forEach(pair -> claimsMap.put(pair.getKey().getJoseName(), pair.getValue().get()));
 
-        claimsMap.put(ClaimName.AUTHORIZED_PARTY.getJoseName(),
-            authenticationToken.getBodyClaim(ClaimName.CLIENT_ID)
-                .orElseThrow(() -> new IdpJoseException("Missing '" + ClaimName.AUTHORIZED_PARTY.getJoseName() + "' claim!")));
+        try {
+            claimsMap.put(ClaimName.AUTHORIZED_PARTY.getJoseName(),
+                authenticationToken.getBodyClaim(ClaimName.CLIENT_ID)
+                    .orElseThrow(() -> new IdpJoseException("Missing '" + ClaimName.AUTHORIZED_PARTY.getJoseName() + "' claim!")));
+        } catch (IdpJoseException e) {
+            throw new IllegalStateException(e);
+        }
         claimsMap.put(ClaimName.AUTHENTICATION_METHODS_REFERENCE.getJoseName(), getAmrString());
         claimsMap.put(ClaimName.AUTHENTICATION_CLASS_REFERENCE.getJoseName(), IdpConstants.EIDAS_LOA_HIGH);
         claimsMap.put(ClaimName.ACCESS_TOKEN_HASH.getJoseName(), atHashValue);
-        claimsMap.put(ClaimName.SUBJECT.getJoseName(),
-            TokenBuilderUtil.buildSubjectClaim(
-                IdpConstants.AUDIENCE,
-                authenticationToken.getStringBodyClaim(ClaimName.ID_NUMBER)
-                    .orElseThrow(() -> new IdpJoseException("Missing '" + ClaimName.ID_NUMBER.getJoseName() + "' claim!")),
-                    getServerSubjectSalt()));
+        try {
+            claimsMap.put(ClaimName.SUBJECT.getJoseName(),
+                TokenBuilderUtil.buildSubjectClaim(
+                    IdpConstants.AUDIENCE,
+                    authenticationToken.getStringBodyClaim(ClaimName.ID_NUMBER)
+                        .orElseThrow(() -> new IdpJoseException("Missing '" + ClaimName.ID_NUMBER.getJoseName() + "' claim!")),
+                        getServerSubjectSalt()));
+        } catch (IdpJoseException e) {
+            throw new IllegalStateException(e);
+        }
         claimsMap.put(ClaimName.JWT_ID.getJoseName(), new Nonce().getNonceAsHex(IdpConstants.JTI_LENGTH));
         claimsMap.put(ClaimName.EXPIRES_AT.getJoseName(), NumericDate.fromSeconds(now.plusMinutes(5).toEpochSecond()).getValue());
 
         final Map<String, Object> headerClaims = new HashMap<>();
         headerClaims.put(ClaimName.TYPE.getJoseName(), "JWT");
 
-        return getJwtProcessor().buildJwt(new JwtBuilder()
-            .addAllBodyClaims(claimsMap)
-            .addAllHeaderClaims(headerClaims));
+        try {
+            return getJwtProcessor().buildJwt(new JwtBuilder()
+                .addAllBodyClaims(claimsMap)
+                .addAllHeaderClaims(headerClaims));
+        } catch (IdpJoseException | IdpCryptoException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     private String[] getAmrString() {
