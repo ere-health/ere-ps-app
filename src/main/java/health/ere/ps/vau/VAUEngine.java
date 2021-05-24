@@ -18,7 +18,9 @@ import javax.ws.rs.core.Response;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.client.entity.EntityBuilder;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.ContentType;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient43Engine;
@@ -36,6 +38,7 @@ public class VAUEngine extends ApacheHttpClient43Engine {
     private VAU vau;
     private String fachdienstUrl;
     private byte[] aeskey;
+    private String userpseudonym = "0";
 
     public VAUEngine(String fachdienstUrl) {
         this.fachdienstUrl = fachdienstUrl;
@@ -71,13 +74,16 @@ public class VAUEngine extends ApacheHttpClient43Engine {
 
         byte[] finalMessageData;
         try {
+            byte[] postBytes = httpEntity.getContent().readAllBytes();
+            String postBody = new String(postBytes);
             String content = request.getMethod()+" "+request.getUri().getPath()+" HTTP/1.1\n"+
             "Host: "+request.getUri().getHost()+"\n"+
             "Authorization: "+authorization+"\n"+
             "Content-Type: "+contentType+"\n"+
             "User-Agent: "+userAgent+"\n"+
+            "Content-Length: "+postBytes.length+"\n"+
             "Accept: application/fhir+xml;charset=utf-8\n\n"
-            +new String(httpEntity.getContent().readAllBytes());
+            +postBody;
 
             String bearer = authorization.substring(7);
             String requestid = VAU.ByteArrayToHexString(vau.GetRandom(16));
@@ -88,9 +94,8 @@ public class VAUEngine extends ApacheHttpClient43Engine {
             log.info(p);
 
             finalMessageData = vau.encrypt(p);
-            request.setUri(new URI(fachdienstUrl+"/VAU"));
         } catch (NoSuchAlgorithmException | IllegalStateException | InvalidCipherTextException | CertificateException
-                | UnsupportedOperationException | NoSuchProviderException | InvalidAlgorithmParameterException | URISyntaxException e) {
+                | UnsupportedOperationException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
             throw new RuntimeException(e);
         }
 
@@ -99,14 +104,40 @@ public class VAUEngine extends ApacheHttpClient43Engine {
     }
 
     @Override
+    protected HttpRequestBase createHttpMethod(String url, String restVerb)
+   {
+      if ("GET".equals(restVerb))
+      {
+         return new HttpGet(url);
+      }
+      else if ("POST".equals(restVerb))
+      {
+         return new HttpPost(fachdienstUrl+"/VAU/"+userpseudonym);
+      }
+      else
+      {
+         final String verb = restVerb;
+         return new HttpPost(url)
+         {
+            @Override
+            public String getMethod()
+            {
+               return verb;
+            }
+         };
+      }
+   }
+
+    @Override
     public Response invoke(Invocation inv) {
         Response response = super.invoke(inv);
 
         byte[] transportedData;
         try {
-            String responseString = new String(((InputStream) response.getEntity()).readAllBytes());
-            log.info(responseString);
-            transportedData = vau.decryptWithKey(responseString.getBytes(), aeskey);
+            byte[] responseBytes = ((InputStream) response.getEntity()).readAllBytes();
+            log.info( VAU.ByteArrayToHexString(responseBytes));
+            transportedData = vau.decryptWithKey(responseBytes, aeskey);
+            userpseudonym = response.getHeaderString("userpseudonym");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

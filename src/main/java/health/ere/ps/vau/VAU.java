@@ -153,6 +153,8 @@ public class VAU {
                     0,
                     // The end index
                     32);
+        } else {
+            sharedSecretBytesCopy = sharedSecretBytes;
         }
         sharedSecretBytes = sharedSecretBytesCopy;
         log.info("SharedSecret=" + ByteArrayToHexString(sharedSecretBytes) + " " + sharedSecretBytes.length);
