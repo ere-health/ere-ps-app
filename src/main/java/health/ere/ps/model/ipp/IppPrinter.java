@@ -1,30 +1,28 @@
-package health.ere.ps.resource;
+package health.ere.ps.model.ipp;
 
 import com.hp.jipp.encoding.Attribute;
-import com.hp.jipp.encoding.IppPacket;
-import com.hp.jipp.encoding.Tag;
-import com.hp.jipp.model.Status;
-import com.hp.jipp.trans.IppPacketData;
+import com.hp.jipp.model.*;
 
+import javax.enterprise.context.ApplicationScoped;
 import java.net.URI;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.hp.jipp.encoding.AttributeGroup.groupOf;
 import static com.hp.jipp.model.Types.*;
 
-
+@ApplicationScoped
 public class IppPrinter {
 
     private final Date startTime;
     private final List<Attribute<?>> defaultPrinterAttributes;
+    private final AtomicInteger printJobId = new AtomicInteger(0);
 
     public IppPrinter() {
         this.startTime = new Date();
         defaultPrinterAttributes = Arrays.asList(DefaultAttributes.PRINTER_ATTRIBUTES);
     }
 
-
-    private List<Attribute<?>> getPrinterAttributes(URI uri) {
+    public List<Attribute<?>> getPrinterAttributes(URI uri) {
 
         List<Attribute<?>> attributes = new ArrayList<>();
         attributes.addAll(this.defaultPrinterAttributes);
@@ -48,6 +46,15 @@ public class IppPrinter {
         return Arrays.asList(DefaultAttributes.OPERATION_ATTRIBUTES);
     }
 
+    public List<Attribute<?>> getJobAttributes(URI uri) {
+        Attribute<?>[] attributes = {
+                jobUri.of(uri.resolve("/job/" + printJobId.incrementAndGet())),
+                jobState.of(JobState.pending),
+                jobStateReasons.of(JobStateReason.accountClosed),
+        };
+        return Arrays.asList(attributes);
+    }
+
     private boolean isAcceptingJobs() {
         return true;
     }
@@ -58,22 +65,5 @@ public class IppPrinter {
 
     private int getUpTime() {
         return (int) ((new Date().getTime() - startTime.getTime()) / 1000);
-    }
-
-    public IppPacketData handleGetPrinterAttributesOperation(URI uri, IppPacketData requestPacketData) {
-
-        IppPacket requestPacket = requestPacketData.getPacket();
-
-        List<Attribute<?>> operationAttributes = getOperationAttributes();
-        List<Attribute<?>> printerAttributes = getPrinterAttributes(uri);
-
-        IppPacket packet = new IppPacket(
-                DefaultAttributes.VERSION_NUMBER,
-                Status.successfulOk.getCode(),
-                requestPacket.getRequestId(),
-                groupOf(Tag.operationAttributes, operationAttributes),
-                groupOf(Tag.printerAttributes, printerAttributes)
-        );
-        return new IppPacketData(packet, requestPacketData.getData());
     }
 }

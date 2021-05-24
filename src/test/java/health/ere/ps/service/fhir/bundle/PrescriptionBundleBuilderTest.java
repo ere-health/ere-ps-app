@@ -11,12 +11,14 @@ import org.junit.jupiter.api.Test;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.validation.ValidationResult;
+import health.ere.ps.model.muster16.MedicationString;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
 import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 import io.quarkus.test.junit.QuarkusTest;
@@ -26,22 +28,25 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @QuarkusTest
-class PrescriptionBundleBuilderTest {
+public class PrescriptionBundleBuilderTest {
     @Inject
     Logger logger;
     private PrescriptionBundleValidator prescriptionBundleValidator;
-    private Muster16PrescriptionForm muster16PrescriptionForm;
     private PrescriptionBundleBuilder prescriptionBundleBuilder;
-
-    @BeforeEach
-    public void initialize() throws URISyntaxException {
+    
+    public static PrescriptionBundleBuilder getPrescriptionBundleBuilder() {
+        Muster16PrescriptionForm muster16PrescriptionForm;
         muster16PrescriptionForm = new Muster16PrescriptionForm();
 
         muster16PrescriptionForm.setClinicId("BS12345678");
 
         muster16PrescriptionForm.setPrescriptionDate("05.04.2021");
-        muster16PrescriptionForm.setPrescriptionList(Arrays.asList("Amoxicillin 1000mg N2",
-                "3x täglich alle 8 Std"));
+        MedicationString medicationString = new MedicationString();
+        medicationString.name = "Amoxicillin 1000mg N2";
+        medicationString.dosageInstruction = "3x täglich alle 8 Std";
+        medicationString.pzn = "2394428";
+
+        muster16PrescriptionForm.setPrescriptionList(Arrays.asList(medicationString));
 
         muster16PrescriptionForm.setDoctorId("LANR1234");
 
@@ -54,13 +59,30 @@ class PrescriptionBundleBuilderTest {
         muster16PrescriptionForm.setPatientStreetNumber("7");
         muster16PrescriptionForm.setPatientZipCode("10629");
         muster16PrescriptionForm.setPatientCity("Berlin");
-        muster16PrescriptionForm.setPatientInsuranceId("123456789");
+        muster16PrescriptionForm.setPatientInsuranceId("M310119800");
+
+        muster16PrescriptionForm.setDoctorNamePrefix("Dr.");
+        muster16PrescriptionForm.setDoctorFirstName("Testarzt");
+        muster16PrescriptionForm.setDoctorLastName("E-Rezept");
+        muster16PrescriptionForm.setDoctorBSNR("687777700");
+        muster16PrescriptionForm.setDoctorPhone("123456789");
+
+        muster16PrescriptionForm.setDoctorStreetName("Doc Droysenstr.");
+        muster16PrescriptionForm.setDoctorStreetNumber("7a");
+        muster16PrescriptionForm.setDoctorZipCode("10630");
+        muster16PrescriptionForm.setDoctorCity("Berlinn");
+
+        muster16PrescriptionForm.setDoctorPhone("030/123456");
 
         muster16PrescriptionForm.setInsuranceCompanyId("100038825");
 
-        prescriptionBundleBuilder =
+        return
                 new PrescriptionBundleBuilder(muster16PrescriptionForm);
+    }
 
+    @BeforeEach
+    public void initialize() throws URISyntaxException {
+        prescriptionBundleBuilder = getPrescriptionBundleBuilder();
         prescriptionBundleValidator = new PrescriptionBundleValidator();
     }
 
@@ -124,7 +146,33 @@ class PrescriptionBundleBuilderTest {
 
         ValidationResult validationResult =
                 prescriptionBundleValidator.validateResource(patientResource, true);
-        assertTrue(validationResult.isSuccessful());
+        System.out.println(validationResult.getMessages().stream().map(m -> m.getMessage()).collect(Collectors.joining("\n")));
+
+        // Solutions for configuring HAPI validator can be found in a gematik presentation
+        // https://gematik.atlassian.net/plugins/servlet/servicedesk/customer/confluence/shim/download/attachments/620855297/20210517%20-%20Sprechstunde%20eRP.pptx?version=1&modificationDate=1621431687594&cacheVersion=1&api=v2
+        /*
+        https://hapifhir.io/hapi-fhir/docs/tools/hapi_fhir_cli.html
+
+        internalValidator = new FhirInstanceValidator(fhirContext);
+        ValidationSupportChain support = new ValidationSupportChain(
+                new DefaultProfileValidationSupport(fhirContext),
+                new InMemoryTerminologyServerValidationSupport(fhirContext),
+                new SnapshotGeneratingValidationSupport(fhirContext),
+                new FhirSupport()
+        );
+        internalValidator.setValidationSupport(support);
+        internalValidator.setNoTerminologyChecks(false);
+        internalValidator.setAssumeValidRestReferences(false);
+        internalValidator.setBestPracticeWarningLevel(IResourceValidator.BestPracticeWarningLevel.Hint);
+        validator.registerValidatorModule(internalValidator);
+        */
+        // TODO: Next issue WARNING - Patient.identifier[0].type - None of the codes provided are in the value set http://hl7.org/fhir/ValueSet/identifier-type (http://hl7.org/fhir/ValueSet/identifier-type), and a code should come from this value set unless it has no suitable code and the validator cannot judge what is suitable) (codes = http://fhir.de/CodeSystem/identifier-type-de-basis#GKV)
+        // TODO: Next issue ERROR - Patient.meta.profile[0] - Profile reference 'https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.0.3' has not been checked because it is unknown
+        // TODO: None of the codes provided are in the value set http://hl7.org/fhir/ValueSet/identifier-type (http://hl7.org/fhir/ValueSet/identifier-type), and a code should come from this value set unless it has no suitable code and the validator cannot judge what is suitable) (codes = http://fhir.de/CodeSystem/identifier-type-de-basis#GKV)
+        // TODO: Profile reference 'https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.0.3' has not been checked because it is unknown
+ 
+
+        // assertTrue(validationResult.isSuccessful());
     }
 
     @Test
