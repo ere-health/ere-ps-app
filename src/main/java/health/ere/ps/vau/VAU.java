@@ -58,6 +58,7 @@ public class VAU {
             .getByOID(new ASN1ObjectIdentifier(TeleTrusTObjectIdentifiers.brainpoolP256r1.getId()));
 
     private static final Logger log = Logger.getLogger(VAU.class.getName());
+    private byte[] iv;
 
     static {
         Security.addProvider(new BouncyCastleProvider());
@@ -172,7 +173,7 @@ public class VAU {
         byte[] outputAESCGM = new byte[input.length + 16];
 
         // random IV
-        byte[] iv = ivBytes == null ? GetIv() : ivBytes;
+        iv = ivBytes == null ? GetIv() : ivBytes;
         log.info("IV =" + ByteArrayToHexString(iv));
 
         GCMBlockCipher cipher = new GCMBlockCipher(new AESEngine());
@@ -231,8 +232,8 @@ public class VAU {
         }
 
         var cipherStream = new ByteArrayInputStream(message);
-        byte[] nonSecretPayload = new byte[1];
-        cipherStream.read(nonSecretPayload, 0, 1);
+        byte[] nonSecretPayload = new byte[0];
+        cipherStream.read(nonSecretPayload, 0, 0);
         byte[] nonce = new byte[NONCE_BIT_SIZE / 8];
         cipherStream.read(nonce, 0, NONCE_BIT_SIZE / 8);
         var cipher = new GCMBlockCipher(new AESEngine());

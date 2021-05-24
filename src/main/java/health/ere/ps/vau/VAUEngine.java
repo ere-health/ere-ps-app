@@ -1,6 +1,7 @@
 package health.ere.ps.vau;
 
 import java.io.InputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -8,7 +9,10 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.cert.CertificateException;
+import java.util.Scanner;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
@@ -22,9 +26,14 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.ContentType;
+import org.apache.http.impl.io.DefaultHttpResponseParserFactory;
+import org.apache.http.io.HttpMessageParserFactory;
+import org.apache.http.io.SessionInputBuffer;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient43Engine;
 import org.jboss.resteasy.client.jaxrs.internal.ClientInvocation;
+import org.jboss.resteasy.client.jaxrs.internal.ClientResponse;
+import org.jboss.resteasy.client.jaxrs.internal.FinalizedClientResponse;
 
 /**
  * Engine for RestEasy inspired by the Gematik implementation of VAU:
@@ -37,8 +46,12 @@ public class VAUEngine extends ApacheHttpClient43Engine {
     private static Logger log = Logger.getLogger(VAUEngine.class.getName());
     private VAU vau;
     private String fachdienstUrl;
-    private byte[] aeskey;
-    private String userpseudonym = "0";
+    byte[] aeskey;
+    String userpseudonym = "0";
+    String requestid;
+
+    private static final String responsePattern = "1 ([A-Fa-f0-9]{32}) (.*)";
+    private static final Pattern RESPONSE_PATTERN = Pattern.compile(responsePattern, Pattern.DOTALL);
 
     public VAUEngine(String fachdienstUrl) {
         this.fachdienstUrl = fachdienstUrl;
@@ -86,10 +99,10 @@ public class VAUEngine extends ApacheHttpClient43Engine {
             +postBody;
 
             String bearer = authorization.substring(7);
-            String requestid = VAU.ByteArrayToHexString(vau.GetRandom(16));
+            requestid = VAU.ByteArrayToHexString(vau.GetRandom(16)).toLowerCase();
             aeskey = vau.GetRandom(16);
-            String aeskeyString = VAU.ByteArrayToHexString(aeskey);
-            String p = "1 "+bearer+" "+requestid.toLowerCase()+" "+aeskeyString.toLowerCase()+" "+content;
+            String aeskeyString = VAU.ByteArrayToHexString(aeskey).toLowerCase();
+            String p = "1 "+bearer+" "+requestid+" "+aeskeyString+" "+content;
 
             log.info(p);
 
@@ -132,18 +145,39 @@ public class VAUEngine extends ApacheHttpClient43Engine {
     public Response invoke(Invocation inv) {
         Response response = super.invoke(inv);
 
+        String contentType = response.getHeaderString("Content-Type");
+        if(!("application/octet-stream".equals(contentType))) {
+            // A_20174
+            throw new RuntimeException("VAU response content type has to be application/octet-stream but was: "+contentType);
+        }
         byte[] transportedData;
+        String responseContent;
         try {
             byte[] responseBytes = ((InputStream) response.getEntity()).readAllBytes();
             log.info( VAU.ByteArrayToHexString(responseBytes));
             transportedData = vau.decryptWithKey(responseBytes, aeskey);
             userpseudonym = response.getHeaderString("userpseudonym");
+            responseContent = new String(transportedData);
+            log.info(responseContent);
+            return parseResponseFromVAU(responseContent, (ClientInvocation) inv);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-        return Response.status(response.getStatus()).entity(new String(transportedData))
-                .build();
+    }
+    
+    Response parseResponseFromVAU(String responseContent, ClientInvocation request) {
+        Matcher m = RESPONSE_PATTERN.matcher(responseContent);
+        if(!m.matches()) {
+            throw new RuntimeException("Response content does not match "+responsePattern+" was: "+responseContent);
+        }
+        String requestIdFromResponse = m.group(1);
+        if(!requestIdFromResponse.equals(requestid)) {
+            throw new RuntimeException("requestIdFromResponse ("+requestIdFromResponse+") does not match requestid ("+requestid+")");
+        }
+        String rawResponse = m.group(2);
+        
+        // TODO: create a real response from the HTTP raw response
+        return null;
     }
 
 }

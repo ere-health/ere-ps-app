@@ -31,4 +31,20 @@ class VAUEngineTest {
         String s = vauEnabledClient.target("http://localhost:9094/services").request().post(Entity.entity(helloSoapRequest, " application/soap+xml; charset=UTF-8")).readEntity(String.class);
         log.info(s);
     }
+
+
+    @Test
+    public void testParseResponseFromVAU() {
+        String testResponse = "1 1c51e243bf3f657b8f9d0034e30aac40 HTTP/1.1 401 Unauthorized\n"+
+        "content-length: 279\n"+
+        "connection: close\n"+
+        "www-authenticate: Bearer realm='prescriptionserver.telematik', error='invalACCESS_TOKEN'\n"+
+        "content-type: application/fhir+xml\n"+
+        "date: Mon, 24 May 2021 12:40:10 GMT\n"+
+        "\n"+
+        "<OperationOutcome xmlns=\"http://hl7.org/fhir\"><meta><profile value=\"http://hl7.org/fhir/StructureDefinition/OperationOutcome\"/></meta><issue><severity value=\"error\"/><code value=\"unknown\"/><details><text value=\"Access Token Error: Expired!\"/></details></issue></OperationOutcome>";
+        VAUEngine vauEngine = new VAUEngine("");
+        vauEngine.requestid = "1c51e243bf3f657b8f9d0034e30aac40";
+        vauEngine.parseResponseFromVAU(testResponse);
+    }
 }
