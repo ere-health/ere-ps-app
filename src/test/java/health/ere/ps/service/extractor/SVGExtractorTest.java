@@ -169,7 +169,7 @@ class SVGExtractorTest {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.DENS, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/DENSoffice - Rezept3.pdf")));
 
-        logExtraction(map);
+        //logExtraction(map);
         
         assertEquals("DENS GmbH                     " + lineSep, map.get("insurance"));
         assertEquals("X" + lineSep, map.get("withPayment"));
@@ -197,7 +197,7 @@ class SVGExtractorTest {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.DENS, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/DENSoffice - Rezept4.pdf")));
 
-        logExtraction(map);
+        //logExtraction(map);
         
         assertEquals("DENS GmbH                     " + lineSep, map.get("insurance"));
         assertEquals("X" + lineSep, map.get("withPayment"));
@@ -225,7 +225,7 @@ class SVGExtractorTest {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.DENS, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/DENSoffice - Rezept5.pdf")));
 
-        logExtraction(map);
+        //logExtraction(map);
         
         assertEquals("DENS GmbH                     " + lineSep, map.get("insurance"));
         assertEquals("X" + lineSep, map.get("withPayment"));
@@ -247,8 +247,115 @@ class SVGExtractorTest {
        
     }
     
-   
+    @Test @Disabled
+    void testExtractDens6() throws URISyntaxException, IOException, XMLStreamException {
+
+        SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.DENS, true);
+        Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/DENSoffice - Rezept6.pdf")));
+
+        //logExtraction(map);
+        
+        assertEquals("DENS GmbH                     " + lineSep, map.get("insurance"));
+        assertEquals("X" + lineSep, map.get("withPayment"));
+        assertEquals(lineSep, map.get("withoutPayment"));
+        assertEquals(lineSep, map.get("additionalPayment"));
+        assertEquals("Heckner" + lineSep + "Dr. Markus       " + lineSep + "Berliner Str. 12" + lineSep + "D 14513 Teltow   " + lineSep, map.get("nameAndAddress"));
+        assertEquals("     14.02.76" + lineSep + "        " + lineSep, map.get("birthdate"));
     
+        assertEquals("          " + lineSep, map.get("payor"));
+        assertEquals("           " + lineSep, map.get("insuranceNumber"));
+        assertEquals("  3000000" + lineSep, map.get("status"));
+        
+        assertEquals(" 30000000" + lineSep, map.get("locationNumber"));
+        assertEquals("  30000000" + lineSep, map.get("practitionerNumber"));
+        assertEquals("  29.04.21" + lineSep, map.get("date"));
+        
+        assertEquals("Diclofenac 75mg 1-0-1" + lineSep + "Diazepam 5mg 0-0-1" + lineSep + "Einnahmedauer begrenzt auf " + lineSep + "weniger als 1 Woche " + lineSep, map.get("medication"));
+        assertEquals("DENS GmbH" + lineSep + "Berliner Str. 13" + lineSep + "14513 Teltow" + lineSep + "03328-334540" + lineSep + "Fax: 03328-334547" + lineSep, map.get("practitionerText"));
+    }
+    
+    @Test @Disabled
+    void testExtractDens7() throws URISyntaxException, IOException, XMLStreamException {
+
+        SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.DENS, true);
+        Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/DENSoffice - Rezept7.pdf")));
+
+        //logExtraction(map);
+        
+        assertEquals("DENS GmbH                     " + lineSep, map.get("insurance"));
+        assertEquals("X" + lineSep, map.get("withPayment"));
+        assertEquals(lineSep, map.get("withoutPayment"));
+        assertEquals(lineSep, map.get("additionalPayment"));
+        assertEquals("Heckner" + lineSep + "Dr. Markus       " + lineSep + "Berliner Str. 12" + lineSep + "D 14513 Teltow   " + lineSep, map.get("nameAndAddress"));
+        assertEquals("     14.02.76" + lineSep + "        " + lineSep, map.get("birthdate"));
+    
+        assertEquals("          " + lineSep, map.get("payor"));
+        assertEquals("           " + lineSep, map.get("insuranceNumber"));
+        assertEquals("  3000000" + lineSep, map.get("status"));
+        
+        assertEquals(" 30000000" + lineSep, map.get("locationNumber"));
+        assertEquals("  30000000" + lineSep, map.get("practitionerNumber"));
+        assertEquals("  29.04.21" + lineSep, map.get("date"));
+        
+        assertEquals("Ciprofloxacin   500mg   " + lineSep + "morgens   und   abends " + lineSep + "Clavulansäure 125mg 1-0-1" + lineSep + "Xylomet-hazolin 6x täglich" + lineSep, map.get("medication"));
+        assertEquals("DENS GmbH" + lineSep + "Berliner Str. 13" + lineSep + "14513 Teltow" + lineSep + "03328-334540" + lineSep + "Fax: 03328-334547" + lineSep, map.get("practitionerText"));
+    }
+    
+    @Test @Disabled
+    void testExtractDens8() throws URISyntaxException, IOException, XMLStreamException {
+
+        SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.DENS, true);
+        Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/DENSoffice - Rezept8.pdf")));
+
+        //logExtraction(map);
+        
+        assertEquals("DENS GmbH                     " + lineSep, map.get("insurance"));
+        assertEquals("X" + lineSep, map.get("withPayment"));
+        assertEquals(lineSep, map.get("withoutPayment"));
+        assertEquals(lineSep, map.get("additionalPayment"));
+        assertEquals("Heckner" + lineSep + "Dr. Markus       " + lineSep + "Berliner Str. 12" + lineSep + "D 14513 Teltow   " + lineSep, map.get("nameAndAddress"));
+        assertEquals("     14.02.76" + lineSep + "        " + lineSep, map.get("birthdate"));
+    
+        assertEquals("          " + lineSep, map.get("payor"));
+        assertEquals("           " + lineSep, map.get("insuranceNumber"));
+        assertEquals("  3000000" + lineSep, map.get("status"));
+        
+        assertEquals(" 30000000" + lineSep, map.get("locationNumber"));
+        assertEquals("  30000000" + lineSep, map.get("practitionerNumber"));
+        assertEquals("  29.04.21" + lineSep, map.get("date"));
+        
+        assertEquals("Fluoretten 0,25 mg " + lineSep + "Zymafluor 0,5mg" + lineSep + "Bifluorid 6 %" + lineSep, map.get("medication"));
+        assertEquals("DENS GmbH" + lineSep + "Berliner Str. 13" + lineSep + "14513 Teltow" + lineSep + "03328-334540" + lineSep + "Fax: 03328-334547" + lineSep, map.get("practitionerText"));
+    }
+    
+    @Test @Disabled
+    void testExtractDens10() throws URISyntaxException, IOException, XMLStreamException {
+
+        SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.DENS, true);
+        Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/DENSoffice - Rezept10.pdf")));
+
+        logExtraction(map);
+        
+        assertEquals("DENS GmbH                     " + lineSep, map.get("insurance"));
+        assertEquals("X" + lineSep, map.get("withPayment"));
+        assertEquals(lineSep, map.get("withoutPayment"));
+        assertEquals(lineSep, map.get("additionalPayment"));
+        assertEquals("Heckner" + lineSep + "Dr. Markus       " + lineSep + "Berliner Str. 12" + lineSep + "D 14513 Teltow   " + lineSep, map.get("nameAndAddress"));
+        assertEquals("     14.02.76" + lineSep + "        " + lineSep, map.get("birthdate"));
+    
+        assertEquals("          " + lineSep, map.get("payor"));
+        assertEquals("           " + lineSep, map.get("insuranceNumber"));
+        assertEquals("  3000000" + lineSep, map.get("status"));
+        
+        assertEquals(" 30000000" + lineSep, map.get("locationNumber"));
+        assertEquals("  30000000" + lineSep, map.get("practitionerNumber"));
+        assertEquals("  29.04.21" + lineSep, map.get("date"));
+        
+        assertEquals("Duraphat 5 % immer nach dem " + lineSep + "Essen auftragen" + lineSep + "Fluor Protector bitte " + lineSep + "mehrmals täglich einnehmen" + lineSep + "Multifluorid verordnet " + lineSep + "durch Dr. Mustermann" + lineSep, map.get("medication"));
+        assertEquals("DENS GmbH" + lineSep + "Berliner Str. 13" + lineSep + "14513 Teltow" + lineSep + "03328-334540" + lineSep + "Fax: 03328-334547" + lineSep, map.get("practitionerText"));
+    }
+
+
     private void logExtraction(Map<String, String> map) {
         System.out.println(map.entrySet().stream().map((e) -> "        assertEquals(\""+e.getValue().replaceAll(lineSep, "\\\\n")+"\", map.get(\""+e.getKey()+"\"));").collect(Collectors.joining(lineSep)));
     }
