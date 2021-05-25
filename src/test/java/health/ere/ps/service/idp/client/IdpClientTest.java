@@ -2,8 +2,11 @@ package health.ere.ps.service.idp.client;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
+import java.io.InputStream;
 
 import javax.inject.Inject;
 
@@ -14,6 +17,7 @@ import health.ere.ps.exception.idp.IdpJoseException;
 import health.ere.ps.exception.idp.crypto.IdpCryptoException;
 import health.ere.ps.model.idp.client.IdpTokenResult;
 import health.ere.ps.model.idp.crypto.PkiIdentity;
+import health.ere.ps.service.connector.certificate.CardCertReadExecutionService;
 import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
 import io.quarkus.test.junit.QuarkusTest;
 
@@ -25,6 +29,9 @@ public class IdpClientTest {
 
     @Inject
     CardCertificateReaderService cardCertificateReaderService;
+
+    @Inject
+    CardCertReadExecutionService cardCertReadExecutionService;
 
     @ConfigProperty(name = "idp.client.id")
     String clientId;
@@ -49,11 +56,23 @@ public class IdpClientTest {
     @ConfigProperty(name = "idp.auth.request.redirect.url")
     String redirectUrl;
 
+    @BeforeAll
+    public static void init() {
+        System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
+        System.setProperty("com.sun.xml.internal.ws.transport.http.client.HttpTransportPipe.dump", "true");
+        System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
+        System.setProperty("com.sun.xml.internal.ws.transport.http.HttpAdapter.dump", "true");
+        System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dumpTreshold", "999999");
+    }
+
     @Disabled("Disabled until Titus Idp Card Certificate Service API Endpoint Is Fixed By Gematik")
     @Test
     public void test_Successful_Idp_Login()
             throws ConnectorCardCertificateReadException, IdpException,
             IdpClientException, IdpCryptoException, IdpJoseException {
+
+        InputStream p12Certificate = CardCertificateReaderService.class.getResourceAsStream("/ps_erp_incentergy_01.p12");
+        cardCertReadExecutionService.setUpCustomSSLContext(p12Certificate);
         AuthenticatorClient authenticatorClient = new AuthenticatorClient();
 
         discoveryDocumentUrl = idpBaseUrl + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;

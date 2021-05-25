@@ -9,13 +9,17 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.Enumeration;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.net.ssl.KeyManagerFactory;
@@ -24,6 +28,9 @@ import javax.net.ssl.TrustManagerFactory;
 
 @ApplicationScoped
 public class SecretsManagerService {
+
+    private static Logger log = Logger.getLogger(SecretsManagerService.class.getName());
+
     public enum SslContextType {
         SSL("SSL"), TLS("TLS");
 
@@ -121,5 +128,24 @@ public class SecretsManagerService {
         sc.init( kmf.getKeyManagers(), null, null );
 
         return sc;
+    }
+
+    public static SSLContext setUpCustomSSLContext(InputStream p12Certificate) {
+        try {
+            SSLContext sc = SSLContext.getInstance("TLS");
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+
+            KeyStore ks = KeyStore.getInstance("PKCS12");
+            // Download this file from the titus backend
+            // https://frontend.titus.ti-dienste.de/#/platform/mandant
+            ks.load(p12Certificate, "00".toCharArray());
+            kmf.init(ks, "00".toCharArray());
+            sc.init(kmf.getKeyManagers(), null, null);
+            return sc;
+        } catch (NoSuchAlgorithmException | CertificateException | IOException | KeyStoreException
+                | UnrecoverableKeyException | KeyManagementException e) {
+            log.log(Level.SEVERE, "Could not set up custom SSLContext", e);
+            throw new RuntimeException(e);
+        }
     }
 }
