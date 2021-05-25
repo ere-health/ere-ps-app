@@ -6,10 +6,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import health.ere.ps.model.idp.client.brainPoolExtension.BrainpoolCurves;
-import health.ere.ps.exception.idp.crypto.IdpCryptoException;
-import health.ere.ps.exception.idp.IdpJoseException;
-
 import org.jose4j.json.internal.json_simple.JSONAware;
 import org.jose4j.jwk.EllipticCurveJsonWebKey;
 import org.jose4j.jwk.RsaJsonWebKey;
@@ -20,6 +16,9 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Objects;
 import java.util.Optional;
+
+import health.ere.ps.exception.idp.crypto.IdpCryptoException;
+import health.ere.ps.model.idp.client.brainPoolExtension.BrainpoolCurves;
 
 import static health.ere.ps.service.idp.crypto.KeyAnalysis.isEcKey;
 
@@ -67,7 +66,7 @@ public class IdpKeyDescriptor implements JSONAware {
         return result;
     }
 
-    public static String[] getCertArray(final X509Certificate certificate) {
+    public static String[] getCertArray(final X509Certificate certificate) throws IdpCryptoException {
         try {
             return new String[]{
                 Base64.getEncoder().encodeToString(
@@ -108,7 +107,7 @@ public class IdpKeyDescriptor implements JSONAware {
             return objectMapper
                 .writeValueAsString(this);
         } catch (final JsonProcessingException e) {
-            throw new IdpJoseException("Error during Claim serialization", e);
+            throw new IllegalStateException("Error during Claim serialization", e);
         }
     }
 

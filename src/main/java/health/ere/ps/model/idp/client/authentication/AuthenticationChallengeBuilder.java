@@ -1,5 +1,7 @@
 package health.ere.ps.model.idp.client.authentication;
 
+import health.ere.ps.exception.idp.IdpJoseException;
+import health.ere.ps.exception.idp.crypto.IdpCryptoException;
 import health.ere.ps.model.idp.client.IdpConstants;
 import health.ere.ps.service.idp.crypto.Nonce;
 import health.ere.ps.model.idp.client.data.UserConsent;
@@ -51,7 +53,7 @@ public class AuthenticationChallengeBuilder {
     }
 
     public AuthenticationChallenge buildAuthenticationChallenge(final String clientId, final String state,
-                                                                final String redirect, final String code, final String scope, final String nonce) {
+                                                                final String redirect, final String code, final String scope, final String nonce) throws IdpJoseException, IdpCryptoException {
         final Map<String, Object> claims = new HashMap<>();
         claims.put(ISSUER.getJoseName(), getUriIdpServer());
 
@@ -106,7 +108,8 @@ public class AuthenticationChallengeBuilder {
             .build();
     }
 
-    private JsonWebToken buildJwt(final Map<String, Object> bodyClaims, final Map<String, Object> headerClaims) {
+    private JsonWebToken buildJwt(final Map<String, Object> bodyClaims, final Map<String,
+            Object> headerClaims) throws IdpJoseException, IdpCryptoException {
         return getServerSigner().buildJwt(new JwtBuilder()
             .addAllBodyClaims(bodyClaims)
             .addAllHeaderClaims(headerClaims));

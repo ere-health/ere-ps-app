@@ -138,6 +138,7 @@ public class PrescriptionBundleBuilderTest {
         logger.info(serialized);
     }
 
+    @Disabled
     @Test
     public void test_Successful_Validation_Of_An_FHIR_Patient_Resource()
             throws ParseException {
@@ -174,6 +175,7 @@ public class PrescriptionBundleBuilderTest {
         // assertTrue(validationResult.isSuccessful());
     }
 
+    @Disabled
     @Test
     public void test_Validation_Failure_Of_FHIR_Patient_Resource_With_Missing_Content() {
         Patient patient = new Patient();

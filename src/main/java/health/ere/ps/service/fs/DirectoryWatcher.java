@@ -1,5 +1,10 @@
 package health.ere.ps.service.fs;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.ClosedWatchServiceException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -18,17 +23,11 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
-import static java.nio.file.StandardWatchEventKinds.*;
-
-import java.io.File;
-import java.io.IOException;
-
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
 import health.ere.ps.event.PDDocumentEvent;
 import io.quarkus.runtime.Startup;
 import io.quarkus.scheduler.Scheduled;
+
+import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 
 /**
  * Watches a directory and if PDF files are placed their they will be thrown as
@@ -57,6 +56,7 @@ public class DirectoryWatcher {
             log.info("Not watching any directory");
             return;
         }
+
         try {
             watcher = FileSystems.getDefault().newWatchService();
             watchPath = Paths.get(dir);
