@@ -17,6 +17,7 @@ import java.security.cert.CertificateException;
 import java.text.ParseException;
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import javax.net.ssl.KeyManagerFactory;
@@ -54,12 +55,21 @@ public class ERezeptWorkflowServiceTest {
     FhirContext fhirContext = FhirContext.forR4();
     IParser iParser = fhirContext.newXmlParser();
 
-    String testBearerToken = "eyJhbGciOiJCUDI1NlIxIiwidHlwIjoiYXQrSldUIiwia2lkIjoicHVrX2lkcF9zaWcifQ.eyJzdWIiOiJWV3dvVWhROHpRTDh0U1BjVW9VcEJXVUs5UVgtOUpvRURaTmttc0dFSDVrIiwicHJvZmVzc2lvbk9JRCI6IjEuMi4yNzYuMC43Ni40LjUwIiwib3JnYW5pemF0aW9uTmFtZSI6IjIwMjExMDEyMiBOT1QtVkFMSUQiLCJpZE51bW1lciI6IjEtMi1BUlpULVdhbHRyYXV0RHJvbWJ1c2NoMDEiLCJhbXIiOlsibWZhIiwic2MiLCJwaW4iXSwiaXNzIjoiaHR0cHM6Ly9pZHAuemVudHJhbC5pZHAuc3BsaXRkbnMudGktZGllbnN0ZS5kZSIsImdpdmVuX25hbWUiOiJXYWx0cmF1dCIsImNsaWVudF9pZCI6ImVSZXplcHRBcHAiLCJhdWQiOiJodHRwczovL2VycC50ZWxlbWF0aWsuZGUvbG9naW4iLCJhY3IiOiJnZW1hdGlrLWVoZWFsdGgtbG9hLWhpZ2giLCJhenAiOiJlUmV6ZXB0QXBwIiwic2NvcGUiOiJvcGVuaWQgZS1yZXplcHQiLCJhdXRoX3RpbWUiOjE2MjE2MDcxNzUsImV4cCI6MTYyMTYwNzQ3NSwiZmFtaWx5X25hbWUiOiJEcm9tYnVzY2giLCJpYXQiOjE2MjE2MDcxNzUsImp0aSI6IjVhMTJlOWViNGY1ZjczZmQifQ.ZxbABhsU7v88o0hA6OSW7dgf1yO9R_RZFm5GmQlEIcl9jj9qZflHbEKs4TyKzYp_EvGVxwP0n4NDif6p8qE2vg";
+    String testBearerToken = "eyJhbGciOiJCUDI1NlIxIiwidHlwIjoiYXQrSldUIiwia2lkIjoicHVrX2lkcF9zaWcifQ.eyJzdWIiOiJWV3dvVWhROHpRTDh0U1BjVW9VcEJXVUs5UVgtOUpvRURaTmttc0dFSDVrIiwicHJvZmVzc2lvbk9JRCI6IjEuMi4yNzYuMC43Ni40LjUwIiwib3JnYW5pemF0aW9uTmFtZSI6IjIwMjExMDEyMiBOT1QtVkFMSUQiLCJpZE51bW1lciI6IjEtMi1BUlpULVdhbHRyYXV0RHJvbWJ1c2NoMDEiLCJhbXIiOlsibWZhIiwic2MiLCJwaW4iXSwiaXNzIjoiaHR0cHM6Ly9pZHAuemVudHJhbC5pZHAuc3BsaXRkbnMudGktZGllbnN0ZS5kZSIsImdpdmVuX25hbWUiOiJXYWx0cmF1dCIsImNsaWVudF9pZCI6ImVSZXplcHRBcHAiLCJhdWQiOiJodHRwczovL2VycC50ZWxlbWF0aWsuZGUvbG9naW4iLCJhY3IiOiJnZW1hdGlrLWVoZWFsdGgtbG9hLWhpZ2giLCJhenAiOiJlUmV6ZXB0QXBwIiwic2NvcGUiOiJvcGVuaWQgZS1yZXplcHQiLCJhdXRoX3RpbWUiOjE2MjE5MjkwNTksImV4cCI6MTYyMTkyOTM1OSwiZmFtaWx5X25hbWUiOiJEcm9tYnVzY2giLCJpYXQiOjE2MjE5MjkwNTksImp0aSI6Ijc1NDY5OGI2Y2M2YWQ3NzQifQ.WVwUK3-Go8YMvhesVsQiCxKReJrjJviBK8HAGbGl5UyRGqO5DTgCs7xkpILGaGuLnYmRw7WFnC2NZR1loczEHg";
 
     static ERezeptWorkflowService eRezeptWorkflowService;
 
     @BeforeAll
     static void init() {
+
+        try {
+			// https://community.oracle.com/thread/1307033?start=0&tstart=0
+			LogManager.getLogManager().readConfiguration(
+                ERezeptWorkflowServiceTest.class
+							.getResourceAsStream("/logging.properties"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
         System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
         System.setProperty("com.sun.xml.internal.ws.transport.http.client.HttpTransportPipe.dump", "true");
@@ -77,7 +87,7 @@ public class ERezeptWorkflowServiceTest {
         eRezeptWorkflowService.signatureServiceContextWorkplaceId = "CATS";
         eRezeptWorkflowService.signatureServiceContextUserId = "197610";
         eRezeptWorkflowService.signatureServiceTvMode = "NONE";
-
+        eRezeptWorkflowService.enableVau = true;
         
         InputStream p12Certificate = ERezeptWorkflowServiceTest.class.getResourceAsStream("/ps_erp_incentergy_01.p12");
         eRezeptWorkflowService.setUpCustomSSLContext(p12Certificate);
