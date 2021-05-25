@@ -54,11 +54,14 @@ public class SVGExtractor {
 
     public SVGExtractor(SVGExtractorConfiguration configuration) throws URISyntaxException {
         this();
+        if(configuration.MUSTER_16_TEMPLATE != null && configuration.MUSTER_16_TEMPLATE != "") {
+            log.log(Level.INFO, "Using muster 16 template: "  + configuration.MUSTER_16_TEMPLATE);
+            setPath(SVGExtractor.class.getResource(configuration.MUSTER_16_TEMPLATE).toURI());
+        }
         this.configuration = configuration;
     }
     public SVGExtractor(SVGExtractorConfiguration configuration, boolean debugRectangles) throws URISyntaxException {
-        this();
-        this.configuration = configuration;
+        this(configuration);
         this.setDebugRectangles(debugRectangles);
     }
 
