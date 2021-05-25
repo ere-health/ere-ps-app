@@ -27,7 +27,7 @@ class SVGExtractorTest {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.CGM_Z1, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(getClass().getResourceAsStream("/muster-16-print-samples/cgm-z1-manuel-blechschmidt.pdf")));
 
-        logExtraction(map);
+        //logExtraction(map);
         
         assertEquals("TK > Brandenburg            83" + lineSep, map.get("insurance"));
         assertEquals("X" + lineSep, map.get("withPayment"));
@@ -56,7 +56,7 @@ class SVGExtractorTest {
 
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.CGM_TURBO_MED, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/CGM-Turbomed/test1.pdf")));
-        logExtraction(map);
+        //logExtraction(map);
         
         assertEquals("Bahn - BKK                  " + lineSep, map.get("insurance"));
         assertEquals("X" + lineSep, map.get("withPayment"));
@@ -78,29 +78,31 @@ class SVGExtractorTest {
     }
 
 
-    @Test @Disabled
+    @Test  @Disabled
     void testExtractApraxos() throws URISyntaxException, IOException, XMLStreamException {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.APRAXOS, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(getClass().getResourceAsStream("/muster-16-print-samples/apraxos_DIN_A4_Output_F-job_222.pdf")));
 
-        // map.entrySet().stream().forEach(entry -> log.info(entry.getKey() +" = " + entry.getValue()));
-        // System.out.println(map.entrySet().stream().map((e) -> "        assertEquals(\""+e.getValue().replaceAll(lineSep, "\\\\n")+"\", map.get(\""+e.getKey()+"\"));").collect(Collectors.joining(lineSep)));
+        logExtraction(map);
+        
         assertEquals("AOK Bayern Die Gesundh.       " + lineSep, map.get("insurance"));
-        assertEquals(lineSep, map.get("autIdem3"));
-        assertEquals("          " + lineSep + " 25.04.21 " + lineSep, map.get("date"));
-        assertEquals(lineSep, map.get("noctu"));
-        assertEquals(lineSep, map.get("other"));
+        assertEquals(lineSep, map.get("withPayment"));
+        assertEquals(lineSep, map.get("additionalPayment"));
+        assertEquals("x" + lineSep, map.get("withoutPayment"));
+        assertEquals("              " + lineSep + "Blechschmidt  " + lineSep + "Manuel        " + lineSep + "Droysenstr. 7 " + lineSep + "D 10629 Berlin" + lineSep, map.get("nameAndAddress"));
         assertEquals("                " + lineSep + "                " + lineSep + "        16.07.86" + lineSep + "                " + lineSep + "                " + lineSep, map.get("birthdate"));
-        assertEquals(lineSep, map.get("pharmacyDate"));
-        assertEquals(lineSep, map.get("grossTotal"));
-        assertEquals(lineSep, map.get("accident"));
-        assertEquals(lineSep, map.get("tax1"));
-        assertEquals("Dr. Hans Topp-Glücklich  " + lineSep + "Musterstr. 1             " + lineSep + "18107 Rostock            " + lineSep + "Tel 06151 1111111        " + lineSep + "Fax 06151 2222222        " + lineSep + "BSNR 781234567           " + lineSep +  "LANR 123456767           " + lineSep +  "Topp-Gluecklich@praxis.de" + lineSep, map.get("practitionerText"));
-        assertEquals("            " + lineSep + "            " + lineSep, map.get("insuranceNumber"));
-        assertEquals(lineSep, map.get("tax2"));
-        assertEquals(lineSep, map.get("bvg"));
+        
         assertEquals("          " + lineSep + "108916641 " + lineSep, map.get("payor"));
-
+        assertEquals("            " + lineSep + "            " + lineSep, map.get("insuranceNumber"));
+        assertEquals("        " + lineSep + " 1000000" + lineSep, map.get("status"));
+        
+        assertEquals("          " + lineSep + "781234567 " + lineSep, map.get("locationNumber"));
+        assertEquals("          " + lineSep + "123456767 " + lineSep, map.get("practitionerNumber"));
+        assertEquals("          " + lineSep + " 25.04.21 " + lineSep, map.get("date"));
+        
+        assertEquals("**************************************************" + lineSep + "Ibuprofen 800mg (PZN: 01016144) »1 - 1 - 1«                 " + lineSep + "**************************************************" + lineSep, map.get("medication"));
+        assertEquals("Dr. Hans Topp-Glücklich  " + lineSep + "Musterstr. 1             " + lineSep + "18107 Rostock            " + lineSep + "Tel 06151 1111111        " + lineSep + "Fax 06151 2222222        " + lineSep + "BSNR 781234567           " + lineSep + "LANR 123456767           " + lineSep + "Topp-Gluecklich@praxis.de" + lineSep, map.get("practitionerText"));
+       
     }
 
     @Test @Disabled
