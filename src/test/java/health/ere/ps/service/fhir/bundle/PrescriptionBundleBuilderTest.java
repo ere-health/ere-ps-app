@@ -64,7 +64,8 @@ public class PrescriptionBundleBuilderTest {
         muster16PrescriptionForm.setDoctorNamePrefix("Dr.");
         muster16PrescriptionForm.setDoctorFirstName("Testarzt");
         muster16PrescriptionForm.setDoctorLastName("E-Rezept");
-        muster16PrescriptionForm.setDoctorBSNR("687777700");
+
+        //FIXME: muster16PrescriptionForm.setDoctorBSNR("687777700");
         muster16PrescriptionForm.setDoctorPhone("123456789");
 
         muster16PrescriptionForm.setDoctorStreetName("Doc Droysenstr.");

@@ -103,6 +103,9 @@ public class ERezeptWorkflowServiceTest {
         eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
     }
 
+    @Disabled("Currently failing. Reference is being made to file test1.pdf which " +
+            "cannot be found, particularly on the machine of a developer who does not have access " +
+            "to this file after checking out the main branch.")
     @Test
     void testCreateERezeptFromPdfOnPrescriptionServer() throws InvalidCanonicalizerException, XMLParserException, CanonicalizationException, FaultMessage, IOException, ParseException, URISyntaxException, XMLStreamException {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.CGM_TURBO_MED, true);

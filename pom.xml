@@ -57,16 +57,6 @@
             <artifactId>jose4j</artifactId>
             <version>0.7.7</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <artifactId>unirest-java</artifactId>-->
-<!--            <groupId>com.konghq</groupId>-->
-<!--            <version>3.7.04</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <artifactId>unirest-objectmapper-jackson</artifactId>-->
-<!--            <groupId>com.konghq</groupId>-->
-<!--            <version>3.11.09</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>hapi-fhir-base</artifactId>
@@ -133,7 +123,6 @@
             <version>10.3</version>
         </dependency>
         <dependency>
-<<<<<<< HEAD
             <groupId>health.ere</groupId>
             <artifactId>api-telematik-service</artifactId>
             <version>OPD4</version>      
@@ -141,9 +130,10 @@
         <dependency>  
             <groupId>org.jboss.slf4j</groupId>
             <artifactId>slf4j-jboss-logmanager</artifactId>
-=======
-            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
             <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
             <version>2.7</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.cxf/cxf-rt-frontend-jaxws -->
@@ -171,12 +161,7 @@
             <groupId>com.diffplug.durian</groupId>
             <artifactId>durian</artifactId>
             <version>3.4.0</version>
->>>>>>> idp-auth-jira-ere-172
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.jboss.slf4j</groupId>-->
-<!--            <artifactId>slf4j-jboss-logmanager</artifactId>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>com.sun.xml.ws</groupId>
             <artifactId>jaxws-ri</artifactId>
@@ -343,14 +328,6 @@
     </profiles>
     <repositories>
         <repository>
-<<<<<<< HEAD
-                <!-- git clone https://github.com/ere-health/api-telematik -->
-                <!-- cd api-telematik && mvn install -->
-                <!-- cd /home/manuel/git/ere-ps-app/project-repo --> 
-                <!-- cp -r ~/.m2/repository/health/  -->
-                <id>project-repo</id>
-                <url>file://${project.basedir}/project-repo</url>
-=======
             <!-- git clone https://github.com/ere-health/api-telematik -->
             <!-- cd api-telematik && mvn install -->
             <!-- cd <some-local-path>/ere-ps-app/project-repo -->
@@ -360,7 +337,6 @@
                 <checksumPolicy>ignore</checksumPolicy>
             </releases>
             <url>file://${project.basedir}/project-repo</url>
->>>>>>> idp-auth-jira-ere-172
         </repository>
     </repositories>
 </project>
