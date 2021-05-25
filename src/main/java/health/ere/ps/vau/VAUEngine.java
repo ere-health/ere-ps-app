@@ -60,7 +60,7 @@ public class VAUEngine extends ApacheHttpClient43Engine {
     String userpseudonym = "0";
     String requestid;
 
-    private static final String responsePattern = "1 ([A-Fa-f0-9]{32}) (.*?)\n\n(.*)";
+    private static final String responsePattern = "1 ([A-Fa-f0-9]{32}) (.*?)\r?\n\r?\n(.*)";
     private static final Pattern RESPONSE_PATTERN = Pattern.compile(responsePattern, Pattern.DOTALL);
 
     public VAUEngine(String fachdienstUrl) {
