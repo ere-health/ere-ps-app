@@ -155,18 +155,19 @@ public class VAUEngine extends ApacheHttpClient43Engine {
     public Response invoke(Invocation inv) {
         Response response = super.invoke(inv);
 
-        String contentType = response.getHeaderString("Content-Type");
-        if(!("application/octet-stream".equals(contentType))) {
-            // A_20174
-            throw new RuntimeException("VAU response content type has to be application/octet-stream but was: "+contentType);
-        }
         byte[] transportedData;
         String responseContent;
         try {
+           String contentType = response.getHeaderString("Content-Type");
+           if(!("application/octet-stream".equals(contentType))) {
+               // A_20174
+               throw new RuntimeException("VAU response content type has to be application/octet-stream but was: "+contentType+" Content: "+(response.getEntity() != null ? new String(((InputStream) response.getEntity()).readAllBytes()) : "null"));
+           }
             byte[] responseBytes = ((InputStream) response.getEntity()).readAllBytes();
             log.fine( VAU.byteArrayToHexString(responseBytes));
-            transportedData = vau.decryptWithKey(responseBytes, aeskey);
-            userpseudonym = response.getHeaderString("userpseudonym");
+            transportedData = VAU.decryptWithKey(responseBytes, aeskey);
+            // BUG: Titus does not support userpseudonym yet
+            // userpseudonym = response.getHeaderString("userpseudonym");
             responseContent = new String(transportedData);
             log.fine(responseContent);
             return parseResponseFromVAU(responseContent, (ClientInvocation) inv);
