@@ -35,7 +35,11 @@ public class CertificateAnalysis {
                 .map(PolicyInformation::getPolicyIdentifier)
                 .anyMatch(policyId -> policyId.equals(policyOid));
         } catch (final IOException e) {
-            throw new IdpCryptoException("Error while checking Policy-Extension!", e);
+            try {
+                throw new IdpCryptoException("Error while checking Policy-Extension!", e);
+            } catch (IdpCryptoException idpCryptoException) {
+                throw new IllegalStateException(e);
+            }
         }
     }
 

@@ -32,7 +32,7 @@ public class JsonWebToken extends IdpJoseObject {
         super(rawString);
     }
 
-    public void verify(final PublicKey publicKey) {
+    public void verify(final PublicKey publicKey) throws IdpJoseException {
         final JwtConsumer jwtConsumer = new JwtConsumerBuilder()
             .setVerificationKey(publicKey)
             .setSkipDefaultAudienceValidation()
@@ -61,7 +61,7 @@ public class JsonWebToken extends IdpJoseObject {
             .addAllHeaderClaims(getHeaderClaims());
     }
 
-    public IdpJwe encrypt(final Key key) {
+    public IdpJwe encrypt(final Key key) throws IdpJoseException {
         return IdpJwe.createWithPayloadAndExpiryAndEncryptWithKey("{\"njwt\":\"" + getRawString() + "\"}",
             findExpClaimInNestedJwts(), key, "JWT");
     }
@@ -86,12 +86,20 @@ public class JsonWebToken extends IdpJoseObject {
 
     @Override
     public Map<String, Object> extractHeaderClaims() {
-        return TokenClaimExtraction.extractClaimsFromJwtHeader(getRawString());
+        try {
+            return TokenClaimExtraction.extractClaimsFromJwtHeader(getRawString());
+        } catch (IdpJoseException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     @Override
     public Map<String, Object> extractBodyClaims() {
-        return TokenClaimExtraction.extractClaimsFromJwtBody(getRawString());
+        try {
+            return TokenClaimExtraction.extractClaimsFromJwtBody(getRawString());
+        } catch (IdpJoseException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     public static class Deserializer extends JsonDeserializer<IdpJoseObject> {

@@ -1,7 +1,5 @@
 package health.ere.ps.model.idp.client.brainPoolExtension;
 
-import health.ere.ps.exception.idp.IdpJoseException;
-
 import org.jose4j.jwa.AlgorithmFactoryFactory;
 import org.jose4j.keys.EllipticCurves;
 
@@ -67,7 +65,7 @@ public class BrainpoolCurves {
             method.setAccessible(true);
             method.invoke(BrainpoolCurves.class, name, spec);
         } catch (final InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
-            throw new IdpJoseException(
+            throw new IllegalStateException (
                 "Error while adding BrainPool-Curves " + name + " to internal Algorithm-Suite repository", e);
         }
     }

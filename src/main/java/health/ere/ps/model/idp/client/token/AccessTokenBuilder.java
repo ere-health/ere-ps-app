@@ -9,7 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import health.ere.ps.exception.idp.IdpJoseException;
 import health.ere.ps.exception.idp.RequiredClaimException;
+import health.ere.ps.exception.idp.crypto.IdpCryptoException;
 import health.ere.ps.model.idp.client.IdpConstants;
 import health.ere.ps.model.idp.client.authentication.IdpJwtProcessor;
 import health.ere.ps.model.idp.client.authentication.JwtBuilder;
@@ -45,14 +47,22 @@ public class AccessTokenBuilder {
         claimsMap.put(ClaimName.AUDIENCE.getJoseName(), IdpConstants.AUDIENCE);
         claimsMap.put(ClaimName.AUTHENTICATION_CLASS_REFERENCE.getJoseName(),
                 IdpConstants.EIDAS_LOA_HIGH);
-        claimsMap.put(ClaimName.SUBJECT.getJoseName(),
-            TokenBuilderUtil.buildSubjectClaim(
-                IdpConstants.AUDIENCE,
-                authenticationToken.getStringBodyClaim(ClaimName.ID_NUMBER)
-                    .orElseThrow(() -> new RequiredClaimException("Missing '" + ClaimName.ID_NUMBER.getJoseName() + "' claim!")),
-                serverSubjectSalt));
-        claimsMap.put(ClaimName.AUTHORIZED_PARTY.getJoseName(), authenticationToken.getBodyClaim(ClaimName.CLIENT_ID)
-            .orElseThrow(() -> new RequiredClaimException("Unable to obtain " + ClaimName.CLIENT_ID.getJoseName() + "!")));
+        try {
+            claimsMap.put(ClaimName.SUBJECT.getJoseName(),
+                TokenBuilderUtil.buildSubjectClaim(
+                    IdpConstants.AUDIENCE,
+                    authenticationToken.getStringBodyClaim(ClaimName.ID_NUMBER)
+                        .orElseThrow(() -> new RequiredClaimException("Missing '" + ClaimName.ID_NUMBER.getJoseName() + "' claim!")),
+                    serverSubjectSalt));
+        } catch (RequiredClaimException e) {
+            throw new IllegalStateException(e);
+        }
+        try {
+            claimsMap.put(ClaimName.AUTHORIZED_PARTY.getJoseName(), authenticationToken.getBodyClaim(ClaimName.CLIENT_ID)
+                .orElseThrow(() -> new RequiredClaimException("Unable to obtain " + ClaimName.CLIENT_ID.getJoseName() + "!")));
+        } catch (RequiredClaimException e) {
+            throw new IllegalStateException(e);
+        }
         claimsMap.put(ClaimName.JWT_ID.getJoseName(), new Nonce().getNonceAsHex(IdpConstants.JTI_LENGTH));
         claimsMap.put(ClaimName.AUTHENTICATION_METHODS_REFERENCE.getJoseName(),
             authenticationToken.getBodyClaim(ClaimName.AUTHENTICATION_METHODS_REFERENCE)
@@ -62,9 +72,13 @@ public class AccessTokenBuilder {
         final Map<String, Object> headerClaimsMap = new HashMap<>();
         headerClaimsMap.put(ClaimName.TYPE.getJoseName(), "at+JWT");
 
-        return jwtProcessor.buildJwt(new JwtBuilder()
-            .replaceAllBodyClaims(claimsMap)
-            .replaceAllHeaderClaims(headerClaimsMap));
+        try {
+            return jwtProcessor.buildJwt(new JwtBuilder()
+                .replaceAllBodyClaims(claimsMap)
+                .replaceAllHeaderClaims(headerClaimsMap));
+        } catch (IdpJoseException | IdpCryptoException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     private String[] getAmrString() {

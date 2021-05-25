@@ -35,7 +35,11 @@ public class IdpRsaKeyDescriptor extends IdpKeyDescriptor {
                 .keyId(keyId)
                 .keyType(getKeyType(certificate));
             if (addX5C) {
-                descriptorBuilder.x5c(getCertArray(certificate));
+                try {
+                    descriptorBuilder.x5c(getCertArray(certificate));
+                } catch (IdpCryptoException e) {
+                    throw new IllegalStateException(e);
+                }
             }
 
             final BCRSAPublicKey bcrsaPublicKey = (BCRSAPublicKey) certificate.getPublicKey();
@@ -48,7 +52,7 @@ public class IdpRsaKeyDescriptor extends IdpKeyDescriptor {
 
             return descriptorBuilder.build();
         } catch (final ClassCastException e) {
-            throw new IdpCryptoException("Unknown Key-Format encountered!", e);
+            throw new IllegalStateException("Unknown Key-Format encountered!", e);
         }
     }
 
