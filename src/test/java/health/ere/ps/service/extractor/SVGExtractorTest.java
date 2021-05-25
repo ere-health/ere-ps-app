@@ -27,7 +27,7 @@ class SVGExtractorTest {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.CGM_Z1, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(getClass().getResourceAsStream("/muster-16-print-samples/cgm-z1-manuel-blechschmidt.pdf")));
 
-        //logExtraction(map);
+        // logExtraction(map);
         
         assertEquals("TK > Brandenburg            83" + lineSep, map.get("insurance"));
         assertEquals("X" + lineSep, map.get("withPayment"));
@@ -56,7 +56,7 @@ class SVGExtractorTest {
 
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.CGM_TURBO_MED, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/CGM-Turbomed/test1.pdf")));
-        //logExtraction(map);
+        // logExtraction(map);
         
         assertEquals("Bahn - BKK                  " + lineSep, map.get("insurance"));
         assertEquals("X" + lineSep, map.get("withPayment"));

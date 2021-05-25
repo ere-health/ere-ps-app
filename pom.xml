@@ -19,7 +19,6 @@
         <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
         <quarkus.platform.version>1.13.1.Final</quarkus.platform.version>
         <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
-        <cxf.version>3.4.3</cxf.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -33,11 +32,6 @@
         </dependencies>
     </dependencyManagement>
     <dependencies>
-        <dependency>
-            <groupId>health.ere</groupId>
-            <artifactId>api-telematik-service</artifactId>
-            <version>OPD4</version>
-        </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -61,6 +55,12 @@
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>hapi-fhir-base</artifactId>
             <version>5.3.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>jcl-over-slf4j</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
@@ -115,7 +115,14 @@
             <groupId>avalon-framework</groupId>
             <artifactId>avalon-framework-api</artifactId>
             <version>4.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+            
         <!-- https://mvnrepository.com/artifact/net.sf.saxon/Saxon-HE -->
         <dependency>
             <groupId>net.sf.saxon</groupId>
@@ -135,27 +142,6 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>2.7</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.cxf/cxf-rt-frontend-jaxws -->
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-frontend-jaxws</artifactId>
-            <version>${cxf.version}</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.cxf/cxf-rt-transports-http -->
-        <!-- cxf versions over 3.2.7 must use jvm arg -Djavax.xml.accessExternalDTD=all to avoid
-             external DTD access issues.
-        -->
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-transports-http</artifactId>
-            <version>${cxf.version}</version>
-        </dependency>
-        <!-- Needed to enable apache cxf configuration via cxf.xml -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <version>5.3.7</version>
         </dependency>
         <dependency>
             <groupId>com.diffplug.durian</groupId>
@@ -226,11 +212,6 @@
             <groupId>org.apache.santuario</groupId>
             <artifactId>xmlsec</artifactId>
             <version>2.2.2</version>
-        </dependency>
-        <dependency>
-            <groupId>de.gematik.ti</groupId>
-            <artifactId>vauchannel-protocol</artifactId>
-            <version>1.3.8</version>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
