@@ -35,7 +35,4 @@ nb-configuration.xml
 *.orig
 *.rej
 
-# Local environment
-.env
-
 src/test/resources/ps_erp_incentergy_01.p12
