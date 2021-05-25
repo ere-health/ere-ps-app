@@ -109,12 +109,12 @@ public class VAUEngine extends ApacheHttpClient43Engine {
             +postBody;
 
             String bearer = authorization.substring(7);
-            requestid = VAU.ByteArrayToHexString(vau.GetRandom(16)).toLowerCase();
-            aeskey = vau.GetRandom(16);
-            String aeskeyString = VAU.ByteArrayToHexString(aeskey).toLowerCase();
+            requestid = VAU.byteArrayToHexString(vau.getRandom(16)).toLowerCase();
+            aeskey = vau.getRandom(16);
+            String aeskeyString = VAU.byteArrayToHexString(aeskey).toLowerCase();
             String p = "1 "+bearer+" "+requestid+" "+aeskeyString+" "+content;
 
-            log.info(p);
+            log.fine(p);
 
             finalMessageData = vau.encrypt(p);
         } catch (NoSuchAlgorithmException | IllegalStateException | InvalidCipherTextException | CertificateException
@@ -164,11 +164,11 @@ public class VAUEngine extends ApacheHttpClient43Engine {
         String responseContent;
         try {
             byte[] responseBytes = ((InputStream) response.getEntity()).readAllBytes();
-            log.info( VAU.ByteArrayToHexString(responseBytes));
+            log.fine( VAU.byteArrayToHexString(responseBytes));
             transportedData = vau.decryptWithKey(responseBytes, aeskey);
             userpseudonym = response.getHeaderString("userpseudonym");
             responseContent = new String(transportedData);
-            log.info(responseContent);
+            log.fine(responseContent);
             return parseResponseFromVAU(responseContent, (ClientInvocation) inv);
         } catch (Exception e) {
             throw new RuntimeException(e);

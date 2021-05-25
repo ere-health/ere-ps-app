@@ -62,6 +62,15 @@ public class ERezeptWorkflowServiceTest {
     @BeforeAll
     static void init() {
 
+        try {
+			// https://community.oracle.com/thread/1307033?start=0&tstart=0
+			LogManager.getLogManager().readConfiguration(
+                ERezeptWorkflowServiceTest.class
+							.getResourceAsStream("/logging.properties"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
         System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
         System.setProperty("com.sun.xml.internal.ws.transport.http.client.HttpTransportPipe.dump", "true");
         System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
@@ -120,7 +129,7 @@ public class ERezeptWorkflowServiceTest {
         eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
     }
 
-    @Test
+    @Test @Disabled
     // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testCreateERezeptTask() throws DataFormatException, IOException {
         Task task = eRezeptWorkflowService.createERezeptTask(testBearerToken);

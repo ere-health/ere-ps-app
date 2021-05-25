@@ -17,7 +17,6 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.bind.DatatypeConverter;
@@ -34,20 +33,15 @@ import org.bouncycastle.crypto.generators.HKDFBytesGenerator;
 import org.bouncycastle.crypto.modes.GCMBlockCipher;
 import org.bouncycastle.crypto.params.AEADParameters;
 import org.bouncycastle.crypto.params.ECDomainParameters;
-import org.bouncycastle.crypto.params.ECKeyParameters;
 import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
 import org.bouncycastle.crypto.params.ECPublicKeyParameters;
 import org.bouncycastle.crypto.params.HKDFParameters;
 import org.bouncycastle.crypto.params.KeyParameter;
-import org.bouncycastle.jcajce.provider.asymmetric.dsa.KeyPairGeneratorSpi;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
-import org.bouncycastle.jcajce.provider.asymmetric.ec.KeyPairGeneratorSpi.ECDSA;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
-import org.bouncycastle.jce.spec.ECParameterSpec;
-import org.bouncycastle.math.ec.ECCurve;
 import org.bouncycastle.math.ec.ECPoint;
 
 public class VAU {
@@ -74,19 +68,19 @@ public class VAU {
 
     SecureRandom _random = new SecureRandom();
 
-    public byte[] GetRandom(int cntBytes) {
+    public byte[] getRandom(int cntBytes) {
         byte[] keyBytes = new byte[cntBytes];
         _random.nextBytes(keyBytes);
         return keyBytes;
     }
 
-    protected byte[] GetIv() {
+    protected byte[] getIv() {
         byte[] keyBytes = new byte[96 / 8];
         _random.nextBytes(keyBytes);
         return keyBytes;
     }
 
-    protected KeyPair GenerateNewECDHKey() throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
+    protected KeyPair generateNewECDHKey() throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException {
         // eigener Key
         KeyPairGenerator keyGenerator;
         keyGenerator = KeyPairGenerator.getInstance("ECDH", BouncyCastleProvider.PROVIDER_NAME); //ECDSA.getInstance(TeleTrusTObjectIdentifiers.brainpoolP256r1.getId());
@@ -98,7 +92,7 @@ public class VAU {
 
     }
 
-    protected KeyCoords GetVauPublicKeyXY() throws CertificateException, MalformedURLException, IOException, NoSuchProviderException {
+    protected KeyCoords getVauPublicKeyXY() throws CertificateException, MalformedURLException, IOException, NoSuchProviderException {
         CertificateFactory certFactory = CertificateFactory.getInstance("X.509", BouncyCastleProvider.PROVIDER_NAME);
         X509Certificate z = (X509Certificate) certFactory
                 .generateCertificate(new URL(_fachdienstUrl + "/VAUCertificate").openStream());
@@ -110,8 +104,8 @@ public class VAU {
 
     public byte[] encrypt(String message) throws NoSuchAlgorithmException, IllegalStateException,
             InvalidCipherTextException, CertificateException, MalformedURLException, IOException, NoSuchProviderException, InvalidAlgorithmParameterException {
-        KeyPair myECDHKey = GenerateNewECDHKey();
-        KeyCoords vauPublicKeyXY = GetVauPublicKeyXY();
+        KeyPair myECDHKey = generateNewECDHKey();
+        KeyCoords vauPublicKeyXY = getVauPublicKeyXY();
         return encrypt(message, myECDHKey, vauPublicKeyXY, null);
     }
 
@@ -127,14 +121,14 @@ public class VAU {
 
         BCECPrivateKey myPrivate = (BCECPrivateKey) myECDHKey.getPrivate();
         BCECPublicKey myPublic = (BCECPublicKey) myECDHKey.getPublic();
-        log.info("MY public X=" + ByteArrayToHexString(myPublic.getQ().getXCoord().getEncoded()));
-        log.info("MY public Y=" + ByteArrayToHexString(myPublic.getQ().getYCoord().getEncoded()));
-        log.info("MY private =" + ByteArrayToHexString(myPrivate.getD().toByteArray()));
+        log.fine("MY public X=" + byteArrayToHexString(myPublic.getQ().getXCoord().getEncoded()));
+        log.fine("MY public Y=" + byteArrayToHexString(myPublic.getQ().getYCoord().getEncoded()));
+        log.fine("MY private =" + byteArrayToHexString(myPrivate.getD().toByteArray()));
 
         ECPoint point = x9EC.getCurve().createPoint(vauPublicKeyXY.X, vauPublicKeyXY.Y);
         ECPublicKeyParameters vauPublicKey = new ECPublicKeyParameters(point, ecDomain);
-        log.info("VAU X=" + vauPublicKeyXY.X.toString(16));
-        log.info("VAU Y=" + vauPublicKeyXY.Y.toString(16));
+        log.fine("VAU X=" + vauPublicKeyXY.X.toString(16));
+        log.fine("VAU Y=" + vauPublicKeyXY.Y.toString(16));
 
         // SharedSecret
         BasicAgreement aKeyAgree = new ECDHBasicAgreement();
@@ -158,7 +152,7 @@ public class VAU {
             sharedSecretBytesCopy = sharedSecretBytes;
         }
         sharedSecretBytes = sharedSecretBytesCopy;
-        log.info("SharedSecret=" + ByteArrayToHexString(sharedSecretBytes) + " " + sharedSecretBytes.length);
+        log.fine("SharedSecret=" + byteArrayToHexString(sharedSecretBytes) + " " + sharedSecretBytes.length);
 
         // HKDF
         byte[] info = "ecies-vau-transport".getBytes();
@@ -166,15 +160,15 @@ public class VAU {
         hkdfBytesGenerator.init(new HKDFParameters(sharedSecretBytes, new byte[0], info));
         byte[] aes128Key_CEK = new byte[16];
         hkdfBytesGenerator.generateBytes(aes128Key_CEK, 0, aes128Key_CEK.length);
-        log.info("Schlüsselableitung AES128Key=" + ByteArrayToHexString(aes128Key_CEK));
+        log.fine("Schlüsselableitung AES128Key=" + byteArrayToHexString(aes128Key_CEK));
 
         // AES CGM
         byte[] input = message.getBytes();
         byte[] outputAESCGM = new byte[input.length + 16];
 
         // random IV
-        iv = ivBytes == null ? GetIv() : ivBytes;
-        log.info("IV =" + ByteArrayToHexString(iv));
+        iv = ivBytes == null ? getIv() : ivBytes;
+        log.fine("IV =" + byteArrayToHexString(iv));
 
         GCMBlockCipher cipher = new GCMBlockCipher(new AESEngine());
         AEADParameters parameters = new AEADParameters(new KeyParameter(aes128Key_CEK), 128, iv);
@@ -182,7 +176,7 @@ public class VAU {
         int len = cipher.processBytes(input, 0, input.length, outputAESCGM, 0);
         int finalData = cipher.doFinal(outputAESCGM, len);
 
-        log.info(len + " " + finalData);
+        log.fine(len + " " + finalData);
 
         ByteArrayOutputStream mem = new ByteArrayOutputStream();
         mem.write(0x01); // Version
@@ -207,19 +201,15 @@ public class VAU {
         }
     }
 
-    public static String ByteArrayToHexString(byte[] bytes) {
+    public static String byteArrayToHexString(byte[] bytes) {
         return DatatypeConverter.printHexBinary(bytes);
     }
 
-    public static byte[] HexStringToByteArray(String hex) {
+    public static byte[] hexStringToByteArray(String hex) {
         return DatatypeConverter.parseHexBinary(hex);
     }
 
-    public byte[] decrypt(byte[] message) throws Exception {
-        return null;
-    }
-
-    public byte[] decryptWithKey(byte[] message, byte[] key) throws Exception {
+    public static byte[] decryptWithKey(byte[] message, byte[] key) throws Exception {
         int MAC_BIT_SIZE = 128;
         int NONCE_BIT_SIZE = 96;
         int KEY_LENGTH = 128;
