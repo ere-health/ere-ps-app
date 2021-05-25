@@ -22,6 +22,7 @@ import java.io.InputStream;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.net.ssl.SSLContext;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 
@@ -57,23 +58,16 @@ public class CardCertReadExecutionService {
 
         bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
                 certificateServiceEndpointAddress);
+       
+        
+    }
 
-        // TODO: Check with Gematik. The sslcontext code below doesn't provide any results
-        //  whether it's present or not when invoking the Titus Connector CertificateReader API
-        //  endpoint.
-        // Get the underlying http conduit of the client proxy
-        Client client = ClientProxy.getClient(certificateService);
-        HTTPConduit http = (HTTPConduit) client.getConduit();
+    public void setUpCustomSSLContext(InputStream p12Certificate) {
+        SSLContext customSSLContext = SecretsManagerService.setUpCustomSSLContext(p12Certificate);
+        BindingProvider bp = (BindingProvider) certificateService;
 
-        // Set the TLS client parameters
-        TLSClientParameters parameters = new TLSClientParameters();
-        try(InputStream certInputStream = getClass().getResourceAsStream(idpCertStoreFile)) {
-            parameters.setSSLSocketFactory(secretsManagerService.createSSLContext(
-                    certInputStream, idpCertStoreFilePassword.toCharArray(),
-                    SecretsManagerService.SslContextType.TLS,
-                    SecretsManagerService.KeyStoreType.PKCS12).getSocketFactory());
-            http.setTlsClientParameters(parameters);
-        }
+        bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
+               customSSLContext.getSocketFactory());
     }
 
     /**

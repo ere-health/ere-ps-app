@@ -77,7 +77,6 @@ public class ERezeptWorkflowServiceTest {
         System.setProperty("com.sun.xml.internal.ws.transport.http.HttpAdapter.dump", "true");
         System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dumpTreshold", "999999");
 
-
         eRezeptWorkflowService = new ERezeptWorkflowService();
         eRezeptWorkflowService.prescriptionserverUrl = "https://fd.erezept-instanz1.titus.ti-dienste.de";
         eRezeptWorkflowService.signatureServiceEndpointAddress = "https://kon-instanz2.titus.ti-dienste.de:443/soap-api/SignatureService/7.5.4";

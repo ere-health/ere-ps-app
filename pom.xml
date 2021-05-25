@@ -115,7 +115,14 @@
             <groupId>avalon-framework</groupId>
             <artifactId>avalon-framework-api</artifactId>
             <version>4.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+            
         <!-- https://mvnrepository.com/artifact/net.sf.saxon/Saxon-HE -->
         <dependency>
             <groupId>net.sf.saxon</groupId>

@@ -69,6 +69,7 @@ import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortType;
 import health.ere.ps.event.BundlesWithAccessCodeEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
+import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.vau.VAUEngine;
 import de.gematik.ws.conn.eventservice.v7.GetCards;
 import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
@@ -184,21 +185,7 @@ public class ERezeptWorkflowService {
     }
 
     public void setUpCustomSSLContext(InputStream p12Certificate) {
-        try {
-            SSLContext sc = SSLContext.getInstance("TLS");
-            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-
-            KeyStore ks = KeyStore.getInstance("PKCS12");
-            // Download this file from the titus backend
-            // https://frontend.titus.ti-dienste.de/#/platform/mandant
-            ks.load(p12Certificate, "00".toCharArray());
-            kmf.init(ks, "00".toCharArray());
-            sc.init(kmf.getKeyManagers(), null, null);
-            customSSLContext = sc;
-        } catch (NoSuchAlgorithmException | CertificateException | IOException | KeyStoreException
-                | UnrecoverableKeyException | KeyManagementException e) {
-            log.log(Level.SEVERE, "Could not set up custom SSLContext", e);
-        }
+        customSSLContext = SecretsManagerService.setUpCustomSSLContext(p12Certificate);
     }
 
     /**
