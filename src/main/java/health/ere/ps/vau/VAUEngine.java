@@ -90,6 +90,7 @@ public class VAUEngine extends ApacheHttpClient43Engine {
             initVauSession(userAgent);
         }
         String authorization = (String) newHeaders.getFirst("Authorization");
+        String accessCode = (String) newHeaders.getFirst("X-AccessCode");
         String contentType = ((MediaType) newHeaders.getFirst("Content-Type")).toString();
         newHeaders.putSingle("X-erp-user", "l"); //Leistungserbringer
         newHeaders.putSingle("X-erp-resource", "Task");
@@ -99,13 +100,14 @@ public class VAUEngine extends ApacheHttpClient43Engine {
         try {
             byte[] postBytes = httpEntity.getContent().readAllBytes();
             String postBody = new String(postBytes);
-            String content = request.getMethod()+" "+request.getUri().getPath()+" HTTP/1.1\n"+
-            "Host: "+request.getUri().getHost()+"\n"+
-            "Authorization: "+authorization+"\n"+
-            "Content-Type: "+contentType+"\n"+
-            "User-Agent: "+userAgent+"\n"+
-            "Content-Length: "+postBytes.length+"\n"+
-            "Accept: application/fhir+xml;charset=utf-8\n\n"
+            String content = request.getMethod()+" "+request.getUri().getPath()+" HTTP/1.1\r\n"+
+            "Host: "+request.getUri().getHost()+"\r\n"+
+            "Authorization: "+authorization+"\r\n"+
+            "Content-Type: "+contentType+"\r\n"+
+            (accessCode != null ? "X-AccessCode: "+accessCode+"\r\n" : "")+
+            "User-Agent: "+userAgent+"\r\n"+
+            "Content-Length: "+postBytes.length+"\r\n"+
+            "Accept: application/fhir+xml;charset=utf-8\r\n\r\n"
             +postBody;
 
             String bearer = authorization.substring(7);
