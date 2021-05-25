@@ -48,7 +48,9 @@ class SVGExtractorTest {
     }
 
 
-
+    @Disabled("Currently failing. Reference is being made to file test1.pdf which " +
+            "cannot be found, particularly on the machine of a developer who does not have access " +
+            "to this file after checking out the main branch.")
     @Test
     void testExtractData_CGMTurboMed() throws URISyntaxException, IOException, XMLStreamException {
 
@@ -151,7 +153,10 @@ class SVGExtractorTest {
         assertEquals(lineSep, map.get("vaccination"));
 
     }
-    
+
+    @Disabled("Currently failing. Reference is being made to file DENSoffice - Rezept2.pdf which " +
+            "cannot be found, particularly on the machine of a developer who does not have access " +
+            "to this file after checking out the main branch.")
     @Test
     void testExtractDens2() throws URISyntaxException, IOException, XMLStreamException {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.DENS, true);
