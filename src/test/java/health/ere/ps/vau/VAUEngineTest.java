@@ -1,11 +1,16 @@
 package health.ere.ps.vau;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.logging.Logger;
 
 import javax.ws.rs.client.Entity;
 
+import org.apache.http.HttpException;
+import org.apache.http.HttpResponse;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
 import org.junit.jupiter.api.Disabled;
@@ -34,7 +39,7 @@ class VAUEngineTest {
 
 
     @Test
-    public void testParseResponseFromVAU() {
+    public void testParseResponseFromVAU() throws IOException, HttpException {
         String testResponse = "1 1c51e243bf3f657b8f9d0034e30aac40 HTTP/1.1 401 Unauthorized\n"+
         "content-length: 279\n"+
         "connection: close\n"+
@@ -45,6 +50,9 @@ class VAUEngineTest {
         "<OperationOutcome xmlns=\"http://hl7.org/fhir\"><meta><profile value=\"http://hl7.org/fhir/StructureDefinition/OperationOutcome\"/></meta><issue><severity value=\"error\"/><code value=\"unknown\"/><details><text value=\"Access Token Error: Expired!\"/></details></issue></OperationOutcome>";
         VAUEngine vauEngine = new VAUEngine("");
         vauEngine.requestid = "1c51e243bf3f657b8f9d0034e30aac40";
-        vauEngine.parseResponseFromVAU(testResponse);
+        HttpResponse res = vauEngine.extractHttpResponse(testResponse);
+        assertEquals(401, res.getStatusLine().getStatusCode());
+        assertEquals("application/fhir+xml", res.getFirstHeader("content-type").getValue());
+        assertEquals("<OperationOutcome xmlns=\"http://hl7.org/fhir\"><meta><profile value=\"http://hl7.org/fhir/StructureDefinition/OperationOutcome\"/></meta><issue><severity value=\"error\"/><code value=\"unknown\"/><details><text value=\"Access Token Error: Expired!\"/></details></issue></OperationOutcome>", new String(res.getEntity().getContent().readAllBytes()));
     }
 }

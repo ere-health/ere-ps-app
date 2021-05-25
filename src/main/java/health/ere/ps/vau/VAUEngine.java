@@ -21,16 +21,26 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpException;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.entity.EntityBuilder;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.io.DefaultHttpResponseParserFactory;
+import org.apache.http.impl.io.HttpTransportMetricsImpl;
+import org.apache.http.impl.io.SessionInputBufferImpl;
+import org.apache.http.io.HttpMessageParser;
 import org.apache.http.io.HttpMessageParserFactory;
 import org.apache.http.io.SessionInputBuffer;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient43Engine;
+import org.jboss.resteasy.client.jaxrs.i18n.LogMessages;
+import org.jboss.resteasy.client.jaxrs.i18n.Messages;
 import org.jboss.resteasy.client.jaxrs.internal.ClientInvocation;
 import org.jboss.resteasy.client.jaxrs.internal.ClientResponse;
 import org.jboss.resteasy.client.jaxrs.internal.FinalizedClientResponse;
@@ -50,7 +60,7 @@ public class VAUEngine extends ApacheHttpClient43Engine {
     String userpseudonym = "0";
     String requestid;
 
-    private static final String responsePattern = "1 ([A-Fa-f0-9]{32}) (.*)";
+    private static final String responsePattern = "1 ([A-Fa-f0-9]{32}) (.*?)\n\n(.*)";
     private static final Pattern RESPONSE_PATTERN = Pattern.compile(responsePattern, Pattern.DOTALL);
 
     public VAUEngine(String fachdienstUrl) {
@@ -164,8 +174,8 @@ public class VAUEngine extends ApacheHttpClient43Engine {
             throw new RuntimeException(e);
         }
     }
-    
-    Response parseResponseFromVAU(String responseContent, ClientInvocation request) {
+
+    HttpResponse extractHttpResponse(String responseContent) throws IOException, HttpException {
         Matcher m = RESPONSE_PATTERN.matcher(responseContent);
         if(!m.matches()) {
             throw new RuntimeException("Response content does not match "+responsePattern+" was: "+responseContent);
@@ -174,10 +184,133 @@ public class VAUEngine extends ApacheHttpClient43Engine {
         if(!requestIdFromResponse.equals(requestid)) {
             throw new RuntimeException("requestIdFromResponse ("+requestIdFromResponse+") does not match requestid ("+requestid+")");
         }
-        String rawResponse = m.group(2);
+        String rawResponseHeader = m.group(2);
+        String rawResponseBody = m.group(3);
         
-        // TODO: create a real response from the HTTP raw response
-        return null;
+        SessionInputBufferImpl buffer = new SessionInputBufferImpl(new HttpTransportMetricsImpl(), 8092);
+        buffer.bind(new ByteArrayInputStream(rawResponseHeader.getBytes()));
+        HttpResponse res = DefaultHttpResponseParserFactory.INSTANCE.create(buffer,  MessageConstraints.DEFAULT).parse();
+        res.setEntity(new StringEntity(rawResponseBody, ContentType.create(res.getFirstHeader("Content-Type").getValue())));
+        return res;
+    }
+    
+    Response parseResponseFromVAU(String responseContent, ClientInvocation request) throws IOException, HttpException {
+        HttpResponse res = extractHttpResponse(responseContent);
+        ClientResponse response = new FinalizedClientResponse(request.getClientConfiguration(), request.getTracingLogger())
+        {
+           InputStream stream;
+  
+           InputStream hc4Stream;
+  
+           @Override
+           protected void setInputStream(InputStream is)
+           {
+              stream = is;
+              resetEntity();
+           }
+  
+           public InputStream getInputStream()
+           {
+              if (stream == null)
+              {
+                 HttpEntity entity = res.getEntity();
+                 if (entity == null)
+                    return null;
+                 try
+                 {
+                    hc4Stream = entity.getContent();
+                    stream = createBufferedStream(hc4Stream);
+                 }
+                 catch (IOException e)
+                 {
+                    throw new RuntimeException(e);
+                 }
+              }
+              return stream;
+           }
+  
+           @Override
+           public void releaseConnection() throws IOException
+           {
+              releaseConnection(true);
+           }
+  
+           @Override
+           public void releaseConnection(boolean consumeInputStream) throws IOException
+           {
+              if (consumeInputStream)
+              {
+                 // Apache Client 4 is stupid,  You have to get the InputStream and close it if there is an entity
+                 // otherwise the connection is never released.  There is, of course, no close() method on response
+                 // to make this easier.
+                 try
+                 {
+                    // Another stupid thing...TCK is testing a specific exception from stream.close()
+                    // so, we let it propagate up.
+                    if (stream != null)
+                    {
+                       stream.close();
+                    }
+                    else
+                    {
+                       InputStream is = getInputStream();
+                       if (is != null)
+                       {
+                          is.close();
+                       }
+                    }
+                 }
+                 finally
+                 {
+                    // just in case the input stream was entirely replaced and not wrapped, we need
+                    // to close the apache client input stream.
+                    if (hc4Stream != null)
+                    {
+                       try
+                       {
+                          hc4Stream.close();
+                       }
+                       catch (IOException ignored)
+                       {
+  
+                       }
+                    }
+                    else
+                    {
+                       try
+                       {
+                          HttpEntity entity = res.getEntity();
+                          if (entity != null)
+                             entity.getContent().close();
+                       }
+                       catch (IOException ignored)
+                       {
+                       }
+  
+                    }
+  
+                 }
+              }
+              else if (res instanceof CloseableHttpResponse)
+              {
+                 try
+                 {
+                    ((CloseableHttpResponse) res).close();
+                 }
+                 catch (IOException e)
+                 {
+                    LogMessages.LOGGER.warn(Messages.MESSAGES.couldNotCloseHttpResponse(), e);
+                 }
+              }
+           }
+  
+        };
+        response.setProperties(request.getMutableProperties());
+        response.setStatus(res.getStatusLine().getStatusCode());
+        response.setReasonPhrase(res.getStatusLine().getReasonPhrase());
+        response.setHeaders(extractHeaders(res));
+        response.setClientConfiguration(request.getClientConfiguration());
+        return response;
     }
 
 }
