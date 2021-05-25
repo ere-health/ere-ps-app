@@ -12,11 +12,6 @@ import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import org.apache.cxf.configuration.jsse.TLSClientParameters;
-import org.apache.cxf.endpoint.Client;
-import org.apache.cxf.frontend.ClientProxy;
-import org.apache.cxf.transport.http.HTTPConduit;
-
 import java.io.InputStream;
 
 import javax.annotation.PostConstruct;
