@@ -2,6 +2,8 @@ package health.ere.ps.service.muster16.parser;
 
 import java.util.List;
 
+import health.ere.ps.model.muster16.MedicationString;
+
 public interface IMuster16FormParser {
     public String parseInsuranceCompany();
     public String parseInsuranceCompanyId();
@@ -15,7 +17,7 @@ public interface IMuster16FormParser {
     public String parseClinicId();
     public String parseDoctorId() ;
     public String parsePrescriptionDate();
-    public List<String> parsePrescriptionList();
+    public List<MedicationString> parsePrescriptionList();
     public String parsePatientInsuranceId();
 
     default boolean isDataFieldPresentAtPosition(String[] muster16PdfDataFields,

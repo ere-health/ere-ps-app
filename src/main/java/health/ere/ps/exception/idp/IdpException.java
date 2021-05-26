@@ -1,15 +1,15 @@
 
 package health.ere.ps.exception.idp;
 
-public class IdpRuntimeException extends RuntimeException {
+public class IdpException extends Exception {
 
     private static final long serialVersionUID = 4956462897121513838L;
 
-    public IdpRuntimeException(final Exception e) {
+    public IdpException(final Exception e) {
         super(e);
     }
 
-    public IdpRuntimeException(final String s) {
+    public IdpException(final String s) {
         super(s);
     }
 }

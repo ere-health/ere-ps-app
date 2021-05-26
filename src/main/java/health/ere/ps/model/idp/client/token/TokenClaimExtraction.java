@@ -26,7 +26,7 @@ public class TokenClaimExtraction {
      * @return Claims as a map of key value strings
      * @desc Implements the extraction of claims from json web tokens
      */
-    public static Map<String, Object> extractClaimsFromJwtBody(final String token) {
+    public static Map<String, Object> extractClaimsFromJwtBody(final String token) throws IdpJoseException {
         final JwtConsumer jwtConsumer = new JwtConsumerBuilder()
             .setSkipSignatureVerification()
             .setSkipDefaultAudienceValidation()
@@ -40,7 +40,7 @@ public class TokenClaimExtraction {
         }
     }
 
-    public static Map<String, Object> extractClaimsFromJwtHeader(final String token) {
+    public static Map<String, Object> extractClaimsFromJwtHeader(final String token) throws IdpJoseException {
         final JsonWebSignature jsonWebSignature = new JsonWebSignature();
         try {
             jsonWebSignature.setCompactSerialization(token);

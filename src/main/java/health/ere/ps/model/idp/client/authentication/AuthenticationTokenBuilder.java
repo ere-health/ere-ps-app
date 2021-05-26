@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import health.ere.ps.exception.idp.IdpJoseException;
+import health.ere.ps.exception.idp.crypto.IdpCryptoException;
 import health.ere.ps.model.idp.client.IdpConstants;
 import health.ere.ps.model.idp.client.field.ClaimName;
 import health.ere.ps.model.idp.client.token.IdpJwe;
@@ -38,7 +39,7 @@ public class AuthenticationTokenBuilder {
     public IdpJwe buildAuthenticationToken(
         final X509Certificate clientCertificate,
         final Map<String, Object> serverChallengeClaims,
-        final ZonedDateTime issueingTime) {
+        final ZonedDateTime issueingTime) throws IdpJoseException, IdpCryptoException {
         final Map<String, Object> claimsMap = X509ClaimExtraction.extractClaimsFromCertificate(clientCertificate);
 
         claimsMap.put(ClaimName.CLIENT_ID.getJoseName(),
@@ -69,7 +70,8 @@ public class AuthenticationTokenBuilder {
     }
 
     public IdpJwe buildAuthenticationTokenFromSsoToken(final JsonWebToken ssoToken,
-                                                       final JsonWebToken challengeToken, final ZonedDateTime issueingTime) {
+                                                       final JsonWebToken challengeToken,
+                                                       final ZonedDateTime issueingTime) throws IdpJoseException, IdpCryptoException {
         final X509Certificate confirmationCertificate = extractConfirmationCertificate(ssoToken);
 
         final Map<String, Object> claimsMap = new HashMap<>();
@@ -112,12 +114,13 @@ public class AuthenticationTokenBuilder {
             .encrypt(getEncryptionKey());
     }
 
-    private Object extractClaimFromChallengeToken(final JsonWebToken challengeToken, final ClaimName claimName) {
+    private Object extractClaimFromChallengeToken(final JsonWebToken challengeToken,
+                                                  final ClaimName claimName) throws IdpJoseException {
         return challengeToken.getBodyClaim(claimName)
             .orElseThrow(() -> new IdpJoseException("Unexpected structure in Challenge-Token"));
     }
 
-    private X509Certificate extractConfirmationCertificate(final JsonWebToken ssoToken) {
+    private X509Certificate extractConfirmationCertificate(final JsonWebToken ssoToken) throws IdpJoseException {
         final String certString = ssoToken.getBodyClaim(ClaimName.CONFIRMATION)
 
             .filter(Map.class::isInstance)

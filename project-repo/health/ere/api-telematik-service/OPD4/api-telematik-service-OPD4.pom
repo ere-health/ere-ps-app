@@ -50,10 +50,12 @@
             <configuration>
               <wsdlDirectory>conn/</wsdlDirectory>
               <wsdlFiles>
+                <wsdlFile>CertificateService.wsdl</wsdlFile>
                 <wsdlFile>EventService.wsdl</wsdlFile>
                 <wsdlFile>SignatureService.wsdl</wsdlFile>
                 <wsdlFile>SignatureService_V7_4_2.wsdl</wsdlFile>
                 <wsdlFile>SignatureService_V7_5_5.wsdl</wsdlFile>
+                <wsdlFile>CertificateService_v6_0_0.wsdl</wsdlFile>
               </wsdlFiles>
               <vmArgs>
                 <vmArg>-Djavax.xml.accessExternalDTD=all</vmArg>
@@ -64,5 +66,15 @@
         </executions>
       </plugin>
     </plugins>
+    <resources>
+	<!-- Bundle the wsdl files as part of the jar -->
+        <resource>
+            <directory>conn</directory>
+            <includes>
+                <include>**/*.wsdl</include>
+                <include>**/*.xsd</include>
+            </includes>
+        </resource>
+    </resources>
   </build>
 </project>

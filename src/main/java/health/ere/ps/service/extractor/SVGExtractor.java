@@ -1,18 +1,10 @@
 package health.ere.ps.service.extractor;
 
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.PDPageContentStream.AppendMode;
-import org.apache.pdfbox.pdmodel.common.PDRectangle;
-import org.apache.pdfbox.text.PDFTextStripperByArea;
-
 import java.awt.Color;
 import java.awt.geom.Rectangle2D.Float;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -21,9 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
-import javax.enterprise.event.Observes;
 import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
 import javax.xml.namespace.QName;
@@ -32,6 +22,12 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.PDPageContentStream.AppendMode;
+import org.apache.pdfbox.text.PDFTextStripperByArea;
 
 import health.ere.ps.event.PDDocumentEvent;
 import health.ere.ps.event.SVGExtractorResultEvent;
@@ -58,11 +54,14 @@ public class SVGExtractor {
 
     public SVGExtractor(SVGExtractorConfiguration configuration) throws URISyntaxException {
         this();
+        if(configuration.MUSTER_16_TEMPLATE != null && configuration.MUSTER_16_TEMPLATE != "") {
+            log.log(Level.INFO, "Using muster 16 template: "  + configuration.MUSTER_16_TEMPLATE);
+            setPath(SVGExtractor.class.getResource(configuration.MUSTER_16_TEMPLATE).toURI());
+        }
         this.configuration = configuration;
     }
     public SVGExtractor(SVGExtractorConfiguration configuration, boolean debugRectangles) throws URISyntaxException {
-        this();
-        this.configuration = configuration;
+        this(configuration);
         this.setDebugRectangles(debugRectangles);
     }
 

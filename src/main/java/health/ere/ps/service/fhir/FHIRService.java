@@ -36,6 +36,7 @@ public class FHIRService {
 
         try {
             Bundle bundle = bundleBuilder.createBundle();
+            // TODO: create up to 3 bundles base on prescription lines
             bundleEvent.fireAsync(new BundlesEvent(bundle));
         } catch (ParseException e) {
             log.log(Level.SEVERE,

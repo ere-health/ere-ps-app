@@ -1,10 +1,15 @@
-package health.ere.ps.service.idp.tests;
+package health.ere.ps.model.idp.crypto;
+
+import com.diffplug.common.base.Errors;
+import com.diffplug.common.base.Throwing;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolver;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -17,7 +22,6 @@ import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 import health.ere.ps.exception.idp.crypto.IdpCryptoException;
-import health.ere.ps.model.idp.crypto.PkiIdentity;
 import health.ere.ps.service.idp.crypto.CryptoLoader;
 
 public class PkiKeyResolver implements ParameterResolver {
@@ -30,7 +34,11 @@ public class PkiKeyResolver implements ParameterResolver {
     @Override
     public PkiIdentity resolveParameter(final ParameterContext parameterContext,
         final ExtensionContext extensionContext) {
-        return retrieveIdentityFromFileSystem(getFilterValueForParameter(parameterContext));
+        try {
+            return retrieveIdentityFromFileSystem(getFilterValueForParameter(parameterContext));
+        } catch (IdpCryptoException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     private String getFilterValueForParameter(final ParameterContext parameterContext) {
@@ -41,23 +49,27 @@ public class PkiKeyResolver implements ParameterResolver {
         }
     }
 
-    private PkiIdentity retrieveIdentityFromFileSystem(final String fileFilter) {
-        try (final Stream<Path> pathStream = Files.find(Paths.get("src", "test", "resources"), 128,
+    private PkiIdentity retrieveIdentityFromFileSystem(final String fileFilter)
+            throws IdpCryptoException {
+        try (final Stream<Path> pathStream = Files.find(Paths.get("src", "test",
+                "resources", "certs"), 128,
             (p, a) -> p.toString().endsWith(".p12")
                 && p.getFileName().toString().toLowerCase().contains(
                 fileFilter.toLowerCase()))) {
             return pathStream.findFirst()
                 .map(Path::toFile)
-                .map(file -> {
+                .map(Errors.rethrow().wrap((Throwing.Function<Object, byte[]>) file -> {
                     try {
-                        return FileUtils.readFileToByteArray(file);
+                        return FileUtils.readFileToByteArray((File) file);
                     } catch (final IOException e) {
                         throw new IdpCryptoException(e);
                     }
-                })
-                .map(bytes -> CryptoLoader.getIdentityFromP12(bytes, "00"))
+                }))
+                .map(Errors.rethrow().wrap((Throwing.Function<Object, PkiIdentity>) bytes ->
+                        CryptoLoader.getIdentityFromP12(new ByteArrayInputStream((byte[]) bytes),
+                        "00")))
                 .orElseThrow(() -> new IdpCryptoException(
-                    "No matching identity found in src/test/resources and filter '" + fileFilter + "'"));
+                    "No matching identity found in src/test/resources/certs and filter '" + fileFilter + "'"));
         } catch (final IOException e) {
             throw new IdpCryptoException("Error while querying file system", e);
         }

@@ -6,6 +6,8 @@ import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import health.ere.ps.exception.idp.IdpJoseException;
+import health.ere.ps.exception.idp.crypto.IdpCryptoException;
 import health.ere.ps.model.idp.client.authentication.IdpJwtProcessor;
 import health.ere.ps.model.idp.client.authentication.JwtBuilder;
 import health.ere.ps.model.idp.client.brainPoolExtension.BrainpoolAlgorithmSuiteIdentifiers;
@@ -19,7 +21,8 @@ public class SsoTokenBuilder {
     private String issuerUrl;
     private Key tokenEncryptionKey;
 
-    public IdpJwe buildSsoToken(final X509Certificate certificate, final ZonedDateTime issuingTime) {
+    public IdpJwe buildSsoToken(final X509Certificate certificate, final ZonedDateTime issuingTime)
+            throws IdpJoseException, IdpCryptoException {
         final Map<String, Object> bodyClaimsMap = new HashMap<>();
         final Map<String, Object> headerClaimsMap = new HashMap<>();
         headerClaimsMap.put(ClaimName.ALGORITHM.getJoseName(), BrainpoolAlgorithmSuiteIdentifiers.BRAINPOOL256_USING_SHA256);
