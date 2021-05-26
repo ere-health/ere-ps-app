@@ -17,7 +17,7 @@ public class Nonce {
 
     public String getNonceAsBase64UrlEncodedString(final int randomByteAmount) {
         if (randomByteAmount < NONCE_BYTE_AMOUNT_MIN || randomByteAmount > NONCE_BYTE_AMOUNT_MAX) {
-            throw new IdpCryptoException(
+            throw new IllegalArgumentException(
                 "Amount of random bytes is expected to be between " + NONCE_BYTE_AMOUNT_MIN + " and "
                     + NONCE_BYTE_AMOUNT_MAX);
         }
@@ -30,11 +30,11 @@ public class Nonce {
 
     public String getNonceAsHex(final int strlen) {
         if (strlen < NONCE_STRLEN_MIN || strlen > NONCE_STRLEN_MAX) {
-            throw new IdpCryptoException(
+            throw new IllegalArgumentException(
                 "Requested string length is expected to be between " + NONCE_STRLEN_MIN + " and " + NONCE_STRLEN_MAX);
         }
         if (strlen % 2 != 0) {
-            throw new IdpCryptoException("Requested string length is expected to be even.");
+            throw new IllegalArgumentException("Requested string length is expected to be even.");
         }
         final Random random = ThreadLocalRandom.current();
         final byte[] randomArray = new byte[strlen / 2];

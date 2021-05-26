@@ -38,6 +38,11 @@
             <version>3.12.0</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>4.4</version>
+        </dependency>
+        <dependency>
             <artifactId>bcpkix-jdk15on</artifactId>
             <groupId>org.bouncycastle</groupId>
         </dependency>
@@ -47,19 +52,15 @@
             <version>0.7.7</version>
         </dependency>
         <dependency>
-            <artifactId>unirest-java</artifactId>
-            <groupId>com.konghq</groupId>
-            <version>3.7.04</version>
-        </dependency>
-        <dependency>
-            <artifactId>unirest-objectmapper-jackson</artifactId>
-            <groupId>com.konghq</groupId>
-            <version>3.11.09</version>
-        </dependency>
-        <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>hapi-fhir-base</artifactId>
             <version>5.3.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>jcl-over-slf4j</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
@@ -114,7 +115,14 @@
             <groupId>avalon-framework</groupId>
             <artifactId>avalon-framework-api</artifactId>
             <version>4.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+            
         <!-- https://mvnrepository.com/artifact/net.sf.saxon/Saxon-HE -->
         <dependency>
             <groupId>net.sf.saxon</groupId>
@@ -131,6 +139,16 @@
             <artifactId>slf4j-jboss-logmanager</artifactId>
         </dependency>
         <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.7</version>
+        </dependency>
+        <dependency>
+            <groupId>com.diffplug.durian</groupId>
+            <artifactId>durian</artifactId>
+            <version>3.4.0</version>
+        </dependency>
+        <dependency>
             <groupId>com.sun.xml.ws</groupId>
             <artifactId>jaxws-ri</artifactId>
             <version>2.3.0</version>
@@ -139,6 +157,10 @@
                 <exclusion>
                     <groupId>com.sun.xml.ws</groupId>
                     <artifactId>jaxws-eclipselink-plugin</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.sun.xml.ws</groupId>
+                    <artifactId>sdo-eclipselink-plugin</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -192,11 +214,6 @@
             <version>2.2.2</version>
         </dependency>
         <dependency>
-            <groupId>de.gematik.ti</groupId>
-            <artifactId>vauchannel-protocol</artifactId>
-            <version>1.3.8</version>
-        </dependency>
-        <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-junit5</artifactId>
             <scope>test</scope>
@@ -205,12 +222,6 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-junit5-mockito</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <artifactId>commons-io</artifactId>
-            <groupId>commons-io</groupId>
-            <scope>test</scope>
-            <version>2.7</version>
         </dependency>
         <!--
             Produces: Modules com.sun.xml.bind and com.sun.istack.runtime export package com.sun.istack.localization to module fop
@@ -250,7 +261,7 @@
                         <java.util.logging.manager>
                             org.jboss.logmanager.LogManager
                         </java.util.logging.manager>
-<!--                        <quarkus.log.level>DEBUG</quarkus.log.level>-->
+                        <quarkus.log.level>DEBUG</quarkus.log.level>
                         <maven.home>${maven.home}</maven.home>
                     </systemPropertyVariables>
                 </configuration>
@@ -298,12 +309,15 @@
     </profiles>
     <repositories>
         <repository>
-                <!-- git clone https://github.com/ere-health/api-telematik -->
-                <!-- cd api-telematik && mvn install -->
-                <!-- cd /home/manuel/git/ere-ps-app/project-repo --> 
-                <!-- cp -r ~/.m2/repository/health/  -->
-                <id>project-repo</id>
-                <url>file://${project.basedir}/project-repo</url>
+            <!-- git clone https://github.com/ere-health/api-telematik -->
+            <!-- cd api-telematik && mvn install -->
+            <!-- cd <some-local-path>/ere-ps-app/project-repo -->
+            <!-- cp -r ~/.m2/repository/health/  -->
+            <id>project-repo</id>
+            <releases>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+            <url>file://${project.basedir}/project-repo</url>
         </repository>
     </repositories>
 </project>

@@ -10,7 +10,7 @@ import java.security.PublicKey;
 import java.util.Base64;
 import java.util.Locale;
 
-import health.ere.ps.model.idp.client.IdpClientRuntimeException;
+import health.ere.ps.exception.idp.IdpClientException;
 
 public class ClientUtilities {
     private static final String UPPER_CASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -22,7 +22,8 @@ public class ClientUtilities {
     private ClientUtilities() {
     }
 
-    public static void verifyJwt(final String jwt, final PublicKey publicKey) {
+    public static void verifyJwt(final String jwt, final PublicKey publicKey)
+            throws IdpClientException {
         final JwtConsumer jwtConsumer = new JwtConsumerBuilder()
             .setVerificationKey(publicKey)
             .setSkipDefaultAudienceValidation()
@@ -31,7 +32,7 @@ public class ClientUtilities {
         try {
             jwtConsumer.process(jwt);
         } catch (final InvalidJwtException e) {
-            throw new IdpClientRuntimeException(e);
+            throw new IdpClientException(e);
         }
     }
 

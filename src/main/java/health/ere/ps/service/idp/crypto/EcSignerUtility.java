@@ -22,7 +22,11 @@ public class EcSignerUtility {
             signer.update(toBeSignedData);
             return signer.sign();
         } catch (final NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
-            throw new IdpCryptoException(e);
+            try {
+                throw new IdpCryptoException(e);
+            } catch (IdpCryptoException idpCryptoException) {
+                throw new IllegalStateException(e);
+            }
         }
     }
 
@@ -34,10 +38,18 @@ public class EcSignerUtility {
             signer.initVerify(publicKey);
             signer.update(toBeSignedData);
             if (!signer.verify(signature)) {
-                throw new IdpCryptoException("Signature validation failed");
+                try {
+                    throw new IdpCryptoException("Signature validation failed");
+                } catch (IdpCryptoException e) {
+                    throw new IllegalStateException(e);
+                }
             }
         } catch (final NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
-            throw new IdpCryptoException(e);
+            try {
+                throw new IdpCryptoException(e);
+            } catch (IdpCryptoException idpCryptoException) {
+                throw new IllegalStateException(idpCryptoException);
+            }
         }
     }
 }

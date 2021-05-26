@@ -1,80 +1,92 @@
 package health.ere.ps.service.idp.client;
 
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
-
-import org.junit.jupiter.api.BeforeEach;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
-import health.ere.ps.model.idp.client.DiscoveryDocumentResponse;
+import java.io.InputStream;
+
+import javax.inject.Inject;
+
+import health.ere.ps.exception.connector.ConnectorCardCertificateReadException;
+import health.ere.ps.exception.idp.IdpClientException;
+import health.ere.ps.exception.idp.IdpException;
+import health.ere.ps.exception.idp.IdpJoseException;
+import health.ere.ps.exception.idp.crypto.IdpCryptoException;
+import health.ere.ps.model.idp.client.IdpTokenResult;
 import health.ere.ps.model.idp.crypto.PkiIdentity;
-import health.ere.ps.service.idp.tests.PkiKeyResolver;
+import health.ere.ps.service.connector.certificate.CardCertReadExecutionService;
+import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
+import io.quarkus.test.junit.QuarkusTest;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-@ExtendWith(PkiKeyResolver.class)
+@QuarkusTest
 public class IdpClientTest {
-    private IdpClient idpClient;
-    private AuthenticatorClient authenticatorClient;
 
-    @BeforeEach
-    public void init(final PkiIdentity ecc) {
-        authenticatorClient = mock(AuthenticatorClient.class);
-        doReturn(DiscoveryDocumentResponse.builder()
-                .authorizationEndpoint("fdsa")
-                .idpSig(ecc.getCertificate())
-                .tokenEndpoint("fdsafds")
-                .build())
-                .when(authenticatorClient)
-                .retrieveDiscoveryDocument(anyString());
+    @Inject
+    IdpClient idpClient;
 
-        doAnswer(call -> ((Function) call.getArguments()[1]).apply(null))
-                .when(authenticatorClient)
-                .doAuthorizationRequest(any(), any(), any());
+    @Inject
+    CardCertificateReaderService cardCertificateReaderService;
 
-        idpClient = IdpClient.builder()
-                .discoveryDocumentUrl("fjnkdslaö")
-                .authenticatorClient(authenticatorClient)
-                .build();
+    @Inject
+    CardCertReadExecutionService cardCertReadExecutionService;
 
-        idpClient.initialize();
+    @ConfigProperty(name = "idp.client.id")
+    String clientId;
+
+    @ConfigProperty(name = "idp.connector.client.system.id")
+    String clientSystem;
+
+    @ConfigProperty(name = "idp.connector.workplace.id")
+    String workplace;
+
+    @ConfigProperty(name = "idp.connector.card.handle")
+    String cardHandle;
+
+    @ConfigProperty(name = "idp.connector.cert.auth.store.file.password")
+    String connectorCertAuthPassword;
+
+    @ConfigProperty(name = "idp.base.url")
+    String idpBaseUrl;
+
+    String discoveryDocumentUrl;
+
+    @ConfigProperty(name = "idp.auth.request.redirect.url")
+    String redirectUrl;
+
+    @BeforeAll
+    public static void init() {
+        System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
+        System.setProperty("com.sun.xml.internal.ws.transport.http.client.HttpTransportPipe.dump", "true");
+        System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
+        System.setProperty("com.sun.xml.internal.ws.transport.http.HttpAdapter.dump", "true");
+        System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dumpTreshold", "999999");
     }
 
+    @Disabled("Disabled until Titus Idp Card Certificate Service API Endpoint Is Fixed By Gematik")
     @Test
-    public void testBeforeCallback(final PkiIdentity ecc) {
-        final AtomicInteger callCounter = new AtomicInteger(0);
-        idpClient.setBeforeAuthorizationCallback(r -> callCounter.incrementAndGet());
+    public void test_Successful_Idp_Login()
+            throws ConnectorCardCertificateReadException, IdpException,
+            IdpClientException, IdpCryptoException, IdpJoseException {
 
-        try {
-            idpClient.login(ecc);
-        } catch (final RuntimeException e) {
-            //swallow
-        }
+        InputStream p12Certificate = CardCertificateReaderService.class.getResourceAsStream("/ps_erp_incentergy_01.p12");
+        cardCertReadExecutionService.setUpCustomSSLContext(p12Certificate);
+        AuthenticatorClient authenticatorClient = new AuthenticatorClient();
 
-        assertEquals(1, callCounter.get());
-    }
+        discoveryDocumentUrl = idpBaseUrl + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
 
-    @Test
-    public void testBeforeFunction(final PkiIdentity ecc) {
-        final AtomicInteger callCounter = new AtomicInteger(0);
-        idpClient.setBeforeAuthorizationMapper(r -> {
-            callCounter.incrementAndGet();
-            return r;
-        });
+        idpClient.init(clientId, redirectUrl, discoveryDocumentUrl, true);
+        idpClient.initializeClient();
 
-        try {
-            idpClient.login(ecc);
-        } catch (final RuntimeException e) {
-            //swallow
-        }
+        PkiIdentity identity = cardCertificateReaderService.retrieveCardCertIdentity(clientId,
+                clientSystem, workplace, cardHandle, connectorCertAuthPassword);
 
-        assertEquals(1, callCounter.get());
+        IdpTokenResult idpTokenResult = idpClient.login(identity);
+
+        Assertions.assertNotNull(idpTokenResult, "Idp Token result present.");
+        Assertions.assertNotNull(idpTokenResult.getAccessToken(), "Access Token present");
+        Assertions.assertNotNull(idpTokenResult.getIdToken(), "Id Token present");
     }
 }

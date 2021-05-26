@@ -18,6 +18,7 @@ import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
+import javax.json.bind.JsonbConfig;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -29,6 +30,8 @@ import ca.uhn.fhir.context.FhirContext;
 import health.ere.ps.event.BundlesEvent;
 import health.ere.ps.event.ERezeptDocumentsEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
+import health.ere.ps.jsonb.BundleAdapter;
+import health.ere.ps.jsonb.ByteAdapter;
 
 @ServerEndpoint("/websocket")
 @ApplicationScoped
@@ -88,7 +91,7 @@ public class Websocket {
     public void onERezeptDocuments(@ObservesAsync ERezeptDocumentsEvent eRezeptDocumentsEvent) {
         sessions.forEach(s -> {
             s.getAsyncRemote().sendObject(
-                    "{\"type\": \"ERezeptDocuments\", \"payload\": " + generateJson(eRezeptDocumentsEvent) + "}", result -> {
+                    getJsonEventFor(eRezeptDocumentsEvent), result -> {
                         if (result.getException() != null) {
                             System.out.println("Unable to send message: " + result.getException());
                         }
@@ -96,8 +99,17 @@ public class Websocket {
         });
     }
 
+    public String getJsonEventFor(ERezeptDocumentsEvent eRezeptDocumentsEvent) {
+        return "{\"type\": \"ERezeptDocuments\", \"payload\": " + generateJson(eRezeptDocumentsEvent) + "}";
+    }
+
     String generateJson(ERezeptDocumentsEvent eRezeptDocumentsEvent) {
-        Jsonb jsonb = JsonbBuilder.create();
+        // Create custom configuration
+        JsonbConfig config = new JsonbConfig()
+            .setProperty(JsonbConfig.FORMATTING, true)
+            .withAdapters(new BundleAdapter())
+            .withAdapters(new ByteAdapter());
+        Jsonb jsonb = JsonbBuilder.create(config);
         String result = jsonb.toJson(eRezeptDocumentsEvent.eRezeptDocuments);
         return result;
     }

@@ -1,5 +1,8 @@
 package health.ere.ps.service.pdf;
 
+import org.hl7.fhir.r4.model.Bundle;
+import org.junit.jupiter.api.Test;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -10,9 +13,7 @@ import org.hl7.fhir.r4.model.Bundle;
 import org.junit.jupiter.api.Test;
 
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
-import io.quarkus.test.junit.QuarkusTest;
 
-@QuarkusTest
 public class DocumentServiceTest {
 	@Test
 	public void testGenerateERezeptPdf() throws IOException {

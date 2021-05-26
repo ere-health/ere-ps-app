@@ -3,6 +3,7 @@ package health.ere.ps.service.muster16.parser;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.jboss.logging.Logger;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.FileInputStream;
@@ -20,6 +21,9 @@ class Muster16FormDataParserTest {
     @Inject
     Logger logger;
 
+    @Disabled("Currently failing. Reference is being made to file test1.pdf which " +
+            "cannot be found, particularly on the machine of a developer who does not have access " +
+            "to this file after checking out the main branch.")
     @Test
     public void testReadMuster16FormPDF() throws IOException {
         try (PDDocument document = PDDocument

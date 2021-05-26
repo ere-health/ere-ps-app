@@ -1,7 +1,7 @@
 
 package health.ere.ps.exception.idp;
 
-public class IdpJoseException extends RuntimeException {
+public class IdpJoseException extends Exception {
 
     private static final long serialVersionUID = -838371828368858466L;
     private final boolean containsSensitiveInformation;

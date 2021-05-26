@@ -40,14 +40,22 @@ public class IdpEccKeyDescriptor extends IdpKeyDescriptor {
                 .keyId(keyId)
                 .keyType(getKeyType(certificate));
             if (addX5C) {
-                descriptorBuilder.x5c(getCertArray(certificate));
+                try {
+                    descriptorBuilder.x5c(getCertArray(certificate));
+                } catch (IdpCryptoException e) {
+                    throw new IllegalStateException(e);
+                }
             }
 
             final BCECPublicKey bcecPublicKey = (BCECPublicKey) (certificate.getPublicKey());
             if (!((ECNamedCurveParameterSpec) bcecPublicKey.getParameters()).getName().equals("brainpoolP256r1")) {
-                throw new IdpCryptoException(
-                    "Unknown Key-Format encountered: '" + ((ECNamedCurveParameterSpec) bcecPublicKey.getParameters())
-                        .getName() + "'!");
+                try {
+                    throw new IdpCryptoException(
+                        "Unknown Key-Format encountered: '" + ((ECNamedCurveParameterSpec) bcecPublicKey.getParameters())
+                            .getName() + "'!");
+                } catch (IdpCryptoException e) {
+                    throw new IllegalStateException(e);
+                }
             }
 
             final ECPoint generator = bcecPublicKey.getQ();
@@ -62,7 +70,11 @@ public class IdpEccKeyDescriptor extends IdpKeyDescriptor {
 
             return descriptorBuilder.build();
         } catch (final ClassCastException e) {
-            throw new IdpCryptoException("Unknown Key-Format encountered!", e);
+            try {
+                throw new IdpCryptoException("Unknown Key-Format encountered!", e);
+            } catch (IdpCryptoException idpCryptoException) {
+                throw new IllegalStateException(e);
+            }
         }
     }
 

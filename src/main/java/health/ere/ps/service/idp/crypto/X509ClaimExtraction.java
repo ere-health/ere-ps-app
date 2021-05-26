@@ -80,13 +80,17 @@ public class X509ClaimExtraction {
             claimMap.put(CertificateExtractedFieldEnum.ID_NUMMER.getFieldname(), getRegistrationNumber(certificate)
                 .orElse(null));
         } else if (certificateType == TiCertificateType.EGK) {
-            claimMap.put(CertificateExtractedFieldEnum.ID_NUMMER.getFieldname(),
-                getAllValuesFromDn(certificate.getSubjectX500Principal(), RFC4519Style.ou)
-                    .stream()
-                    .filter(ou -> ou.length() == KVNR_LENGTH)
-                    .findFirst()
-                    .orElseThrow(() -> new IdpCryptoException(
-                        "Could not find OU in EGK Subject-DN: '" + certificate.getSubjectDN().toString())));
+            try {
+                claimMap.put(CertificateExtractedFieldEnum.ID_NUMMER.getFieldname(),
+                    getAllValuesFromDn(certificate.getSubjectX500Principal(), RFC4519Style.ou)
+                        .stream()
+                        .filter(ou -> ou.length() == KVNR_LENGTH)
+                        .findFirst()
+                        .orElseThrow(() -> new IdpCryptoException(
+                            "Could not find OU in EGK Subject-DN: '" + certificate.getSubjectDN().toString())));
+            } catch (IdpCryptoException e) {
+                throw new IllegalStateException(e);
+            }
         }
         return claimMap;
     }
@@ -160,7 +164,7 @@ public class X509ClaimExtraction {
             final DLSequence d = (DLSequence) c.getObjectAt(0);
             return Optional.ofNullable((DLSequence) d.getObjectAt(0));
         } catch (final IOException e) {
-            throw new IdpCryptoException(e);
+            throw new IllegalStateException(e);
         }
     }
 }
