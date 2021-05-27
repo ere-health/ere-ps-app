@@ -22,11 +22,17 @@ import health.ere.ps.service.idp.crypto.CryptoLoader;
 
 @ApplicationScoped
 public class CardCertificateReaderService {
+
+    public byte[] mockCertificate;
+
     @Inject
     CardCertReadExecutionService cardCertReadExecutionService;
 
     private static final String STATUS_OK = "OK";
 
+    public void setMockCertificate(byte[] mockCertificate) {
+        this.mockCertificate = mockCertificate;
+    }
 
     /**
      * Reads the AUT certificate of a card managed in the connector.
@@ -38,6 +44,10 @@ public class CardCertificateReaderService {
     public byte[] readCardCertificate(InvocationContext invocationContext, String cardHandle)
             throws ConnectorCardCertificateReadException {
         byte[] x509Certificate = null;
+        
+        if(mockCertificate != null) {
+            return mockCertificate;
+        }
 
         ReadCardCertificateResponse readCardCertificateResponse =
                 cardCertReadExecutionService.doReadCardCertificate(invocationContext, cardHandle);

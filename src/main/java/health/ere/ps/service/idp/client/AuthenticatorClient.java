@@ -30,6 +30,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
+import javax.json.JsonString;
 import javax.ws.rs.core.Response;
 
 import health.ere.ps.exception.idp.IdpClientException;
@@ -119,7 +120,7 @@ public class AuthenticatorClient {
 
         try(Response response =
                 idpHttpClientService.doAuthenticationRequest(
-                        authenticationRequest.getChallengeToken().getRawString())) {
+                    authenticationRequest.getSignedChallenge().getRawString())) {
 
             checkResponseForErrorsAndThrowIfAny(response);
 
@@ -226,7 +227,13 @@ public class AuthenticatorClient {
 
     private JsonWebToken decryptToken(final SecretKey tokenKey, final Object tokenValue)
             throws IdpClientException {
-        return Optional.ofNullable(tokenValue)
+        String tokenValueClean = tokenValue.toString();
+        if(tokenValue instanceof JsonString) {
+            tokenValueClean = ((JsonString) tokenValue).getString();
+        } else {
+            tokenValueClean = tokenValue.toString();
+        }
+        return Optional.ofNullable(tokenValueClean)
                 .filter(String.class::isInstance)
                 .map(String.class::cast)
                 .map(IdpJwe::new)
