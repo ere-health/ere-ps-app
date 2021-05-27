@@ -51,14 +51,17 @@ public class IdpJwe extends IdpJoseObject {
             jwe.setAlgorithmHeaderValue(KeyManagementAlgorithmIdentifiers.DIRECT);
         }
         jwe.setEncryptionMethodHeaderParameter(ContentEncryptionAlgorithmIdentifiers.AES_256_GCM);
+
         jwe.setKey(key);
+        
         expiryOptional
             .map(TokenClaimExtraction::zonedDateTimeToClaim)
             .ifPresent(expValue -> jwe.setHeader(ClaimName.EXPIRES_AT.getJoseName(), expValue));
         jwe.setHeader(ClaimName.CONTENT_TYPE.getJoseName(), contentType);
 
         try {
-            return new IdpJwe(jwe.getCompactSerialization());
+            String s = jwe.getCompactSerialization();
+            return new IdpJwe(s);
         } catch (final JoseException e) {
             throw new IllegalStateException("Error during token encryption", e);
         }

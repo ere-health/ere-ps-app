@@ -15,6 +15,7 @@ import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.lang.JoseException;
 
+import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.Objects;
@@ -94,11 +95,13 @@ public class IdpClient implements IIdpClient {
         } else {
             jsonWebSignature.setAlgorithmHeaderValue(RSA_PSS_USING_SHA256);
         }
-        return new JsonWebToken(
+        PublicKey idpPublicKey = getDiscoveryDocumentResponse().getIdpEnc();
+        JsonWebToken jwt = new JsonWebToken(
             contentSigner.apply(Pair.of(
                 jsonWebSignature.getHeaders().getEncodedHeader(),
-                jsonWebSignature.getEncodedPayload())))
-            .encrypt(getDiscoveryDocumentResponse().getIdpEnc())
+                jsonWebSignature.getEncodedPayload())));
+        return jwt
+            .encrypt(idpPublicKey)
             .getRawString();
     }
 

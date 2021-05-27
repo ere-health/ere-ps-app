@@ -6,7 +6,14 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.logging.LogManager;
 
 import javax.inject.Inject;
 
@@ -58,6 +65,16 @@ public class IdpClientTest {
 
     @BeforeAll
     public static void init() {
+
+        try {
+			// https://community.oracle.com/thread/1307033?start=0&tstart=0
+			LogManager.getLogManager().readConfiguration(
+                IdpClientTest.class
+							.getResourceAsStream("/logging.properties"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
         System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
         System.setProperty("com.sun.xml.internal.ws.transport.http.client.HttpTransportPipe.dump", "true");
         System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
@@ -65,11 +82,21 @@ public class IdpClientTest {
         System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dumpTreshold", "999999");
     }
 
-    @Disabled("Disabled until Titus Idp Card Certificate Service API Endpoint Is Fixed By Gematik")
-    @Test
+    // @Disabled("Disabled until Titus Idp Card Certificate Service API Endpoint Is Fixed By Gematik")
+    @Test @Disabled
     public void test_Successful_Idp_Login()
             throws ConnectorCardCertificateReadException, IdpException,
-            IdpClientException, IdpCryptoException, IdpJoseException {
+            IdpClientException, IdpCryptoException, IdpJoseException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+
+        InputStream inStream = CardCertificateReaderService.class.getResourceAsStream("/certs/1-2-ARZT-WaltrautDrombusch01-80276001011699910223-C_SMCB_AUT_R2048_X509.p12");
+
+        /*KeyStore ks = KeyStore.getInstance("PKCS12");
+        ks.load(inStream, "00".toCharArray());  
+        
+        String alias = ks.aliases().nextElement();
+        cardCertificateReaderService.setMockCertificate(((X509Certificate) ks.getCertificate(alias)).getEncoded());*/
+
+        cardCertificateReaderService.setMockCertificate(inStream.readAllBytes());
 
         InputStream p12Certificate = CardCertificateReaderService.class.getResourceAsStream("/ps_erp_incentergy_01.p12");
         cardCertReadExecutionService.setUpCustomSSLContext(p12Certificate);
