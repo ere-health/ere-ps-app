@@ -35,4 +35,3 @@ nb-configuration.xml
 *.orig
 *.rej
 
-src/test/resources/ps_erp_incentergy_01.p12
