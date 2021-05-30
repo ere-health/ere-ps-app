@@ -130,7 +130,7 @@ public class AuthenticatorClient {
         return AuthenticationResponse.builder()
                 .code(extractParameterValue(location, "code"))
                 .location(location)
-                .ssoToken(extractParameterValue(location, "ssotoken"))
+                /*.ssoToken(extractParameterValue(location, "ssotoken"))*/
                 .build();
     }
 

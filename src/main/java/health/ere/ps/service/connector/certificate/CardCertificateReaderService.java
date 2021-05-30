@@ -5,30 +5,53 @@ import de.gematik.ws.conn.certificateservicecommon.v2.X509DataInfoListType;
 import de.gematik.ws.conn.connectorcommon.v5.Status;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import health.ere.ps.exception.connector.ConnectorCardCertificateReadException;
 import health.ere.ps.exception.idp.crypto.IdpCryptoException;
-import health.ere.ps.model.idp.client.IdpTokenResult;
 import health.ere.ps.model.idp.crypto.PkiIdentity;
 import health.ere.ps.service.idp.crypto.CryptoLoader;
 
 @ApplicationScoped
 public class CardCertificateReaderService {
 
+    private static Logger log = Logger.getLogger(CardCertificateReaderService.class.getName());
+
     public byte[] mockCertificate;
 
     @Inject
     CardCertReadExecutionService cardCertReadExecutionService;
 
+    @ConfigProperty(name = "connector.simulator.smcbIdentityCertificate", defaultValue = "!")
+    String smcbIdentityCertificate;
+
     private static final String STATUS_OK = "OK";
+
+    @PostConstruct
+    public void init() {
+        if (smcbIdentityCertificate != null && !("".equals(smcbIdentityCertificate))
+                && !("!".equals(smcbIdentityCertificate))) {
+            log.info(CardCertificateReaderService.class.getSimpleName()+" uses SMCB "+smcbIdentityCertificate);
+            try (InputStream is = new FileInputStream(smcbIdentityCertificate)) {
+                setMockCertificate(is.readAllBytes());
+            } catch(IOException e) {
+                log.log(Level.SEVERE, "Could find file", e);
+            }
+        }
+    }
 
     public void setMockCertificate(byte[] mockCertificate) {
         this.mockCertificate = mockCertificate;

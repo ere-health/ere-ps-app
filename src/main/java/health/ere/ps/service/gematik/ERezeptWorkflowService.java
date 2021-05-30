@@ -6,13 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.net.URI;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,17 +18,14 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
-import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import javax.xml.datatype.Duration;
-import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 import javax.xml.ws.BindingProvider;
-import javax.ws.rs.core.Response;
 
 import org.apache.xml.security.c14n.CanonicalizationException;
 import org.apache.xml.security.c14n.Canonicalizer;
@@ -46,7 +36,6 @@ import org.hl7.fhir.r4.model.Binary;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Identifier;
-import org.hl7.fhir.r4.model.OperationOutcome;
 import org.hl7.fhir.r4.model.Parameters;
 import org.hl7.fhir.r4.model.Parameters.ParametersParameterComponent;
 import org.hl7.fhir.r4.model.Task;
@@ -67,6 +56,7 @@ import de.gematik.ws.conn.signatureservice.wsdl.v7.FaultMessage;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureService;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortType;
 import health.ere.ps.event.BundlesWithAccessCodeEvent;
+import health.ere.ps.event.RequestBearerTokenFromIdpEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.service.common.security.SecretsManagerService;
@@ -114,7 +104,7 @@ public class ERezeptWorkflowService {
     @ConfigProperty(name = "signature-service.tvMode", defaultValue = "")
     String signatureServiceTvMode;
 
-    @ConfigProperty(name = "erezept-workflow-service.titusClientCertificate", defaultValue = "!")
+    @ConfigProperty(name = "connector.simulator.titusClientCertificate", defaultValue = "!")
     String titusClientCertificate;
 
     @ConfigProperty(name = "erezept-workflow-service.enableVau", defaultValue = "true")
@@ -129,9 +119,17 @@ public class ERezeptWorkflowService {
     @Inject
     Event<BundlesWithAccessCodeEvent> bundlesWithAccessCodeEvent;
 
+    @Inject
+    Event<RequestBearerTokenFromIdpEvent> requestBearerTokenFromIdp;
+
     SSLContext customSSLContext = null;
 
     Client client;
+
+    String bearerToken;
+
+    @Inject
+    Event<Exception> exceptionEvent;
 
     public static final String EREZEPT_IDENTIFIER_SYSTEM = "https://gematik.de/fhir/NamingSystem/PrescriptionID";
 
@@ -195,12 +193,29 @@ public class ERezeptWorkflowService {
      * @param signAndUploadBundlesEvent
      */
     public void onSignAndUploadBundlesEvent(@ObservesAsync SignAndUploadBundlesEvent signAndUploadBundlesEvent) {
-        List<List<BundleWithAccessCodeOrThrowable>> bundleWithAccessCodeOrThrowable = new ArrayList<>();
-        for (List<Bundle> bundles : signAndUploadBundlesEvent.listOfListOfBundles) {
-            bundleWithAccessCodeOrThrowable
-                    .add(createMultipleERezeptsOnPrescriptionServer(signAndUploadBundlesEvent.bearerToken, bundles));
+        try {
+            String bearerTokenToUse;
+            if(signAndUploadBundlesEvent.bearerToken != null && !"".equals(signAndUploadBundlesEvent.bearerToken)) {
+                bearerTokenToUse = signAndUploadBundlesEvent.bearerToken;
+            } else if(bearerToken == null || "".equals("")) {
+                RequestBearerTokenFromIdpEvent event = new RequestBearerTokenFromIdpEvent();
+                requestBearerTokenFromIdp.fire(event);
+                bearerToken = event.getBearerToken();
+                bearerTokenToUse = bearerToken;
+            } else {
+                bearerTokenToUse = bearerToken;
+            }
+            
+            List<List<BundleWithAccessCodeOrThrowable>> bundleWithAccessCodeOrThrowable = new ArrayList<>();
+            for (List<Bundle> bundles : signAndUploadBundlesEvent.listOfListOfBundles) {
+                bundleWithAccessCodeOrThrowable
+                        .add(createMultipleERezeptsOnPrescriptionServer(bearerTokenToUse, bundles));
+            }
+            bundlesWithAccessCodeEvent.fireAsync(new BundlesWithAccessCodeEvent(bundleWithAccessCodeOrThrowable));
+        } catch(Exception e) {
+            log.log(Level.WARNING, "Idp login did not work", e);
+            exceptionEvent.fireAsync(e);
         }
-        bundlesWithAccessCodeEvent.fireAsync(new BundlesWithAccessCodeEvent(bundleWithAccessCodeOrThrowable));
     }
 
     public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(String bearerToken,

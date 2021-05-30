@@ -84,6 +84,31 @@ public class IdpClientTest {
 
     // @Disabled("Disabled until Titus Idp Card Certificate Service API Endpoint Is Fixed By Gematik")
     @Test @Disabled
+    public void test_Successful_Idp_Login_With_Gematik_Card()
+            throws ConnectorCardCertificateReadException, IdpException,
+            IdpClientException, IdpCryptoException, IdpJoseException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+
+
+        InputStream p12Certificate = CardCertificateReaderService.class.getResourceAsStream("/ps_erp_incentergy_01.p12");
+        cardCertReadExecutionService.setUpCustomSSLContext(p12Certificate);
+        AuthenticatorClient authenticatorClient = new AuthenticatorClient();
+
+        discoveryDocumentUrl = idpBaseUrl + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
+
+        idpClient.init(clientId, redirectUrl, discoveryDocumentUrl, true);
+        idpClient.initializeClient();
+
+        PkiIdentity identity = cardCertificateReaderService.retrieveCardCertIdentity(clientId,
+                clientSystem, workplace, cardHandle, connectorCertAuthPassword);
+
+        IdpTokenResult idpTokenResult = idpClient.login(identity);
+
+        Assertions.assertNotNull(idpTokenResult, "Idp Token result present.");
+        Assertions.assertNotNull(idpTokenResult.getAccessToken(), "Access Token present");
+        Assertions.assertNotNull(idpTokenResult.getIdToken(), "Id Token present");
+    }
+
+    @Test @Disabled
     public void test_Successful_Idp_Login()
             throws ConnectorCardCertificateReadException, IdpException,
             IdpClientException, IdpCryptoException, IdpJoseException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {

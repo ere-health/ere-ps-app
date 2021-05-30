@@ -46,7 +46,7 @@ public class SVGExtractor {
     private URI path;
     private boolean debugRectangles = false;
 
-    private SVGExtractorConfiguration configuration = SVGExtractorConfiguration.CGM_TURBO_MED;
+    private SVGExtractorConfiguration configuration = SVGExtractorConfiguration.DENS;
 
     public SVGExtractor() throws URISyntaxException {
         this(SVGExtractor.class.getResource("/svg-extract-templates/Muster-16-Template.svg").toURI());
