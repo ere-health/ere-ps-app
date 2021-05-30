@@ -12,7 +12,11 @@ import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -26,6 +30,9 @@ import health.ere.ps.service.common.security.SecretsManagerService;
 
 @ApplicationScoped
 public class CardCertReadExecutionService {
+
+    private static Logger log = Logger.getLogger(CardCertReadExecutionService.class.getName());
+
     @Inject
     SecretsManagerService secretsManagerService;
     
@@ -38,6 +45,9 @@ public class CardCertReadExecutionService {
     @ConfigProperty(name = "idp.connector.cert.auth.store.file.password")
     String idpCertStoreFilePassword;
 
+    @ConfigProperty(name = "connector.simulator.titusClientCertificate", defaultValue = "!")
+    String titusClientCertificate;
+
     private CertificateServicePortType certificateService;
 
     static {
@@ -47,12 +57,22 @@ public class CardCertReadExecutionService {
     @PostConstruct
     void init() throws Exception {
         certificateService = new CertificateService().getCertificateServicePort();
-
+        
         // Set endpoint to configured endpoint
         BindingProvider bp = (BindingProvider) certificateService;
-
+        
         bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
-                certificateServiceEndpointAddress);
+        certificateServiceEndpointAddress);
+        
+        if (titusClientCertificate != null && !("".equals(titusClientCertificate))
+            && !("!".equals(titusClientCertificate))) {
+            try(InputStream is = new FileInputStream(titusClientCertificate)) {
+                log.info(CardCertReadExecutionService.class.getSimpleName()+" uses titus client certifcate: "+titusClientCertificate);
+                setUpCustomSSLContext(is);
+            } catch(FileNotFoundException e) {
+                log.log(Level.SEVERE, "Could find file", e);
+            }
+        }
        
         
     }

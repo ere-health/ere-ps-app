@@ -1,10 +1,15 @@
 package health.ere.ps.websocket;
 
+import java.awt.Desktop;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -78,6 +83,21 @@ public class Websocket {
     }
 
     public void onFhirBundle(@ObservesAsync BundlesEvent bundlesEvent) {
+
+        // if nobody is connected to the websocket
+        if(sessions.size() == 0) {
+            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                try {
+                    // Open a browser with the given URL
+                    // TODO: build link dynamically
+                    Desktop.getDesktop().browse(new URI("http://localhost:8080/frontend/app/src/index.html"));
+                    Thread.sleep(5000);
+                } catch (IOException | URISyntaxException | InterruptedException e) {
+                    log.log(Level.WARNING, "Could not open browser", e);
+                }
+            }
+        }
+
         sessions.forEach(s -> {
             s.getAsyncRemote().sendObject(
                     "{\"type\": \"Bundles\", \"payload\": " + generateJson(bundlesEvent) + "}", result -> {
