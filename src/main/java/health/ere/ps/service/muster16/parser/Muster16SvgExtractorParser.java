@@ -87,6 +87,11 @@ public class Muster16SvgExtractorParser implements IMuster16FormParser {
     }
 
     @Override
+    public String parsePatientNamePrefix() {
+        return "";
+    }
+
+    @Override
     public String parsePatientFirstName() {
         return getDataFieldAtPosOrDefault(nameAndAddressInfo, 1, "");
     }

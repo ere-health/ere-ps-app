@@ -27,6 +27,7 @@ public class Muster16SvgExtractorRegexParserTest {
 
         assertEquals("TK > Brandenburg 83", parser.parseInsuranceCompany());
         assertEquals("100696012", parser.parseInsuranceCompanyId());
+        assertEquals("", parser.parsePatientNamePrefix());
         assertEquals("Manuel", parser.parsePatientFirstName());
         assertEquals("Blechschmidt", parser.parsePatientLastName());
         assertEquals("Droysenstr.", parser.parsePatientStreetName());
@@ -50,6 +51,7 @@ public class Muster16SvgExtractorRegexParserTest {
 
         assertEquals("Bahn - BKK", parser.parseInsuranceCompany());
         assertEquals("109938331", parser.parseInsuranceCompanyId());
+        assertEquals("", parser.parsePatientNamePrefix());
         assertEquals("Banholzer", parser.parsePatientFirstName());
         assertEquals("Dominik", parser.parsePatientLastName());
         assertEquals("Maria Trost", parser.parsePatientStreetName());
@@ -73,6 +75,8 @@ public class Muster16SvgExtractorRegexParserTest {
 
         assertEquals("DENS GmbH", parser.parseInsuranceCompany());
         assertEquals("", parser.parseInsuranceCompanyId());
+        assertEquals("Dr.", parser.parsePatientNamePrefix());
+        assertEquals("Markus", parser.parsePatientFirstName());
         assertEquals("Heckner", parser.parsePatientLastName());
         assertEquals("Berliner Str.", parser.parsePatientStreetName());
         assertEquals("12", parser.parsePatientStreetNumber());
@@ -95,7 +99,8 @@ public class Muster16SvgExtractorRegexParserTest {
 
         assertEquals("DENS GmbH", parser.parseInsuranceCompany());
         assertEquals("", parser.parseInsuranceCompanyId());
-        assertEquals("Dr. Markus", parser.parsePatientFirstName());
+        assertEquals("Dr.", parser.parsePatientNamePrefix());
+        assertEquals("Markus", parser.parsePatientFirstName());
         assertEquals("Heckner", parser.parsePatientLastName());
         assertEquals("Testweg", parser.parsePatientStreetName());
         assertEquals("1", parser.parsePatientStreetNumber());

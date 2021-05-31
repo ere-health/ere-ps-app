@@ -20,6 +20,8 @@ public class Muster16SvgExtractorRegexParser implements IMuster16FormParser {
 
     final Pattern EXTRA_WHITE_SPACE = Pattern.compile("\\s+");
     final Pattern NUMBERS = Pattern.compile("(\\d+)", Pattern.DOTALL);
+    final Pattern NAME_PREFIX = Pattern.compile("(Prof|Dr)\\.");
+    final Pattern FIRST_NAME_LINE = Pattern.compile("(?<prefix>(Prof|Dr)\\.)(.*)");
     final Pattern ADDRESS_LINE = Pattern.compile("(.*)(\\d{5})(.*)");
     final Pattern STREET_LINE = Pattern.compile("(\\D+)(\\d+)");
     final Pattern DATE = Pattern.compile("\\d+[.-/]\\d+[.-/]\\d+");
@@ -59,19 +61,30 @@ public class Muster16SvgExtractorRegexParser implements IMuster16FormParser {
         List<String> lines = Arrays.stream(nameAndAddress.split("\\n"))
                 .map(String::trim)
                 .collect(Collectors.toList());
-
-        matchAndExtractLine(lines, ADDRESS_LINE).ifPresent(this::parseAddressLine);
-        matchAndExtractLine(lines, STREET_LINE).ifPresent(this::parseStreetLine);
-        parseFirstName(lines.get(1));
-        parseLastName(lines.get(0));
+        if (lines.size() >= 4) {
+            matchAndExtractLine(lines, ADDRESS_LINE).ifPresent(this::parseAddressLine);
+            matchAndExtractLine(lines, STREET_LINE).ifPresent(this::parseStreetLine);
+            matchAndExtractLine(lines, FIRST_NAME_LINE).ifPresentOrElse(this::parseFirstName, () -> parseFirstName(lines.get(1)));
+            parseLastName(lines.get(0));
+        }
     }
 
     private void parseLastName(String token) {
         parsedValues.put("patientLastName", cleanToken(token));
     }
 
-    private void parseFirstName(String token) {
-        parsedValues.put("patientFirstName", cleanToken(token));
+    private void parseFirstName(String entry) {
+        parseFirstNamePrefix(entry);
+        entry = entry.replaceAll(NAME_PREFIX.pattern(),"");
+        parsedValues.put("patientFirstName", cleanToken(entry));
+    }
+
+    private void parseFirstNamePrefix(String entry) {
+        Matcher matcher = NAME_PREFIX.matcher(entry);
+        StringBuilder builder = new StringBuilder();
+        while (matcher.find())
+            builder.append(matcher.group());
+        parsedValues.put("patientNamePrefix", cleanToken(builder.toString()));
     }
 
     private void parseAddressLine(String line) {
@@ -143,6 +156,11 @@ public class Muster16SvgExtractorRegexParser implements IMuster16FormParser {
     @Override
     public String parseInsuranceCompanyId() {
         return getValue("insuranceCompanyId");
+    }
+
+    @Override
+    public String parsePatientNamePrefix() {
+        return getValue("patientNamePrefix");
     }
 
     @Override

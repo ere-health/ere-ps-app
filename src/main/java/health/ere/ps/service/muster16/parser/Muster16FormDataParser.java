@@ -18,7 +18,7 @@ public class Muster16FormDataParser implements IMuster16FormParser {
             muster16PdfDataFields = muster16PdfData.split("\\r?\\n");
         }
     }
-    
+
     public String parseInsuranceCompany() {
         String insuranceCompany = "";
 
@@ -33,6 +33,11 @@ public class Muster16FormDataParser implements IMuster16FormParser {
         String insuranceCompanyId = "";
 
         return insuranceCompanyId;
+    }
+
+    @Override
+    public String parsePatientNamePrefix() {
+        return "";
     }
 
     public String parsePatientFirstName() {

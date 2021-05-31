@@ -7,6 +7,7 @@ import health.ere.ps.model.muster16.MedicationString;
 public interface IMuster16FormParser {
     public String parseInsuranceCompany();
     public String parseInsuranceCompanyId();
+    public String parsePatientNamePrefix();
     public String parsePatientFirstName();
     public String parsePatientLastName();
     public String parsePatientStreetName();
