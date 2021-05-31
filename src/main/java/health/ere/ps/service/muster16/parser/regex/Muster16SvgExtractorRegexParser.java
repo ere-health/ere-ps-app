@@ -246,19 +246,22 @@ public class Muster16SvgExtractorRegexParser implements IMuster16FormParser {
         return null;
     }
 
-    private boolean matches(String input, DateTimeFormatter format) {
+    private LocalDate matches(String input, DateTimeFormatter format) {
         try {
-            LocalDate.parse(input, format);
+            return LocalDate.parse(input, format);
         } catch (DateTimeParseException e) {
-            return false;
+            return null;
         }
-        return true;
     }
 
     LocalDate parseDate(String entry) {
-        if (matches(entry, SHORT_ORDINAL_DATE_FORMAT))
+        LocalDate date;
+        if (matches(entry, SHORT_ORDINAL_DATE_FORMAT) != null)
             return parseShortOrdinalDate(entry);
-        return null;
+        else if ((date = matches(entry, ORDINAL_DATE_FORMAT)) != null)
+            return date;
+        else
+            return null;
     }
 
     public String reformatDate(String entry) {
