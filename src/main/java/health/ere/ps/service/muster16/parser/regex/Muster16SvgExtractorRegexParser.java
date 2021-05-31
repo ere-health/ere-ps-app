@@ -129,64 +129,70 @@ public class Muster16SvgExtractorRegexParser implements IMuster16FormParser {
         parsedValues.put("insuranceNumber", cleanToken(entry));
     }
 
+    private String getValue(String key) {
+        String defaultValue = "";
+        String value = parsedValues.getOrDefault(key, defaultValue);
+        return value != null ? value : defaultValue;
+    }
+
     @Override
     public String parseInsuranceCompany() {
-        return parsedValues.get("insuranceCompany");
+        return getValue("insuranceCompany");
     }
 
     @Override
     public String parseInsuranceCompanyId() {
-        return parsedValues.get("insuranceCompanyId");
+        return getValue("insuranceCompanyId");
     }
 
     @Override
     public String parsePatientFirstName() {
-        return parsedValues.get("patientFirstName");
+        return getValue("patientFirstName");
     }
 
     @Override
     public String parsePatientLastName() {
-        return parsedValues.get("patientLastName");
+        return getValue("patientLastName");
     }
 
     @Override
     public String parsePatientStreetName() {
-        return parsedValues.get("patientStreetName");
+        return getValue("patientStreetName");
     }
 
     @Override
     public String parsePatientStreetNumber() {
-        return parsedValues.get("patientStreetNumber");
+        return getValue("patientStreetNumber");
     }
 
     @Override
     public String parsePatientCity() {
-        return parsedValues.get("patientCity");
+        return getValue("patientCity");
     }
 
     @Override
     public String parsePatientZipCode() {
-        return parsedValues.get("patientZipCode");
+        return getValue("patientZipCode");
     }
 
     @Override
     public String parsePatientDateOfBirth() {
-        return parsedValues.get("birthdate");
+        return getValue("birthdate");
     }
 
     @Override
     public String parseClinicId() {
-        return parsedValues.get("clinicId");
+        return getValue("clinicId");
     }
 
     @Override
     public String parseDoctorId() {
-        return parsedValues.get("practitionerNumber");
+        return getValue("practitionerNumber");
     }
 
     @Override
     public String parsePrescriptionDate() {
-        return parsedValues.get("date");
+        return getValue("date");
     }
 
     @Override
@@ -196,7 +202,7 @@ public class Muster16SvgExtractorRegexParser implements IMuster16FormParser {
 
     @Override
     public String parsePatientInsuranceId() {
-        return parsedValues.get("insuranceNumber");
+        return getValue("insuranceNumber");
     }
 
     //region Parsing-Utils
