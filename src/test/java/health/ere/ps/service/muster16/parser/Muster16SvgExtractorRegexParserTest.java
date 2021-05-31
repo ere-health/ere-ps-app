@@ -60,6 +60,7 @@ public class Muster16SvgExtractorRegexParserTest {
         assertEquals("999123456", parser.parseClinicId());
         assertEquals("471100815", parser.parseDoctorId());
         assertEquals("2021-04-30", parser.parsePrescriptionDate());
+        assertEquals("", parser.parsePatientInsuranceId());
     }
 
     @Test
@@ -71,7 +72,7 @@ public class Muster16SvgExtractorRegexParserTest {
         Muster16SvgExtractorRegexParser parser = new Muster16SvgExtractorRegexParser(map);
 
         assertEquals("DENS GmbH", parser.parseInsuranceCompany());
-        assertEquals("Dr. Markus", parser.parsePatientFirstName());
+        assertEquals("", parser.parseInsuranceCompanyId());
         assertEquals("Heckner", parser.parsePatientLastName());
         assertEquals("Berliner Str.", parser.parsePatientStreetName());
         assertEquals("12", parser.parsePatientStreetNumber());
@@ -81,6 +82,7 @@ public class Muster16SvgExtractorRegexParserTest {
         assertEquals("30000000", parser.parseClinicId());
         assertEquals("30000000", parser.parseDoctorId());
         assertEquals("2021-04-29", parser.parsePrescriptionDate());
+        assertEquals("", parser.parsePatientInsuranceId());
     }
 
     @Test
@@ -92,6 +94,7 @@ public class Muster16SvgExtractorRegexParserTest {
         Muster16SvgExtractorRegexParser parser = new Muster16SvgExtractorRegexParser(map);
 
         assertEquals("DENS GmbH", parser.parseInsuranceCompany());
+        assertEquals("", parser.parseInsuranceCompanyId());
         assertEquals("Dr. Markus", parser.parsePatientFirstName());
         assertEquals("Heckner", parser.parsePatientLastName());
         assertEquals("Testweg", parser.parsePatientStreetName());
@@ -102,5 +105,6 @@ public class Muster16SvgExtractorRegexParserTest {
         assertEquals("30000000", parser.parseClinicId());
         assertEquals("30000000", parser.parseDoctorId());
         assertEquals("2021-04-26", parser.parsePrescriptionDate());
+        assertEquals("", parser.parsePatientInsuranceId());
     }
 }
