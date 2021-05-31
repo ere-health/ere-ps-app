@@ -56,7 +56,7 @@ public class CardCertReadExecutionService {
 
     @PostConstruct
     void init() throws Exception {
-        certificateService = new CertificateService().getCertificateServicePort();
+        certificateService = new CertificateService(getClass().getResource("/CertificateService_v6_0_1.wsdl")).getCertificateServicePort();
         
         // Set endpoint to configured endpoint
         BindingProvider bp = (BindingProvider) certificateService;
