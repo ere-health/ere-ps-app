@@ -1,56 +1,38 @@
-package health.ere.ps.service.muster16.parser;
+package health.ere.ps.service.muster16.parser.regex;
 
-
+import health.ere.ps.service.muster16.parser.IMuster16FormParser;
 import health.ere.ps.model.muster16.MedicationString;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static health.ere.ps.service.muster16.parser.RegexPatterns.*;
 
 
 public class Muster16SvgExtractorRegexParser implements IMuster16FormParser {
 
     private Map<String, String> parsedValues;
 
+    final Pattern EXTRA_WHITE_SPACE = Pattern.compile("\\s+");
+    final Pattern NUMBERS = Pattern.compile("(\\d+)", Pattern.DOTALL);
+    final Pattern ADDRESS_LINE = Pattern.compile("(.*)(\\d{5})(.*)");
+    final Pattern STREET_LINE = Pattern.compile("(\\D+)(\\d+)");
+    final Pattern DATE = Pattern.compile("\\d+[.-/]\\d+[.-/]\\d+");
+    private final Pattern SHORT_ORDINAL_DATE = Pattern.compile("(?<day>\\d+)\\.(?<month>\\d+)\\.(?<year>\\d+)");
+
+    final DateTimeFormatter ORDINAL_DATE_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+    final DateTimeFormatter SHORT_ORDINAL_DATE_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yy");
+    final DateTimeFormatter STANDARD_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
 
     public Muster16SvgExtractorRegexParser(Map<String, String> mappedFields) {
         parseValues(mappedFields);
     }
-
-    //region Parse-Utils
-    private String removeExtraSpaces(String entry) {
-        return EXTRA_WHITE_SPACE.matcher(entry).replaceAll(" ").trim();
-    }
-
-    private String cleanToken(String entry) {
-        return removeExtraSpaces(entry);
-    }
-
-    private String cleanNoise(String entry, Pattern pattern) {
-        Matcher matcher = pattern.matcher(entry);
-        return matcher.find() ? matcher.group(0) : cleanToken(entry);
-    }
-
-    private boolean matches(String input, Pattern pattern) {
-        return pattern.matcher(input).matches();
-    }
-
-    private Optional<String> matchAndExtractLine(List<String> lines, Pattern pattern) {
-
-        OptionalInt indexOpt = IntStream.range(0, lines.size())
-                .filter(i -> matches(lines.get(i), pattern))
-                .findFirst();
-
-        if (indexOpt.isPresent())
-            return Optional.of(lines.remove(indexOpt.getAsInt()));
-        else
-            return Optional.empty();
-    }
-    //endregion
 
     private void parseValues(Map<String, String> mappedFields) {
         parsedValues = new HashMap<>();
@@ -125,8 +107,9 @@ public class Muster16SvgExtractorRegexParser implements IMuster16FormParser {
     }
     //endregion
 
-    private void parseBirthdate(String birthdateEntry) {
-        parsedValues.put("birthdate", cleanNoise(birthdateEntry, DATE));
+    private void parseBirthdate(String entry) {
+        String cleaned = cleanNoise(entry, DATE);
+        parsedValues.put("birthdate", reformatDate(cleaned));
     }
 
     private void parseClinicId(String entry) {
@@ -138,7 +121,8 @@ public class Muster16SvgExtractorRegexParser implements IMuster16FormParser {
     }
 
     private void parsePrescriptionDate(String entry) {
-        parsedValues.put("date", cleanNoise(entry, DATE));
+        String cleaned = cleanNoise(entry, DATE);
+        parsedValues.put("date", reformatDate(cleaned));
     }
 
     private void parsePatientInsuranceId(String entry) {
@@ -214,4 +198,72 @@ public class Muster16SvgExtractorRegexParser implements IMuster16FormParser {
     public String parsePatientInsuranceId() {
         return parsedValues.get("insuranceNumber");
     }
+
+    //region Parsing-Utils
+    String removeExtraSpaces(String entry) {
+        return EXTRA_WHITE_SPACE.matcher(entry).replaceAll(" ").trim();
+    }
+
+    String cleanToken(String entry) {
+        return removeExtraSpaces(entry);
+    }
+
+    String cleanNoise(String entry, Pattern pattern) {
+        Matcher matcher = pattern.matcher(entry);
+        return matcher.find() ? matcher.group(0) : cleanToken(entry);
+    }
+
+    boolean matches(String input, Pattern pattern) {
+        return pattern.matcher(input).matches();
+    }
+
+    Optional<String> matchAndExtractLine(List<String> lines, Pattern pattern) {
+
+        OptionalInt indexOpt = IntStream.range(0, lines.size())
+                .filter(i -> matches(lines.get(i), pattern))
+                .findFirst();
+
+        if (indexOpt.isPresent())
+            return Optional.of(lines.remove(indexOpt.getAsInt()));
+        else
+            return Optional.empty();
+    }
+
+    private int calculateTargetYear(int targetId) {
+        int currentYear = Calendar.getInstance().get(Calendar.YEAR);
+        int currentId = currentYear % 100;
+        return currentYear - currentId - 100 * (targetId > currentId ? 1 : 0) + targetId;
+    }
+
+    private LocalDate parseShortOrdinalDate(String entry) {
+        Matcher matcher = SHORT_ORDINAL_DATE.matcher(entry);
+        if (matcher.matches()) {
+            int day = Integer.parseInt(matcher.group("day")),
+                    month = Integer.parseInt(matcher.group("month")),
+                    year = calculateTargetYear(Integer.parseInt(matcher.group("year")));
+            return LocalDate.of(year, month, day);
+        }
+        return null;
+    }
+
+    private boolean matches(String input, DateTimeFormatter format) {
+        try {
+            LocalDate.parse(input, format);
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+        return true;
+    }
+
+    LocalDate parseDate(String entry) {
+        if (matches(entry, SHORT_ORDINAL_DATE_FORMAT))
+            return parseShortOrdinalDate(entry);
+        return null;
+    }
+
+    public String reformatDate(String entry) {
+        LocalDate date = parseDate(entry);
+        return date != null ? STANDARD_DATE_FORMAT.format(date) : null;
+    }
+    //endregion
 }
