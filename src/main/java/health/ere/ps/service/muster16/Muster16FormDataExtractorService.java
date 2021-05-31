@@ -1,6 +1,7 @@
 package health.ere.ps.service.muster16;
 
 
+import java.io.StringBufferInputStream;
 import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,6 +17,8 @@ import health.ere.ps.model.muster16.Muster16PrescriptionForm;
 import health.ere.ps.service.muster16.parser.IMuster16FormParser;
 import health.ere.ps.service.muster16.parser.Muster16FormDataParser;
 import health.ere.ps.service.muster16.parser.Muster16SvgExtractorParser;
+import health.ere.ps.service.muster16.parser.extractor.SimpleDataExtractor;
+import health.ere.ps.service.muster16.parser.formatter.SimpleDataFormatter;
 
 @ApplicationScoped
 public class Muster16FormDataExtractorService {
@@ -29,7 +32,9 @@ public class Muster16FormDataExtractorService {
     Event<Muster16PrescriptionFormEvent> muster16PrescriptionFormEvent;
 
     public void extractData(String muster16PdfFileData) {
-        IMuster16FormParser parser = new Muster16FormDataParser(muster16PdfFileData);
+        IMuster16FormParser parser =
+                new Muster16FormDataParser(new StringBufferInputStream(muster16PdfFileData),
+                        new SimpleDataExtractor(), null, new SimpleDataFormatter());
         Muster16PrescriptionForm muster16Form = new Muster16PrescriptionForm(
                 parser.parseInsuranceCompany(),
                 parser.parseInsuranceCompanyId(),
