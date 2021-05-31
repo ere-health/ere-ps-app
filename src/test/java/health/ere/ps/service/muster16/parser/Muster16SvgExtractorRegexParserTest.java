@@ -1,8 +1,15 @@
 package health.ere.ps.service.muster16.parser;
 
+import health.ere.ps.service.extractor.SVGExtractor;
+import health.ere.ps.service.extractor.SVGExtractorConfiguration;
+import health.ere.ps.service.muster16.parser.regex.Muster16SvgExtractorRegexParser;
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
+import javax.xml.stream.XMLStreamException;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -10,26 +17,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class Muster16SvgExtractorRegexParserTest {
 
-    private final String lineSep = System.lineSeparator();
-
     @Test
-    void testParseData_CGM_Z1() {
+    void testParseData_CGM_Z1() throws URISyntaxException, IOException, XMLStreamException {
 
-        Map<String, String> map = new HashMap<>();
-
-        map.put("insurance", "TK > Brandenburg            83" + lineSep);
-        map.put("withPayment", "X" + lineSep);
-        map.put("withoutPayment", "" + lineSep);
-        map.put("nameAndAddress", "Blechschmidt" + lineSep + "Manuel               " + lineSep + "Droysenstr. 7" + lineSep + "D 10629 Berlin   " + lineSep);
-        map.put("birthdate", "16.07.86" + lineSep + "       " + lineSep);
-        map.put("payor", "100696012 " + lineSep);
-        map.put("insuranceNumber", "V062074590   " + lineSep);
-        map.put("status", "1000000" + lineSep);
-        map.put("locationNumber", " 30001234  " + lineSep);
-        map.put("practitionerNumber", "30001234  " + lineSep);
-        map.put("date", "13.04.21" + lineSep);
-        map.put("medication", "Amoxicillin 1000mg N2" + lineSep + "3x täglich alle 8 Std" + lineSep + "-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -" + lineSep);
-        map.put("practitionerText", "1234" + lineSep + "Zahnärzte" + lineSep + "Dr. Zahnarzt Ein & Dr. Zahnarzt Zwei" + lineSep + "In der tollen Str.115" + lineSep + "12345 Berlin" + lineSep + "Tel. 030/123 4567" + lineSep);
+        SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.CGM_Z1, true);
+        Map<String, String> map = svgExtractor.extract(PDDocument.load(getClass().getResourceAsStream("/muster-16-print-samples/cgm-z1-manuel-blechschmidt.pdf")));
 
         Muster16SvgExtractorRegexParser parser = new Muster16SvgExtractorRegexParser(map);
 
@@ -41,30 +33,18 @@ public class Muster16SvgExtractorRegexParserTest {
         assertEquals("7", parser.parsePatientStreetNumber());
         assertEquals("10629", parser.parsePatientZipCode());
         assertEquals("Berlin", parser.parsePatientCity());
-        assertEquals("16.07.86", parser.parsePatientDateOfBirth());
+        assertEquals("1986-07-16", parser.parsePatientDateOfBirth());
         assertEquals("30001234", parser.parseClinicId());
         assertEquals("30001234", parser.parseDoctorId());
-        assertEquals("13.04.21", parser.parsePrescriptionDate());
+        assertEquals("2021-04-13", parser.parsePrescriptionDate());
         assertEquals("V062074590", parser.parsePatientInsuranceId());
     }
 
     @Test
-    void testParse_CGMTurboMed() {
+    void testParse_CGMTurboMed() throws URISyntaxException, IOException, XMLStreamException {
 
-        Map<String, String> map = new HashMap<>();
-
-        map.put("insurance", "Bahn - BKK                  " + lineSep);
-        map.put("withPayment", "X" + lineSep);
-        map.put("withoutPayment", lineSep);
-        map.put("nameAndAddress", "D 56070 Koblenz " + lineSep + "Maria Trost 21" + lineSep + "Dominik" + lineSep + "Banholzer" + lineSep);
-        map.put("birthdate", "19.07.87" + lineSep + "         " + lineSep);
-        map.put("payor", "109938331" + lineSep);
-        map.put("status", "5000000" + lineSep);
-        map.put("locationNumber", "999123456" + lineSep);
-        map.put("practitionerNumber", "471100815" + lineSep);
-        map.put("date", "30.04.21" + lineSep);
-        map.put("medication", "Novalgin AMP N1 5X2 ml" + lineSep + "-  -  -  -" + lineSep + "-  -  -  -" + lineSep + "PZN04527098" + lineSep);
-        map.put("practitionerText", "0261-110110" + lineSep + "56068 Koblenz" + lineSep + "Neustraße 10" + lineSep + "Arzt--Hausarzt" + lineSep + "Dr. E-Reze pt Testarzt 2" + lineSep);
+        SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.CGM_TURBO_MED, true);
+        Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/CGM-Turbomed/test1.pdf")));
 
         Muster16SvgExtractorRegexParser parser = new Muster16SvgExtractorRegexParser(map);
 
@@ -76,31 +56,17 @@ public class Muster16SvgExtractorRegexParserTest {
         assertEquals("21", parser.parsePatientStreetNumber());
         assertEquals("56070", parser.parsePatientZipCode());
         assertEquals("Koblenz", parser.parsePatientCity());
-        assertEquals("19.07.87", parser.parsePatientDateOfBirth());
+        assertEquals("1987-07-19", parser.parsePatientDateOfBirth());
         assertEquals("999123456", parser.parseClinicId());
         assertEquals("471100815", parser.parseDoctorId());
-        assertEquals("30.04.21", parser.parsePrescriptionDate());
+        assertEquals("2021-04-30", parser.parsePrescriptionDate());
     }
 
     @Test
-    void testParse_Dens1() {
+    void testParse_Dens1() throws URISyntaxException, IOException, XMLStreamException {
 
-        Map<String, String> map = new HashMap<>();
-
-        map.put("insurance", "DENS GmbH                     " + lineSep);
-        map.put("withPayment", "X" + lineSep);
-        map.put("withoutPayment", lineSep);
-        map.put("additionalPayment", lineSep);
-        map.put("nameAndAddress", "Heckner" + lineSep + "Dr. Markus       " + lineSep + "Berliner Str. 12" + lineSep + "D 14513 Teltow   " + lineSep);
-        map.put("birthdate", "     14.02.76" + lineSep + "        " + lineSep);
-        map.put("payor", "          " + lineSep);
-        map.put("insuranceNumber", "           " + lineSep);
-        map.put("status", "  3000000" + lineSep);
-        map.put("locationNumber", " 30000000" + lineSep);
-        map.put("practitionerNumber", "  30000000" + lineSep);
-        map.put("date", "  29.04.21" + lineSep);
-        map.put("medication", "Ibuprofen 600mg 1-1-1" + lineSep + "Omeprazol  40 mg  0-0-1" + lineSep + "Amoxicillin 1.000 mg 1-0-1" + lineSep);
-        map.put("practitionerText", "DENS GmbH" + lineSep + "Berliner Str. 13" + lineSep + "14513 Teltow" + lineSep + "03328-334540" + lineSep + "Fax: 03328-334547" + lineSep);
+        SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.DENS, true);
+        Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/DENSoffice - Rezept1.pdf")));
 
         Muster16SvgExtractorRegexParser parser = new Muster16SvgExtractorRegexParser(map);
 
@@ -111,9 +77,30 @@ public class Muster16SvgExtractorRegexParserTest {
         assertEquals("12", parser.parsePatientStreetNumber());
         assertEquals("14513", parser.parsePatientZipCode());
         assertEquals("Teltow", parser.parsePatientCity());
-        assertEquals("14.02.76", parser.parsePatientDateOfBirth());
+        assertEquals("1976-02-14", parser.parsePatientDateOfBirth());
         assertEquals("30000000", parser.parseClinicId());
         assertEquals("30000000", parser.parseDoctorId());
-        assertEquals("29.04.21", parser.parsePrescriptionDate());
+        assertEquals("2021-04-29", parser.parsePrescriptionDate());
+    }
+
+    @Test
+    void testExtractDensErezept() throws URISyntaxException, IOException, XMLStreamException {
+
+        SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.DENS, true);
+        Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/eRezept.pdf")));
+
+        Muster16SvgExtractorRegexParser parser = new Muster16SvgExtractorRegexParser(map);
+
+        assertEquals("DENS GmbH", parser.parseInsuranceCompany());
+        assertEquals("Dr. Markus", parser.parsePatientFirstName());
+        assertEquals("Heckner", parser.parsePatientLastName());
+        assertEquals("Testweg", parser.parsePatientStreetName());
+        assertEquals("1", parser.parsePatientStreetNumber());
+        assertEquals("13403", parser.parsePatientZipCode());
+        assertEquals("Berlin", parser.parsePatientCity());
+        assertEquals("1976-02-14", parser.parsePatientDateOfBirth());
+        assertEquals("30000000", parser.parseClinicId());
+        assertEquals("30000000", parser.parseDoctorId());
+        assertEquals("2021-04-26", parser.parsePrescriptionDate());
     }
 }
