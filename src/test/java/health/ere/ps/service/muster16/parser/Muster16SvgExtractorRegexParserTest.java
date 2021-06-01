@@ -2,7 +2,6 @@ package health.ere.ps.service.muster16.parser;
 
 import health.ere.ps.service.extractor.SVGExtractor;
 import health.ere.ps.service.extractor.SVGExtractorConfiguration;
-import health.ere.ps.service.muster16.parser.regex.Muster16SvgExtractorRegexParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.junit.jupiter.api.Test;
 
