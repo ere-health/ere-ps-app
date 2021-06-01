@@ -256,7 +256,7 @@ public class Muster16SvgExtractorRegexParser implements IMuster16FormParser {
     private int calculateTargetYear(int targetId) {
         int currentYear = Calendar.getInstance().get(Calendar.YEAR);
         int currentId = currentYear % 100;
-        return currentYear - currentId - 100 * (targetId > currentId ? 1 : 0) + targetId;
+        return currentYear - currentId - 100 * (targetId > currentId + 1 ? 1 : 0) + targetId;
     }
 
     private LocalDate parseShortOrdinalDate(String entry) {
