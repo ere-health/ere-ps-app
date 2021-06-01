@@ -10,8 +10,10 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -189,10 +191,16 @@ public class DocumentService {
 
 	}
 
-	File createTemporaryXmlFileFromBundle(Bundle bundle) throws IOException {
+	File createTemporaryXmlFileFromBundles(List<BundleWithAccessCodeOrThrowable> bundles) throws IOException {
 		Path applicationTempPath = Files.createTempFile("bundle-", ".xml");
 		File tmpFile = applicationTempPath.toFile();
-		String serialized = ctx.newXmlParser().encodeResourceToString(bundle);
+		String serialized = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root xmlns=\"http://hl7.org/fhir\">\n"+
+			bundles.stream().map(bundle ->
+				"    <bundle>\n"+
+				"        <accessCode>"+bundle.accessCode+"</accessCode>\n"+
+				"        "+ctx.newXmlParser().encodeResourceToString(bundle.bundle)+"\n"+
+				"    </bundle>").collect(Collectors.joining("\n"))+
+			"\n</root>";
 		Files.write(tmpFile.toPath(), serialized.getBytes());
 		return tmpFile;
 	}
@@ -204,8 +212,7 @@ public class DocumentService {
 				log.warning("Empty bundle given");
 				return null;
 			}
-			// TODO: support multiple bundles
-			xml = createTemporaryXmlFileFromBundle(bundles.get(0).bundle);
+			xml = createTemporaryXmlFileFromBundles(bundles);
 			return generatePdfInOutputStream(xml);
 		} catch (IOException | FOPException | TransformerFactoryConfigurationError | TransformerException e) {
 			log.log(Level.SEVERE, "Could not generate ERezept PDF", e);
