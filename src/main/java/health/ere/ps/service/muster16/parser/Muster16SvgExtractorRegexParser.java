@@ -1,6 +1,5 @@
-package health.ere.ps.service.muster16.parser.regex;
+package health.ere.ps.service.muster16.parser;
 
-import health.ere.ps.service.muster16.parser.IMuster16FormParser;
 import health.ere.ps.model.muster16.MedicationString;
 
 import java.time.LocalDate;
@@ -11,7 +10,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
 
 
 public class Muster16SvgExtractorRegexParser implements IMuster16FormParser {
@@ -75,7 +73,7 @@ public class Muster16SvgExtractorRegexParser implements IMuster16FormParser {
 
     private void parseFirstName(String entry) {
         parseFirstNamePrefix(entry);
-        entry = entry.replaceAll(NAME_PREFIX.pattern(),"");
+        entry = entry.replaceAll(NAME_PREFIX.pattern(), "");
         parsedValues.put("patientFirstName", cleanToken(entry));
     }
 
@@ -224,24 +222,24 @@ public class Muster16SvgExtractorRegexParser implements IMuster16FormParser {
     }
 
     //region Parsing-Utils
-    String removeExtraSpaces(String entry) {
+    private String removeExtraSpaces(String entry) {
         return EXTRA_WHITE_SPACE.matcher(entry).replaceAll(" ").trim();
     }
 
-    String cleanToken(String entry) {
+    private String cleanToken(String entry) {
         return removeExtraSpaces(entry);
     }
 
-    String cleanNoise(String entry, Pattern pattern) {
+    private String cleanNoise(String entry, Pattern pattern) {
         Matcher matcher = pattern.matcher(entry);
         return matcher.find() ? matcher.group(0) : cleanToken(entry);
     }
 
-    boolean matches(String input, Pattern pattern) {
+    private boolean matches(String input, Pattern pattern) {
         return pattern.matcher(input).matches();
     }
 
-    Optional<String> matchAndExtractLine(List<String> lines, Pattern pattern) {
+    private Optional<String> matchAndExtractLine(List<String> lines, Pattern pattern) {
 
         OptionalInt indexOpt = IntStream.range(0, lines.size())
                 .filter(i -> matches(lines.get(i), pattern))
@@ -278,7 +276,7 @@ public class Muster16SvgExtractorRegexParser implements IMuster16FormParser {
         }
     }
 
-    LocalDate parseDate(String entry) {
+    private LocalDate parseDate(String entry) {
         LocalDate date;
         if (matches(entry, SHORT_ORDINAL_DATE_FORMAT) != null)
             return parseShortOrdinalDate(entry);
@@ -288,7 +286,7 @@ public class Muster16SvgExtractorRegexParser implements IMuster16FormParser {
             return null;
     }
 
-    public String reformatDate(String entry) {
+    private String reformatDate(String entry) {
         LocalDate date = parseDate(entry);
         return date != null ? STANDARD_DATE_FORMAT.format(date) : null;
     }
