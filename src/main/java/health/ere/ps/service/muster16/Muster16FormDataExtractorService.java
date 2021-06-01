@@ -1,8 +1,10 @@
 package health.ere.ps.service.muster16;
 
 
-import java.io.StringBufferInputStream;
-import java.net.URISyntaxException;
+import org.apache.commons.lang3.StringUtils;
+
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,7 +35,10 @@ public class Muster16FormDataExtractorService {
 
     public void extractData(String muster16PdfFileData) {
         IMuster16FormParser parser =
-                new Muster16FormDataParser(new StringBufferInputStream(muster16PdfFileData),
+                new Muster16FormDataParser(
+                        new ByteArrayInputStream(
+                                StringUtils.defaultString(
+                                        muster16PdfFileData).getBytes(StandardCharsets.UTF_8)),
                         new SimpleDataExtractor(), null, new SimpleDataFormatter());
         Muster16PrescriptionForm muster16Form = new Muster16PrescriptionForm(
                 parser.parseInsuranceCompany(),
