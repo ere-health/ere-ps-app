@@ -1,9 +1,5 @@
 package health.ere.ps.service.idp.crypto;
 
-import health.ere.ps.exception.idp.crypto.IdpCryptoException;
-import health.ere.ps.model.idp.crypto.PkiIdentity;
-import health.ere.ps.service.common.security.SecretsManagerService;
-
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.io.ByteArrayInputStream;
@@ -24,8 +20,8 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Enumeration;
 import java.util.Optional;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import health.ere.ps.exception.idp.crypto.IdpCryptoException;
+import health.ere.ps.model.idp.crypto.PkiIdentity;
 
 public class CryptoLoader {
 
@@ -79,6 +75,7 @@ public class CryptoLoader {
             }
         } catch (final IOException | KeyStoreException | NoSuchAlgorithmException
                 | UnrecoverableKeyException | CertificateException e) {
+
             throw new IdpCryptoException(e);
         }
         throw new IdpCryptoException("Could not find certificate in P12-File");

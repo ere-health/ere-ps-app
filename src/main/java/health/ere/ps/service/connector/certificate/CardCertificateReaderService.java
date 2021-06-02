@@ -4,6 +4,7 @@ import de.gematik.ws.conn.certificateservice.v6.ReadCardCertificateResponse;
 import de.gematik.ws.conn.certificateservicecommon.v2.X509DataInfoListType;
 import de.gematik.ws.conn.connectorcommon.v5.Status;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -12,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,10 +46,10 @@ public class CardCertificateReaderService {
     public void init() {
         if (smcbIdentityCertificate != null && !("".equals(smcbIdentityCertificate))
                 && !("!".equals(smcbIdentityCertificate))) {
-            log.info(CardCertificateReaderService.class.getSimpleName()+" uses SMCB "+smcbIdentityCertificate);
+            log.info(CardCertificateReaderService.class.getSimpleName() + " uses SMCB " + smcbIdentityCertificate);
             try (InputStream is = new FileInputStream(smcbIdentityCertificate)) {
                 setMockCertificate(is.readAllBytes());
-            } catch(IOException e) {
+            } catch (IOException e) {
                 log.log(Level.SEVERE, "Could find file", e);
             }
         }
@@ -66,9 +68,9 @@ public class CardCertificateReaderService {
      */
     public byte[] readCardCertificate(InvocationContext invocationContext, String cardHandle)
             throws ConnectorCardCertificateReadException {
-        byte[] x509Certificate = null;
-        
-        if(mockCertificate != null) {
+        byte[] x509Certificate = new byte[0];
+
+        if (mockCertificate != null) {
             return mockCertificate;
         }
 
@@ -79,13 +81,14 @@ public class CardCertificateReaderService {
         if (status != null && status.getResult().equals(STATUS_OK)) {
             X509DataInfoListType x509DataInfoList = readCardCertificateResponse.getX509DataInfoList();
             List<X509DataInfoListType.X509DataInfo> x509DataInfos = x509DataInfoList.getX509DataInfo();
-            if (x509DataInfos != null && !x509DataInfos.isEmpty()) {
-                X509DataInfoListType.X509DataInfo x509DataInfo = x509DataInfos.get(0);
-                x509Certificate = x509DataInfo.getX509Data().getX509Certificate();
+            if (CollectionUtils.isNotEmpty(x509DataInfos)) {
+                log.log(Level.INFO, "Certificate list size = " + x509DataInfos.size());
+
+                x509Certificate = x509DataInfos.get(0).getX509Data().getX509Certificate();
             }
         }
 
-        if(ArrayUtils.isEmpty(x509Certificate)) {
+        if (ArrayUtils.isEmpty(x509Certificate)) {
             throw new ConnectorCardCertificateReadException("Could not retrieve connector smart " +
                     "card certificate from the connector.");
         }
@@ -117,9 +120,10 @@ public class CardCertificateReaderService {
         try (InputStream is = new ByteArrayInputStream(connector_cert_auth)) {
             identity = CryptoLoader.getIdentityFromP12(is, connectorCertAuthPassword);
 
-        } catch (IOException e) {
-           throw new ConnectorCardCertificateReadException("Error getting C_AUTH PKI Identity",
-                   e);
+        } catch (Throwable e) {
+
+            throw new ConnectorCardCertificateReadException("Error getting C_AUTH PKI Identity",
+                    e);
         }
 
         return identity;

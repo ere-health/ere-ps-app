@@ -26,6 +26,7 @@ import health.ere.ps.model.idp.client.IdpTokenResult;
 import health.ere.ps.model.idp.crypto.PkiIdentity;
 import health.ere.ps.service.connector.certificate.CardCertReadExecutionService;
 import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
+import health.ere.ps.service.idp.crypto.CryptoLoader;
 import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest
@@ -91,7 +92,6 @@ public class IdpClientTest {
 
         InputStream p12Certificate = CardCertificateReaderService.class.getResourceAsStream("/ps_erp_incentergy_01.p12");
         cardCertReadExecutionService.setUpCustomSSLContext(p12Certificate);
-        AuthenticatorClient authenticatorClient = new AuthenticatorClient();
 
         discoveryDocumentUrl = idpBaseUrl + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
 
