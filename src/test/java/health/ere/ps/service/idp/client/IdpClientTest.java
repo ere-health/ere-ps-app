@@ -83,7 +83,7 @@ public class IdpClientTest {
     }
 
     // @Disabled("Disabled until Titus Idp Card Certificate Service API Endpoint Is Fixed By Gematik")
-    @Test @Disabled
+    @Test
     public void test_Successful_Idp_Login_With_Gematik_Card()
             throws ConnectorCardCertificateReadException, IdpException,
             IdpClientException, IdpCryptoException, IdpJoseException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
