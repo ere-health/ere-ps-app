@@ -5,20 +5,33 @@ import java.util.List;
 import health.ere.ps.model.muster16.MedicationString;
 
 public interface IMuster16FormParser {
-    public String parseInsuranceCompany();
-    public String parseInsuranceCompanyId();
-    public String parsePatientFirstName();
-    public String parsePatientLastName();
-    public String parsePatientStreetName();
-    public String parsePatientStreetNumber();
-    public String parsePatientCity();
-    public String parsePatientZipCode();
-    public String parsePatientDateOfBirth();
-    public String parseClinicId();
-    public String parseDoctorId() ;
-    public String parsePrescriptionDate();
-    public List<MedicationString> parsePrescriptionList();
-    public String parsePatientInsuranceId();
+    String parseInsuranceCompany();
+
+    String parseInsuranceCompanyId();
+
+    String parsePatientFirstName();
+
+    String parsePatientLastName();
+
+    String parsePatientStreetName();
+
+    String parsePatientStreetNumber();
+
+    String parsePatientCity();
+
+    String parsePatientZipCode();
+
+    String parsePatientDateOfBirth();
+
+    String parseClinicId();
+
+    String parseDoctorId();
+
+    String parsePrescriptionDate();
+
+    List<MedicationString> parsePrescriptionList();
+
+    String parsePatientInsuranceId();
 
     default boolean isDataFieldPresentAtPosition(String[] muster16PdfDataFields,
                                                  int fieldPosition) {
@@ -28,7 +41,15 @@ public interface IMuster16FormParser {
 
     default String getDataFieldAtPosOrDefault(String[] muster16PdfDataFields,
                                               int fieldPosition, String defaultValue) {
-        return isDataFieldPresentAtPosition(muster16PdfDataFields, fieldPosition)?
+        return isDataFieldPresentAtPosition(muster16PdfDataFields, fieldPosition) ?
                 muster16PdfDataFields[fieldPosition] : defaultValue;
+    }
+
+    default String parsePatientNameTitle() {
+        return "";
+    }
+
+    default String parsePatientCountryCode() {
+        return "";
     }
 }

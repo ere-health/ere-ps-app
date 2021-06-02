@@ -2,6 +2,7 @@ package health.ere.ps.service.muster16.parser;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -25,7 +26,7 @@ import health.ere.ps.service.muster16.parser.filter.DataFilter;
 import health.ere.ps.service.muster16.parser.formatter.DataFormatter;
 
 public class Muster16FormDataParser implements IMuster16FormParser {
-    protected static final int TARGET_PARSED_FIELD_SLOTS = 14;
+    protected static final int TARGET_PARSED_FIELD_SLOTS = 16;
     protected String muster16PdfData;
     protected List<String> formattedMuster16Data;
     protected InputStream muster16PdfInputStream;
@@ -39,8 +40,10 @@ public class Muster16FormDataParser implements IMuster16FormParser {
     protected enum Muster16FormField {
         INSURANCE_COMPANY,
         INSURANCE_COMPANY_ID,
+        PATIENT_NAME_TITLE,
         PATIENT_FIRST_NAME,
         PATIENT_LAST_NAME,
+        PATIENT_COUNTRY_CODE,
         PATIENT_STREET_NAME,
         PATIENT_STREET_NUMBER,
         PATIENT_CITY,
@@ -138,35 +141,127 @@ public class Muster16FormDataParser implements IMuster16FormParser {
         return this;
     }
 
+    @Override
     public String parseInsuranceCompany() {
         if (getParsedFieldsCacheValue(Muster16FormField.INSURANCE_COMPANY).isPresent()) {
-            return (String) getParsedFieldsCacheValue(Muster16FormField.INSURANCE_COMPANY).get();
+            return getParsedFieldsCacheValue(
+                    Muster16FormField.INSURANCE_COMPANY).get().values().stream().findAny().get();
         }
 
         String insuranceCompany = getDataFieldAtPosOrDefault(
                 (String[]) formattedMuster16Data.toArray(), 0, "").trim();
 
+        parsedFieldsCache.put(Muster16FormField.INSURANCE_COMPANY, Map.of(0, insuranceCompany));
+
         return insuranceCompany;
     }
 
+    @Override
     public String parseInsuranceCompanyId() {
         parseInsuranceCompanyIdAndPatientInsuranceId();
 
         if (getParsedFieldsCacheValue(Muster16FormField.INSURANCE_COMPANY_ID).isPresent()) {
-            return (String) getParsedFieldsCacheValue(Muster16FormField.INSURANCE_COMPANY_ID).get();
+            return getParsedFieldsCacheValue(
+                    Muster16FormField.INSURANCE_COMPANY_ID).get().values().stream().findAny().get();
         }
 
         return "";
     }
 
-    public String parsePatientFirstName() {
-        String patientFirstName = "";
+    protected void parsePatientName() {
+        if (getParsedFieldsCacheValue(Muster16FormField.PATIENT_FIRST_NAME).isPresent() &&
+                getParsedFieldsCacheValue(Muster16FormField.PATIENT_LAST_NAME).isPresent()) {
+                return;
+        }
 
-        return patientFirstName;
+        parseInsuranceCompany();
+
+        Map<Integer, String> insuranceCompanyLineMap =
+                getParsedFieldsCacheValue(Muster16FormField.INSURANCE_COMPANY).orElse(
+                        Collections.emptyMap());
+
+        List<Map<Integer, String>> dates = getFormDates();
+
+        if (dates.size() == 2 && MapUtils.isNotEmpty(insuranceCompanyLineMap)) {
+            int targetMapIndex = 1;
+            int targetInsuranceCompanyLineIndex =
+                    insuranceCompanyLineMap.keySet().stream().findAny().get();
+            int targetLineIndex = dates.get(targetMapIndex).keySet().stream().findAny().get() - 4;
+            int targetLinesCount = (targetLineIndex - targetInsuranceCompanyLineIndex);
+            String[] nameComponents;
+
+            // Capture name components
+            for(int i = 1; i <= targetLinesCount; i++) {
+                nameComponents = formattedMuster16Data.get(i).split("\\s+,?");
+
+                if(i == 1) {
+                    if(ArrayUtils.isNotEmpty(nameComponents) && nameComponents.length >= 2 &&
+                            targetLinesCount == 1) {
+                        parsedFieldsCache.put(Muster16FormField.PATIENT_LAST_NAME,
+                                Map.of(i, nameComponents[0].trim()));
+                        parsedFieldsCache.put(Muster16FormField.PATIENT_FIRST_NAME,
+                                Map.of(i, nameComponents[1].trim()));
+                        break;
+                    } else if(ArrayUtils.isNotEmpty(nameComponents) && nameComponents.length >= 1 &&
+                            targetLinesCount == 2) {
+                        parsedFieldsCache.put(Muster16FormField.PATIENT_LAST_NAME,
+                                Map.of(i, nameComponents[0].trim()));
+                    }
+
+                } else if(i == 2) {
+                    if(ArrayUtils.isNotEmpty(nameComponents) && nameComponents.length >= 2) {
+                        parsedFieldsCache.put(Muster16FormField.PATIENT_NAME_TITLE,
+                                Map.of(i, nameComponents[0].trim()));
+                        parsedFieldsCache.put(Muster16FormField.PATIENT_FIRST_NAME,
+                                Map.of(i, nameComponents[1].trim()));
+                    } else if(ArrayUtils.isNotEmpty(nameComponents) && nameComponents.length >= 1) {
+                        parsedFieldsCache.put(Muster16FormField.PATIENT_FIRST_NAME,
+                                Map.of(i, nameComponents[0].trim()));
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    @Override
+    public String parsePatientNameTitle() {
+        parsePatientName();
+
+        if(getParsedFieldsCacheValue(Muster16FormField.PATIENT_NAME_TITLE).isPresent()) {
+            return getParsedFieldsCacheValue(
+                    Muster16FormField.PATIENT_NAME_TITLE).get().values().stream().findAny().get();
+        }
+
+        return "";
+    }
+
+    @Override
+    public String parsePatientFirstName() {
+        parsePatientName();
+
+        if(getParsedFieldsCacheValue(Muster16FormField.PATIENT_FIRST_NAME).isPresent()) {
+            return getParsedFieldsCacheValue(
+                    Muster16FormField.PATIENT_FIRST_NAME).get().values().stream().findAny().get();
+        }
+
+        return "";
+    }
+
+    @Override
+    public String parsePatientLastName() {
+        parsePatientName();
+
+        if(getParsedFieldsCacheValue(Muster16FormField.PATIENT_LAST_NAME).isPresent()) {
+            return getParsedFieldsCacheValue(
+                    Muster16FormField.PATIENT_LAST_NAME).get().values().stream().findAny().get();
+        }
+
+        return "";
     }
 
     protected void parsePatientAddress() {
-        if(getParsedFieldsCacheValue(Muster16FormField.PATIENT_CITY).isPresent() &&
+        if (getParsedFieldsCacheValue(Muster16FormField.PATIENT_CITY).isPresent() &&
                 getParsedFieldsCacheValue(Muster16FormField.PATIENT_STREET_NAME).isPresent() &&
                 getParsedFieldsCacheValue(Muster16FormField.PATIENT_STREET_NUMBER).isPresent() &&
                 getParsedFieldsCacheValue(Muster16FormField.PATIENT_ZIP_CODE).isPresent()) {
@@ -177,24 +272,31 @@ public class Muster16FormDataParser implements IMuster16FormParser {
         String streetName = "";
         String streetNumber = "";
         String city = "";
+        String countryCode = "";
         List<Map<Integer, String>> dates = getFormDates();
 
         if (dates.size() == 2) {
             int targetMapIndex = 1;
             int targetLineIndex = dates.get(targetMapIndex).keySet().stream().findAny().get() - 2;
 
-            String zipAndCityLine = formattedMuster16Data.get(targetLineIndex);
+            String countryCodeZipAndCityLine = formattedMuster16Data.get(targetLineIndex);
 
-            // Parse city and zip code.
-            if (StringUtils.isNotBlank(zipAndCityLine)) {
-                String[] lineSplits = zipAndCityLine.split("\\s+");
+            // Parse country code, city and zip code.
+            if (StringUtils.isNotBlank(countryCodeZipAndCityLine)) {
+                String[] lineSplits = countryCodeZipAndCityLine.split("\\s+,?");
 
                 if (ArrayUtils.isNotEmpty(lineSplits) && lineSplits.length >= 2) {
-                    city = lineSplits[lineSplits.length-1].trim();
-                    city = !NumberUtils.isDigits(city)? city: "";
+                    countryCode = lineSplits.length >= 3? lineSplits[0].trim() : "";
+                    city = lineSplits[lineSplits.length - 1].trim();
+                    city = !NumberUtils.isDigits(city) ? city : "";
                     zipCode = Arrays.stream(lineSplits).filter(
                             token -> token.trim().matches(
                                     "\\d\\d\\d\\d\\d")).findFirst().orElse("");
+
+                    if (StringUtils.isNotBlank(countryCode)) {
+                        parsedFieldsCache.put(Muster16FormField.PATIENT_COUNTRY_CODE,
+                                Map.of(targetLineIndex, countryCode));
+                    }
 
                     if (StringUtils.isNotBlank(city)) {
                         parsedFieldsCache.put(Muster16FormField.PATIENT_CITY,
@@ -217,13 +319,13 @@ public class Muster16FormDataParser implements IMuster16FormParser {
                 String[] lineSplits = streetNameAndNumberLine.split("\\s+");
 
                 if (ArrayUtils.isNotEmpty(lineSplits) && lineSplits.length >= 2) {
-                    streetNumber = lineSplits[lineSplits.length-1].trim();
+                    streetNumber = lineSplits[lineSplits.length - 1].trim();
                     streetNumber =
-                            Arrays.stream(streetNumber.split("")).anyMatch(c -> NumberUtils.isDigits(c))?
-                            streetNumber : "";
+                            Arrays.stream(streetNumber.split("")).anyMatch(c -> NumberUtils.isDigits(c)) ?
+                                    streetNumber : "";
                     streetName = Arrays.stream(ArrayUtils.subarray(lineSplits, 0,
-                            lineSplits.length-2)).collect(
-                                    Collectors.joining(" ")).trim();
+                            lineSplits.length - 2)).collect(
+                            Collectors.joining(" ")).trim();
 
                     if (StringUtils.isNotBlank(streetNumber)) {
                         parsedFieldsCache.put(Muster16FormField.PATIENT_STREET_NUMBER,
@@ -240,47 +342,61 @@ public class Muster16FormDataParser implements IMuster16FormParser {
         }
     }
 
-    public String parsePatientLastName() {
-        String patientLastName = "";
-
-        return patientLastName;
-    }
-
+    @Override
     public String parsePatientStreetName() {
         parsePatientAddress();
 
-        if(getParsedFieldsCacheValue(Muster16FormField.PATIENT_STREET_NAME).isPresent()) {
-            return (String)getParsedFieldsCacheValue(Muster16FormField.PATIENT_STREET_NAME).get();
+        if (getParsedFieldsCacheValue(Muster16FormField.PATIENT_STREET_NAME).isPresent()) {
+            return getParsedFieldsCacheValue(
+                    Muster16FormField.PATIENT_STREET_NAME).get().values().stream().findAny().get();
         }
 
         return "";
     }
 
+    @Override
     public String parsePatientStreetNumber() {
         parsePatientAddress();
 
-        if(getParsedFieldsCacheValue(Muster16FormField.PATIENT_STREET_NUMBER).isPresent()) {
-            return (String)getParsedFieldsCacheValue(Muster16FormField.PATIENT_STREET_NUMBER).get();
+        if (getParsedFieldsCacheValue(Muster16FormField.PATIENT_STREET_NUMBER).isPresent()) {
+            return getParsedFieldsCacheValue(
+                    Muster16FormField.PATIENT_STREET_NUMBER).get().values().stream().findAny().get();
         }
 
         return "";
     }
 
+    @Override
+    public String parsePatientCountryCode() {
+        parsePatientAddress();
+
+        if (getParsedFieldsCacheValue(Muster16FormField.PATIENT_COUNTRY_CODE).isPresent()) {
+            return getParsedFieldsCacheValue(
+                    Muster16FormField.PATIENT_COUNTRY_CODE).get().values().stream().findAny().get();
+        }
+
+        return "";
+    }
+
+    @Override
     public String parsePatientCity() {
         parsePatientAddress();
 
-        if(getParsedFieldsCacheValue(Muster16FormField.PATIENT_CITY).isPresent()) {
-            return (String)getParsedFieldsCacheValue(Muster16FormField.PATIENT_CITY).get();
+        if (getParsedFieldsCacheValue(Muster16FormField.PATIENT_CITY).isPresent()) {
+            return getParsedFieldsCacheValue(
+                    Muster16FormField.PATIENT_CITY).get().values().stream().findAny().get();
         }
 
         return "";
     }
 
+    @Override
     public String parsePatientZipCode() {
         parsePatientAddress();
 
-        if(getParsedFieldsCacheValue(Muster16FormField.PATIENT_ZIP_CODE).isPresent()) {
-            return (String)getParsedFieldsCacheValue(Muster16FormField.PATIENT_ZIP_CODE).get();
+        if (getParsedFieldsCacheValue(Muster16FormField.PATIENT_ZIP_CODE).isPresent()) {
+            return getParsedFieldsCacheValue(
+                    Muster16FormField.PATIENT_ZIP_CODE).get().values().stream().findAny().get();
         }
 
         return "";
@@ -298,11 +414,12 @@ public class Muster16FormDataParser implements IMuster16FormParser {
 
         for (int i = 0; isDataFieldPresentAtPosition(muster16PdfDataFields, i) &&
                 i < muster16PdfDataFields.length; i++) {
-            lineElements = muster16PdfDataFields[i].split("\\s");
+            lineElements = muster16PdfDataFields[i].split("\\s+");
 
             if (lineElements != null) {
                 for (int j = 0; j < lineElements.length; j++) {
-                    if (lineElements[j].trim().matches("\\d\\d\\.\\d\\d\\.\\d\\d")) {
+                    if (lineElements[j].trim().matches("\\d\\d\\.\\d\\d\\.\\d\\d | \\d\\d\\" +
+                                    ".\\d\\d\\.\\d\\d\\d\\d")) {
                         datesMap = new HashMap<>();
 
                         datesMap.put(i, lineElements[j].trim());
@@ -323,6 +440,7 @@ public class Muster16FormDataParser implements IMuster16FormParser {
         return dates;
     }
 
+    @Override
     public String parsePatientDateOfBirth() {
         int index = 0;
         List<Map<Integer, String>> dates = getFormDates();
@@ -331,11 +449,16 @@ public class Muster16FormDataParser implements IMuster16FormParser {
         return patientDateOfBirth;
     }
 
-    protected Optional<?> getParsedFieldsCacheValue(Muster16FormField cacheKey) {
-        return Optional.ofNullable(parsedFieldsCache.get(cacheKey).values().stream().findAny().get());
+    protected Optional<Map<Integer, String>> getParsedFieldsCacheValue(Muster16FormField cacheKey) {
+        return Optional.ofNullable(parsedFieldsCache.get(cacheKey));
     }
 
     protected void parseDoctorIdAndClinicId() {
+        if(getParsedFieldsCacheValue(Muster16FormField.CLINIC_ID).isPresent() &&
+            getParsedFieldsCacheValue(Muster16FormField.DOCTOR_ID).isPresent()) {
+            return;
+        }
+
         String doctorId = "";
         String clinicId = "";
         List<Map<Integer, String>> dates = getFormDates();
@@ -359,29 +482,36 @@ public class Muster16FormDataParser implements IMuster16FormParser {
         }
     }
 
+    @Override
     public String parseClinicId() {
+        parseDoctorIdAndClinicId();
+
         if (getParsedFieldsCacheValue(Muster16FormField.CLINIC_ID).isPresent()) {
-            return (String) getParsedFieldsCacheValue(Muster16FormField.CLINIC_ID).get();
+            return getParsedFieldsCacheValue(
+                    Muster16FormField.CLINIC_ID).get().values().stream().findAny().get();
         }
-
-        parseDoctorIdAndClinicId();
 
         return "";
     }
 
+    @Override
     public String parseDoctorId() {
+        parseDoctorIdAndClinicId();
         if (getParsedFieldsCacheValue(Muster16FormField.DOCTOR_ID).isPresent()) {
-            return (String) getParsedFieldsCacheValue(Muster16FormField.DOCTOR_ID).get();
+            return getParsedFieldsCacheValue(
+                    Muster16FormField.DOCTOR_ID).get().values().stream().findAny().get();
         }
 
-        parseDoctorIdAndClinicId();
+
 
         return "";
     }
 
+    @Override
     public String parsePrescriptionDate() {
         if (getParsedFieldsCacheValue(Muster16FormField.PRESCRIPTION_DATE).isPresent()) {
-            return (String) getParsedFieldsCacheValue(Muster16FormField.PRESCRIPTION_DATE).get();
+            return getParsedFieldsCacheValue(
+                    Muster16FormField.PRESCRIPTION_DATE).get().values().stream().findAny().get();
         }
 
         String prescriptionDate = "";
@@ -402,6 +532,7 @@ public class Muster16FormDataParser implements IMuster16FormParser {
         return prescriptionDate;
     }
 
+    @Override
     public List<MedicationString> parsePrescriptionList() {
         List<MedicationString> prescriptionList = new ArrayList<>(1);
 
@@ -445,11 +576,13 @@ public class Muster16FormDataParser implements IMuster16FormParser {
         }
     }
 
+    @Override
     public String parsePatientInsuranceId() {
         parseInsuranceCompanyIdAndPatientInsuranceId();
 
         if (getParsedFieldsCacheValue(Muster16FormField.PATIENT_INSURANCE_ID).isPresent()) {
-            return (String) getParsedFieldsCacheValue(Muster16FormField.PATIENT_INSURANCE_ID).get();
+            return getParsedFieldsCacheValue(
+                    Muster16FormField.PATIENT_INSURANCE_ID).get().values().stream().findAny().get();
         }
 
         return "";
