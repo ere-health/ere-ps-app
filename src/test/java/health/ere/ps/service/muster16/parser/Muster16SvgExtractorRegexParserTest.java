@@ -2,6 +2,7 @@ package health.ere.ps.service.muster16.parser;
 
 import health.ere.ps.service.extractor.SVGExtractor;
 import health.ere.ps.service.extractor.SVGExtractorConfiguration;
+import health.ere.ps.service.muster16.parser.rgxer.Muster16SvgRegexParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +23,7 @@ public class Muster16SvgExtractorRegexParserTest {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.CGM_Z1, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(getClass().getResourceAsStream("/muster-16-print-samples/cgm-z1-manuel-blechschmidt.pdf")));
 
-        Muster16SvgExtractorRegexParser parser = new Muster16SvgExtractorRegexParser(map);
+        Muster16SvgRegexParser parser = new Muster16SvgRegexParser(map);
 
         assertEquals("TK > Brandenburg 83", parser.parseInsuranceCompany());
         assertEquals("100696012", parser.parseInsuranceCompanyId());
@@ -46,7 +47,7 @@ public class Muster16SvgExtractorRegexParserTest {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.CGM_TURBO_MED, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/CGM-Turbomed/test1.pdf")));
 
-        Muster16SvgExtractorRegexParser parser = new Muster16SvgExtractorRegexParser(map);
+        Muster16SvgRegexParser parser = new Muster16SvgRegexParser(map);
 
         assertEquals("Bahn - BKK", parser.parseInsuranceCompany());
         assertEquals("109938331", parser.parseInsuranceCompanyId());
@@ -70,7 +71,7 @@ public class Muster16SvgExtractorRegexParserTest {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.DENS, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/DENSoffice - Rezept1.pdf")));
 
-        Muster16SvgExtractorRegexParser parser = new Muster16SvgExtractorRegexParser(map);
+        Muster16SvgRegexParser parser = new Muster16SvgRegexParser(map);
 
         assertEquals("DENS GmbH", parser.parseInsuranceCompany());
         assertEquals("", parser.parseInsuranceCompanyId());
@@ -94,7 +95,7 @@ public class Muster16SvgExtractorRegexParserTest {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.DENS, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/eRezept.pdf")));
 
-        Muster16SvgExtractorRegexParser parser = new Muster16SvgExtractorRegexParser(map);
+        Muster16SvgRegexParser parser = new Muster16SvgRegexParser(map);
 
         assertEquals("DENS GmbH", parser.parseInsuranceCompany());
         assertEquals("", parser.parseInsuranceCompanyId());
