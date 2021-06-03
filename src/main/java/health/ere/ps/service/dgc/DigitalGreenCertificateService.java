@@ -43,7 +43,7 @@ public class DigitalGreenCertificateService {
     }
     
     public byte[] issue(VaccinationCertificateRequest vaccinationCertificateRequest) {
-        Response response = client.target(issuerAPIUrl).request().header("Authorization", "Bearer " + bearerToken).post(Entity.json(vaccinationCertificateRequest));
+        Response response = client.target(issuerAPIUrl).request("application/pdf").header("Authorization", "Bearer " + bearerToken).post(Entity.json(vaccinationCertificateRequest));
 
         byte[] pdf;
         try {
@@ -51,7 +51,8 @@ public class DigitalGreenCertificateService {
             if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
                 throw new RuntimeException(new String(pdf));
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
+            init();
             throw new RuntimeException(e);
         }
         return pdf;
