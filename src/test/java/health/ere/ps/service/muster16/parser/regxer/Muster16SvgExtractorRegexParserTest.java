@@ -1,4 +1,4 @@
-package health.ere.ps.service.muster16.parser;
+package health.ere.ps.service.muster16.parser.regxer;
 
 import health.ere.ps.service.extractor.SVGExtractor;
 import health.ere.ps.service.extractor.SVGExtractorConfiguration;
