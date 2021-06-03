@@ -108,7 +108,7 @@ public class IdpClientTest {
         Assertions.assertNotNull(idpTokenResult.getIdToken(), "Id Token present");
     }
 
-    @Test @Disabled
+    @Test/* @Disabled*/
     public void test_Successful_Idp_Login()
             throws ConnectorCardCertificateReadException, IdpException,
             IdpClientException, IdpCryptoException, IdpJoseException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
