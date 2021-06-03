@@ -10,8 +10,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script type="text/javascript">
-    function sendVacinationRequest(form) {
-        let oVacinationRequest = {
+    function sendVacinationRequest() {
+        const form = document.getElementById("vacination-request-form");
+        const oVacinationRequest = {
             "ver": "1.0.0",
             "nam": {
             "fn": form.elements["fn"].value,
@@ -24,13 +25,17 @@
                 "vp": form.elements["vp"].value,
                 "mp": form.elements["mp"].value,
                 "ma": form.elements["ma"].value,
-                "dn": form.elements["dn"].value,
-                "sd": form.elements["sd"].value,
+                "dn": parseInt(form.elements["dn"].value),
+                "sd": parseInt(form.elements["sd"].value),
                 "dt": form.elements["dt"].value
             }
             ]
         };
-        fetch({url: "/api/certify/v2/issue", body: JSON.stringify(oVacinationRequest)}).then(function(response) {
+        fetch("/api/certify/v2/issue", {
+            method: "POST",
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(oVacinationRequest)
+        }).then(function(response) {
             return response.arrayBuffer();
         }).then(function(buffer) {
             const blob = new Blob([buffer]);
@@ -46,8 +51,8 @@
             <div class="header">
             <div class="logo">
                 <img
-                                src = "../frontend/app/src/assets/images/ere.health-logo.svg"
-                                alt = "ere.health Logo"
+                    src = "../frontend/app/src/assets/images/ere.health-logo.svg"
+                    alt = "ere.health Logo"
                 />
             </div>
             </div>
@@ -56,11 +61,11 @@
             <div class="recipe-wrapper active" id="unsigned_1">
                 <div class="title-rezept-button">
                   <h2>COVID-19 Impfzertifikat</strong></h2>
-                  <button id="sign-recipe" onclick="sendVacinationRequest(this.form);" class="open-modal jet-btn" style="">
+                  <button id="sign-recipe" onclick="sendVacinationRequest();" class="open-modal jet-btn" style="">
                     Zertifikat erstellen
                   </button>
                 </div>
-                <form>
+                <form id="vacination-request-form">
                     <fieldset>
                         <legend>Patientendaten</legend>
 

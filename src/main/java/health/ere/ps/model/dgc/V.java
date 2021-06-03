@@ -5,8 +5,8 @@ public class V{
     public String vp;
     public String mp;
     public String ma;
-    public int dn;
-    public int sd;
+    public Integer dn;
+    public Integer sd;
     public String dt;
     public String co;
     public String is;
