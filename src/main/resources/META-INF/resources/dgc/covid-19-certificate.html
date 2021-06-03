@@ -1,0 +1,89 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>ere.health COVID-19 Zertifikate drucken</title>
+    <link rel="stylesheet" href="../frontend/app/src/assets/css/main-style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="home-page">
+    <div class="main-content-wrapper">
+        <header class="header-wrapper">
+            <div class="header">
+            <div class="logo">
+                <img
+                                src = "../frontend/app/src/assets/images/ere.health-logo.svg"
+                                alt = "ere.health Logo"
+                />
+            </div>
+            </div>
+        </header>
+        <section class="recipe-body dgn-body">
+            <div class="recipe-wrapper active" id="unsigned_1">
+                <div class="title-rezept-button">
+                  <h2>COVID-19 Impfzertifikat</strong></h2>
+                  <button id="sign-recipe" class="open-modal jet-btn" style="">
+                    Zertifikat erstellen
+                  </button>
+                </div>
+                <form>
+                    <fieldset>
+                        <legend>Patientendaten</legend>
+
+                        <label for="gn">Vorname</label>
+                        <input type="text" id="gn" name="gn" />
+                        <br />
+
+                        <label for="fn">Nachname</label>
+                        <input type="text" id="fn" name="fn" />
+                        <br />
+
+                        <label for="dob">Geburtsdatum</label>
+                        <input type="date" id="dob" name="dob" />
+                        <br />
+                    </fieldset>
+                    <fieldset>
+                        <legend>Impfdaten</legend>
+
+                        <label for="tg">Krankheit</label>
+                        <input type="text" id="tg" name="tg" placeholder="e.g. 840539006 for COVID-19" />
+                        <br />
+
+                        <label for="vp">Impfstoff</label>
+                        <input type="text" id="vp" name="vp" placeholder="e.g. 11193050005" />
+                        <br />
+
+                        <label for="mp">Produkt</label>
+                        <input type="text" id="mp" name="mp" placeholder="e.g. EU/1/20/1528 for Comirnaty"/>
+                        <br />
+
+                        <label for="mp">Hersteller</label>
+                        <input type="text" id="mp" name="mp" placeholder="e.g. ORG-100030215 for Biontech Manufacturing GmbH"/>
+                        <br />
+
+                        <label for="dn">Dosennummer</label>
+                        <input type="text" id="dn" name="dn" placeholder="e.g. 1"/>
+                        <br />
+                        
+                        <label for="sd">Gesamtdosen</label>
+                        <input type="text" id="sd" name="sd" placeholder="e.g. 2"/>
+                        <br />
+                        
+                        <label for="dt">Impfdatum</label>
+                        <input type="date" id="dt" name="dt" placeholder="e.g. 2"/>
+                        <br />
+
+                    </fieldset>
+                </form>
+            </div>
+        </section>
+    </div>
+  <!--
+  <h1>COVID-19 Genesenenzertifikat</h1>
+   TODO-->
+</body>
+</html>
