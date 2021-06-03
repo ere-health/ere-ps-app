@@ -9,6 +9,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script type="text/javascript">
+    function sendVacinationRequest(form) {
+        let oVacinationRequest = {
+            "ver": "1.0.0",
+            "nam": {
+            "fn": form.elements["fn"].value,
+            "gn": form.elements["gn"].value
+            },
+            "dob": form.elements["dob"].value,
+            "v": [
+            {
+                "tg": form.elements["tg"].value,
+                "vp": form.elements["vp"].value,
+                "mp": form.elements["mp"].value,
+                "ma": form.elements["ma"].value,
+                "dn": form.elements["dn"].value,
+                "sd": form.elements["sd"].value,
+                "dt": form.elements["dt"].value
+            }
+            ]
+        };
+        fetch({url: "/api/certify/v2/issue", body: JSON.stringify(oVacinationRequest)}).then(function(response) {
+            return response.arrayBuffer();
+        }).then(function(buffer) {
+            const blob = new Blob([buffer]);
+            const blobUrl = URL.createObjectURL(blob);
+            window.location = blobUrl;
+        });
+    }
+    </script>
 </head>
 <body class="home-page">
     <div class="main-content-wrapper">
@@ -26,7 +56,7 @@
             <div class="recipe-wrapper active" id="unsigned_1">
                 <div class="title-rezept-button">
                   <h2>COVID-19 Impfzertifikat</strong></h2>
-                  <button id="sign-recipe" class="open-modal jet-btn" style="">
+                  <button id="sign-recipe" onclick="sendVacinationRequest(this.form);" class="open-modal jet-btn" style="">
                     Zertifikat erstellen
                   </button>
                 </div>
@@ -61,8 +91,8 @@
                         <input type="text" id="mp" name="mp" placeholder="e.g. EU/1/20/1528 for Comirnaty"/>
                         <br />
 
-                        <label for="mp">Hersteller</label>
-                        <input type="text" id="mp" name="mp" placeholder="e.g. ORG-100030215 for Biontech Manufacturing GmbH"/>
+                        <label for="ma">Hersteller</label>
+                        <input type="text" id="ma" name="ma" placeholder="e.g. ORG-100030215 for Biontech Manufacturing GmbH"/>
                         <br />
 
                         <label for="dn">Dosennummer</label>
