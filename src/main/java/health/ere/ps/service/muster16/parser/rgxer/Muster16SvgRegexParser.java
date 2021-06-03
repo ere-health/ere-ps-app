@@ -16,8 +16,11 @@ public class Muster16SvgRegexParser implements IMuster16FormParser {
     private final Map<Muster16Field, String> result;
 
 
-    public Muster16SvgRegexParser(Map<String, String> mappedFields) {
+    public Muster16SvgRegexParser(Map<String, String> entries) {
         result = new HashMap<>();
+
+        Map<Muster16Field, String> mappedFields = mapFields(entries);
+
         Map<Muster16Field, String> formatted = formatValues(mappedFields);
 
         result.putAll(formatted);
@@ -25,16 +28,16 @@ public class Muster16SvgRegexParser implements IMuster16FormParser {
 
     private Map<Muster16Field, String> extractIntermediateValues(Map<String, String> mappedValues) {
         Map<Muster16Field, String> patientDetailsFields = new PatientDetailsIntermediateExtractor(mappedValues.getOrDefault("nameAndAddress", "")).getDetails();
+        // TODO parse practitioner's info
         return patientDetailsFields;
     }
 
-    private Map<Muster16Field, String> formatValues(Map<String, String> extractedFields) {
-        Map<Muster16Field, String> fieldsMap = buildMap(extractedFields);
+    private Map<Muster16Field, String> formatValues(Map<Muster16Field, String> mappedFields) {
         Muster16AtomicFormatter formatter = new Muster16AtomicFormatter();
-        return formatter.format(fieldsMap);
+        return formatter.format(mappedFields);
     }
 
-    private Map<Muster16Field, String> buildMap(Map<String, String> entries) {
+    private Map<Muster16Field, String> mapFields(Map<String, String> entries) {
         Map<Muster16Field, String> fieldsMap = new HashMap<>();
         fieldsMap.put(INSURANCE_COMPANY, entries.getOrDefault("insurance", ""));
         fieldsMap.put(INSURANCE_COMPANY_ID, entries.getOrDefault("payor", ""));
