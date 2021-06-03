@@ -12,6 +12,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -114,14 +115,10 @@ public class CardCertificateReaderService {
                 cardHandle);
         PkiIdentity identity;
 
-        try (InputStream is = new ByteArrayInputStream(connector_cert_auth)) {
-            identity = CryptoLoader.getIdentityFromP12(is, connectorCertAuthPassword);
+        // identity = CryptoLoader.getIdentityFromP12(is, connectorCertAuthPassword);
+        X509Certificate cert = CryptoLoader.getCertificateFromPem(connector_cert_auth);
 
-        } catch (IOException e) {
-           throw new ConnectorCardCertificateReadException("Error getting C_AUTH PKI Identity",
-                   e);
-        }
-
+        identity = new PkiIdentity(cert, null,null, null);
         return identity;
     }
 }

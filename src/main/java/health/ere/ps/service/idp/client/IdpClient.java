@@ -252,7 +252,7 @@ public class IdpClient implements IIdpClient {
     private void assertThatIdpIdentityIsValid(final PkiIdentity idpIdentity) {
         Objects.requireNonNull(idpIdentity);
         Objects.requireNonNull(idpIdentity.getCertificate());
-        Objects.requireNonNull(idpIdentity.getPrivateKey());
+        // Objects.requireNonNull(idpIdentity.getPrivateKey());
     }
 
     private IdpJwe signChallenge(
