@@ -293,8 +293,8 @@ public class PrescriptionBundleBuilder {
         muster16PrescriptionForm.getPrescriptionList().stream().forEach(prescription -> {
             medication.getCode().addCoding()
                     .setSystem("http://fhir.de/CodeSystem/ifa/pzn")
-                    .setCode(prescription.pzn);
-            medication.getCode().setText(prescription.name);
+                    .setCode(prescription.getPzn());
+            medication.getCode().setText(prescription.getName());
         });
         Coding formCoding = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM", "FLE", "");
         medication.setForm(new CodeableConcept().addCoding(formCoding));
@@ -350,7 +350,7 @@ public class PrescriptionBundleBuilder {
         if(muster16PrescriptionForm.getPrescriptionList().size() > 0) {
             MedicationString prescription = muster16PrescriptionForm.getPrescriptionList().get(0);
 
-            medicationRequest.addDosageInstruction().setText(prescription.dosageInstruction).addExtension().setUrl(
+            medicationRequest.addDosageInstruction().setText(prescription.getDosageInstruction()).addExtension().setUrl(
                     "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_DosageFlag"
             ).setValue(new BooleanType(true));
         }

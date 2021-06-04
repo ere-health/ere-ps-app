@@ -24,6 +24,7 @@ public class Muster16SvgExtractorParser implements IMuster16FormParser {
     private List<String> prescriptionInfo;
 
     private static final Pattern PZN_MATCH = Pattern.compile("PZN(\\d+)");
+    private static final Pattern MEDICATION_LINE = Pattern.compile("(.*)(N\\d)(.*)(PZN ?)(\\d+)");
 
     public Muster16SvgExtractorParser(Map<String,String> mappedFields)  {
         this.mappedFields = mappedFields;
@@ -69,6 +70,19 @@ public class Muster16SvgExtractorParser implements IMuster16FormParser {
             result.remove(index + 1);
             return result;
         }
+    }
+
+    MedicationString parseMedication(String name) {
+        String size = "", dosageInstruction = "", pzn = "";
+        Matcher m = MEDICATION_LINE.matcher(name);
+        if (m.matches()) {
+            name = m.group(1);
+            size = m.group(2);
+            dosageInstruction = m.group(3);
+            pzn = m.group(5);
+        }
+
+        return new MedicationString(name, size, dosageInstruction, pzn);
     }
 
     @Override
@@ -167,13 +181,11 @@ public class Muster16SvgExtractorParser implements IMuster16FormParser {
 
     @Override
     public List<MedicationString> parsePrescriptionList() {
-        if(prescriptionInfo != null) {
-            List<MedicationString> extractedMedicationFields =
-                    prescriptionInfo.stream().map(med -> med.trim())
-                            .filter(med -> StringUtils.isNotBlank(med))
-                            .map(s -> new MedicationString(s))
-                            .collect(Collectors.toList());
-            return extractedMedicationFields;
+        if (prescriptionInfo != null) {
+            return prescriptionInfo.stream().map(String::trim)
+                    .filter(StringUtils::isNotBlank)
+                    .map(this::parseMedication)
+                    .collect(Collectors.toList());
         } else {
             return new ArrayList<>();
         }

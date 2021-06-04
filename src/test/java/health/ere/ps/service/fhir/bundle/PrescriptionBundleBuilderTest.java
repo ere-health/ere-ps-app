@@ -41,10 +41,7 @@ public class PrescriptionBundleBuilderTest {
         muster16PrescriptionForm.setClinicId("BS12345678");
 
         muster16PrescriptionForm.setPrescriptionDate("05.04.2021");
-        MedicationString medicationString = new MedicationString();
-        medicationString.name = "Amoxicillin 1000mg N2";
-        medicationString.dosageInstruction = "3x täglich alle 8 Std";
-        medicationString.pzn = "2394428";
+        MedicationString medicationString = new MedicationString("Amoxicillin 1000mg N2", null, "3x täglich alle 8 Std","2394428");
 
         muster16PrescriptionForm.setPrescriptionList(Arrays.asList(medicationString));
 
