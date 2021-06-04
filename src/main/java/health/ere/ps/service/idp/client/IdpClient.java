@@ -15,6 +15,9 @@ import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.lang.JoseException;
 
+import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureServicePortType;
+import de.gematik.ws.conn.connectorcontext.v2.ContextType;
+
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
@@ -48,6 +51,7 @@ import health.ere.ps.model.idp.client.token.JsonWebToken;
 import health.ere.ps.model.idp.crypto.PkiIdentity;
 import health.ere.ps.service.idp.client.authentication.UriUtils;
 import health.ere.ps.service.idp.crypto.KeyAnalysis;
+import health.ere.ps.service.idp.crypto.jose4j.JsonWebSignatureWithExternalAuthentification;
 
 import static org.jose4j.jws.AlgorithmIdentifiers.RSA_PSS_USING_SHA256;
 
@@ -68,6 +72,8 @@ public class IdpClient implements IIdpClient {
     private CodeChallengeMethod codeChallengeMethod = CodeChallengeMethod.S256;
 
     private DiscoveryDocumentResponse discoveryDocumentResponse;
+
+    AuthSignatureServicePortType authSignatureService;
 
     public void init(String clientId, String redirectUrl, String discoveryDocumentUrl,
                      boolean shouldVerifyState) {
@@ -108,10 +114,15 @@ public class IdpClient implements IIdpClient {
     @Override
     public IdpTokenResult login(final PkiIdentity idpIdentity)
             throws IdpException, IdpClientException, IdpJoseException {
+                return login(idpIdentity, null, null);
+    }
+
+    public IdpTokenResult login(final PkiIdentity idpIdentity, String smbcCardHandle, ContextType contextType)
+            throws IdpException, IdpClientException, IdpJoseException {
         assertThatIdpIdentityIsValid(idpIdentity);
         return login(idpIdentity.getCertificate(),
             Errors.rethrow().wrap((Throwing.Function<Pair<String, String>, String>) jwtPair -> {
-                final JsonWebSignature jws = new JsonWebSignature();
+                final JsonWebSignatureWithExternalAuthentification jws = new JsonWebSignatureWithExternalAuthentification(authSignatureService, smbcCardHandle, contextType);
                 jws.setPayload(new String(Base64.getUrlDecoder().decode(jwtPair.getRight())));
                 Optional.ofNullable(jwtPair.getLeft())
                     .map(b64Header -> new String(Base64.getUrlDecoder().decode(b64Header)))
