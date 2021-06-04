@@ -1,26 +1,26 @@
-package health.ere.ps.service.muster16.parser.rgxer.matcher;
+package health.ere.ps.service.muster16.parser.rgxer.provider;
 
-import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
 import health.ere.ps.service.muster16.parser.rgxer.model.MedicationRecord;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
-import java.io.*;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class DataProvider {
+public class MedicationDataProvider implements DataProvider<MedicationRecord> {
 
     private final List<MedicationRecord> records;
 
-    private static final Logger log = Logger.getLogger(DataProvider.class.getName());
+    private static final Logger log = Logger.getLogger(MedicationDataProvider.class.getName());
 
-    public DataProvider() {
+    public MedicationDataProvider() {
         List<MedicationRecord> _records;
         try {
             _records = loadFromFile();
@@ -31,6 +31,7 @@ public class DataProvider {
         records = _records;
     }
 
+    @Override
     public List<MedicationRecord> getRecords() {
         return records;
     }
@@ -55,13 +56,8 @@ public class DataProvider {
         return csvParser.getRecords();
     }
 
-    private File getDataFile() throws URISyntaxException {
-        String resourcePath = "data/medication-data.csv"; // FIXME replace hardcoded file path
-        URL resource = getClass().getClassLoader().getResource(resourcePath);
-        if (resource == null)
-            throw new ResourceNotFoundException(resourcePath);
-        else
-            return new File(resource.toURI());
-
+    @Override
+    public String getFilePath() {
+        return "data/medication-data.csv";
     }
 }

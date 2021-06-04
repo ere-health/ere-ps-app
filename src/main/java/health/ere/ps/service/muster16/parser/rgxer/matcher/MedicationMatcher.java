@@ -1,13 +1,14 @@
 package health.ere.ps.service.muster16.parser.rgxer.matcher;
 
 import health.ere.ps.service.muster16.parser.rgxer.model.MedicationRecord;
+import health.ere.ps.service.muster16.parser.rgxer.provider.MedicationDataProvider;
 
 public class MedicationMatcher {
 
-    private final DataProvider provider;
+    private final MedicationDataProvider provider;
 
     public MedicationMatcher() {
-        this.provider = new DataProvider();
+        this.provider = new MedicationDataProvider();
     }
 
     int calculateSimilarity(String entry, MedicationRecord record) {
