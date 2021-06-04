@@ -2,6 +2,8 @@ package health.ere.ps.service.idp.crypto.jose4j;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import javax.xml.ws.Holder;
 
@@ -46,7 +48,16 @@ public class JsonWebSignatureWithExternalAuthentification extends JsonWebSignatu
     public void sign() throws JoseException
     {
         byte[] inputBytes = getSigningInputBytes();
-        byte[] signatureBytes = externalAuthenticate(inputBytes, smcbCardHandle);
+
+        MessageDigest digest;
+        try {
+            digest = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            throw new JoseException("Could not apply SHA-256 to signing bytes", e);
+        }
+        byte[] encodedhash = digest.digest(inputBytes);
+
+        byte[] signatureBytes = externalAuthenticate(encodedhash, smcbCardHandle);
         setSignature(signatureBytes);
     }
 
@@ -67,7 +78,8 @@ public class JsonWebSignatureWithExternalAuthentification extends JsonWebSignatu
         Holder<Status> statusHolder = new Holder<>(); 
 
         try {
-            service.externalAuthenticate(smcbCardHandle, contextType, optionalInputs, binaryDocumentType, statusHolder, signatureObjectHolder);
+            // Titus Bug:  Client received SOAP Fault from server: No enum constant de.gematik.ti.signenc.authsignature.SignatureScheme.RSASSA-PSS Please see the server log to find more detail regarding exact cause of the failure.
+            service.externalAuthenticate(smcbCardHandle, contextType, null /*optionalInputs*/, binaryDocumentType, statusHolder, signatureObjectHolder);
         } catch (FaultMessage e) {
             throw new JoseException("Could not call externalAuthenticate", e);
         }

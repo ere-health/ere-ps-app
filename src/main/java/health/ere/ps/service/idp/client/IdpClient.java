@@ -148,6 +148,18 @@ public class IdpClient implements IIdpClient {
     public IdpClient() {
     }
 
+    /**
+     * Create a context type.
+     */
+    ContextType createContextType() {
+        ContextType contextType = new ContextType();
+        contextType.setMandantId(signatureServiceContextMandantId);
+        contextType.setClientSystemId(signatureServiceContextClientSystemId);
+        contextType.setWorkplaceId(signatureServiceContextWorkplaceId);
+        contextType.setUserId(signatureServiceContextUserId);
+        return contextType;
+    }
+
     private String signServerChallenge(final String challengeToSign, final X509Certificate certificate,
                                        final Function<Pair<String, String>, String> contentSigner)
             throws IdpJoseException {
@@ -168,23 +180,19 @@ public class IdpClient implements IIdpClient {
             contentSigner.apply(Pair.of(
                 jsonWebSignature.getHeaders().getEncodedHeader(),
                 jsonWebSignature.getEncodedPayload())));
-        return jwt
-            .encrypt(idpPublicKey)
-            .getRawString();
+        String signedServerChallengeJwt = jwt
+                .encrypt(idpPublicKey)
+                .getRawString();
+
+        return signedServerChallengeJwt;
     }
 
-    @Override
     public IdpTokenResult login(final PkiIdentity idpIdentity)
-            throws IdpException, IdpClientException, IdpJoseException {
-                return login(idpIdentity, null, null);
-    }
-
-    public IdpTokenResult login(final PkiIdentity idpIdentity, String smbcCardHandle, ContextType contextType)
             throws IdpException, IdpClientException, IdpJoseException {
         assertThatIdpIdentityIsValid(idpIdentity);
         return login(idpIdentity.getCertificate(),
             Errors.rethrow().wrap((Throwing.Function<Pair<String, String>, String>) jwtPair -> {
-                final JsonWebSignatureWithExternalAuthentification jws = new JsonWebSignatureWithExternalAuthentification(authSignatureService, smbcCardHandle, contextType);
+                final JsonWebSignatureWithExternalAuthentification jws = new JsonWebSignatureWithExternalAuthentification(authSignatureService, authSignatureServiceSmbcCardHandle, createContextType());
                 jws.setPayload(new String(Base64.getUrlDecoder().decode(jwtPair.getRight())));
                 Optional.ofNullable(jwtPair.getLeft())
                     .map(b64Header -> new String(Base64.getUrlDecoder().decode(b64Header)))
