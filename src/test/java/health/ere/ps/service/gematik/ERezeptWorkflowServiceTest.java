@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.DataFormatException;
 import ca.uhn.fhir.parser.IParser;
-import de.gematik.ws.conn.signatureservice.v7.SignResponse;
+import de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.FaultMessage;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
