@@ -108,6 +108,12 @@ public class CardCertificateReaderService {
     }
 
     public PkiIdentity retrieveCardCertIdentity(String clientId, String clientSystem,
+                                                String workplace, String cardHandle)
+            throws ConnectorCardCertificateReadException, IdpCryptoException {
+        return retrieveCardCertIdentity(clientId, clientSystem, workplace, cardHandle, null);
+    }
+
+    public PkiIdentity retrieveCardCertIdentity(String clientId, String clientSystem,
                                                 String workplace, String cardHandle,
                                                 String connectorCertAuthPassword)
             throws ConnectorCardCertificateReadException, IdpCryptoException {
@@ -115,10 +121,21 @@ public class CardCertificateReaderService {
                 cardHandle);
         PkiIdentity identity;
 
-        // identity = CryptoLoader.getIdentityFromP12(is, connectorCertAuthPassword);
-        X509Certificate cert = CryptoLoader.getCertificateFromPem(connector_cert_auth);
-
-        identity = new PkiIdentity(cert, null,null, null);
-        return identity;
+        if(connectorCertAuthPassword != null) {
+            try (InputStream is = new ByteArrayInputStream(connector_cert_auth)) {
+                identity = CryptoLoader.getIdentityFromP12(is, connectorCertAuthPassword);
+    
+            } catch (IOException e) {
+               throw new ConnectorCardCertificateReadException("Error getting C_AUTH PKI Identity",
+                       e);
+            }
+    
+            return identity;
+        } else {
+            X509Certificate cert = CryptoLoader.getCertificateFromPem(connector_cert_auth);
+    
+            identity = new PkiIdentity(cert, null,null, null);
+            return identity;
+        }
     }
 }
