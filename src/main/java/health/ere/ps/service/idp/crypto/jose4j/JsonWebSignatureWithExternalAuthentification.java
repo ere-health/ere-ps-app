@@ -30,6 +30,7 @@ public class JsonWebSignatureWithExternalAuthentification extends JsonWebSignatu
    
     String smcbCardHandle;
     ContextType contextType;
+    AuthSignatureServicePortType service;
 
     public JsonWebSignatureWithExternalAuthentification(AuthSignatureServicePortType service, String smcbCardHandle, ContextType contextType) {
         this.service = service;
