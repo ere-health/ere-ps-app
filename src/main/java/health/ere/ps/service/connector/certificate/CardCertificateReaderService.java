@@ -8,12 +8,9 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,9 +19,11 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.exception.connector.ConnectorCardCertificateReadException;
 import health.ere.ps.exception.idp.crypto.IdpCryptoException;
 import health.ere.ps.model.idp.crypto.PkiIdentity;
+import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.idp.crypto.CryptoLoader;
 
 @ApplicationScoped
@@ -37,8 +36,17 @@ public class CardCertificateReaderService {
     @Inject
     CardCertReadExecutionService cardCertReadExecutionService;
 
+    @Inject
+    SecretsManagerService secretsManagerService;
+
     @ConfigProperty(name = "connector.simulator.smcbIdentityCertificate", defaultValue = "!")
     String smcbIdentityCertificate;
+
+    @ConfigProperty(name = "app.trust.store")
+    String ereTrustStoreFilePath;
+
+    @ConfigProperty(name = "app.trust.store.pwd")
+    String ereTrustStorePassword;
 
     private static final String STATUS_OK = "OK";
 
@@ -53,6 +61,12 @@ public class CardCertificateReaderService {
                 log.log(Level.SEVERE, "Could find file", e);
             }
         }
+    }
+
+    @PostConstruct
+    public void initSecretsManagement() throws SecretsManagerException {
+        secretsManagerService.createTrustStore(ereTrustStoreFilePath,
+                SecretsManagerService.KeyStoreType.PKCS12, ereTrustStorePassword.toCharArray());
     }
 
     public void setMockCertificate(byte[] mockCertificate) {
@@ -110,20 +124,22 @@ public class CardCertificateReaderService {
     }
 
     public PkiIdentity retrieveCardCertIdentity(String clientId, String clientSystem,
-                                                String workplace, String cardHandle,
-                                                String connectorCertAuthPassword)
-            throws ConnectorCardCertificateReadException, IdpCryptoException {
+                                                String workplace, String cardHandle)
+            throws ConnectorCardCertificateReadException, IdpCryptoException, SecretsManagerException {
         byte[] connector_cert_auth = readCardCertificate(clientId, clientSystem, workplace,
                 cardHandle);
         PkiIdentity identity;
 
-        try (InputStream is = new ByteArrayInputStream(connector_cert_auth)) {
-            identity = CryptoLoader.getIdentityFromP12(is, connectorCertAuthPassword);
+        secretsManagerService.saveTrustedCertificate(ereTrustStoreFilePath,
+                ereTrustStorePassword.toCharArray(), "connector_cert_alias",
+                connector_cert_auth);
+
+        try (InputStream is = new FileInputStream(ereTrustStoreFilePath)) {
+            identity = CryptoLoader.getIdentityFromP12(is, ereTrustStorePassword);
 
         } catch (Throwable e) {
 
-            throw new ConnectorCardCertificateReadException("Error getting C_AUTH PKI Identity",
-                    e);
+            throw new ConnectorCardCertificateReadException("Error getting C_AUTH PKI Identity", e);
         }
 
         return identity;

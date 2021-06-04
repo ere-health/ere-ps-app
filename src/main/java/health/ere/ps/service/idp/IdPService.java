@@ -13,6 +13,7 @@ import javax.net.ssl.SSLContext;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import health.ere.ps.event.RequestBearerTokenFromIdpEvent;
+import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.exception.connector.ConnectorCardCertificateReadException;
 import health.ere.ps.exception.idp.IdpClientException;
 import health.ere.ps.exception.idp.IdpException;
@@ -47,8 +48,8 @@ public class IdPService {
     @ConfigProperty(name = "idp.connector.card.handle")
     String cardHandle;
 
-    @ConfigProperty(name = "idp.connector.cert.auth.store.file.password")
-    String connectorCertAuthPassword;
+//    @ConfigProperty(name = "idp.connector.cert.auth.store.file.password")
+//    String connectorCertAuthPassword;
 
     @ConfigProperty(name = "idp.base.url")
     String idpBaseUrl;
@@ -67,12 +68,16 @@ public class IdPService {
             idpClient.init(clientId, redirectUrl, discoveryDocumentUrl, true);
             idpClient.initializeClient();
 
+//            PkiIdentity identity = cardCertificateReaderService.retrieveCardCertIdentity(clientId,
+//                    clientSystem, workplace, cardHandle, connectorCertAuthPassword);
             PkiIdentity identity = cardCertificateReaderService.retrieveCardCertIdentity(clientId,
-                    clientSystem, workplace, cardHandle, connectorCertAuthPassword);
+                    clientSystem, workplace, cardHandle);
 
             IdpTokenResult idpTokenResult = idpClient.login(identity);
             requestBearerTokenFromIdpEvent.setBearerToken(idpTokenResult.getAccessToken().getRawString());
-        } catch(IdpClientException | IdpException | IdpJoseException | ConnectorCardCertificateReadException | IdpCryptoException e) {
+        } catch(IdpClientException | IdpException | IdpJoseException |
+                ConnectorCardCertificateReadException |
+                IdpCryptoException | SecretsManagerException e) {
             log.log(Level.WARNING, "Idp login did not work", e);
             exceptionEvent.fireAsync(e);
         }
