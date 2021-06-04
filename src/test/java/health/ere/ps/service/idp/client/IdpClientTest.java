@@ -8,15 +8,14 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.logging.LogManager;
 
 import javax.inject.Inject;
 
+import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.exception.connector.ConnectorCardCertificateReadException;
 import health.ere.ps.exception.idp.IdpClientException;
 import health.ere.ps.exception.idp.IdpException;
@@ -26,7 +25,6 @@ import health.ere.ps.model.idp.client.IdpTokenResult;
 import health.ere.ps.model.idp.crypto.PkiIdentity;
 import health.ere.ps.service.connector.certificate.CardCertReadExecutionService;
 import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
-import health.ere.ps.service.idp.crypto.CryptoLoader;
 import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest
@@ -53,8 +51,8 @@ public class IdpClientTest {
     @ConfigProperty(name = "idp.connector.card.handle")
     String cardHandle;
 
-    @ConfigProperty(name = "idp.connector.cert.auth.store.file.password")
-    String connectorCertAuthPassword;
+//    @ConfigProperty(name = "idp.connector.cert.auth.store.file.password")
+//    String connectorCertAuthPassword;
 
     @ConfigProperty(name = "idp.base.url")
     String idpBaseUrl;
@@ -87,7 +85,7 @@ public class IdpClientTest {
     @Test
     public void test_Successful_Idp_Login_With_Gematik_Card()
             throws ConnectorCardCertificateReadException, IdpException,
-            IdpClientException, IdpCryptoException, IdpJoseException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+            IdpClientException, IdpCryptoException, IdpJoseException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, SecretsManagerException {
 
 
         InputStream p12Certificate = CardCertificateReaderService.class.getResourceAsStream("/ps_erp_incentergy_01.p12");
@@ -99,7 +97,7 @@ public class IdpClientTest {
         idpClient.initializeClient();
 
         PkiIdentity identity = cardCertificateReaderService.retrieveCardCertIdentity(clientId,
-                clientSystem, workplace, cardHandle, connectorCertAuthPassword);
+                clientSystem, workplace, cardHandle);
 
         IdpTokenResult idpTokenResult = idpClient.login(identity);
 
@@ -111,7 +109,7 @@ public class IdpClientTest {
     @Test @Disabled
     public void test_Successful_Idp_Login()
             throws ConnectorCardCertificateReadException, IdpException,
-            IdpClientException, IdpCryptoException, IdpJoseException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+            IdpClientException, IdpCryptoException, IdpJoseException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, SecretsManagerException {
 
         InputStream inStream = CardCertificateReaderService.class.getResourceAsStream("/certs/1-2-ARZT-WaltrautDrombusch01-80276001011699910223-C_SMCB_AUT_R2048_X509.p12");
 
@@ -133,7 +131,7 @@ public class IdpClientTest {
         idpClient.initializeClient();
 
         PkiIdentity identity = cardCertificateReaderService.retrieveCardCertIdentity(clientId,
-                clientSystem, workplace, cardHandle, connectorCertAuthPassword);
+                clientSystem, workplace, cardHandle);
 
         IdpTokenResult idpTokenResult = idpClient.login(identity);
 
