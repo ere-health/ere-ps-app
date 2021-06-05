@@ -350,7 +350,7 @@ public class PrescriptionBundleBuilder {
         if(muster16PrescriptionForm.getPrescriptionList().size() > 0) {
             MedicationString prescription = muster16PrescriptionForm.getPrescriptionList().get(0);
 
-            medicationRequest.addDosageInstruction().setText(prescription.getDosageInstruction()).addExtension().setUrl(
+            medicationRequest.addDosageInstruction().setText(prescription.getDosage()).addExtension().setUrl(
                     "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_DosageFlag"
             ).setValue(new BooleanType(true));
         }
