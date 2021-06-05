@@ -1,27 +1,16 @@
 package health.ere.ps.service.gematik;
 
-import static org.mockito.ArgumentMatchers.eq;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
 import java.text.ParseException;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
 import javax.xml.stream.XMLStreamException;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -37,7 +26,7 @@ import org.junit.jupiter.api.Test;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.DataFormatException;
 import ca.uhn.fhir.parser.IParser;
-import de.gematik.ws.conn.signatureservice.v7.SignResponse;
+import de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.FaultMessage;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
@@ -94,7 +83,7 @@ public class ERezeptWorkflowServiceTest {
         eRezeptWorkflowService.init();
     }
 
-    @Test @Disabled
+    @Test
     // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testGetCards() throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         eRezeptWorkflowService.getCards();
@@ -131,7 +120,7 @@ public class ERezeptWorkflowServiceTest {
         eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
     }
 
-    @Test 
+    @Test @Disabled
     // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testCreateERezeptTask() throws DataFormatException, IOException {
         Task task = eRezeptWorkflowService.createERezeptTask(testBearerToken);

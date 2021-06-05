@@ -39,12 +39,6 @@ public class CardCertReadExecutionService {
     @ConfigProperty(name = "idp.connector.certificate-service.endpoint.address")
     String certificateServiceEndpointAddress;
 
-    @ConfigProperty(name = "idp.connector.cert.auth.store.file")
-    String idpCertStoreFile;
-
-    @ConfigProperty(name = "idp.connector.cert.auth.store.file.password")
-    String idpCertStoreFilePassword;
-
     @ConfigProperty(name = "connector.simulator.titusClientCertificate", defaultValue = "!")
     String titusClientCertificate;
 

@@ -12,6 +12,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -107,6 +108,12 @@ public class CardCertificateReaderService {
     }
 
     public PkiIdentity retrieveCardCertIdentity(String clientId, String clientSystem,
+                                                String workplace, String cardHandle)
+            throws ConnectorCardCertificateReadException, IdpCryptoException {
+        return retrieveCardCertIdentity(clientId, clientSystem, workplace, cardHandle, null);
+    }
+
+    public PkiIdentity retrieveCardCertIdentity(String clientId, String clientSystem,
                                                 String workplace, String cardHandle,
                                                 String connectorCertAuthPassword)
             throws ConnectorCardCertificateReadException, IdpCryptoException {
@@ -114,14 +121,21 @@ public class CardCertificateReaderService {
                 cardHandle);
         PkiIdentity identity;
 
-        try (InputStream is = new ByteArrayInputStream(connector_cert_auth)) {
-            identity = CryptoLoader.getIdentityFromP12(is, connectorCertAuthPassword);
-
-        } catch (IOException e) {
-           throw new ConnectorCardCertificateReadException("Error getting C_AUTH PKI Identity",
-                   e);
+        if(connectorCertAuthPassword != null) {
+            try (InputStream is = new ByteArrayInputStream(connector_cert_auth)) {
+                identity = CryptoLoader.getIdentityFromP12(is, connectorCertAuthPassword);
+    
+            } catch (IOException e) {
+               throw new ConnectorCardCertificateReadException("Error getting C_AUTH PKI Identity",
+                       e);
+            }
+    
+            return identity;
+        } else {
+            X509Certificate cert = CryptoLoader.getCertificateFromPem(connector_cert_auth);
+    
+            identity = new PkiIdentity(cert, null,null, null);
+            return identity;
         }
-
-        return identity;
     }
 }

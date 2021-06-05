@@ -47,9 +47,6 @@ public class IdPService {
     @ConfigProperty(name = "idp.connector.card.handle")
     String cardHandle;
 
-    @ConfigProperty(name = "idp.connector.cert.auth.store.file.password")
-    String connectorCertAuthPassword;
-
     @ConfigProperty(name = "idp.base.url")
     String idpBaseUrl;
 
@@ -68,7 +65,7 @@ public class IdPService {
             idpClient.initializeClient();
 
             PkiIdentity identity = cardCertificateReaderService.retrieveCardCertIdentity(clientId,
-                    clientSystem, workplace, cardHandle, connectorCertAuthPassword);
+                    clientSystem, workplace, cardHandle);
 
             IdpTokenResult idpTokenResult = idpClient.login(identity);
             requestBearerTokenFromIdpEvent.setBearerToken(idpTokenResult.getAccessToken().getRawString());

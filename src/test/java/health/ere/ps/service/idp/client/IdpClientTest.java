@@ -52,9 +52,6 @@ public class IdpClientTest {
     @ConfigProperty(name = "idp.connector.card.handle")
     String cardHandle;
 
-    @ConfigProperty(name = "idp.connector.cert.auth.store.file.password")
-    String connectorCertAuthPassword;
-
     @ConfigProperty(name = "idp.base.url")
     String idpBaseUrl;
 
@@ -87,11 +84,10 @@ public class IdpClientTest {
     public void test_Successful_Idp_Login_With_Gematik_Card()
             throws ConnectorCardCertificateReadException, IdpException,
             IdpClientException, IdpCryptoException, IdpJoseException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
-
+        cardCertificateReaderService.setMockCertificate(null);
 
         InputStream p12Certificate = CardCertificateReaderService.class.getResourceAsStream("/ps_erp_incentergy_01.p12");
         cardCertReadExecutionService.setUpCustomSSLContext(p12Certificate);
-        AuthenticatorClient authenticatorClient = new AuthenticatorClient();
 
         discoveryDocumentUrl = idpBaseUrl + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
 
@@ -99,7 +95,7 @@ public class IdpClientTest {
         idpClient.initializeClient();
 
         PkiIdentity identity = cardCertificateReaderService.retrieveCardCertIdentity(clientId,
-                clientSystem, workplace, cardHandle, connectorCertAuthPassword);
+                clientSystem, workplace, cardHandle);
 
         IdpTokenResult idpTokenResult = idpClient.login(identity);
 
@@ -108,24 +104,17 @@ public class IdpClientTest {
         Assertions.assertNotNull(idpTokenResult.getIdToken(), "Id Token present");
     }
 
-    @Test @Disabled
+    @Test/* @Disabled*/
     public void test_Successful_Idp_Login()
             throws ConnectorCardCertificateReadException, IdpException,
             IdpClientException, IdpCryptoException, IdpJoseException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
 
         InputStream inStream = CardCertificateReaderService.class.getResourceAsStream("/certs/1-2-ARZT-WaltrautDrombusch01-80276001011699910223-C_SMCB_AUT_R2048_X509.p12");
 
-        /*KeyStore ks = KeyStore.getInstance("PKCS12");
-        ks.load(inStream, "00".toCharArray());  
-        
-        String alias = ks.aliases().nextElement();
-        cardCertificateReaderService.setMockCertificate(((X509Certificate) ks.getCertificate(alias)).getEncoded());*/
-
         cardCertificateReaderService.setMockCertificate(inStream.readAllBytes());
 
         InputStream p12Certificate = CardCertificateReaderService.class.getResourceAsStream("/ps_erp_incentergy_01.p12");
         cardCertReadExecutionService.setUpCustomSSLContext(p12Certificate);
-        AuthenticatorClient authenticatorClient = new AuthenticatorClient();
 
         discoveryDocumentUrl = idpBaseUrl + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
 
@@ -133,7 +122,7 @@ public class IdpClientTest {
         idpClient.initializeClient();
 
         PkiIdentity identity = cardCertificateReaderService.retrieveCardCertIdentity(clientId,
-                clientSystem, workplace, cardHandle, connectorCertAuthPassword);
+                clientSystem, workplace, cardHandle, "00");
 
         IdpTokenResult idpTokenResult = idpClient.login(identity);
 
