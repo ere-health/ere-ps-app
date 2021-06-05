@@ -2,7 +2,7 @@ package health.ere.ps.service.muster16.parser.rgxer;
 
 import health.ere.ps.model.muster16.MedicationString;
 import health.ere.ps.service.muster16.parser.IMuster16FormParser;
-import health.ere.ps.service.muster16.parser.rgxer.extractor.PatientDetailsIntermediateExtractor;
+import health.ere.ps.service.muster16.parser.rgxer.delegate.PatientDetailsIntermediateExtractor;
 import health.ere.ps.service.muster16.parser.rgxer.formatter.Muster16AtomicFormatter;
 import health.ere.ps.service.muster16.parser.rgxer.model.Muster16Field;
 

@@ -1,6 +1,6 @@
 package health.ere.ps.service.muster16.parser.regxer;
 
-import health.ere.ps.service.muster16.parser.rgxer.extractor.MedicationDataIntermediateParser;
+import health.ere.ps.service.muster16.parser.rgxer.delegate.MedicationDataIntermediateParser;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
