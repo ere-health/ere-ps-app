@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.logging.LogManager;
 
 import javax.inject.Inject;
@@ -23,6 +24,7 @@ import health.ere.ps.exception.idp.IdpJoseException;
 import health.ere.ps.exception.idp.crypto.IdpCryptoException;
 import health.ere.ps.model.idp.client.IdpTokenResult;
 import health.ere.ps.model.idp.crypto.PkiIdentity;
+import health.ere.ps.service.connector.auth.SmcbAuthenticatorService;
 import health.ere.ps.service.connector.certificate.CardCertReadExecutionService;
 import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
 import io.quarkus.test.junit.QuarkusTest;
@@ -32,6 +34,9 @@ public class IdpClientTest {
 
     @Inject
     IdpClient idpClient;
+
+    @Inject
+    SmcbAuthenticatorService smcbAuthenticatorService;
 
     @Inject
     CardCertificateReaderService cardCertificateReaderService;
@@ -81,7 +86,42 @@ public class IdpClientTest {
         System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dumpTreshold", "999999");
     }
 
-    // @Disabled("Disabled until Titus Idp Card Certificate Service API Endpoint Is Fixed By Gematik")
+    @Test
+    public void test_Successful_Idp_Login_With_Connector_Smcb() throws IdpJoseException,
+            IdpClientException, IdpException, ConnectorCardCertificateReadException,
+            SecretsManagerException, IdpCryptoException {
+        //TODO: This is a very hacky test just to get some kind of response from Titus which is
+        // still confusing.  Specifically, the AuthSignatureService.externalAuthenticate()
+        // doesn't return anything useful - i.e. no signed data, but the response is successful.
+        // This will not hold up in production. Need to get more details from Gematik about how
+        // to handle this situation in a meaningful production ready manner.
+        discoveryDocumentUrl = idpBaseUrl + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
+
+        idpClient.init(clientId, redirectUrl, discoveryDocumentUrl, true);
+        idpClient.initializeClient();
+
+        PkiIdentity identity = cardCertificateReaderService.retrieveCardCertIdentity(clientId,
+                clientSystem, workplace, cardHandle);
+
+        //TODO: Find better option to disable mock certificate.
+        cardCertificateReaderService.setMockCertificate(null);
+
+        X509Certificate x509Certificate = cardCertificateReaderService.retrieveCardCertificate(clientId,
+                clientSystem, workplace, cardHandle);
+
+        identity.setCertificate(x509Certificate);
+
+        smcbAuthenticatorService.setPkiIdentity(identity);
+
+        IdpTokenResult idpTokenResult = idpClient.login(x509Certificate,
+                smcbAuthenticatorService::signIdpChallenge);
+
+        Assertions.assertNotNull(idpTokenResult, "Idp Token result present.");
+        Assertions.assertNotNull(idpTokenResult.getAccessToken(), "Access Token present");
+        Assertions.assertNotNull(idpTokenResult.getIdToken(), "Id Token present");
+    }
+
+    @Disabled("Enable when connector.simulator.smcbIdentityCertificate app property is being used.")
     @Test
     public void test_Successful_Idp_Login_With_Gematik_Card()
             throws ConnectorCardCertificateReadException, IdpException,
@@ -106,7 +146,7 @@ public class IdpClientTest {
         Assertions.assertNotNull(idpTokenResult.getIdToken(), "Id Token present");
     }
 
-    @Test @Disabled
+    @Test
     public void test_Successful_Idp_Login()
             throws ConnectorCardCertificateReadException, IdpException,
             IdpClientException, IdpCryptoException, IdpJoseException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, SecretsManagerException {

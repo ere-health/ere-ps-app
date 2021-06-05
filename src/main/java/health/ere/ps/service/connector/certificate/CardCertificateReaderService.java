@@ -8,9 +8,11 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,6 +21,7 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import health.ere.ps.config.AppConfig;
 import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.exception.connector.ConnectorCardCertificateReadException;
 import health.ere.ps.exception.idp.crypto.IdpCryptoException;
@@ -39,14 +42,11 @@ public class CardCertificateReaderService {
     @Inject
     SecretsManagerService secretsManagerService;
 
+    @Inject
+    AppConfig appConfig;
+
     @ConfigProperty(name = "connector.simulator.smcbIdentityCertificate", defaultValue = "!")
     String smcbIdentityCertificate;
-
-    @ConfigProperty(name = "app.trust.store")
-    String ereTrustStoreFilePath;
-
-    @ConfigProperty(name = "app.trust.store.pwd")
-    String ereTrustStorePassword;
 
     private static final String STATUS_OK = "OK";
 
@@ -61,12 +61,6 @@ public class CardCertificateReaderService {
                 log.log(Level.SEVERE, "Could find file", e);
             }
         }
-    }
-
-    @PostConstruct
-    public void initSecretsManagement() throws SecretsManagerException {
-        secretsManagerService.createTrustStore(ereTrustStoreFilePath,
-                SecretsManagerService.KeyStoreType.PKCS12, ereTrustStorePassword.toCharArray());
     }
 
     public void setMockCertificate(byte[] mockCertificate) {
@@ -130,12 +124,9 @@ public class CardCertificateReaderService {
                 cardHandle);
         PkiIdentity identity;
 
-        secretsManagerService.saveTrustedCertificate(ereTrustStoreFilePath,
-                ereTrustStorePassword.toCharArray(), "connector_cert_alias",
-                connector_cert_auth);
-
-        try (InputStream is = new FileInputStream(ereTrustStoreFilePath)) {
-            identity = CryptoLoader.getIdentityFromP12(is, ereTrustStorePassword);
+        try (InputStream is = new ByteArrayInputStream(connector_cert_auth)) {
+            identity = CryptoLoader.getIdentityFromP12(is,
+                    appConfig.getIdpConnectorTlsCertTustStorePwd());
 
         } catch (Throwable e) {
 
@@ -143,5 +134,24 @@ public class CardCertificateReaderService {
         }
 
         return identity;
+    }
+
+    public X509Certificate retrieveCardCertificate(String clientId, String clientSystem,
+                                                    String workplace, String cardHandle)
+            throws ConnectorCardCertificateReadException {
+
+        byte[] connector_cert_auth = readCardCertificate(clientId, clientSystem, workplace,
+                cardHandle);
+        X509Certificate x509Certificate;
+
+        try {
+            x509Certificate = CryptoLoader.getCertificateFromAsn1DERCertBytes(connector_cert_auth);
+
+        } catch (Throwable e) {
+
+            throw new ConnectorCardCertificateReadException("Error getting X509Certificate", e);
+        }
+
+        return x509Certificate;
     }
 }
