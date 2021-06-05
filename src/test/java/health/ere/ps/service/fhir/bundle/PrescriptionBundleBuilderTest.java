@@ -33,7 +33,7 @@ public class PrescriptionBundleBuilderTest {
     Logger logger;
     private PrescriptionBundleValidator prescriptionBundleValidator;
     private PrescriptionBundleBuilder prescriptionBundleBuilder;
-    
+
     public static PrescriptionBundleBuilder getPrescriptionBundleBuilder() {
         Muster16PrescriptionForm muster16PrescriptionForm;
         muster16PrescriptionForm = new Muster16PrescriptionForm();
@@ -41,7 +41,7 @@ public class PrescriptionBundleBuilderTest {
         muster16PrescriptionForm.setClinicId("BS12345678");
 
         muster16PrescriptionForm.setPrescriptionDate("05.04.2021");
-        MedicationString medicationString = new MedicationString("Amoxicillin 1000mg N2", null, "3x täglich alle 8 Std","2394428");
+        MedicationString medicationString = new MedicationString("Amoxicillin 1000mg N2", null, null, "3x täglich alle 8 Std", null, "2394428");
 
         muster16PrescriptionForm.setPrescriptionList(Arrays.asList(medicationString));
 
@@ -167,7 +167,7 @@ public class PrescriptionBundleBuilderTest {
         // TODO: Next issue ERROR - Patient.meta.profile[0] - Profile reference 'https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.0.3' has not been checked because it is unknown
         // TODO: None of the codes provided are in the value set http://hl7.org/fhir/ValueSet/identifier-type (http://hl7.org/fhir/ValueSet/identifier-type), and a code should come from this value set unless it has no suitable code and the validator cannot judge what is suitable) (codes = http://fhir.de/CodeSystem/identifier-type-de-basis#GKV)
         // TODO: Profile reference 'https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.0.3' has not been checked because it is unknown
- 
+
 
         // assertTrue(validationResult.isSuccessful());
     }

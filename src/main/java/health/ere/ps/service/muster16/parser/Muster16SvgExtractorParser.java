@@ -73,16 +73,15 @@ public class Muster16SvgExtractorParser implements IMuster16FormParser {
     }
 
     MedicationString parseMedication(String name) {
-        String size = "", dosageInstruction = "", pzn = "";
+        String dosage = null, pzn = null;
         Matcher m = MEDICATION_LINE.matcher(name);
         if (m.matches()) {
             name = m.group(1);
-            size = m.group(2);
-            dosageInstruction = m.group(3);
+            dosage = m.group(3);
             pzn = m.group(5);
         }
 
-        return new MedicationString(name, size, dosageInstruction, pzn);
+        return new MedicationString(name,null, null, dosage, null, pzn);
     }
 
     @Override
