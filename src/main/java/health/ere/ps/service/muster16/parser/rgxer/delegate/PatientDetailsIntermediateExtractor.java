@@ -1,4 +1,4 @@
-package health.ere.ps.service.muster16.parser.rgxer.extractor;
+package health.ere.ps.service.muster16.parser.rgxer.delegate;
 
 import health.ere.ps.service.muster16.parser.rgxer.model.Muster16Field;
 

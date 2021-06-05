@@ -1,4 +1,4 @@
-package health.ere.ps.service.muster16.parser.rgxer.extractor;
+package health.ere.ps.service.muster16.parser.rgxer.delegate;
 
 import health.ere.ps.service.muster16.parser.rgxer.matcher.MedicationMatcher;
 import health.ere.ps.service.muster16.parser.rgxer.model.MedicationLine;
@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 public class MedicationDataIntermediateParser {
 
     private final Pattern DOSAGE_PAT = Pattern.compile("[01]\\s*-\\s*[01]\\s*-\\s*[01]");
-    private final Pattern STRENGTH_PAT = Pattern.compile("\\d+(\\.|,\\d+)?\\s*(mg|ml)");
+    private final Pattern STRENGTH_PAT = Pattern.compile("(?<value>\\d+([.,]\\d+)?)\\s*(?<unit>(μg|mg|g|ml|%))");
     private final Pattern SEPARATOR_PAT = Pattern.compile("[^\\w\\d]+");
     private final MedicationMatcher matcher;
 
