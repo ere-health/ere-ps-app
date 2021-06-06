@@ -7,6 +7,9 @@ import com.google.gson.JsonParser;
 import com.diffplug.common.base.Errors;
 import com.diffplug.common.base.Throwing;
 
+import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureServicePortType;
+import de.gematik.ws.conn.connectorcontext.v2.ContextType;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -16,13 +19,6 @@ import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.lang.JoseException;
 
-import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureService;
-import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureServicePortType;
-import de.gematik.ws.conn.connectorcontext.v2.ContextType;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
@@ -30,13 +26,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.logging.Level;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.net.ssl.SSLContext;
-import javax.xml.ws.BindingProvider;
 
 import health.ere.ps.exception.idp.IdpClientException;
 import health.ere.ps.exception.idp.IdpException;
@@ -58,10 +51,9 @@ import health.ere.ps.model.idp.client.field.IdpScope;
 import health.ere.ps.model.idp.client.token.IdpJwe;
 import health.ere.ps.model.idp.client.token.JsonWebToken;
 import health.ere.ps.model.idp.crypto.PkiIdentity;
-import health.ere.ps.service.common.security.SecretsManagerService;
+import health.ere.ps.service.connector.auth.SmcbAuthenticatorService;
 import health.ere.ps.service.idp.client.authentication.UriUtils;
 import health.ere.ps.service.idp.crypto.KeyAnalysis;
-import health.ere.ps.service.idp.crypto.jose4j.JsonWebSignatureWithExternalAuthentification;
 
 import static org.jose4j.jws.AlgorithmIdentifiers.RSA_PSS_USING_SHA256;
 
@@ -70,6 +62,9 @@ public class IdpClient implements IIdpClient {
 
     @Inject
     AuthenticatorClient authenticatorClient;
+
+    @Inject
+    SmcbAuthenticatorService smcbAuthenticatorService;
 
     @Inject
     Logger logger;
@@ -107,35 +102,6 @@ public class IdpClient implements IIdpClient {
     private DiscoveryDocumentResponse discoveryDocumentResponse;
 
     AuthSignatureServicePortType authSignatureService;
-
-    @PostConstruct
-    public void initAuthSignatureService() {
-        try {
-            if (titusClientCertificate != null && !("".equals(titusClientCertificate))
-                    && !("!".equals(titusClientCertificate))) {
-                try {
-                    setUpCustomSSLContext(new FileInputStream(titusClientCertificate));
-                } catch(FileNotFoundException e) {
-                    logger.error("Could not find titus file", e);
-                }
-            }
-
-            authSignatureService = new AuthSignatureService(getClass().getResource("/AuthSignatureService.wsdl")).getAuthSignatureServicePort();
-            /* Set endpoint to configured endpoint */
-            BindingProvider bp = (BindingProvider) authSignatureService;
-            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, authSignatureServiceEndpointAddress);
-            if (customSSLContext != null) {
-                bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
-                        customSSLContext.getSocketFactory());
-            }       
-        } catch(Exception ex) {
-            logger.error("Could not init AuthSignatureService for IdpClient", ex);
-        }
-    }
-
-    public void setUpCustomSSLContext(InputStream p12Certificate) {
-        customSSLContext = SecretsManagerService.setUpCustomSSLContext(p12Certificate);
-    }
 
     public void init(String clientId, String redirectUrl, String discoveryDocumentUrl,
                      boolean shouldVerifyState) {
@@ -192,7 +158,7 @@ public class IdpClient implements IIdpClient {
         assertThatIdpIdentityIsValid(idpIdentity);
         return login(idpIdentity.getCertificate(),
             Errors.rethrow().wrap((Throwing.Function<Pair<String, String>, String>) jwtPair -> {
-                final JsonWebSignatureWithExternalAuthentification jws = new JsonWebSignatureWithExternalAuthentification(authSignatureService, authSignatureServiceSmbcCardHandle, createContextType());
+                final JsonWebSignature jws = new JsonWebSignature();
                 jws.setPayload(new String(Base64.getUrlDecoder().decode(jwtPair.getRight())));
                 Optional.ofNullable(jwtPair.getLeft())
                     .map(b64Header -> new String(Base64.getUrlDecoder().decode(b64Header)))
@@ -212,6 +178,12 @@ public class IdpClient implements IIdpClient {
                     throw new IdpClientException("Error during encryption", e);
                 }
             }));
+    }
+
+    public IdpTokenResult login(X509Certificate x509Certificate) throws IdpJoseException,
+            IdpClientException, IdpException {
+        smcbAuthenticatorService.setX509Certificate(x509Certificate);
+        return login(x509Certificate, smcbAuthenticatorService::signIdpChallenge);
     }
 
     public IdpTokenResult login(final X509Certificate certificate,
