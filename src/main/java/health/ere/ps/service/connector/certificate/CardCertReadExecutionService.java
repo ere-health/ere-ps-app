@@ -67,8 +67,6 @@ public class CardCertReadExecutionService {
                 log.log(Level.SEVERE, "Could find file", e);
             }
         }
-       
-        
     }
 
     public void setUpCustomSSLContext(InputStream p12Certificate) {
