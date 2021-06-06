@@ -34,8 +34,6 @@ public class CardCertificateReaderService {
 
     private static Logger log = Logger.getLogger(CardCertificateReaderService.class.getName());
 
-    public byte[] mockCertificate;
-
     @Inject
     CardCertReadExecutionService cardCertReadExecutionService;
 
@@ -45,27 +43,7 @@ public class CardCertificateReaderService {
     @Inject
     AppConfig appConfig;
 
-    @ConfigProperty(name = "connector.simulator.smcbIdentityCertificate", defaultValue = "!")
-    String smcbIdentityCertificate;
-
     private static final String STATUS_OK = "OK";
-
-    @PostConstruct
-    public void init() {
-        if (smcbIdentityCertificate != null && !("".equals(smcbIdentityCertificate))
-                && !("!".equals(smcbIdentityCertificate))) {
-            log.info(CardCertificateReaderService.class.getSimpleName() + " uses SMCB " + smcbIdentityCertificate);
-            try (InputStream is = new FileInputStream(smcbIdentityCertificate)) {
-                setMockCertificate(is.readAllBytes());
-            } catch (IOException e) {
-                log.log(Level.SEVERE, "Could find file", e);
-            }
-        }
-    }
-
-    public void setMockCertificate(byte[] mockCertificate) {
-        this.mockCertificate = mockCertificate;
-    }
 
     /**
      * Reads the AUT certificate of a card managed in the connector.
@@ -77,10 +55,6 @@ public class CardCertificateReaderService {
     public byte[] readCardCertificate(InvocationContext invocationContext, String cardHandle)
             throws ConnectorCardCertificateReadException {
         byte[] x509Certificate = new byte[0];
-
-        if (mockCertificate != null) {
-            return mockCertificate;
-        }
 
         ReadCardCertificateResponse readCardCertificateResponse =
                 cardCertReadExecutionService.doReadCardCertificate(invocationContext, cardHandle);
@@ -117,16 +91,12 @@ public class CardCertificateReaderService {
                 cardHandle);
     }
 
-    public PkiIdentity retrieveCardCertIdentity(String clientId, String clientSystem,
-                                                String workplace, String cardHandle)
+    public PkiIdentity retrieveCardCertIdentity(String p12FilePath, String password)
             throws ConnectorCardCertificateReadException, IdpCryptoException, SecretsManagerException {
-        byte[] connector_cert_auth = readCardCertificate(clientId, clientSystem, workplace,
-                cardHandle);
         PkiIdentity identity;
 
-        try (InputStream is = new ByteArrayInputStream(connector_cert_auth)) {
-            identity = CryptoLoader.getIdentityFromP12(is,
-                    appConfig.getIdpConnectorTlsCertTustStorePwd());
+        try (InputStream is = new FileInputStream(p12FilePath)) {
+            identity = CryptoLoader.getIdentityFromP12(is, password);
 
         } catch (Throwable e) {
 
@@ -136,7 +106,7 @@ public class CardCertificateReaderService {
         return identity;
     }
 
-    public X509Certificate retrieveCardCertificate(String clientId, String clientSystem,
+    public X509Certificate retrieveSmcbCardCertificate(String clientId, String clientSystem,
                                                     String workplace, String cardHandle)
             throws ConnectorCardCertificateReadException {
 
