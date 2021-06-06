@@ -16,8 +16,6 @@ import org.jose4j.jwt.JwtClaims;
 import org.jose4j.lang.JoseException;
 
 import java.security.PublicKey;
-import java.security.cert.CertificateExpiredException;
-import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.Objects;
@@ -48,6 +46,7 @@ import health.ere.ps.model.idp.client.field.IdpScope;
 import health.ere.ps.model.idp.client.token.IdpJwe;
 import health.ere.ps.model.idp.client.token.JsonWebToken;
 import health.ere.ps.model.idp.crypto.PkiIdentity;
+import health.ere.ps.service.connector.auth.SmcbAuthenticatorService;
 import health.ere.ps.service.idp.client.authentication.UriUtils;
 import health.ere.ps.service.idp.crypto.KeyAnalysis;
 
@@ -58,6 +57,9 @@ public class IdpClient implements IIdpClient {
 
     @Inject
     AuthenticatorClient authenticatorClient;
+
+    @Inject
+    SmcbAuthenticatorService smcbAuthenticatorService;
 
     @Inject
     Logger logger;
@@ -133,6 +135,12 @@ public class IdpClient implements IIdpClient {
                     throw new IdpClientException("Error during encryption", e);
                 }
             }));
+    }
+
+    public IdpTokenResult login(X509Certificate x509Certificate) throws IdpJoseException,
+            IdpClientException, IdpException {
+        smcbAuthenticatorService.setX509Certificate(x509Certificate);
+        return login(x509Certificate, smcbAuthenticatorService::signIdpChallenge);
     }
 
     public IdpTokenResult login(final X509Certificate certificate,

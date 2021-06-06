@@ -1,6 +1,7 @@
 package health.ere.ps.service.idp;
 
 import java.io.FileInputStream;
+import java.security.cert.X509Certificate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -12,6 +13,7 @@ import javax.net.ssl.SSLContext;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
+import health.ere.ps.config.AppConfig;
 import health.ere.ps.event.RequestBearerTokenFromIdpEvent;
 import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.exception.connector.ConnectorCardCertificateReadException;
@@ -21,6 +23,7 @@ import health.ere.ps.exception.idp.IdpJoseException;
 import health.ere.ps.exception.idp.crypto.IdpCryptoException;
 import health.ere.ps.model.idp.client.IdpTokenResult;
 import health.ere.ps.model.idp.crypto.PkiIdentity;
+import health.ere.ps.service.connector.auth.SmcbAuthenticatorService;
 import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
 import health.ere.ps.service.idp.client.IdpClient;
 import health.ere.ps.service.idp.client.IdpHttpClientService;
@@ -35,6 +38,9 @@ public class IdPService {
 
     @Inject
     CardCertificateReaderService cardCertificateReaderService;
+    
+    @Inject
+    AppConfig appConfig;
 
     @ConfigProperty(name = "idp.client.id")
     String clientId;
@@ -70,14 +76,15 @@ public class IdPService {
 
 //            PkiIdentity identity = cardCertificateReaderService.retrieveCardCertIdentity(clientId,
 //                    clientSystem, workplace, cardHandle, connectorCertAuthPassword);
-            PkiIdentity identity = cardCertificateReaderService.retrieveCardCertIdentity(clientId,
-                    clientSystem, workplace, cardHandle);
+            X509Certificate x509Certificate =
+                    cardCertificateReaderService.retrieveSmcbCardCertificate(appConfig.getClientId(),
+                            appConfig.getClientSystem(), appConfig.getWorkplace(),
+                            appConfig.getCardHandle());
 
-            IdpTokenResult idpTokenResult = idpClient.login(identity);
+            IdpTokenResult idpTokenResult = idpClient.login(x509Certificate);
             requestBearerTokenFromIdpEvent.setBearerToken(idpTokenResult.getAccessToken().getRawString());
         } catch(IdpClientException | IdpException | IdpJoseException |
-                ConnectorCardCertificateReadException |
-                IdpCryptoException | SecretsManagerException e) {
+                ConnectorCardCertificateReadException e) {
             log.log(Level.WARNING, "Idp login did not work", e);
             exceptionEvent.fireAsync(e);
         }
