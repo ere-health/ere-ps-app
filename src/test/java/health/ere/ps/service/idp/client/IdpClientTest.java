@@ -3,6 +3,7 @@ package health.ere.ps.service.idp.client;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.security.cert.X509Certificate;
@@ -70,6 +71,7 @@ public class IdpClientTest {
         System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dumpTreshold", "999999");
     }
 
+    @Test
     public void test_Successful_Idp_Login_With_Connector_Smcb() throws IdpJoseException,
             IdpClientException, IdpException, ConnectorCardCertificateReadException {
 
