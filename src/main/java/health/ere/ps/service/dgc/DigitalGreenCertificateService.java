@@ -83,11 +83,11 @@ public class DigitalGreenCertificateService {
      * @param dt2 vaccination date 2
      * @return bytes of certificate pdf
      */
-    public byte[] issue(String fn, String gn, String dob,
-                        String id1, String tg1, String vp1, String mp1, String ma1, Integer dn1, Integer sd1,
-                        String dt1,
-                        String id2, String tg2, String vp2, String mp2, String ma2, Integer dn2, Integer sd2,
-                        String dt2) {
+    public byte[] issueVaccinationCertificate(String fn, String gn, String dob,
+                                              String id1, String tg1, String vp1, String mp1, String ma1, Integer dn1,
+                                              Integer sd1, String dt1,
+                                              String id2, String tg2, String vp2, String mp2, String ma2, Integer dn2,
+                                              Integer sd2, String dt2) {
 
         VaccinationCertificateRequest vaccinationCertificateRequest = new VaccinationCertificateRequest();
 

@@ -85,7 +85,7 @@ class DigitalGreenCertificateServiceTest {
     }
 
     @Test
-    void issueWithSingleParameters() {
+    void issueVaccinationCertificate() {
         String fn = "testName";
 
         String gn = "testGivenName";
@@ -135,12 +135,12 @@ class DigitalGreenCertificateServiceTest {
 
         doReturn(response).when(digitalGreenCertificateService).issue(vaccinationCertificateRequest);
 
-        assertEquals(response, digitalGreenCertificateService.issue(fn, gn, dob, id, tg, vp, mp, ma, dn, sd, dt,
-                null, "some", "thing", "else", "with", 3, 4, "params"));
+        assertEquals(response, digitalGreenCertificateService.issueVaccinationCertificate(fn, gn, dob, id, tg, vp, mp,
+                ma, dn, sd, dt, null, "some", "thing", "else", "with", 3, 4, "params"));
     }
 
     @Test
-    void issueWithSingleParametersAndSecondVaccination() {
+    void issueVaccinationCertificateWithSecondVaccination() {
         String fn = "testName";
 
         String gn = "testGivenName";
@@ -217,7 +217,7 @@ class DigitalGreenCertificateServiceTest {
 
         doReturn(response).when(digitalGreenCertificateService).issue(vaccinationCertificateRequest);
 
-        assertEquals(response, digitalGreenCertificateService.issue(fn, gn, dob, id1, tg1, vp1, mp1, ma1, dn1, sd1, dt1,
-                id2, tg2, vp2, mp2, ma2, dn2, sd2, dt2));
+        assertEquals(response, digitalGreenCertificateService.issueVaccinationCertificate(fn, gn, dob, id1, tg1, vp1,
+                mp1, ma1, dn1, sd1, dt1, id2, tg2, vp2, mp2, ma2, dn2, sd2, dt2));
     }
 }
