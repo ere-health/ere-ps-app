@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import org.jose4j.jca.ProviderContext;
 import org.jose4j.json.JsonUtil;
 import org.jose4j.jwa.AlgorithmConstraints;
 import org.jose4j.jwa.AlgorithmConstraints.ConstraintType;
@@ -59,6 +60,13 @@ public class IdpJwe extends IdpJoseObject {
             .ifPresent(expValue -> jwe.setHeader(ClaimName.EXPIRES_AT.getJoseName(), expValue));
         jwe.setHeader(ClaimName.CONTENT_TYPE.getJoseName(), contentType);
 
+
+        ProviderContext providerCtx = new ProviderContext();
+        providerCtx.getGeneralProviderContext().setKeyPairGeneratorProvider("BC");
+        providerCtx.getGeneralProviderContext().setKeyAgreementProvider("BC");
+        providerCtx.getSuppliedKeyProviderContext().setKeyPairGeneratorProvider("BC");
+        providerCtx.getSuppliedKeyProviderContext().setKeyAgreementProvider("BC");
+        jwe.setProviderContext(providerCtx);
         try {
             String s = jwe.getCompactSerialization();
             return new IdpJwe(s);

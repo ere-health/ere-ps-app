@@ -119,7 +119,7 @@ public class SmcbAuthenticatorService {
             ContextType contextType = new ContextType();
 
             contextType.setClientSystemId(appConfig.getClientSystem());
-            contextType.setMandantId(appConfig.getClientId());
+            contextType.setMandantId(appConfig.getMandantId());
             contextType.setWorkplaceId(appConfig.getWorkplace());
 
             ExternalAuthenticateResponse response;

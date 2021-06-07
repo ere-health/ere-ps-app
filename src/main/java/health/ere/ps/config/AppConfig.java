@@ -19,6 +19,9 @@ public class AppConfig {
     @ConfigProperty(name = "idp.connector.client.system.id")
     String clientSystem;
 
+    @ConfigProperty(name = "idp.connector.mandant.id")
+    String mandantId;
+
     @ConfigProperty(name = "idp.connector.workplace.id")
     String workplace;
 
@@ -60,5 +63,9 @@ public class AppConfig {
 
     public String getIdpConnectorAuthSignatureEndpointAddress() {
         return idpConnectorAuthSignatureEndpointAddress;
+    }
+
+    public String getMandantId() {
+        return mandantId;
     }
 }

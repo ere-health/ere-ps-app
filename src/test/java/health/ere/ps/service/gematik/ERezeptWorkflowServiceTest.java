@@ -36,6 +36,7 @@ import health.ere.ps.service.fhir.bundle.PrescriptionBundleBuilder;
 import health.ere.ps.service.fhir.bundle.PrescriptionBundleBuilderTest;
 import health.ere.ps.service.muster16.Muster16FormDataExtractorService;
 import health.ere.ps.service.muster16.parser.Muster16SvgExtractorParser;
+import health.ere.ps.ssl.SSLUtilities;
 
 public class ERezeptWorkflowServiceTest {
 
@@ -50,7 +51,7 @@ public class ERezeptWorkflowServiceTest {
 
     @BeforeAll
     static void init() {
-
+        
         try {
 			// https://community.oracle.com/thread/1307033?start=0&tstart=0
 			LogManager.getLogManager().readConfiguration(
@@ -67,19 +68,22 @@ public class ERezeptWorkflowServiceTest {
         System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dumpTreshold", "999999");
 
         eRezeptWorkflowService = new ERezeptWorkflowService();
-        eRezeptWorkflowService.prescriptionserverUrl = "https://fd.erezept-instanz1.titus.ti-dienste.de";
-        eRezeptWorkflowService.signatureServiceEndpointAddress = "https://kon-instanz2.titus.ti-dienste.de:443/soap-api/SignatureService/7.5.4";
-        eRezeptWorkflowService.eventServiceEndpointAddress = "https://kon-instanz2.titus.ti-dienste.de/soap-api/EventService/7.2.0";
+        eRezeptWorkflowService.prescriptionserverUrl = "https://erp-ref.zentral.erp.splitdns.ti-dienste.de";
+        eRezeptWorkflowService.signatureServiceEndpointAddress = "https://192.168.100.205:443/ws/SignatureService";
+        eRezeptWorkflowService.eventServiceEndpointAddress = "https://192.168.100.205:443/ws/EventService";
         eRezeptWorkflowService.signatureServiceCardHandle = "1-1-ARZT-WaltrautFinkengrund01";
-        eRezeptWorkflowService.signatureServiceContextMandantId = "ps_erp_incentergy_01";
-        eRezeptWorkflowService.signatureServiceContextClientSystemId = "ps_erp_incentergy_01_HBA";
-        eRezeptWorkflowService.signatureServiceContextWorkplaceId = "CATS";
-        eRezeptWorkflowService.signatureServiceContextUserId = "197610";
+        eRezeptWorkflowService.signatureServiceContextMandantId = "M1";
+        eRezeptWorkflowService.signatureServiceContextClientSystemId = "erehealth";
+        eRezeptWorkflowService.signatureServiceContextWorkplaceId = "manuel-blechschmidt";
+        eRezeptWorkflowService.signatureServiceContextUserId = "123456";
         eRezeptWorkflowService.signatureServiceTvMode = "NONE";
         eRezeptWorkflowService.enableVau = true;
         
-        InputStream p12Certificate = ERezeptWorkflowServiceTest.class.getResourceAsStream("/ps_erp_incentergy_01.p12");
-        eRezeptWorkflowService.setUpCustomSSLContext(p12Certificate);
+        // InputStream p12Certificate = ERezeptWorkflowServiceTest.class.getResourceAsStream("/ps_erp_incentergy_01.p12");
+        // eRezeptWorkflowService.setUpCustomSSLContext(p12Certificate);
+
+        SSLUtilities.trustAllHostnames();
+        SSLUtilities.trustAllHttpsCertificates();
         eRezeptWorkflowService.init();
     }
 

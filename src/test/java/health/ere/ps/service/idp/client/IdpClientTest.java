@@ -1,11 +1,13 @@
 package health.ere.ps.service.idp.client;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.security.Security;
 import java.security.cert.X509Certificate;
 import java.util.logging.LogManager;
 
@@ -18,6 +20,7 @@ import health.ere.ps.exception.idp.IdpJoseException;
 import health.ere.ps.model.idp.client.IdpTokenResult;
 import health.ere.ps.service.connector.certificate.CardCertReadExecutionService;
 import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
+import health.ere.ps.ssl.SSLUtilities;
 import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest
@@ -55,6 +58,8 @@ public class IdpClientTest {
     @BeforeAll
     public static void init() {
 
+        SSLUtilities.trustAllHostnames();
+        SSLUtilities.trustAllHttpsCertificates();
         try {
 			// https://community.oracle.com/thread/1307033?start=0&tstart=0
 			LogManager.getLogManager().readConfiguration(

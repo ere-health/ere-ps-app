@@ -13,13 +13,16 @@ import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
+import org.jose4j.jca.ProviderContext;
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.lang.JoseException;
 
 import java.security.PublicKey;
+import java.security.Security;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.Objects;
@@ -103,6 +106,10 @@ public class IdpClient implements IIdpClient {
 
     AuthSignatureServicePortType authSignatureService;
 
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+    }
+
     public void init(String clientId, String redirectUrl, String discoveryDocumentUrl,
                      boolean shouldVerifyState) {
         this.clientId = clientId;
@@ -136,6 +143,10 @@ public class IdpClient implements IIdpClient {
         jsonWebSignature.setHeader("typ", "JWT");
         jsonWebSignature.setHeader("cty", "NJWT");
         if (KeyAnalysis.isEcKey(certificate.getPublicKey())) {
+            ProviderContext providerCtx = new ProviderContext();
+            providerCtx.getGeneralProviderContext().setKeyPairGeneratorProvider("BC");
+            providerCtx.getGeneralProviderContext().setKeyAgreementProvider("BC");
+            jsonWebSignature.setProviderContext(providerCtx);
             jsonWebSignature.setAlgorithmHeaderValue(
                     BrainpoolAlgorithmSuiteIdentifiers.BRAINPOOL256_USING_SHA256);
         } else {
@@ -146,6 +157,8 @@ public class IdpClient implements IIdpClient {
             contentSigner.apply(Pair.of(
                 jsonWebSignature.getHeaders().getEncodedHeader(),
                 jsonWebSignature.getEncodedPayload())));
+
+
         String signedServerChallengeJwt = jwt
                 .encrypt(idpPublicKey)
                 .getRawString();

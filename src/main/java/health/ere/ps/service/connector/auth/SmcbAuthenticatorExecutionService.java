@@ -40,9 +40,9 @@ public class SmcbAuthenticatorExecutionService {
         bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
                 appConfig.getIdpConnectorAuthSignatureEndpointAddress());
 
-        secretsManagerService.configureSSLTransportContext(appConfig.getIdpConnectorTlsCertTrustStore(),
+        /*secretsManagerService.configureSSLTransportContext(appConfig.getIdpConnectorTlsCertTrustStore(),
                 appConfig.getIdpConnectorTlsCertTustStorePwd(), SecretsManagerService.SslContextType.TLS,
-                SecretsManagerService.KeyStoreType.PKCS12, bp);
+                SecretsManagerService.KeyStoreType.PKCS12, bp);*/
     }
 
     public ExternalAuthenticateResponse doExternalAuthenticate(String cardHandle, ContextType contextType,
