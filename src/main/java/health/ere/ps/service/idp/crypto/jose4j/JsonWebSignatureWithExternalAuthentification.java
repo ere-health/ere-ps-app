@@ -47,18 +47,24 @@ public class JsonWebSignatureWithExternalAuthentification extends JsonWebSignatu
     @Override
     public void sign() throws JoseException
     {
-        byte[] inputBytes = getSigningInputBytes();
+        // if we have a private key use it
+        if(getKey() != null) {
+            super.sign();
+        } else {
+            // otherwise use the connector for signing
+            byte[] inputBytes = getSigningInputBytes();
 
-        MessageDigest digest;
-        try {
-            digest = MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException e) {
-            throw new JoseException("Could not apply SHA-256 to signing bytes", e);
+            MessageDigest digest;
+            try {
+                digest = MessageDigest.getInstance("SHA-256");
+            } catch (NoSuchAlgorithmException e) {
+                throw new JoseException("Could not apply SHA-256 to signing bytes", e);
+            }
+            byte[] encodedhash = digest.digest(inputBytes);
+
+            byte[] signatureBytes = externalAuthenticate(encodedhash, smcbCardHandle);
+            setSignature(signatureBytes);
         }
-        byte[] encodedhash = digest.digest(inputBytes);
-
-        byte[] signatureBytes = externalAuthenticate(encodedhash, smcbCardHandle);
-        setSignature(signatureBytes);
     }
 
     public byte[] externalAuthenticate(byte[] sha265Hash, String smcbCardHandle) throws JoseException {

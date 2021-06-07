@@ -105,11 +105,27 @@ public class IdpClientTest {
     }
 
     @Test/* @Disabled*/
-    public void test_Successful_Idp_Login()
+    public void test_Successful_Idp_Login_RSA()
             throws ConnectorCardCertificateReadException, IdpException,
             IdpClientException, IdpCryptoException, IdpJoseException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
 
-        InputStream inStream = CardCertificateReaderService.class.getResourceAsStream("/certs/1-2-ARZT-WaltrautDrombusch01-80276001011699910223-C_SMCB_AUT_R2048_X509.p12");
+        String p12= "/certs/1-2-ARZT-WaltrautDrombusch01-80276001011699910223-C_SMCB_AUT_R2048_X509.p12";
+        testP12(p12);
+    }
+
+    @Test/* @Disabled*/
+    public void test_Successful_Idp_Login_ECC()
+            throws ConnectorCardCertificateReadException, IdpException,
+            IdpClientException, IdpCryptoException, IdpJoseException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+
+        String p12= "/certs/80276001011699910223-C_SMCB_AUT_E256_X509.p12";
+        testP12(p12);
+    }
+
+
+    public void testP12(String p12) throws ConnectorCardCertificateReadException, IdpException,
+    IdpClientException, IdpCryptoException, IdpJoseException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+        InputStream inStream = CardCertificateReaderService.class.getResourceAsStream(p12);
 
         cardCertificateReaderService.setMockCertificate(inStream.readAllBytes());
 
