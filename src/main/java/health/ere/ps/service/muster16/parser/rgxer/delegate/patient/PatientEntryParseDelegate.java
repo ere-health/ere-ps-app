@@ -1,4 +1,4 @@
-package health.ere.ps.service.muster16.parser.rgxer.delegate;
+package health.ere.ps.service.muster16.parser.rgxer.delegate.patient;
 
 import health.ere.ps.service.muster16.parser.rgxer.model.Muster16Field;
 
@@ -10,7 +10,7 @@ import java.util.stream.IntStream;
 
 import static health.ere.ps.service.muster16.parser.rgxer.model.Muster16Field.*;
 
-public class PatientDetailsIntermediateExtractor {
+public class PatientEntryParseDelegate {
 
     final Pattern NAME_PREFIX = Pattern.compile("(Prof|Dr)\\.");
     final Pattern FIRST_NAME_LINE = Pattern.compile("(?<prefix>(Prof|Dr)\\.)(.*)");
@@ -19,7 +19,7 @@ public class PatientDetailsIntermediateExtractor {
 
     private final Map<Muster16Field, String> details;
 
-    public PatientDetailsIntermediateExtractor(String entry) {
+    public PatientEntryParseDelegate(String entry) {
         details = new HashMap<>();
         extract(entry);
     }

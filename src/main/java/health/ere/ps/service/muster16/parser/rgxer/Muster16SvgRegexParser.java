@@ -2,7 +2,7 @@ package health.ere.ps.service.muster16.parser.rgxer;
 
 import health.ere.ps.model.muster16.MedicationString;
 import health.ere.ps.service.muster16.parser.IMuster16FormParser;
-import health.ere.ps.service.muster16.parser.rgxer.delegate.PatientDetailsIntermediateExtractor;
+import health.ere.ps.service.muster16.parser.rgxer.delegate.patient.PatientEntryParseDelegate;
 import health.ere.ps.service.muster16.parser.rgxer.formatter.Muster16AtomicFormatter;
 import health.ere.ps.service.muster16.parser.rgxer.model.Muster16Field;
 
@@ -27,7 +27,7 @@ public class Muster16SvgRegexParser implements IMuster16FormParser {
     }
 
     private Map<Muster16Field, String> extractIntermediateValues(Map<String, String> mappedValues) {
-        Map<Muster16Field, String> patientDetailsFields = new PatientDetailsIntermediateExtractor(mappedValues.getOrDefault("nameAndAddress", "")).getDetails();
+        Map<Muster16Field, String> patientDetailsFields = new PatientEntryParseDelegate(mappedValues.getOrDefault("nameAndAddress", "")).getDetails();
         // TODO parse practitioner's info
         return patientDetailsFields;
     }

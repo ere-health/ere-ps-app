@@ -1,4 +1,4 @@
-package health.ere.ps.service.muster16.parser.rgxer.delegate;
+package health.ere.ps.service.muster16.parser.rgxer.delegate.medication;
 
 import health.ere.ps.model.muster16.MedicationString;
 import health.ere.ps.service.muster16.parser.rgxer.matcher.MedicationMatcher;
@@ -9,17 +9,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class MedicationParser {
+public class MedicationParseDelegate {
 
-    private final MedicationDataIntermediateParser intermediateParser;
+    private final MedicationEntryParseDelegate intermediateParser;
     private final MedicationMatcher matcher;
 
     private final int PZN_LENGTH = 8;
     private final Pattern PZN_PAT = Pattern.compile("(PZN)?\\s*:?\\s*(?<value>\\d{8})");
     final Pattern SIZE_PAT = Pattern.compile("\\b(N[1-3]|KP)\\b");
 
-    public MedicationParser() {
-        this.intermediateParser = new MedicationDataIntermediateParser();
+    public MedicationParseDelegate() {
+        this.intermediateParser = new MedicationEntryParseDelegate();
         this.matcher = new MedicationMatcher();
     }
 

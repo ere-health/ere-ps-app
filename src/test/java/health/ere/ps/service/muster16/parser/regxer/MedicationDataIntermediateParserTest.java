@@ -1,6 +1,6 @@
 package health.ere.ps.service.muster16.parser.regxer;
 
-import health.ere.ps.service.muster16.parser.rgxer.delegate.MedicationDataIntermediateParser;
+import health.ere.ps.service.muster16.parser.rgxer.delegate.medication.MedicationEntryParseDelegate;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +19,7 @@ public class MedicationDataIntermediateParserTest {
                 "3x täglich alle 8 Std\n" +
                 "-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -";
 
-        MedicationDataIntermediateParser parser = new MedicationDataIntermediateParser();
+        MedicationEntryParseDelegate parser = new MedicationEntryParseDelegate();
         List<String> result = parser.parse(entry);
 
         assertEquals(1, result.size());
@@ -34,7 +34,7 @@ public class MedicationDataIntermediateParserTest {
                 "PZN04527098";
 
 
-        MedicationDataIntermediateParser parser = new MedicationDataIntermediateParser();
+        MedicationEntryParseDelegate parser = new MedicationEntryParseDelegate();
         List<String> result = parser.parse(entry);
 
         assertEquals(1, result.size());
@@ -48,7 +48,7 @@ public class MedicationDataIntermediateParserTest {
                 "**************************************************";
 
 
-        MedicationDataIntermediateParser parser = new MedicationDataIntermediateParser();
+        MedicationEntryParseDelegate parser = new MedicationEntryParseDelegate();
         List<String> result = parser.parse(entry);
 
         assertEquals(1, result.size());
@@ -62,7 +62,7 @@ public class MedicationDataIntermediateParserTest {
                 "Omeprazol  40 mg  0-0-1\n" +
                 "Amoxicillin 1.000 mg 1-0-1";
 
-        MedicationDataIntermediateParser parser = new MedicationDataIntermediateParser();
+        MedicationEntryParseDelegate parser = new MedicationEntryParseDelegate();
         List<String> result = parser.parse(entry);
 
         assertEquals(3, result.size());
@@ -74,7 +74,7 @@ public class MedicationDataIntermediateParserTest {
     @Test
     void testPrescriptionInitialParsing_DENS3() {
 
-        MedicationDataIntermediateParser parser = new MedicationDataIntermediateParser();
+        MedicationEntryParseDelegate parser = new MedicationEntryParseDelegate();
         String entry = "Azithromycin 500mg 1-0-0 für\n" +
                 "3 Tage\n" +
                 "Amoxicillin 500mg 1-1-1 in\n" +
@@ -91,7 +91,7 @@ public class MedicationDataIntermediateParserTest {
 
     @Test
     void testPrescriptionInitialParsing_DENS4() {
-        MedicationDataIntermediateParser parser = new MedicationDataIntermediateParser();
+        MedicationEntryParseDelegate parser = new MedicationEntryParseDelegate();
 
         String entry = "Cefuroxim 500mg 1-0-1\n" +
                 "Ibuprofen 600mg 1-1-1\n" +
@@ -110,7 +110,7 @@ public class MedicationDataIntermediateParserTest {
     @Disabled
     void testPrescriptionInitialParsing_DENS5() {
 
-        MedicationDataIntermediateParser parser = new MedicationDataIntermediateParser();
+        MedicationEntryParseDelegate parser = new MedicationEntryParseDelegate();
 
         String entry = "Amoxicillin 3.000mg 1 Stunde \n" +
                 "vor dem Eingriff\n" +
@@ -128,7 +128,7 @@ public class MedicationDataIntermediateParserTest {
     @Test
     void testPrescriptionInitialParsing_DENS6() {
 
-        MedicationDataIntermediateParser parser = new MedicationDataIntermediateParser();
+        MedicationEntryParseDelegate parser = new MedicationEntryParseDelegate();
 
         String entry = "Diclofenac 75mg 1-0-1\n" +
                 "Diazepam 5mg 0-0-1\n" +
@@ -146,7 +146,7 @@ public class MedicationDataIntermediateParserTest {
     @Disabled
     void testPrescriptionInitialParsing_DENS7() {
 
-        MedicationDataIntermediateParser parser = new MedicationDataIntermediateParser();
+        MedicationEntryParseDelegate parser = new MedicationEntryParseDelegate();
 
         String entry = "Ciprofloxacin   500mg   \n" +
                 "morgens   und   abends \n" +
@@ -164,7 +164,7 @@ public class MedicationDataIntermediateParserTest {
     @Test
     void testPrescriptionInitialParsing_DENS8() {
 
-        MedicationDataIntermediateParser parser = new MedicationDataIntermediateParser();
+        MedicationEntryParseDelegate parser = new MedicationEntryParseDelegate();
 
         String entry = "Fluoretten 0,25 mg\n" +
                 "Zymafluor 0,5mg\n" +
@@ -181,7 +181,7 @@ public class MedicationDataIntermediateParserTest {
     @Test
     void testPrescriptionInitialParsing_DENS10() {
 
-        MedicationDataIntermediateParser parser = new MedicationDataIntermediateParser();
+        MedicationEntryParseDelegate parser = new MedicationEntryParseDelegate();
 
         String entry = "Duraphat 5 % immer nach dem \n" +
                 "Essen auftragen\n" +
