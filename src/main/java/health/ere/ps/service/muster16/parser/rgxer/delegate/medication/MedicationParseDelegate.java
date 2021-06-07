@@ -13,6 +13,8 @@ public class MedicationParseDelegate {
 
     private final MedicationEntryParseDelegate intermediateParser;
     private final MedicationMatcher matcher;
+    private final MedicationEntrySplitDelegate nameResolver;
+    private final MedicationFormatDelegate formatter;
 
     private final int PZN_LENGTH = 8;
     private final Pattern PZN_PAT = Pattern.compile("(PZN)?\\s*:?\\s*(?<value>\\d{8})");
@@ -21,6 +23,8 @@ public class MedicationParseDelegate {
     public MedicationParseDelegate() {
         this.intermediateParser = new MedicationEntryParseDelegate();
         this.matcher = new MedicationMatcher();
+        this.nameResolver = new MedicationEntrySplitDelegate();
+        this.formatter = new MedicationFormatDelegate();
     }
 
     public List<MedicationString> parse(String entry) {
@@ -32,9 +36,14 @@ public class MedicationParseDelegate {
         String pzn = getPZN(line);
         String form = pzn != null ? getForm(pzn) : null;
         String size = getSize(line, pzn);
-        String dosage = null;
 
-        return new MedicationString(line, size, form, dosage, null, pzn);
+        int index = nameResolver.getSplitIndex(line);
+        String name = line.substring(0, index), dosage = line.substring(index);
+
+        name = formatter.formatName(name);
+        dosage = formatter.formatDosage(dosage);
+
+        return new MedicationString(name, size, form, dosage, null, pzn);
     }
 
     private String getForm(String pzn) {
@@ -59,12 +68,6 @@ public class MedicationParseDelegate {
         Matcher matcher = SIZE_PAT.matcher(entry);
         return matcher.find() ? matcher.group() : null;
     }
-
-    private String parseDosage(String entry) {
-        // TODO implement method
-        throw new UnsupportedOperationException();
-    }
-
 
     private String getPZN(String entry) {
         String pzn;
