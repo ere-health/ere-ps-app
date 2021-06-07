@@ -7,7 +7,7 @@ import health.ere.ps.exception.idp.IdpClientException;
 import health.ere.ps.exception.idp.IdpException;
 import health.ere.ps.exception.idp.IdpJoseException;
 import health.ere.ps.exception.idp.crypto.IdpCryptoException;
-import health.ere.ps.model.dgc.Nam;
+import health.ere.ps.model.dgc.PersonName;
 import health.ere.ps.model.dgc.V;
 import health.ere.ps.model.dgc.VaccinationCertificateRequest;
 import health.ere.ps.model.idp.client.AuthenticationResponse;
@@ -148,7 +148,7 @@ class DigitalGreenCertificateServiceIntegrationTest {
 
         VaccinationCertificateRequest vaccinationCertificateRequest = new VaccinationCertificateRequest();
 
-        Nam nam = new Nam();
+        PersonName nam = new PersonName();
 
         nam.fn = name;
         nam.gn = givenName;

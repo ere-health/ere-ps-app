@@ -13,10 +13,10 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 
+import health.ere.ps.model.dgc.CertificateRequest;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import health.ere.ps.event.RequestBearerTokenFromIdpEvent;
-import health.ere.ps.model.dgc.VaccinationCertificateRequest;
 
 @ApplicationScoped
 public class DigitalGreenCertificateService {
@@ -36,11 +36,11 @@ public class DigitalGreenCertificateService {
         client = clientBuilder.build();
     }
     
-    public byte[] issue(VaccinationCertificateRequest vaccinationCertificateRequest) {
+    public byte[] issue(CertificateRequest request) {
         Response response = client.target(issuerAPIUrl)
                 .request("application/pdf")
                 .header("Authorization", "Bearer " + getToken())
-                .post(Entity.json(vaccinationCertificateRequest));
+                .post(Entity.json(request));
 
         byte[] pdf;
 
