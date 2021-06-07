@@ -33,6 +33,9 @@ import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest
 public class IdpClientTest {
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+    }
 
     @Inject
     IdpClient idpClient;
