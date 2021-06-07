@@ -3,8 +3,8 @@ package health.ere.ps.model.dgc;
 import java.util.List;
 import java.util.Objects;
 
-public class VaccinationCertificateRequest {
-    public Nam nam;
+public class VaccinationCertificateRequest implements CertificateRequest {
+    public PersonName nam;
     public String dob;
     public List<V> v;
 

@@ -1,10 +1,12 @@
 package health.ere.ps.service.dgc;
 
-import java.io.InputStream;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.logging.Logger;
+import com.google.common.base.Strings;
+import health.ere.ps.event.RequestBearerTokenFromIdpEvent;
+import health.ere.ps.model.dgc.CertificateRequest;
+import health.ere.ps.model.dgc.PersonName;
+import health.ere.ps.model.dgc.V;
+import health.ere.ps.model.dgc.VaccinationCertificateRequest;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -14,14 +16,11 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
-
-import com.google.common.base.Strings;
-import health.ere.ps.model.dgc.Nam;
-import health.ere.ps.model.dgc.V;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
-import health.ere.ps.event.RequestBearerTokenFromIdpEvent;
-import health.ere.ps.model.dgc.VaccinationCertificateRequest;
+import java.io.InputStream;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.logging.Logger;
 
 @ApplicationScoped
 public class DigitalGreenCertificateService {
@@ -40,12 +39,12 @@ public class DigitalGreenCertificateService {
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
         client = clientBuilder.build();
     }
-
-    public byte[] issue(VaccinationCertificateRequest vaccinationCertificateRequest) {
+    
+    public byte[] issue(CertificateRequest request) {
         Response response = client.target(issuerAPIUrl)
                 .request("application/pdf")
                 .header("Authorization", "Bearer " + getToken())
-                .post(Entity.json(vaccinationCertificateRequest));
+                .post(Entity.json(request));
 
         byte[] pdf;
 
@@ -94,7 +93,7 @@ public class DigitalGreenCertificateService {
 
         vaccinationCertificateRequest.dob = dob;
 
-        Nam nam = new Nam();
+        PersonName nam = new PersonName();
 
         nam.gn = gn;
         nam.fn = fn;
