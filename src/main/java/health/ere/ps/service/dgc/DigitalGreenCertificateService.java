@@ -1,7 +1,7 @@
 package health.ere.ps.service.dgc;
 
-import java.io.IOException;
 import java.io.InputStream;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
@@ -27,8 +27,6 @@ public class DigitalGreenCertificateService {
 
     Client client;
 
-    String bearerToken;
-
     @Inject
     Event<RequestBearerTokenFromIdpEvent> requestBearerTokenFromIdp;
 
@@ -36,25 +34,32 @@ public class DigitalGreenCertificateService {
     public void init() {
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
         client = clientBuilder.build();
-        
-        RequestBearerTokenFromIdpEvent event = new RequestBearerTokenFromIdpEvent();
-        requestBearerTokenFromIdp.fire(event);
-        bearerToken = event.getBearerToken();
     }
     
     public byte[] issue(VaccinationCertificateRequest vaccinationCertificateRequest) {
-        Response response = client.target(issuerAPIUrl).request("application/pdf").header("Authorization", "Bearer " + bearerToken).post(Entity.json(vaccinationCertificateRequest));
+        Response response = client.target(issuerAPIUrl)
+                .request("application/pdf")
+                .header("Authorization", "Bearer " + getToken())
+                .post(Entity.json(vaccinationCertificateRequest));
 
         byte[] pdf;
+
         try {
             pdf = response.readEntity(InputStream.class).readAllBytes();
             if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
                 throw new RuntimeException(new String(pdf));
             }
         } catch (Exception e) {
-            init();
             throw new RuntimeException(e);
         }
         return pdf;
+    }
+
+    private String getToken() {
+        RequestBearerTokenFromIdpEvent event = new RequestBearerTokenFromIdpEvent();
+
+        requestBearerTokenFromIdp.fire(event);
+
+        return Optional.ofNullable(event.getBearerToken()).orElseThrow(IllegalArgumentException::new);
     }
 }
