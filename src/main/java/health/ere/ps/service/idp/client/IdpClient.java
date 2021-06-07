@@ -180,6 +180,8 @@ public class IdpClient implements IIdpClient {
             ProviderContext providerCtx = new ProviderContext();
             providerCtx.getGeneralProviderContext().setKeyPairGeneratorProvider("BC");
             providerCtx.getGeneralProviderContext().setKeyAgreementProvider("BC");
+            providerCtx.getSuppliedKeyProviderContext().setKeyPairGeneratorProvider("BC");
+            providerCtx.getSuppliedKeyProviderContext().setKeyAgreementProvider("BC");
             jsonWebSignature.setProviderContext(providerCtx);
             jsonWebSignature.setAlgorithmHeaderValue(
                     BrainpoolAlgorithmSuiteIdentifiers.BRAINPOOL256_USING_SHA256);
@@ -191,7 +193,6 @@ public class IdpClient implements IIdpClient {
             contentSigner.apply(Pair.of(
                 jsonWebSignature.getHeaders().getEncodedHeader(),
                 jsonWebSignature.getEncodedPayload())));
-
 
         String signedServerChallengeJwt = jwt
                 .encrypt(idpPublicKey)

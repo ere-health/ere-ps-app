@@ -91,8 +91,8 @@ public class IdpClientTest {
             IdpClientException, IdpCryptoException, IdpJoseException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
         cardCertificateReaderService.setMockCertificate(null);
 
-        InputStream p12Certificate = CardCertificateReaderService.class.getResourceAsStream("/ps_erp_incentergy_01.p12");
-        cardCertReadExecutionService.setUpCustomSSLContext(p12Certificate);
+        //InputStream p12Certificate = CardCertificateReaderService.class.getResourceAsStream("/ps_erp_incentergy_01.p12");
+        // cardCertReadExecutionService.setUpCustomSSLContext(p12Certificate);
 
         discoveryDocumentUrl = idpBaseUrl + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
 
