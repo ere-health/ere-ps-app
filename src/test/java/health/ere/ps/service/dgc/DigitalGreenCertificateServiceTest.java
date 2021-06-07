@@ -1,6 +1,7 @@
 package health.ere.ps.service.dgc;
 
 import health.ere.ps.event.RequestBearerTokenFromIdpEvent;
+import health.ere.ps.model.dgc.CertificateRequest;
 import health.ere.ps.model.dgc.PersonName;
 import health.ere.ps.model.dgc.V;
 import health.ere.ps.model.dgc.VaccinationCertificateRequest;
@@ -60,7 +61,7 @@ class DigitalGreenCertificateServiceTest {
 
         Invocation.Builder builder2 = mock(Invocation.Builder.class);
 
-        VaccinationCertificateRequest vaccinationCertificateRequest = mock(VaccinationCertificateRequest.class);
+        CertificateRequest certificateRequest = mock(CertificateRequest.class);
 
         Response response = mock(Response.class);
 
@@ -73,14 +74,14 @@ class DigitalGreenCertificateServiceTest {
         when(client.target(issuerAPIUrl)).thenReturn(webTarget);
         when(webTarget.request("application/pdf")).thenReturn(builder1);
         when(builder1.header("Authorization", "Bearer " + token)).thenReturn(builder2);
-        when(builder2.post(Entity.json(vaccinationCertificateRequest))).thenReturn(response);
+        when(builder2.post(Entity.json(certificateRequest))).thenReturn(response);
         when(response.getStatus()).thenReturn(200);
         when(response.readEntity(InputStream.class)).thenReturn(inputStream);
         when(inputStream.readAllBytes()).thenReturn(bytes);
 
-        assertSame(bytes, digitalGreenCertificateService.issue(vaccinationCertificateRequest));
+        assertSame(bytes, digitalGreenCertificateService.issue(certificateRequest));
 
-        verifyNoInteractions(vaccinationCertificateRequest);
+        verifyNoInteractions(certificateRequest);
     }
 
     @Test
