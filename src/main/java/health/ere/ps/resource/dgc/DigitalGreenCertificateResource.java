@@ -1,6 +1,6 @@
 package health.ere.ps.resource.dgc;
 
-import health.ere.ps.model.dgc.CertificateRequest;
+import health.ere.ps.model.dgc.VaccinationCertificateRequest;
 import health.ere.ps.service.dgc.DigitalGreenCertificateService;
 
 import javax.inject.Inject;
@@ -20,8 +20,8 @@ public class DigitalGreenCertificateResource {
 
     @Path("/issue")
     @POST
-    public Response issue(CertificateRequest certificateRequest) {
-        return Response.ok(digitalGreenCertificateService.issue(certificateRequest), "application/pdf").build();
+    public Response issue(VaccinationCertificateRequest vaccinationCertificateRequest) {
+        return Response.ok(digitalGreenCertificateService.issue(vaccinationCertificateRequest), "application/pdf").build();
     }
 
     @Path("/issue")
