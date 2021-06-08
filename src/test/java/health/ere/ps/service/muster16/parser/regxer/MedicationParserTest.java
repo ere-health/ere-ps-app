@@ -6,12 +6,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import javax.xml.stream.XMLStreamException;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MedicationParserTest {
 
@@ -40,8 +38,26 @@ public class MedicationParserTest {
     }
 
     @Test
-    @Disabled
-    void testParseApraxos() throws URISyntaxException, IOException, XMLStreamException {
+    void testParsePrescription_CGMTurboMed() {
+        String entry = "Novalgin AMP N1 5X2 ml\n" +
+                "-  -  -  -\n" +
+                "-  -  -  -\n" +
+                "PZN04527098";
+
+        List<MedicationString> result = parser.parse(entry);
+
+        assertEquals(1, result.size());
+
+        MedicationString result1 = result.get(0);
+        assertEquals("N1", result1.getSize());
+        assertEquals("AMP", result1.getForm());
+        assertEquals("Novalgin AMP N1 5X2 ml", result1.getName());
+        assertEquals("04527098", result1.getPzn());
+        assertEquals("", result1.getDosage());
+    }
+
+    @Test
+    void testParseApraxos() {
         String entry = "Ibuprofen 800mg (PZN: 01016144) »1 - 1 - 1«  ";
 
         List<MedicationString> result = parser.parse(entry);
@@ -51,8 +67,8 @@ public class MedicationParserTest {
         MedicationString result1 = result.get(0);
         assertEquals("01016144", result1.getPzn());
         assertEquals("N2", result1.getSize());
-        assertEquals("Ibuprofen 800mg", result1.getName());
-        assertEquals("1-1-1", result1.getDosage());
+        assertTrue(result1.getName().startsWith("Ibuprofen 800mg"));
+        assertTrue(result1.getDosage().startsWith("1 - 1 - 1"));
     }
 
     @Test
