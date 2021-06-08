@@ -104,3 +104,11 @@ In regards to file and directory paths, configure the values for the environment
 .env file to reference paths on your local computer.
 
 > Important! Configure the .env file to be ignored and not checked into the source code repository.
+
+An example of the layout of the contents in the .env file is shown below:
+
+>ERE_DIRECTORY_WATCHER_DIR=<YOUR_LOCAL_PATH>/watch-pdf
+
+>ERE_TITUS_CONNECTOR_TLS_CERT_TRUST_STORE_DIR=<YOUR_LOCAL_PATH>/ere-ps-app/src/test/resources/certs
+
+>ERE_TITUS_CONNECTOR_TLS_CERT_TRUST_STORE_PWD=<SECRET_VALUE_ON_YOUR_COMPUTER>
