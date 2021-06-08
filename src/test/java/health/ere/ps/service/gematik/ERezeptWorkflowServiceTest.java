@@ -87,7 +87,7 @@ public class ERezeptWorkflowServiceTest {
         eRezeptWorkflowService.init();
     }
 
-    @Test
+    @Test @Disabled
     // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testGetCards() throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         eRezeptWorkflowService.getCards();

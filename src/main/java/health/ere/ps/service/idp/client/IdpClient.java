@@ -177,12 +177,12 @@ public class IdpClient implements IIdpClient {
         jsonWebSignature.setHeader("typ", "JWT");
         jsonWebSignature.setHeader("cty", "NJWT");
         if (KeyAnalysis.isEcKey(certificate.getPublicKey())) {
-            ProviderContext providerCtx = new ProviderContext();
-            providerCtx.getGeneralProviderContext().setKeyPairGeneratorProvider("BC");
-            providerCtx.getGeneralProviderContext().setKeyAgreementProvider("BC");
-            providerCtx.getSuppliedKeyProviderContext().setKeyPairGeneratorProvider("BC");
-            providerCtx.getSuppliedKeyProviderContext().setKeyAgreementProvider("BC");
-            jsonWebSignature.setProviderContext(providerCtx);
+            // ProviderContext providerCtx = new ProviderContext();
+            // providerCtx.getGeneralProviderContext().setKeyPairGeneratorProvider("BC");
+            // providerCtx.getGeneralProviderContext().setKeyAgreementProvider("BC");
+            // providerCtx.getSuppliedKeyProviderContext().setKeyPairGeneratorProvider("BC");
+            // providerCtx.getSuppliedKeyProviderContext().setKeyAgreementProvider("BC");
+            // jsonWebSignature.setProviderContext(providerCtx);
             jsonWebSignature.setAlgorithmHeaderValue(
                     BrainpoolAlgorithmSuiteIdentifiers.BRAINPOOL256_USING_SHA256);
         } else {

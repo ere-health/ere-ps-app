@@ -61,12 +61,12 @@ public class IdpJwe extends IdpJoseObject {
         jwe.setHeader(ClaimName.CONTENT_TYPE.getJoseName(), contentType);
 
 
-        ProviderContext providerCtx = new ProviderContext();
-        providerCtx.getGeneralProviderContext().setKeyPairGeneratorProvider("BC");
-        providerCtx.getGeneralProviderContext().setKeyAgreementProvider("BC");
-        providerCtx.getSuppliedKeyProviderContext().setKeyPairGeneratorProvider("BC");
-        providerCtx.getSuppliedKeyProviderContext().setKeyAgreementProvider("BC");
-        jwe.setProviderContext(providerCtx);
+        // ProviderContext providerCtx = new ProviderContext();
+        // providerCtx.getGeneralProviderContext().setKeyPairGeneratorProvider("BC");
+        // providerCtx.getGeneralProviderContext().setKeyAgreementProvider("BC");
+        // providerCtx.getSuppliedKeyProviderContext().setKeyPairGeneratorProvider("BC");
+        // providerCtx.getSuppliedKeyProviderContext().setKeyAgreementProvider("BC");
+        // jwe.setProviderContext(providerCtx);
         try {
             String s = jwe.getCompactSerialization();
             return new IdpJwe(s);
