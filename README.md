@@ -3,7 +3,7 @@ ERE Primary System Desktop Client Application of the Gematik TI
 
 
 ### Overview
-The ere-ps-app is composed of two main components. 
+The ere-ps-app comprises two main components. 
 
 * The ere-ps-app back-end which is a Java 11 Quarkus application.
 * The ere-ps-app front-end UI, which is a browser based HTML, CSS and JavaScript application.
