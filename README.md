@@ -50,6 +50,8 @@ the application.
   In order to make sure you are working with the latest front-end UI, run the following first:
   > git submodule update --init
   
+  Then run:
+  
   > mvn quarkus:dev
   
   At this point, the application should be running as highlighted below.
