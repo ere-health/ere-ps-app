@@ -69,7 +69,7 @@ the application.
       2021-06-08 15:45:41,760 INFO  [io.quarkus] (Quarkus Main Thread) Profile dev activated. Live Coding activated.
       2021-06-08 15:45:41,761 INFO  [io.quarkus] (Quarkus Main Thread) Installed features: [cdi, rest-client, resteasy, resteasy-jsonb, scheduler, servlet, websockets]
 
-``'
+```
 
   You can access the front-end UI of the application by making reference to the following URL in a 
   Chrome browser only!
