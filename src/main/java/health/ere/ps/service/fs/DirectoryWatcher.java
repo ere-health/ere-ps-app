@@ -57,6 +57,8 @@ public class DirectoryWatcher {
             return;
         }
 
+        log.info("Watching directory: " + dir);
+
         try {
             watcher = FileSystems.getDefault().newWatchService();
             watchPath = Paths.get(dir);
