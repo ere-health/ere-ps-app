@@ -1,6 +1,7 @@
 package health.ere.ps.service.muster16.parser.rgxer.delegate.patient;
 
 import health.ere.ps.service.muster16.parser.rgxer.model.Muster16Field;
+import health.ere.ps.service.muster16.parser.rgxer.delegate.pattern.PatientPatterns;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -12,15 +13,12 @@ import static health.ere.ps.service.muster16.parser.rgxer.model.Muster16Field.*;
 
 public class PatientEntryParseDelegate {
 
-    final Pattern NAME_PREFIX = Pattern.compile("(Prof|Dr)\\.");
-    final Pattern FIRST_NAME_LINE = Pattern.compile("(?<prefix>(Prof|Dr)\\.)(.*)");
-    final Pattern ADDRESS_LINE = Pattern.compile("(.*)(\\d{5})(.*)");
-    final Pattern STREET_LINE = Pattern.compile("(\\D+)(\\d+)");
-
     private final Map<Muster16Field, String> details;
+    private final PatientPatterns patterns;
 
     public PatientEntryParseDelegate(String entry) {
         details = new HashMap<>();
+        patterns = new PatientPatterns();
         extract(entry);
     }
 
@@ -34,9 +32,9 @@ public class PatientEntryParseDelegate {
                 .collect(Collectors.toList());
 
         if (lines.size() >= 4) {
-            matchAndExtractLine(lines, ADDRESS_LINE).ifPresent(this::parseAddressLine);
-            matchAndExtractLine(lines, STREET_LINE).ifPresent(this::parseStreetLine);
-            matchAndExtractLine(lines, FIRST_NAME_LINE).ifPresentOrElse(this::parseFirstName, () -> parseFirstName(lines.get(1)));
+            matchAndExtractLine(lines, patterns.ADDRESS_LINE).ifPresent(this::parseAddressLine);
+            matchAndExtractLine(lines, patterns.STREET_LINE).ifPresent(this::parseStreetLine);
+            matchAndExtractLine(lines, patterns.FIRST_NAME_LINE).ifPresentOrElse(this::parseFirstName, () -> parseFirstName(lines.get(1)));
             parseLastName(lines.get(0));
         }
     }
@@ -47,12 +45,12 @@ public class PatientEntryParseDelegate {
 
     private void parseFirstName(String entry) {
         parseNamePrefix(entry);
-        entry = entry.replaceAll(NAME_PREFIX.pattern(), "");
+        entry = entry.replaceAll(patterns.NAME_PREFIX.pattern(), "");
         details.put(PATIENT_FIRST_NAME, entry);
     }
 
     private void parseNamePrefix(String entry) {
-        Matcher matcher = NAME_PREFIX.matcher(entry);
+        Matcher matcher = patterns.NAME_PREFIX.matcher(entry);
         StringBuilder builder = new StringBuilder();
         while (matcher.find())
             builder.append(matcher.group());
@@ -60,7 +58,7 @@ public class PatientEntryParseDelegate {
     }
 
     private void parseAddressLine(String line) {
-        Matcher matcher = ADDRESS_LINE.matcher(line);
+        Matcher matcher = patterns.ADDRESS_LINE.matcher(line);
         if (matcher.matches()) {
             details.put(PATIENT_ZIPCODE, matcher.group(2));
             details.put(PATIENT_CITY, matcher.group(3));
@@ -68,7 +66,7 @@ public class PatientEntryParseDelegate {
     }
 
     private void parseStreetLine(String line) {
-        Matcher matcher = STREET_LINE.matcher(line);
+        Matcher matcher = patterns.STREET_LINE.matcher(line);
         if (matcher.matches()) {
             details.put(PATIENT_STREET_NAME, matcher.group(1));
             details.put(PATIENT_STREET_NUMBER, matcher.group(2));

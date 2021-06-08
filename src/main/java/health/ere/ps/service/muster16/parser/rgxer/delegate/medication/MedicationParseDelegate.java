@@ -3,10 +3,10 @@ package health.ere.ps.service.muster16.parser.rgxer.delegate.medication;
 import health.ere.ps.model.muster16.MedicationString;
 import health.ere.ps.service.muster16.parser.rgxer.matcher.MedicationMatcher;
 import health.ere.ps.service.muster16.parser.rgxer.model.MedicationRecord;
+import health.ere.ps.service.muster16.parser.rgxer.delegate.pattern.MedicationPatterns;
 
 import java.util.List;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class MedicationParseDelegate {
@@ -15,16 +15,17 @@ public class MedicationParseDelegate {
     private final MedicationMatcher matcher;
     private final MedicationEntrySplitDelegate nameResolver;
     private final MedicationFormatDelegate formatter;
+    private final MedicationPatterns patterns;
 
     private final int PZN_LENGTH = 8;
-    private final Pattern PZN_PAT = Pattern.compile("(PZN)?\\s*:?\\s*(?<value>\\d{8})");
-    final Pattern SIZE_PAT = Pattern.compile("\\b(N[1-3]|KP)\\b");
+
 
     public MedicationParseDelegate() {
         this.intermediateParser = new MedicationEntryParseDelegate();
         this.matcher = new MedicationMatcher();
         this.nameResolver = new MedicationEntrySplitDelegate();
         this.formatter = new MedicationFormatDelegate();
+        this.patterns = new MedicationPatterns();
     }
 
     public List<MedicationString> parse(String entry) {
@@ -65,7 +66,7 @@ public class MedicationParseDelegate {
     }
 
     private String parseSize(String entry) {
-        Matcher matcher = SIZE_PAT.matcher(entry);
+        Matcher matcher = patterns.SIZE_PAT.matcher(entry);
         return matcher.find() ? matcher.group() : null;
     }
 
@@ -86,7 +87,7 @@ public class MedicationParseDelegate {
     }
 
     private String extractPZN(String entry) {
-        Matcher matcher = PZN_PAT.matcher(entry);
+        Matcher matcher = patterns.PZN_PAT.matcher(entry);
         return matcher.find() ? matcher.group("value") : null;
     }
 }

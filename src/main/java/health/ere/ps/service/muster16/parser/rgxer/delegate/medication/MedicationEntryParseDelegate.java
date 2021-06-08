@@ -2,22 +2,22 @@ package health.ere.ps.service.muster16.parser.rgxer.delegate.medication;
 
 import health.ere.ps.service.muster16.parser.rgxer.matcher.MedicationMatcher;
 import health.ere.ps.service.muster16.parser.rgxer.model.MedicationLine;
+import health.ere.ps.service.muster16.parser.rgxer.delegate.pattern.MedicationPatterns;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class MedicationEntryParseDelegate {
 
-    private final Pattern DOSAGE_PAT = Pattern.compile("[01]\\s*-\\s*[01]\\s*-\\s*[01]");
-    private final Pattern STRENGTH_PAT = Pattern.compile("(?<value>\\d+([.,]\\d+)?)\\s*(?<unit>(μg|mg|g|ml|%))");
-    private final Pattern SEPARATOR_PAT = Pattern.compile("[^\\w\\d]+");
+
     private final MedicationMatcher matcher;
+    private final MedicationPatterns patterns;
 
 
     public MedicationEntryParseDelegate() {
         matcher = new MedicationMatcher();
+        patterns = new MedicationPatterns();
     }
 
     public List<String> parse(String entry) {
@@ -57,14 +57,14 @@ public class MedicationEntryParseDelegate {
     }
 
     private boolean validLine(String line) {
-        return !SEPARATOR_PAT.matcher(line).matches();
+        return !patterns.SEPARATOR_PAT.matcher(line).matches();
     }
 
     private boolean hasDosage(MedicationLine line) {
-        return DOSAGE_PAT.matcher(line.getValue()).find();
+        return patterns.DOSAGE_PAT.matcher(line.getValue()).find();
     }
 
     private boolean hasStrength(MedicationLine line) {
-        return STRENGTH_PAT.matcher(line.getValue()).find();
+        return patterns.STRENGTH_PAT.matcher(line.getValue()).find();
     }
 }

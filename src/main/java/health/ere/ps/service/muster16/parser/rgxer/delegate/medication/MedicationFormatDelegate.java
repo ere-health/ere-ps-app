@@ -1,35 +1,38 @@
 package health.ere.ps.service.muster16.parser.rgxer.delegate.medication;
 
 import health.ere.ps.service.muster16.parser.rgxer.formatter.FormattingChain;
-
-import java.time.format.DateTimeFormatter;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import health.ere.ps.service.muster16.parser.rgxer.delegate.pattern.MedicationPatterns;
 
 public class MedicationFormatDelegate {
 
 
-    private final Pattern EXTRA_WHITE_SPACE = Pattern.compile("\\s+");
+    private final MedicationPatterns patterns;
 
+    public MedicationFormatDelegate() {
+        patterns = new MedicationPatterns();
+    }
 
     private String removeExtraSpaces(String entry) {
-        return EXTRA_WHITE_SPACE.matcher(entry).replaceAll(" ").trim();
+        return patterns.EXTRA_WHITE_SPACE.matcher(entry).replaceAll(" ").trim();
     }
 
     private String cleanToken(String entry) {
         return removeExtraSpaces(entry);
     }
 
-    private String cleanNoise(String entry, Pattern pattern) {
-        Matcher matcher = pattern.matcher(entry);
-        return matcher.find() ? matcher.group(0) : cleanToken(entry);
+    private String removePZN(String entry) {
+        return patterns.PZN_PAT.matcher(entry).replaceAll(" ");
     }
 
     String formatName(String entry) {
-        return FormattingChain.format(entry).apply(this::cleanToken).get();
+        return FormattingChain.format(entry)
+                .apply(this::removePZN)
+                .apply(this::cleanToken).get();
     }
 
-    String formatDosage(String entry){
-        return FormattingChain.format(entry).apply(this::cleanToken).get();
+    String formatDosage(String entry) {
+        return FormattingChain.format(entry)
+                .apply(this::removePZN)
+                .apply(this::cleanToken).get();
     }
 }
