@@ -42,7 +42,7 @@ public class DirectoryWatcher {
 
     private static Logger log = Logger.getLogger(DirectoryWatcher.class.getName());
 
-    @ConfigProperty(name = "directory-watcher.dir", defaultValue = "!")
+    @ConfigProperty(name = "ere.directory.watcher.dir", defaultValue = "!")
     String dir;
 
     private WatchService watcher = null;
