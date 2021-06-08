@@ -1,6 +1,6 @@
 package health.ere.ps.resource.dgc;
 
-import health.ere.ps.model.dgc.VaccinationCertificateRequest;
+import health.ere.ps.model.dgc.CertificateRequest;
 import health.ere.ps.service.dgc.DigitalGreenCertificateService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,21 +26,21 @@ class DigitalGreenCertificateResourceTest {
     private DigitalGreenCertificateResource digitalGreenCertificateResource;
 
     @Test
-    void issueVaccinationCertificate() {
-        VaccinationCertificateRequest vaccinationCertificateRequest = mock(VaccinationCertificateRequest.class);
+    void issue() {
+        CertificateRequest certificateRequest = mock(CertificateRequest.class);
 
         byte[] bytes = new byte[]{123};
 
-        given(digitalGreenCertificateService.issue(vaccinationCertificateRequest)).willReturn(bytes);
+        given(digitalGreenCertificateService.issue(certificateRequest)).willReturn(bytes);
 
-        Response response = digitalGreenCertificateResource.issue(vaccinationCertificateRequest);
+        Response response = digitalGreenCertificateResource.issue(certificateRequest);
 
         assertNotNull(response);
         assertEquals(response.getStatus(), 200);
         assertEquals(response.getMediaType().toString(), "application/pdf");
         assertSame(response.getEntity(), bytes);
 
-        verifyNoInteractions(vaccinationCertificateRequest);
+        verifyNoInteractions(certificateRequest);
     }
 
     @Test
