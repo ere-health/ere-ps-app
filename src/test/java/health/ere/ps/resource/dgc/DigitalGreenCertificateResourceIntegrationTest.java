@@ -33,7 +33,7 @@ class DigitalGreenCertificateResourceIntegrationTest {
     private URL url;
 
     @Test
-    @Disabled
+    @Disabled("Old servlet version due ot avalon dependencies")
     /*
      * TODO fix servlet-api
      * Disabled because servlet is a old version
@@ -113,7 +113,7 @@ class DigitalGreenCertificateResourceIntegrationTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("Old servlet version due to avalon dependencies")
     /*
      * TODO fix servlet-api
      * Disabled because servlet is a old version
