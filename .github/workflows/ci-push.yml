@@ -4,8 +4,11 @@ on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
+    runs-on: windows-2016
+    env:
+      ERE_DIRECTORY_WATCHER_DIR: watch-pdf
+      ERE_TITUS_CONNECTOR_TLS_CERT_TRUST_STORE_DIR: ${{ github.workspace }}/src/test/resources/certs
+      ERE_TITUS_CONNECTOR_TLS_CERT_TRUST_STORE_PWD: 00
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 11

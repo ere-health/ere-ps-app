@@ -73,7 +73,6 @@ public class IdpClientTest {
     }
 
     @Test
-    @Disabled("Test doesn't pass")
     public void test_Successful_Idp_Login_With_Connector_Smcb() throws IdpJoseException,
             IdpClientException, IdpException, ConnectorCardCertificateReadException {
 
