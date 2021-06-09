@@ -4,6 +4,8 @@ import com.google.common.base.Strings;
 import health.ere.ps.event.RequestBearerTokenFromIdpEvent;
 import health.ere.ps.model.dgc.CertificateRequest;
 import health.ere.ps.model.dgc.PersonName;
+import health.ere.ps.model.dgc.RecoveryCertificateRequest;
+import health.ere.ps.model.dgc.RecoveryEntry;
 import health.ere.ps.model.dgc.V;
 import health.ere.ps.model.dgc.VaccinationCertificateRequest;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -95,6 +97,42 @@ public class DigitalGreenCertificateService {
         }
 
         return issuePdf(vaccinationCertificateRequest);
+    }
+
+    /**
+     * Create a recovery certificate pdf.
+     *
+     * @param fn  (family) name
+     * @param gn  given name
+     * @param dob date of birth
+     * @param id  administering instance id
+     * @param tg  illness
+     * @param fr  date of test result, that has been positive
+     * @param is  issuer of certificate
+     * @param df  certificate validity date beginning
+     * @param du  certificate validity date ending
+     * @return bytes of certificate pdf
+     */
+    public byte[] issueRecoveryCertificatePdf(String fn, String gn, LocalDate dob, String id, String tg, LocalDate fr,
+                                              String is, LocalDate df, LocalDate du) {
+
+        RecoveryCertificateRequest recoveryCertificateRequest = new RecoveryCertificateRequest();
+
+        recoveryCertificateRequest.setNam(new PersonName(fn, gn));
+        recoveryCertificateRequest.setDob(dob);
+
+        RecoveryEntry r = new RecoveryEntry();
+
+        r.setId(id);
+        r.setTg(tg);
+        r.setFr(fr);
+        r.setIs(is);
+        r.setDf(df);
+        r.setDu(du);
+
+        recoveryCertificateRequest.setR(Collections.singletonList(r));
+
+        return issuePdf(recoveryCertificateRequest);
     }
 
     /**
