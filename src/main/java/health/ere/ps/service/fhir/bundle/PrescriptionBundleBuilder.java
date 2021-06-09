@@ -5,6 +5,7 @@ import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.hl7.fhir.r4.model.ContactPoint.ContactPointSystem;
 import org.hl7.fhir.r4.model.BooleanType;
@@ -138,6 +139,7 @@ public class PrescriptionBundleBuilder {
 
         patient.addName()
                 .setUse(NameUse.OFFICIAL)
+                .setPrefix(muster16PrescriptionForm.getNamePrefix().stream().map(StringType::new).collect(Collectors.toList()))
                 .setFamily(muster16PrescriptionForm.getPatientLastName())
                 .addGiven(muster16PrescriptionForm.getPatientFirstName());
 
@@ -200,7 +202,7 @@ public class PrescriptionBundleBuilder {
 
         organization.getMeta()
                         .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Coverage|1.0.3");
-        
+
         Identifier identifier = organization.addIdentifier();
 
         CodeableConcept codeableConcept = identifier.getType();
@@ -285,11 +287,11 @@ public class PrescriptionBundleBuilder {
 
         Extension medicationVaccine = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Vaccine", new BooleanType(false));
         medication.addExtension(medicationVaccine);
-        
+
         Extension normgroesse = new Extension("http://fhir.de/StructureDefinition/normgroesse", new CodeType("N1"));
         medication.addExtension(normgroesse);
 
-        
+
         muster16PrescriptionForm.getPrescriptionList().stream().forEach(prescription -> {
             medication.getCode().addCoding()
                     .setSystem("http://fhir.de/CodeSystem/ifa/pzn")
@@ -317,7 +319,7 @@ public class PrescriptionBundleBuilder {
 
         Extension emergencyServicesFee = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_EmergencyServicesFee", new BooleanType(false));
         medicationRequest.addExtension(emergencyServicesFee);
-        
+
         Extension bvg = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_BVG", new BooleanType(false));
         medicationRequest.addExtension(bvg);
 
@@ -361,7 +363,7 @@ public class PrescriptionBundleBuilder {
         quantity.setSystem("http://unitsofmeasure.org");
         quantity.setCode("{Package}");
         dispenseRequest.setQuantity(quantity);
-        medicationRequest.setDispenseRequest(dispenseRequest);  
+        medicationRequest.setDispenseRequest(dispenseRequest);
         MedicationRequestSubstitutionComponent substitution = new MedicationRequestSubstitutionComponent();
         substitution.setAllowed(new BooleanType(true));
         medicationRequest.setSubstitution(substitution);
