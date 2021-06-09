@@ -68,9 +68,7 @@ the application.
       2021-06-08 15:45:41,758 INFO  [io.quarkus] (Quarkus Main Thread) ere-ps-app 1.0.0-SNAPSHOT on JVM (powered by Quarkus 1.13.1.Final) started in 2.158s. Listening on: http://0.0.0.0:8080
       2021-06-08 15:45:41,760 INFO  [io.quarkus] (Quarkus Main Thread) Profile dev activated. Live Coding activated.
       2021-06-08 15:45:41,761 INFO  [io.quarkus] (Quarkus Main Thread) Installed features: [cdi, rest-client, resteasy, resteasy-jsonb, scheduler, servlet, websockets]
-
-``'
-
+  ```
   You can access the front-end UI of the application by making reference to the following URL in a 
   Chrome browser only!
   
