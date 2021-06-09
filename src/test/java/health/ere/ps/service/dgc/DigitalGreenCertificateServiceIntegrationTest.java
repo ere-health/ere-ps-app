@@ -136,7 +136,7 @@ class DigitalGreenCertificateServiceIntegrationTest extends TokendIntegrationTes
     }
 
     @Test
-    void issueRecoverCertificate() {
+    void issueRecoveryCertificate() {
         // mock response
 
         final String testId = "testId";
@@ -186,4 +186,43 @@ class DigitalGreenCertificateServiceIntegrationTest extends TokendIntegrationTes
         assertArrayEquals(response, actualResponse);
     }
 
+    @Test
+    void issueRecoveryCertificateFromIndividualParams() {
+        // mock response
+
+        final String testId = "testId";
+        final String testTg = "testTg";
+        final String testIs = "testIs";
+        final String testDateFr = "2023-01-01";
+        final String testDateDu = "2022-01-01";
+        final String testDateDf = "2021-01-01";
+        final String testDataDob = "1921-01-01";
+        final String name = "Testname";
+        final String givenName = "Testgiven Name";
+
+        final String jsonContentResponse = "{\"nam\":{" +
+                "\"fn\": \"" + name + "\"," +
+                "\"gn\": \"" + givenName + "\"" +
+                "}," +
+                "\"dob\": \"" + testDataDob + "\"," +
+                "\"r\": [{" +
+                "\"id\": \"" + testId + "\"," +
+                "\"tg\": \"" + testTg + "\"," +
+                "\"is\": \"" + testIs + "\"," +
+                "\"fr\": \"" + testDateFr + "\"," +
+                "\"du\": \"" + testDateDu + "\"," +
+                "\"df\": \"" + testDateDf + "\""+
+                "}]}";
+        wireMockServer.stubFor(serverMatcher
+                .withHeader("Content-Type", equalTo("application/vnd.dgc.v1+json"))
+                .withRequestBody(equalToJson(jsonContentResponse))
+                .withRequestBody(matchingJsonPath("r.length()", equalTo("1")))
+        );
+
+        final byte[] actualResponse = digitalGreenCertificateService.issueRecoveryCertificatePdf(name, givenName,
+                LocalDate.parse(testDataDob), testId, testTg, LocalDate.parse(testDateFr), testIs,
+                LocalDate.parse(testDateDf), LocalDate.parse(testDateDu));
+        assertNotNull(actualResponse);
+        assertArrayEquals(response, actualResponse);
+    }
 }
