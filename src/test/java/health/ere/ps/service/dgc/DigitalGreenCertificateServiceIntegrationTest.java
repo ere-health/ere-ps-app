@@ -1,29 +1,14 @@
 package health.ere.ps.service.dgc;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import health.ere.ps.LocalOfflineQuarkusTestProfile;
-import health.ere.ps.exception.connector.ConnectorCardCertificateReadException;
-import health.ere.ps.exception.idp.IdpClientException;
-import health.ere.ps.exception.idp.IdpException;
-import health.ere.ps.exception.idp.IdpJoseException;
-import health.ere.ps.exception.idp.crypto.IdpCryptoException;
-import health.ere.ps.model.dgc.PersonName;
-import health.ere.ps.model.dgc.V;
-import health.ere.ps.model.dgc.VaccinationCertificateRequest;
-import health.ere.ps.model.idp.client.AuthenticationResponse;
-import health.ere.ps.model.idp.client.AuthorizationRequest;
-import health.ere.ps.model.idp.client.AuthorizationResponse;
-import health.ere.ps.model.idp.client.DiscoveryDocumentResponse;
-import health.ere.ps.model.idp.client.IdpTokenResult;
-import health.ere.ps.model.idp.client.authentication.AuthenticationChallenge;
-import health.ere.ps.model.idp.client.token.JsonWebToken;
+import health.ere.ps.model.dgc.*;
 import health.ere.ps.model.idp.crypto.PkiIdentity;
 import health.ere.ps.model.idp.crypto.PkiKeyResolver;
-import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
-import health.ere.ps.service.idp.client.AuthenticatorClient;
+import health.ere.ps.utils.dgc.TokendIntegrationTestHelper;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
-import io.quarkus.test.junit.mockito.InjectMock;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,31 +16,21 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.inject.Inject;
-
-import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.Collections;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
-import static com.github.tomakehurst.wiremock.client.WireMock.ok;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @QuarkusTest
 @TestProfile(LocalOfflineQuarkusTestProfile.class)
 @ExtendWith(PkiKeyResolver.class)
-class DigitalGreenCertificateServiceIntegrationTest {
-    @InjectMock
-    private AuthenticatorClient authenticatorClient;
-
-    @InjectMock
-    private CardCertificateReaderService cardCertificateReaderService;
+class DigitalGreenCertificateServiceIntegrationTest extends TokendIntegrationTestHelper {
 
     @Inject
     private DigitalGreenCertificateService digitalGreenCertificateService;
@@ -63,17 +38,16 @@ class DigitalGreenCertificateServiceIntegrationTest {
     @ConfigProperty(name = "digital-green-certificate-service.issuerAPIUrl")
     private String issuerApiUrl;
 
-    private PkiIdentity serverIdentity;
-
-    private PkiIdentity rsaClientIdentity;
-
     private WireMockServer wireMockServer;
 
     private String mockPath;
 
+    private MappingBuilder serverMatcher;
+    private byte[] response;
+
     @BeforeEach
     void startup(@PkiKeyResolver.Filename("ecc") final PkiIdentity serverIdentity,
-                 @PkiKeyResolver.Filename("C_CH_AUT_R2048") final PkiIdentity rsaClientIdentity) throws MalformedURLException {
+                 @PkiKeyResolver.Filename("C_CH_AUT_R2048") final PkiIdentity rsaClientIdentity) throws Exception {
         this.serverIdentity = serverIdentity;
         this.rsaClientIdentity = rsaClientIdentity;
 
@@ -85,49 +59,45 @@ class DigitalGreenCertificateServiceIntegrationTest {
         mockPath = url.getPath();
         wireMockServer = new WireMockServer(wireMockConfig().port(url.getPort()).bindAddress("localhost"));
         wireMockServer.start();
+
+        // mock setup for token
+        String token = "testToken";
+        mockTokenCreation(token);
+
+        response = new byte[]{};
+        serverMatcher = post(mockPath)
+                .withHeader("Authorization", equalTo("Bearer " + token))
+                .withHeader("Accept", equalTo("application/pdf"))
+                .willReturn(ok().withBody(response));
     }
 
     @AfterEach
-    void tearDown() {
+    void tearDown() throws InterruptedException {
         wireMockServer.stop();
+        // TODO wireMockServer need time to terminate, it exception.
+        Thread.sleep(2000);
     }
 
     @Test
-    void issueVaccinationCertificate() throws IdpClientException, IdpException, ConnectorCardCertificateReadException, IdpCryptoException, IdpJoseException {
-        // mock setup for token
-        String token = "testToken";
-
-        mockTokenCreation(token);
+    void issueVaccinationCertificate() {
 
         // mock response
 
         String dob = "1921-01-01";
-
         String name = "Testname Lastname";
-
         String givenName = "Testgiven Name";
-
         String id = "testId";
-
         String tg = "testTg";
-
         String vp = "testVp";
-
         String mp = "testMp";
-
         String ma = "testMa";
-
         int dn = 123;
-
         int sd = 345;
-
         String dt = "2021-01-01";
-
         byte[] response = new byte[]{};
 
-        wireMockServer.stubFor(post(mockPath)
-                .withHeader("Authorization", equalTo("Bearer " + token))
-                .withHeader("Accept", equalTo("application/pdf"))
+        wireMockServer.stubFor(serverMatcher
+                .withHeader("Content-Type", equalTo("application/vnd.dgc.v1+json"))
                 .withRequestBody(equalToJson("{\"nam\":{" +
                         "\"fn\": \"" + name + "\"," +
                         "\"gn\": \"" + givenName + "\"" +
@@ -143,21 +113,9 @@ class DigitalGreenCertificateServiceIntegrationTest {
                         "\"sd\": " + sd + "," +
                         "\"dt\": \"" + dt + "\"" +
                         "}]}"))
-                .willReturn(ok()
-                        .withBody(response)));
+        );
 
-        VaccinationCertificateRequest vaccinationCertificateRequest = new VaccinationCertificateRequest();
-
-        PersonName nam = new PersonName();
-
-        nam.fn = name;
-        nam.gn = givenName;
-
-        vaccinationCertificateRequest.nam = nam;
-        vaccinationCertificateRequest.dob = "1921-01-01";
-
-        V v = new V();
-
+        final V v = new V();
         v.id = id;
         v.tg = tg;
         v.vp = vp;
@@ -167,49 +125,72 @@ class DigitalGreenCertificateServiceIntegrationTest {
         v.sd = sd;
         v.dt = dt;
 
+        final VaccinationCertificateRequest vaccinationCertificateRequest = new VaccinationCertificateRequest();
+        final PersonName personName = new PersonName();
+        personName.gn = givenName;
+        personName.fn = name;
+        vaccinationCertificateRequest.nam = personName;
+        vaccinationCertificateRequest.dob = dob;
         vaccinationCertificateRequest.v = Collections.singletonList(v);
 
-        byte[] actualResponse = digitalGreenCertificateService.issue(vaccinationCertificateRequest);
-
+        byte[] actualResponse = digitalGreenCertificateService.issuePdf(vaccinationCertificateRequest);
         assertNotNull(actualResponse);
         assertArrayEquals(response, actualResponse);
     }
 
-    private void mockTokenCreation(String token) throws ConnectorCardCertificateReadException, IdpCryptoException, IdpJoseException, IdpClientException, IdpException {
-        when(cardCertificateReaderService.retrieveCardCertIdentity(any(), any(), any(), any())).thenReturn(rsaClientIdentity);
+    @Test
+    void issueRecoverCertificate() {
 
-        DiscoveryDocumentResponse discoveryDocumentResponse = mock(DiscoveryDocumentResponse.class);
+        // mock response
 
-        AuthorizationResponse authorizationResponse = mock(AuthorizationResponse.class);
+        final String testId = "testId";
+        final String testTg = "testTg";
+        final String testIs = "testIs";
+        final String testDateFr = "2023-01-01";
+        final String testDateDu = "2022-01-01";
+        final String testDateDf = "2021-01-01";
+        final String testDataDob = "1921-01-01";
+        final String firstName = "Testname Lastname";
+        final String givenName = "Testgiven Name";
 
-        AuthenticationChallenge authenticationChallenge = mock(AuthenticationChallenge.class);
+        final String jsonContentResponse = "{\"nam\":{" +
+                "\"fn\": \"" + firstName + "\"," +
+                "\"gn\": \"" + givenName + "\"" +
+                "}," +
+                "\"dob\": \"" + testDataDob + "\"," +
+                "\"r\": [{" +
+                "\"id\": \"" + testId + "\"," +
+                "\"tg\": \"" + testTg + "\"," +
+                "\"is\": \"" + testIs + "\"," +
+                "\"fr\": \"" + testDateFr + "\"," +
+                "\"du\": \"" + testDateDu + "\"," +
+                "\"df\": \"" + testDateDf + "\""+
+                "}]}";
+        wireMockServer.stubFor(serverMatcher
+                .withHeader("Content-Type", equalTo("application/vnd.dgc.v1+json"))
+                .withRequestBody(equalToJson(jsonContentResponse))
+                .withRequestBody(matchingJsonPath("r.length()", equalTo("1")))
+        );
 
-        JsonWebToken challengeToken = mock(JsonWebToken.class);
+        final PersonName testDataPersonName = new PersonName();
+        testDataPersonName.fn = firstName;
+        testDataPersonName.gn = givenName;
+        final RecoveryEntry recoveryEntry = new RecoveryEntry();
+        recoveryEntry.setId(testId);
+        recoveryEntry.setTg(testTg);
+        recoveryEntry.setIs(testIs);
+        recoveryEntry.setFr(LocalDate.parse(testDateFr));
+        recoveryEntry.setDu(LocalDate.parse(testDateDu));
+        recoveryEntry.setDf(LocalDate.parse(testDateDf));
 
-        AuthenticationResponse authenticationResponse = mock(AuthenticationResponse.class);
+        final RecoveryCertificateRequest certificateRequest = new RecoveryCertificateRequest();
+        certificateRequest.setNam(testDataPersonName);
+        certificateRequest.dob(LocalDate.parse(testDataDob));
+        certificateRequest.addRItem(recoveryEntry);
 
-        IdpTokenResult idpTokenResult = mock(IdpTokenResult.class);
-
-        JsonWebToken accessToken = mock(JsonWebToken.class);
-
-        when(authenticatorClient.retrieveDiscoveryDocument(any())).thenReturn(discoveryDocumentResponse);
-        when(discoveryDocumentResponse.getAuthorizationEndpoint()).thenReturn("nonEmpty");
-        when(discoveryDocumentResponse.getTokenEndpoint()).thenReturn("nonEmpty");
-        when(discoveryDocumentResponse.getIdpEnc()).thenReturn(serverIdentity.getCertificate().getPublicKey());
-        when(authenticatorClient.doAuthorizationRequest(any())).thenAnswer((invocation) -> {
-            AuthorizationRequest authorizationRequest = invocation.getArgument(0);
-
-            when(authenticationResponse.getLocation()).thenReturn("http://localhost?state=" + authorizationRequest.getState());
-            return authorizationResponse;
-        });
-        when(authorizationResponse.getAuthenticationChallenge()).thenReturn(authenticationChallenge);
-        when(authenticationChallenge.getChallenge()).thenReturn(challengeToken);
-        when(challengeToken.getRawString()).thenReturn("testString");
-        when(authenticatorClient.performAuthentication(any())).thenReturn(authenticationResponse);
-
-        when(authenticatorClient.retrieveAccessToken(any())).thenReturn(idpTokenResult);
-        when(idpTokenResult.getAccessToken()).thenReturn(accessToken);
-
-        when(accessToken.getRawString()).thenReturn(token);
+        final byte[] actualResponse = digitalGreenCertificateService.issuePdf(certificateRequest);
+        assertNotNull(actualResponse);
+        assertArrayEquals(response, actualResponse);
     }
+
 }

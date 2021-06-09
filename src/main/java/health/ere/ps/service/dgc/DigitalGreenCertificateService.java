@@ -9,9 +9,11 @@ import health.ere.ps.model.dgc.VaccinationCertificateRequest;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -19,6 +21,7 @@ import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -39,24 +42,12 @@ public class DigitalGreenCertificateService {
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
         client = clientBuilder.build();
     }
-    
-    public byte[] issue(CertificateRequest request) {
-        Response response = client.target(issuerAPIUrl)
-                .request("application/pdf")
-                .header("Authorization", "Bearer " + getToken())
-                .post(Entity.json(request));
 
-        byte[] pdf;
-
-        try {
-            pdf = response.readEntity(InputStream.class).readAllBytes();
-            if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
-                throw new RuntimeException(new String(pdf));
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+    @PreDestroy
+    public void destroy() {
+        if (client != null) {
+            client.close();
         }
-        return pdf;
     }
 
     /**
@@ -83,11 +74,11 @@ public class DigitalGreenCertificateService {
      * @param dt2 vaccination date 2
      * @return bytes of certificate pdf
      */
-    public byte[] issueVaccinationCertificate(String fn, String gn, String dob,
-                                              String id1, String tg1, String vp1, String mp1, String ma1, Integer dn1,
-                                              Integer sd1, String dt1,
-                                              String id2, String tg2, String vp2, String mp2, String ma2, Integer dn2,
-                                              Integer sd2, String dt2) {
+    public byte[] issueVaccinationCertificatePdf(String fn, String gn, String dob,
+                                                 String id1, String tg1, String vp1, String mp1, String ma1, Integer dn1,
+                                                 Integer sd1, String dt1,
+                                                 String id2, String tg2, String vp2, String mp2, String ma2, Integer dn2,
+                                                 Integer sd2, String dt2) {
 
         VaccinationCertificateRequest vaccinationCertificateRequest = new VaccinationCertificateRequest();
 
@@ -108,7 +99,34 @@ public class DigitalGreenCertificateService {
             vaccinationCertificateRequest.v = List.of(v1, createV(id2, tg2, vp2, mp2, ma2, dn2, sd2, dt2));
         }
 
-        return issue(vaccinationCertificateRequest);
+        return issuePdf(vaccinationCertificateRequest);
+    }
+
+    /**
+     * Request the certificate at the certificate backend enriched with the token for access.
+     *
+     * @param requestData       the data send to the backend, only allowed are: VaccinationCertificateRequest,
+     *                          RecoveryCertificateRequest and TestCertificateRequest. Must be not null.
+     * @return the serialized response.
+     */
+    public byte[] issuePdf(@NotNull CertificateRequest requestData) {
+        Objects.requireNonNull(requestData); // can removed, if a validator is running.
+        Response response = client.target(issuerAPIUrl)
+                .request("application/pdf")
+                .header("Authorization", "Bearer " + getToken())
+                .post(Entity.entity(requestData, "application/vnd.dgc.v1+json"));
+
+        byte[] responseData;
+
+        try {
+            responseData = response.readEntity(InputStream.class).readAllBytes();
+            if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
+                throw new RuntimeException(new String(responseData));
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return responseData;
     }
 
     private String getToken() {

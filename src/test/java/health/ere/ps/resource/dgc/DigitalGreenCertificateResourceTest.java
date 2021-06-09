@@ -1,40 +1,45 @@
 package health.ere.ps.resource.dgc;
 
+import health.ere.ps.model.dgc.CertificateRequest;
+import health.ere.ps.model.dgc.RecoveryCertificateRequest;
 import health.ere.ps.model.dgc.VaccinationCertificateRequest;
 import health.ere.ps.service.dgc.DigitalGreenCertificateService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.ws.rs.core.Response;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoInteractions;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class DigitalGreenCertificateResourceTest {
-    @Mock
+    @Spy
     private DigitalGreenCertificateService digitalGreenCertificateService;
 
     @InjectMocks
     private DigitalGreenCertificateResource digitalGreenCertificateResource;
 
+    final byte[] bytes = new byte[]{123};
+
+    @BeforeEach
+    public void init() {
+        // start with doReturn because null check.
+        doReturn(bytes).when(digitalGreenCertificateService).issuePdf(Mockito.any(CertificateRequest.class));
+    }
+
     @Test
     void issueVaccinationCertificate() {
         VaccinationCertificateRequest vaccinationCertificateRequest = mock(VaccinationCertificateRequest.class);
 
-        byte[] bytes = new byte[]{123};
-
-        given(digitalGreenCertificateService.issue(vaccinationCertificateRequest)).willReturn(bytes);
-
         Response response = digitalGreenCertificateResource.issue(vaccinationCertificateRequest);
 
+        verify(digitalGreenCertificateService, times(1)).issuePdf(vaccinationCertificateRequest);
         assertNotNull(response);
         assertEquals(response.getStatus(), 200);
         assertEquals(response.getMediaType().toString(), "application/pdf");
@@ -85,8 +90,8 @@ class DigitalGreenCertificateResourceTest {
 
         byte[] bytes = new byte[]{123};
 
-        given(digitalGreenCertificateService.issueVaccinationCertificate(fn, gn, dob, id1, tg1, vp1, mp1, ma1, dn1, sd1,
-                dt1, id2, tg2, vp2, mp2, ma2, dn2, sd2, dt2)).willReturn(bytes);
+        when(digitalGreenCertificateService.issueVaccinationCertificatePdf(fn, gn, dob, id1, tg1, vp1, mp1, ma1, dn1, sd1,
+                dt1, id2, tg2, vp2, mp2, ma2, dn2, sd2, dt2)).thenReturn(bytes);
 
         Response response = digitalGreenCertificateResource.issue(fn, gn, dob, id1, tg1, vp1, mp1, ma1, dn1, sd1, dt1,
                 id2, tg2, vp2, mp2, ma2, dn2, sd2, dt2);
@@ -95,5 +100,21 @@ class DigitalGreenCertificateResourceTest {
         assertEquals(response.getStatus(), 200);
         assertEquals(response.getMediaType().toString(), "application/pdf");
         assertSame(response.getEntity(), bytes);
+    }
+
+    @Test
+    void issueRecoveryCertificate() {
+        RecoveryCertificateRequest certificateRequest = mock(RecoveryCertificateRequest.class);
+
+        Response response = digitalGreenCertificateResource.recovered(certificateRequest);
+
+        verify(digitalGreenCertificateService, times(1)).issuePdf(certificateRequest);
+
+        assertNotNull(response);
+        assertEquals(response.getStatus(), 200);
+        assertEquals(response.getMediaType().toString(), "application/pdf");
+        assertSame(response.getEntity(), bytes);
+
+        verifyNoInteractions(certificateRequest);
     }
 }

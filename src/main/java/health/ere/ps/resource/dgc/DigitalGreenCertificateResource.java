@@ -2,11 +2,13 @@ package health.ere.ps.resource.dgc;
 
 import health.ere.ps.model.dgc.VaccinationCertificateRequest;
 import health.ere.ps.service.dgc.DigitalGreenCertificateService;
+import health.ere.ps.model.dgc.RecoveryCertificateRequest;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import java.util.logging.Logger;
@@ -21,7 +23,7 @@ public class DigitalGreenCertificateResource {
     @Path("/issue")
     @POST
     public Response issue(VaccinationCertificateRequest vaccinationCertificateRequest) {
-        return Response.ok(digitalGreenCertificateService.issue(vaccinationCertificateRequest), "application/pdf").build();
+        return okPdf(digitalGreenCertificateService.issuePdf(vaccinationCertificateRequest));
     }
 
     @Path("/issue")
@@ -34,8 +36,14 @@ public class DigitalGreenCertificateResource {
                           @QueryParam("mp2") String mp2, @QueryParam("ma2") String ma2, @QueryParam("dn2") Integer dn2,
                           @QueryParam("sd2") Integer sd2, @QueryParam("dt2") String dt2) {
 
-        return okPdf(digitalGreenCertificateService.issueVaccinationCertificate(fn, gn, dob, id1, tg1, vp1, mp1, ma1,
+        return okPdf(digitalGreenCertificateService.issueVaccinationCertificatePdf(fn, gn, dob, id1, tg1, vp1, mp1, ma1,
                 dn1, sd1, dt1, id2, tg2, vp2, mp2, ma2, dn2, sd2, dt2));
+    }
+
+    @Path("/recovered")
+    @POST
+    public Response recovered(RecoveryCertificateRequest recoveryCertificateRequest) {
+        return okPdf(digitalGreenCertificateService.issuePdf(recoveryCertificateRequest));
     }
 
     private static Response okPdf(byte[] bytes) {

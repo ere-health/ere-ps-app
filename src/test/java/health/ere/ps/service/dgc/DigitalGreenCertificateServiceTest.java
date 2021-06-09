@@ -74,12 +74,12 @@ class DigitalGreenCertificateServiceTest {
         when(client.target(issuerAPIUrl)).thenReturn(webTarget);
         when(webTarget.request("application/pdf")).thenReturn(builder1);
         when(builder1.header("Authorization", "Bearer " + token)).thenReturn(builder2);
-        when(builder2.post(Entity.json(certificateRequest))).thenReturn(response);
+        when(builder2.post(Entity.entity(certificateRequest, "application/vnd.dgc.v1+json"))).thenReturn(response);
         when(response.getStatus()).thenReturn(200);
         when(response.readEntity(InputStream.class)).thenReturn(inputStream);
         when(inputStream.readAllBytes()).thenReturn(bytes);
 
-        assertSame(bytes, digitalGreenCertificateService.issue(certificateRequest));
+        assertSame(bytes, digitalGreenCertificateService.issuePdf(certificateRequest));
 
         verifyNoInteractions(certificateRequest);
     }
@@ -133,9 +133,9 @@ class DigitalGreenCertificateServiceTest {
 
         byte[] response = new byte[]{123, 124, 125};
 
-        doReturn(response).when(digitalGreenCertificateService).issue(vaccinationCertificateRequest);
+        doReturn(response).when(digitalGreenCertificateService).issuePdf(vaccinationCertificateRequest);
 
-        assertEquals(response, digitalGreenCertificateService.issueVaccinationCertificate(fn, gn, dob, id, tg, vp, mp,
+        assertEquals(response, digitalGreenCertificateService.issueVaccinationCertificatePdf(fn, gn, dob, id, tg, vp, mp,
                 ma, dn, sd, dt, null, "some", "thing", "else", "with", 3, 4, "params"));
     }
 
@@ -215,9 +215,9 @@ class DigitalGreenCertificateServiceTest {
 
         byte[] response = new byte[]{123, 124, 125};
 
-        doReturn(response).when(digitalGreenCertificateService).issue(vaccinationCertificateRequest);
+        doReturn(response).when(digitalGreenCertificateService).issuePdf(vaccinationCertificateRequest);
 
-        assertEquals(response, digitalGreenCertificateService.issueVaccinationCertificate(fn, gn, dob, id1, tg1, vp1,
+        assertEquals(response, digitalGreenCertificateService.issueVaccinationCertificatePdf(fn, gn, dob, id1, tg1, vp1,
                 mp1, ma1, dn1, sd1, dt1, id2, tg2, vp2, mp2, ma2, dn2, sd2, dt2));
     }
 }

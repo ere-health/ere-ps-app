@@ -66,19 +66,8 @@ public class RecoveryCertificateRequest extends CertificateRequestBase {
     @Override
     public String toString() {
         return "class RecoveryCertificateRequest {\n" +
-                "    " + toIndentedString(super.toString()) + "\n" +
-                "    r: " + toIndentedString(r) + "\n" +
+                "    " + super.toString() + "\n" +
+                "    r: " + r + "\n" +
                 "}";
-    }
-
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
-    private String toIndentedString(java.lang.Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
     }
 }

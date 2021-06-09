@@ -1,11 +1,12 @@
 package health.ere.ps.model.dgc;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.Objects;
 
 /**
@@ -19,16 +20,19 @@ public class RecoveryEntry {
     private String tg = null;
 
     @JsonProperty("fr")
-    private Date fr = null;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private LocalDate fr = null;
 
     @JsonProperty("is")
     private String is = null;
 
     @JsonProperty("df")
-    private Date df = null;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private LocalDate df = null;
 
     @JsonProperty("du")
-    private Date du = null;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private LocalDate du = null;
 
     public RecoveryEntry id(String id) {
         this.id = id;
@@ -72,7 +76,7 @@ public class RecoveryEntry {
         this.tg = tg;
     }
 
-    public RecoveryEntry fr(Date fr) {
+    public RecoveryEntry fr(LocalDate fr) {
         this.fr = fr;
         return this;
     }
@@ -85,11 +89,11 @@ public class RecoveryEntry {
     @JsonProperty("fr")
     @NotNull
     @Valid
-    public Date getFr() {
+    public LocalDate getFr() {
         return fr;
     }
 
-    public void setFr(Date fr) {
+    public void setFr(LocalDate fr) {
         this.fr = fr;
     }
 
@@ -114,7 +118,7 @@ public class RecoveryEntry {
         this.is = is;
     }
 
-    public RecoveryEntry df(Date df) {
+    public RecoveryEntry df(LocalDate df) {
         this.df = df;
         return this;
     }
@@ -127,15 +131,15 @@ public class RecoveryEntry {
     @JsonProperty("df")
     @NotNull
     @Valid
-    public Date getDf() {
+    public LocalDate getDf() {
         return df;
     }
 
-    public void setDf(Date df) {
+    public void setDf(LocalDate df) {
         this.df = df;
     }
 
-    public RecoveryEntry du(Date du) {
+    public RecoveryEntry du(LocalDate du) {
         this.du = du;
         return this;
     }
@@ -148,11 +152,11 @@ public class RecoveryEntry {
     @JsonProperty("du")
     @NotNull
     @Valid
-    public Date getDu() {
+    public LocalDate getDu() {
         return du;
     }
 
-    public void setDu(Date du) {
+    public void setDu(LocalDate du) {
         this.du = du;
     }
 
@@ -184,23 +188,12 @@ public class RecoveryEntry {
     public String toString() {
 
         return "class RecoveryEntry {\n" +
-                "    id: " + toIndentedString(id) + "\n" +
-                "    tg: " + toIndentedString(tg) + "\n" +
-                "    fr: " + toIndentedString(fr) + "\n" +
-                "    is: " + toIndentedString(is) + "\n" +
-                "    df: " + toIndentedString(df) + "\n" +
-                "    du: " + toIndentedString(du) + "\n" +
+                "    id: " + id + "\n" +
+                "    tg: " + tg + "\n" +
+                "    fr: " + fr + "\n" +
+                "    is: " + is + "\n" +
+                "    df: " + df + "\n" +
+                "    du: " + du + "\n" +
                 "}";
-    }
-
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
-    private String toIndentedString(java.lang.Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
     }
 }
