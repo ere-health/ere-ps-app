@@ -3,7 +3,11 @@ package health.ere.ps.service.dgc;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import health.ere.ps.LocalOfflineQuarkusTestProfile;
-import health.ere.ps.model.dgc.*;
+import health.ere.ps.model.dgc.PersonName;
+import health.ere.ps.model.dgc.RecoveryCertificateRequest;
+import health.ere.ps.model.dgc.RecoveryEntry;
+import health.ere.ps.model.dgc.V;
+import health.ere.ps.model.dgc.VaccinationCertificateRequest;
 import health.ere.ps.model.idp.crypto.PkiIdentity;
 import health.ere.ps.model.idp.crypto.PkiKeyResolver;
 import health.ere.ps.utils.dgc.TokendIntegrationTestHelper;
@@ -20,12 +24,14 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.util.Collections;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
+import static com.github.tomakehurst.wiremock.client.WireMock.ok;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 
 @QuarkusTest
 @TestProfile(LocalOfflineQuarkusTestProfile.class)
@@ -39,8 +45,6 @@ class DigitalGreenCertificateServiceIntegrationTest extends TokendIntegrationTes
     private String issuerApiUrl;
 
     private WireMockServer wireMockServer;
-
-    private String mockPath;
 
     private MappingBuilder serverMatcher;
     private byte[] response;
@@ -56,7 +60,6 @@ class DigitalGreenCertificateServiceIntegrationTest extends TokendIntegrationTes
         if (!"localhost".equals(url.getHost())) {
             throw new RuntimeException("Testing is only possible for localhost urls");
         }
-        mockPath = url.getPath();
         wireMockServer = new WireMockServer(wireMockConfig().port(url.getPort()).bindAddress("localhost"));
         wireMockServer.start();
 
@@ -64,10 +67,11 @@ class DigitalGreenCertificateServiceIntegrationTest extends TokendIntegrationTes
         String token = "testToken";
         mockTokenCreation(token);
 
-        response = new byte[]{};
-        serverMatcher = post(mockPath)
+        response = new byte[]{1, 2, 4, 8, 16};
+        serverMatcher = post(url.getPath())
                 .withHeader("Authorization", equalTo("Bearer " + token))
                 .withHeader("Accept", equalTo("application/pdf"))
+                .withHeader("Content-Type", equalTo("application/vnd.dgc.v1+json"))
                 .willReturn(ok().withBody(response));
     }
 
@@ -94,10 +98,8 @@ class DigitalGreenCertificateServiceIntegrationTest extends TokendIntegrationTes
         int dn = 123;
         int sd = 345;
         String dt = "2021-01-01";
-        byte[] response = new byte[]{};
 
         wireMockServer.stubFor(serverMatcher
-                .withHeader("Content-Type", equalTo("application/vnd.dgc.v1+json"))
                 .withRequestBody(equalToJson("{\"nam\":{" +
                         "\"fn\": \"" + name + "\"," +
                         "\"gn\": \"" + givenName + "\"" +
@@ -163,7 +165,6 @@ class DigitalGreenCertificateServiceIntegrationTest extends TokendIntegrationTes
                 "\"df\": \"" + testDateDf + "\""+
                 "}]}";
         wireMockServer.stubFor(serverMatcher
-                .withHeader("Content-Type", equalTo("application/vnd.dgc.v1+json"))
                 .withRequestBody(equalToJson(jsonContentResponse))
                 .withRequestBody(matchingJsonPath("r.length()", equalTo("1")))
         );
@@ -214,7 +215,6 @@ class DigitalGreenCertificateServiceIntegrationTest extends TokendIntegrationTes
                 "\"df\": \"" + testDateDf + "\""+
                 "}]}";
         wireMockServer.stubFor(serverMatcher
-                .withHeader("Content-Type", equalTo("application/vnd.dgc.v1+json"))
                 .withRequestBody(equalToJson(jsonContentResponse))
                 .withRequestBody(matchingJsonPath("r.length()", equalTo("1")))
         );
