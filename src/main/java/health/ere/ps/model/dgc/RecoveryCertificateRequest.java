@@ -16,11 +16,6 @@ public class RecoveryCertificateRequest extends CertificateRequestBase {
     @JsonProperty("r")
     private List<RecoveryEntry> r = new ArrayList<RecoveryEntry>();
 
-    public RecoveryCertificateRequest r(List<RecoveryEntry> r) {
-        this.r = r;
-        return this;
-    }
-
     public RecoveryCertificateRequest addRItem(RecoveryEntry rItem) {
         this.r.add(rItem);
         return this;

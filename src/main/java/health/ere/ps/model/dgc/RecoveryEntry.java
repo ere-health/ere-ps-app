@@ -34,11 +34,6 @@ public class RecoveryEntry {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate du = null;
 
-    public RecoveryEntry id(String id) {
-        this.id = id;
-        return this;
-    }
-
     /**
      * Identifier of the health professional location (i.e. BSNR or similar identifer). It will be used in the construction of the DGCI (digitial green certificate identifier). Due to the specification of the DGCI only the use of uppercase letters and numbers 0-9 are allowed.
      *
@@ -53,11 +48,6 @@ public class RecoveryEntry {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public RecoveryEntry tg(String tg) {
-        this.tg = tg;
-        return this;
     }
 
     /**
@@ -76,11 +66,6 @@ public class RecoveryEntry {
         this.tg = tg;
     }
 
-    public RecoveryEntry fr(LocalDate fr) {
-        this.fr = fr;
-        return this;
-    }
-
     /**
      * First positive test result date as ISO 8601.
      *
@@ -95,11 +80,6 @@ public class RecoveryEntry {
 
     public void setFr(LocalDate fr) {
         this.fr = fr;
-    }
-
-    public RecoveryEntry is(String is) {
-        this.is = is;
-        return this;
     }
 
     /**
@@ -118,11 +98,6 @@ public class RecoveryEntry {
         this.is = is;
     }
 
-    public RecoveryEntry df(LocalDate df) {
-        this.df = df;
-        return this;
-    }
-
     /**
      * Certificate valid from date as ISO 8601.
      *
@@ -137,11 +112,6 @@ public class RecoveryEntry {
 
     public void setDf(LocalDate df) {
         this.df = df;
-    }
-
-    public RecoveryEntry du(LocalDate du) {
-        this.du = du;
-        return this;
     }
 
     /**

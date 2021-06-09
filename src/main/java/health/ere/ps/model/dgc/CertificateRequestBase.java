@@ -27,11 +27,6 @@ public class CertificateRequestBase implements CertificateRequest {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate dob = null;
 
-    public CertificateRequestBase nam(PersonName nam) {
-        this.nam = nam;
-        return this;
-    }
-
     /**
      * Name of the person which receives the certificate.
      *
@@ -45,11 +40,6 @@ public class CertificateRequestBase implements CertificateRequest {
 
     public void setNam(PersonName nam) {
         this.nam = nam;
-    }
-
-    public CertificateRequestBase dob(LocalDate dob) {
-        this.dob = dob;
-        return this;
     }
 
     /**
