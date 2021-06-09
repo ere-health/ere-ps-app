@@ -3,6 +3,8 @@ package health.ere.ps.service.dgc;
 import health.ere.ps.event.RequestBearerTokenFromIdpEvent;
 import health.ere.ps.model.dgc.CertificateRequest;
 import health.ere.ps.model.dgc.PersonName;
+import health.ere.ps.model.dgc.RecoveryCertificateRequest;
+import health.ere.ps.model.dgc.RecoveryEntry;
 import health.ere.ps.model.dgc.V;
 import health.ere.ps.model.dgc.VaccinationCertificateRequest;
 import org.junit.jupiter.api.Test;
@@ -210,5 +212,49 @@ class DigitalGreenCertificateServiceTest {
 
         assertEquals(response, digitalGreenCertificateService.issueVaccinationCertificatePdf(fn, gn, dob, id1, tg1, vp1,
                 mp1, ma1, dn1, sd1, dt1, id2, tg2, vp2, mp2, ma2, dn2, sd2, dt2));
+    }
+
+    @Test
+    void issueRecoveryCertificatePdf() {
+        String fn = "testFn";
+
+        String gn = "testGn";
+
+        LocalDate dob = LocalDate.of(2000, 1, 1);
+
+        String id = "testId";
+
+        String tg = "testTg";
+
+        LocalDate fr = LocalDate.of(2021, 5, 31);
+
+        String is = "testIs";
+
+        LocalDate df = LocalDate.of(2021, 7, 1);
+
+        LocalDate du = LocalDate.of(2022, 7, 1);
+
+        byte[] bytes = new byte[]{56, 67, 78};
+
+        RecoveryCertificateRequest recoveryCertificateRequest = new RecoveryCertificateRequest();
+
+        recoveryCertificateRequest.setNam(new PersonName(fn, gn));
+        recoveryCertificateRequest.setDob(dob);
+
+        RecoveryEntry r = new RecoveryEntry();
+
+        r.setId(id);
+        r.setTg(tg);
+        r.setFr(fr);
+        r.setIs(is);
+        r.setDf(df);
+        r.setDu(du);
+
+        recoveryCertificateRequest.setR(Collections.singletonList(r));
+
+        doReturn(bytes).when(digitalGreenCertificateService).issuePdf(recoveryCertificateRequest);
+
+        assertSame(bytes, digitalGreenCertificateService.issueRecoveryCertificatePdf(fn, gn, dob, id, tg, fr, is, df,
+                du));
     }
 }
