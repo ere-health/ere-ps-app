@@ -308,7 +308,7 @@ public class ERezeptWorkflowService {
                 .header("User-Agent", userAgent)
                 .header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
                 .post(Entity.entity(fhirContext.newXmlParser().encodeResourceToString(parameters),
-                        "application/fhir+xml; charset=UTF-8"));
+                        "application/fhir+xml; charset=utf-8"));
         String taskString = response.readEntity(String.class);
         if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
             // OperationOutcome operationOutcome =
@@ -450,7 +450,7 @@ public class ERezeptWorkflowService {
         Response response = client.target(prescriptionserverUrl).path("/Task/$create").request()
                 .header("User-Agent", userAgent)
                 .header("Authorization", "Bearer " + bearerToken)
-                .post(Entity.entity(parameterString, "application/fhir+xml; charset=UTF-8"));
+                .post(Entity.entity(parameterString, "application/fhir+xml; charset=utf-8"));
 
         String taskString = response.readEntity(String.class);
         if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
@@ -474,7 +474,7 @@ public class ERezeptWorkflowService {
     public void abortERezeptTask(String bearerToken, String taskId, String accessCode) {
         Response response = client.target(prescriptionserverUrl).path("/Task").path("/" + taskId).path("/$abort")
                 .request().header("User-Agent", userAgent).header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
-                .post(Entity.entity("", "application/fhir+xml; charset=UTF-8"));
+                .post(Entity.entity("", "application/fhir+xml; charset=utf-8"));
         String taskString = response.readEntity(String.class);
         if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
             throw new RuntimeException(taskString);
