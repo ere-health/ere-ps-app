@@ -34,3 +34,9 @@ nb-configuration.xml
 # patch
 *.orig
 *.rej
+
+# Env file to override the configuration
+.env
+
+#Windows installer generated archive
+/windows-installer/windows-installer.zip
