@@ -73,7 +73,7 @@ public class Muster16AtomicFormatter {
 
     private String reformatDate(String entry) {
         LocalDate date = parseDate(entry);
-        return date != null ? STANDARD_DATE_FORMAT.format(date) : null;
+        return date != null ? STANDARD_DATE_FORMAT.format(date) : "";
     }
 
     private String formatInsuranceCompany(String entry) {
@@ -161,11 +161,11 @@ public class Muster16AtomicFormatter {
             case PRESCRIPTION_DATE:
                 return formatPrescriptionDate(value);
             case PRESCRIPTION_LIST:
-                return null;
+                return "";
             case PATIENT_INSURANCE_ID:
                 return formatPatientInsuranceId(value);
             default:
-                return null;
+                return "";
         }
     }
 
