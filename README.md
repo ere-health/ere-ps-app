@@ -75,10 +75,7 @@ the application.
   > http://localhost:8080/frontend/app/src/index.html
   
   > ***Very Important! The front-end UI can only be accessed in the Chrome browser.***
-
-
-
-
+  
 #### Verify Correct Reference to the Latest Front-End UI Version
 
 To check that the ere-ps-app back-end is correctly referencing the front-end 
