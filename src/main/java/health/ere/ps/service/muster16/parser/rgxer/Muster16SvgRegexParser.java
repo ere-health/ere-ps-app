@@ -8,6 +8,7 @@ import health.ere.ps.service.muster16.parser.rgxer.formatter.Muster16AtomicForma
 import health.ere.ps.service.muster16.parser.rgxer.model.Muster16Field;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static health.ere.ps.service.muster16.parser.rgxer.model.Muster16Field.*;
 
@@ -77,8 +78,9 @@ public class Muster16SvgRegexParser implements IMuster16FormParser {
     }
 
     @Override
-    public String parsePatientNamePrefix() {
-        return getValue(PATIENT_NAME_PREFIX);
+    public List<String> parsePatientNamePrefix() {
+        String value = getValue(PATIENT_NAME_PREFIX);
+        return List.of(value.split(" ")).stream().map(String::new).collect(Collectors.toList());
     }
 
     @Override

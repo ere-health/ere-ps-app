@@ -36,8 +36,8 @@ public class Muster16FormDataParser implements IMuster16FormParser {
     }
 
     @Override
-    public String parsePatientNamePrefix() {
-        return "";
+    public List<String> parsePatientNamePrefix() {
+        return new ArrayList<>();
     }
 
     public String parsePatientFirstName() {

@@ -100,8 +100,8 @@ public class Muster16SvgExtractorParser implements IMuster16FormParser {
     }
 
     @Override
-    public String parsePatientNamePrefix() {
-        return "";
+    public List<String> parsePatientNamePrefix() {
+        return new ArrayList<>();
     }
 
     @Override
