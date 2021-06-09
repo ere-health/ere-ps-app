@@ -48,9 +48,23 @@
             window.location = blobUrl;
         });
     }
+
+    function prefillParameters() {
+        const form = document.getElementById("vacination-request-form");
+
+        // remove '#' from hash
+        const params = new URLSearchParams(window.location.hash.substring(1));
+
+        for (const name of ["fn", "gn", "dob", "tg", "vp", "mp", "ma", "dn", "sd", "sd"]) {
+            // setting the values to null will cause the validation to be triggered
+            if (params.has(name)) {
+                form.elements[name].value = params.get(name);
+            }
+        }
+    }
     </script>
 </head>
-<body class="home-page">
+<body class="home-page" onload="prefillParameters();" onhashchange="prefillParameters();">
     <div class="main-content-wrapper">
         <header class="header-wrapper">
             <div class="header">
