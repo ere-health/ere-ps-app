@@ -19,7 +19,6 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -136,88 +135,6 @@ class DigitalGreenCertificateServiceTest {
         doReturn(response).when(digitalGreenCertificateService).issuePdf(vaccinationCertificateRequest);
 
         assertEquals(response, digitalGreenCertificateService.issueVaccinationCertificatePdf(fn, gn, dob, id, tg, vp, mp,
-                ma, dn, sd, dt, null, "some", "thing", "else", "with", 3, 4, "params"));
-    }
-
-    @Test
-    void issueVaccinationCertificateWithSecondVaccination() {
-        String fn = "testName";
-
-        String gn = "testGivenName";
-
-        String dob = "testDob";
-
-        String id1 = "testId1";
-
-        String tg1 = "testTg1";
-
-        String vp1 = "testVp1";
-
-        String mp1 = "testMp1";
-
-        String ma1 = "testMa1";
-
-        Integer dn1 = 1;
-
-        Integer sd1 = 2;
-
-        String dt1 = "testDt1";
-
-        String id2 = "testId2";
-
-        String tg2 = "testTg2";
-
-        String vp2 = "testVp2";
-
-        String mp2 = "testMp2";
-
-        String ma2 = "testMa2";
-
-        Integer dn2 = 3;
-
-        Integer sd2 = 4;
-
-        String dt2 = "testDt2";
-
-        VaccinationCertificateRequest vaccinationCertificateRequest = new VaccinationCertificateRequest();
-
-        PersonName nam = new PersonName();
-
-        nam.fn = fn;
-        nam.gn = gn;
-
-        vaccinationCertificateRequest.nam = nam;
-        vaccinationCertificateRequest.dob = dob;
-
-        V v1 = new V();
-
-        v1.id = id1;
-        v1.tg = tg1;
-        v1.vp = vp1;
-        v1.mp = mp1;
-        v1.ma = ma1;
-        v1.dn = dn1;
-        v1.sd = sd1;
-        v1.dt = dt1;
-
-        V v2 = new V();
-
-        v2.id = id2;
-        v2.tg = tg2;
-        v2.vp = vp2;
-        v2.mp = mp2;
-        v2.ma = ma2;
-        v2.dn = dn2;
-        v2.sd = sd2;
-        v2.dt = dt2;
-
-        vaccinationCertificateRequest.v = List.of(v1, v2);
-
-        byte[] response = new byte[]{123, 124, 125};
-
-        doReturn(response).when(digitalGreenCertificateService).issuePdf(vaccinationCertificateRequest);
-
-        assertEquals(response, digitalGreenCertificateService.issueVaccinationCertificatePdf(fn, gn, dob, id1, tg1, vp1,
-                mp1, ma1, dn1, sd1, dt1, id2, tg2, vp2, mp2, ma2, dn2, sd2, dt2));
+                ma, dn, sd, dt));
     }
 }
