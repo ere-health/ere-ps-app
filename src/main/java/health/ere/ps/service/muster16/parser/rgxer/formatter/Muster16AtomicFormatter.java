@@ -18,8 +18,8 @@ public class Muster16AtomicFormatter {
     private final Pattern DATE = Pattern.compile("\\d+[.-/]\\d+[.-/]\\d+");
     private final Pattern SHORT_ORDINAL_DATE = Pattern.compile("(?<day>\\d+)\\.(?<month>\\d+)\\.(?<year>\\d+)");
 
-    private final DateTimeFormatter ORDINAL_DATE_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-    private final DateTimeFormatter SHORT_ORDINAL_DATE_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yy");
+    private final DateTimeFormatter ORDINAL_DATE_FORMAT = DateTimeFormatter.ofPattern("d.M.yyyy");
+    private final DateTimeFormatter SHORT_ORDINAL_DATE_FORMAT = DateTimeFormatter.ofPattern("d.M.yy");
     private final DateTimeFormatter STANDARD_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 
