@@ -28,6 +28,18 @@ public class AppConfig {
     @ConfigProperty(name = "idp.connector.auth-signature.endpoint.address")
     String idpConnectorAuthSignatureEndpointAddress;
 
+    @ConfigProperty(name = "signature-service.context.mandantId")
+    String signatureServiceContextMandantId;
+
+    @ConfigProperty(name = "signature-service.context.clientSystemId")
+    String signatureServiceContextClientSystemId;
+
+    @ConfigProperty(name = "signature-service.context.workplaceId")
+    String signatureServiceContextWorkplaceId;
+
+    @ConfigProperty(name = "signature-service.context.userId")
+    String signatureServiceContextUserId;
+
     public String getIdpConnectorTlsCertTrustStore() {
 
         return idpConnectorTlsCertTrustStore;
@@ -60,5 +72,21 @@ public class AppConfig {
 
     public String getIdpConnectorAuthSignatureEndpointAddress() {
         return idpConnectorAuthSignatureEndpointAddress;
+    }
+
+    public String getSignatureServiceContextMandantId() {
+        return signatureServiceContextMandantId;
+    }
+
+    public String getSignatureServiceContextClientSystemId() {
+        return signatureServiceContextClientSystemId;
+    }
+
+    public String getSignatureServiceContextWorkplaceId() {
+        return signatureServiceContextWorkplaceId;
+    }
+
+    public String getSignatureServiceContextUserId() {
+        return signatureServiceContextUserId;
     }
 }
