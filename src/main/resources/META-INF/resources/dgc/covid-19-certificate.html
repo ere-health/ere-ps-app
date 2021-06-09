@@ -33,15 +33,6 @@
                 "dn": parseInt(form.elements["dn"].value),
                 "sd": parseInt(form.elements["sd"].value),
                 "dt": form.elements["dt"].value
-            },
-            {
-                "tg": form.elements["tg2"].value,
-                "vp": form.elements["vp2"].value,
-                "mp": form.elements["mp2"].value,
-                "ma": form.elements["ma2"].value,
-                "dn": parseInt(form.elements["dn2"].value),
-                "sd": parseInt(form.elements["sd2"].value),
-                "dt": form.elements["dt2"].value
             }
             ]
         };
@@ -98,70 +89,34 @@
                     <fieldset>
                         <legend>Impfdaten</legend>
 
-                        <fieldset>
-                            <legend>Erste Impfung</legend>
+                        <label for="tg">Krankheit</label>
+                        <input type="text" id="tg" name="tg" placeholder="e.g. 840539006 for COVID-19" required/>
+                        <br/>
 
-                            <label for="tg">Krankheit</label>
-                            <input type="text" id="tg" name="tg" placeholder="e.g. 840539006 for COVID-19" required/>
-                            <br />
+                        <label for="vp">Impfstoff</label>
+                        <input type="text" id="vp" name="vp" placeholder="e.g. 11193050005" required/>
+                        <br/>
 
-                            <label for="vp">Impfstoff</label>
-                            <input type="text" id="vp" name="vp" placeholder="e.g. 11193050005" required/>
-                            <br />
+                        <label for="mp">Produkt</label>
+                        <input type="text" id="mp" name="mp" placeholder="e.g. EU/1/20/1528 for Comirnaty" required/>
+                        <br/>
 
-                            <label for="mp">Produkt</label>
-                            <input type="text" id="mp" name="mp" placeholder="e.g. EU/1/20/1528 for Comirnaty" required/>
-                            <br />
+                        <label for="ma">Hersteller</label>
+                        <input type="text" id="ma" name="ma"
+                               placeholder="e.g. ORG-100030215 for Biontech Manufacturing GmbH" required/>
+                        <br/>
 
-                            <label for="ma">Hersteller</label>
-                            <input type="text" id="ma" name="ma" placeholder="e.g. ORG-100030215 for Biontech Manufacturing GmbH" required/>
-                            <br />
+                        <label for="dn">Dosennummer</label>
+                        <input type="text" id="dn" name="dn" placeholder="e.g. 1" required/>
+                        <br/>
 
-                            <label for="dn">Dosennummer</label>
-                            <input type="text" id="dn" name="dn" placeholder="e.g. 1" required/>
-                            <br />
+                        <label for="sd">Gesamtdosen</label>
+                        <input type="text" id="sd" name="sd" placeholder="e.g. 2" required/>
+                        <br/>
 
-                            <label for="sd">Gesamtdosen</label>
-                            <input type="text" id="sd" name="sd" placeholder="e.g. 2" required/>
-                            <br />
-
-                            <label for="dt">Impfdatum</label>
-                            <input type="date" id="dt" name="dt" placeholder="e.g. 2" required/>
-                            <br />
-                        </fieldset>
-
-                        <fieldset>
-                            <legend>Zweite Impfung (falls zutreffend)</legend>
-
-                            <label for="tg2">Krankheit</label>
-                            <input type="text" id="tg2" name="tg2" placeholder="e.g. 840539006 for COVID-19" />
-                            <br />
-
-                            <label for="vp2">Impfstoff</label>
-                            <input type="text" id="vp2" name="vp2" placeholder="e.g. 11193050005" />
-                            <br />
-
-                            <label for="mp2">Produkt</label>
-                            <input type="text" id="mp2" name="mp2" placeholder="e.g. EU/1/20/1528 for Comirnaty"/>
-                            <br />
-
-                            <label for="ma2">Hersteller</label>
-                            <input type="text" id="ma2" name="ma2" placeholder="e.g. ORG-100030215 for Biontech Manufacturing GmbH"/>
-                            <br />
-
-                            <label for="dn2">Dosennummer</label>
-                            <input type="text" id="dn2" name="dn2" placeholder="e.g. 2"/>
-                            <br />
-
-                            <label for="sd2">Gesamtdosen</label>
-                            <input type="text" id="sd2" name="sd2" placeholder="e.g. 2"/>
-                            <br />
-
-                            <label for="dt2">Impfdatum</label>
-                            <input type="date" id="dt2" name="dt2" placeholder="e.g. 2"/>
-                            <br />
-                        </fieldset>
-
+                        <label for="dt">Impfdatum</label>
+                        <input type="date" id="dt" name="dt" placeholder="e.g. 2" required/>
+                        <br/>
                     </fieldset>
                 </form>
             </div>
