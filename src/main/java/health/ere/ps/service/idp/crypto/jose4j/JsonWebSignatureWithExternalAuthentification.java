@@ -85,7 +85,7 @@ public class JsonWebSignatureWithExternalAuthentification extends JsonWebSignatu
 
         try {
             // Titus Bug:  Client received SOAP Fault from server: No enum constant de.gematik.ti.signenc.authsignature.SignatureScheme.RSASSA-PSS Please see the server log to find more detail regarding exact cause of the failure.
-            service.externalAuthenticate(smcbCardHandle, contextType, null /*optionalInputs*/, binaryDocumentType, statusHolder, signatureObjectHolder);
+            service.externalAuthenticate(smcbCardHandle, contextType, optionalInputs, binaryDocumentType, statusHolder, signatureObjectHolder);
         } catch (FaultMessage e) {
             throw new JoseException("Could not call externalAuthenticate", e);
         }

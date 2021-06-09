@@ -44,7 +44,7 @@ public class IdpJweTest {
 
         java.security.PublicKey idpEncPublicKey = KeyFactory.getInstance("EC").generatePublic(keySpec);
 
-        String s = IdpJwe.createWithPayloadAndEncryptWithKey(payload, idpEncPublicKey, "JWT").getRawString();
+        String s = IdpJwe.createWithPayloadAndEncryptWithKey(payload, idpEncPublicKey, "NJWT").getRawString();
 
         System.out.println(s);
     }

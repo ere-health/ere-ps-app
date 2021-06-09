@@ -45,7 +45,7 @@ public class ERezeptWorkflowServiceTest {
     FhirContext fhirContext = FhirContext.forR4();
     IParser iParser = fhirContext.newXmlParser();
 
-    String testBearerToken = "eyJhbGciOiJCUDI1NlIxIiwidHlwIjoiYXQrSldUIiwia2lkIjoicHVrX2lkcF9zaWcifQ.eyJzdWIiOiJWV3dvVWhROHpRTDh0U1BjVW9VcEJXVUs5UVgtOUpvRURaTmttc0dFSDVrIiwicHJvZmVzc2lvbk9JRCI6IjEuMi4yNzYuMC43Ni40LjUwIiwib3JnYW5pemF0aW9uTmFtZSI6IjIwMjExMDEyMiBOT1QtVkFMSUQiLCJpZE51bW1lciI6IjEtMi1BUlpULVdhbHRyYXV0RHJvbWJ1c2NoMDEiLCJhbXIiOlsibWZhIiwic2MiLCJwaW4iXSwiaXNzIjoiaHR0cHM6Ly9pZHAuemVudHJhbC5pZHAuc3BsaXRkbnMudGktZGllbnN0ZS5kZSIsImdpdmVuX25hbWUiOiJXYWx0cmF1dCIsImNsaWVudF9pZCI6ImVSZXplcHRBcHAiLCJhdWQiOiJodHRwczovL2VycC50ZWxlbWF0aWsuZGUvbG9naW4iLCJhY3IiOiJnZW1hdGlrLWVoZWFsdGgtbG9hLWhpZ2giLCJhenAiOiJlUmV6ZXB0QXBwIiwic2NvcGUiOiJvcGVuaWQgZS1yZXplcHQiLCJhdXRoX3RpbWUiOjE2MjE5MjkwNTksImV4cCI6MTYyMTkyOTM1OSwiZmFtaWx5X25hbWUiOiJEcm9tYnVzY2giLCJpYXQiOjE2MjE5MjkwNTksImp0aSI6Ijc1NDY5OGI2Y2M2YWQ3NzQifQ.WVwUK3-Go8YMvhesVsQiCxKReJrjJviBK8HAGbGl5UyRGqO5DTgCs7xkpILGaGuLnYmRw7WFnC2NZR1loczEHg";
+    String testBearerToken = "eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiY3R5IjoiTkpXVCIsImV4cCI6MTYyMzIyNTA0NX0..MDEgwJAC0gYB7ULo.k7kfjWLyFCbz_1x1rgtUBYbLQNqC5OSaCj8neElzGb-KF5feFGjEVcW_A76c64c7bG9OJKy_VMX7MrgqbPLeqL8UvYQ9-91ptssmVmRn99Ueg2UrX631uvLUtgeiI-kqeIgzdvRD0OsoS1SsJE8PAFVFnHa2qLZ1x8Lm41iPxOR5Mj7Oen4tXieLKt5pDFk_ebkxsJfca_e5fPZfeucy_2fCTZ_nNIqgJLbkbRNqPvi9Lp7cc0_5YVCJnuWfa_IfQV7RX9poUMU594UXGWItpyN27rtiMxPaOu_2d-uyM8QxbXK5KuaPP16gOjF1eH7mUdo0WOl_w6537eXQcXA_8beMbWlsXnC0aVeMyTDhzm2h4eKQEdUVjjCtto78Jxr0HpuWjYJb8viefnYty3t99ecHZLzYU1kZjbbsBJAILm8aN_5LBj7gX5pAKn-Z1YEsEh5ne0jV2kDqMhtnsgoU9GZtRe9gbqG_-A2_eJI43z5DrXBc42HY1PurcAcVspq1B8f4KBQf-PbZAHnJYfUYBS8UyOWmWielOc8MNy3rDZGth3OgfetkOy5QTOuyNuYqXC3VWkGuqaMAIoz1rHxkUC7eKsOcaEijFvSMiI3-jOZDoc4BAaK0vCtZObKJmA-RRReRzb-McnVBuvgs9AEX1Kl9g4WenQBWEc1zM9Qp48D4aO55v2se8nfjpZAtKJe8q1sv98XFdSqTi-cfQdM4_CbOOWKBZ_QbXYz9SA51lroOpREQz5XEqAcDBYV_7Qm6jyu6Fi9N2IhhYLzcwD5KJvM2fyIqSUPMJipLrXzSnF6Y6N6DP-L-JDkQJkw_qJ88cfqzEYhsN6MfDA_gTVi-WH2NH5oWnCV0cTm4obMc_lKk4BVvWKZlXKbLJj2sC9J8OC0d7q5O2nR7SEQvVpF1TWrC4DX4-nxV13mesudV2WvQ8-WxGzBiGPq6zB7_K4xPdWgsvsvqUlNN2P9MZ-8lS7tZwdXFIZxmKQOBuosz0-ykQ4yQGGjvyBKxLy-b9v5ka5sm13OKwdj2UlDfh7_Uvkc89_e-bg8tBiheUOedO5MAIgHDGcsSakwbzDjR3O5Uk2lWV1GhIjCy0fCekNlLnQvJrQLQgKEKHGnVU3rRRv3K87shS3FaOQYw5djuKNNCrr39M0c_tc0TTv_PKaD4SXeT6ier2zPR08hTSa4z-gk4ekI5MaTe7eZ0T5TXrE57p537pdD4Es2oveUsb7zwGYNnBAbzbMaQkQA225Tsn5fmptO2ITYapA.uftsom4RmUwBfhIwlZBk0A";
 
     static ERezeptWorkflowService eRezeptWorkflowService;
 
@@ -77,6 +77,7 @@ public class ERezeptWorkflowServiceTest {
         eRezeptWorkflowService.signatureServiceContextWorkplaceId = "manuel-blechschmidt";
         eRezeptWorkflowService.signatureServiceContextUserId = "123456";
         eRezeptWorkflowService.signatureServiceTvMode = "NONE";
+        eRezeptWorkflowService.userAgent = "IncentergyGmbH-ere.health/1.0.0";
         eRezeptWorkflowService.enableVau = true;
         
         // InputStream p12Certificate = ERezeptWorkflowServiceTest.class.getResourceAsStream("/ps_erp_incentergy_01.p12");
@@ -87,13 +88,13 @@ public class ERezeptWorkflowServiceTest {
         eRezeptWorkflowService.init();
     }
 
-    @Test @Disabled
+    @Test
     // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testGetCards() throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         eRezeptWorkflowService.getCards();
     }
     
-    @Test @Disabled
+    @Test/* @Disabled*/
     void testCreateERezeptOnPrescriptionServer() throws InvalidCanonicalizerException, XMLParserException, CanonicalizationException, FaultMessage, IOException {
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/0428d416-149e-48a4-977c-394887b3d85c.xml"));
         eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);

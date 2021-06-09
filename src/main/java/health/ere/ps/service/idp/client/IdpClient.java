@@ -194,6 +194,9 @@ public class IdpClient implements IIdpClient {
                 jsonWebSignature.getHeaders().getEncodedHeader(),
                 jsonWebSignature.getEncodedPayload())));
 
+        jwt.getHeaderClaims().remove("alg");
+        jwt.getHeaderClaims().put("alg", BrainpoolAlgorithmSuiteIdentifiers.BRAINPOOL256_USING_SHA256);
+        
         String signedServerChallengeJwt = jwt
                 .encrypt(idpPublicKey)
                 .getRawString();
@@ -217,7 +220,7 @@ public class IdpClient implements IIdpClient {
                     .flatMap(Set::stream)
                     .forEach(entry -> jws.setHeader(entry.getKey(),
                         entry.getValue().getAsString()));
-
+                        
                 jws.setCertificateChainHeaderValue(idpIdentity.getCertificate());
                 jws.setKey(idpIdentity.getPrivateKey());
                 try {
