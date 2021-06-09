@@ -7,7 +7,7 @@ jobs:
     runs-on: windows-latest
     env:
       ERE_DIRECTORY_WATCHER_DIR: watch-pdf
-      ERE_TITUS_CONNECTOR_TLS_CERT_TRUST_STORE_DIR: $GITHUB_WORKSPACE/ere-ps-app/src/test/resources/certs
+      ERE_TITUS_CONNECTOR_TLS_CERT_TRUST_STORE_DIR: env.GITHUB_WORKSPACE/ere-ps-app/src/test/resources/certs
       ERE_TITUS_CONNECTOR_TLS_CERT_TRUST_STORE_PWD: password
 
     steps:
