@@ -83,7 +83,7 @@ class DigitalGreenCertificateServiceIntegrationTest extends TokendIntegrationTes
 
         // mock response
 
-        String dob = "1921-01-01";
+        LocalDate dob = LocalDate.of(1921, 1, 1);
         String name = "Testname Lastname";
         String givenName = "Testgiven Name";
         String id = "testId";
@@ -126,8 +126,8 @@ class DigitalGreenCertificateServiceIntegrationTest extends TokendIntegrationTes
         v.dt = dt;
 
         final VaccinationCertificateRequest vaccinationCertificateRequest = new VaccinationCertificateRequest();
-        vaccinationCertificateRequest.nam = new PersonName(name, givenName);
-        vaccinationCertificateRequest.dob = dob;
+        vaccinationCertificateRequest.setNam(new PersonName(name, givenName));
+        vaccinationCertificateRequest.setDob(dob);
         vaccinationCertificateRequest.v = Collections.singletonList(v);
 
         byte[] actualResponse = digitalGreenCertificateService.issuePdf(vaccinationCertificateRequest);
@@ -178,7 +178,7 @@ class DigitalGreenCertificateServiceIntegrationTest extends TokendIntegrationTes
 
         final RecoveryCertificateRequest certificateRequest = new RecoveryCertificateRequest();
         certificateRequest.setNam(new PersonName(name, givenName));
-        certificateRequest.dob(LocalDate.parse(testDataDob));
+        certificateRequest.setDob(LocalDate.parse(testDataDob));
         certificateRequest.addRItem(recoveryEntry);
 
         final byte[] actualResponse = digitalGreenCertificateService.issuePdf(certificateRequest);

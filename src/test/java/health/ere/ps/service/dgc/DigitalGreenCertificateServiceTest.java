@@ -18,6 +18,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
@@ -90,7 +91,7 @@ class DigitalGreenCertificateServiceTest {
 
         String gn = "testGivenName";
 
-        String dob = "testDob";
+        LocalDate dob = LocalDate.of(1967, 8, 9);
 
         String id = "testId";
 
@@ -110,8 +111,8 @@ class DigitalGreenCertificateServiceTest {
 
         VaccinationCertificateRequest vaccinationCertificateRequest = new VaccinationCertificateRequest();
 
-        vaccinationCertificateRequest.nam = new PersonName(fn, gn);
-        vaccinationCertificateRequest.dob = dob;
+        vaccinationCertificateRequest.setNam(new PersonName(fn, gn));
+        vaccinationCertificateRequest.setDob(dob);
 
         V v = new V();
 
@@ -140,7 +141,7 @@ class DigitalGreenCertificateServiceTest {
 
         String gn = "testGivenName";
 
-        String dob = "testDob";
+        LocalDate dob = LocalDate.of(1980, 12, 13);
 
         String id1 = "testId1";
 
@@ -176,8 +177,8 @@ class DigitalGreenCertificateServiceTest {
 
         VaccinationCertificateRequest vaccinationCertificateRequest = new VaccinationCertificateRequest();
 
-        vaccinationCertificateRequest.nam = new PersonName(fn, gn);
-        vaccinationCertificateRequest.dob = dob;
+        vaccinationCertificateRequest.setNam(new PersonName(fn, gn));
+        vaccinationCertificateRequest.setDob(dob);
 
         V v1 = new V();
 

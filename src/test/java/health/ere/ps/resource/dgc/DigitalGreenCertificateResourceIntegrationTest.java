@@ -41,7 +41,7 @@ class DigitalGreenCertificateResourceIntegrationTest {
     void issueVaccinationCertificate() throws Exception {
 
         // model copied from DigitalGreenCertificateServiceIntegrationTest
-        String dob = "1921-01-01";
+        LocalDate dob = LocalDate.of(1921, 1, 1);
         String name = "Testname Lastname";
         String givenName = "Testgiven Name";
         String id = "testId";
@@ -82,8 +82,8 @@ class DigitalGreenCertificateResourceIntegrationTest {
         v.dt = dt;
 
         final VaccinationCertificateRequest vaccinationCertificateRequest = new VaccinationCertificateRequest();
-        vaccinationCertificateRequest.nam = new PersonName(name, givenName);
-        vaccinationCertificateRequest.dob = dob;
+        vaccinationCertificateRequest.setNam(new PersonName(name, givenName));
+        vaccinationCertificateRequest.setDob(dob);
         vaccinationCertificateRequest.v = Collections.singletonList(v);
 
         Client client = ClientBuilder.newBuilder().build();
@@ -155,10 +155,10 @@ class DigitalGreenCertificateResourceIntegrationTest {
 
         final RecoveryCertificateRequest certificateRequest = new RecoveryCertificateRequest();
         certificateRequest.setNam(testDataPersonName);
-        certificateRequest.dob(LocalDate.parse(testDataDob));
+        certificateRequest.setDob(LocalDate.parse(testDataDob));
         certificateRequest.addRItem(recoveryEntry);
 
-        byte[] pdf = new byte[]{};
+        byte[] pdf = new byte[]{34, 56};
 
         // mock response
         final ArgumentCaptor<CertificateRequest> ac = ArgumentCaptor.forClass(CertificateRequest.class);

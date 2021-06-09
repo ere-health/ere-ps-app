@@ -14,6 +14,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.ws.rs.core.Response;
 
+import java.time.LocalDate;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -54,7 +56,7 @@ class DigitalGreenCertificateResourceTest {
 
         String gn = "testGn";
 
-        String dob = "testDob";
+        LocalDate dob = LocalDate.of(1970, 10, 15);
 
         String id1 = "testId1";
 

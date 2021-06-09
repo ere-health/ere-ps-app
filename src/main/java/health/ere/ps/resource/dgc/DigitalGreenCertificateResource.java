@@ -11,6 +11,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
+import java.time.LocalDate;
 import java.util.logging.Logger;
 
 @Path("/api/certify/v2")
@@ -28,7 +29,7 @@ public class DigitalGreenCertificateResource {
 
     @Path("/issue")
     @GET
-    public Response issue(@QueryParam("fn") String fn, @QueryParam("gn") String gn, @QueryParam("dob") String dob,
+    public Response issue(@QueryParam("fn") String fn, @QueryParam("gn") String gn, @QueryParam("dob") LocalDate dob,
                           @QueryParam("id1") String id1, @QueryParam("tg1") String tg1, @QueryParam("vp") String vp1,
                           @QueryParam("mp1") String mp1, @QueryParam("ma1") String ma1, @QueryParam("dn1") Integer dn1,
                           @QueryParam("sd") Integer sd1, @QueryParam("dt1") String dt1,

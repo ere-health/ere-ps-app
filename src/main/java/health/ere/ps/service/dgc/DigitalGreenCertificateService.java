@@ -19,6 +19,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -74,7 +75,7 @@ public class DigitalGreenCertificateService {
      * @param dt2 vaccination date 2
      * @return bytes of certificate pdf
      */
-    public byte[] issueVaccinationCertificatePdf(String fn, String gn, String dob,
+    public byte[] issueVaccinationCertificatePdf(String fn, String gn, LocalDate dob,
                                                  String id1, String tg1, String vp1, String mp1, String ma1, Integer dn1,
                                                  Integer sd1, String dt1,
                                                  String id2, String tg2, String vp2, String mp2, String ma2, Integer dn2,
@@ -82,8 +83,8 @@ public class DigitalGreenCertificateService {
 
         VaccinationCertificateRequest vaccinationCertificateRequest = new VaccinationCertificateRequest();
 
-        vaccinationCertificateRequest.dob = dob;
-        vaccinationCertificateRequest.nam = new PersonName(fn, gn);
+        vaccinationCertificateRequest.setDob(dob);
+        vaccinationCertificateRequest.setNam(new PersonName(fn, gn));
 
         V v1 = createV(id1, tg1, vp1, mp1, ma1, dn1, sd1, dt1);
 
