@@ -81,12 +81,8 @@ class DigitalGreenCertificateResourceIntegrationTest {
         v.sd = sd;
         v.dt = dt;
 
-        final PersonName personName = new PersonName();
-        personName.gn = givenName;
-        personName.fn = name;
-
         final VaccinationCertificateRequest vaccinationCertificateRequest = new VaccinationCertificateRequest();
-        vaccinationCertificateRequest.nam = personName;
+        vaccinationCertificateRequest.nam = new PersonName(name, givenName);
         vaccinationCertificateRequest.dob = dob;
         vaccinationCertificateRequest.v = Collections.singletonList(v);
 

@@ -53,7 +53,7 @@ public class DigitalGreenCertificateService {
     /**
      * Issue a certificate based on the given values.
      *
-     * @param fn  full name
+     * @param fn  (family) name
      * @param gn  given name
      * @param dob date of birth
      * @param id1 administering instance id 1
@@ -83,13 +83,7 @@ public class DigitalGreenCertificateService {
         VaccinationCertificateRequest vaccinationCertificateRequest = new VaccinationCertificateRequest();
 
         vaccinationCertificateRequest.dob = dob;
-
-        PersonName nam = new PersonName();
-
-        nam.gn = gn;
-        nam.fn = fn;
-
-        vaccinationCertificateRequest.nam = nam;
+        vaccinationCertificateRequest.nam = new PersonName(fn, gn);
 
         V v1 = createV(id1, tg1, vp1, mp1, ma1, dn1, sd1, dt1);
 

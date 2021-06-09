@@ -110,12 +110,7 @@ class DigitalGreenCertificateServiceTest {
 
         VaccinationCertificateRequest vaccinationCertificateRequest = new VaccinationCertificateRequest();
 
-        PersonName nam = new PersonName();
-
-        nam.fn = fn;
-        nam.gn = gn;
-
-        vaccinationCertificateRequest.nam = nam;
+        vaccinationCertificateRequest.nam = new PersonName(fn, gn);
         vaccinationCertificateRequest.dob = dob;
 
         V v = new V();
@@ -181,12 +176,7 @@ class DigitalGreenCertificateServiceTest {
 
         VaccinationCertificateRequest vaccinationCertificateRequest = new VaccinationCertificateRequest();
 
-        PersonName nam = new PersonName();
-
-        nam.fn = fn;
-        nam.gn = gn;
-
-        vaccinationCertificateRequest.nam = nam;
+        vaccinationCertificateRequest.nam = new PersonName(fn, gn);
         vaccinationCertificateRequest.dob = dob;
 
         V v1 = new V();

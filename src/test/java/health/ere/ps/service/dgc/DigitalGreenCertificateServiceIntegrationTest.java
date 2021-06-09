@@ -126,10 +126,7 @@ class DigitalGreenCertificateServiceIntegrationTest extends TokendIntegrationTes
         v.dt = dt;
 
         final VaccinationCertificateRequest vaccinationCertificateRequest = new VaccinationCertificateRequest();
-        final PersonName personName = new PersonName();
-        personName.gn = givenName;
-        personName.fn = name;
-        vaccinationCertificateRequest.nam = personName;
+        vaccinationCertificateRequest.nam = new PersonName(name, givenName);
         vaccinationCertificateRequest.dob = dob;
         vaccinationCertificateRequest.v = Collections.singletonList(v);
 
@@ -140,7 +137,6 @@ class DigitalGreenCertificateServiceIntegrationTest extends TokendIntegrationTes
 
     @Test
     void issueRecoverCertificate() {
-
         // mock response
 
         final String testId = "testId";
@@ -150,11 +146,11 @@ class DigitalGreenCertificateServiceIntegrationTest extends TokendIntegrationTes
         final String testDateDu = "2022-01-01";
         final String testDateDf = "2021-01-01";
         final String testDataDob = "1921-01-01";
-        final String firstName = "Testname Lastname";
+        final String name = "Testname";
         final String givenName = "Testgiven Name";
 
         final String jsonContentResponse = "{\"nam\":{" +
-                "\"fn\": \"" + firstName + "\"," +
+                "\"fn\": \"" + name + "\"," +
                 "\"gn\": \"" + givenName + "\"" +
                 "}," +
                 "\"dob\": \"" + testDataDob + "\"," +
@@ -172,9 +168,6 @@ class DigitalGreenCertificateServiceIntegrationTest extends TokendIntegrationTes
                 .withRequestBody(matchingJsonPath("r.length()", equalTo("1")))
         );
 
-        final PersonName testDataPersonName = new PersonName();
-        testDataPersonName.fn = firstName;
-        testDataPersonName.gn = givenName;
         final RecoveryEntry recoveryEntry = new RecoveryEntry();
         recoveryEntry.setId(testId);
         recoveryEntry.setTg(testTg);
@@ -184,7 +177,7 @@ class DigitalGreenCertificateServiceIntegrationTest extends TokendIntegrationTes
         recoveryEntry.setDf(LocalDate.parse(testDateDf));
 
         final RecoveryCertificateRequest certificateRequest = new RecoveryCertificateRequest();
-        certificateRequest.setNam(testDataPersonName);
+        certificateRequest.setNam(new PersonName(name, givenName));
         certificateRequest.dob(LocalDate.parse(testDataDob));
         certificateRequest.addRItem(recoveryEntry);
 
