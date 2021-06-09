@@ -8,7 +8,6 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -39,13 +38,13 @@ public class FormDataProvider implements DataProvider<FormRecord> {
 
     @Override
     public String getFilePath() {
-        return "data/S_KBV_DARREICHUNGSFORM_V1.08.xml";
+        return "/data/S_KBV_DARREICHUNGSFORM_V1.08.xml";
     }
 
     private List<FormRecord> loadFromFile() throws URISyntaxException, XMLStreamException, FileNotFoundException {
         List<FormRecord> records = new ArrayList<>();
         XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
-        XMLEventReader reader = xmlInputFactory.createXMLEventReader(new FileInputStream(getDataFile()));
+        XMLEventReader reader = xmlInputFactory.createXMLEventReader(getDataFile());
         while (reader.hasNext()) {
             XMLEvent nextEvent = reader.nextEvent();
             if (nextEvent.isStartElement()) {

@@ -5,9 +5,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,14 +48,14 @@ public class MedicationDataProvider implements DataProvider<MedicationRecord> {
         );
     }
 
-    private List<CSVRecord> loadCSVRecords() throws URISyntaxException, IOException {
-        Reader csvFile = new FileReader(getDataFile());
-        CSVParser csvParser = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(csvFile);
+    private List<CSVRecord> loadCSVRecords() throws IOException {
+        InputStreamReader reader = new InputStreamReader(getDataFile());
+        CSVParser csvParser = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(reader);
         return csvParser.getRecords();
     }
 
     @Override
     public String getFilePath() {
-        return "data/medication-data.csv";
+        return "/data/medication-data.csv";
     }
 }
