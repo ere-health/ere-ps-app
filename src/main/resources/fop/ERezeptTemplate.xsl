@@ -109,7 +109,7 @@
                             <fo:instream-foreign-object>
                                 <barcode:barcode>
                                     <xsl:attribute name="message">
-                                        {"urls": [<xsl:for-each select="fhir:bundle" >"Task/<xsl:value-of select="fhir:Bundle/fhir:identifier/@fhir:value" />/$accept?ac=<xsl:value-of select="fhir:accessCode" />"<xsl:if test="fn:position() != last()">
+                                        {"urls": [<xsl:for-each select="fhir:bundle" >"Task/<xsl:value-of select="fhir:Bundle/fhir:identifier/fhir:value/@value" />/$accept?ac=<xsl:value-of select="fhir:accessCode" />"<xsl:if test="fn:position() != last()">
                                             <xsl:text>, </xsl:text>
                                           </xsl:if></xsl:for-each>]}
                                     </xsl:attribute>
@@ -168,7 +168,7 @@
                                 <fo:instream-foreign-object>
                                     <barcode:barcode>
                                         <xsl:attribute name="message">
-                                            {"urls":["Task/<xsl:value-of select="fhir:Bundle/fhir:identifier/@value" />/$accept?ac=<xsl:value-of select="fhir:accessCode" />"]}
+                                            {"urls":["Task/<xsl:value-of select="fhir:Bundle/fhir:identifier/fhir:value/@value" />/$accept?ac=<xsl:value-of select="fhir:accessCode" />"]}
                                         </xsl:attribute>
                                         <barcode:datamatrix>
                                             <barcode:module-width>0.5mm</barcode:module-width>

@@ -1,5 +1,6 @@
 package health.ere.ps.service.gematik;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,6 +8,10 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.ParseException;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -36,6 +41,7 @@ import health.ere.ps.service.fhir.bundle.PrescriptionBundleBuilder;
 import health.ere.ps.service.fhir.bundle.PrescriptionBundleBuilderTest;
 import health.ere.ps.service.muster16.Muster16FormDataExtractorService;
 import health.ere.ps.service.muster16.parser.Muster16SvgExtractorParser;
+import health.ere.ps.service.pdf.DocumentService;
 import health.ere.ps.ssl.SSLUtilities;
 
 public class ERezeptWorkflowServiceTest {
@@ -45,7 +51,7 @@ public class ERezeptWorkflowServiceTest {
     FhirContext fhirContext = FhirContext.forR4();
     IParser iParser = fhirContext.newXmlParser();
 
-    String testBearerToken = "eyJhbGciOiJCUDI1NlIxIiwia2lkIjoicHVrX2lkcF9zaWciLCJ0eXAiOiJhdCtKV1QifQ.eyJhdXRoX3RpbWUiOjE2MjMyMzM3ODgsInNjb3BlIjoib3BlbmlkIGUtcmV6ZXB0IiwiY2xpZW50X2lkIjoiR0VNSW5jZW5lcmVTdWQxUEVyVVIiLCJnaXZlbl9uYW1lIjpudWxsLCJmYW1pbHlfbmFtZSI6bnVsbCwib3JnYW5pemF0aW9uTmFtZSI6bnVsbCwicHJvZmVzc2lvbk9JRCI6IjEuMi4yNzYuMC43Ni40LjUzIiwiaWROdW1tZXIiOiI1LVNNQy1CLVRlc3RrYXJ0ZS04ODMxMTAwMDAxMTgwMDEiLCJhenAiOiJHRU1JbmNlbmVyZVN1ZDFQRXJVUiIsImFjciI6ImdlbWF0aWstZWhlYWx0aC1sb2EtaGlnaCIsImFtciI6WyJtZmEiLCJzYyIsInBpbiJdLCJhdWQiOiJodHRwczovL2VycC1yZWYuemVudHJhbC5lcnAuc3BsaXRkbnMudGktZGllbnN0ZS5kZS8iLCJzdWIiOiJkZmFkNzJhZGUxY2NjMGNlYzYwZjkwODE2MDMyMmVhOGE5NTUyNGY5OGQ5MmUxNmIxZWZmZWMzNzczMDcyZTFlIiwiaXNzIjoiaHR0cHM6Ly9pZHAtcmVmLnplbnRyYWwuaWRwLnNwbGl0ZG5zLnRpLWRpZW5zdGUuZGUiLCJpYXQiOjE2MjMyMzM3ODksImV4cCI6MTYyMzIzNDA4OSwianRpIjoiMmZmZWEyMTgtNWUzYi00ZDYzLWIyYmMtZTY3MWE3M2MwNzc0In0.JsTqL96VLPQuLf-M2Vhg7bWtXwVGri6tb8cb9KnaK2VF9WbJZW1S5iUuVtMDIA_1o7O9QheKQrfeuoH7Z0E4BA";
+    String testBearerToken = "eyJhbGciOiJCUDI1NlIxIiwia2lkIjoicHVrX2lkcF9zaWciLCJ0eXAiOiJhdCtKV1QifQ.eyJhdXRoX3RpbWUiOjE2MjMyNDA0NjYsInNjb3BlIjoib3BlbmlkIGUtcmV6ZXB0IiwiY2xpZW50X2lkIjoiR0VNSW5jZW5lcmVTdWQxUEVyVVIiLCJnaXZlbl9uYW1lIjpudWxsLCJmYW1pbHlfbmFtZSI6bnVsbCwib3JnYW5pemF0aW9uTmFtZSI6bnVsbCwicHJvZmVzc2lvbk9JRCI6IjEuMi4yNzYuMC43Ni40LjUzIiwiaWROdW1tZXIiOiI1LVNNQy1CLVRlc3RrYXJ0ZS04ODMxMTAwMDAxMTgwMDEiLCJhenAiOiJHRU1JbmNlbmVyZVN1ZDFQRXJVUiIsImFjciI6ImdlbWF0aWstZWhlYWx0aC1sb2EtaGlnaCIsImFtciI6WyJtZmEiLCJzYyIsInBpbiJdLCJhdWQiOiJodHRwczovL2VycC1yZWYuemVudHJhbC5lcnAuc3BsaXRkbnMudGktZGllbnN0ZS5kZS8iLCJzdWIiOiJkZmFkNzJhZGUxY2NjMGNlYzYwZjkwODE2MDMyMmVhOGE5NTUyNGY5OGQ5MmUxNmIxZWZmZWMzNzczMDcyZTFlIiwiaXNzIjoiaHR0cHM6Ly9pZHAtcmVmLnplbnRyYWwuaWRwLnNwbGl0ZG5zLnRpLWRpZW5zdGUuZGUiLCJpYXQiOjE2MjMyNDA0NjcsImV4cCI6MTYyMzI0MDc2NywianRpIjoiMzgyYWFlNzMtYjhmZC00N2YwLTkzNzYtYWU0MjUyMzkyNTBjIn0.h0xb_mW9m2Tt3DnXx7txoRK8uwmBizTfGZPgJ9GzQxxrtV-AVIEPAPbbbvVvJC_z2NJE91K5ORLe_rpSnPQLWQ";
 
     static ERezeptWorkflowService eRezeptWorkflowService;
 
@@ -97,8 +103,56 @@ public class ERezeptWorkflowServiceTest {
     @Test/* @Disabled*/
     void testCreateERezeptOnPrescriptionServer() throws InvalidCanonicalizerException, XMLParserException, CanonicalizationException, FaultMessage, IOException {
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/0428d416-149e-48a4-977c-394887b3d85c.xml"));
-        eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
+        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
+        DocumentService documentService = new DocumentService();
+		documentService.init();
+        ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
+        String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmX")
+                              .withZone(ZoneOffset.UTC)
+                              .format(Instant.now());
+        Files.write(Paths.get("target/E-Rezept-"+thisMoment+".pdf"), a.toByteArray());
     }
+
+    @Test/* @Disabled*/
+    void testCreateERezeptOnPrescriptionServer2() throws InvalidCanonicalizerException, XMLParserException, CanonicalizationException, FaultMessage, IOException {
+        Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/281a985c-f25b-4aae-91a6-41ad744080b0.xml"));
+        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
+        DocumentService documentService = new DocumentService();
+		documentService.init();
+        ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
+        String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmX")
+                              .withZone(ZoneOffset.UTC)
+                              .format(Instant.now());
+        Files.write(Paths.get("target/E-Rezept-"+thisMoment+".pdf"), a.toByteArray());
+    }
+
+    @Test/* @Disabled*/
+    void testCreateERezeptOnPrescriptionServerX110479894() throws InvalidCanonicalizerException, XMLParserException, CanonicalizationException, FaultMessage, IOException {
+        Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/X110479894.xml"));
+        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
+        DocumentService documentService = new DocumentService();
+		documentService.init();
+        ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
+        String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmX")
+                              .withZone(ZoneOffset.UTC)
+                              .format(Instant.now());
+        Files.write(Paths.get("target/E-Rezept-"+thisMoment+".pdf"), a.toByteArray());
+    }
+
+    @Test/* @Disabled*/
+    void testCreateERezeptOnPrescriptionServerX110493020() throws InvalidCanonicalizerException, XMLParserException, CanonicalizationException, FaultMessage, IOException {
+        Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/X110493020.xml"));
+        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
+        DocumentService documentService = new DocumentService();
+		documentService.init();
+        ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
+        String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmX")
+                              .withZone(ZoneOffset.UTC)
+                              .format(Instant.now());
+        Files.write(Paths.get("target/E-Rezept-"+thisMoment+".pdf"), a.toByteArray());
+    }
+
+    
 
     @Test @Disabled
     void testCreateERezeptWithPrescriptionBuilderOnPrescriptionServer() throws InvalidCanonicalizerException, XMLParserException, CanonicalizationException, FaultMessage, IOException, ParseException {
