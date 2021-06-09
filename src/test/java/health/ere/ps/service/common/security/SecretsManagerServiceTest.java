@@ -71,7 +71,6 @@ class SecretsManagerServiceTest {
     }
 
     @Test
-    @Disabled("Test doesn't pass")
     void saveTrustedCertificate(
             @PkiKeyResolver.Filename(TITUS_IDP_TRUST_STORE)
             final PkiIdentity titusIdpIdentity) throws CertificateException, KeyStoreException,
