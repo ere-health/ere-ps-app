@@ -210,7 +210,7 @@ public class VAUEngine extends ApacheHttpClient43Engine {
         SessionInputBufferImpl buffer = new SessionInputBufferImpl(new HttpTransportMetricsImpl(), 8092);
         buffer.bind(new ByteArrayInputStream(rawResponseHeader.getBytes()));
         HttpResponse res = DefaultHttpResponseParserFactory.INSTANCE.create(buffer,  MessageConstraints.DEFAULT).parse();
-        res.setEntity(new StringEntity(rawResponseBody, ContentType.create(res.getFirstHeader("Content-Type").getValue())));
+        res.setEntity(new StringEntity(rawResponseBody, ContentType.create("application/fhir+xml"/*res.getFirstHeader("Content-Type").getValue()*/)));
         return res;
     }
     

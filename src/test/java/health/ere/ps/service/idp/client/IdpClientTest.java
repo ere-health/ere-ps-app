@@ -106,6 +106,7 @@ public class IdpClientTest {
                 clientSystem, workplace, cardHandle);
 
         IdpTokenResult idpTokenResult = idpClient.login(identity);
+        System.out.println("Access Token: "+idpTokenResult.getAccessToken().getRawString());
 
         Assertions.assertNotNull(idpTokenResult, "Idp Token result present.");
         Assertions.assertNotNull(idpTokenResult.getAccessToken(), "Access Token present");
