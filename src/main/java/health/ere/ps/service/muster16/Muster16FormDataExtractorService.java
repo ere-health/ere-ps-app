@@ -33,6 +33,7 @@ public class Muster16FormDataExtractorService {
         Muster16PrescriptionForm muster16Form = new Muster16PrescriptionForm(
                 parser.parseInsuranceCompany(),
                 parser.parseInsuranceCompanyId(),
+                parser.parsePatientNamePrefix(),
                 parser.parsePatientFirstName(),
                 parser.parsePatientLastName(),
                 parser.parsePatientStreetName(),
@@ -68,6 +69,7 @@ public class Muster16FormDataExtractorService {
         return new Muster16PrescriptionForm(
             parser.parseInsuranceCompany(),
             parser.parseInsuranceCompanyId(),
+            parser.parsePatientNamePrefix(),
             parser.parsePatientFirstName(),
             parser.parsePatientLastName(),
             parser.parsePatientStreetName(),
