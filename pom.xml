@@ -267,6 +267,27 @@
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
+            <!-- STATIC CODE ANALYSIS -->
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>4.2.3</version>
+                <configuration>
+                    <xmlOutput>true</xmlOutput>
+                    <failOnError>false</failOnError>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>3.14.0</version>
+                <configuration>
+                    <targetJdk>11</targetJdk>
+                    <includeTests>true</includeTests>
+                    <failOnViolation>false</failOnViolation>
+                    <skipEmptyReport>false</skipEmptyReport>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     <profiles>
