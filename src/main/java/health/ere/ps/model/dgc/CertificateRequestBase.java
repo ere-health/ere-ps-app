@@ -1,10 +1,11 @@
 package health.ere.ps.model.dgc;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.Objects;
 
 /**
@@ -13,8 +14,7 @@ import java.util.Objects;
 public class CertificateRequestBase implements CertificateRequest {
 
     /**
-     * title: Person name
-     * description: Name of the person which receives the certificate.
+     * Name of the person which receives the certificate.
      */
     @JsonProperty("nam")
     private PersonName nam = null;
@@ -24,7 +24,8 @@ public class CertificateRequestBase implements CertificateRequest {
      * Date of Birth of the person addressed in the DGC. ISO 8601 date format restricted to range 1900-2099
      */
     @JsonProperty("dob")
-    private Date dob = null;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private LocalDate dob = null;
 
     public CertificateRequestBase nam(PersonName nam) {
         this.nam = nam;
@@ -46,7 +47,7 @@ public class CertificateRequestBase implements CertificateRequest {
         this.nam = nam;
     }
 
-    public CertificateRequestBase dob(Date dob) {
+    public CertificateRequestBase dob(LocalDate dob) {
         this.dob = dob;
         return this;
     }
@@ -59,11 +60,11 @@ public class CertificateRequestBase implements CertificateRequest {
     @JsonProperty("dob")
     @NotNull
     @Valid
-    public Date getDob() {
+    public LocalDate getDob() {
         return dob;
     }
 
-    public void setDob(Date dob) {
+    public void setDob(LocalDate dob) {
         this.dob = dob;
     }
 
@@ -91,19 +92,8 @@ public class CertificateRequestBase implements CertificateRequest {
     public String toString() {
 
         return "class CertificateRequestBase {\n" +
-                "    nam: " + toIndentedString(nam) + "\n" +
-                "    dob: " + toIndentedString(dob) + "\n" +
+                "    nam: " + nam + "\n" +
+                "    dob: " + dob + "\n" +
                 "}";
-    }
-
-    /**
-     * Convert the given object to string with each line indented by 4 spaces
-     * (except the first line).
-     */
-    private String toIndentedString(java.lang.Object o) {
-        if (o == null) {
-            return "null";
-        }
-        return o.toString().replace("\n", "\n    ");
     }
 }
