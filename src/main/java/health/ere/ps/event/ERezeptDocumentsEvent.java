@@ -6,5 +6,9 @@ import java.util.List;
 import health.ere.ps.model.pdf.ERezeptDocument;
 
 public class ERezeptDocumentsEvent {
-    public List<ERezeptDocument> eRezeptDocuments = new ArrayList<>();
+    private List<ERezeptDocument> eRezeptDocuments = new ArrayList<>();
+
+    public List<ERezeptDocument> getERezeptDocuments() {
+        return eRezeptDocuments;
+    }
 }
