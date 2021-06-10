@@ -52,7 +52,7 @@ class DigitalGreenCertificateResourceIntegrationTest {
         int dn = 123;
         int sd = 345;
         String dt = "2021-01-01";
-        byte[] pdf = new byte[]{};
+        byte[] pdf = new byte[]{1, 2, 3, 4};
 
         final String requestBody = "{\"nam\":{" +
                 "\"fn\": \"" + name + "\"," +
@@ -69,7 +69,6 @@ class DigitalGreenCertificateResourceIntegrationTest {
                 "\"sd\": " + sd + "," +
                 "\"dt\": \"" + dt + "\"" +
                 "}]}";
-
 
         final V v = new V();
         v.id = id;
