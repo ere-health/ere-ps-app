@@ -24,9 +24,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -34,18 +32,14 @@ import java.util.stream.Collectors;
 public class DocumentService {
 
     private static final Logger log = Logger.getLogger(DocumentService.class.getName());
-
-    private FopFactory fopFactory;
-
     //TODO: Why not R5? Why not a singleton as mentioned in the Javadoc?
     private final FhirContext ctx = FhirContext.forR4();
+    private FopFactory fopFactory;
 
     @Inject
     Event<ERezeptDocumentsEvent> eRezeptDocumentsEvent;
-
     @Inject
     Event<Exception> exceptionEvent;
-
 
     @PostConstruct
     public void init() {
@@ -55,7 +49,7 @@ public class DocumentService {
             initConfiguration(fopFactoryBuilder);
             fopFactory = fopFactoryBuilder.build();
         } catch (URISyntaxException ex) {
-            log.log(Level.SEVERE, "FOP Factory not initializable.", ex);
+            log.severe("FOP Factory not initializable:" + ex);
         }
     }
 
@@ -89,36 +83,37 @@ public class DocumentService {
             fopFactoryBuilder.setConfiguration(cfg);
         } catch (IllegalArgumentException | ConfigurationException | ArrayIndexOutOfBoundsException |
                 IOException | URISyntaxException e) {
-            log.log(Level.SEVERE, "Could not configure FOP from file in classpath: /fonts/fop.xconf", e);
+            log.severe("Could not configure FOP from file in classpath: /fonts/fop.xconf:" + e);
         }
     }
 
 
     public void onBundlesWithAccessCodes(@ObservesAsync BundlesWithAccessCodeEvent bundlesWithAccessCodeEvent) {
-        try {
-            ERezeptDocumentsEvent event = new ERezeptDocumentsEvent();
-            for (List<BundleWithAccessCodeOrThrowable> bundle : bundlesWithAccessCodeEvent.getBundleWithAccessCodeOrThrowable()) {
-                ByteArrayOutputStream boas = generateERezeptPdf(bundle);
-                //TODO: It's possible to use a null pdf document?
-                event.getERezeptDocuments().add(new ERezeptDocument(bundle, boas != null ? boas.toByteArray() : null));
+        ERezeptDocumentsEvent event = new ERezeptDocumentsEvent();
+
+        for (List<BundleWithAccessCodeOrThrowable> bundle : bundlesWithAccessCodeEvent.getBundleWithAccessCodeOrThrowable()) {
+            ByteArrayOutputStream boas = generateERezeptPdf(bundle);
+            if (boas.size() > 0) {
+                event.getERezeptWithDocuments().add(new ERezeptDocument(bundle, boas.toByteArray()));
             }
-            eRezeptDocumentsEvent.fireAsync(event);
-        } catch (Exception e) {
-            exceptionEvent.fireAsync(e);
         }
+        eRezeptDocumentsEvent.fireAsync(event);
     }
 
     public ByteArrayOutputStream generateERezeptPdf(List<BundleWithAccessCodeOrThrowable> bundles) {
         try {
             if (bundles.isEmpty()) {
-                log.log(Level.SEVERE, "Cannot generate pdf for an empty bundle");
-                return null;
+                log.severe("Cannot generate pdf for an empty bundle");
+                return new ByteArrayOutputStream();
             }
+
             File xml = createTemporaryXmlFileFromBundles(bundles);
             return generatePdfInOutputStream(xml);
-        } catch (IOException | FOPException | TransformerFactoryConfigurationError | TransformerException e) {
-            log.log(Level.SEVERE, "Could not generate ERezept PDF", e);
-            return null;
+
+        } catch (IOException | FOPException | TransformerException e) {
+            log.severe("Could not generate ERezept PDF:" + e);
+            exceptionEvent.fireAsync(e);
+            return new ByteArrayOutputStream();
         }
     }
 
@@ -138,7 +133,7 @@ public class DocumentService {
     }
 
     private ByteArrayOutputStream generatePdfInOutputStream(File xml)
-            throws FOPException, TransformerFactoryConfigurationError, TransformerException, IOException {
+            throws FOPException, TransformerException, IOException {
         // Step 2: Set up output stream.
         // Note: Using BufferedOutputStream for performance reasons (helpful with
         // FileOutputStreams).
@@ -149,12 +144,8 @@ public class DocumentService {
 
         // Step 4: Setup JAXP using identity transformer
         TransformerFactory factory = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
-        try {
-            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
-        } catch (IllegalArgumentException e) {
-            log.log(Level.FINE, "Features not supported!");
-        }
+        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
 
         // with XSLT:
         String xslPath = "/fop/ERezeptTemplate.xsl";
@@ -164,23 +155,23 @@ public class DocumentService {
         StreamSource xslt = new StreamSource(inputStream, systemId);
         xslt.setPublicId(systemId);
         factory.setErrorListener(new ErrorListener() {
-            private static final String MSG = "Warning in XSLT";
+            private static final String MSG = "Error in XSLT:";
 
             @Override
             public void warning(TransformerException exception) {
-                log.log(Level.WARNING, MSG, exception);
+                log.warning(MSG + exception);
 
             }
 
             @Override
             public void fatalError(TransformerException exception) {
-                log.log(Level.SEVERE, MSG, exception);
+                log.severe(MSG + exception);
 
             }
 
             @Override
             public void error(TransformerException exception) {
-                log.log(Level.SEVERE, MSG, exception);
+                log.severe(MSG + exception);
             }
         });
 
