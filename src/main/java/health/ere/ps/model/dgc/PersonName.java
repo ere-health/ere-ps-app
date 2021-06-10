@@ -26,6 +26,9 @@ public class PersonName {
     @Size(max = 50)
     public String gn;
 
+    @Size(max = 100)
+    public String fnt;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

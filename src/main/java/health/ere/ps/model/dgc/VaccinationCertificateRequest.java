@@ -6,6 +6,7 @@ import java.util.Objects;
 public class VaccinationCertificateRequest implements CertificateRequest {
     public PersonName nam;
     public String dob;
+    public String ver = "1.0.1";
     public List<V> v;
 
     @Override

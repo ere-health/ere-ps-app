@@ -43,7 +43,7 @@
         }).then(function(response) {
             return response.arrayBuffer();
         }).then(function(buffer) {
-            const blob = new Blob([buffer]);
+            const blob = new Blob([buffer], {"type": "application/pdf"});
             const blobUrl = URL.createObjectURL(blob);
             window.location = blobUrl;
         });

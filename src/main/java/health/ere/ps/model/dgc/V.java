@@ -11,7 +11,9 @@ public class V {
     public Integer dn;
     public Integer sd;
     public String dt;
-
+    public String co;
+    public String is;
+    public String ci;
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
