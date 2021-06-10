@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -201,7 +202,7 @@ public class DocumentService {
 				"        "+ctx.newXmlParser().encodeResourceToString(bundle.bundle)+"\n"+
 				"    </bundle>").collect(Collectors.joining("\n"))+
 			"\n</root>";
-		Files.write(tmpFile.toPath(), serialized.getBytes());
+		Files.write(tmpFile.toPath(), serialized.getBytes(Charset.forName("UTF-8")));
 		return tmpFile;
 	}
 
