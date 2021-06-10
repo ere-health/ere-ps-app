@@ -58,45 +58,28 @@ class DigitalGreenCertificateResourceTest {
 
         LocalDate dob = LocalDate.of(1970, 10, 15);
 
-        String id1 = "testId1";
+        String id = "testId";
 
-        String tg1 = "testTg1";
+        String tg = "testTg";
 
-        String vp1 = "testVp1";
+        String vp = "testVp";
 
-        String mp1 = "testMp1";
+        String mp = "testMp";
 
-        String ma1 = "testMa1";
+        String ma = "testMa";
 
-        Integer dn1 = 12;
+        Integer dn = 12;
 
-        Integer sd1 = 34;
+        Integer sd = 34;
 
-        String dt1 = "testDt1";
-
-        String id2 = "testId2";
-
-        String tg2 = "testTg2";
-
-        String vp2 = "testVp2";
-
-        String mp2 = "testMp2";
-
-        String ma2 = "testMa2";
-
-        Integer dn2 = 45;
-
-        Integer sd2 = 56;
-
-        String dt2 = "testDt2";
+        String dt = "testDt";
 
         byte[] bytes = new byte[]{123};
 
-        when(digitalGreenCertificateService.issueVaccinationCertificatePdf(fn, gn, dob, id1, tg1, vp1, mp1, ma1, dn1, sd1,
-                dt1, id2, tg2, vp2, mp2, ma2, dn2, sd2, dt2)).thenReturn(bytes);
+        when(digitalGreenCertificateService.issueVaccinationCertificatePdf(fn, gn, dob, id, tg, vp, mp, ma, dn, sd, dt))
+                .thenReturn(bytes);
 
-        Response response = digitalGreenCertificateResource.issue(fn, gn, dob, id1, tg1, vp1, mp1, ma1, dn1, sd1, dt1,
-                id2, tg2, vp2, mp2, ma2, dn2, sd2, dt2);
+        Response response = digitalGreenCertificateResource.issue(fn, gn, dob, id, tg, vp, mp, ma, dn, sd, dt);
 
         assertNotNull(response);
         assertEquals(response.getStatus(), 200);

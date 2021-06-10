@@ -6,14 +6,19 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>ere.health COVID-19 Zertifikate drucken</title>
     <link rel="stylesheet" href="../frontend/app/src/assets/css/main-style.css">
+    <link rel="stylesheet" href="certificate.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script type="text/javascript">
     function sendVacinationRequest() {
         const form = document.getElementById("vacination-request-form");
+
+        if (!form.reportValidity()) {
+            return;
+        }
+
         const oVacinationRequest = {
-            "ver": "1.0.0",
             "nam": {
             "fn": form.elements["fn"].value,
             "gn": form.elements["gn"].value
@@ -43,9 +48,23 @@
             window.location = blobUrl;
         });
     }
+
+    function prefillParameters() {
+        const form = document.getElementById("vacination-request-form");
+
+        // remove '#' from hash
+        const params = new URLSearchParams(window.location.hash.substring(1));
+
+        for (const name of ["fn", "gn", "dob", "tg", "vp", "mp", "ma", "dn", "sd", "sd"]) {
+            // setting the values to null will cause the validation to be triggered
+            if (params.has(name)) {
+                form.elements[name].value = params.get(name);
+            }
+        }
+    }
     </script>
 </head>
-<body class="home-page">
+<body class="home-page" onload="prefillParameters();" onhashchange="prefillParameters();">
     <div class="main-content-wrapper">
         <header class="header-wrapper">
             <div class="header">
@@ -60,8 +79,8 @@
         <section class="recipe-body dgn-body">
             <div class="recipe-wrapper active" id="unsigned_1">
                 <div class="title-rezept-button">
-                  <h2>COVID-19 Impfzertifikat</strong></h2>
-                  <button id="sign-recipe" onclick="sendVacinationRequest();" class="open-modal jet-btn" style="">
+                  <h2><strong>COVID-19 Impfzertifikat für Geimpfte</strong></h2>
+                  <button id="sign-recipe" onclick="sendVacinationRequest();" class="open-modal jet-btn fixed-right" style="">
                     Zertifikat erstellen
                   </button>
                 </div>
@@ -70,55 +89,52 @@
                         <legend>Patientendaten</legend>
 
                         <label for="gn">Vorname</label>
-                        <input type="text" id="gn" name="gn" />
-                        <br />
+                        <input type="text" id="gn" name="gn"/>
+                        <br/>
 
                         <label for="fn">Nachname</label>
-                        <input type="text" id="fn" name="fn" />
-                        <br />
+                        <input type="text" id="fn" name="fn" required/>
+                        <br/>
 
                         <label for="dob">Geburtsdatum</label>
-                        <input type="date" id="dob" name="dob" />
-                        <br />
+                        <input type="date" id="dob" name="dob" placeholder="e.g. 1970-01-16" required/>
+                        <br/>
                     </fieldset>
                     <fieldset>
                         <legend>Impfdaten</legend>
 
                         <label for="tg">Krankheit</label>
-                        <input type="text" id="tg" name="tg" placeholder="e.g. 840539006 for COVID-19" />
-                        <br />
+                        <input type="text" id="tg" name="tg" placeholder="e.g. 840539006 for COVID-19" required/>
+                        <br/>
 
                         <label for="vp">Impfstoff</label>
-                        <input type="text" id="vp" name="vp" placeholder="e.g. 11193050005" />
-                        <br />
+                        <input type="text" id="vp" name="vp" placeholder="e.g. 11193050005" required/>
+                        <br/>
 
                         <label for="mp">Produkt</label>
-                        <input type="text" id="mp" name="mp" placeholder="e.g. EU/1/20/1528 for Comirnaty"/>
-                        <br />
+                        <input type="text" id="mp" name="mp" placeholder="e.g. EU/1/20/1528 for Comirnaty" required/>
+                        <br/>
 
                         <label for="ma">Hersteller</label>
-                        <input type="text" id="ma" name="ma" placeholder="e.g. ORG-100030215 for Biontech Manufacturing GmbH"/>
-                        <br />
+                        <input type="text" id="ma" name="ma"
+                               placeholder="e.g. ORG-100030215 for Biontech Manufacturing GmbH" required/>
+                        <br/>
 
                         <label for="dn">Dosennummer</label>
-                        <input type="text" id="dn" name="dn" placeholder="e.g. 1"/>
-                        <br />
-                        
-                        <label for="sd">Gesamtdosen</label>
-                        <input type="text" id="sd" name="sd" placeholder="e.g. 2"/>
-                        <br />
-                        
-                        <label for="dt">Impfdatum</label>
-                        <input type="date" id="dt" name="dt" placeholder="e.g. 2"/>
-                        <br />
+                        <input type="number" min="1" id="dn" name="dn" placeholder="e.g. 1" required/>
+                        <br/>
 
+                        <label for="sd">Gesamtdosen</label>
+                        <input type="number" min="1" id="sd" name="sd" placeholder="e.g. 2" required/>
+                        <br/>
+
+                        <label for="dt">Impfdatum</label>
+                        <input type="date" id="dt" name="dt" placeholder="e.g. 2021-12-31" required/>
+                        <br/>
                     </fieldset>
                 </form>
             </div>
         </section>
     </div>
-  <!--
-  <h1>COVID-19 Genesenenzertifikat</h1>
-   TODO-->
 </body>
 </html>

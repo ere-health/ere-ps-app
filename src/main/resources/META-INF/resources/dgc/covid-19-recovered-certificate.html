@@ -1,0 +1,121 @@
+<!-- Copied and edit from ./covid-19-certificate.html -->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>ere.health COVID-19 Zertifikat für Genesene drucken</title>
+    <link rel="stylesheet" href="../frontend/app/src/assets/css/main-style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+    <script type="text/javascript">
+        function sendRecoveredRequest() {
+            const form = document.getElementById("request-form");
+            const requestData = {
+                "nam": {
+                    "fn": form.elements["fn"].value,
+                    "gn": form.elements["gn"].value
+                },
+                "dob": form.elements["dob"].value,
+                "r": [
+                    {
+                        "id": form.elements["id"].value,
+                        "tg": form.elements["tg"].value,
+                        "is": form.elements["is"].value,
+                        "fr": form.elements["fr"].value,
+                        "df": form.elements["df"].value,
+                        "du": form.elements["du"].value,
+                    }
+                ]
+            };
+            fetch("/api/certify/v2/recovered", {
+                method: "POST",
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(requestData)
+            }).then(function (response) {
+                return response.arrayBuffer();
+            }).then(function (buffer) {
+                const blob = new Blob([buffer]);
+                const blobUrl = URL.createObjectURL(blob);
+                window.location = blobUrl;
+            });
+        }
+    </script>
+</head>
+<body class="home-page">
+<div class="main-content-wrapper">
+    <header class="header-wrapper">
+        <div class="header">
+            <div class="logo">
+                <img
+                        src="../frontend/app/src/assets/images/ere.health-logo.svg"
+                        alt="ere.health Logo"
+                />
+            </div>
+        </div>
+    </header>
+    <section class="recipe-body dgn-body">
+        <div class="recipe-wrapper active" id="unsigned_1">
+            <div class="title-rezept-button">
+                <h2>COVID-19 Zertifikat für Genesene</h2>
+                <button id="sign-recipe" onclick="sendRecoveredRequest();" class="open-modal jet-btn" style="">
+                    Zertifikat erstellen
+                </button>
+            </div>
+            <form id="request-form">
+                <fieldset>
+                    <legend>Patientendaten</legend>
+
+                    <label for="gn">Vorname</label>
+                    <input type="text" maxlength="50" id="gn" name="gn"/>
+                    <br/>
+
+                    <label for="fn">Nachname *</label>
+                    <input type="text" maxlength="50" required id="fn" name="fn"/>
+                    <br/>
+
+                    <label for="dob">Geburtsdatum *</label>
+                    <input type="date" required id="dob" pattern="'(19|20)\d{2}-\d{2}-\d{2}" name="dob"
+                           placeholder="e.g. 2000-01-20"/>
+                    <br/>
+                </fieldset>
+                <fieldset>
+                    <legend>Daten zur Genesung</legend>
+
+                    <label for="id">Medizinische Einrichtung *</label>
+                    <input type="text" required id="id" name="id" pattern="^[0-9A-Z]+$"
+                           placeholder="e.g. ABCD01234"/>
+                    <br/>
+
+                    <label for="tg">Krankheit *</label>
+                    <input type="text" required id="tg" name="tg" placeholder="e.g. 840539006 for COVID-19"/>
+                    <br/>
+
+                    <label for="fr">Datum des ersten positiven Befund *</label>
+                    <input type="date" required id="fr" name="fr" placeholder="e.g. 2020-01-20"/>
+                    <br/>
+
+                    <label for="is">Zertifizierungsstelle *</label>
+                    <input type="text" required id="is" name="is"/>
+                    <br/>
+
+                    <label for="df">Startdatum des Zertifikates *</label>
+                    <input type="date" required id="df" name="df" placeholder="e.g. 2021-01-20"/>
+                    <br/>
+
+                    <label for="du">Ablaufdatum des Zertifikates *</label>
+                    <input type="date" required id="du" name="du" placeholder="e.g. 2021-01-20"/>
+                </fieldset>
+            </form>
+            <div>
+                <p>
+                    <small>Mit * versehene Felder werden für die Erstellung benötigt</small>
+                </p>
+            </div>
+        </div>
+    </section>
+</div>
+</body>
+</html>

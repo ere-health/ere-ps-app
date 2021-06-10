@@ -8,7 +8,6 @@ import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
@@ -30,15 +29,12 @@ public class DigitalGreenCertificateResource {
     @Path("/issue")
     @GET
     public Response issue(@QueryParam("fn") String fn, @QueryParam("gn") String gn, @QueryParam("dob") LocalDate dob,
-                          @QueryParam("id1") String id1, @QueryParam("tg1") String tg1, @QueryParam("vp") String vp1,
-                          @QueryParam("mp1") String mp1, @QueryParam("ma1") String ma1, @QueryParam("dn1") Integer dn1,
-                          @QueryParam("sd") Integer sd1, @QueryParam("dt1") String dt1,
-                          @QueryParam("id2") String id2, @QueryParam("tg2") String tg2, @QueryParam("vp2") String vp2,
-                          @QueryParam("mp2") String mp2, @QueryParam("ma2") String ma2, @QueryParam("dn2") Integer dn2,
-                          @QueryParam("sd2") Integer sd2, @QueryParam("dt2") String dt2) {
+                          @QueryParam("id") String id, @QueryParam("tg") String tg, @QueryParam("vp") String vp,
+                          @QueryParam("mp") String mp, @QueryParam("ma") String ma, @QueryParam("dn") Integer dn,
+                          @QueryParam("sd") Integer sd, @QueryParam("dt") String dt) {
 
-        return okPdf(digitalGreenCertificateService.issueVaccinationCertificatePdf(fn, gn, dob, id1, tg1, vp1, mp1, ma1,
-                dn1, sd1, dt1, id2, tg2, vp2, mp2, ma2, dn2, sd2, dt2));
+        return okPdf(digitalGreenCertificateService.issueVaccinationCertificatePdf(fn, gn, dob, id, tg, vp, mp, ma,
+                dn, sd, dt));
     }
 
     @Path("/recovered")
