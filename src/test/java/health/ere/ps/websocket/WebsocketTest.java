@@ -40,7 +40,7 @@ class WebsocketTest {
 				getClass().getResourceAsStream("/simplifier_erezept/0428d416-149e-48a4-977c-394887b3d85c.xml"));
     list.add(new BundleWithAccessCodeOrThrowable(bundle, "MOCK_ACCESS_CODE"));
     ERezeptDocument eRezeptDocument = new ERezeptDocument(list, Files.readAllBytes(Paths.get("src/test/resources/document-service/0428d416-149e-48a4-977c-394887b3d85c.pdf")));
-    eRezeptDocumentsEvent.eRezeptDocuments.add(eRezeptDocument);
+    eRezeptDocumentsEvent.getERezeptDocuments().add(eRezeptDocument);
     String json = websocket.getJsonEventFor(eRezeptDocumentsEvent);
 
     Files.writeString(Paths.get("src/test/resources/websocket-messages/ERezeptDocuments.json"), json);

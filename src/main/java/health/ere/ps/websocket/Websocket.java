@@ -130,7 +130,7 @@ public class Websocket {
             .withAdapters(new BundleAdapter())
             .withAdapters(new ByteAdapter());
         Jsonb jsonb = JsonbBuilder.create(config);
-        String result = jsonb.toJson(eRezeptDocumentsEvent.eRezeptDocuments);
+        String result = jsonb.toJson(eRezeptDocumentsEvent.getERezeptDocuments());
         return result;
     }
 

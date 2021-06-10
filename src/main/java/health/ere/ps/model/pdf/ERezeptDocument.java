@@ -1,13 +1,12 @@
 package health.ere.ps.model.pdf;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 
+import java.util.List;
+
 public class ERezeptDocument {
-    public List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowables = new ArrayList<>();
-    public byte[] pdfDocument;
+    public final List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowables;
+    public final byte[] pdfDocument;
 
     public ERezeptDocument(List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowables, byte[] pdfDocument) {
         this.bundleWithAccessCodeOrThrowables = bundleWithAccessCodeOrThrowables;
