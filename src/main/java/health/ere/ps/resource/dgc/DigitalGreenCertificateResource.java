@@ -43,6 +43,16 @@ public class DigitalGreenCertificateResource {
         return okPdf(digitalGreenCertificateService.issuePdf(recoveryCertificateRequest));
     }
 
+    @Path("/recovered")
+    @GET
+    public Response recovered(@QueryParam("fn") String fn, @QueryParam("gn") String gn,
+                              @QueryParam("dob") LocalDate dob, @QueryParam("id") String id,
+                              @QueryParam("tg") String tg, @QueryParam("fr") LocalDate fr, @QueryParam("is") String is,
+                              @QueryParam("df") LocalDate df, @QueryParam("du") LocalDate du) {
+
+        return okPdf(digitalGreenCertificateService.issueRecoveryCertificatePdf(fn, gn, dob, id, tg, fr, is, df, du));
+    }
+
     private static Response okPdf(byte[] bytes) {
         return Response.ok(bytes, "application/pdf").build();
     }
