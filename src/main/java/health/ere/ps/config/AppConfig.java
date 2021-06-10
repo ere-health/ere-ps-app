@@ -2,20 +2,14 @@ package health.ere.ps.config;
 
 import org.apache.commons.lang3.StringUtils;
 
-import javax.inject.Inject;
-
-import org.jboss.logging.Logger;
-
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class AppConfig {
-	@Inject
-	Logger logger;
-
-    @ConfigProperty(name = "idp.connector.cert.auth.store.file")
+	
+	@ConfigProperty(name = "idp.connector.cert.auth.store.file")
     String idpConnectorTlsCertTrustStore;
 
     @ConfigProperty(name = "idp.connector.cert.auth.store.file.password")
@@ -42,12 +36,8 @@ public class AppConfig {
     }
 
     public String getIdpConnectorTlsCertTustStorePwd() {
-		String password = StringUtils.defaultString(
-		idpConnectorTlsCertTustStorePwd).trim();
-		
-		logger.info("Idp Connector Password is: " + password);
-		
-        return password;
+		return StringUtils.defaultString(
+			idpConnectorTlsCertTustStorePwd).trim();
     }
 
     public String getClientId() {
