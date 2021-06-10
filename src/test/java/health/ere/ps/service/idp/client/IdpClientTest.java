@@ -1,5 +1,6 @@
 package health.ere.ps.service.idp.client;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -12,6 +13,7 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.security.Security;
 import java.security.cert.X509Certificate;
 import java.util.logging.LogManager;
 
@@ -26,10 +28,14 @@ import health.ere.ps.model.idp.client.IdpTokenResult;
 import health.ere.ps.model.idp.crypto.PkiIdentity;
 import health.ere.ps.service.connector.certificate.CardCertReadExecutionService;
 import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
+import health.ere.ps.ssl.SSLUtilities;
 import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest
 public class IdpClientTest {
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+    }
 
     @Inject
     IdpClient idpClient;
@@ -63,6 +69,8 @@ public class IdpClientTest {
     @BeforeAll
     public static void init() {
 
+        SSLUtilities.trustAllHostnames();
+        SSLUtilities.trustAllHttpsCertificates();
         try {
 			// https://community.oracle.com/thread/1307033?start=0&tstart=0
 			LogManager.getLogManager().readConfiguration(
@@ -86,8 +94,8 @@ public class IdpClientTest {
             IdpClientException, IdpCryptoException, IdpJoseException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
         cardCertificateReaderService.setMockCertificate(null);
 
-        InputStream p12Certificate = CardCertificateReaderService.class.getResourceAsStream("/ps_erp_incentergy_01.p12");
-        cardCertReadExecutionService.setUpCustomSSLContext(p12Certificate);
+        //InputStream p12Certificate = CardCertificateReaderService.class.getResourceAsStream("/ps_erp_incentergy_01.p12");
+        // cardCertReadExecutionService.setUpCustomSSLContext(p12Certificate);
 
         discoveryDocumentUrl = idpBaseUrl + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
 
@@ -98,6 +106,7 @@ public class IdpClientTest {
                 clientSystem, workplace, cardHandle);
 
         IdpTokenResult idpTokenResult = idpClient.login(identity);
+        System.out.println("Access Token: "+idpTokenResult.getAccessToken().getRawString());
 
         Assertions.assertNotNull(idpTokenResult, "Idp Token result present.");
         Assertions.assertNotNull(idpTokenResult.getAccessToken(), "Access Token present");
@@ -105,11 +114,27 @@ public class IdpClientTest {
     }
 
     @Test/* @Disabled*/
-    public void test_Successful_Idp_Login()
+    public void test_Successful_Idp_Login_RSA()
             throws ConnectorCardCertificateReadException, IdpException,
             IdpClientException, IdpCryptoException, IdpJoseException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
 
-        InputStream inStream = CardCertificateReaderService.class.getResourceAsStream("/certs/1-2-ARZT-WaltrautDrombusch01-80276001011699910223-C_SMCB_AUT_R2048_X509.p12");
+        String p12= "/certs/1-2-ARZT-WaltrautDrombusch01-80276001011699910223-C_SMCB_AUT_R2048_X509.p12";
+        testP12(p12);
+    }
+
+    @Test/* @Disabled*/
+    public void test_Successful_Idp_Login_ECC()
+            throws ConnectorCardCertificateReadException, IdpException,
+            IdpClientException, IdpCryptoException, IdpJoseException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+
+        String p12= "/certs/80276001011699910223-C_SMCB_AUT_E256_X509.p12";
+        testP12(p12);
+    }
+
+
+    public void testP12(String p12) throws ConnectorCardCertificateReadException, IdpException,
+    IdpClientException, IdpCryptoException, IdpJoseException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+        InputStream inStream = CardCertificateReaderService.class.getResourceAsStream(p12);
 
         cardCertificateReaderService.setMockCertificate(inStream.readAllBytes());
 

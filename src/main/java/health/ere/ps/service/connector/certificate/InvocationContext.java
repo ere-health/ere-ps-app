@@ -13,6 +13,7 @@ public class InvocationContext {
     private String clientSystemId;
     private String workplaceId;
     private String userId;
+    private String mandantId;
 
     public InvocationContext() {
 
@@ -50,6 +51,10 @@ public class InvocationContext {
         return clientId;
     }
 
+    public String getMandantId() {
+        return mandantId;
+    }
+
     public void setClientId(String clientId) {
         this.clientId = clientId;
     }
@@ -85,7 +90,7 @@ public class InvocationContext {
      */
     public ContextType convertToContextType() {
         ContextType contextType = new ContextType();
-        contextType.setMandantId(getClientId());
+        contextType.setMandantId(getMandantId());
         contextType.setClientSystemId(getClientSystemId());
         contextType.setWorkplaceId(getWorkplaceId());
         contextType.setUserId(getUserId());

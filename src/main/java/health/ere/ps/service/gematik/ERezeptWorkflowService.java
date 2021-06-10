@@ -45,13 +45,12 @@ import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
 import ca.uhn.fhir.context.FhirContext;
 import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
-import de.gematik.ws.conn.signatureservice.v7_5_5.ComfortSignatureStatusEnum;
-import de.gematik.ws.conn.signatureservice.v7_5_5.DocumentType;
-import de.gematik.ws.conn.signatureservice.v7_5_5.SessionInfo;
-import de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest;
-import de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest.OptionalInputs;
-import de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse;
-import de.gematik.ws.conn.signatureservice.v7_5_5.SignatureModeEnum;
+import de.gematik.ws.conn.signatureservice.v7.DocumentType;
+// import de.gematik.ws.conn.signatureservice.v7.SessionInfo;
+import de.gematik.ws.conn.signatureservice.v7.SignRequest;
+import de.gematik.ws.conn.signatureservice.v7.SignRequest.OptionalInputs;
+import de.gematik.ws.conn.signatureservice.v7.SignResponse;
+// import de.gematik.ws.conn.signatureservice.v7.SignatureModeEnum;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.FaultMessage;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureService;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortType;
@@ -149,7 +148,7 @@ public class ERezeptWorkflowService {
                 }
             }
 
-            signatureService = new SignatureService(getClass().getResource("/SignatureService_V7_5_5.wsdl")).getSignatureServicePort();
+            signatureService = new SignatureService(getClass().getResource("/SignatureService_V7_4_2.wsdl")).getSignatureServicePort();
             /* Set endpoint to configured endpoint */
             BindingProvider bp = (BindingProvider) signatureService;
             bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, signatureServiceEndpointAddress);
@@ -308,7 +307,7 @@ public class ERezeptWorkflowService {
                 .header("User-Agent", userAgent)
                 .header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
                 .post(Entity.entity(fhirContext.newXmlParser().encodeResourceToString(parameters),
-                        "application/fhir+xml; charset=UTF-8"));
+                        "application/fhir+xml; charset=utf-8"));
         String taskString = response.readEntity(String.class);
         if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
             // OperationOutcome operationOutcome =
@@ -380,6 +379,7 @@ public class ERezeptWorkflowService {
 
         SignRequest signRequest = new SignRequest();
         DocumentType document = new DocumentType();
+        document.setShortText("E-Rezept");
         Base64Data base64Data = new Base64Data();
         base64Data.setMimeType("text/plain; charset=utf-8");
         base64Data.setValue(canonXmlBytes);
@@ -450,7 +450,7 @@ public class ERezeptWorkflowService {
         Response response = client.target(prescriptionserverUrl).path("/Task/$create").request()
                 .header("User-Agent", userAgent)
                 .header("Authorization", "Bearer " + bearerToken)
-                .post(Entity.entity(parameterString, "application/fhir+xml; charset=UTF-8"));
+                .post(Entity.entity(parameterString, "application/fhir+xml; charset=utf-8"));
 
         String taskString = response.readEntity(String.class);
         if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
@@ -474,7 +474,7 @@ public class ERezeptWorkflowService {
     public void abortERezeptTask(String bearerToken, String taskId, String accessCode) {
         Response response = client.target(prescriptionserverUrl).path("/Task").path("/" + taskId).path("/$abort")
                 .request().header("User-Agent", userAgent).header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
-                .post(Entity.entity("", "application/fhir+xml; charset=UTF-8"));
+                .post(Entity.entity("", "application/fhir+xml; charset=utf-8"));
         String taskString = response.readEntity(String.class);
         if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
             throw new RuntimeException(taskString);
@@ -487,31 +487,31 @@ public class ERezeptWorkflowService {
      * @throws FaultMessage
      */
     public void activateComfortSignature() throws FaultMessage {
-        final Holder<Status> status = new Holder<>();
+        /*final Holder<Status> status = new Holder<>();
         final Holder<SignatureModeEnum> signatureMode = new Holder<>();
         ContextType contextType = createContextType();
-        signatureService.activateComfortSignature(signatureServiceCardHandle, contextType, status, signatureMode);
+        signatureService.activateComfortSignature(signatureServiceCardHandle, contextType, status, signatureMode);*/
     }
 
     /**
      * @throws FaultMessage
      */
     public void getSignatureMode() throws FaultMessage {
-        Holder<Status> status = new Holder<>();
+        /*Holder<Status> status = new Holder<>();
         Holder<ComfortSignatureStatusEnum> comfortSignatureStatus = new Holder<>();
         Holder<Integer> comfortSignatureMax = new Holder<>();
         Holder<Duration> comfortSignatureTimer = new Holder<>();
         Holder<SessionInfo> sessionInfo = new Holder<>();
         ContextType contextType = createContextType();
         signatureService.getSignatureMode(signatureServiceCardHandle, contextType, status, comfortSignatureStatus,
-                comfortSignatureMax, comfortSignatureTimer, sessionInfo);
+                comfortSignatureMax, comfortSignatureTimer, sessionInfo)*/;
     }
 
     /**
      * @throws FaultMessage
      */
     public void deactivateComfortSignature() throws FaultMessage {
-        signatureService.deactivateComfortSignature(Arrays.asList(signatureServiceCardHandle));
+        // signatureService.deactivateComfortSignature(Arrays.asList(signatureServiceCardHandle));
     }
 
     /**

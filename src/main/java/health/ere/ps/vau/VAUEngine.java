@@ -29,14 +29,17 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.config.MessageConstraints;
+import org.apache.http.conn.ConnectionKeepAliveStrategy;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.io.DefaultHttpResponseParserFactory;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.io.SessionInputBufferImpl;
 import org.apache.http.io.HttpMessageParser;
 import org.apache.http.io.HttpMessageParserFactory;
 import org.apache.http.io.SessionInputBuffer;
+import org.apache.http.protocol.HttpContext;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient43Engine;
 import org.jboss.resteasy.client.jaxrs.i18n.LogMessages;
@@ -64,7 +67,17 @@ public class VAUEngine extends ApacheHttpClient43Engine {
     private static final Pattern RESPONSE_PATTERN = Pattern.compile(responsePattern, Pattern.DOTALL);
 
     public VAUEngine(String fachdienstUrl) {
-        this.fachdienstUrl = fachdienstUrl;
+       /*super(HttpClients.custom()
+         .setKeepAliveStrategy(new ConnectionKeepAliveStrategy() {
+
+         @Override
+         public long getKeepAliveDuration(HttpResponse response, HttpContext context) {
+            return 0;
+         }
+            
+         })
+       .build());*/
+      this.fachdienstUrl = fachdienstUrl;
     }
 
     /**
@@ -94,7 +107,11 @@ public class VAUEngine extends ApacheHttpClient43Engine {
         String contentType = ((MediaType) newHeaders.getFirst("Content-Type")).toString();
         newHeaders.putSingle("X-erp-user", "l"); //Leistungserbringer
         newHeaders.putSingle("X-erp-resource", "Task");
-        request.getHeaders().setHeaders(newHeaders);
+        newHeaders.putSingle("Content-Type", "application/octet-stream");
+        newHeaders.putSingle("Accept", "application/octet-stream");
+        newHeaders.remove("Authorization");
+
+        // request.getHeaders().setHeaders(newHeaders);
 
         byte[] finalMessageData;
         try {
@@ -107,7 +124,7 @@ public class VAUEngine extends ApacheHttpClient43Engine {
             (accessCode != null ? "X-AccessCode: "+accessCode+"\r\n" : "")+
             "User-Agent: "+userAgent+"\r\n"+
             "Content-Length: "+postBytes.length+"\r\n"+
-            "Accept: application/fhir+xml;charset=utf-8\r\n\r\n"
+            "Accept: application/fhir+xml; charset=utf-8\r\n\r\n"
             +postBody;
 
             String bearer = authorization.substring(7);
@@ -193,7 +210,7 @@ public class VAUEngine extends ApacheHttpClient43Engine {
         SessionInputBufferImpl buffer = new SessionInputBufferImpl(new HttpTransportMetricsImpl(), 8092);
         buffer.bind(new ByteArrayInputStream(rawResponseHeader.getBytes()));
         HttpResponse res = DefaultHttpResponseParserFactory.INSTANCE.create(buffer,  MessageConstraints.DEFAULT).parse();
-        res.setEntity(new StringEntity(rawResponseBody, ContentType.create(res.getFirstHeader("Content-Type").getValue())));
+        res.setEntity(new StringEntity(rawResponseBody, ContentType.create("application/fhir+xml"/*res.getFirstHeader("Content-Type").getValue()*/)));
         return res;
     }
     
