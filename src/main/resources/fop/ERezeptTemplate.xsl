@@ -16,7 +16,7 @@
 
     <xsl:template match="fhir:root">
         <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format"
-                 font-family="Verdana,Arial,Symbola" font-size="8pt" text-align="left"
+                 font-family="Courier, Arial" font-size="9pt" text-align="left"
                  line-height="normal" font-selection-strategy="character-by-character"
                  line-height-shift-adjustment="disregard-shifts" writing-mode="lr-tb"
                  language="DE">
@@ -84,7 +84,7 @@
             <fo:table-body>
                 <fo:table-row height="5mm">
                     <fo:table-cell width="123mm" number-columns-spanned="3">
-                        <fo:block font-weight="bold" font-size="10pt">
+                        <fo:block font-family="Arial" font-weight="bold" font-size="10pt">
                             Ausdruck zur Einlösung Ihres E-Rezeptes
                         </fo:block>
                     </fo:table-cell>
@@ -103,10 +103,10 @@
                             <fo:table-header>
                                 <fo:table-row>
                                     <fo:table-cell>
-                                        <fo:block font-size="5pt" font-weight="bold" margin-left="1mm">für</fo:block>
+                                        <fo:block font-size="5pt" font-weight="bold" margin-left="1mm" font-family="Arial">für</fo:block>
                                     </fo:table-cell>
                                     <fo:table-cell>
-                                        <fo:block font-size="5pt" font-weight="bold" margin-left="40mm">geboren am
+                                        <fo:block font-size="5pt" font-weight="bold" margin-left="40mm" font-family="Arial">geboren am
                                         </fo:block>
                                     </fo:table-cell>
                                 </fo:table-row>
@@ -159,9 +159,8 @@
                             </fo:instream-foreign-object>
                         </fo:block>
                         <fo:block-container reference-orientation="90">
-                            <fo:block font-size="4pt" font-weight="bold" wrap-option="no-wrap" margin-left="2mm"
-                                      margin-top="1mm">
-                                Sammelcode zur Einlösung aller Verordnungen
+                            <fo:block font-size="4pt" font-family="Arial" font-weight="bold" wrap-option="no-wrap"
+                                      margin-left="2mm" margin-top="1mm"> Sammelcode zur Einlösung aller Verordnungen
                             </fo:block>
                         </fo:block-container>
                     </fo:table-cell>
@@ -181,17 +180,19 @@
                             <fo:table-header>
                                 <fo:table-row>
                                     <fo:table-cell>
-                                        <fo:block font-size="5pt" font-weight="bold" margin-left="1mm">ausgestellt von
+                                        <fo:block font-size="5pt" font-weight="bold" margin-left="1mm" font-family="Arial">
+                                            ausgestellt von
                                         </fo:block>
                                     </fo:table-cell>
                                     <fo:table-cell>
-                                        <fo:block font-size="5pt" font-weight="bold" margin-left="20mm">ausgestellt am
+                                        <fo:block font-size="5pt" font-weight="bold" margin-left="20mm" font-family="Arial">
+                                            ausgestellt am
                                         </fo:block>
                                     </fo:table-cell>
                                 </fo:table-row>
                             </fo:table-header>
                             <fo:table-body>
-                                <fo:table-row>
+                                <fo:table-row height="">
                                     <fo:table-cell width="60mm" margin-left="1mm">
                                         <fo:block font-size="8pt">
                                             <xsl:value-of
@@ -259,8 +260,8 @@
                                 </fo:instream-foreign-object>
                             </fo:block>
                         </fo:table-cell>
-                        <fo:table-cell>
-                            <fo:block margin-top="5mm">
+                        <fo:table-cell width="40mm">
+                            <fo:block margin-top="2mm">
                                 <fo:block font-weight="bold">
                                     <xsl:value-of
                                             select="fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:dispenseRequest/fhir:quantity/fhir:value/@value"/>
