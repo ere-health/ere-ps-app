@@ -114,7 +114,7 @@ class DigitalGreenCertificateResourceIntegrationTest {
      * TODO fix servlet-api
      * Disabled because servlet is a old version
      */
-    void issueRecoverCertificate() throws Exception {
+    void issueRecoveryCertificate() throws Exception {
 
         // model copied from DigitalGreenCertificateServiceIntegrationTest
         final String testId = "testId";
@@ -124,11 +124,11 @@ class DigitalGreenCertificateResourceIntegrationTest {
         final String testDateDu = "2022-01-01";
         final String testDateDf = "2021-01-01";
         final String testDataDob = "1921-01-01";
-        final String firstName = "Testname Lastname";
+        final String familyName = "Testname Lastname";
         final String givenName = "Testgiven Name";
 
         final String requestBody = "{\"nam\":{" +
-                "\"fn\": \"" + firstName + "\"," +
+                "\"fn\": \"" + familyName + "\"," +
                 "\"gn\": \"" + givenName + "\"" +
                 "}," +
                 "\"dob\": \"" + testDataDob + "\"," +
@@ -142,9 +142,6 @@ class DigitalGreenCertificateResourceIntegrationTest {
                 "}]}";
         Client client = ClientBuilder.newBuilder().build();
 
-        final PersonName testDataPersonName = new PersonName();
-        testDataPersonName.fn = firstName;
-        testDataPersonName.gn = givenName;
         final RecoveryEntry recoveryEntry = new RecoveryEntry();
         recoveryEntry.setId(testId);
         recoveryEntry.setTg(testTg);
@@ -154,7 +151,7 @@ class DigitalGreenCertificateResourceIntegrationTest {
         recoveryEntry.setDf(LocalDate.parse(testDateDf));
 
         final RecoveryCertificateRequest certificateRequest = new RecoveryCertificateRequest();
-        certificateRequest.setNam(testDataPersonName);
+        certificateRequest.setNam(new PersonName(familyName, givenName));
         certificateRequest.setDob(LocalDate.parse(testDataDob));
         certificateRequest.addRItem(recoveryEntry);
 
@@ -168,6 +165,71 @@ class DigitalGreenCertificateResourceIntegrationTest {
         Response response = client.target(url.toURI().resolve("v2/recovered"))
                 .request("application/pdf")
                 .post(Entity.json(requestBody));
+
+        // then
+        assertEquals(200, response.getStatus());
+        assertArrayEquals(pdf, response.readEntity(byte[].class));
+
+        CertificateRequest value = ac.getValue();
+        assertEquals(value, certificateRequest);
+
+        // after
+        client.close();
+    }
+
+    @Test
+    @Disabled("Old servlet version due to avalon dependencies")
+    /*
+     * TODO fix servlet-api
+     * Disabled because servlet is a old version
+     */
+    void issueRecoveryCertificateFromIndividualParams() throws Exception {
+
+        // model copied from DigitalGreenCertificateServiceIntegrationTest
+        final String testId = "testId";
+        final String testTg = "testTg";
+        final String testIs = "testIs";
+        final String testDateFr = "2023-01-01";
+        final String testDateDu = "2022-01-01";
+        final String testDateDf = "2021-01-01";
+        final String testDataDob = "1921-01-01";
+        final String familyName = "Testname Lastname";
+        final String givenName = "Testgiven Name";
+
+        Client client = ClientBuilder.newBuilder().build();
+
+        final RecoveryEntry recoveryEntry = new RecoveryEntry();
+        recoveryEntry.setId(testId);
+        recoveryEntry.setTg(testTg);
+        recoveryEntry.setIs(testIs);
+        recoveryEntry.setFr(LocalDate.parse(testDateFr));
+        recoveryEntry.setDu(LocalDate.parse(testDateDu));
+        recoveryEntry.setDf(LocalDate.parse(testDateDf));
+
+        final RecoveryCertificateRequest certificateRequest = new RecoveryCertificateRequest();
+        certificateRequest.setNam(new PersonName(familyName, givenName));
+        certificateRequest.setDob(LocalDate.parse(testDataDob));
+        certificateRequest.addRItem(recoveryEntry);
+
+        byte[] pdf = new byte[]{34, 56};
+
+        // mock response
+        final ArgumentCaptor<CertificateRequest> ac = ArgumentCaptor.forClass(CertificateRequest.class);
+        // doReturn because of the null check in issuePdf
+        doReturn(pdf).when(service).issuePdf(ac.capture());
+
+        Response response = client.target(url.toURI().resolve("v2/recovered"))
+                .queryParam("fn", familyName)
+                .queryParam("gn", givenName)
+                .queryParam("dob", testDataDob)
+                .queryParam("id", testId)
+                .queryParam("tg", testTg)
+                .queryParam("fr", testDateFr)
+                .queryParam("is", testIs)
+                .queryParam("df", testDateDf)
+                .queryParam("du", testDateDu)
+                .request("application/pdf")
+                .get();
 
         // then
         assertEquals(200, response.getStatus());
