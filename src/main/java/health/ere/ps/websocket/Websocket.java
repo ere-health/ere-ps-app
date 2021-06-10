@@ -1,21 +1,14 @@
 package health.ere.ps.websocket;
 
-import java.awt.Desktop;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
+import ca.uhn.fhir.context.FhirContext;
+import health.ere.ps.event.BundlesEvent;
+import health.ere.ps.event.ERezeptDocumentsEvent;
+import health.ere.ps.event.SignAndUploadBundlesEvent;
+import health.ere.ps.jsonb.BundleAdapter;
+import health.ere.ps.jsonb.ByteAdapter;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
-import javax.enterprise.event.Observes;
 import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
 import javax.json.Json;
@@ -24,32 +17,32 @@ import javax.json.JsonReader;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
-import javax.websocket.OnClose;
-import javax.websocket.OnError;
-import javax.websocket.OnMessage;
-import javax.websocket.OnOpen;
-import javax.websocket.Session;
+import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
-
-import ca.uhn.fhir.context.FhirContext;
-import health.ere.ps.event.BundlesEvent;
-import health.ere.ps.event.ERezeptDocumentsEvent;
-import health.ere.ps.event.SignAndUploadBundlesEvent;
-import health.ere.ps.jsonb.BundleAdapter;
-import health.ere.ps.jsonb.ByteAdapter;
+import java.awt.*;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @ServerEndpoint("/websocket")
 @ApplicationScoped
 public class Websocket {
 
+    private static final Logger log = Logger.getLogger(Websocket.class.getName());
+    private final FhirContext ctx = FhirContext.forR4();
+    private final Set<Session> sessions = new HashSet<>();
+
     @Inject
     Event<SignAndUploadBundlesEvent> signAndUploadBundlesEvent;
 
-    // Create a FHIR context
-    FhirContext ctx = FhirContext.forR4();
-
-    private static Logger log = Logger.getLogger(Websocket.class.getName());
-    Set<Session> sessions = new HashSet<>();
 
     @OnOpen
     public void onOpen(Session session) {
@@ -66,7 +59,7 @@ public class Websocket {
     @OnError
     public void onError(Session session, Throwable throwable) {
         sessions.remove(session);
-        log.info("Websocket error: " + throwable);
+        log.severe("Websocket error: " + throwable);
     }
 
     @OnMessage
@@ -75,7 +68,7 @@ public class Websocket {
 
         JsonReader jsonReader = Json.createReader(new StringReader(message));
         JsonObject object = jsonReader.readObject();
-        if("SignAndUploadBundles".equals(object.getString("type"))) {
+        if ("SignAndUploadBundles".equals(object.getString("type"))) {
             SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(object);
             signAndUploadBundlesEvent.fireAsync(event);
         }
@@ -83,9 +76,8 @@ public class Websocket {
     }
 
     public void onFhirBundle(@ObservesAsync BundlesEvent bundlesEvent) {
-
         // if nobody is connected to the websocket
-        if(sessions.size() == 0) {
+        if (sessions.isEmpty()) {
             if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
                 try {
                     // Open a browser with the given URL
@@ -98,40 +90,34 @@ public class Websocket {
             }
         }
 
-        sessions.forEach(s -> {
-            s.getAsyncRemote().sendObject(
-                    "{\"type\": \"Bundles\", \"payload\": " + generateJson(bundlesEvent) + "}", result -> {
-                        if (result.getException() != null) {
-                            System.out.println("Unable to send message: " + result.getException());
-                        }
-                    });
-        });
+        sessions.forEach(session -> session.getAsyncRemote().sendObject(
+                "{\"type\": \"Bundles\", \"payload\": " + generateJson(bundlesEvent) + "}",
+                result -> {
+                    if (!result.isOK()) {
+                        log.severe("Unable to send bundlesEvent: " + result.getException());
+                    }
+                }));
     }
 
     public void onERezeptDocuments(@ObservesAsync ERezeptDocumentsEvent eRezeptDocumentsEvent) {
-        sessions.forEach(s -> {
-            s.getAsyncRemote().sendObject(
-                    getJsonEventFor(eRezeptDocumentsEvent), result -> {
-                        if (result.getException() != null) {
-                            System.out.println("Unable to send message: " + result.getException());
-                        }
-                    });
-        });
+        sessions.forEach(session -> session.getAsyncRemote().sendObject(
+                getJson(eRezeptDocumentsEvent),
+                result -> {
+                    if (!result.isOK()) {
+                        log.severe("Unable to send eRezeptWithDocumentsEvent: " + result.getException());
+                    }
+                }));
     }
 
-    public String getJsonEventFor(ERezeptDocumentsEvent eRezeptDocumentsEvent) {
-        return "{\"type\": \"ERezeptDocuments\", \"payload\": " + generateJson(eRezeptDocumentsEvent) + "}";
-    }
+    public String getJson(ERezeptDocumentsEvent eRezeptDocumentsEvent) {
+        JsonbConfig customConfig = new JsonbConfig()
+                .setProperty(JsonbConfig.FORMATTING, true)
+                .withAdapters(new BundleAdapter())
+                .withAdapters(new ByteAdapter());
+        Jsonb jsonbFactory = JsonbBuilder.create(customConfig);
 
-    String generateJson(ERezeptDocumentsEvent eRezeptDocumentsEvent) {
-        // Create custom configuration
-        JsonbConfig config = new JsonbConfig()
-            .setProperty(JsonbConfig.FORMATTING, true)
-            .withAdapters(new BundleAdapter())
-            .withAdapters(new ByteAdapter());
-        Jsonb jsonb = JsonbBuilder.create(config);
-        String result = jsonb.toJson(eRezeptDocumentsEvent.getERezeptDocuments());
-        return result;
+        return "{\"type\": \"ERezeptWithDocuments\", \"payload\": " +
+                jsonbFactory.toJson(eRezeptDocumentsEvent.getERezeptWithDocuments()) + "}";
     }
 
     String generateJson(BundlesEvent bundlesEvent) {
@@ -140,21 +126,19 @@ public class Websocket {
     }
 
     public void onException(@ObservesAsync Exception exception) {
-        sessions.forEach(s -> {
-
+        sessions.forEach(session -> {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
             exception.printStackTrace(pw);
 
-            s.getAsyncRemote()
+            session.getAsyncRemote()
                     .sendObject("{\"type\": \"Exception\", \"payload\": { \"class\": \""
                             + exception.getClass().getName() + "\", \"message\": \"" + exception.getLocalizedMessage()
                             + "\", \"stacktrace\": \"" + sw.toString().replaceAll("\r?\n", "\\\\n").replaceAll("\t", "\\\\t") + "\"}}", result -> {
-                                if (result.getException() != null) {
-                                    System.out.println("Unable to send message: " + result.getException());
-                                }
-                            });
+                        if (result.getException() != null) {
+                            log.severe("Unable to send message: " + result.getException());
+                        }
+                    });
         });
     }
-
 }

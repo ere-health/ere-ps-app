@@ -26,43 +26,28 @@ public class DocumentServiceTest {
 	}
 
 
-	//TODO: Real test with the downloaded pdf as expected output and a xml with the same info as input.
-
 	@Test
-	public void testGenerateERezeptPdf() throws IOException {
+	public void generateERezeptPdf_generatesCorrectPdf_givenOneMedicineToDisplay() throws IOException {
 		// GIVEN
 		Bundle bundle = (Bundle) ctx.newXmlParser().parseResource(
-				getClass().getResourceAsStream("/simplifier_erezept/0428d416-149e-48a4-977c-394887b3d85c.xml"));
+				getClass().getResourceAsStream("/examples_erezept/Erezept_template_with_one_medicine.xml"));
 
-		// WHEN
-		ByteArrayOutputStream baos = documentService
-				.generateERezeptPdf(
-						Collections.singletonList(new BundleWithAccessCodeOrThrowable(bundle, "MOCK_CODE")));
-		Files.write(Paths.get("target/0428d416-149e-48a4-977c-394887b3d85c.pdf"), baos.toByteArray());
-	}
-
-	@Test
-	public void testGenerateERezeptPdf2() throws IOException {
-		// GIVEN
-		Bundle bundle = (Bundle) ctx.newXmlParser().parseResource(
-				getClass().getResourceAsStream("/examples_erezept/154bdac4-9374-4276-9109-ea5cbdee84fc.xml"));
-
-		// WHEN
+		// WHEN + THEN
 		ByteArrayOutputStream baos = documentService.generateERezeptPdf(
 				Collections.singletonList(new BundleWithAccessCodeOrThrowable(bundle, "MOCK_CODE")));
-		Files.write(Paths.get("target/154bdac4-9374-4276-9109-ea5cbdee84fc.pdf"), baos.toByteArray());
+		Files.write(Paths.get("target/Erezept_with_one_medicine.pdf"), baos.toByteArray());
 	}
 
 	@Test
 	public void testGenerateERezeptPdfMulti() throws IOException {
 		// GIVEN
 		Bundle bundle = (Bundle) ctx.newXmlParser().parseResource(
-				getClass().getResourceAsStream("/examples_erezept/154bdac4-9374-4276-9109-ea5cbdee84fc.xml"));
+				getClass().getResourceAsStream("/examples_erezept/Erezept_template_with_one_medicine.xml"));
 
 		Bundle bundle2 = (Bundle) ctx.newXmlParser().parseResource(
 		getClass().getResourceAsStream("/simplifier_erezept/0428d416-149e-48a4-977c-394887b3d85c.xml"));
 
-		// WHEN
+		// WHEN + THEN
 		ByteArrayOutputStream baos = documentService.generateERezeptPdf(Arrays.asList(new BundleWithAccessCodeOrThrowable(bundle, "MOCK_CODE"), new BundleWithAccessCodeOrThrowable(bundle2, "MOCK_CODE2"), new BundleWithAccessCodeOrThrowable(bundle2, "MOCK_CODE3")));
 		Files.write(Paths.get("target/MultiERezept.pdf"), baos.toByteArray());
 	}
