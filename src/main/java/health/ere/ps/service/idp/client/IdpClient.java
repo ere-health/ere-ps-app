@@ -104,7 +104,7 @@ public class IdpClient implements IIdpClient {
     private String redirectUrl;
     private String discoveryDocumentUrl;
     private boolean shouldVerifyState;
-    private Set<IdpScope> scopes = Set.of(IdpScope.OPENID, IdpScope.EREZEPT);
+    private Set<IdpScope> scopes = Set.of(IdpScope.OPENID/*, IdpScope.EREZEPT*/);
     private CodeChallengeMethod codeChallengeMethod = CodeChallengeMethod.S256;
 
     private DiscoveryDocumentResponse discoveryDocumentResponse;

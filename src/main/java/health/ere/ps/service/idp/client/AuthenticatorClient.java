@@ -7,6 +7,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.jose4j.jwt.JwtClaims;
+import org.jose4j.jwt.consumer.InvalidJwtException;
 
 import java.io.StringReader;
 import java.math.BigInteger;
@@ -42,7 +43,9 @@ import health.ere.ps.model.idp.client.AuthorizationRequest;
 import health.ere.ps.model.idp.client.AuthorizationResponse;
 import health.ere.ps.model.idp.client.DiscoveryDocumentResponse;
 import health.ere.ps.model.idp.client.IdpTokenResult;
+import health.ere.ps.model.idp.client.ImpfnachweisAuthorizationResponse;
 import health.ere.ps.model.idp.client.TokenRequest;
+import health.ere.ps.model.idp.client.DiscoveryDocumentResponse.DiscoveryDocumentResponseBuilder;
 import health.ere.ps.model.idp.client.authentication.AuthenticationChallenge;
 import health.ere.ps.model.idp.client.brainPoolExtension.BrainpoolCurves;
 import health.ere.ps.model.idp.client.data.UserConsent;
@@ -75,7 +78,9 @@ public class AuthenticatorClient {
         IdpHttpClientService idpHttpClientService =
                 getIdpHttpClientInstanceByUrl(authorizationRequest.getLink());
 
-        JsonObject jsonObject;
+        JsonObject jsonObject = null;
+        String challenge = null;
+        String location = null;
 
         try(Response response = idpHttpClientService.doAuthorizationRequest(scope, "code",
                 authorizationRequest.getRedirectUri(), authorizationRequest.getState(),
@@ -83,17 +88,26 @@ public class AuthenticatorClient {
                 authorizationRequest.getClientId(), authorizationRequest.getCodeChallenge())) {
 
             checkResponseForErrorsAndThrowIfAny(response);
-
-            jsonObject = getJsonObject(response);
+            if(response.getHeaderString("x-auth-challenge") != null) {
+                challenge = response.getHeaderString("x-auth-challenge");
+                location = response.getHeaderString("Location");
+            } else {
+                jsonObject = getJsonObject(response);
+            }
         }
-
-        return new AuthorizationResponse.AuthorizationResponseBuilder().authenticationChallenge(
+        // E-Rezept Flow
+        if(jsonObject != null) {
+            return new AuthorizationResponse.AuthorizationResponseBuilder().authenticationChallenge(
                 new AuthenticationChallenge(
                         new JsonWebToken(jsonObject.getString("challenge")),
                         new UserConsent(toMap(jsonObject.getJsonObject("user_consent").getJsonObject(
                                     "requested_scopes")),
                                 toMap(jsonObject.getJsonObject("user_consent").getJsonObject(
                                         "requested_claims"))))).build();
+        // Impfnachweis Flow
+        } else {
+            return new ImpfnachweisAuthorizationResponse(challenge, location);
+        }
     }
 
     protected Map<String, String> toMap(JsonObject jsonObject) {
@@ -261,15 +275,32 @@ public class AuthenticatorClient {
 
             checkResponseForErrorsAndThrowIfAny(response);
 
-            discoveryClaims = TokenClaimExtraction
-                    .extractClaimsFromJwtBody(response.readEntity(String.class));
+            String responseString = response.readEntity(String.class);
+            if(responseString.startsWith("{")) {
+                try {
+                    discoveryClaims = JwtClaims.parse(responseString).getClaimsMap();
+                } catch (InvalidJwtException e) {
+                    throw new IdpJoseException(e);
+                }
+            } else {
+                discoveryClaims = TokenClaimExtraction
+                        .extractClaimsFromJwtBody(responseString);
+            }
         }
 
-        return DiscoveryDocumentResponse.builder()
-                .authorizationEndpoint(discoveryClaims.get("authorization_endpoint").toString())
-                .tokenEndpoint(discoveryClaims.get("token_endpoint").toString())
-                .idpSig(retrieveServerCertFromLocation(discoveryClaims.get("uri_puk_idp_sig").toString()))
-                .idpEnc(retrieveServerPuKFromLocation(discoveryClaims.get("uri_puk_idp_enc").toString()))
+        DiscoveryDocumentResponseBuilder discoveryDocumentResponseBuilder = DiscoveryDocumentResponse.builder()
+        .authorizationEndpoint(discoveryClaims.get("authorization_endpoint").toString())
+        .tokenEndpoint(discoveryClaims.get("token_endpoint").toString());
+        if(discoveryClaims.get("uri_puk_idp_sig") != null) {
+            discoveryDocumentResponseBuilder
+            .idpSig(retrieveServerCertFromLocation(discoveryClaims.get("uri_puk_idp_sig").toString()));
+            
+        }
+        if(discoveryClaims.get("uri_puk_idp_enc") != null) {
+            discoveryDocumentResponseBuilder
+                .idpEnc(retrieveServerPuKFromLocation(discoveryClaims.get("uri_puk_idp_enc").toString()));
+        }
+        return discoveryDocumentResponseBuilder
                 .build();
     }
 
