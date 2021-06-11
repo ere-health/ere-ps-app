@@ -20,11 +20,11 @@
                  line-height-shift-adjustment="disregard-shifts" writing-mode="lr-tb"
                  language="DE">
             <fo:layout-master-set>
-                <fo:simple-page-master master-name="DIN-A5"
+                <fo:simple-page-master master-name="DIN-A5"  column-count="2"
                                        page-width="210mm" page-height="148mm"
                                        margin-top="5mm" margin-bottom="5mm"
                                        margin-left="8mm" margin-right="5mm">
-                    <fo:region-body region-name="body" column-count="2"
+                    <fo:region-body region-name="body"
                                     margin-top="60mm" margin-bottom="0mm"
                                     margin-left="2mm" margin-right="5mm"/>
                     <fo:region-before region-name="header" extent="55mm"/>
@@ -77,7 +77,7 @@
 
     <xsl:template name="footer">
         <fo:block text-align="end">
-            <fo:external-graphic content-height="40mm" content-width="scale-to-fit"
+            <fo:external-graphic content-height="41mm" content-width="scale-to-fit"
                                  src="url('img/erezept-app-note.svg')"/>
         </fo:block>
     </xsl:template>
@@ -249,12 +249,30 @@
             <fo:table-column column-number="2" column-width="50%"/>
             <fo:table-body>
                 <xsl:for-each select="fhir:bundle">
+                    <xsl:variable name="pos" select="position()"/>
                     <fo:table-cell>
+                        <xsl:choose>
+                            <xsl:when test="$pos > 6">
+                                <xsl:if test="not($pos mod 8) or not($pos mod 9)">
+                                    <xsl:attribute name="ends-row">true</xsl:attribute>
+                                </xsl:if>
+                            </xsl:when>
+                            <xsl:when test="$pos > 3">
+                                <xsl:if test="not($pos mod 5) or not($pos mod 6)">
+                                    <xsl:attribute name="ends-row">true</xsl:attribute>
+                                </xsl:if>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:if test="not($pos mod 2) or not($pos mod 3)">
+                                    <xsl:attribute name="ends-row">true</xsl:attribute>
+                                </xsl:if>
+                            </xsl:otherwise>
+                        </xsl:choose>
                         <fo:table border-collapse="separate">
                             <fo:table-column/>
                             <fo:table-column/>
                             <fo:table-body>
-                                <fo:table-row height="30mm">
+                                <fo:table-row height="35mm" >
                                     <fo:table-cell width="32mm">
                                         <fo:block>
                                             <fo:instream-foreign-object>

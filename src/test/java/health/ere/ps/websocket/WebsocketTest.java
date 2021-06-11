@@ -37,7 +37,7 @@ class WebsocketTest {
     ERezeptDocumentsEvent eRezeptDocumentsEvent = new ERezeptDocumentsEvent();
     List<BundleWithAccessCodeOrThrowable> list = new ArrayList<>();
     Bundle bundle = (Bundle) FhirContext.forR4().newXmlParser().parseResource(
-				getClass().getResourceAsStream("/simplifier_erezept/0428d416-149e-48a4-977c-394887b3d85c.xml"));
+				getClass().getResourceAsStream("/examples_erezept/Erezept_template_2.xml"));
     list.add(new BundleWithAccessCodeOrThrowable(bundle, "MOCK_ACCESS_CODE"));
     ERezeptDocument eRezeptDocument = new ERezeptDocument(list, Files.readAllBytes(Paths.get("src/test/resources/document-service/0428d416-149e-48a4-977c-394887b3d85c.pdf")));
     eRezeptDocumentsEvent.getERezeptWithDocuments().add(eRezeptDocument);
