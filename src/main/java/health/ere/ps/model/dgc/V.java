@@ -1,9 +1,10 @@
 package health.ere.ps.model.dgc;
 
 import java.util.Objects;
+import java.util.UUID;
 
 public class V {
-    public String id;
+    public String id = UUID.randomUUID().toString();
     public String tg;
     public String vp;
     public String mp;
@@ -11,9 +12,9 @@ public class V {
     public Integer dn;
     public Integer sd;
     public String dt;
-    public String co;
-    public String is;
-    public String ci;
+    public String co = "DE";
+    public String is = "";
+    public String ci = "";
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
