@@ -49,8 +49,7 @@
         <dependency>
             <groupId>org.bitbucket.b_c</groupId>
             <artifactId>jose4j</artifactId>
-<!--            <version>0.7.7-hard-code-brainpool-p256-r1</version>-->
-            <version>0.7.2</version>
+            <version>0.7.7-hard-code-brainpool-p256-r1</version>
         </dependency>
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
@@ -265,6 +264,27 @@
                         <quarkus.log.level>DEBUG</quarkus.log.level>
                         <maven.home>${maven.home}</maven.home>
                     </systemPropertyVariables>
+                </configuration>
+            </plugin>
+            <!-- STATIC CODE ANALYSIS -->
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>4.2.3</version>
+                <configuration>
+                    <xmlOutput>true</xmlOutput>
+                    <failOnError>false</failOnError>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>3.14.0</version>
+                <configuration>
+                    <targetJdk>11</targetJdk>
+                    <includeTests>true</includeTests>
+                    <failOnViolation>false</failOnViolation>
+                    <skipEmptyReport>false</skipEmptyReport>
                 </configuration>
             </plugin>
         </plugins>
