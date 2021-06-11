@@ -1,0 +1,226 @@
+openapi: 3.0.0
+
+info:
+  title: ERE Digital Green Certificate
+  version: 0.1.0
+  description: |
+    Digital green certificate service for issuing both vaccination certificates
+    and recovery certificates.
+
+paths:
+  /api/certify/v2/issue:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/FamilyName'
+        - $ref: '#/components/parameters/GivenName'
+        - $ref: '#/components/parameters/DateOfBirth'
+        - $ref: '#/components/parameters/AdministeringId'
+        - $ref: '#/components/parameters/Illness'
+        - $ref: '#/components/parameters/Vaccine'
+        - $ref: '#/components/parameters/Product'
+        - $ref: '#/components/parameters/Manufacturer'
+        - $ref: '#/components/parameters/DosisNumber'
+        - $ref: '#/components/parameters/DosisCount'
+        - $ref: '#/components/parameters/VaccinationDate'
+      responses:
+        200:
+          description: PDF file with certificate
+          content:
+            application/pdf: {}
+        400:
+          $ref: '#/components/responses/InvalidParameters'
+        401:
+          $ref: '#/components/responses/InvalidSmcbAuthentication'
+        403:
+          $ref: '#/components/responses/InvalidCertificateServiceAuthentication'
+        500:
+          $ref: '#/components/responses/InternalEreServerError'
+        501:
+          $ref: '#/components/responses/InvalidCertificateServerError'
+  /api/certify/v2/recovered:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/FamilyName'
+        - $ref: '#/components/parameters/GivenName'
+        - $ref: '#/components/parameters/DateOfBirth'
+        - $ref: '#/components/parameters/AdministeringId'
+        - $ref: '#/components/parameters/Illness'
+        - $ref: '#/components/parameters/PositiveTestDate'
+        - $ref: '#/components/parameters/Issuer'
+        - $ref: '#/components/parameters/CertificateStartDate'
+        - $ref: '#/components/parameters/CertificateEndDate'
+      responses:
+        200:
+          description: PDF file with certificate
+          content:
+            application/pdf: {}
+        400:
+          $ref: '#/components/responses/InvalidParameters'
+        401:
+          $ref: '#/components/responses/InvalidSmcbAuthentication'
+        403:
+          $ref: '#/components/responses/InvalidCertificateServiceAuthentication'
+        500:
+          $ref: '#/components/responses/InternalEreServerError'
+        501:
+          $ref: '#/components/responses/InvalidCertificateServerError'
+
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          description: Error code for further reference
+          example: 3456
+          minimum: 1
+        message:
+          description: Human readable error message (may contain also technical details)
+          type: string
+  responses:
+    InvalidParameters:
+      description: Missing parameters in request or invalid types
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InvalidSmcbAuthentication:
+      description: Missing parameters in request or invalid types
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InvalidCertificateServiceAuthentication:
+      description: Authentication error (Certifcate service)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InternalEreServerError:
+      description: Server error in ERE application
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InvalidCertificateServerError:
+      description: Server error in Certificate service
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    FamilyName:
+      name: fn
+      in: query
+      required: true
+      description: Family name
+      schema:
+        type: string
+    GivenName:
+      name: gn
+      in: query
+      required: true
+      description: Given name
+      schema:
+        type: string
+    DateOfBirth:
+      name: dob
+      in: query
+      required: true
+      description: Date of birth
+      schema:
+        type: string
+        format: date
+    AdministeringId:
+      name: id
+      in: query
+      required: true
+      description: Administering id (e.g. Betriebsstättennummer)
+      schema:
+        type: string
+    Illness:
+      name: tg
+      in: query
+      required: true
+      description: Illenss identification
+      schema:
+        type: string
+    Vaccine:
+      name: vp
+      in: query
+      required: true
+      description: Vaccination name
+      schema:
+        type: string
+    Product:
+      name: mp
+      in: query
+      required: true
+      description: Product
+      schema:
+        type: string
+    Manufacturer:
+      name: ma
+      in: query
+      required: true
+      description: Manufacturer of vaccination
+      schema:
+        type: string
+    DosisNumber:
+      name: dn
+      in: query
+      required: true
+      description: Number of dosis
+      schema:
+        type: integer
+        example: 1
+        minimum: 1
+    DosisCount:
+      name: sd
+      in: query
+      required: true
+      description: Total dosis count for complete immunization
+      schema:
+        type: integer
+        example: 2
+        minimum: 1
+    VaccinationDate:
+      name: dt
+      in: query
+      required: true
+      description: Date of vaccination
+      schema:
+        type: string
+        format: date
+    PositiveTestDate:
+      name: fr
+      in: query
+      required: true
+      description: Date of first positive test result
+      schema:
+        type: string
+        format: date
+    Issuer:
+      name: is
+      in: query
+      required: true
+      description: Issuer of certificate
+      schema:
+        type: string
+    CertificateStartDate:
+      name: df
+      in: query
+      required: true
+      description: Start date of certificate validity
+      schema:
+        type: string
+        format: date
+    CertificateEndDate:
+      name: du
+      in: query
+      required: true
+      description: end date of certificate validity
+      schema:
+        type: string
+        format: date
