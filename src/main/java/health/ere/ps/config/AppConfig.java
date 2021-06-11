@@ -40,6 +40,12 @@ public class AppConfig {
     @ConfigProperty(name = "signature-service.context.userId")
     String signatureServiceContextUserId;
 
+    @ConfigProperty(name = "connector.simulator.titusClientCertificate")
+    String titusClientCertificate;
+
+    @ConfigProperty(name = "event-service.endpointAddress")
+    String eventServiceEndpointAddress;
+
     public String getIdpConnectorTlsCertTrustStore() {
 
         return idpConnectorTlsCertTrustStore;
@@ -88,5 +94,13 @@ public class AppConfig {
 
     public String getSignatureServiceContextUserId() {
         return signatureServiceContextUserId;
+    }
+
+    public String getEventServiceEndpointAddress() {
+        return eventServiceEndpointAddress;
+    }
+
+    public String getTitusClientCertificate() {
+        return titusClientCertificate;
     }
 }
