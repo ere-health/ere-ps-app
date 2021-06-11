@@ -16,7 +16,7 @@ public class SecureSoapTransportConfigurer {
     private BindingProvider bindingProvider;
 
     public void init(SoapClient soapClient) {
-        this.bindingProvider = bindingProvider;
+        this.bindingProvider = soapClient.getBindingProvider().orElse(null);
     }
 
     public void configureSecureTransport(String endpointAddress,

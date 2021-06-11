@@ -1,7 +1,7 @@
 package health.ere.ps.service.connector.cards;
 
+import org.jboss.logging.Logger;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,10 +16,11 @@ import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.common.security.SecureSoapTransportConfigurer;
 import io.quarkus.test.junit.QuarkusTest;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @QuarkusTest
 class ConnectorCardsServiceTest {
+
+    @Inject
+    Logger logger;
 
     @Inject
     ConnectorCardsService connectorCardsService;
@@ -41,20 +42,29 @@ class ConnectorCardsServiceTest {
     }
 
     @Test
-    void test_Successful_Retrieval_Of_SMC_B_Card_Handle() throws ConnectorCardsException, SecretsManagerException {
+    void test_Successful_Retrieval_Of_SMC_B_Card_Handle() throws ConnectorCardsException {
         Optional<String> cardHandle = connectorCardsService.getConnectorCardHandle(
                 ConnectorCardsService.CardHandleType.SMC_B);
         Assertions.assertTrue(cardHandle.isPresent(), "Card handle result is present");
-        Assertions.assertTrue(cardHandle.get().equalsIgnoreCase(
-                ConnectorCardsService.CardHandleType.SMC_B.getCardHandleType()));
+
+        logger.info("Card handle: " + cardHandle.get());
     }
 
     @Test
-    void test_Successful_Retrieval_Of_eHBA_Card_Handle() throws ConnectorCardsException, SecretsManagerException {
+    void test_Successful_Retrieval_Of_eHBA_Card_Handle() throws ConnectorCardsException {
         Optional<String> cardHandle = connectorCardsService.getConnectorCardHandle(
                 ConnectorCardsService.CardHandleType.HBA);
         Assertions.assertTrue(cardHandle.isPresent(), "Card handle result is present");
-        Assertions.assertTrue(cardHandle.get().equalsIgnoreCase(
-                ConnectorCardsService.CardHandleType.HBA.getCardHandleType()));
+
+        logger.info("Card handle: " + cardHandle.get());
+    }
+
+    @Test
+    void test_Unsuccessful_Retrieval_Of_Unsupported_KVK_Card_Handle()
+            throws ConnectorCardsException {
+        Optional<String> cardHandle = connectorCardsService.getConnectorCardHandle(
+                ConnectorCardsService.CardHandleType.KVK);
+        Assertions.assertFalse(cardHandle.isPresent(),
+                "Unsupported card handle. Card handle result is not present.");
     }
 }
