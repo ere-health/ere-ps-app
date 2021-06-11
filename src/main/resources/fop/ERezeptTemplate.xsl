@@ -2,7 +2,6 @@
 <xsl:stylesheet version="3.0"
                 xmlns:fhir="http://hl7.org/fhir"
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                xmlns:fn="http://www.w3.org/2005/xpath-functions"
                 xmlns:fo="http://www.w3.org/1999/XSL/Format"
                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                 xmlns:pdf="http://xmlgraphics.apache.org/fop/extensions/pdf"
@@ -16,20 +15,20 @@
 
     <xsl:template match="fhir:root">
         <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format"
-                 font-family="Courier, Arial" font-size="9pt" text-align="left"
+                 font-family="Courier, Arial" font-size="10pt" text-align="left"
                  line-height="normal" font-selection-strategy="character-by-character"
                  line-height-shift-adjustment="disregard-shifts" writing-mode="lr-tb"
                  language="DE">
             <fo:layout-master-set>
                 <fo:simple-page-master master-name="DIN-A5"
-                                       page-width="148mm" page-height="105mm"
+                                       page-width="210mm" page-height="148mm"
                                        margin-top="5mm" margin-bottom="5mm"
-                                       margin-left="5mm" margin-right="5mm">
+                                       margin-left="8mm" margin-right="5mm">
                     <fo:region-body region-name="body" column-count="2"
-                                    margin-top="50mm" margin-bottom="0mm"
-                                    margin-left="0mm" margin-right="0mm"/>
+                                    margin-top="60mm" margin-bottom="0mm"
+                                    margin-left="2mm" margin-right="5mm"/>
                     <fo:region-before region-name="header" extent="55mm"/>
-                    <fo:region-after region-name="footer" extent="26mm"/>
+                    <fo:region-after region-name="footer" extent="50mm"/>
                 </fo:simple-page-master>
             </fo:layout-master-set>
             <fo:declarations>
@@ -48,15 +47,13 @@
                         </rdf:Description>
                     </rdf:RDF>
                 </x:xmpmeta>
-                <pdf:embedded-file filename="Bundles.xml"
-                                   description="Embedded Bundles XML">
+                <pdf:embedded-file filename="Bundles.xml" description="Embedded Bundles XML">
                     <xsl:attribute name="src">
                         url(<xsl:value-of select="$bundleFileUrl"/>)
                     </xsl:attribute>
                 </pdf:embedded-file>
             </fo:declarations>
-            <fo:page-sequence master-reference="DIN-A5"
-                              initial-page-number="1">
+            <fo:page-sequence master-reference="DIN-A5" initial-page-number="1">
                 <fo:static-content flow-name="header">
                     <xsl:call-template name="header"/>
                 </fo:static-content>
@@ -78,220 +75,239 @@
         <xsl:value-of select="concat($day, '.', $month, '.', $year)"/>
     </xsl:template>
 
-    <xsl:template name="header">
-        <fo:table table-layout="fixed" border-separation="1mm" fox:border-radius="3mm" width="100%"
-                  border-collapse="separate">
-            <fo:table-body>
-                <fo:table-row height="5mm">
-                    <fo:table-cell width="123mm" number-columns-spanned="3">
-                        <fo:block font-family="Arial" font-weight="bold" font-size="10pt">
-                            Ausdruck zur Einlösung Ihres E-Rezeptes
-                        </fo:block>
-                    </fo:table-cell>
-                    <fo:table-cell width="auto">
-                        <fo:block text-align="end">
-                            <!-- <fo:external-graphic content-height="4mm" content-width="scale-to-fit"
-                                                    src="url('img/logo.svg')"/> -->
-                        </fo:block>
-                    </fo:table-cell>
-                </fo:table-row>
-                <fo:table-row>
-                    <fo:table-cell number-columns-spanned="3" fox:border-radius="1mm" border="solid 0.5pt black">
-                        <fo:table>
-                            <fo:table-column/>
-                            <fo:table-column/>
-                            <fo:table-header>
-                                <fo:table-row>
-                                    <fo:table-cell>
-                                        <fo:block font-size="5pt" font-weight="bold" margin-left="1mm" font-family="Arial">für</fo:block>
-                                    </fo:table-cell>
-                                    <fo:table-cell>
-                                        <fo:block font-size="5pt" font-weight="bold" margin-left="40mm" font-family="Arial">geboren am
-                                        </fo:block>
-                                    </fo:table-cell>
-                                </fo:table-row>
-                            </fo:table-header>
-                            <fo:table-body>
-                                <fo:table-row>
-                                    <fo:table-cell width="40mm">
-                                        <fo:block margin-left="1mm" font-size="8pt">
-                                            <xsl:value-of
-                                                    select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Patient/fhir:name/fhir:prefix/@value"/>
-                                            <xsl:text>  </xsl:text>
-                                            <xsl:value-of
-                                                    select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Patient/fhir:name/fhir:given/@value"/>
-                                            <xsl:text>  </xsl:text>
-                                            <xsl:value-of
-                                                    select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Patient/fhir:name/fhir:family/@value"/>
-                                        </fo:block>
-                                    </fo:table-cell>
-                                    <fo:table-cell>
-                                        <fo:block margin-left="40mm">
-                                            <xsl:call-template name="formatDate">
-                                                <xsl:with-param name="date" select="
-                                                    fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Patient/fhir:birthDate/@value"/>
-                                            </xsl:call-template>
-                                        </fo:block>
-                                    </fo:table-cell>
-                                </fo:table-row>
-                            </fo:table-body>
-                        </fo:table>
-                    </fo:table-cell>
-                    <fo:table-cell width="auto" number-rows-spanned="3">
-                        <fo:block margin-left="4mm">
-                            <fo:instream-foreign-object>
-                                <barcode:barcode>
-                                    <xsl:attribute name="message">
-                                        {"urls": [
-                                        <xsl:for-each select="fhir:bundle">"Task/<xsl:value-of
-                                                select="fhir:Bundle/fhir:identifier/@fhir:value"/>/$accept?ac=<xsl:value-of
-                                                select="fhir:accessCode"/>"
-                                            <xsl:if test="fn:position() != last()">
-                                                <xsl:text>, </xsl:text>
-                                            </xsl:if>
-                                        </xsl:for-each>
-                                        ]}
-                                    </xsl:attribute>
-                                    <barcode:datamatrix>
-                                        <barcode:module-width>0.6mm</barcode:module-width>
-                                    </barcode:datamatrix>
-                                </barcode:barcode>
-                            </fo:instream-foreign-object>
-                        </fo:block>
-                        <fo:block-container reference-orientation="90">
-                            <fo:block font-size="4pt" font-family="Arial" font-weight="bold" wrap-option="no-wrap"
-                                      margin-left="2mm" margin-top="1mm"> Sammelcode zur Einlösung aller Verordnungen
-                            </fo:block>
-                        </fo:block-container>
-                    </fo:table-cell>
-                </fo:table-row>
-
-                <fo:table-row height="4mm">
-                    <fo:table-cell>
-                        <fo:block/>
-                    </fo:table-cell>
-                </fo:table-row>
-
-                <fo:table-row>
-                    <fo:table-cell number-columns-spanned="3" fox:border-radius="1mm" border="solid 0.3pt black">
-                        <fo:table>
-                            <fo:table-column/>
-                            <fo:table-column/>
-                            <fo:table-header>
-                                <fo:table-row>
-                                    <fo:table-cell>
-                                        <fo:block font-size="5pt" font-weight="bold" margin-left="1mm" font-family="Arial">
-                                            ausgestellt von
-                                        </fo:block>
-                                    </fo:table-cell>
-                                    <fo:table-cell>
-                                        <fo:block font-size="5pt" font-weight="bold" margin-left="20mm" font-family="Arial">
-                                            ausgestellt am
-                                        </fo:block>
-                                    </fo:table-cell>
-                                </fo:table-row>
-                            </fo:table-header>
-                            <fo:table-body>
-                                <fo:table-row height="">
-                                    <fo:table-cell width="60mm" margin-left="1mm">
-                                        <fo:block font-size="8pt">
-                                            <xsl:value-of
-                                                    select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Practitioner/fhir:name/fhir:prefix/@value"/>
-                                            <xsl:text>  </xsl:text>
-                                            <xsl:value-of
-                                                    select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Practitioner/fhir:name/fhir:given/@value"/>
-                                            <xsl:text>  </xsl:text>
-                                            <xsl:value-of
-                                                    select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Practitioner/fhir:name/fhir:family/@value"/>
-                                        </fo:block>
-                                        <fo:block>
-                                            <xsl:value-of
-                                                    select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Organization/fhir:name/@value"/>
-                                        </fo:block>
-                                        <xsl:for-each
-                                                select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Organization/fhir:telecom">
-                                            <fo:block>
-                                                <xsl:value-of select="fhir:value/@value"/>
-                                            </fo:block>
-                                        </xsl:for-each>
-                                    </fo:table-cell>
-                                    <fo:table-cell>
-                                        <fo:block margin-left="20mm">
-                                            <xsl:call-template name="formatDate">
-                                                <xsl:with-param name="date"
-                                                                select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:authoredOn/@value"/>
-                                            </xsl:call-template>
-                                        </fo:block>
-                                    </fo:table-cell>
-                                </fo:table-row>
-                            </fo:table-body>
-                        </fo:table>
-                    </fo:table-cell>
-                </fo:table-row>
-            </fo:table-body>
-        </fo:table>
-    </xsl:template>
-
     <xsl:template name="footer">
         <fo:block text-align="end">
-            <fo:external-graphic content-height="3cm" content-width="scale-to-fit"
+            <fo:external-graphic content-height="40mm" content-width="scale-to-fit"
                                  src="url('img/erezept-app-note.svg')"/>
         </fo:block>
     </xsl:template>
 
-    <xsl:template name="body">
-        <xsl:for-each select="fhir:bundle">
-            <fo:table table-layout="fixed" width="100%" border-collapse="separate">
-                <fo:table-body>
-                    <fo:table-row height="30mm">
-                        <fo:table-cell width="25mm">
-                            <fo:block>
-                                <fo:instream-foreign-object>
-                                    <barcode:barcode>
-                                        <xsl:attribute name="message">
-                                            {"urls":["Task/<xsl:value-of select="fhir:Bundle/fhir:identifier/@value"/>
-                                            /$accept?ac=<xsl:value-of
-                                                select="fhir:accessCode"/>"]}
-                                        </xsl:attribute>
-                                        <barcode:datamatrix>
-                                            <barcode:module-width>0.5mm</barcode:module-width>
-                                        </barcode:datamatrix>
-                                    </barcode:barcode>
-                                </fo:instream-foreign-object>
-                            </fo:block>
-                        </fo:table-cell>
-                        <fo:table-cell width="40mm">
-                            <fo:block margin-top="2mm">
-                                <fo:block font-weight="bold">
-                                    <xsl:value-of
-                                            select="fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:dispenseRequest/fhir:quantity/fhir:value/@value"/>
-                                    <xsl:text>x </xsl:text>
-                                    <xsl:value-of
-                                            select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:text/@value"/>
-                                </fo:block>
-                                <fo:block font-weight="bold">
-                                    <xsl:value-of
-                                            select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:amount/fhir:numerator/fhir:unit/@value"/>
-                                    <xsl:text> / </xsl:text>
-                                    <xsl:value-of
-                                            select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:amount/fhir:numerator/fhir:value/@value"/>
-                                    <xsl:text> St</xsl:text>
-                                </fo:block>
-                                <fo:block>
-                                    <xsl:value-of
-                                            select="fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:dosageInstruction/fhir:text/@value"/>
-                                </fo:block>
-                                <fo:block>
-                                    PZN:
-                                    <xsl:value-of
-                                            select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:coding/fhir:code/@value"/>
-                                </fo:block>
-                            </fo:block>
-                        </fo:table-cell>
-                    </fo:table-row>
-                </fo:table-body>
-            </fo:table>
-        </xsl:for-each>
+    <xsl:template name="header">
+        <fo:table>
+            <fo:table-column column-number="1" column-width="70%"/>
+            <fo:table-column column-number="2" column-width="2%"/>
+            <fo:table-column column-number="3" column-width="28%"/>
+            <fo:table-body>
+                <fo:table-cell>
+                    <fo:table border-separation="1mm" fox:border-radius="3mm"
+                              border-collapse="separate">
+                        <fo:table-body>
+                            <fo:table-row height="5mm">
+                                <fo:table-cell number-columns-spanned="2">
+                                    <fo:block font-family="Arial" font-weight="bold" font-size="12pt">
+                                        Ausdruck zur Einlösung Ihres E-Rezeptes
+                                    </fo:block>
+                                </fo:table-cell>
+                            </fo:table-row>
+                            <fo:table-row>
+                                <fo:table-cell number-columns-spanned="2" fox:border-radius="1mm"
+                                               border="solid 0.5pt black">
+                                    <fo:table>
+                                        <fo:table-column/>
+                                        <fo:table-column/>
+                                        <fo:table-header>
+                                            <fo:table-row>
+                                                <fo:table-cell>
+                                                    <fo:block font-size="6pt" font-weight="bold" margin-left="1mm"
+                                                              font-family="Arial">für
+                                                    </fo:block>
+                                                </fo:table-cell>
+                                                <fo:table-cell>
+                                                    <fo:block font-size="6pt" font-weight="bold" margin-left="40mm"
+                                                              font-family="Arial">geboren am
+                                                    </fo:block>
+                                                </fo:table-cell>
+                                            </fo:table-row>
+                                        </fo:table-header>
+                                        <fo:table-body>
+                                            <fo:table-row>
+                                                <fo:table-cell width="60mm">
+                                                    <fo:block margin-left="1mm" font-size="10pt" font-weight="bold">
+                                                        <xsl:value-of
+                                                                select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Patient/fhir:name/fhir:prefix/@value"/>
+                                                        <xsl:text>  </xsl:text>
+                                                        <xsl:value-of
+                                                                select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Patient/fhir:name/fhir:given/@value"/>
+                                                        <xsl:text>  </xsl:text>
+                                                        <xsl:value-of
+                                                                select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Patient/fhir:name/fhir:family/@value"/>
+                                                    </fo:block>
+                                                </fo:table-cell>
+                                                <fo:table-cell>
+                                                    <fo:block margin-left="40mm" font-weight="bold">
+                                                        <xsl:call-template name="formatDate">
+                                                            <xsl:with-param name="date" select="
+                                                    fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Patient/fhir:birthDate/@value"/>
+                                                        </xsl:call-template>
+                                                    </fo:block>
+                                                </fo:table-cell>
+                                            </fo:table-row>
+                                        </fo:table-body>
+                                    </fo:table>
+                                </fo:table-cell>
+                            </fo:table-row>
+                            <fo:table-row height="4mm">
+                                <fo:table-cell>
+                                    <fo:block/>
+                                </fo:table-cell>
+                            </fo:table-row>
+                            <fo:table-row>
+                                <fo:table-cell number-columns-spanned="2" fox:border-radius="1mm"
+                                               border="solid 0.5pt black">
+                                    <fo:table>
+                                        <fo:table-column/>
+                                        <fo:table-column/>
+                                        <fo:table-header>
+                                            <fo:table-row>
+                                                <fo:table-cell>
+                                                    <fo:block font-size="6pt" font-weight="bold" margin-left="1mm"
+                                                              font-family="Arial">
+                                                        ausgestellt von
+                                                    </fo:block>
+                                                </fo:table-cell>
+                                                <fo:table-cell>
+                                                    <fo:block font-size="6pt" font-weight="bold" margin-left="10mm"
+                                                              font-family="Arial">
+                                                        ausgestellt am
+                                                    </fo:block>
+                                                </fo:table-cell>
+                                            </fo:table-row>
+                                        </fo:table-header>
+                                        <fo:table-body>
+                                            <fo:table-row height="20mm">
+                                                <fo:table-cell width="90mm" margin-left="1mm">
+                                                    <fo:block font-size="10pt" font-weight="bold">
+                                                        <xsl:value-of
+                                                                select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Practitioner/fhir:name/fhir:prefix/@value"/>
+                                                        <xsl:text>  </xsl:text>
+                                                        <xsl:value-of
+                                                                select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Practitioner/fhir:name/fhir:given/@value"/>
+                                                        <xsl:text>  </xsl:text>
+                                                        <xsl:value-of
+                                                                select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Practitioner/fhir:name/fhir:family/@value"/>
+                                                    </fo:block>
+                                                    <fo:block font-size="10pt" font-weight="bold">
+                                                        <xsl:value-of
+                                                                select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Organization/fhir:name/@value"/>
+                                                    </fo:block>
+                                                    <xsl:for-each
+                                                            select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Organization/fhir:telecom">
+                                                        <fo:block font-size="10pt" font-weight="bold">
+                                                            <xsl:value-of select="fhir:value/@value"/>
+                                                        </fo:block>
+                                                    </xsl:for-each>
+                                                </fo:table-cell>
+                                                <fo:table-cell>
+                                                    <fo:block margin-left="10mm" font-weight="bold">
+                                                        <xsl:call-template name="formatDate">
+                                                            <xsl:with-param name="date"
+                                                                            select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:authoredOn/@value"/>
+                                                        </xsl:call-template>
+                                                    </fo:block>
+                                                </fo:table-cell>
+                                            </fo:table-row>
+                                        </fo:table-body>
+                                    </fo:table>
+                                </fo:table-cell>
+                            </fo:table-row>
+                        </fo:table-body>
+                    </fo:table>
+                </fo:table-cell>
+                <fo:table-cell display-align="after">
+                    <fo:block-container reference-orientation="90" margin-left="2mm">
+                        <fo:block font-size="6pt" font-family="Arial" font-weight="bold" wrap-option="no-wrap">
+                            Sammelcode zur Einlösung aller Verordnungen
+                        </fo:block>
+                    </fo:block-container>
+                </fo:table-cell>
+                <fo:table-cell display-align="after">
+                    <fo:block margin-left="2mm">
+                        <fo:instream-foreign-object>
+                            <barcode:barcode>
+                                <xsl:attribute name="message">
+                                    {"urls": [
+                                    <xsl:for-each select="fhir:bundle">"Task/<xsl:value-of
+                                            select="fhir:Bundle/fhir:identifier/@fhir:value"/>/$accept?ac=<xsl:value-of
+                                            select="fhir:accessCode"/>"
+                                    </xsl:for-each>
+                                    ]}
+                                </xsl:attribute>
+                                <barcode:datamatrix>
+                                    <barcode:module-width>0.7mm</barcode:module-width>
+                                </barcode:datamatrix>
+                            </barcode:barcode>
+                        </fo:instream-foreign-object>
+                    </fo:block>
+                </fo:table-cell>
+            </fo:table-body>
+        </fo:table>
     </xsl:template>
 
+    <xsl:template name="body">
+        <fo:table table-layout="fixed" width="190mm">
+            <fo:table-column column-number="1" column-width="50%"/>
+            <fo:table-column column-number="2" column-width="50%"/>
+            <fo:table-body>
+                <xsl:for-each select="fhir:bundle">
+                    <fo:table-cell>
+                        <fo:table border-collapse="separate">
+                            <fo:table-column/>
+                            <fo:table-column/>
+                            <fo:table-body>
+                                <fo:table-row height="30mm">
+                                    <fo:table-cell width="32mm">
+                                        <fo:block>
+                                            <fo:instream-foreign-object>
+                                                <barcode:barcode>
+                                                    <xsl:attribute name="message">
+                                                        {"urls":["Task/<xsl:value-of
+                                                            select="fhir:Bundle/fhir:identifier/@value"/>
+                                                        /$accept?ac=<xsl:value-of
+                                                            select="fhir:accessCode"/>"]}
+                                                    </xsl:attribute>
+                                                    <barcode:datamatrix>
+                                                        <barcode:module-width>0.6mm</barcode:module-width>
+                                                    </barcode:datamatrix>
+                                                </barcode:barcode>
+                                            </fo:instream-foreign-object>
+                                        </fo:block>
+                                    </fo:table-cell>
+                                    <fo:table-cell>
+                                        <fo:block margin-top="3mm">
+                                            <fo:block font-weight="bold">
+                                                <xsl:value-of
+                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:dispenseRequest/fhir:quantity/fhir:value/@value"/>
+                                                <xsl:text>x </xsl:text>
+                                                <xsl:value-of
+                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:text/@value"/>
+                                            </fo:block>
+                                            <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:amount/fhir:numerator/fhir:value/@value > 0">
+                                                <fo:block font-weight="bold">
+                                                    <xsl:value-of
+                                                            select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:amount/fhir:numerator/fhir:unit/@value"/>
+                                                    <xsl:text> / </xsl:text>
+                                                    <xsl:value-of
+                                                            select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:amount/fhir:numerator/fhir:value/@value"/>
+                                                    <xsl:text> St</xsl:text>
+                                                </fo:block>
+                                            </xsl:if>
+                                            <fo:block>
+                                                <xsl:value-of
+                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:dosageInstruction/fhir:text/@value"/>
+                                            </fo:block>
+                                            <fo:block>
+                                                PZN:
+                                                <xsl:value-of
+                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:coding/fhir:code/@value"/>
+                                            </fo:block>
+                                        </fo:block>
+                                    </fo:table-cell>
+                                </fo:table-row>
+                            </fo:table-body>
+                        </fo:table>
+                    </fo:table-cell>
+                </xsl:for-each>
+            </fo:table-body>
+        </fo:table>
+    </xsl:template>
 </xsl:stylesheet>
