@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
 public class DocumentService {
 
     private static final Logger log = Logger.getLogger(DocumentService.class.getName());
-    //TODO: Why not R5? Why not a singleton as mentioned in the Javadoc?
     private final FhirContext ctx = FhirContext.forR4();
     private FopFactory fopFactory;
 
@@ -132,8 +131,8 @@ public class DocumentService {
         return tmpFile;
     }
 
-    private ByteArrayOutputStream generatePdfInOutputStream(File xml)
-            throws FOPException, TransformerException, IOException {
+    private ByteArrayOutputStream generatePdfInOutputStream(File xml) throws FOPException, TransformerException,
+            IOException {
         // Step 2: Set up output stream.
         // Note: Using BufferedOutputStream for performance reasons (helpful with
         // FileOutputStreams).
