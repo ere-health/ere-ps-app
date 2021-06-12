@@ -3,26 +3,35 @@ package health.ere.ps.service.idp.client;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.security.cert.X509Certificate;
+import java.util.Optional;
 import java.util.logging.LogManager;
 
 import javax.inject.Inject;
 
+import health.ere.ps.config.AppConfig;
+import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.exception.connector.ConnectorCardCertificateReadException;
+import health.ere.ps.exception.connector.ConnectorCardsException;
 import health.ere.ps.exception.idp.IdpClientException;
 import health.ere.ps.exception.idp.IdpException;
 import health.ere.ps.exception.idp.IdpJoseException;
 import health.ere.ps.model.idp.client.IdpTokenResult;
-import health.ere.ps.service.connector.certificate.CardCertReadExecutionService;
+import health.ere.ps.service.common.security.SecretsManagerService;
+import health.ere.ps.service.common.security.SecureSoapTransportConfigurer;
+import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
 import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest
 public class IdpClientTest {
+
+    @Inject
+    AppConfig appConfig;
 
     @Inject
     IdpClient idpClient;
@@ -31,7 +40,10 @@ public class IdpClientTest {
     CardCertificateReaderService cardCertificateReaderService;
 
     @Inject
-    CardCertReadExecutionService cardCertReadExecutionService;
+    ConnectorCardsService connectorCardsService;
+
+    @Inject
+    SecureSoapTransportConfigurer secureSoapTransportConfigurer;
 
     @ConfigProperty(name = "idp.client.id")
     String clientId;
@@ -42,8 +54,8 @@ public class IdpClientTest {
     @ConfigProperty(name = "idp.connector.workplace.id")
     String workplace;
 
-    @ConfigProperty(name = "idp.connector.card.handle")
-    String cardHandle;
+//    @ConfigProperty(name = "idp.connector.card.handle")
+//    String cardHandle;
 
     @ConfigProperty(name = "idp.base.url")
     String idpBaseUrl;
@@ -72,17 +84,31 @@ public class IdpClientTest {
         System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dumpTreshold", "999999");
     }
 
+    @BeforeEach
+    void configureSecureTransport() throws SecretsManagerException {
+        secureSoapTransportConfigurer.init(connectorCardsService);
+        secureSoapTransportConfigurer.configureSecureTransport(
+                appConfig.getEventServiceEndpointAddress(),
+                SecretsManagerService.SslContextType.TLS,
+                appConfig.getIdpConnectorTlsCertTrustStore(),
+                appConfig.getIdpConnectorTlsCertTustStorePwd());
+    }
+
     @Test
     public void test_Successful_Idp_Login_With_Connector_Smcb() throws IdpJoseException,
-            IdpClientException, IdpException, ConnectorCardCertificateReadException {
+            IdpClientException, IdpException, ConnectorCardCertificateReadException,
+            ConnectorCardsException {
 
         discoveryDocumentUrl = idpBaseUrl + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
 
         idpClient.init(clientId, redirectUrl, discoveryDocumentUrl, true);
         idpClient.initializeClient();
 
+        Optional<String> cardHandle = connectorCardsService.getConnectorCardHandle(
+                ConnectorCardsService.CardHandleType.SMC_B);
+
         X509Certificate x509Certificate = cardCertificateReaderService.retrieveSmcbCardCertificate(clientId,
-                clientSystem, workplace, cardHandle);
+                clientSystem, workplace, cardHandle.get());
 
         IdpTokenResult idpTokenResult = idpClient.login(x509Certificate);
 
