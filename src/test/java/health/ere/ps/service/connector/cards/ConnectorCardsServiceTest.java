@@ -60,11 +60,11 @@ class ConnectorCardsServiceTest {
     }
 
     @Test
-    void test_Unsuccessful_Retrieval_Of_Unsupported_KVK_Card_Handle()
-            throws ConnectorCardsException {
-        Optional<String> cardHandle = connectorCardsService.getConnectorCardHandle(
-                ConnectorCardsService.CardHandleType.KVK);
-        Assertions.assertFalse(cardHandle.isPresent(),
-                "Unsupported card handle. Card handle result is not present.");
+    void test_Unsuccessful_Retrieval_Of_Unsupported_KVK_Card_Handle() {
+        Assertions.assertThrows(ConnectorCardsException.class,
+                () -> {
+                    Optional<String> cardHandle = connectorCardsService.getConnectorCardHandle(
+                            ConnectorCardsService.CardHandleType.KVK);
+                }, "ConnectorCardsException thrown for missing or unsupported card handle");
     }
 }
