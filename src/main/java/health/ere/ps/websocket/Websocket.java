@@ -34,6 +34,7 @@ import javax.websocket.server.ServerEndpoint;
 import ca.uhn.fhir.context.FhirContext;
 import health.ere.ps.event.BundlesEvent;
 import health.ere.ps.event.ERezeptDocumentsEvent;
+import health.ere.ps.event.ErixaEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
 import health.ere.ps.jsonb.BundleAdapter;
 import health.ere.ps.jsonb.ByteAdapter;
@@ -44,6 +45,9 @@ public class Websocket {
 
     @Inject
     Event<SignAndUploadBundlesEvent> signAndUploadBundlesEvent;
+
+    @Inject
+    Event<ErixaEvent> erixaEvent;
 
     // Create a FHIR context
     FhirContext ctx = FhirContext.forR4();
@@ -78,6 +82,9 @@ public class Websocket {
         if("SignAndUploadBundles".equals(object.getString("type"))) {
             SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(object);
             signAndUploadBundlesEvent.fireAsync(event);
+        } else if ("ErixaEvent".equals(object.getString("type"))) {
+            ErixaEvent event = new ErixaEvent(object);
+            erixaEvent.fireAsync(event);
         }
         jsonReader.close();
     }
