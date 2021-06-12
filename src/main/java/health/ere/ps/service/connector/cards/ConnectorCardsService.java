@@ -34,7 +34,7 @@ public class ConnectorCardsService implements SoapClient {
     private ContextType contextType;
     private EventServicePortType eventService;
 
-    enum CardHandleType {
+    public enum CardHandleType {
         EGK("EGK"),
         HBA_Q_SIG("HBA-qSig"),
         HBA("HBA"),
@@ -91,6 +91,10 @@ public class ConnectorCardsService implements SoapClient {
             Cards cards = response.getCards();
 
             cardHandleTypeList = cards.getCard();
+
+            if(CollectionUtils.isEmpty(cardHandleTypeList)) {
+                throw new ConnectorCardsException("Error. Did not receive and card handle data.");
+            }
         }
 
         return Optional.ofNullable(cardHandleTypeList);
@@ -108,6 +112,9 @@ public class ConnectorCardsService implements SoapClient {
                             cardHandleType.getCardHandleType())).findFirst();
             if(cardHndl.isPresent()) {
                 cardHandle = cardHndl.get().getCardHandle();
+            } else {
+                throw new ConnectorCardsException(String.format("No card handle found for card " +
+                        "handle type %s", cardHandleType.getCardHandleType()));
             }
         }
 
