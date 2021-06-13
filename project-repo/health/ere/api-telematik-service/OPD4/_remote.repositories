@@ -1,12 +1,4 @@
 #NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
-<<<<<<< HEAD
-#Thu May 20 12:56:32 CEST 2021
+#Sun Jun 06 06:07:30 AST 2021
 api-telematik-service-OPD4.pom>=
 api-telematik-service-OPD4.jar>=
-api-telematik-service-OPD4.pom>project-repo=
-api-telematik-service-OPD4.jar>project-repo=
-=======
-#Tue May 18 04:42:27 AST 2021
-api-telematik-service-OPD4.pom>=
-api-telematik-service-OPD4.jar>=
->>>>>>> idp-auth-jira-ere-172
