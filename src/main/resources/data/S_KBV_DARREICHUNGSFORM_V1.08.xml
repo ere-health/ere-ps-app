@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<keytabs xmlns="urn:ehd/001">
+<keytab SV="1.08" SN="S_KBV_DARREICHUNGSFORM" S="1.2.276.0.76.3.1.1.5.2.15">
+    <key V="AEO" DN="Ätherisches Öl" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="AMP" DN="Ampullen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="APA" DN="Ampullenpaare" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="ASN" DN="Augen- und Nasensalbe" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="ASO" DN="Augen- und Ohrensalbe" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="ATO" DN="Augen- und Ohrentropfen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="ATR" DN="Augentropfen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="AUB" DN="Augenbad" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="AUC" DN="Augencreme" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="AUG" DN="Augengel" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="AUS" DN="Augensalbe" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="BAD" DN="Bad" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="BAL" DN="Balsam" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="BAN" DN="Bandage" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="BEU" DN="Beutel" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="BIN" DN="Binden" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="BON" DN="Bonbons" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="BPL" DN="Basisplatte" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="BRE" DN="Brei" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="BTA" DN="Brausetabletten" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="CRE" DN="Creme" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="DFL" DN="Durchstechflaschen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="DIG" DN="Digitale Gesundheitsanwendungen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="DIL" DN="Dilution" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="DIS" DN="Depot-Injektionssuspension" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="DKA" DN="Dragees in Kalenderpackung" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="DOS" DN="Dosieraerosol" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="DRA" DN="Dragees" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="DRM" DN="Dragees magensaftresistent" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="DSC" DN="Dosierschaum" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="DSS" DN="Dosierspray" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="EDP" DN="Einzeldosis-Pipetten" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="EIN" DN="Einreibung" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="ELE" DN="Elektroden" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="ELI" DN="Elixier" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="EMU" DN="Emulsion" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="ESS" DN="Essenz" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="ESU" DN="Erwachsenen-Suppositorien" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="EXT" DN="Extrakt" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="FBE" DN="Filterbeutel" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="FBW" DN="Franzbranntwein" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="FDA" DN="Filmdragees" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="FER" DN="Fertigspritzen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="FET" DN="Fettsalbe" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="FLA" DN="Flasche" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="FLE" DN="Flüssigkeit zum Einnehmen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="FLU" DN="Flüssig" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="FMR" DN="Filmtabletten magensaftresistent" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="FOL" DN="Folie" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="FRB" DN="Beutel mit retardierten Filmtabletten" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="FSE" DN="Flüssigseife" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="FTA" DN="Filmtabletten" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="GEK" DN="Granulat zur Entnahme aus Kapseln" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="GEL" DN="Gel" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="GLI" DN="Gas und Lösungsmittel zur Herstellung einer Injektions-/Infusionsdispersion" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="GLO" DN="Globuli" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="GMR" DN="Magensaftresistentes Granulat" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="GPA" DN="Gelplatte" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="GRA" DN="Granulat" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="GSE" DN="Granulat zur Herstellung einer Suspension zum Einnehmen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="GUL" DN="Gurgellösung" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="HAS" DN="Handschuhe" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="HKM" DN="Magensaftresistente Hartkapseln" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="HKP" DN="Hartkapseln" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="HPI" DN="Hartkapseln mit Pulver zur Inhalation" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="HVW" DN="Hartkapseln mit veränderter Wirkstofffreisetzung" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="IFA" DN="Infusionsampullen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="IFB" DN="Infusionsbeutel" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="IFD" DN="Infusionsdispersion" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="IFE" DN="Injektionslösung in einer Fertigspritze" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="IFF" DN="Infusionsflaschen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="IFK" DN="Infusionslösungskonzentrat" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="IFL" DN="Injektionsflaschen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="IFS" DN="Infusionsset" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="IHA" DN="Inhalationsampullen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="IHP" DN="Inhalationspulver" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="IIE" DN="Injektions- oder Infusionslösung oder Lösung zum Einnehmen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="IIL" DN="Injektions-, Infusionslösung" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="IIM" DN="Injektionslösung zur intramuskulären Anwendung" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="IKA" DN="Inhalationskapseln" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="ILO" DN="Injektionslösung" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="IMP" DN="Implantat" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="INF" DN="Infusionslösung" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="INH" DN="Inhalat" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="INI" DN="Injektions-, Infusionsflaschen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="INL" DN="Inhalationslösung" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="INS" DN="Instant-Tee" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="IST" DN="Instillation" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="ISU" DN="Injektionssuspension" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="IUP" DN="Intrauterinpessar" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="KAN" DN="Kanülen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="KAP" DN="Kapseln" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="KAT" DN="Katheter" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="KDA" DN="Kaudragees" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="KEG" DN="Kegel" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="KER" DN="Kerne" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="KGU" DN="Kaugummi" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="KID" DN="Konzentrat zur Herstellung einer Infusionsdispersion" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="KII" DN="Konzentrat zur Herstellung einer Injektions- oder Infusionslösung" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="KKS" DN="Kleinkinder-Suppositorien" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="KLI" DN="Klistiere" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="KLT" DN="Klistier-Tabletten" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="KMP" DN="Hartkapseln mit magensaftresistent überzogenen Pellets" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="KMR" DN="Kapseln magensaftresistent" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="KOD" DN="Kondome" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="KOM" DN="Kompressen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="KON" DN="Konzentrat" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="KPG" DN="Kombipackung" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="KRI" DN="Kristallsuspension" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="KSS" DN="Kinder- und Säuglings-Suppositorien" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="KSU" DN="Kinder-Suppositorien" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="KTA" DN="Kautabletten" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="LAN" DN="Lanzetten" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="LII" DN="Lösung zur Injektion, Infusion und Inhalation" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="LIQ" DN="Liquidum" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="LOE" DN="Lösung" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="LOT" DN="Lotion" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="LOV" DN="Lösung für einen Vernebler" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="LSE" DN="Lösung zum Einnehmen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="LTA" DN="Lacktabletten" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="LUP" DN="Lutschpastillen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="LUT" DN="Lutschtabletten" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="MIL" DN="Milch" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="MIS" DN="Mischung" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="MIX" DN="Mixtur" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="MRG" DN="Magensaftresistentes Retardgranulat" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="MRP" DN="Magensaftresistente Pellets" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="MTA" DN="Manteltabletten" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="MUW" DN="Mundwasser" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="NAG" DN="Nasengel" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="NAO" DN="Nasenöl" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="NAS" DN="Nasenspray" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="NAW" DN="Wirkstoffhaltiger Nagellack" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="NDS" DN="Nasendosierspray" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="NSA" DN="Nasensalbe" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="NTR" DN="Nasentropfen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="OCU" DN="Ocusert" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="OEL" DN="Öl" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="OHT" DN="Ohrentropfen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="OVU" DN="Ovula" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="PAM" DN="Packungsmasse" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="PAS" DN="Pastillen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="PEL" DN="Pellets" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="PEN" DN="Injektionslösung in einem Fertigpen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="PER" DN="Perlen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="PFL" DN="Pflaster" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="PFT" DN="Pflaster transdermal" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="PHI" DN="Pulver zur Herstellung einer Injektions-, Infusions- oder Inhalationslösung" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="PHV" DN="Pulver zur Herstellung einer Injektions- bzw. Infusionslösung oder Pulver und Lösungsmittel zur Herstellung einer Lösung zur intravesikalen Anwendung" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="PIE" DN="Pulver für ein Konzentrat zur Herstellung einer Infusionslösung, Pulver zur Herstellung einer Lösung zum Einnehmen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="PIF" DN="Pulver für ein Konzentrat zur Herstellung einer Infusionslösung, Pulver zur Herstellung einer Lösung zum Einnehmen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="PII" DN="Pulver zur Herstellung einer Injektions- oder Infusionslösung" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="PIJ" DN="Pulver zur Herstellung einer Injektionslösung" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="PIK" DN="Pulver zur Herstellung eines Infusionslösungskonzentrates" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="PIS" DN="Pulver zur Herstellung einer Infusionssuspension" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="PIV" DN="Pulver zur Herstellung einer Injektions- bzw. Infusionslösung oder einer Lösung zur intravesikalen Anwendung" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="PKI" DN="Pulver für ein Konzentrat zur Herstellung einer Infusionslösung" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="PLE" DN="Pulver zur Herstellung einer Lösung zum Einnehmen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="PLF" DN="Pulver und Lösungsmittel zur Herstellung einer Infusionslösung" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="PLG" DN="Perlongetten" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="PLH" DN="Pulver und Lösungsmittel zur Herstellung einer Injektions- bzw. Infusionslösung" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="PLI" DN="Pulver und Lösungsmittel zur Herstellung einer Injektionslösung" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="PLK" DN="Pulver und Lösungsmittel für ein Konzentrat zur Herstellung einer Infusionslösung" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="PLS" DN="Pulver und Lösungsmittel zur Herstellung einer Injektionssuspension" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="PLV" DN="Pulver und Lösungsmittel zur Herstellung einer Lösung zur intravesikalen Anwendung" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="PPL" DN="Pumplösung" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="PRS" DN="Presslinge" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="PSE" DN="Pulver zur Herstellung einer Suspension zum Einnehmen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="PST" DN="Paste" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="PUD" DN="Puder" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="PUL" DN="Pulver" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="RED" DN="Retard-Dragees" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="REK" DN="Retard-Kapseln" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="RET" DN="Retard-Tabletten" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="RGR" DN="Retard-Granulat" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="RKA" DN="Retard-Kapseln" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="RMS" DN="Retardmikrokapseln und Suspensionsmittel" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="RSC" DN="Rektalschaum" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="RSU" DN="Rektalsuspension" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="RUT" DN="Retard-überzogene Tabletten" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="SAF" DN="Saft" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="SAL" DN="Salbe" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="SAM" DN="Salbe zur Anwendung in der Mundhöhle" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="SCH" DN="Schaum" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="SEI" DN="Seife" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="SHA" DN="Shampoo" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="SIR" DN="Sirup" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="SLZ" DN="Salz" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="SMF" DN="Schmelzfilm" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="SMT" DN="Schmelztabletten" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="SMU" DN="Suppositorien mit Mulleinlage" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="SPA" DN="Spritzampullen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="SPF" DN="Sprühflasche" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="SPL" DN="Spüllösung" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="SPR" DN="Spray" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="SPT" DN="Transdermales Spray" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="SRI" DN="Spritzen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="SSU" DN="Säuglings-Suppositorien" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="STA" DN="Stechampullen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="STB" DN="Stäbchen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="STI" DN="Stifte" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="STR" DN="Streifen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="SUB" DN="Substanz" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="SUE" DN="Suspension zum Einnehmen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="SUL" DN="Sublingualspray, Lösung" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="SUP" DN="Suppositorien" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="SUS" DN="Suspension" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="SUT" DN="Sublingualtabletten" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="SUV" DN="Suspension für einen Vernebler" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="SWA" DN="Schwämme" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="TAB" DN="Tabletten" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="TAE" DN="Täfelchen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="TAM" DN="Trockenampullen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="TEE" DN="Tee" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="TEI" DN="Tropfen zum Einnehmen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="TES" DN="Test" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="TIN" DN="Tinktur" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="TKA" DN="Tabletten in Kalenderpackung" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="TLE" DN="Tablette zur Herstellung einer Lösung zum Einnehmen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="TMR" DN="Tabletten magensaftresistent" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="TON" DN="Tonikum" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="TPN" DN="Tampon" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="TPO" DN="Tamponaden" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="TRA" DN="Trinkampullen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="TRI" DN="Trituration" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="TRO" DN="Tropfen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="TRS" DN="Trockensubstanz mit Lösungsmittel" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="TRT" DN="Trinktabletten" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="TSA" DN="Trockensaft" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="TSD" DN="Tabletten zur Herstellung einer Suspension zum Einnehmen für einen Dosierspender" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="TSE" DN="Tablette zur Herstellung einer Suspension zum Einnehmen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="TSS" DN="Trockensubstanz ohne Lösungsmittel" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="TST" DN="Teststäbchen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="TSY" DN="Transdermales System" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="TTR" DN="Teststreifen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="TUB" DN="Tube" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="TUE" DN="Tücher" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="TUP" DN="Tupfer" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="TVW" DN="Tablette mit veränderter Wirkstofffreisetzung" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="UTA" DN="Überzogene Tabletten" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="VAL" DN="Vaginallösung" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="VAR" DN="Vaginalring" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="VCR" DN="Vaginalcreme" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="VER" DN="Verband" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="VGE" DN="Vaginalgel" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="VKA" DN="Vaginalkapseln" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="VLI" DN="Vlies" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="VOV" DN="Vaginalovula" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="VST" DN="Vaginalstäbchen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="VSU" DN="Vaginalsuppositorien" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="VTA" DN="Vaginaltabletten" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="WAT" DN="Watte" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="WGA" DN="Wundgaze" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="WKA" DN="Weichkapseln" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="WKM" DN="Magensaftresistente Weichkapseln" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="WUE" DN="Würfel" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="XDG" DN="Duschgel" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="XDS" DN="Deo-Spray" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="XFE" DN="Festiger" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="XGM" DN="Gesichtsmaske" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="XHA" DN="Halsband" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="XHS" DN="Haarspülung" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="XNC" DN="Nachtcreme" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="XPK" DN="Körperpflege" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="XTC" DN="Tagescreme" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="ZAM" DN="Zylinderampullen" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="ZBU" DN="Zahnbürste" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="ZCR" DN="Zahncreme" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="ZGE" DN="Zahngel" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="ZKA" DN="Zerbeisskapseln" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+    <key V="ZPA" DN="Zahnpasta" S="1.2.276.0.76.3.1.1.5.2.15" SV="1.08"/>
+</keytab>
+</keytabs>
