@@ -54,9 +54,6 @@ public class IdpClientTest {
     @ConfigProperty(name = "idp.connector.workplace.id")
     String workplace;
 
-//    @ConfigProperty(name = "idp.connector.card.handle")
-//    String cardHandle;
-
     @ConfigProperty(name = "idp.base.url")
     String idpBaseUrl;
 
