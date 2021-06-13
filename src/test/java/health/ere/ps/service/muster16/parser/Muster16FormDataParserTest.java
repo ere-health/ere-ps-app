@@ -21,10 +21,11 @@ class Muster16FormDataParserTest {
     @Inject
     Logger logger;
 
+
+    @Test
     @Disabled("Currently failing. Reference is being made to file test1.pdf which " +
             "cannot be found, particularly on the machine of a developer who does not have access " +
             "to this file after checking out the main branch.")
-    @Test
     public void testReadMuster16FormPDF() throws IOException {
         try (PDDocument document = PDDocument
                 .load(new FileInputStream("../secret-test-print-samples/CGM-Turbomed/test1.pdf"))) {
