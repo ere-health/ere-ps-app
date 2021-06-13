@@ -13,13 +13,12 @@
                 xsi:schemaLocation="http://www.w3.org/1999/XSL/Transform http://www.w3.org/2007/schema-for-xslt20.xsd http://www.w3.org/1999/XSL/Format https://svn.apache.org/repos/asf/xmlgraphics/fop/trunk/fop/src/foschema/fop.xsd">
 
     <xsl:decimal-format name="de" decimal-separator=',' grouping-separator='.'/>
-    <xsl:variable name="root" select="/fhir:Bundle"/>
 
     <xsl:param name="bundleFileUrl"/>
 
-    <xsl:template match="fhir:Bundle">
+    <xsl:template match="fhir:root">
         <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format"
-                 font-family="Verdana,Arial,Symbola" font-size="6pt" text-align="left"
+                 font-family="Verdana,Arial,Symbola" font-size="8pt" text-align="left"
                  line-height="normal" font-selection-strategy="character-by-character"
                  line-height-shift-adjustment="disregard-shifts" writing-mode="lr-tb"
                  language="DE">
@@ -27,12 +26,12 @@
                 <fo:simple-page-master master-name="DIN-A5"
                                        page-width="148mm" page-height="105mm"
                                        margin-top="5mm" margin-bottom="5mm"
-                                       margin-left="10mm" margin-right="10mm">
-                    <fo:region-body region-name="body"
+                                       margin-left="5mm" margin-right="5mm">
+                    <fo:region-body region-name="body" column-count="2"
                                     margin-top="50mm" margin-bottom="0mm"
                                     margin-left="0mm" margin-right="0mm"/>
                     <fo:region-before region-name="header" extent="55mm"/>
-                    <fo:region-after region-name="footer" extent="15mm"/>
+                    <fo:region-after region-name="footer" extent="26mm"/>
                 </fo:simple-page-master>
             </fo:layout-master-set>
             <fo:declarations>
@@ -51,8 +50,8 @@
                         </rdf:Description>
                     </rdf:RDF>
                 </x:xmpmeta>
-                <pdf:embedded-file filename="Bundle.xml"
-                                   description="Embedded Bundle XML">
+                <pdf:embedded-file filename="Bundles.xml"
+                                   description="Embedded Bundles XML">
                      <xsl:attribute name="src">
                         url(<xsl:value-of select="$bundleFileUrl"/>)
                     </xsl:attribute>
@@ -84,8 +83,8 @@
                     </fo:table-cell>
                     <fo:table-cell width="auto">
                         <fo:block text-align="end">
-                            <fo:external-graphic content-height="4mm" content-width="scale-to-fit"
-                                                    src="url('img/logo.svg')"/>
+                            <!-- <fo:external-graphic content-height="4mm" content-width="scale-to-fit"
+                                                    src="url('img/logo.svg')"/> -->
                         </fo:block>
                     </fo:table-cell>
                 </fo:table-row>
@@ -97,20 +96,22 @@
                 <fo:table-row>
                     <fo:table-cell number-columns-spanned="3" fox:border-radius="1mm" border="solid 0.5pt black" padding="1mm">
                         <fo:block font-size="6pt" font-weight="bold">
-                            <xsl:value-of select="//fhir:Patient/fhir:name/fhir:prefix/@value" />
-                            <xsl:value-of select="//fhir:Patient/fhir:name/fhir:given/@value" />
-                            <xsl:value-of select="//fhir:Patient/fhir:name/fhir:family/@value" />
+                            <xsl:value-of select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Patient/fhir:name/fhir:prefix/@value" />
+                            <xsl:value-of select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Patient/fhir:name/fhir:given/@value" />
+                            <xsl:value-of select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Patient/fhir:name/fhir:family/@value" />
                         </fo:block>
                         <fo:block text-align="end">
-                            geb. am <xsl:value-of select="//fhir:Patient/fhir:birthDate/@value" />
+                            geb. am <xsl:value-of select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Patient/fhir:birthDate/@value" />
                         </fo:block>
                     </fo:table-cell>
-                    <fo:table-cell width="auto" number-rows-spanned="5">
+                    <fo:table-cell width="auto" number-rows-spanned="3">
                         <fo:block margin-left="4mm">
                             <fo:instream-foreign-object>
                                 <barcode:barcode>
                                     <xsl:attribute name="message">
-                                        {"urls":["Task/<xsl:value-of select="fhir:id/@value" />/$accept?ac=777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea"]}
+                                        {"urls": [<xsl:for-each select="fhir:bundle" >"Task/<xsl:value-of select="fhir:Bundle/fhir:identifier/@fhir:value" />/$accept?ac=<xsl:value-of select="fhir:accessCode" />"<xsl:if test="fn:position() != last()">
+                                            <xsl:text>, </xsl:text>
+                                          </xsl:if></xsl:for-each>]}
                                     </xsl:attribute>
                                     <barcode:datamatrix>
                                         <barcode:module-width>0.6mm</barcode:module-width>
@@ -131,40 +132,18 @@
                 <fo:table-row>
                     <fo:table-cell number-columns-spanned="3" fox:border-radius="1mm" border="solid 0.3pt black" padding="1mm">
                         <fo:block font-size="6pt" font-weight="bold">
-                            <xsl:value-of select="//fhir:Practitioner/fhir:name/fhir:prefix/@value" />
-                            <xsl:value-of select="//fhir:Practitioner/fhir:name/fhir:given/@value" />
-                            <xsl:value-of select="//fhir:Practitioner/fhir:name/fhir:family/@value" />
+                            <xsl:value-of select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Practitioner/fhir:name/fhir:prefix/@value" />
+                            <xsl:value-of select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Practitioner/fhir:name/fhir:given/@value" />
+                            <xsl:value-of select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Practitioner/fhir:name/fhir:family/@value" />
                         </fo:block>
                         <fo:block>
-                            <xsl:value-of select="//fhir:Practitioner/fhir:qualification/fhir:code/fhir:text" />
+                            <xsl:value-of select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Practitioner/fhir:qualification/fhir:code/fhir:text" />
                         </fo:block>
                         <fo:block>
-                            Tel. <xsl:value-of select="//fhir:Organization/fhir:telecom/fhir:value/@value" />
+                            Tel. <xsl:value-of select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Organization/fhir:telecom/fhir:value/@value" />
                         </fo:block>
                         <fo:block text-align="end">
-                            ausgestellt am <xsl:value-of select="//fhir:MedicationRequest/fhir:authoredOn/@value" />
-                        </fo:block>
-                    </fo:table-cell>
-                </fo:table-row>
-                <fo:table-row height="2mm">
-                    <fo:table-cell><fo:block margin-top="2mm" font-size="4pt">Gültig von - bis</fo:block></fo:table-cell>
-                    <fo:table-cell><fo:block /></fo:table-cell>
-                    <fo:table-cell><fo:block margin-top="2mm" font-size="4pt">Krankenkasse</fo:block></fo:table-cell>
-                </fo:table-row>
-                <fo:table-row>
-                    <fo:table-cell fox:border-radius="1mm" border="solid 0.5pt black" padding="1mm">
-                        <fo:block>
-                            <xsl:value-of select="//fhir:MedicationRequest/fhir:authoredOn/@value" /> + 1 Monat
-                        </fo:block>
-                    </fo:table-cell>
-                    <fo:table-cell fox:border-radius="1mm" border="solid 0.5pt black" padding="1mm">
-                        <fo:block>
-                            Gebührenpflichtig
-                        </fo:block>
-                    </fo:table-cell>
-                    <fo:table-cell fox:border-radius="1mm" border="solid 0.5pt black" padding="1mm">
-                        <fo:block>
-                            <xsl:value-of select="//fhir:Coverage/fhir:payor/fhir:display/@value" />
+                            ausgestellt am <xsl:value-of select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:authoredOn/@value" />
                         </fo:block>
                     </fo:table-cell>
                 </fo:table-row>
@@ -173,35 +152,41 @@
     </xsl:template>
 
     <xsl:template name="footer">
-        <fo:block>Mehr Information auf www.das-e-rezept-fuer-deutschland.de oder telefonisch werktags unter 030/800XXXXXX</fo:block>
+        <fo:block text-align="end">
+            <fo:external-graphic content-height="3cm" content-width="scale-to-fit"
+                                    src="url('img/erezept-app-note.svg')"/>
+        </fo:block>
     </xsl:template>
 
     <xsl:template name="body">
-        <xsl:for-each select="//fhir:Medication">
-            <fo:table width="50%">
+        <xsl:for-each select="fhir:bundle">
+            <fo:table table-layout="fixed" width="100%" border-collapse="separate">
                 <fo:table-body>
-                    <fo:table-row>
-                        <fo:table-cell width="20mm"><fo:block>
-                            <fo:instream-foreign-object>
-                                <barcode:barcode>
-                                    <xsl:attribute name="message">
-                                        {"urls":["Task/<xsl:value-of select="fhir:id/@value" />/$accept?ac=777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea"]}
-                                    </xsl:attribute>
-                                    <barcode:datamatrix>
-                                        <barcode:module-width>0.4mm</barcode:module-width>
-                                    </barcode:datamatrix>
-                                </barcode:barcode>
-                            </fo:instream-foreign-object>
-                        </fo:block></fo:table-cell>
+                    <fo:table-row height="25mm">
+                        <fo:table-cell width="25mm">
+                            <fo:block>
+                                <fo:instream-foreign-object>
+                                    <barcode:barcode>
+                                        <xsl:attribute name="message">
+                                            {"urls":["Task/<xsl:value-of select="fhir:Bundle/fhir:identifier/@value" />/$accept?ac=<xsl:value-of select="fhir:accessCode" />"]}
+                                        </xsl:attribute>
+                                        <barcode:datamatrix>
+                                            <barcode:module-width>0.5mm</barcode:module-width>
+                                        </barcode:datamatrix>
+                                    </barcode:barcode>
+                                </fo:instream-foreign-object>
+                            </fo:block>
+                        </fo:table-cell>
                         <fo:table-cell>
                             <fo:block>
-                                <fo:block font-weight="bold"><xsl:value-of select="fhir:code/fhir:text/@value" /></fo:block>
-                                PZN: <xsl:value-of select="fhir:code/fhir:coding/fhir:code/@value" />
+                                <fo:block font-weight="bold"><xsl:value-of select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:text/@value" /></fo:block>
+                                <xsl:value-of select="fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:dosageInstruction/fhir:text/@value" />
+                                PZN: <xsl:value-of select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:coding/fhir:code/@value" />
                             </fo:block>
                         </fo:table-cell>
                     </fo:table-row>
                 </fo:table-body>
-            </fo:table> 
+            </fo:table>
         </xsl:for-each>
     </xsl:template>
 
