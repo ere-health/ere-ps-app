@@ -3,33 +3,35 @@ package health.ere.ps.service.idp.client;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Optional;
 import java.util.logging.LogManager;
 
 import javax.inject.Inject;
 
+import health.ere.ps.config.AppConfig;
+import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.exception.connector.ConnectorCardCertificateReadException;
+import health.ere.ps.exception.connector.ConnectorCardsException;
 import health.ere.ps.exception.idp.IdpClientException;
 import health.ere.ps.exception.idp.IdpException;
 import health.ere.ps.exception.idp.IdpJoseException;
-import health.ere.ps.exception.idp.crypto.IdpCryptoException;
 import health.ere.ps.model.idp.client.IdpTokenResult;
-import health.ere.ps.model.idp.crypto.PkiIdentity;
-import health.ere.ps.service.connector.certificate.CardCertReadExecutionService;
+import health.ere.ps.service.common.security.SecretsManagerService;
+import health.ere.ps.service.common.security.SecureSoapTransportConfigurer;
+import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
 import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest
 public class IdpClientTest {
+
+    @Inject
+    AppConfig appConfig;
 
     @Inject
     IdpClient idpClient;
@@ -38,7 +40,10 @@ public class IdpClientTest {
     CardCertificateReaderService cardCertificateReaderService;
 
     @Inject
-    CardCertReadExecutionService cardCertReadExecutionService;
+    ConnectorCardsService connectorCardsService;
+
+    @Inject
+    SecureSoapTransportConfigurer secureSoapTransportConfigurer;
 
     @ConfigProperty(name = "idp.client.id")
     String clientId;
@@ -48,12 +53,6 @@ public class IdpClientTest {
 
     @ConfigProperty(name = "idp.connector.workplace.id")
     String workplace;
-
-    @ConfigProperty(name = "idp.connector.card.handle")
-    String cardHandle;
-
-    @ConfigProperty(name = "idp.connector.cert.auth.store.file.password")
-    String connectorCertAuthPassword;
 
     @ConfigProperty(name = "idp.base.url")
     String idpBaseUrl;
@@ -82,35 +81,33 @@ public class IdpClientTest {
         System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dumpTreshold", "999999");
     }
 
-    // @Disabled("Disabled until Titus Idp Card Certificate Service API Endpoint Is Fixed By Gematik")
-    @Test @Disabled
-    public void test_Successful_Idp_Login()
-            throws ConnectorCardCertificateReadException, IdpException,
-            IdpClientException, IdpCryptoException, IdpJoseException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+    @BeforeEach
+    void configureSecureTransport() throws SecretsManagerException {
+        secureSoapTransportConfigurer.init(connectorCardsService);
+        secureSoapTransportConfigurer.configureSecureTransport(
+                appConfig.getEventServiceEndpointAddress(),
+                SecretsManagerService.SslContextType.TLS,
+                appConfig.getIdpConnectorTlsCertTrustStore(),
+                appConfig.getIdpConnectorTlsCertTustStorePwd());
+    }
 
-        InputStream inStream = CardCertificateReaderService.class.getResourceAsStream("/certs/1-2-ARZT-WaltrautDrombusch01-80276001011699910223-C_SMCB_AUT_R2048_X509.p12");
-
-        /*KeyStore ks = KeyStore.getInstance("PKCS12");
-        ks.load(inStream, "00".toCharArray());  
-        
-        String alias = ks.aliases().nextElement();
-        cardCertificateReaderService.setMockCertificate(((X509Certificate) ks.getCertificate(alias)).getEncoded());*/
-
-        cardCertificateReaderService.setMockCertificate(inStream.readAllBytes());
-
-        InputStream p12Certificate = CardCertificateReaderService.class.getResourceAsStream("/ps_erp_incentergy_01.p12");
-        cardCertReadExecutionService.setUpCustomSSLContext(p12Certificate);
-        AuthenticatorClient authenticatorClient = new AuthenticatorClient();
+    @Test
+    public void test_Successful_Idp_Login_With_Connector_Smcb() throws IdpJoseException,
+            IdpClientException, IdpException, ConnectorCardCertificateReadException,
+            ConnectorCardsException {
 
         discoveryDocumentUrl = idpBaseUrl + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
 
         idpClient.init(clientId, redirectUrl, discoveryDocumentUrl, true);
         idpClient.initializeClient();
 
-        PkiIdentity identity = cardCertificateReaderService.retrieveCardCertIdentity(clientId,
-                clientSystem, workplace, cardHandle, connectorCertAuthPassword);
+        Optional<String> cardHandle = connectorCardsService.getConnectorCardHandle(
+                ConnectorCardsService.CardHandleType.SMC_B);
 
-        IdpTokenResult idpTokenResult = idpClient.login(identity);
+        X509Certificate x509Certificate = cardCertificateReaderService.retrieveSmcbCardCertificate(clientId,
+                clientSystem, workplace, cardHandle.get());
+
+        IdpTokenResult idpTokenResult = idpClient.login(x509Certificate);
 
         Assertions.assertNotNull(idpTokenResult, "Idp Token result present.");
         Assertions.assertNotNull(idpTokenResult.getAccessToken(), "Access Token present");

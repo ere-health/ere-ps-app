@@ -70,7 +70,7 @@
                         </coding>
                     </code>
                     <entry>
-                        <!--  Referenz auf Krankenkasse/KostentrĂ¤ger   -->
+                        <!--  Referenz auf Krankenkasse/Kostenträger   -->
                         <reference value="Coverage/914e46d1-95a2-44c7-b900-5ca4ee80b8d5" />
                     </entry>
                 </section>

@@ -7,9 +7,13 @@ import com.google.gson.JsonParser;
 import com.diffplug.common.base.Errors;
 import com.diffplug.common.base.Throwing;
 
+import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureServicePortType;
+import de.gematik.ws.conn.connectorcontext.v2.ContextType;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
@@ -25,6 +29,7 @@ import java.util.function.Function;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
+import javax.net.ssl.SSLContext;
 
 import health.ere.ps.exception.idp.IdpClientException;
 import health.ere.ps.exception.idp.IdpException;
@@ -46,6 +51,7 @@ import health.ere.ps.model.idp.client.field.IdpScope;
 import health.ere.ps.model.idp.client.token.IdpJwe;
 import health.ere.ps.model.idp.client.token.JsonWebToken;
 import health.ere.ps.model.idp.crypto.PkiIdentity;
+import health.ere.ps.service.connector.auth.SmcbAuthenticatorService;
 import health.ere.ps.service.idp.client.authentication.UriUtils;
 import health.ere.ps.service.idp.crypto.KeyAnalysis;
 
@@ -56,6 +62,9 @@ public class IdpClient implements IIdpClient {
 
     @Inject
     AuthenticatorClient authenticatorClient;
+
+    @Inject
+    SmcbAuthenticatorService smcbAuthenticatorService;
 
     @Inject
     Logger logger;
@@ -100,12 +109,13 @@ public class IdpClient implements IIdpClient {
             contentSigner.apply(Pair.of(
                 jsonWebSignature.getHeaders().getEncodedHeader(),
                 jsonWebSignature.getEncodedPayload())));
-        return jwt
-            .encrypt(idpPublicKey)
-            .getRawString();
+        String signedServerChallengeJwt = jwt
+                .encrypt(idpPublicKey)
+                .getRawString();
+
+        return signedServerChallengeJwt;
     }
 
-    @Override
     public IdpTokenResult login(final PkiIdentity idpIdentity)
             throws IdpException, IdpClientException, IdpJoseException {
         assertThatIdpIdentityIsValid(idpIdentity);
@@ -131,6 +141,12 @@ public class IdpClient implements IIdpClient {
                     throw new IdpClientException("Error during encryption", e);
                 }
             }));
+    }
+
+    public IdpTokenResult login(X509Certificate x509Certificate) throws IdpJoseException,
+            IdpClientException, IdpException {
+        smcbAuthenticatorService.setX509Certificate(x509Certificate);
+        return login(x509Certificate, smcbAuthenticatorService::signIdpChallenge);
     }
 
     public IdpTokenResult login(final X509Certificate certificate,
@@ -252,7 +268,7 @@ public class IdpClient implements IIdpClient {
     private void assertThatIdpIdentityIsValid(final PkiIdentity idpIdentity) {
         Objects.requireNonNull(idpIdentity);
         Objects.requireNonNull(idpIdentity.getCertificate());
-        Objects.requireNonNull(idpIdentity.getPrivateKey());
+        // Objects.requireNonNull(idpIdentity.getPrivateKey());
     }
 
     private IdpJwe signChallenge(
