@@ -139,7 +139,6 @@ public class PrescriptionBundleBuilder {
 
         patient.addName()
                 .setUse(NameUse.OFFICIAL)
-                .setPrefix(muster16PrescriptionForm.getNamePrefix().stream().map(StringType::new).collect(Collectors.toList()))
                 .setFamily(muster16PrescriptionForm.getPatientLastName())
                 .addGiven(muster16PrescriptionForm.getPatientFirstName());
 
