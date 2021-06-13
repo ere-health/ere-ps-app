@@ -80,6 +80,8 @@ public class Muster16SvgRegexParser implements IMuster16FormParser {
     @Override
     public List<String> parsePatientNamePrefix() {
         String value = getValue(PATIENT_NAME_PREFIX);
+        if(value.isBlank())
+            return new ArrayList<>();
         return List.of(value.split(" ")).stream().map(String::new).collect(Collectors.toList());
     }
 
