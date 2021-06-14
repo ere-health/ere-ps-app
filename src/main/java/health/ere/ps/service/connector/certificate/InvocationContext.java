@@ -9,7 +9,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class InvocationContext {
 
-    private String clientId;
+    private String mandantId;
     private String clientSystemId;
     private String workplaceId;
     private String userId;
@@ -21,12 +21,12 @@ public class InvocationContext {
     /**
      * Constructor
      *
-     * @param clientId     client Id
+     * @param mandantId     client Id
      * @param clientSystemId client system
      * @param workplaceId    work place
      */
-    public InvocationContext(String clientId, String clientSystemId, String workplaceId) {
-        this.clientId = clientId;
+    public InvocationContext(String mandantId, String clientSystemId, String workplaceId) {
+        this.mandantId = mandantId;
         this.clientSystemId = clientSystemId;
         this.workplaceId = workplaceId;
     }
@@ -34,24 +34,24 @@ public class InvocationContext {
     /**
      * Constructor
      *
-     * @param clientId     client Id
+     * @param mandantId     client Id
      * @param clientSystemId client system
      * @param workplaceId    work place
      * @param userId       user Id
      */
-    public InvocationContext(String clientId, String clientSystemId, String workplaceId, String userId) {
-        this.clientId = clientId;
+    public InvocationContext(String mandantId, String clientSystemId, String workplaceId, String userId) {
+        this.mandantId = mandantId;
         this.clientSystemId = clientSystemId;
         this.workplaceId = workplaceId;
         this.userId = userId;
     }
 
-    public String getClientId() {
-        return clientId;
+    public String getMandantId() {
+        return mandantId;
     }
 
-    public void setClientId(String clientId) {
-        this.clientId = clientId;
+    public void setMandantId(String mandantId) {
+        this.mandantId = mandantId;
     }
 
     public String getClientSystemId() {
@@ -85,7 +85,7 @@ public class InvocationContext {
      */
     public ContextType convertToContextType() {
         ContextType contextType = new ContextType();
-        contextType.setMandantId(getClientId());
+        contextType.setMandantId(getMandantId());
         contextType.setClientSystemId(getClientSystemId());
         contextType.setWorkplaceId(getWorkplaceId());
         contextType.setUserId(getUserId());
@@ -100,7 +100,7 @@ public class InvocationContext {
      */
     public boolean isValidInvocationContext() {
         return (null != convertToContextType()
-                && StringUtils.isNotBlank(getClientId())
+                && StringUtils.isNotBlank(getMandantId())
                 && StringUtils.isNotBlank(getClientSystemId())
                 && StringUtils.isNotBlank(getWorkplaceId()));
     }
