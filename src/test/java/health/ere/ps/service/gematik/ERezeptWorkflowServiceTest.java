@@ -55,7 +55,8 @@ public class ERezeptWorkflowServiceTest {
     FhirContext fhirContext = FhirContext.forR4();
     IParser iParser = fhirContext.newXmlParser();
 
-    String testBearerToken = "eyJhbGciOiJCUDI1NlIxIiwidHlwIjoiYXQrSldUIiwia2lkIjoicHVrX2lkcF9zaWcifQ.eyJzdWIiOiJWV3dvVWhROHpRTDh0U1BjVW9VcEJXVUs5UVgtOUpvRURaTmttc0dFSDVrIiwicHJvZmVzc2lvbk9JRCI6IjEuMi4yNzYuMC43Ni40LjUwIiwib3JnYW5pemF0aW9uTmFtZSI6IjIwMjExMDEyMiBOT1QtVkFMSUQiLCJpZE51bW1lciI6IjEtMi1BUlpULVdhbHRyYXV0RHJvbWJ1c2NoMDEiLCJhbXIiOlsibWZhIiwic2MiLCJwaW4iXSwiaXNzIjoiaHR0cHM6Ly9pZHAuemVudHJhbC5pZHAuc3BsaXRkbnMudGktZGllbnN0ZS5kZSIsImdpdmVuX25hbWUiOiJXYWx0cmF1dCIsImNsaWVudF9pZCI6ImVSZXplcHRBcHAiLCJhdWQiOiJodHRwczovL2VycC50ZWxlbWF0aWsuZGUvbG9naW4iLCJhY3IiOiJnZW1hdGlrLWVoZWFsdGgtbG9hLWhpZ2giLCJhenAiOiJlUmV6ZXB0QXBwIiwic2NvcGUiOiJvcGVuaWQgZS1yZXplcHQiLCJhdXRoX3RpbWUiOjE2MjE5MjkwNTksImV4cCI6MTYyMTkyOTM1OSwiZmFtaWx5X25hbWUiOiJEcm9tYnVzY2giLCJpYXQiOjE2MjE5MjkwNTksImp0aSI6Ijc1NDY5OGI2Y2M2YWQ3NzQifQ.WVwUK3-Go8YMvhesVsQiCxKReJrjJviBK8HAGbGl5UyRGqO5DTgCs7xkpILGaGuLnYmRw7WFnC2NZR1loczEHg";
+    String testBearerToken = "eyJhbGciOiJCUDI1NlIxIiwidHlwIjoiYXQrSldUIiwia2lkIjoicHVrX2lkcF9zaWcifQ.eyJzdWIiOiJzM1pPekJtT01GZkdSbHB6R1E5d3NvQ3hBWFBZbFVQcUYwb0I3SWctMEJRIiwicHJvZmVzc2lvbk9JRCI6IjEuMi4yNzYuMC43Ni40LjUwIiwib3JnYW5pemF0aW9uTmFtZSI6IjIwMjExMDEyMiBOT1QtVkFMSUQiLCJpZE51bW1lciI6IjEtMi1BUlpULVdhbHRyYXV0RHJvbWJ1c2NoMDEiLCJhbXIiOlsibWZhIiwic2MiLCJwaW4iXSwiaXNzIjoiaHR0cHM6Ly9pZHAuemVudHJhbC5pZHAuc3BsaXRkbnMudGktZGllbnN0ZS5kZSIsImdpdmVuX25hbWUiOiJXYWx0cmF1dCIsImNsaWVudF9pZCI6ImVSZXplcHRBcHAiLCJhY3IiOiJnZW1hdGlrLWVoZWFsdGgtbG9hLWhpZ2giLCJhdWQiOiJodHRwczovL2VycC10ZXN0LnplbnRyYWwuZXJwLnNwbGl0ZG5zLnRpLWRpZW5zdGUuZGUvIiwiYXpwIjoiZVJlemVwdEFwcCIsInNjb3BlIjoiZS1yZXplcHQgb3BlbmlkIiwiYXV0aF90aW1lIjoxNjIzNjI4OTgyLCJleHAiOjE2MjM2MjkyODIsImZhbWlseV9uYW1lIjoiRHJvbWJ1c2NoIiwiaWF0IjoxNjIzNjI4OTgyLCJqdGkiOiI3NGRkMGRmNTNlZGUzYjI3In0.oR4PM_G218IFYPKyhCEdBnRgVeF2goE_fZYkVWmiXlF1FWetk-pCigoigBhqyPjGGbZTGnUL7Z2VgkdWQ9GirA";
+
 
     @BeforeEach
     void init() throws SecretsManagerException {
@@ -111,23 +112,26 @@ public class ERezeptWorkflowServiceTest {
         eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
     }
 
-    @Disabled("Currently failing. Reference is being made to file test1.pdf which " +
-            "cannot be found, particularly on the machine of a developer who does not have access " +
-            "to this file after checking out the main branch.")
+    @Disabled
     @Test
+    // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testCreateERezeptFromPdfOnPrescriptionServer() throws URISyntaxException,
             IOException, ParseException, ERezeptWorkflowException, XMLStreamException {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.CGM_TURBO_MED, true);
-        Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/CGM-Turbomed/test1.pdf")));
-        Muster16SvgExtractorParser muster16Parser = new Muster16SvgExtractorParser(map);
 
-        Muster16PrescriptionForm muster16PrescriptionForm = Muster16FormDataExtractorService.fillForm(muster16Parser);
-        PrescriptionBundleBuilder bundleBuilder =
-                new PrescriptionBundleBuilder(muster16PrescriptionForm);
+        try(PDDocument pdDocument = PDDocument.load(getClass().getResourceAsStream(
+                "/muster-16-print-samples/test1.pdf"))) {
+            Map<String, String> map = svgExtractor.extract(pdDocument);
+            Muster16SvgExtractorParser muster16Parser = new Muster16SvgExtractorParser(map);
 
-        Bundle bundle = bundleBuilder.createBundle();
-        log.info(iParser.encodeResourceToString(bundle));
-        eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
+            Muster16PrescriptionForm muster16PrescriptionForm = Muster16FormDataExtractorService.fillForm(muster16Parser);
+            PrescriptionBundleBuilder bundleBuilder =
+                    new PrescriptionBundleBuilder(muster16PrescriptionForm);
+
+            Bundle bundle = bundleBuilder.createBundle();
+            log.info(iParser.encodeResourceToString(bundle));
+            eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
+        }
     }
 
     @Test @Disabled
