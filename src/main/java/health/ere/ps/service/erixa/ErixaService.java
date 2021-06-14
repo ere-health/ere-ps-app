@@ -2,6 +2,7 @@ package health.ere.ps.service.erixa;
 
 import health.ere.ps.event.ErixaEvent;
 import health.ere.ps.event.ErixaSyncEvent;
+import health.ere.ps.model.erixa.ErixaSyncLoad;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -20,7 +21,8 @@ public class ErixaService {
     public void generatePrescriptionBundle(@ObservesAsync ErixaEvent event) {
 
         if ("sync".equals(event.processType)) {
-            ErixaSyncEvent syncEvent = new ErixaSyncEvent(event.payload);
+            ErixaSyncLoad load = new ErixaSyncLoad(event.payload.getString("document"), event.payload.getString("patient"));
+            ErixaSyncEvent syncEvent = new ErixaSyncEvent(load);
             erixaSyncEvent.fireAsync(syncEvent);
         }
     }
