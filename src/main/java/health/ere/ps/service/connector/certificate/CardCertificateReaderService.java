@@ -76,16 +76,16 @@ public class CardCertificateReaderService {
         return x509Certificate;
     }
 
-    public byte[] readCardCertificate(String clientId, String clientSystem, String workplace,
+    public byte[] readCardCertificate(String mandantId, String clientSystem, String workplace,
                                       String cardHandle) throws ConnectorCardCertificateReadException {
-        return readCardCertificate(new InvocationContext(clientId, clientSystem, workplace),
+        return readCardCertificate(new InvocationContext(mandantId, clientSystem, workplace),
                 cardHandle);
     }
 
-    public byte[] readCardCertificate(String clientId, String clientSystem, String workplace,
+    public byte[] readCardCertificate(String mandantId, String clientSystem, String workplace,
                                       String userId, String cardHandle)
             throws ConnectorCardCertificateReadException {
-        return readCardCertificate(new InvocationContext(clientId, clientSystem, workplace, userId),
+        return readCardCertificate(new InvocationContext(mandantId, clientSystem, workplace, userId),
                 cardHandle);
     }
 
@@ -104,11 +104,11 @@ public class CardCertificateReaderService {
         return identity;
     }
 
-    public X509Certificate retrieveSmcbCardCertificate(String clientId, String clientSystem,
+    public X509Certificate retrieveSmcbCardCertificate(String mandantId, String clientSystem,
                                                     String workplace, String cardHandle)
             throws ConnectorCardCertificateReadException {
 
-        byte[] connector_cert_auth = readCardCertificate(clientId, clientSystem, workplace,
+        byte[] connector_cert_auth = readCardCertificate(mandantId, clientSystem, workplace,
                 cardHandle);
         X509Certificate x509Certificate;
 
