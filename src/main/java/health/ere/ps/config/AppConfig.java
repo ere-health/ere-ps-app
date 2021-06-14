@@ -21,6 +21,9 @@ public class AppConfig {
     @ConfigProperty(name = "idp.connector.client.system.id")
     String clientSystem;
 
+    @ConfigProperty(name = "idp.connector.mandant.id")
+    String mandantId;
+
     @ConfigProperty(name = "idp.connector.workplace.id")
     String workplace;
 
@@ -104,5 +107,13 @@ public class AppConfig {
 
     public String getTitusClientCertificate() {
         return titusClientCertificate;
+    }
+
+    public String getMandantId() {
+        return this.mandantId;
+    }
+
+    public void setMandantId(String mandantId) {
+        this.mandantId = mandantId;
     }
 }
