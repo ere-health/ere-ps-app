@@ -45,7 +45,7 @@ public class SVGExtractor {
     private SVGExtractorConfiguration configuration;
 
     public SVGExtractor() {
-        this(SVGExtractorConfiguration.CGM_TURBO_MED);
+        this(SVGExtractorConfiguration.DENS);
     }
 
     public SVGExtractor(SVGExtractorConfiguration configuration) {
