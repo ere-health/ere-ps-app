@@ -51,6 +51,9 @@ public class IdpClientTest {
     @ConfigProperty(name = "idp.connector.client.system.id")
     String clientSystem;
 
+    @ConfigProperty(name = "idp.connector.mandant.id")
+    String mandantId;
+
     @ConfigProperty(name = "idp.connector.workplace.id")
     String workplace;
 
@@ -104,7 +107,7 @@ public class IdpClientTest {
         Optional<String> cardHandle = connectorCardsService.getConnectorCardHandle(
                 ConnectorCardsService.CardHandleType.SMC_B);
 
-        X509Certificate x509Certificate = cardCertificateReaderService.retrieveSmcbCardCertificate(clientId,
+        X509Certificate x509Certificate = cardCertificateReaderService.retrieveSmcbCardCertificate(mandantId,
                 clientSystem, workplace, cardHandle.get());
 
         IdpTokenResult idpTokenResult = idpClient.login(x509Certificate);
