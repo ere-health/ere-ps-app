@@ -2,6 +2,7 @@ package health.ere.ps.service.erixa;
 
 import health.ere.ps.config.UserConfig;
 import health.ere.ps.event.ErixaSyncEvent;
+import health.ere.ps.model.erixa.ErixaSyncLoad;
 import org.apache.pdfbox.pdmodel.PDDocument;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -28,8 +29,9 @@ public class ErixaSyncService {
     public void syncToHotfolder(@ObservesAsync ErixaSyncEvent event) {
         log.info("ErixaSyncEvent");
         try {
-            PDDocument document = parseDocument(event.document);
-            Path path = buildFilePath(event.patient);
+            final ErixaSyncLoad load = event.load;
+            PDDocument document = parseDocument(load.getDocument());
+            Path path = buildFilePath(load.getPatient());
             saveDocument(document, path);
         } catch (IOException e) {
             log.severe("Unable to parse document");
@@ -61,11 +63,7 @@ public class ErixaSyncService {
         return userConfig.getErixaReceiverEmail();
     }
 
-    private void saveDocument(PDDocument document, Path path) {
-        try {
-            document.save(path.toFile());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void saveDocument(PDDocument document, Path path) throws IOException {
+        document.save(path.toFile());
     }
 }

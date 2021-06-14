@@ -1,14 +1,12 @@
 package health.ere.ps.event;
 
-import javax.json.JsonObject;
+import health.ere.ps.model.erixa.ErixaSyncLoad;
 
 public class ErixaSyncEvent {
 
-    public final String document;
-    public final String patient;
+    public final ErixaSyncLoad load;
 
-    public ErixaSyncEvent(JsonObject data) {
-        document = data.getString("document");
-        patient = data.getString("patient");
+    public ErixaSyncEvent(ErixaSyncLoad load) {
+        this.load = load;
     }
 }
