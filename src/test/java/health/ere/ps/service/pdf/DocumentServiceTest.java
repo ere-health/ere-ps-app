@@ -1,29 +1,36 @@
 package health.ere.ps.service.pdf;
 
 import ca.uhn.fhir.context.FhirContext;
+import health.ere.ps.event.BundlesWithAccessCodeEvent;
+import health.ere.ps.event.ERezeptDocumentsEvent;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
+import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import org.hl7.fhir.r4.model.Bundle;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
-//@QuarkusTest
+@QuarkusTest
 public class DocumentServiceTest {
 
     private final static List<Bundle> testBundles = new ArrayList<>();
     private final static String TARGET_PATH = "target/test_Erezepten/";
     private DocumentService documentService;
+
+    @Inject
+    Event<ERezeptDocumentsEvent> eRezeptDocumentsEvent;
 
     @BeforeAll
     public static void createTestDirectory() throws IOException {
@@ -50,6 +57,33 @@ public class DocumentServiceTest {
     public void setUp() {
         documentService = new DocumentService();
         documentService.init();
+    }
+
+
+    @Test
+    public void onBundlesWithAccessCodes_firesEventWithBundlesFilteredByPatient_givenMultipleBundlesWithDifferentPatients() {
+        // GIVEN
+        int numberOfPatientsInBundles = 3;
+        Event<ERezeptDocumentsEvent> mockedEvent = Mockito.mock(Event.class);
+        documentService.seteRezeptDocumentsEvent(mockedEvent);
+
+        List<BundleWithAccessCodeOrThrowable> firstBundles = List.of(
+                new BundleWithAccessCodeOrThrowable(testBundles.get(0), "MOCK_CODE0"),
+                new BundleWithAccessCodeOrThrowable(testBundles.get(1), "MOCK_CODE1"));
+
+        List<BundleWithAccessCodeOrThrowable> secondBundles = List.of(
+                new BundleWithAccessCodeOrThrowable(testBundles.get(2), "MOCK_CODE2"),
+                new BundleWithAccessCodeOrThrowable(testBundles.get(3), "MOCK_CODE3"),
+                new BundleWithAccessCodeOrThrowable(testBundles.get(4), "MOCK_CODE4"));
+
+        List<List<BundleWithAccessCodeOrThrowable>> bundles = List.of(firstBundles, secondBundles);
+        BundlesWithAccessCodeEvent event = new BundlesWithAccessCodeEvent(bundles);
+
+        // WHEN
+        documentService.onBundlesWithAccessCodes(event);
+
+        // THEN
+        Mockito.verify(mockedEvent, Mockito.times(numberOfPatientsInBundles)).fireAsync(Mockito.any());
     }
 
     @Test
@@ -120,7 +154,7 @@ public class DocumentServiceTest {
 
     private ByteArrayOutputStream getOutputStream(int number) {
         List<BundleWithAccessCodeOrThrowable> bundles = new ArrayList<>();
-        for (int i=0; i < number; i++) {
+        for (int i = 0; i < number; i++) {
             bundles.add(new BundleWithAccessCodeOrThrowable(testBundles.get(i % 5), "MOCK_CODE" + i));
         }
         return documentService.generateERezeptPdf(bundles);

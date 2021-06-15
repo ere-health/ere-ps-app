@@ -9,6 +9,8 @@ import org.apache.fop.apps.*;
 import org.apache.fop.configuration.Configuration;
 import org.apache.fop.configuration.ConfigurationException;
 import org.apache.fop.configuration.DefaultConfigurationBuilder;
+import org.hl7.fhir.r4.model.Bundle;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -24,7 +26,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -88,27 +93,46 @@ public class DocumentService {
 
 
     public void onBundlesWithAccessCodes(@ObservesAsync BundlesWithAccessCodeEvent bundlesWithAccessCodeEvent) {
-        ERezeptDocumentsEvent event = new ERezeptDocumentsEvent();
+        Map<String, List<BundleWithAccessCodeOrThrowable>> bundlesByPatient = filterBundlesByPatient(bundlesWithAccessCodeEvent);
 
-        for (List<BundleWithAccessCodeOrThrowable> bundle : bundlesWithAccessCodeEvent.getBundleWithAccessCodeOrThrowable()) {
-            ByteArrayOutputStream boas = generateERezeptPdf(bundle);
+        bundlesByPatient.values().forEach(bundlesForOnePatient -> {
+            ByteArrayOutputStream boas = generateERezeptPdf(bundlesForOnePatient);
             if (boas.size() > 0) {
-                event.getERezeptWithDocuments().add(new ERezeptDocument(bundle, boas.toByteArray()));
-            }
-        }
-        eRezeptDocumentsEvent.fireAsync(event);
+                ERezeptDocument eRezeptDocument = new ERezeptDocument(bundlesForOnePatient, boas.toByteArray());
+                eRezeptDocumentsEvent.fireAsync(new ERezeptDocumentsEvent(List.of(eRezeptDocument)));
+            }});
     }
 
-    public ByteArrayOutputStream generateERezeptPdf(List<BundleWithAccessCodeOrThrowable> bundles) {
+    private Map<String, List<BundleWithAccessCodeOrThrowable>> filterBundlesByPatient(BundlesWithAccessCodeEvent event) {
+        List<BundleWithAccessCodeOrThrowable> allBundles = event.getBundleWithAccessCodeOrThrowable()
+                .stream()
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+
+        Map<String, List<BundleWithAccessCodeOrThrowable>> bundlesByPatient = new HashMap<>();
+
+        allBundles.forEach(bundle -> {
+            List<Bundle.BundleEntryComponent> entries = bundle.getBundle().getEntry();
+            for (Bundle.BundleEntryComponent entry : entries) {
+                if (entry.getResource().fhirType().equals("Patient")) {
+                    String patientId = entry.getResource().getId();
+                    bundlesByPatient.putIfAbsent(patientId, new ArrayList<>());
+                    bundlesByPatient.get(patientId).add(bundle);
+                }
+            }
+        });
+        return bundlesByPatient;
+    }
+
+    ByteArrayOutputStream generateERezeptPdf(List<BundleWithAccessCodeOrThrowable> bundles) {
         try {
             if (bundles.isEmpty()) {
-                log.severe("Cannot generate pdf for an empty bundle");
+                log.severe("Cannot generate prescriptions pdf for an empty bundle");
                 return new ByteArrayOutputStream();
             }
 
             File xml = createTemporaryXmlFileFromBundles(bundles);
             return generatePdfInOutputStream(xml);
-
         } catch (IOException | FOPException | TransformerException e) {
             log.severe("Could not generate ERezept PDF:" + e);
             exceptionEvent.fireAsync(e);
@@ -188,5 +212,13 @@ public class DocumentService {
         transformer.transform(src, res);
         return out;
 
+    }
+
+    /**
+     * Used only to inject a mocked Event for tests
+     * @param eRezeptDocumentsEvent mocked Event
+     */
+    void seteRezeptDocumentsEvent(Event<ERezeptDocumentsEvent> eRezeptDocumentsEvent) {
+        this.eRezeptDocumentsEvent = eRezeptDocumentsEvent;
     }
 }
