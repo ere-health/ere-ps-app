@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import javax.enterprise.event.Event;
-import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,8 +27,7 @@ public class DocumentServiceTest {
     private final static List<Bundle> testBundles = new ArrayList<>();
     private final static String TARGET_PATH = "target/test_Erezepten/";
     private final static FhirContext ctx = FhirContext.forR4();
-    @Inject
-    Event<ERezeptDocumentsEvent> eRezeptDocumentsEvent;
+
     private DocumentService documentService;
 
     @BeforeAll
