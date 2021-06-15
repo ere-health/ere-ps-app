@@ -10,7 +10,6 @@ import org.apache.fop.configuration.Configuration;
 import org.apache.fop.configuration.ConfigurationException;
 import org.apache.fop.configuration.DefaultConfigurationBuilder;
 import org.hl7.fhir.r4.model.Bundle;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -37,13 +36,14 @@ import java.util.stream.Collectors;
 public class DocumentService {
 
     private static final Logger log = Logger.getLogger(DocumentService.class.getName());
-    private final FhirContext ctx = FhirContext.forR4();
-    private FopFactory fopFactory;
+    private static final int MAX_NUMBER_OF_MEDICINES_PER_PRESCRIPTIONS = 9;
 
+    private final FhirContext ctx = FhirContext.forR4();
     @Inject
     Event<ERezeptDocumentsEvent> eRezeptDocumentsEvent;
     @Inject
     Event<Exception> exceptionEvent;
+    private FopFactory fopFactory;
 
     @PostConstruct
     public void init() {
@@ -96,11 +96,19 @@ public class DocumentService {
         Map<String, List<BundleWithAccessCodeOrThrowable>> bundlesByPatient = filterBundlesByPatient(bundlesWithAccessCodeEvent);
 
         bundlesByPatient.values().forEach(bundlesForOnePatient -> {
-            ByteArrayOutputStream boas = generateERezeptPdf(bundlesForOnePatient);
-            if (boas.size() > 0) {
-                ERezeptDocument eRezeptDocument = new ERezeptDocument(bundlesForOnePatient, boas.toByteArray());
-                eRezeptDocumentsEvent.fireAsync(new ERezeptDocumentsEvent(List.of(eRezeptDocument)));
-            }});
+            for (int i=0; i<bundlesForOnePatient.size(); i += MAX_NUMBER_OF_MEDICINES_PER_PRESCRIPTIONS) {
+                createAndSendPrescriptions(bundlesForOnePatient
+                        .subList(i, Math.min(i + MAX_NUMBER_OF_MEDICINES_PER_PRESCRIPTIONS, bundlesForOnePatient.size())));
+            }
+        });
+    }
+
+    private void createAndSendPrescriptions(List<BundleWithAccessCodeOrThrowable> bundles) {
+        ByteArrayOutputStream boas = generateERezeptPdf(bundles);
+        if (boas.size() > 0) {
+            ERezeptDocument eRezeptDocument = new ERezeptDocument(bundles, boas.toByteArray());
+            eRezeptDocumentsEvent.fireAsync(new ERezeptDocumentsEvent(List.of(eRezeptDocument)));
+        }
     }
 
     private Map<String, List<BundleWithAccessCodeOrThrowable>> filterBundlesByPatient(BundlesWithAccessCodeEvent event) {
@@ -216,6 +224,7 @@ public class DocumentService {
 
     /**
      * Used only to inject a mocked Event for tests
+     *
      * @param eRezeptDocumentsEvent mocked Event
      */
     void seteRezeptDocumentsEvent(Event<ERezeptDocumentsEvent> eRezeptDocumentsEvent) {
