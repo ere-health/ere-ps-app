@@ -2,8 +2,6 @@ package health.ere.ps.model.muster16;
 
 import java.util.List;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Muster16PrescriptionForm {
 
@@ -11,6 +9,7 @@ public class Muster16PrescriptionForm {
 
     private String insuranceCompany;
     private String insuranceCompanyId;
+    private List<String> namePrefix;
     private String patientFirstName;
     private String patientLastName;
     private String patientStreetName;
@@ -33,22 +32,10 @@ public class Muster16PrescriptionForm {
 
     private List<MedicationString> prescriptionList;
 
-    public Muster16PrescriptionForm(String insuranceCompany,
-            String insuranceCompanyId,
-            String patientFirstName,
-            String patientLastName,
-            String patientStreetName,
-            String patientStreetNumber,
-            String patientCity,
-            String patientZipCode,
-            String patientInsuranceId,
-            String patientDateOfBirth,
-            String clinicId,
-            String doctorId,
-            String prescriptionDate,
-            List<MedicationString> prescriptionList) {
+    public Muster16PrescriptionForm(String insuranceCompany, String insuranceCompanyId, List<String> namePrefix, String patientFirstName, String patientLastName, String patientStreetName, String patientStreetNumber, String patientCity, String patientZipCode, String patientInsuranceId, String patientDateOfBirth, String clinicId, String doctorId, String prescriptionDate, List<MedicationString> prescriptionList) {
         this.insuranceCompany = insuranceCompany;
         this.insuranceCompanyId = insuranceCompanyId;
+        this.namePrefix = namePrefix;
         this.patientFirstName = patientFirstName;
         this.patientLastName = patientLastName;
         this.patientStreetName = patientStreetName;
@@ -81,6 +68,14 @@ public class Muster16PrescriptionForm {
 
     public void setInsuranceCompanyId(String insuranceCompanyId) {
         this.insuranceCompanyId = insuranceCompanyId;
+    }
+
+    public List<String> getNamePrefix() {
+        return namePrefix;
+    }
+
+    public void setNamePrefix(List<String> namePrefix) {
+        this.namePrefix = namePrefix;
     }
 
     public String getPatientFirstName() {

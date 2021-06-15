@@ -1,28 +1,68 @@
 package health.ere.ps.model.muster16;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class MedicationString {
-    public String name;
-    public String size;
-    public String dosageInstruction;
-    public String pzn;
+    private String name;
+    private String size;
+    private String form;
+    private String dosage;
+    private String instructions;
+    private String pzn;
 
-    private static final Pattern MEDICATION_LINE = Pattern.compile("(.*)(N\\d)(.*)(PZN ?)(\\d+)");
-
-    public MedicationString() {
-
+    public MedicationString(String name, String size, String form, String dosage, String instructions, String pzn) {
+        this.name = name;
+        this.size = size;
+        this.form = form;
+        this.dosage = dosage;
+        this.instructions = instructions;
+        this.pzn = pzn;
     }
 
-    public MedicationString(String name) {
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
         this.name = name;
-        Matcher m = MEDICATION_LINE.matcher(name);
-        if(m.matches()) {
-            this.name = m.group(1);
-            this.size = m.group(2);
-            this.dosageInstruction = m.group(3);
-            this.pzn = m.group(5);
-        }
+    }
+
+    public String getSize() {
+        return size;
+    }
+
+    public void setSize(String size) {
+        this.size = size;
+    }
+
+    public String getForm() {
+        return form;
+    }
+
+    public void setForm(String form) {
+        this.form = form;
+    }
+
+    public String getDosage() {
+        return dosage;
+    }
+
+    public void setDosage(String dosage) {
+        this.dosage = dosage;
+    }
+
+    public String getInstructions() {
+        return instructions;
+    }
+
+    public void setInstructions(String instructions) {
+        this.instructions = instructions;
+    }
+
+    public String getPzn() {
+        return pzn;
+    }
+
+    public void setPzn(String pzn) {
+        this.pzn = pzn;
     }
 }
