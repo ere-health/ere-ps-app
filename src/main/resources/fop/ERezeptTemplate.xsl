@@ -233,7 +233,7 @@
                                     ]}
                                 </xsl:attribute>
                                 <barcode:datamatrix>
-                                    <barcode:module-width>0.7mm</barcode:module-width>
+                                    <barcode:module-width>0.6mm</barcode:module-width>
                                 </barcode:datamatrix>
                             </barcode:barcode>
                         </fo:instream-foreign-object>
@@ -251,23 +251,9 @@
                 <xsl:for-each select="fhir:bundle">
                     <xsl:variable name="pos" select="position()"/>
                     <fo:table-cell>
-                        <xsl:choose>
-                            <xsl:when test="$pos > 6">
-                                <xsl:if test="not($pos mod 8) or not($pos mod 9)">
-                                    <xsl:attribute name="ends-row">true</xsl:attribute>
-                                </xsl:if>
-                            </xsl:when>
-                            <xsl:when test="$pos > 3">
-                                <xsl:if test="not($pos mod 5) or not($pos mod 6)">
-                                    <xsl:attribute name="ends-row">true</xsl:attribute>
-                                </xsl:if>
-                            </xsl:when>
-                            <xsl:otherwise>
-                                <xsl:if test="not($pos mod 2) or not($pos mod 3)">
-                                    <xsl:attribute name="ends-row">true</xsl:attribute>
-                                </xsl:if>
-                            </xsl:otherwise>
-                        </xsl:choose>
+                        <xsl:if test="not(($pos mod 3) mod 2) or not(($pos mod 3) mod 3)">
+                            <xsl:attribute name="ends-row">true</xsl:attribute>
+                        </xsl:if>
                         <fo:table border-collapse="separate">
                             <fo:table-column/>
                             <fo:table-column/>
