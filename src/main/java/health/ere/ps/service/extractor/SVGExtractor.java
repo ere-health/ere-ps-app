@@ -1,5 +1,6 @@
 package health.ere.ps.service.extractor;
 
+import health.ere.ps.config.UserConfig;
 import health.ere.ps.event.PDDocumentEvent;
 import health.ere.ps.event.SVGExtractorResultEvent;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -39,20 +40,22 @@ public class SVGExtractor {
     @Inject
     Event<SVGExtractorResultEvent> sVGExtractorResultEvent;
 
-    private String templatePath = "/svg-extract-templates/Muster-16-Template.svg";
     private boolean debugRectangles = false;
 
     private SVGExtractorConfiguration configuration;
 
     public SVGExtractor() {
-        this(SVGExtractorConfiguration.CGM_TURBO_MED);
+    }
+
+    @Inject
+    public SVGExtractor(UserConfig userConfig) {
+        this(userConfig.getMuster16TemplateConfiguration());
     }
 
     public SVGExtractor(SVGExtractorConfiguration configuration) {
-        if (configuration.MUSTER_16_TEMPLATE != null && !configuration.MUSTER_16_TEMPLATE.equals("")) {
+        if (configuration.MUSTER_16_TEMPLATE != null && !configuration.MUSTER_16_TEMPLATE.equals(""))
             log.log(Level.INFO, "Using muster 16 template: " + configuration.MUSTER_16_TEMPLATE);
-            setTemplatePath(configuration.MUSTER_16_TEMPLATE);
-        }
+
         this.configuration = configuration;
     }
 
@@ -135,16 +138,8 @@ public class SVGExtractor {
         document.close();
     }
 
-    private String getTemplatePath() {
-        return templatePath;
-    }
-
-    public void setTemplatePath(String templatePath) {
-        this.templatePath = templatePath;
-    }
-
     private InputStream getTemplate() {
-        return SVGExtractor.class.getResourceAsStream(getTemplatePath());
+        return SVGExtractor.class.getResourceAsStream(configuration.MUSTER_16_TEMPLATE);
     }
 
     public boolean isDebugRectangles() {
