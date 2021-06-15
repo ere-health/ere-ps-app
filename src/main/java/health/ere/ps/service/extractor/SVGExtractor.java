@@ -33,6 +33,7 @@ import java.util.logging.Logger;
 public class SVGExtractor {
 
     private static final Logger log = Logger.getLogger(SVGExtractor.class.getName());
+    private final String DEFAULT_TEMPLATE = "/svg-extract-templates/Muster-16-Template.svg";
 
     @Inject
     Event<Exception> exceptionEvent;
@@ -138,8 +139,12 @@ public class SVGExtractor {
         document.close();
     }
 
+    private String getTemplatePath() {
+        return configuration.MUSTER_16_TEMPLATE != null ? configuration.MUSTER_16_TEMPLATE : DEFAULT_TEMPLATE;
+    }
+
     private InputStream getTemplate() {
-        return SVGExtractor.class.getResourceAsStream(configuration.MUSTER_16_TEMPLATE);
+        return SVGExtractor.class.getResourceAsStream(getTemplatePath());
     }
 
     public boolean isDebugRectangles() {
