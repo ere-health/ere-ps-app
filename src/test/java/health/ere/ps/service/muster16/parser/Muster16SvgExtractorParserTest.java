@@ -39,6 +39,7 @@ class Muster16SvgExtractorParserTest {
         muster16PrescriptionForm = new Muster16PrescriptionForm(
                 parser.parseInsuranceCompany(),
                 parser.parseInsuranceCompanyId(),
+                parser.parsePatientNamePrefix(),
                 parser.parsePatientFirstName(),
                 parser.parsePatientLastName(),
                 parser.parsePatientStreetName(),

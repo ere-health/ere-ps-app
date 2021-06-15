@@ -1,7 +1,6 @@
 package health.ere.ps.service.muster16;
 
 
-import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -15,7 +14,7 @@ import health.ere.ps.event.SVGExtractorResultEvent;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
 import health.ere.ps.service.muster16.parser.IMuster16FormParser;
 import health.ere.ps.service.muster16.parser.Muster16FormDataParser;
-import health.ere.ps.service.muster16.parser.Muster16SvgExtractorParser;
+import health.ere.ps.service.muster16.parser.rgxer.Muster16SvgRegexParser;
 
 @ApplicationScoped
 public class Muster16FormDataExtractorService {
@@ -33,6 +32,7 @@ public class Muster16FormDataExtractorService {
         Muster16PrescriptionForm muster16Form = new Muster16PrescriptionForm(
                 parser.parseInsuranceCompany(),
                 parser.parseInsuranceCompanyId(),
+                parser.parsePatientNamePrefix(),
                 parser.parsePatientFirstName(),
                 parser.parsePatientLastName(),
                 parser.parsePatientStreetName(),
@@ -53,7 +53,7 @@ public class Muster16FormDataExtractorService {
     public void extractDataWithSvgExtractorParser(@ObservesAsync SVGExtractorResultEvent sVGExtractorResultEvent) {
         log.info("Muster16FormDataExtractorService.extractDataWithSvgExtractorParser");
         try {
-            Muster16SvgExtractorParser parser = new Muster16SvgExtractorParser(sVGExtractorResultEvent.map);
+            Muster16SvgRegexParser parser = new Muster16SvgRegexParser(sVGExtractorResultEvent.map);
 
             Muster16PrescriptionForm muster16Form = fillForm(parser);
 
@@ -64,10 +64,11 @@ public class Muster16FormDataExtractorService {
         }
     }
 
-    public static Muster16PrescriptionForm fillForm(Muster16SvgExtractorParser parser) {
+    public static Muster16PrescriptionForm fillForm(IMuster16FormParser parser) {
         return new Muster16PrescriptionForm(
             parser.parseInsuranceCompany(),
             parser.parseInsuranceCompanyId(),
+            parser.parsePatientNamePrefix(),
             parser.parsePatientFirstName(),
             parser.parsePatientLastName(),
             parser.parsePatientStreetName(),
