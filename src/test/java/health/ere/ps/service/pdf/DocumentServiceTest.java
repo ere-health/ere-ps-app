@@ -8,6 +8,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import org.hl7.fhir.r4.model.Bundle;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -120,6 +121,7 @@ public class DocumentServiceTest {
     }
 
     @Test
+    @Disabled("Test quite slow, run it manually if you want to check the generated pdf")
     public void generateERezeptPdf_generatesCorrectPdf_givenOneMedicineToDisplay() throws IOException {
         // WHEN + THEN
         ByteArrayOutputStream baos = getOutputStream(1);
@@ -127,6 +129,7 @@ public class DocumentServiceTest {
     }
 
     @Test
+    @Disabled("Test quite slow, run it manually if you want to check the generated pdf")
     public void generateERezeptPdf_generatesCorrectPdf_givenTwoMedicineToDisplay() throws IOException {
         // WHEN + THEN
         ByteArrayOutputStream baos = getOutputStream(2);
@@ -134,6 +137,7 @@ public class DocumentServiceTest {
     }
 
     @Test
+    @Disabled("Test quite slow, run it manually if you want to check the generated pdf")
     public void generateERezeptPdf_generatesCorrectPdf_givenThreeMedicineToDisplay() throws IOException {
         // WHEN + THEN
         ByteArrayOutputStream baos = getOutputStream(3);
@@ -141,6 +145,7 @@ public class DocumentServiceTest {
     }
 
     @Test
+    @Disabled("Test quite slow, run it manually if you want to check the generated pdf")
     public void generateERezeptPdf_generatesCorrectPdfWithTwoPages_givenFourMedicineToDisplay() throws IOException {
         // WHEN + THEN
         ByteArrayOutputStream baos = getOutputStream(4);
@@ -148,6 +153,7 @@ public class DocumentServiceTest {
     }
 
     @Test
+    @Disabled("Test quite slow, run it manually if you want to check the generated pdf")
     public void generateERezeptPdf_generatesCorrectPdfWithTwoPages_givenFiveMedicineToDisplay() throws IOException {
         // WHEN + THEN
         ByteArrayOutputStream baos = getOutputStream(5);
@@ -155,15 +161,15 @@ public class DocumentServiceTest {
     }
 
     @Test
+    @Disabled("Test quite slow, run it manually if you want to check the generated pdf")
     public void generateERezeptPdf_generatesCorrectPdfWithTwoPages_givenSixMedicineToDisplay() throws IOException {
         // WHEN + THEN
         ByteArrayOutputStream baos = getOutputStream(6);
         Files.write(Paths.get(TARGET_PATH + "Erezept_with_six_medicines.pdf"), baos.toByteArray());
     }
 
-    //TODO: Starting at 7 the QR code on the top-right start being too big, why? How many should we support?
-
     @Test
+    @Disabled("Test quite slow, run it manually if you want to check the generated pdf")
     public void generateERezeptPdf_generatesCorrectPdfWithThreePages_givenSevenMedicineToDisplay() throws IOException {
         // WHEN + THEN
         ByteArrayOutputStream baos = getOutputStream(7);
@@ -171,6 +177,7 @@ public class DocumentServiceTest {
     }
 
     @Test
+    @Disabled("Test quite slow, run it manually if you want to check the generated pdf")
     public void generateERezeptPdf_generatesCorrectPdfWithThreePages_givenEightMedicineToDisplay() throws IOException {
         // WHEN + THEN
         ByteArrayOutputStream baos = getOutputStream(8);
@@ -178,12 +185,12 @@ public class DocumentServiceTest {
     }
 
     @Test
+    @Disabled("Test quite slow, run it manually if you want to check the generated pdf")
     public void generateERezeptPdf_generatesCorrectPdfWithThreePages_givenNineMedicineToDisplay() throws IOException {
         // WHEN + THEN
         ByteArrayOutputStream baos = getOutputStream(9);
         Files.write(Paths.get(TARGET_PATH + "Erezept_with_nine_medicines.pdf"), baos.toByteArray());
     }
-
 
     private ByteArrayOutputStream getOutputStream(int number) {
         List<BundleWithAccessCodeOrThrowable> bundles = new ArrayList<>();
