@@ -1,7 +1,6 @@
 package health.ere.ps.service.gematik;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -16,12 +15,8 @@ import javax.inject.Inject;
 import javax.xml.stream.XMLStreamException;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.xml.security.c14n.CanonicalizationException;
-import org.apache.xml.security.c14n.InvalidCanonicalizerException;
-import org.apache.xml.security.parser.XMLParserException;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Task;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -30,19 +25,19 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.DataFormatException;
 import ca.uhn.fhir.parser.IParser;
 import de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse;
-import de.gematik.ws.conn.signatureservice.wsdl.v7.FaultMessage;
 
 import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.exception.gematik.ERezeptWorkflowException;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
 import health.ere.ps.service.extractor.SVGExtractor;
-import health.ere.ps.service.extractor.SVGExtractorConfiguration;
 import health.ere.ps.service.fhir.bundle.PrescriptionBundleBuilder;
 import health.ere.ps.service.fhir.bundle.PrescriptionBundleBuilderTest;
 import health.ere.ps.service.muster16.Muster16FormDataExtractorService;
 import health.ere.ps.service.muster16.parser.Muster16SvgExtractorParser;
 import io.quarkus.test.junit.QuarkusTest;
+
+import static health.ere.ps.service.extractor.TemplateProfile.CGM_TURBO_MED;
 
 @QuarkusTest
 public class ERezeptWorkflowServiceTest {
@@ -86,7 +81,7 @@ public class ERezeptWorkflowServiceTest {
         eRezeptWorkflowService.signatureServiceContextUserId = "197610";
         eRezeptWorkflowService.signatureServiceTvMode = "NONE";
         eRezeptWorkflowService.enableVau = true;
-        
+
         InputStream p12Certificate = ERezeptWorkflowServiceTest.class.getResourceAsStream("/ps_erp_incentergy_01.p12");
         eRezeptWorkflowService.setUpCustomSSLContext(p12Certificate);
         eRezeptWorkflowService.init();
@@ -97,7 +92,7 @@ public class ERezeptWorkflowServiceTest {
     void testGetCards() throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         eRezeptWorkflowService.getCards();
     }
-    
+
     @Test @Disabled
     void testCreateERezeptOnPrescriptionServer() throws ERezeptWorkflowException {
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/0428d416-149e-48a4-977c-394887b3d85c.xml"));
@@ -117,7 +112,7 @@ public class ERezeptWorkflowServiceTest {
     @Test
     void testCreateERezeptFromPdfOnPrescriptionServer() throws URISyntaxException,
             IOException, ParseException, ERezeptWorkflowException, XMLStreamException {
-        SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.CGM_TURBO_MED, true);
+        SVGExtractor svgExtractor = new SVGExtractor(CGM_TURBO_MED.configuration, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/CGM-Turbomed/test1.pdf")));
         Muster16SvgExtractorParser muster16Parser = new Muster16SvgExtractorParser(map);
 
@@ -150,7 +145,7 @@ public class ERezeptWorkflowServiceTest {
     void testGetSignatureMode() throws ERezeptWorkflowException {
         eRezeptWorkflowService.getSignatureMode();
     }
-    
+
     @Test @Disabled
     // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testUpdateBundleWithTaskAndSignBundleWithIdentifiers()
