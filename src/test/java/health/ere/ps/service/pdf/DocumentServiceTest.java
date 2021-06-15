@@ -4,7 +4,6 @@ import ca.uhn.fhir.context.FhirContext;
 import health.ere.ps.event.BundlesWithAccessCodeEvent;
 import health.ere.ps.event.ERezeptDocumentsEvent;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
-import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import org.hl7.fhir.r4.model.Bundle;
 import org.junit.jupiter.api.BeforeAll;
@@ -27,18 +26,16 @@ public class DocumentServiceTest {
 
     private final static List<Bundle> testBundles = new ArrayList<>();
     private final static String TARGET_PATH = "target/test_Erezepten/";
-    private DocumentService documentService;
-
+    private final static FhirContext ctx = FhirContext.forR4();
     @Inject
     Event<ERezeptDocumentsEvent> eRezeptDocumentsEvent;
+    private DocumentService documentService;
 
     @BeforeAll
     public static void createTestDirectory() throws IOException {
         if (!Path.of(TARGET_PATH).toFile().exists()) {
             Files.createDirectory(Path.of(TARGET_PATH));
         }
-
-        final FhirContext ctx = FhirContext.forR4();
 
         // GIVEN
         testBundles.add((Bundle) ctx.newXmlParser().parseResource(
@@ -57,6 +54,42 @@ public class DocumentServiceTest {
     public void setUp() {
         documentService = new DocumentService();
         documentService.init();
+    }
+
+    @Test
+    public void onBundlesWithAccessCodes_respectsLimitOfMaxNumberOfMedicinesPerPrescription() {
+        // GIVEN1
+        int maxNumberOfMedicinesPerPrescription = 9;
+        Event<ERezeptDocumentsEvent> mockedEvent = Mockito.mock(Event.class);
+        documentService.seteRezeptDocumentsEvent(mockedEvent);
+
+        List<BundleWithAccessCodeOrThrowable> bundles = new ArrayList<>();
+
+        for (int i = 0; i < maxNumberOfMedicinesPerPrescription; i++) {
+            bundles.add(new BundleWithAccessCodeOrThrowable(
+                    (Bundle) ctx.newXmlParser().parseResource(
+                            DocumentServiceTest.class.getResourceAsStream("/examples_erezept/Erezept_template_1.xml")),
+                    "MOCK_CODE"));
+        }
+
+        // WHEN1
+        documentService.onBundlesWithAccessCodes(new BundlesWithAccessCodeEvent(List.of(bundles)));
+
+        // THEN1
+        Mockito.verify(mockedEvent, Mockito.times(1)).fireAsync(Mockito.any());
+
+        // GIVEN2
+        Mockito.reset(mockedEvent);
+        bundles.add(new BundleWithAccessCodeOrThrowable(
+                (Bundle) ctx.newXmlParser().parseResource(
+                        DocumentServiceTest.class.getResourceAsStream("/examples_erezept/Erezept_template_1.xml")),
+                "MOCK_CODE"));
+
+        // WHEN2
+        documentService.onBundlesWithAccessCodes(new BundlesWithAccessCodeEvent(List.of(bundles)));
+
+        // THEN2
+        Mockito.verify(mockedEvent, Mockito.times(2)).fireAsync(Mockito.any());
     }
 
 
