@@ -1,82 +1,77 @@
 package health.ere.ps.service.fhir.bundle;
 
-import java.text.ParseException;
-import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import org.hl7.fhir.r4.model.ContactPoint.ContactPointSystem;
-import org.hl7.fhir.r4.model.BooleanType;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.CodeType;
-import org.hl7.fhir.r4.model.CodeableConcept;
-import org.hl7.fhir.r4.model.Coding;
-import org.hl7.fhir.r4.model.Composition;
-import org.hl7.fhir.r4.model.Coverage;
-import org.hl7.fhir.r4.model.Extension;
-import org.hl7.fhir.r4.model.Identifier;
-import org.hl7.fhir.r4.model.Medication;
-import org.hl7.fhir.r4.model.MedicationRequest;
-import org.hl7.fhir.r4.model.Organization;
-import org.hl7.fhir.r4.model.Patient;
-import org.hl7.fhir.r4.model.Practitioner;
-import org.hl7.fhir.r4.model.Quantity;
-import org.hl7.fhir.r4.model.StringType;
+import health.ere.ps.model.muster16.MedicationString;
+import health.ere.ps.model.muster16.Muster16PrescriptionForm;
 import org.hl7.fhir.r4.model.Address.AddressType;
+import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.ContactPoint.ContactPointSystem;
+import org.hl7.fhir.r4.model.HumanName.NameUse;
 import org.hl7.fhir.r4.model.MedicationRequest.MedicationRequestDispenseRequestComponent;
 import org.hl7.fhir.r4.model.MedicationRequest.MedicationRequestSubstitutionComponent;
 import org.hl7.fhir.r4.model.Practitioner.PractitionerQualificationComponent;
-import org.hl7.fhir.r4.model.HumanName.NameUse;
 
-import health.ere.ps.model.muster16.MedicationString;
-import health.ere.ps.model.muster16.Muster16PrescriptionForm;
+import java.text.ParseException;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
-public class PrescriptionBundleBuilder {
+public class PrescriptionBundlesBuilder {
     private static final String DEFAULT_DATE_FORMAT = "dd.MM.yyyy";
     private static final String DEFAULT_SHORT_DATE_FORMAT = "dd.MM.yy";
-    private Muster16PrescriptionForm muster16PrescriptionForm;
+    private final Muster16PrescriptionForm muster16PrescriptionForm;
 
-    public PrescriptionBundleBuilder(Muster16PrescriptionForm muster16PrescriptionForm) {
+
+    public PrescriptionBundlesBuilder(Muster16PrescriptionForm muster16PrescriptionForm) {
         this.muster16PrescriptionForm = muster16PrescriptionForm;
     }
 
-    public Bundle createBundle() throws ParseException {
+    private static String getDateFormat(String date) {
+        return date.length() == 8 ? DEFAULT_SHORT_DATE_FORMAT : DEFAULT_DATE_FORMAT;
+    }
+
+    public List<Bundle> createBundles() throws ParseException {
+        List<Bundle> bundles = new ArrayList<>();
+
+        muster16PrescriptionForm.getPrescriptionList().forEach(medicationString ->
+                bundles.add(createBundleForMedication(medicationString)));
+
+        return bundles;
+    }
+
+    private Bundle createBundleForMedication(MedicationString medication) {
         Bundle bundle = new Bundle();
 
         bundle.setId(UUID.randomUUID().toString());
 
         // This will be set by the erezept workflow
-
         bundle.setType(Bundle.BundleType.DOCUMENT);
+
         // Add medication resource.
-        Medication medicationResource = createMedicationResource();
-        // Add medication request resource.
-        MedicationRequest medicationRequestResource = createMedicationRequest(medicationResource.getId());
-
-        // Add composition resource.
-        Composition compositionResource = createComposition(medicationRequestResource.getId());
-
-        bundle.addEntry()
-                .setFullUrl("http://pvs.praxis.local/fhir/Composition/" + compositionResource.getId())
-                .setResource(compositionResource);
-
-
-        bundle.addEntry()
-                .setFullUrl("http://pvs.praxis.local/fhir/MedicationRequest/" +
-                        medicationRequestResource.getId())
-                .setResource(medicationRequestResource);
-
-
+        Medication medicationResource = createMedicationResource(medication);
         bundle.addEntry()
                 .setFullUrl("http://pvs.praxis.local/fhir/Medication/" +
                         medicationResource.getId())
                 .setResource(medicationResource);
 
+        // Add medication request resource.
+        MedicationRequest medicationRequestResource = createMedicationRequest(medicationResource.getId());
+        bundle.addEntry()
+                .setFullUrl("http://pvs.praxis.local/fhir/MedicationRequest/" +
+                        medicationRequestResource.getId())
+                .setResource(medicationRequestResource);
+
+        // Add composition resource.
+        Composition compositionResource = createComposition(medicationRequestResource.getId());
+        bundle.addEntry()
+                .setFullUrl("http://pvs.praxis.local/fhir/Composition/" + compositionResource.getId())
+                .setResource(compositionResource);
+
         // Add patient resource.
         Patient patientResource = createPatientResource();
-
         bundle.addEntry()
                 .setFullUrl("http://pvs.praxis.local/fhir/Patient/" +
                         patientResource.getId())
@@ -84,7 +79,6 @@ public class PrescriptionBundleBuilder {
 
         // Add practitioner resource.
         Practitioner practitionerResource = createPractitionerResource();
-
         bundle.addEntry()
                 .setFullUrl("http://pvs.praxis.local/fhir/Practitioner/" +
                         practitionerResource.getId())
@@ -92,7 +86,6 @@ public class PrescriptionBundleBuilder {
 
         // Add organization resource.
         Organization organizationResource = createOrganizationResource();
-
         bundle.addEntry()
                 .setFullUrl("http://pvs.praxis.local/fhir/Organization/" +
                         organizationResource.getId())
@@ -100,7 +93,6 @@ public class PrescriptionBundleBuilder {
 
         // Add coverage resource.
         Coverage coverageResource = createCoverageResource();
-
         bundle.addEntry()
                 .setFullUrl("http://pvs.praxis.local/fhir/Coverage/" +
                         coverageResource.getId())
@@ -117,11 +109,7 @@ public class PrescriptionBundleBuilder {
         return bundle;
     }
 
-    public static String getDateFormat(String date) {
-        return date.length() == 8? DEFAULT_SHORT_DATE_FORMAT : DEFAULT_DATE_FORMAT;
-    }
-
-    public Patient createPatientResource() throws ParseException {
+    Patient createPatientResource() {
         Patient patient = new Patient();
 
         patient.setId(muster16PrescriptionForm.getPatientInsuranceId());
@@ -139,16 +127,19 @@ public class PrescriptionBundleBuilder {
 
         patient.addName()
                 .setUse(NameUse.OFFICIAL)
+                .setPrefix(muster16PrescriptionForm.getPatientNamePrefix().stream()
+                        .map(StringType::new).collect(Collectors.toList()))
                 .setFamily(muster16PrescriptionForm.getPatientLastName())
                 .addGiven(muster16PrescriptionForm.getPatientFirstName());
 
         String patientDob = muster16PrescriptionForm.getPatientDateOfBirth();
 
         patient.setBirthDate(new SimpleDateFormat(getDateFormat(patientDob))
-                    .parse(patientDob, new ParsePosition(0)));
+                .parse(patientDob, new ParsePosition(0)));
 
         patient.addAddress()
                 .setType(AddressType.BOTH)
+                .setCountry("D")
                 .setCity(muster16PrescriptionForm.getPatientCity())
                 .setPostalCode(muster16PrescriptionForm.getPatientZipCode())
                 .addLine(muster16PrescriptionForm.getPatientStreetName() + " " +
@@ -156,7 +147,7 @@ public class PrescriptionBundleBuilder {
         return patient;
     }
 
-    public Practitioner createPractitionerResource() {
+    private Practitioner createPractitionerResource() {
         Practitioner practitioner = new Practitioner();
 
         practitioner.setId(muster16PrescriptionForm.getDoctorId())
@@ -193,14 +184,14 @@ public class PrescriptionBundleBuilder {
         return practitioner;
     }
 
-    public Organization createOrganizationResource() {
+    private Organization createOrganizationResource() {
         Organization organization = new Organization();
 
         organization.setId(muster16PrescriptionForm.getClinicId()).getMeta().addProfile(
                 "https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Organization|1.0.3");
 
         organization.getMeta()
-                        .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Coverage|1.0.3");
+                .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Coverage|1.0.3");
 
         Identifier identifier = organization.addIdentifier();
 
@@ -213,7 +204,7 @@ public class PrescriptionBundleBuilder {
         identifier.setSystem("https://fhir.kbv.de/NamingSystem/KBV_NS_Base_BSNR");
         identifier.setValue(muster16PrescriptionForm.getClinicId());
 
-        organization.setName(muster16PrescriptionForm.getDoctorNamePrefix()+" "+muster16PrescriptionForm.getDoctorFirstName()+" "+muster16PrescriptionForm.getDoctorLastName());
+        organization.setName(muster16PrescriptionForm.getDoctorNamePrefix() + " " + muster16PrescriptionForm.getDoctorFirstName() + " " + muster16PrescriptionForm.getDoctorLastName());
 
         organization.addTelecom().setSystem(ContactPointSystem.PHONE).setValue(muster16PrescriptionForm.getDoctorPhone());
         organization.addAddress()
@@ -227,7 +218,7 @@ public class PrescriptionBundleBuilder {
         return organization;
     }
 
-    public Coverage createCoverageResource() throws ParseException {
+    Coverage createCoverageResource() {
         Coverage coverage = new Coverage();
 
         coverage.setId(muster16PrescriptionForm.getInsuranceCompanyId());
@@ -272,7 +263,7 @@ public class PrescriptionBundleBuilder {
         return coverage;
     }
 
-    public Medication createMedicationResource() {
+    private Medication createMedicationResource(MedicationString medicationString) {
         Medication medication = new Medication();
 
         medication.setId(UUID.randomUUID().toString()) // TODO: Get actual prescription ID.
@@ -290,20 +281,16 @@ public class PrescriptionBundleBuilder {
         Extension normgroesse = new Extension("http://fhir.de/StructureDefinition/normgroesse", new CodeType("N1"));
         medication.addExtension(normgroesse);
 
+        medication.getCode().addCoding().setSystem("http://fhir.de/CodeSystem/ifa/pzn").setCode(medicationString.getPzn());
+        medication.getCode().setText(medicationString.getName());
 
-        muster16PrescriptionForm.getPrescriptionList().stream().forEach(prescription -> {
-            medication.getCode().addCoding()
-                    .setSystem("http://fhir.de/CodeSystem/ifa/pzn")
-                    .setCode(prescription.getPzn());
-            medication.getCode().setText(prescription.getName());
-        });
         Coding formCoding = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM", "FLE", "");
         medication.setForm(new CodeableConcept().addCoding(formCoding));
 
         return medication;
     }
 
-    public MedicationRequest createMedicationRequest(String medicationId) throws ParseException {
+    private MedicationRequest createMedicationRequest(String medicationId) {
         MedicationRequest medicationRequest = new MedicationRequest();
 
         medicationRequest.setId(UUID.randomUUID().toString());
@@ -312,7 +299,7 @@ public class PrescriptionBundleBuilder {
                 .setLastUpdated(new Date())
                 .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.0.1");
 
-        Coding valueCoding = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_StatusCoPayment", "1", null);
+        Coding valueCoding = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_StatusCoPayment", muster16PrescriptionForm.getWithPayment() ? "0" : "1", null);
         Extension coPayment = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_StatusCoPayment", valueCoding);
         medicationRequest.addExtension(coPayment);
 
@@ -331,7 +318,7 @@ public class PrescriptionBundleBuilder {
         ).setIntent(
                 MedicationRequest.MedicationRequestIntent.ORDER
         ).getMedicationReference().setReference(
-                "Medication/"+medicationId
+                "Medication/" + medicationId
         );
 
         medicationRequest.getSubject().setReference(
@@ -348,7 +335,7 @@ public class PrescriptionBundleBuilder {
         medicationRequest.addInsurance().setReference(
                 "Coverage/" + muster16PrescriptionForm.getInsuranceCompanyId());
 
-        if(muster16PrescriptionForm.getPrescriptionList().size() > 0) {
+        if (muster16PrescriptionForm.getPrescriptionList().size() > 0) {
             MedicationString prescription = muster16PrescriptionForm.getPrescriptionList().get(0);
 
             medicationRequest.addDosageInstruction().setText(prescription.getDosage()).addExtension().setUrl(
@@ -370,7 +357,7 @@ public class PrescriptionBundleBuilder {
         return medicationRequest;
     }
 
-    public Composition createComposition(String medicationRequestId) {
+    private Composition createComposition(String medicationRequestId) {
         Composition composition = new Composition();
 
         composition.setId(UUID.randomUUID().toString()); // TODO: Get ID from Gematik TI
@@ -406,8 +393,8 @@ public class PrescriptionBundleBuilder {
         composition.addAuthor()
                 .setType("Device")
                 .getIdentifier()
-                    .setSystem("https://fhir.kbv.de/NamingSystem/KBV_NS_FOR_Pruefnummer")
-                    .setValue("123456"); //TODO: Get actual KBV issued software certificate number.
+                .setSystem("https://fhir.kbv.de/NamingSystem/KBV_NS_FOR_Pruefnummer")
+                .setValue("123456"); //TODO: Get actual KBV issued software certificate number.
 
         composition.setTitle("elektronische Arzneimittelverordnung");
 
@@ -421,10 +408,10 @@ public class PrescriptionBundleBuilder {
         Composition.SectionComponent sectionComponent = composition.addSection();
 
         sectionComponent.getCode().addCoding()
-                    .setSystem("https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Section_Type")
-                    .setCode("Prescription");
+                .setSystem("https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Section_Type")
+                .setCode("Prescription");
         sectionComponent.addEntry()
-                .setReference("MedicationRequest/"+medicationRequestId);
+                .setReference("MedicationRequest/" + medicationRequestId);
 
         sectionComponent = composition.addSection();
 
