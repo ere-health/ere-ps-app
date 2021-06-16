@@ -1,14 +1,13 @@
 package health.ere.ps.event;
 
-import java.util.ArrayList;
+import org.hl7.fhir.r4.model.Bundle;
+
 import java.util.Arrays;
 import java.util.List;
 
-import org.hl7.fhir.r4.model.Bundle;
+public final class BundlesEvent {
 
-public class BundlesEvent {
-
-    private List<Bundle> bundles = new ArrayList<>();
+    private final List<Bundle> bundles;
 
     public BundlesEvent(Bundle... bundles) {
         this.bundles = Arrays.asList(bundles);
@@ -17,13 +16,4 @@ public class BundlesEvent {
     public List<Bundle> getBundles() {
         return this.bundles;
     }
-
-    public void setBundle(List<Bundle> bundles) {
-        this.bundles = bundles;
-    }
-
-    public void addBundle(Bundle bundle){
-        this.bundles.add(bundle);
-    }
-
 }
