@@ -8,6 +8,7 @@ import health.ere.ps.service.muster16.parser.Muster16SvgExtractorParser;
 import io.quarkus.test.junit.QuarkusTest;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.hl7.fhir.r4.model.Bundle;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.XMLStreamException;
@@ -28,6 +29,7 @@ public class ExtractionToBundleWorkflowTest {
 
 
     @Test
+    @Disabled("Github doesn't have access to the secret repo, run this test manually")
     public void extractionFromPdf_producesCorrectBundle() throws IOException, ParseException, XMLStreamException {
         // GIVEN
         PDDocument testDocument = PDDocument.load(
