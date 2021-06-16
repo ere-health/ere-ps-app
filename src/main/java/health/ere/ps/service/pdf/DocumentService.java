@@ -1,20 +1,15 @@
 package health.ere.ps.service.pdf;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.StringJoiner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
+import ca.uhn.fhir.context.FhirContext;
+import health.ere.ps.event.BundlesWithAccessCodeEvent;
+import health.ere.ps.event.ERezeptDocumentsEvent;
+import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
+import health.ere.ps.model.pdf.ERezeptDocument;
+import org.apache.fop.apps.*;
+import org.apache.fop.configuration.Configuration;
+import org.apache.fop.configuration.ConfigurationException;
+import org.apache.fop.configuration.DefaultConfigurationBuilder;
+import org.hl7.fhir.r4.model.Bundle;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -22,202 +17,218 @@ import javax.enterprise.event.Event;
 import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
 import javax.xml.XMLConstants;
-import javax.xml.transform.ErrorListener;
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.*;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamSource;
-
-import org.apache.fop.apps.FOPException;
-import org.apache.fop.apps.Fop;
-import org.apache.fop.apps.FopFactory;
-import org.apache.fop.apps.FopFactoryBuilder;
-import org.apache.fop.apps.MimeConstants;
-import org.apache.fop.configuration.Configuration;
-import org.apache.fop.configuration.ConfigurationException;
-import org.apache.fop.configuration.DefaultConfigurationBuilder;
-import org.hl7.fhir.r4.model.Bundle;
-
-import ca.uhn.fhir.context.FhirContext;
-import health.ere.ps.event.BundlesWithAccessCodeEvent;
-import health.ere.ps.event.ERezeptDocumentsEvent;
-import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
-import health.ere.ps.model.pdf.ERezeptDocument;
+import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class DocumentService {
 
-	private static final Logger log = Logger.getLogger(DocumentService.class.getName());
+    private static final Logger log = Logger.getLogger(DocumentService.class.getName());
+    private static final int MAX_NUMBER_OF_MEDICINES_PER_PRESCRIPTIONS = 9;
 
-	FopFactory fopFactory;
-
-	// Create a FHIR context
-	FhirContext ctx = FhirContext.forR4();
-
-	@Inject
-	Event<ERezeptDocumentsEvent> eRezeptDocumentsEvent;
-
-	@Inject
+    private final FhirContext ctx = FhirContext.forR4();
+    @Inject
+    Event<ERezeptDocumentsEvent> eRezeptDocumentsEvent;
+    @Inject
     Event<Exception> exceptionEvent;
 
-	public DocumentService() {
+    private FopFactory fopFactory;
 
-	}
+    @PostConstruct
+    public void init() {
+        try {
+            URI baseURI = getClass().getResource("/fop/").toURI();
+            FopFactoryBuilder fopFactoryBuilder = new FopFactoryBuilder(baseURI);
+            initConfiguration(fopFactoryBuilder);
+            fopFactory = fopFactoryBuilder.build();
+        } catch (URISyntaxException ex) {
+            log.severe("FOP Factory not initializable:" + ex);
+        }
+    }
 
-	@PostConstruct
-	public void init() {
-		try {
-			URI baseURI = getClass().getResource("/fop/").toURI();
-			FopFactoryBuilder fopFactoryBuilder = new FopFactoryBuilder(baseURI);
-			initConfiguration(fopFactoryBuilder);
-			fopFactory = fopFactoryBuilder.build();
-		} catch (URISyntaxException ex) {
-			log.log(Level.SEVERE, "FOP Factory not initializable.", ex);
-		}
-	}
+    private void initConfiguration(FopFactoryBuilder fopFactoryBuilder) {
+        Configuration cfg;
+        try {
+            URI uri = getClass().getResource("/fop/fonts/").toURI();
+            File physicalFile = new File(uri);
+            String absolutePath = physicalFile.getAbsolutePath();
+            String config = Files.readString(new File(getClass().getResource("/fop/fop.xconf").toURI()).toPath())
+                    .replaceAll("__WILL_BE_REPLACED_IN_DocumentService__", absolutePath);
+            cfg = new DefaultConfigurationBuilder().build(new ByteArrayInputStream(config.getBytes()));
+            // This is needed to extract the fonts from the war
+            // It is unknown yet how quarkus behaves
+            // List<String> fonts = Arrays.asList("arial.ttf", "arialbd.ttf", "arialbi.ttf",
+            // "ariali.ttf", "ARIALN.TTF",
+            // "ARIALNB.TTF", "ARIALNBI.TTF", "ARIALNI.TTF", "ARIALUNI.TTF",
+            // "ARIALUNIB.TTF", "ariblk.ttf",
+            // "Symbola.ttf");
+            // for (String font : fonts) {
+            // uri = getClass().getResource("/fop/fonts/" + font).toURI();
+            // log.info("Font found: " + uri);
+            // }
+            // log.log(Level.INFO, "Setting fonts path to: {0}", absolutePath);
+            // Configuration fontConfig =
+            // cfg.getChildren("renderers")[0].getChildren("renderer")[0]
+            // .getChildren("fonts")[0].getChildren("directory")[0];
+            // ((DefaultConfiguration)fontConfig)
+            // .setValue(absolutePath);
 
-	public void onBundlesWithAccessCodes(@ObservesAsync BundlesWithAccessCodeEvent bundlesWithAccessCodeEvent) {
-		try{
-			ERezeptDocumentsEvent event = new ERezeptDocumentsEvent();
-			for(List<BundleWithAccessCodeOrThrowable> bundles : bundlesWithAccessCodeEvent.bundleWithAccessCodeOrThrowable) {
-				ByteArrayOutputStream boas = generateERezeptPdf(bundles);
-				event.eRezeptDocuments.add(new ERezeptDocument(bundles, boas != null ? boas.toByteArray() : null));
-			}
-			eRezeptDocumentsEvent.fireAsync(event);
-		} catch(Exception e) {
-			exceptionEvent.fireAsync(e);
-		}
-	}
+            fopFactoryBuilder.setConfiguration(cfg);
+        } catch (IllegalArgumentException | ConfigurationException | ArrayIndexOutOfBoundsException |
+                IOException | URISyntaxException e) {
+            log.severe("Could not configure FOP from file in classpath: /fonts/fop.xconf:" + e);
+        }
+    }
 
-	private void initConfiguration(FopFactoryBuilder fopFactoryBuilder) throws URISyntaxException {
-		Configuration cfg;
-		try {
-			URI uri = getClass().getResource("/fop/fonts/").toURI();
-			File physicalFile = new File(uri);
-			String absolutePath = physicalFile.getAbsolutePath();
-			String config = Files.readString(new File(getClass().getResource("/fop/fop.xconf").toURI()).toPath())
-					.replaceAll("__WILL_BE_REPLACED_IN_DocumentService__", absolutePath);
-			cfg = new DefaultConfigurationBuilder().build(new ByteArrayInputStream(config.getBytes()));
-			// This is needed to extract the fonts from the war
-			// It is unknown yet how quarkus behaves
-			// List<String> fonts = Arrays.asList("arial.ttf", "arialbd.ttf", "arialbi.ttf",
-			// "ariali.ttf", "ARIALN.TTF",
-			// "ARIALNB.TTF", "ARIALNBI.TTF", "ARIALNI.TTF", "ARIALUNI.TTF",
-			// "ARIALUNIB.TTF", "ariblk.ttf",
-			// "Symbola.ttf");
-			// for (String font : fonts) {
-			// uri = getClass().getResource("/fop/fonts/" + font).toURI();
-			// log.info("Font found: " + uri);
-			// }
-			// log.log(Level.INFO, "Setting fonts path to: {0}", absolutePath);
-			// Configuration fontConfig =
-			// cfg.getChildren("renderers")[0].getChildren("renderer")[0]
-			// .getChildren("fonts")[0].getChildren("directory")[0];
-			// ((DefaultConfiguration)fontConfig)
-			// .setValue(absolutePath);
 
-			fopFactoryBuilder.setConfiguration(cfg);
-		} catch (IllegalArgumentException | ConfigurationException | ArrayIndexOutOfBoundsException | IOException e) {
-			log.log(Level.WARNING, "Could not configure FOP from file in classpath: /fonts/fop.xconf", e);
-		}
-	}
+    public void onBundlesWithAccessCodes(@ObservesAsync BundlesWithAccessCodeEvent bundlesWithAccessCodeEvent) {
+        Map<String, List<BundleWithAccessCodeOrThrowable>> bundlesByPatient = filterBundlesByPatient(bundlesWithAccessCodeEvent);
 
-	ByteArrayOutputStream generatePdfInOutputStream(File xml)
-			throws FOPException, TransformerFactoryConfigurationError, TransformerException, IOException {
-		// Step 2: Set up output stream.
-		// Note: Using BufferedOutputStream for performance reasons (helpful with
-		// FileOutputStreams).
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
+        bundlesByPatient.values().forEach(bundlesForOnePatient -> {
+            for (int i = 0; i < bundlesForOnePatient.size(); i += MAX_NUMBER_OF_MEDICINES_PER_PRESCRIPTIONS) {
+                createAndSendPrescriptions(bundlesForOnePatient
+                        .subList(i, Math.min(i + MAX_NUMBER_OF_MEDICINES_PER_PRESCRIPTIONS, bundlesForOnePatient.size())));
+            }
+        });
+    }
 
-		// Step 3: Construct fop with desired output format
-		Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, out);
+    private void createAndSendPrescriptions(List<BundleWithAccessCodeOrThrowable> bundles) {
+        ByteArrayOutputStream boas = generateERezeptPdf(bundles);
+        if (boas.size() > 0) {
+            ERezeptDocument eRezeptDocument = new ERezeptDocument(bundles, boas.toByteArray());
+            eRezeptDocumentsEvent.fireAsync(new ERezeptDocumentsEvent(List.of(eRezeptDocument)));
+        }
+    }
 
-		// Step 4: Setup JAXP using identity transformer
-		TransformerFactory factory = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
-		try {
-			factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-			factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
-		} catch (IllegalArgumentException e) {
-			log.log(Level.FINE, "Features not supported!");
-		}
+    private Map<String, List<BundleWithAccessCodeOrThrowable>> filterBundlesByPatient(BundlesWithAccessCodeEvent event) {
+        List<BundleWithAccessCodeOrThrowable> allBundles = event.getBundleWithAccessCodeOrThrowable()
+                .stream()
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
 
-		// without XSLT:
-		// Transformer transformer = factory.newTransformer(); // identity transformer
+        Map<String, List<BundleWithAccessCodeOrThrowable>> bundlesByPatient = new HashMap<>();
 
-		// with XSLT:
+        allBundles.forEach(bundle -> {
+            List<Bundle.BundleEntryComponent> entries = bundle.getBundle().getEntry();
+            for (Bundle.BundleEntryComponent entry : entries) {
+                if (entry.getResource().fhirType().equals("Patient")) {
+                    String patientId = entry.getResource().getId();
+                    bundlesByPatient.putIfAbsent(patientId, new ArrayList<>());
+                    bundlesByPatient.get(patientId).add(bundle);
+                }
+            }
+        });
+        return bundlesByPatient;
+    }
 
-		String xslPath = "/fop/ERezeptTemplate.xsl";
+    ByteArrayOutputStream generateERezeptPdf(List<BundleWithAccessCodeOrThrowable> bundles) {
+        try {
+            if (bundles.isEmpty()) {
+                log.severe("Cannot generate prescriptions pdf for an empty bundle");
+                return new ByteArrayOutputStream();
+            }
 
-		InputStream inputStream = getClass().getResourceAsStream(xslPath);
-		String systemId = this.getClass().getResource(xslPath).toExternalForm();
-		StreamSource xslt = new StreamSource(inputStream, systemId);
-		xslt.setPublicId(systemId);
-		factory.setErrorListener(new ErrorListener() {
-			private static final String MSG = "Warning in XSLT";
+            File xml = createTemporaryXmlFileFromBundles(bundles);
+            return generatePdfInOutputStream(xml);
+        } catch (IOException | FOPException | TransformerException e) {
+            log.severe("Could not generate ERezept PDF:" + e);
+            exceptionEvent.fireAsync(e);
+            return new ByteArrayOutputStream();
+        }
+    }
 
-			@Override
-			public void warning(TransformerException exception) throws TransformerException {
-				log.log(Level.WARNING, MSG, exception);
+    private File createTemporaryXmlFileFromBundles(List<BundleWithAccessCodeOrThrowable> bundles) throws IOException {
+        String serialized = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root xmlns=\"http://hl7.org/fhir\">\n" +
+                bundles.stream().map(bundle ->
+                        "    <bundle>\n" +
+                                "        <accessCode>" + bundle.getAccessCode() + "</accessCode>\n" +
+                                "        " + ctx.newXmlParser().encodeResourceToString(bundle.getBundle()) + "\n" +
+                                "    </bundle>")
+                        .collect(Collectors.joining("\n")) +
+                "\n</root>";
 
-			}
+        File tmpFile = Files.createTempFile("bundle-", ".xml").toFile();
+        Files.write(tmpFile.toPath(), serialized.getBytes(StandardCharsets.UTF_8));
+        return tmpFile;
+    }
 
-			@Override
-			public void fatalError(TransformerException exception) throws TransformerException {
-				log.log(Level.SEVERE, MSG, exception);
+    private ByteArrayOutputStream generatePdfInOutputStream(File xml) throws FOPException, TransformerException,
+            IOException {
+        // Step 2: Set up output stream.
+        // Note: Using BufferedOutputStream for performance reasons (helpful with
+        // FileOutputStreams).
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-			}
+        // Step 3: Construct fop with desired output format
+        Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, out);
 
-			@Override
-			public void error(TransformerException exception) throws TransformerException {
-				log.log(Level.SEVERE, MSG, exception);
-			}
-		});
-		Transformer transformer = factory.newTransformer(xslt);
-		transformer.setParameter("bundleFileUrl", xml.toURI().toURL().toString());
+        // Step 4: Setup JAXP using identity transformer
+        TransformerFactory factory = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
+        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
 
-		// Step 5: Setup input and output for XSLT transformation
-		// Setup input stream
-		Source src = new StreamSource(xml);
+        // with XSLT:
+        String xslPath = "/fop/ERezeptTemplate.xsl";
 
-		// Resulting SAX events (the generated FO) must be piped through to FOP
-		Result res = new SAXResult(fop.getDefaultHandler());
+        InputStream inputStream = getClass().getResourceAsStream(xslPath);
+        String systemId = this.getClass().getResource(xslPath).toExternalForm();
+        StreamSource xslt = new StreamSource(inputStream, systemId);
+        xslt.setPublicId(systemId);
+        factory.setErrorListener(new ErrorListener() {
+            private static final String MSG = "Error in XSLT:";
 
-		// Step 6: Start XSLT transformation and FOP processing
-		transformer.transform(src, res);
-		return out;
+            @Override
+            public void warning(TransformerException exception) {
+                log.warning(MSG + exception);
 
-	}
+            }
 
-	File createTemporaryXmlFileFromBundles(List<BundleWithAccessCodeOrThrowable> bundles) throws IOException {
-		Path applicationTempPath = Files.createTempFile("bundle-", ".xml");
-		File tmpFile = applicationTempPath.toFile();
-		String serialized = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root xmlns=\"http://hl7.org/fhir\">\n"+
-			bundles.stream().map(bundle ->
-				"    <bundle>\n"+
-				"        <accessCode>"+bundle.accessCode+"</accessCode>\n"+
-				"        "+ctx.newXmlParser().encodeResourceToString(bundle.bundle)+"\n"+
-				"    </bundle>").collect(Collectors.joining("\n"))+
-			"\n</root>";
-		Files.write(tmpFile.toPath(), serialized.getBytes(Charset.forName("UTF-8")));
-		return tmpFile;
-	}
+            @Override
+            public void fatalError(TransformerException exception) {
+                log.severe(MSG + exception);
 
-	public ByteArrayOutputStream generateERezeptPdf(List<BundleWithAccessCodeOrThrowable> bundles) {
-		File xml;
-		try {
-			if(bundles.get(0).bundle == null) {
-				log.warning("Empty bundle given");
-				return null;
-			}
-			xml = createTemporaryXmlFileFromBundles(bundles);
-			return generatePdfInOutputStream(xml);
-		} catch (IOException | FOPException | TransformerFactoryConfigurationError | TransformerException e) {
-			log.log(Level.SEVERE, "Could not generate ERezept PDF", e);
-			return null;
-		}
-	}
+            }
+
+            @Override
+            public void error(TransformerException exception) {
+                log.severe(MSG + exception);
+            }
+        });
+
+        Transformer transformer = factory.newTransformer(xslt);
+        transformer.setParameter("bundleFileUrl", xml.toURI().toURL().toString());
+
+        // Step 5: Setup input and output for XSLT transformation
+        // Setup input stream
+        Source src = new StreamSource(xml);
+
+        // Resulting SAX events (the generated FO) must be piped through to FOP
+        Result res = new SAXResult(fop.getDefaultHandler());
+
+        // Step 6: Start XSLT transformation and FOP processing
+        transformer.transform(src, res);
+        return out;
+
+    }
+
+    /**
+     * Used only to inject a mocked Event for tests
+     *
+     * @param eRezeptDocumentsEvent mocked Event
+     */
+    void seteRezeptDocumentsEvent(Event<ERezeptDocumentsEvent> eRezeptDocumentsEvent) {
+        this.eRezeptDocumentsEvent = eRezeptDocumentsEvent;
+    }
 }
