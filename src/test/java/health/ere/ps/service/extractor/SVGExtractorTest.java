@@ -18,12 +18,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class SVGExtractorTest {
 
 
-    private static Logger log = Logger.getLogger(SVGExtractorTest.class.getName());
-    
-    private String lineSep = System.lineSeparator();
+    private static final Logger log = Logger.getLogger(SVGExtractorTest.class.getName());
+    private final String lineSep = System.lineSeparator();
 
     @Test
-    void testExtractData_CGM_Z1() throws URISyntaxException, IOException, XMLStreamException {
+    void testExtractData_CGM_Z1() throws IOException, XMLStreamException {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.CGM_Z1, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(getClass().getResourceAsStream("/muster-16-print-samples/cgm-z1-manuel-blechschmidt.pdf")));
 
@@ -52,8 +51,7 @@ class SVGExtractorTest {
             "cannot be found, particularly on the machine of a developer who does not have access " +
             "to this file after checking out the main branch.")
     @Test
-    void testExtractData_CGMTurboMed() throws URISyntaxException, IOException, XMLStreamException {
-
+    void testExtractData_CGMTurboMed() throws IOException, XMLStreamException {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.CGM_TURBO_MED, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/CGM-Turbomed/test1.pdf")));
         // logExtraction(map);
@@ -78,8 +76,9 @@ class SVGExtractorTest {
     }
 
 
-    @Test  @Disabled
-    void testExtractApraxos() throws URISyntaxException, IOException, XMLStreamException {
+    @Test  
+    @Disabled
+    void testExtractApraxos() throws IOException, XMLStreamException {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.APRAXOS, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(getClass().getResourceAsStream("/muster-16-print-samples/apraxos_DIN_A4_Output_F-job_222.pdf")));
 
@@ -105,8 +104,9 @@ class SVGExtractorTest {
        
     }
 
-    @Test @Disabled
-    void testExtractDens1() throws URISyntaxException, IOException, XMLStreamException {
+    @Test
+    @Disabled
+    void testExtractDens1() throws IOException, XMLStreamException {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.DENS, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/DENSoffice - Rezept1.pdf")));
 
@@ -135,7 +135,7 @@ class SVGExtractorTest {
             "cannot be found, particularly on the machine of a developer who does not have access " +
             "to this file after checking out the main branch.")
     @Test
-    void testExtractDens2() throws URISyntaxException, IOException, XMLStreamException {
+    void testExtractDens2() throws IOException, XMLStreamException {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.DENS, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/DENSoffice - Rezept2.pdf")));
 
@@ -159,13 +159,12 @@ class SVGExtractorTest {
         
         assertEquals("Metamizol 20 Topfen/500mg bei" + lineSep + "Bedarf, Tageshöchstdosis: 1.5Pantoprazol 40mg 1-0-0" + lineSep + "Clindamycin 600mg 1-0-1 für 5" + lineSep + "bis 7 Tage" + lineSep, map.get("medication"));
         assertEquals("DENS GmbH" + lineSep + "Berliner Str. 13" + lineSep + "14513 Teltow" + lineSep + "03328-334540" + lineSep + "Fax: 03328-334547" + lineSep, map.get("practitionerText"));
-        
     }
 
    
-    @Test @Disabled
-    void testExtractDens3() throws URISyntaxException, IOException, XMLStreamException {
-
+    @Test
+    @Disabled
+    void testExtractDens3() throws IOException, XMLStreamException {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.DENS, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/DENSoffice - Rezept3.pdf")));
 
@@ -188,12 +187,11 @@ class SVGExtractorTest {
         
         assertEquals("Azithromycin 500mg 1-0-0 für " + lineSep + "3 Tage" + lineSep + "Amoxicillin 500mg 1-1-1 in " + lineSep + "Kombination mit" + lineSep + "Metronidazol  400mg  1-0-1 " + lineSep + "für  5  bis  7  Tage " + lineSep, map.get("medication"));
         assertEquals("DENS GmbH" + lineSep + "Berliner Str. 13" + lineSep + "14513 Teltow" + lineSep + "03328-334540" + lineSep + "Fax: 03328-334547" + lineSep, map.get("practitionerText"));
-       
     }
     
-    @Test @Disabled
-    void testExtractDens4() throws URISyntaxException, IOException, XMLStreamException {
-
+    @Test
+    @Disabled
+    void testExtractDens4() throws IOException, XMLStreamException {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.DENS, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/DENSoffice - Rezept4.pdf")));
 
@@ -216,12 +214,11 @@ class SVGExtractorTest {
         
         assertEquals("Cefuroxim 500mg 1-0-1" + lineSep + "Ibuprofen 600mg 1-1-1" + lineSep + "Metamizol 20 Topfen/500mg bei" + lineSep + "Bedarf" + lineSep, map.get("medication"));
         assertEquals("DENS GmbH" + lineSep + "Berliner Str. 13" + lineSep + "14513 Teltow" + lineSep + "03328-334540" + lineSep + "Fax: 03328-334547" + lineSep, map.get("practitionerText"));
-       
     }
     
-    @Test @Disabled
-    void testExtractDens5() throws URISyntaxException, IOException, XMLStreamException {
-
+    @Test
+    @Disabled
+    void testExtractDens5() throws IOException, XMLStreamException {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.DENS, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/DENSoffice - Rezept5.pdf")));
 
@@ -244,12 +241,11 @@ class SVGExtractorTest {
         
         assertEquals("Amoxicillin 3.000mg 1 Stunde " + lineSep + "vor dem Eingriff" + lineSep + "Abschwellende  Nasentropfen  " + lineSep + "(z.B.  Xylomet-hazolin) 6x " + lineSep + "Inhalationen" + lineSep, map.get("medication"));
         assertEquals("DENS GmbH" + lineSep + "Berliner Str. 13" + lineSep + "14513 Teltow" + lineSep + "03328-334540" + lineSep + "Fax: 03328-334547" + lineSep, map.get("practitionerText"));
-       
     }
     
-    @Test @Disabled
-    void testExtractDens6() throws URISyntaxException, IOException, XMLStreamException {
-
+    @Test
+    @Disabled
+    void testExtractDens6() throws IOException, XMLStreamException {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.DENS, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/DENSoffice - Rezept6.pdf")));
 
@@ -274,9 +270,9 @@ class SVGExtractorTest {
         assertEquals("DENS GmbH" + lineSep + "Berliner Str. 13" + lineSep + "14513 Teltow" + lineSep + "03328-334540" + lineSep + "Fax: 03328-334547" + lineSep, map.get("practitionerText"));
     }
     
-    @Test @Disabled
-    void testExtractDens7() throws URISyntaxException, IOException, XMLStreamException {
-
+    @Test
+    @Disabled
+    void testExtractDens7() throws IOException, XMLStreamException {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.DENS, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/DENSoffice - Rezept7.pdf")));
 
@@ -301,9 +297,9 @@ class SVGExtractorTest {
         assertEquals("DENS GmbH" + lineSep + "Berliner Str. 13" + lineSep + "14513 Teltow" + lineSep + "03328-334540" + lineSep + "Fax: 03328-334547" + lineSep, map.get("practitionerText"));
     }
     
-    @Test @Disabled
-    void testExtractDens8() throws URISyntaxException, IOException, XMLStreamException {
-
+    @Test
+    @Disabled
+    void testExtractDens8() throws IOException, XMLStreamException {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.DENS, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/DENSoffice - Rezept8.pdf")));
 
@@ -328,9 +324,9 @@ class SVGExtractorTest {
         assertEquals("DENS GmbH" + lineSep + "Berliner Str. 13" + lineSep + "14513 Teltow" + lineSep + "03328-334540" + lineSep + "Fax: 03328-334547" + lineSep, map.get("practitionerText"));
     }
     
-    @Test @Disabled
-    void testExtractDens10() throws URISyntaxException, IOException, XMLStreamException {
-
+    @Test
+    @Disabled
+    void testExtractDens10() throws IOException, XMLStreamException {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.DENS, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/DENSoffice - Rezept10.pdf")));
 
@@ -359,6 +355,4 @@ class SVGExtractorTest {
     private void logExtraction(Map<String, String> map) {
         System.out.println(map.entrySet().stream().map((e) -> "        assertEquals(\""+e.getValue().replaceAll(lineSep, "\\\\n")+"\", map.get(\""+e.getKey()+"\"));").collect(Collectors.joining(lineSep)));
     }
-    
-
 }

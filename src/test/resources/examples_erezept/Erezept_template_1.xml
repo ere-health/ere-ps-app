@@ -164,6 +164,17 @@
                     </coding>
                     <text value="Novalgin AMP N1 5X2 ml" />
                 </code>
+                <amount>
+                    <numerator>
+                        <value value="10" />
+                        <unit value="Tabletten" />
+                        <system value="http://unitsofmeasure.org" />
+                        <code value="{tbl}" />
+                    </numerator>
+                    <denominator>
+                        <value value="1" />
+                    </denominator>
+                </amount>
                 <form>
                     <coding>
                         <system value="https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM" />
@@ -193,9 +204,9 @@
                 </identifier>
                 <name>
                     <use value="official" />
-                    <family value="Banholzer">
-                    </family>
-                    <given value="Dominik" />
+                    <prefix value="Dr."/>
+                    <given value="Erika Freifrau" />
+                    <family value="von Mustermann"/>
                 </name>
                 <birthDate value="1987-07-19" />
                 <address>
@@ -228,15 +239,9 @@
                 </identifier>
                 <name>
                     <use value="official" />
-                    <family value="Testarzt 2">
-                        
-                    </family>
-                    <given value="E-Reze pt" />
-                    <prefix value="Dr.">
-                        <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier">
-                            <valueCode value="AC" />
-                        </extension>
-                    </prefix>
+                    <family value="von Mustermann"/>
+                    <given value="Monika Freifrau" />
+                    <prefix value="Dr."/>
                 </name>
                 <qualification>
                     <code>
@@ -272,10 +277,14 @@
                     <system value="https://fhir.kbv.de/NamingSystem/KBV_NS_Base_BSNR" />
                     <value value="687777700" />
                 </identifier>
-                <name value="Hausarzt" />
+                <name value="Praxis für Innere Medizin" />
                 <telecom>
                     <system value="phone" />
-                    <value value="0261-110 110" />
+                    <value value="030/42666666" />
+                </telecom>
+                <telecom>
+                    <system value="email" />
+                    <value value="mvz@e-mail.de" />
                 </telecom>
                 <address>
                     <type value="both" />
