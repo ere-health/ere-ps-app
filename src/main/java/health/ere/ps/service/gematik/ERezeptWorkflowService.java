@@ -77,7 +77,7 @@ import oasis.names.tc.dss._1_0.core.schema.Base64Data;
 @ApplicationScoped
 public class ERezeptWorkflowService {
 
-    private static Logger log = Logger.getLogger(ERezeptWorkflowService.class.getName());
+    private static final Logger log = Logger.getLogger(ERezeptWorkflowService.class.getName());
 
     FhirContext fhirContext = FhirContext.forR4();
 
@@ -294,9 +294,9 @@ public class ERezeptWorkflowService {
         // Example:
         // src/test/resources/gematik/Bundle-4fe2013d-ae94-441a-a1b1-78236ae65680.xml
         BundleWithAccessCodeOrThrowable bundleWithAccessCode = updateBundleWithTask(task, bundle);
-        SignResponse signedDocument = signBundleWithIdentifiers(bundleWithAccessCode.bundle);
+        SignResponse signedDocument = signBundleWithIdentifiers(bundleWithAccessCode.getBundle());
 
-        updateERezeptTask(bearerToken, task, bundleWithAccessCode.accessCode,
+        updateERezeptTask(bearerToken, task, bundleWithAccessCode.getAccessCode(),
                 signedDocument.getSignatureObject().getBase64Signature().getValue());
 
         return bundleWithAccessCode;
@@ -568,5 +568,4 @@ public class ERezeptWorkflowService {
         parameter.setContext(createContextType());
         return eventService.getCards(parameter);
     }
-
 }

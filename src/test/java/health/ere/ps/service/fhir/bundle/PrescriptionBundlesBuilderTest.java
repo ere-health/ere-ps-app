@@ -1,5 +1,12 @@
 package health.ere.ps.service.fhir.bundle;
 
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.IParser;
+import ca.uhn.fhir.validation.ValidationResult;
+import health.ere.ps.model.muster16.MedicationString;
+import health.ere.ps.model.muster16.Muster16PrescriptionForm;
+import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
+import io.quarkus.test.junit.QuarkusTest;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Coverage;
 import org.hl7.fhir.r4.model.Patient;
@@ -8,33 +15,22 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.net.URISyntaxException;
+import javax.inject.Inject;
 import java.text.ParseException;
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
-import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.parser.IParser;
-import ca.uhn.fhir.validation.ValidationResult;
-import health.ere.ps.model.muster16.MedicationString;
-import health.ere.ps.model.muster16.Muster16PrescriptionForm;
-import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
-import io.quarkus.test.junit.QuarkusTest;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
-public class PrescriptionBundleBuilderTest {
+public class PrescriptionBundlesBuilderTest {
     @Inject
     Logger logger;
     private PrescriptionBundleValidator prescriptionBundleValidator;
-    private PrescriptionBundleBuilder prescriptionBundleBuilder;
+    private PrescriptionBundlesBuilder prescriptionBundlesBuilder;
 
-    public static PrescriptionBundleBuilder getPrescriptionBundleBuilder() {
+    public static Muster16PrescriptionForm getMuster16PrescriptionFormForTests() {
         Muster16PrescriptionForm muster16PrescriptionForm;
         muster16PrescriptionForm = new Muster16PrescriptionForm();
 
@@ -43,13 +39,14 @@ public class PrescriptionBundleBuilderTest {
         muster16PrescriptionForm.setPrescriptionDate("05.04.2021");
         MedicationString medicationString = new MedicationString("Amoxicillin 1000mg N2", null, null, "3x täglich alle 8 Std", null, "2394428");
 
-        muster16PrescriptionForm.setPrescriptionList(Arrays.asList(medicationString));
+        muster16PrescriptionForm.setPrescriptionList(Collections.singletonList(medicationString));
 
         muster16PrescriptionForm.setDoctorId("LANR1234");
 
         muster16PrescriptionForm.setInsuranceCompany("Test Insurance Company, Gmbh");
 
         muster16PrescriptionForm.setPatientDateOfBirth("16.07.1986");
+        muster16PrescriptionForm.setPatientNamePrefix(List.of("Dr."));
         muster16PrescriptionForm.setPatientFirstName("John");
         muster16PrescriptionForm.setPatientLastName("Doe");
         muster16PrescriptionForm.setPatientStreetName("Droysenstr.");
@@ -71,14 +68,14 @@ public class PrescriptionBundleBuilderTest {
         muster16PrescriptionForm.setDoctorPhone("030/123456");
 
         muster16PrescriptionForm.setInsuranceCompanyId("100038825");
+        muster16PrescriptionForm.setWithPayment(true);
 
-        return
-                new PrescriptionBundleBuilder(muster16PrescriptionForm);
+        return muster16PrescriptionForm;
     }
 
     @BeforeEach
-    public void initialize() throws URISyntaxException {
-        prescriptionBundleBuilder = getPrescriptionBundleBuilder();
+    public void initialize() {
+        prescriptionBundlesBuilder = new PrescriptionBundlesBuilder(getMuster16PrescriptionFormForTests());
         prescriptionBundleValidator = new PrescriptionBundleValidator();
     }
 
@@ -86,7 +83,7 @@ public class PrescriptionBundleBuilderTest {
     public void test_Successful_Creation_of_FHIR_EPrescription_Bundle_From_Muster16_Model_Object()
             throws ParseException {
 
-        Bundle fhirEPrescriptionBundle = prescriptionBundleBuilder.createBundle();
+        List<Bundle> fhirEPrescriptionBundles = prescriptionBundlesBuilder.createBundles();
 
         // Expecting the creation of 7 resources
         // 1. composition resource
@@ -96,7 +93,26 @@ public class PrescriptionBundleBuilderTest {
         // 5. practitioner resource.
         // 6. organization resource.
         // 7. coverage resource.
-        assertEquals(7, fhirEPrescriptionBundle.getEntry().size());
+        fhirEPrescriptionBundles.forEach(bundle -> assertEquals(7, bundle.getEntry().size()));
+        assertEquals(1, fhirEPrescriptionBundles.size());
+    }
+
+    @Test
+    public void BundleBuilder_createsCorrectNumberOfBundles_givenThreeMedications() throws ParseException {
+        // GIVEN
+        Muster16PrescriptionForm muster16PrescriptionForm = getMuster16PrescriptionFormForTests();
+        muster16PrescriptionForm.setPrescriptionList(List.of(
+                new MedicationString("test", "test", "test", "test", "test", "test"),
+                new MedicationString("test", "test", "test", "test", "test", "test"),
+                new MedicationString("test", "test", "test", "test", "test", "test")));
+
+        prescriptionBundlesBuilder = new PrescriptionBundlesBuilder(muster16PrescriptionForm);
+
+        // WHEN
+        List<Bundle> fhirEPrescriptionBundles = prescriptionBundlesBuilder.createBundles();
+
+        // THEN
+        assertEquals(3, fhirEPrescriptionBundles.size());
     }
 
     @Test
@@ -106,15 +122,16 @@ public class PrescriptionBundleBuilderTest {
 
         IParser parser = ctx.newXmlParser();
 
-        Bundle fhirEPrescriptionBundle = prescriptionBundleBuilder.createBundle();
+        List<Bundle> fhirEPrescriptionBundles = prescriptionBundlesBuilder.createBundles();
 
-        fhirEPrescriptionBundle.setId("sample-id-from-gematik-ti-123456");
+        fhirEPrescriptionBundles.forEach(bundle -> {
+            bundle.setId("sample-id-from-gematik-ti-123456");
+            parser.setPrettyPrint(true);
 
-        parser.setPrettyPrint(true);
+            String serialized = parser.encodeResourceToString(bundle);
 
-        String serialized = parser.encodeResourceToString(fhirEPrescriptionBundle);
-
-        logger.info(serialized);
+            logger.info(serialized);
+        });
     }
 
     @Test
@@ -124,22 +141,23 @@ public class PrescriptionBundleBuilderTest {
 
         IParser parser = ctx.newJsonParser();
 
-        Bundle fhirEPrescriptionBundle = prescriptionBundleBuilder.createBundle();
+        List<Bundle> fhirEPrescriptionBundles = prescriptionBundlesBuilder.createBundles();
 
-        fhirEPrescriptionBundle.setId("sample-id-from-gematik-ti-123456");
+        fhirEPrescriptionBundles.forEach(bundle -> {
+            bundle.setId("sample-id-from-gematik-ti-123456");
+            parser.setPrettyPrint(true);
 
-        parser.setPrettyPrint(true);
+            String serialized = parser.encodeResourceToString(bundle);
 
-        String serialized = parser.encodeResourceToString(fhirEPrescriptionBundle);
-
-        logger.info(serialized);
+            logger.info(serialized);
+        });
     }
 
     @Disabled
     @Test
     public void test_Successful_Validation_Of_An_FHIR_Patient_Resource()
             throws ParseException {
-        Patient patientResource = prescriptionBundleBuilder.createPatientResource();
+        Patient patientResource = prescriptionBundlesBuilder.createPatientResource();
 
         ValidationResult validationResult =
                 prescriptionBundleValidator.validateResource(patientResource, true);
@@ -184,9 +202,8 @@ public class PrescriptionBundleBuilderTest {
 
     @Disabled
     @Test
-    public void test_Successful_Validation_Of_An_FHIR_Coverage_Resource()
-            throws ParseException {
-        Coverage coverageResource = prescriptionBundleBuilder.createCoverageResource();
+    public void test_Successful_Validation_Of_An_FHIR_Coverage_Resource() {
+        Coverage coverageResource = prescriptionBundlesBuilder.createCoverageResource();
 
         ValidationResult validationResult =
                 prescriptionBundleValidator.validateResource(coverageResource, true);
@@ -197,10 +214,12 @@ public class PrescriptionBundleBuilderTest {
     @Test
     public void test_Successful_Validation_Of_XML_Serialization_Of_FHIR_EPrescription_Bundle_Object()
             throws ParseException {
-        Bundle prescriptionBundle = prescriptionBundleBuilder.createBundle();
+        List<Bundle> prescriptionBundles = prescriptionBundlesBuilder.createBundles();
 
-        ValidationResult validationResult =
-                prescriptionBundleValidator.validateResource(prescriptionBundle, true);
-        assertTrue(validationResult.isSuccessful());
+        prescriptionBundles.forEach(bundle -> {
+            ValidationResult validationResult =
+                    prescriptionBundleValidator.validateResource(bundle, true);
+            assertTrue(validationResult.isSuccessful());
+        });
     }
 }

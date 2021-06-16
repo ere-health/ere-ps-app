@@ -83,7 +83,7 @@ public class IdPService {
                     ConnectorCardsService.CardHandleType.SMC_B);
 
             X509Certificate x509Certificate =
-                    cardCertificateReaderService.retrieveSmcbCardCertificate(appConfig.getClientId(),
+                    cardCertificateReaderService.retrieveSmcbCardCertificate(appConfig.getMandantId(),
                             appConfig.getClientSystem(), appConfig.getWorkplace(),
                             cardHandle.get());
 
