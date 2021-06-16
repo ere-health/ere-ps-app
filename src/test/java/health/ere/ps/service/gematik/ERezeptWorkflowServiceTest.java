@@ -97,7 +97,9 @@ public class ERezeptWorkflowServiceTest {
     @Test
     @Disabled
     void testCreateERezeptWithPrescriptionBuilderOnPrescriptionServer() throws ParseException {
-        List<Bundle> bundles = PrescriptionBundlesBuilderTest.getPrescriptionBundleBuilder().createBundles();
+        List<Bundle> bundles = new PrescriptionBundlesBuilder(
+                PrescriptionBundlesBuilderTest.getMuster16PrescriptionFormForTests()).createBundles();
+
         bundles.forEach(bundle -> {
             log.info(iParser.encodeResourceToString(bundle));
             try {
