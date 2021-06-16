@@ -87,10 +87,12 @@ public class ERezeptWorkflowServiceTest {
         eRezeptWorkflowService.getCards();
     }
 
+    
     @Test
     @Disabled
     void testCreateERezeptOnPrescriptionServer() throws ERezeptWorkflowException {
-        Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/0428d416-149e-48a4-977c-394887b3d85c.xml"));
+        Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/examples_erezept/Erezept_template_2.xml"));
+
         eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
     }
 
@@ -162,15 +164,16 @@ public class ERezeptWorkflowServiceTest {
         eRezeptWorkflowService.getSignatureMode();
     }
 
+    
     @Test
     @Disabled
-        // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
-    void testUpdateBundleWithTaskAndSignBundleWithIdentifiers()
-            throws IOException, ERezeptWorkflowException {
-        Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/281a985c-f25b-4aae-91a6-41ad744080b0.xml"));
+    // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
+    void testUpdateBundleWithTaskAndSignBundleWithIdentifiers() throws IOException, ERezeptWorkflowException {
+        Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/examples_erezept/Erezept_template_3.xml"));
+
         Task task = iParser.parseResource(Task.class, new FileInputStream("target/titus-eRezeptWorkflowService-createERezeptTask.xml"));
         BundleWithAccessCodeOrThrowable bundleWithAccessCode = eRezeptWorkflowService.updateBundleWithTask(task, bundle);
-        SignResponse signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundleWithAccessCode.bundle, true);
+        SignResponse signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundleWithAccessCode.getBundle(), true);
         Files.write(Paths.get("target/titus-eRezeptWorkflowService-signBundleWithIdentifiers.dat"), signResponse.getSignatureObject().getBase64Signature().getValue());
     }
 
