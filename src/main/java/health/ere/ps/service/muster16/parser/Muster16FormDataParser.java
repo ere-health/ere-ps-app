@@ -1,14 +1,14 @@
 package health.ere.ps.service.muster16.parser;
 
+import health.ere.ps.model.muster16.MedicationString;
 import org.apache.commons.lang3.StringUtils;
 
-import health.ere.ps.model.muster16.MedicationString;
-
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Muster16FormDataParser implements IMuster16FormParser {
-    private String muster16PdfData;
+    private final String muster16PdfData;
     private String[] muster16PdfDataFields;
 
     public Muster16FormDataParser(String muster16PdfData) {
@@ -87,9 +87,9 @@ public class Muster16FormDataParser implements IMuster16FormParser {
             lineElements = muster16PdfDataFields[i].split("\\s");
 
             if(lineElements != null) {
-                for(int j = 0; j < lineElements.length; j++) {
-                    if(lineElements[j].trim().matches("\\d\\d\\.\\d\\d\\.\\d\\d")) {
-                        patientDateOfBirth = lineElements[j].trim();
+                for (String lineElement : lineElements) {
+                    if (lineElement.trim().matches("\\d\\d\\.\\d\\d\\.\\d\\d")) {
+                        patientDateOfBirth = lineElement.trim();
                         found = true;
                         break;
                     }
@@ -122,7 +122,7 @@ public class Muster16FormDataParser implements IMuster16FormParser {
         return prescriptionDate;
     }
     public List<MedicationString> parsePrescriptionList() {
-        List<MedicationString> prescriptionList = new ArrayList<>(1);
+        List<MedicationString> prescriptionList = Collections.emptyList();
 
         return prescriptionList;
     }
@@ -131,5 +131,12 @@ public class Muster16FormDataParser implements IMuster16FormParser {
         String patientInsuranceId = "";
 
         return patientInsuranceId;
+    }
+
+    @Override
+    public Boolean parseIsWithPayment() {
+        Boolean isWithPayment = false;
+
+        return isWithPayment;
     }
 }
