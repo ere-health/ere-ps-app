@@ -42,6 +42,11 @@ public class SVGExtractor {
     private String templatePath = "/svg-extract-templates/Muster-16-Template.svg";
     private boolean debugRectangles = false;
 
+
+    public SVGExtractor() {
+        this(SVGExtractorConfiguration.DENS);
+    }
+
     public SVGExtractor(SVGExtractorConfiguration configuration) {
         if (configuration.MUSTER_16_TEMPLATE != null && !configuration.MUSTER_16_TEMPLATE.isEmpty()) {
             log.log(Level.INFO, "Using muster 16 template: " + configuration.MUSTER_16_TEMPLATE);
