@@ -52,6 +52,7 @@ public class Muster16SvgRegexParser implements IMuster16FormParser {
         fieldsMap.put(DOCTOR_ID, entries.getOrDefault("practitionerNumber", ""));
         fieldsMap.put(PRESCRIPTION_DATE, entries.getOrDefault("date", ""));
         fieldsMap.put(PATIENT_INSURANCE_ID, entries.getOrDefault("insuranceNumber", ""));
+        fieldsMap.put(IS_WITH_PAYMENT, entries.getOrDefault("isWithPayment", ""));
         fieldsMap.putAll(extractIntermediateValues(entries));
         return fieldsMap;
     }
@@ -143,5 +144,10 @@ public class Muster16SvgRegexParser implements IMuster16FormParser {
     @Override
     public String parsePatientInsuranceId() {
         return getValue(PATIENT_INSURANCE_ID);
+    }
+
+    @Override
+    public Boolean parseIsWithPayment() {
+        return getValue(IS_WITH_PAYMENT).equals("X");
     }
 }

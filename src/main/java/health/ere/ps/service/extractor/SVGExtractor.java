@@ -32,40 +32,34 @@ import java.util.logging.Logger;
 public class SVGExtractor {
 
     private static final Logger log = Logger.getLogger(SVGExtractor.class.getName());
+    private final SVGExtractorConfiguration configuration;
 
     @Inject
     Event<Exception> exceptionEvent;
-
     @Inject
     Event<SVGExtractorResultEvent> sVGExtractorResultEvent;
 
     private String templatePath = "/svg-extract-templates/Muster-16-Template.svg";
     private boolean debugRectangles = false;
 
-    private SVGExtractorConfiguration configuration;
-
-    public SVGExtractor() {
-        this(SVGExtractorConfiguration.DENS);
-    }
-
     public SVGExtractor(SVGExtractorConfiguration configuration) {
-        if (configuration.MUSTER_16_TEMPLATE != null && !configuration.MUSTER_16_TEMPLATE.equals("")) {
+        if (configuration.MUSTER_16_TEMPLATE != null && !configuration.MUSTER_16_TEMPLATE.isEmpty()) {
             log.log(Level.INFO, "Using muster 16 template: " + configuration.MUSTER_16_TEMPLATE);
-            setTemplatePath(configuration.MUSTER_16_TEMPLATE);
+            this.templatePath = configuration.MUSTER_16_TEMPLATE;
         }
         this.configuration = configuration;
     }
 
     public SVGExtractor(SVGExtractorConfiguration configuration, boolean debugRectangles) {
         this(configuration);
-        this.setDebugRectangles(debugRectangles);
+        this.debugRectangles = debugRectangles;
     }
 
     public void analyzeDocument(@ObservesAsync PDDocumentEvent pDDocumentEvent) {
         log.info("SVGExtractor.analyzeDocument");
         try {
-            Map<String, String> extractResult = extract(pDDocumentEvent.pDDocument);
-            sVGExtractorResultEvent.fireAsync(new SVGExtractorResultEvent(extractResult));
+            Map<String, String> extractionResult = extract(pDDocumentEvent.getPDDocument());
+            sVGExtractorResultEvent.fireAsync(new SVGExtractorResultEvent(extractionResult));
         } catch (Exception e) {
             log.log(Level.SEVERE, "Could not extract results", e);
             exceptionEvent.fireAsync(e);
@@ -77,15 +71,18 @@ public class SVGExtractor {
         if (configuration.ROTATE_DEGREE != 0) {
             page.setRotation(configuration.ROTATE_DEGREE);
         }
+
         Map<String, String> map = new HashMap<>();
         XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
         XMLEventReader reader = xmlInputFactory.createXMLEventReader(getTemplate());
         boolean rectFetchMode = false;
+
         while (reader.hasNext()) {
             XMLEvent nextEvent = reader.nextEvent();
             if (nextEvent.isStartElement()) {
                 StartElement startElement = nextEvent.asStartElement();
                 String localPart = startElement.getName().getLocalPart();
+
                 if ("g".equals(localPart)
                         && "fields".equals(startElement.getAttributeByName(new QName("id")).getValue())) {
                     rectFetchMode = true;
@@ -95,7 +92,8 @@ public class SVGExtractor {
                     float y = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("y")).getValue()) * configuration.SCALE + configuration.Y_OFFSET;
                     float width = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("width")).getValue()) * configuration.SCALE;
                     float height = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("height")).getValue()) * configuration.SCALE;
-                    if (isDebugRectangles()) {
+
+                    if (debugRectangles) {
                         PDPageContentStream contentStream = new PDPageContentStream(document, page, AppendMode.APPEND, true);
                         if (configuration.ROTATE_DEGREE == 90)
                             contentStream.addRect(y, x, height, width);
@@ -111,12 +109,12 @@ public class SVGExtractor {
                 }
             }
         }
-        if (isDebugRectangles())
+        if (debugRectangles)
             saveDebugFile(document);
         return map;
     }
 
-    public String extractTextAtPosition(PDDocument document, String id, float x, float y, float width, float height) throws IOException {
+    private String extractTextAtPosition(PDDocument document, String id, float x, float y, float width, float height) throws IOException {
         PDFTextStripperByArea textStripper;
         textStripper = new PDFTextStripperByArea();
         PDPage docPage = document.getPage(0);
@@ -135,23 +133,7 @@ public class SVGExtractor {
         document.close();
     }
 
-    private String getTemplatePath() {
-        return templatePath;
-    }
-
-    public void setTemplatePath(String templatePath) {
-        this.templatePath = templatePath;
-    }
-
     private InputStream getTemplate() {
-        return SVGExtractor.class.getResourceAsStream(getTemplatePath());
-    }
-
-    public boolean isDebugRectangles() {
-        return debugRectangles;
-    }
-
-    public void setDebugRectangles(boolean debugRectangles) {
-        this.debugRectangles = debugRectangles;
+        return SVGExtractor.class.getResourceAsStream(templatePath);
     }
 }
