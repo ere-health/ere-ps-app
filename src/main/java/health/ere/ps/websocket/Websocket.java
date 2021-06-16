@@ -73,13 +73,29 @@ public class Websocket {
     public void onMessage(String message) {
         log.info("Message: " + message);
 
-        JsonReader jsonReader = Json.createReader(new StringReader(message));
-        JsonObject object = jsonReader.readObject();
-        if("SignAndUploadBundles".equals(object.getString("type"))) {
-            SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(object);
-            signAndUploadBundlesEvent.fireAsync(event);
+        try(JsonReader jsonReader = Json.createReader(new StringReader(message))) {
+
+            log.info("Creating json object from incoming message : " + message);
+
+            JsonObject object = jsonReader.readObject();
+
+            log.info("Created json object from incoming message : " + message);
+
+            if ("SignAndUploadBundles".equals(object.getString("type"))) {
+                log.info("Creating SignAndUploadBundles object from incoming message : " +
+                        message);
+
+                SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(object);
+
+                log.info("Created SignAndUploadBundles object from incoming message : " +
+                        message);
+
+                signAndUploadBundlesEvent.fireAsync(event);
+
+                log.info("Fired SignAndUploadBundles event for SignAndUploadBundles object : " +
+                        object);
+            }
         }
-        jsonReader.close();
     }
 
     public void onFhirBundle(@ObservesAsync BundlesEvent bundlesEvent) {
@@ -89,6 +105,7 @@ public class Websocket {
             if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
                 try {
                     // Open a browser with the given URL
+                    //TODO: Open a Chrome browser
                     // TODO: build link dynamically
                     Desktop.getDesktop().browse(new URI("http://localhost:8080/frontend/app/src/index.html"));
                     Thread.sleep(5000);
@@ -102,7 +119,8 @@ public class Websocket {
             s.getAsyncRemote().sendObject(
                     "{\"type\": \"Bundles\", \"payload\": " + generateJson(bundlesEvent) + "}", result -> {
                         if (result.getException() != null) {
-                            System.out.println("Unable to send message: " + result.getException());
+                            log.log(Level.SEVERE,
+                                    "Unable to send message: " + result.getException());
                         }
                     });
         });

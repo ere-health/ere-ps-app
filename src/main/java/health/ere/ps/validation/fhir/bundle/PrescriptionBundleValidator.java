@@ -1,5 +1,6 @@
 package health.ere.ps.validation.fhir.bundle;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.common.hapi.validation.support.CachingValidationSupport;
 import org.hl7.fhir.common.hapi.validation.support.CommonCodeSystemsTerminologyService;
 import org.hl7.fhir.common.hapi.validation.support.InMemoryTerminologyServerValidationSupport;
@@ -12,42 +13,50 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.context.support.DefaultProfileValidationSupport;
 import ca.uhn.fhir.validation.FhirValidator;
 import ca.uhn.fhir.validation.SingleValidationMessage;
+import ca.uhn.fhir.validation.ValidationOptions;
 import ca.uhn.fhir.validation.ValidationResult;
 import health.ere.ps.validation.fhir.structuredefinition.fhir.kbv.de.v1_0_3.KBV_PR_FOR_Patient_StructureDefinition;
 
 public class PrescriptionBundleValidator {
     private FhirValidator validator;
+    private String profile;
+
+    public PrescriptionBundleValidator(String profile) {
+        this();
+
+        setProfile(profile);
+    }
 
     public PrescriptionBundleValidator() {
         FhirContext ctx = FhirContext.forR4();
 
         // Create a chain that will hold our modules
-        ValidationSupportChain supportChain = new ValidationSupportChain();
+        ValidationSupportChain validationSupportChain = new ValidationSupportChain();
 
         // DefaultProfileValidationSupport supplies base FHIR definitions. This is generally required
         // even if you are using custom profiles, since those profiles will derive from the base
         // definitions.
         DefaultProfileValidationSupport defaultSupport = new DefaultProfileValidationSupport(ctx);
-        supportChain.addValidationSupport(defaultSupport);
+        validationSupportChain.addValidationSupport(defaultSupport);
 
         // This module supplies several code systems that are commonly used in validation
-        supportChain.addValidationSupport(new CommonCodeSystemsTerminologyService(ctx));
+        validationSupportChain.addValidationSupport(new CommonCodeSystemsTerminologyService(ctx));
 
         // This module implements terminology services for in-memory code validation
-        supportChain.addValidationSupport(new InMemoryTerminologyServerValidationSupport(ctx));
+        validationSupportChain.addValidationSupport(new InMemoryTerminologyServerValidationSupport(ctx));
 
         // Create a PrePopulatedValidationSupport which can be used to load custom definitions.
         // In this example we're loading two things, but in a real scenario we might
         // load many StructureDefinitions, ValueSets, CodeSystems, etc.
-        PrePopulatedValidationSupport prePopulatedSupport = new PrePopulatedValidationSupport(ctx);
+//        PrePopulatedValidationSupport prePopulatedSupport = new PrePopulatedValidationSupport(ctx);
 
 //        prePopulatedSupport.addStructureDefinition(new KBV_PR_ERP_Composition_StructureDefinition());
-        KBV_PR_FOR_Patient_StructureDefinition patientFhirStructureDefinition =
-                new KBV_PR_FOR_Patient_StructureDefinition();
+//        KBV_PR_FOR_Patient_StructureDefinition patientFhirStructureDefinition =
+//                new KBV_PR_FOR_Patient_StructureDefinition();
+//
+//        patientFhirStructureDefinition.initAllElements();
 
-        patientFhirStructureDefinition.initAllElements();
-
-        prePopulatedSupport.addStructureDefinition(patientFhirStructureDefinition);
+//        prePopulatedSupport.addStructureDefinition(patientFhirStructureDefinition);
 
 //        prePopulatedSupport.addCodeSystem(new IdentifierTypeDeBasisCodeSystem());
 //        prePopulatedSupport.addCodeSystem(new KBV_CS_SFHIR_KBV_FORMULAR_ART_CodeSystem());
@@ -55,10 +64,10 @@ public class PrescriptionBundleValidator {
 //         prePopulatedSupport.addValueSet(someValueSet);
 
         // Add the custom definitions to the chain
-        supportChain.addValidationSupport(prePopulatedSupport);
+//        validationSupportChain.addValidationSupport(prePopulatedSupport);
 
         // Wrap the chain in a cache to improve performance
-        CachingValidationSupport cache = new CachingValidationSupport(supportChain);
+        CachingValidationSupport cache = new CachingValidationSupport(validationSupportChain);
 
         // Create a validator using the FhirInstanceValidator module. We can use this
         // validator to perform validation
@@ -69,6 +78,11 @@ public class PrescriptionBundleValidator {
     public ValidationResult validateResource(IBaseResource resource, boolean showIssues) {
         ValidationResult validationResult = validator.validateWithResult(resource);
 
+        if(StringUtils.isNotBlank(getProfile())) {
+            validationResult = validator.validateWithResult(resource,
+                    new ValidationOptions().addProfile(getProfile()));
+        }
+
         if(showIssues) {
             showIssues(validationResult);
         }
@@ -78,6 +92,11 @@ public class PrescriptionBundleValidator {
 
     public ValidationResult validateResource(String resourceText, boolean showIssues) {
         ValidationResult validationResult = validator.validateWithResult(resourceText);
+
+        if(StringUtils.isNotBlank(getProfile())) {
+            validationResult = validator.validateWithResult(resourceText,
+                    new ValidationOptions().addProfile(getProfile()));
+        }
 
         if(showIssues) {
             showIssues(validationResult);
@@ -95,5 +114,13 @@ public class PrescriptionBundleValidator {
                         next.getLocationString() + " - " + next.getMessage());
             }
         }
+    }
+
+    public String getProfile() {
+        return profile;
+    }
+
+    public void setProfile(String profile) {
+        this.profile = profile;
     }
 }
