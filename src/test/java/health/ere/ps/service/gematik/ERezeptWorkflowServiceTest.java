@@ -36,6 +36,8 @@ import java.util.Map;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+import static health.ere.ps.service.extractor.TemplateProfile.CGM_TURBO_MED;
+
 @QuarkusTest
 public class ERezeptWorkflowServiceTest {
 
@@ -117,7 +119,7 @@ public class ERezeptWorkflowServiceTest {
         // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testCreateERezeptFromPdfOnPrescriptionServer() throws URISyntaxException,
             IOException, ParseException, ERezeptWorkflowException, XMLStreamException {
-        SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.CGM_TURBO_MED, true);
+        SVGExtractor svgExtractor = new SVGExtractor(CGM_TURBO_MED.configuration, true);
 
         try (PDDocument pdDocument = PDDocument.load(getClass().getResourceAsStream(
                 "/muster-16-print-samples/test1.pdf"))) {

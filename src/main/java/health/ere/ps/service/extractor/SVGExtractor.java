@@ -68,7 +68,7 @@ public class SVGExtractor {
     public void analyzeDocument(@ObservesAsync PDDocumentEvent pDDocumentEvent) {
         log.info("SVGExtractor.analyzeDocument");
         try {
-            Map<String, String> extractResult = extract(pDDocumentEvent.pDDocument);
+            Map<String, String> extractResult = extract(pDDocumentEvent.getPDDocument());
             sVGExtractorResultEvent.fireAsync(new SVGExtractorResultEvent(extractResult));
         } catch (Exception e) {
             log.log(Level.SEVERE, "Could not extract results", e);
