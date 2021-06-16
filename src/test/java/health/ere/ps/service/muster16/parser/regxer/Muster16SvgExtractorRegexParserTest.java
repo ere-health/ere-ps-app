@@ -22,7 +22,7 @@ public class Muster16SvgExtractorRegexParserTest {
     @Test
     void testParseData_CGM_Z1() throws URISyntaxException, IOException, XMLStreamException {
 
-        SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.CGM_Z1, true);
+        SVGExtractor svgExtractor = new SVGExtractor(CGM_Z1.configuration, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(getClass().getResourceAsStream("/muster-16-print-samples/cgm-z1-manuel-blechschmidt.pdf")));
 
         Muster16SvgRegexParser parser = new Muster16SvgRegexParser(map);
