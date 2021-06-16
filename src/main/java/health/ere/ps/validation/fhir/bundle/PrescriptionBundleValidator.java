@@ -2,20 +2,22 @@ package health.ere.ps.validation.fhir.bundle;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.common.hapi.validation.support.CachingValidationSupport;
-import org.hl7.fhir.common.hapi.validation.support.CommonCodeSystemsTerminologyService;
 import org.hl7.fhir.common.hapi.validation.support.InMemoryTerminologyServerValidationSupport;
 import org.hl7.fhir.common.hapi.validation.support.PrePopulatedValidationSupport;
 import org.hl7.fhir.common.hapi.validation.support.ValidationSupportChain;
 import org.hl7.fhir.common.hapi.validation.validator.FhirInstanceValidator;
 import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.hl7.fhir.r4.model.StructureDefinition;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.context.support.DefaultProfileValidationSupport;
+import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.validation.FhirValidator;
 import ca.uhn.fhir.validation.SingleValidationMessage;
 import ca.uhn.fhir.validation.ValidationOptions;
 import ca.uhn.fhir.validation.ValidationResult;
-import health.ere.ps.validation.fhir.structuredefinition.fhir.kbv.de.v1_0_3.KBV_PR_FOR_Patient_StructureDefinition;
+import health.ere.ps.validation.fhir.structuredefinition.fhir.kbv.de.v1_0_1.KBV_PR_ERP_Bundle_StructureDefinition;
+import health.ere.ps.validation.fhir.structuredefinition.fhir.kbv.de.v1_0_1.KBV_PR_ERP_Medication_PZN;
 
 public class PrescriptionBundleValidator {
     private FhirValidator validator;
@@ -29,6 +31,7 @@ public class PrescriptionBundleValidator {
 
     public PrescriptionBundleValidator() {
         FhirContext ctx = FhirContext.forR4();
+        IParser xmlParser = ctx.newXmlParser();
 
         // Create a chain that will hold our modules
         ValidationSupportChain validationSupportChain = new ValidationSupportChain();
@@ -40,7 +43,7 @@ public class PrescriptionBundleValidator {
         validationSupportChain.addValidationSupport(defaultSupport);
 
         // This module supplies several code systems that are commonly used in validation
-        validationSupportChain.addValidationSupport(new CommonCodeSystemsTerminologyService(ctx));
+//        validationSupportChain.addValidationSupport(new CommonCodeSystemsTerminologyService(ctx));
 
         // This module implements terminology services for in-memory code validation
         validationSupportChain.addValidationSupport(new InMemoryTerminologyServerValidationSupport(ctx));
@@ -48,23 +51,23 @@ public class PrescriptionBundleValidator {
         // Create a PrePopulatedValidationSupport which can be used to load custom definitions.
         // In this example we're loading two things, but in a real scenario we might
         // load many StructureDefinitions, ValueSets, CodeSystems, etc.
-//        PrePopulatedValidationSupport prePopulatedSupport = new PrePopulatedValidationSupport(ctx);
-
-//        prePopulatedSupport.addStructureDefinition(new KBV_PR_ERP_Composition_StructureDefinition());
-//        KBV_PR_FOR_Patient_StructureDefinition patientFhirStructureDefinition =
-//                new KBV_PR_FOR_Patient_StructureDefinition();
-//
-//        patientFhirStructureDefinition.initAllElements();
-
-//        prePopulatedSupport.addStructureDefinition(patientFhirStructureDefinition);
+        PrePopulatedValidationSupport prePopulatedSupport = new PrePopulatedValidationSupport(ctx);
+        StructureDefinition kbvBundleStructureDefinition =
+                xmlParser.parseResource(StructureDefinition.class,
+                KBV_PR_ERP_Bundle_StructureDefinition.STRUCTURE_DEFINITION_XML);
+        StructureDefinition kbvMedicationPznStructureDefinition =
+                xmlParser.parseResource(StructureDefinition.class,
+                        KBV_PR_ERP_Medication_PZN.STRUCTURE_DEFINITION_XML);
+//        StructureDefinition customProfile = loadResource(ctx, StructureDefinition.class, "/r4/profile.json");
+        prePopulatedSupport.addStructureDefinition(kbvBundleStructureDefinition);
+        prePopulatedSupport.addStructureDefinition(kbvMedicationPznStructureDefinition);
 
 //        prePopulatedSupport.addCodeSystem(new IdentifierTypeDeBasisCodeSystem());
 //        prePopulatedSupport.addCodeSystem(new KBV_CS_SFHIR_KBV_FORMULAR_ART_CodeSystem());
 
-//         prePopulatedSupport.addValueSet(someValueSet);
 
         // Add the custom definitions to the chain
-//        validationSupportChain.addValidationSupport(prePopulatedSupport);
+        validationSupportChain.addValidationSupport(prePopulatedSupport);
 
         // Wrap the chain in a cache to improve performance
         CachingValidationSupport cache = new CachingValidationSupport(validationSupportChain);
@@ -72,6 +75,9 @@ public class PrescriptionBundleValidator {
         // Create a validator using the FhirInstanceValidator module. We can use this
         // validator to perform validation
         FhirInstanceValidator validatorModule = new FhirInstanceValidator(cache);
+
+        validatorModule.setAnyExtensionsAllowed(true);
+
         validator = ctx.newValidator().registerValidatorModule(validatorModule);
     }
 
