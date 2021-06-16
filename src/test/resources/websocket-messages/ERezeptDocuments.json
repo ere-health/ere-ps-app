@@ -1,4 +1,4 @@
-{"type": "ERezeptDocuments", "payload": 
+{"type": "ERezeptWithDocuments", "payload": 
 [
     {
         "bundleWithAccessCodeOrThrowables": [
