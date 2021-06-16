@@ -96,8 +96,11 @@ public class DocumentService {
     public void onBundlesWithAccessCodes(@ObservesAsync BundlesWithAccessCodeEvent bundlesWithAccessCodeEvent) {
         Map<String, List<BundleWithAccessCodeOrThrowable>> bundlesByPatient = filterBundlesByPatient(bundlesWithAccessCodeEvent);
 
+        log.info(String.format("About to create prescription receipts for %d bundles",
+                bundlesByPatient.values().size()));
         bundlesByPatient.values().forEach(bundlesForOnePatient -> {
             for (int i = 0; i < bundlesForOnePatient.size(); i += MAX_NUMBER_OF_MEDICINES_PER_PRESCRIPTIONS) {
+                log.info(String.format("Processing bundle with %d medication(s)", i));
                 createAndSendPrescriptions(bundlesForOnePatient
                         .subList(i, Math.min(i + MAX_NUMBER_OF_MEDICINES_PER_PRESCRIPTIONS, bundlesForOnePatient.size())));
             }
@@ -105,10 +108,15 @@ public class DocumentService {
     }
 
     private void createAndSendPrescriptions(List<BundleWithAccessCodeOrThrowable> bundles) {
+        log.info("Now creating prescription receipts");
         ByteArrayOutputStream boas = generateERezeptPdf(bundles);
         if (boas.size() > 0) {
             ERezeptDocument eRezeptDocument = new ERezeptDocument(bundles, boas.toByteArray());
+
+            log.info("Created prescription receipts");
             eRezeptDocumentsEvent.fireAsync(new ERezeptDocumentsEvent(List.of(eRezeptDocument)));
+
+            log.info("Sending prescription receipts results.");
         }
     }
 

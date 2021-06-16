@@ -118,11 +118,16 @@ public class Websocket {
     }
 
     public void onERezeptDocuments(@ObservesAsync ERezeptDocumentsEvent eRezeptDocumentsEvent) {
+        String jsonPayload = getJson(eRezeptDocumentsEvent);
+        log.info("Sending prescription receipt payload to front-end: " +
+                jsonPayload);
+
         sessions.forEach(session -> session.getAsyncRemote().sendObject(
-                getJson(eRezeptDocumentsEvent),
+                jsonPayload,
                 result -> {
                     if (!result.isOK()) {
-                        log.severe("Unable to send eRezeptWithDocumentsEvent: " + result.getException());
+                        log.severe("Unable to send eRezeptWithDocumentsEvent: " +
+                                result.getException());
                     }
                 }));
     }

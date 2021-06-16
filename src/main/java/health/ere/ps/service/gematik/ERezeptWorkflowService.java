@@ -226,11 +226,24 @@ public class ERezeptWorkflowService {
                 bearerTokenToUse = bearerToken;
             }
 
+            log.info(String.format("Received %d bundles to sign ",
+                    signAndUploadBundlesEvent.listOfListOfBundles.size()));
+            log.info("Contents of list of bundles to sign are as follows:");
+            signAndUploadBundlesEvent.listOfListOfBundles.stream().forEach(bundlesList ->
+            {
+                log.info("Bundles list contents is:");
+                bundlesList.stream().forEach(bundle -> log.info("Bundle content: " +
+                        bundle.toString()));
+            });
             List<List<BundleWithAccessCodeOrThrowable>> bundleWithAccessCodeOrThrowable = new ArrayList<>();
             for (List<Bundle> bundles : signAndUploadBundlesEvent.listOfListOfBundles) {
+                log.info(String.format("Getting access codes for %d bundles.",
+                        bundles.size()));
                 bundleWithAccessCodeOrThrowable
                         .add(createMultipleERezeptsOnPrescriptionServer(bearerTokenToUse, bundles));
             }
+            log.info(String.format("Firing event to create prescription receipts for %d bundles.",
+                    bundleWithAccessCodeOrThrowable.size()));
             bundlesWithAccessCodeEvent.fireAsync(new BundlesWithAccessCodeEvent(bundleWithAccessCodeOrThrowable));
         } catch(Exception e) {
             log.log(Level.WARNING, "Idp login did not work", e);
