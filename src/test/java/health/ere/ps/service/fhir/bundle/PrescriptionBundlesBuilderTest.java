@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 import java.text.ParseException;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,7 +30,7 @@ public class PrescriptionBundlesBuilderTest {
     private PrescriptionBundleValidator prescriptionBundleValidator;
     private PrescriptionBundlesBuilder prescriptionBundlesBuilder;
 
-    public static PrescriptionBundlesBuilder getPrescriptionBundleBuilder() {
+    public static Muster16PrescriptionForm getMuster16PrescriptionFormForTests() {
         Muster16PrescriptionForm muster16PrescriptionForm;
         muster16PrescriptionForm = new Muster16PrescriptionForm();
 
@@ -39,7 +39,7 @@ public class PrescriptionBundlesBuilderTest {
         muster16PrescriptionForm.setPrescriptionDate("05.04.2021");
         MedicationString medicationString = new MedicationString("Amoxicillin 1000mg N2", null, null, "3x täglich alle 8 Std", null, "2394428");
 
-        muster16PrescriptionForm.setPrescriptionList(Arrays.asList(medicationString));
+        muster16PrescriptionForm.setPrescriptionList(Collections.singletonList(medicationString));
 
         muster16PrescriptionForm.setDoctorId("LANR1234");
 
@@ -70,13 +70,12 @@ public class PrescriptionBundlesBuilderTest {
         muster16PrescriptionForm.setInsuranceCompanyId("100038825");
         muster16PrescriptionForm.setWithPayment(true);
 
-        return
-                new PrescriptionBundlesBuilder(muster16PrescriptionForm);
+        return muster16PrescriptionForm;
     }
 
     @BeforeEach
     public void initialize() {
-        prescriptionBundlesBuilder = getPrescriptionBundleBuilder();
+        prescriptionBundlesBuilder = new PrescriptionBundlesBuilder(getMuster16PrescriptionFormForTests());
         prescriptionBundleValidator = new PrescriptionBundleValidator();
     }
 
@@ -95,6 +94,25 @@ public class PrescriptionBundlesBuilderTest {
         // 6. organization resource.
         // 7. coverage resource.
         fhirEPrescriptionBundles.forEach(bundle -> assertEquals(7, bundle.getEntry().size()));
+        assertEquals(1, fhirEPrescriptionBundles.size());
+    }
+
+    @Test
+    public void BundleBuilder_createsCorrectNumberOfBundles_givenThreeMedications() throws ParseException {
+        // GIVEN
+        Muster16PrescriptionForm muster16PrescriptionForm = getMuster16PrescriptionFormForTests();
+        muster16PrescriptionForm.setPrescriptionList(List.of(
+                new MedicationString("test", "test", "test", "test", "test", "test"),
+                new MedicationString("test", "test", "test", "test", "test", "test"),
+                new MedicationString("test", "test", "test", "test", "test", "test")));
+
+        prescriptionBundlesBuilder = new PrescriptionBundlesBuilder(muster16PrescriptionForm);
+
+        // WHEN
+        List<Bundle> fhirEPrescriptionBundles = prescriptionBundlesBuilder.createBundles();
+
+        // THEN
+        assertEquals(3, fhirEPrescriptionBundles.size());
     }
 
     @Test
