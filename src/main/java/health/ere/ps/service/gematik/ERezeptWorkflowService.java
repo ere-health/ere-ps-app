@@ -308,8 +308,6 @@ public class ERezeptWorkflowService {
      * @param task
      */
     public void updateERezeptTask(String bearerToken, Task task, String accessCode, byte[] signedBytes) {
-
-
         Parameters parameters = new Parameters();
         ParametersParameterComponent ePrescriptionParameter = new ParametersParameterComponent();
         ePrescriptionParameter.setName("ePrescription");
@@ -318,13 +316,17 @@ public class ERezeptWorkflowService {
         binary.setContent(signedBytes);
         ePrescriptionParameter.setResource(binary);
         parameters.addParameter(ePrescriptionParameter);
+
         Response response = client.target(prescriptionserverUrl).path("/Task")
                 .path("/" + task.getIdElement().getIdPart()).path("/$activate").request()
                 .header("User-Agent", userAgent)
                 .header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
                 .post(Entity.entity(fhirContext.newXmlParser().encodeResourceToString(parameters),
                         "application/fhir+xml; charset=UTF-8"));
+
         String taskString = response.readEntity(String.class);
+        log.info("Response when trying to activate the task:" + taskString);
+
         if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
             // OperationOutcome operationOutcome =
             // fhirContext.newXmlParser().parseResource(OperationOutcome.class, new
