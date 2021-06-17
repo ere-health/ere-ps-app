@@ -5,6 +5,7 @@ import health.ere.ps.service.extractor.SVGExtractor;
 import health.ere.ps.service.extractor.SVGExtractorConfiguration;
 import health.ere.ps.service.muster16.Muster16FormDataExtractorService;
 import health.ere.ps.service.muster16.parser.Muster16SvgExtractorParser;
+import health.ere.ps.service.muster16.parser.rgxer.Muster16SvgRegexParser;
 import io.quarkus.test.junit.QuarkusTest;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.hl7.fhir.r4.model.Bundle;
@@ -37,10 +38,13 @@ public class ExtractionToBundleWorkflowTest {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.DENS, false);
 
         // WHEN (simulates the extraction workflow from the start to finish without the events )
-        Map<String, String> map = svgExtractor.extract(testDocument);
+        Map<String, String> extractionResultsMap = svgExtractor.extract(testDocument);
 
-        Muster16SvgExtractorParser muster16Parser = new Muster16SvgExtractorParser(map);
+        extractionResultsMap.forEach((key, value) -> log.info("Key:" + key + ", value:" + value.trim()));
+
+        Muster16SvgRegexParser muster16Parser = new Muster16SvgRegexParser(extractionResultsMap);
         Muster16PrescriptionForm muster16PrescriptionForm = Muster16FormDataExtractorService.fillForm(muster16Parser);
+        log.info("form:" + muster16PrescriptionForm);
 
         PrescriptionBundlesBuilder bundleBuilder = new PrescriptionBundlesBuilder(muster16PrescriptionForm);
         List<Bundle> bundles = bundleBuilder.createBundles();

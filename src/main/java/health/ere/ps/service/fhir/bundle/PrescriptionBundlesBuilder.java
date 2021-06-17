@@ -150,7 +150,7 @@ public class PrescriptionBundlesBuilder {
     private Practitioner createPractitionerResource() {
         Practitioner practitioner = new Practitioner();
 
-        practitioner.setId(muster16PrescriptionForm.getDoctorId())
+        practitioner.setId(muster16PrescriptionForm.getPractitionerId())
                 .getMeta()
                 .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner|1.0.3");
 
@@ -163,13 +163,13 @@ public class PrescriptionBundlesBuilder {
                 .setCode("LANR");
 
         identifier.setSystem("https://fhir.kbv.de/NamingSystem/KBV_NS_Base_ANR");
-        identifier.setValue(muster16PrescriptionForm.getDoctorId()); //TODO: Generate/get unique ID value. Need to check this.
+        identifier.setValue(muster16PrescriptionForm.getPractitionerId()); //TODO: Generate/get unique ID value. Need to check this.
 
         practitioner.addName()
                 .setUse(NameUse.OFFICIAL)
-                .setFamily(muster16PrescriptionForm.getDoctorLastName())
-                .addGiven(muster16PrescriptionForm.getDoctorFirstName())
-                .addPrefix(muster16PrescriptionForm.getDoctorNamePrefix())
+                .setFamily(muster16PrescriptionForm.getPractitionerLastName())
+                .addGiven(muster16PrescriptionForm.getPractitionerFirstName())
+                .addPrefix(muster16PrescriptionForm.getPractitionerNamePrefix())
                 .addExtension(new Extension("http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier", new StringType("AC")));
 
         PractitionerQualificationComponent qualification = new PractitionerQualificationComponent();
@@ -204,15 +204,18 @@ public class PrescriptionBundlesBuilder {
         identifier.setSystem("https://fhir.kbv.de/NamingSystem/KBV_NS_Base_BSNR");
         identifier.setValue(muster16PrescriptionForm.getClinicId());
 
-        organization.setName(muster16PrescriptionForm.getDoctorNamePrefix() + " " + muster16PrescriptionForm.getDoctorFirstName() + " " + muster16PrescriptionForm.getDoctorLastName());
+        organization.setName(muster16PrescriptionForm.getPractitionerNamePrefix() + " "
+                + muster16PrescriptionForm.getPractitionerFirstName() + " "
+                + muster16PrescriptionForm.getPractitionerLastName());
 
-        organization.addTelecom().setSystem(ContactPointSystem.PHONE).setValue(muster16PrescriptionForm.getDoctorPhone());
+        organization.addTelecom().setSystem(ContactPointSystem.PHONE)
+                .setValue(muster16PrescriptionForm.getPractitionerPhone());
         organization.addAddress()
                 .setType(AddressType.BOTH)
-                .setCity(muster16PrescriptionForm.getDoctorCity())
-                .setPostalCode(muster16PrescriptionForm.getDoctorZipCode())
-                .addLine(muster16PrescriptionForm.getDoctorStreetName() + " " +
-                        muster16PrescriptionForm.getDoctorStreetNumber())
+                .setCity(muster16PrescriptionForm.getPractitionerCity())
+                .setPostalCode(muster16PrescriptionForm.getPractitionerZipCode())
+                .addLine(muster16PrescriptionForm.getPractitionerStreetName() + " " +
+                        muster16PrescriptionForm.getPractitionerStreetNumber())
                 .setCountry("D");
 
         return organization;
@@ -330,7 +333,7 @@ public class PrescriptionBundlesBuilder {
                 .parse(prescriptionDate, new ParsePosition(0)));
 
         medicationRequest.getRequester().setReference(
-                "Practitioner/" + muster16PrescriptionForm.getDoctorId());
+                "Practitioner/" + muster16PrescriptionForm.getPractitionerId());
 
         medicationRequest.addInsurance().setReference(
                 "Coverage/" + muster16PrescriptionForm.getInsuranceCompanyId());
@@ -387,7 +390,7 @@ public class PrescriptionBundlesBuilder {
         composition.setDate(new Date());
 
         composition.addAuthor()
-                .setReference("Practitioner/" + muster16PrescriptionForm.getDoctorId())
+                .setReference("Practitioner/" + muster16PrescriptionForm.getPractitionerId())
                 .setType("Practitioner");
 
         composition.addAuthor()
@@ -400,7 +403,7 @@ public class PrescriptionBundlesBuilder {
 
         composition.addAttester()
                 .setMode(Composition.CompositionAttestationMode.LEGAL)
-                .getParty().setReference("Practitioner/" + muster16PrescriptionForm.getDoctorId());
+                .getParty().setReference("Practitioner/" + muster16PrescriptionForm.getPractitionerId());
 
         composition.getCustodian().setReference(
                 "Organization/" + muster16PrescriptionForm.getClinicId());
