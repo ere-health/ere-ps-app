@@ -4,7 +4,6 @@ import health.ere.ps.model.muster16.Muster16PrescriptionForm;
 import health.ere.ps.service.extractor.SVGExtractor;
 import health.ere.ps.service.extractor.SVGExtractorConfiguration;
 import health.ere.ps.service.muster16.Muster16FormDataExtractorService;
-import health.ere.ps.service.muster16.parser.Muster16SvgExtractorParser;
 import health.ere.ps.service.muster16.parser.rgxer.Muster16SvgRegexParser;
 import io.quarkus.test.junit.QuarkusTest;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -51,29 +50,80 @@ public class ExtractionToBundleWorkflowTest {
 
         // THEN
         bundles.forEach(bundle -> {
-            assertEquals("Berliner Str. 12", extractAddress(bundle));
-            assertEquals("14513", extractPostCode(bundle));
-            assertEquals("Teltow", extractCity(bundle));
+            assertEquals("Berliner Str. 12", extractPatientAddress(bundle));
+            assertEquals("14513", extractPatientPostCode(bundle));
+            assertEquals("Teltow", extractPatientCity(bundle));
             assertEquals("1976-02-14", extractBirthDate(bundle));
             assertEquals("Dr.", extractPatientPrefix(bundle));
             assertEquals("Markus", extractPatientFirstName(bundle));
             assertEquals("Heckner", extractPatientLastName(bundle));
             assertEquals("0", extractGebPfl(bundle));
+            assertEquals("DENS", extractPractitionerFirstName(bundle));
+            assertEquals("GmbH", extractPractitionerLastName(bundle));
+            assertEquals("Berliner Str. 13", extractPractitionerAddress(bundle));
+            assertEquals("Teltow", extractPractitionerCity(bundle));
+            assertEquals("14513", extractPractitionerPostCode(bundle));
+            assertEquals("03328-334540", extractPractitionerPhoneNumber(bundle));
+            assertEquals("03328-334547", extractPractitionerFaxNumber(bundle));
         });
+
+        assertEquals("Ibuprofen 600mg", extractMedicationName(bundles.get(0)));
+        assertEquals("Omeprazol 40 mg", extractMedicationName(bundles.get(1)));
+        assertEquals("Amoxicillin 1.000 mg", extractMedicationName(bundles.get(2)));
     }
 
 
-    private String extractAddress(Bundle bundle) {
+    private String extractMedicationName(Bundle bundle) {
+        return getEntry(bundle, "Medication").getResource().getChildByName("code").getValues().get(0)
+                .getChildByName("text").getValues().get(0).primitiveValue();
+    }
+
+    private String extractPractitionerFirstName(Bundle bundle) {
+        return getEntry(bundle, "Practitioner").getResource().getChildByName("name").getValues().get(0)
+                .getChildByName("given").getValues().get(0).primitiveValue();
+    }
+
+    private String extractPractitionerLastName(Bundle bundle) {
+        return getEntry(bundle, "Practitioner").getResource().getChildByName("name").getValues().get(0)
+                .getChildByName("family").getValues().get(0).primitiveValue();
+    }
+
+    private String extractPractitionerAddress(Bundle bundle) {
+        return getEntry(bundle, "Practitioner").getResource().getChildByName("address").getValues().get(0)
+                .getChildByName("line").getValues().get(0).primitiveValue();
+    }
+
+    private String extractPractitionerPostCode(Bundle bundle) {
+        return getEntry(bundle, "Practitioner").getResource().getChildByName("address").getValues().get(0)
+                .getChildByName("postalCode").getValues().get(0).primitiveValue();
+    }
+
+    private String extractPractitionerCity(Bundle bundle) {
+        return getEntry(bundle, "Practitioner").getResource().getChildByName("address").getValues().get(0)
+                .getChildByName("city").getValues().get(0).primitiveValue();
+    }
+
+    private String extractPractitionerPhoneNumber(Bundle bundle) {
+        return getEntry(bundle, "Practitioner").getResource().getChildByName("telecom").getValues().get(0)
+                .getChildByName("value").getValues().get(0).primitiveValue();
+    }
+
+    private String extractPractitionerFaxNumber(Bundle bundle) {
+        return getEntry(bundle, "Practitioner").getResource().getChildByName("telecom").getValues().get(1)
+                .getChildByName("value").getValues().get(0).primitiveValue();
+    }
+
+    private String extractPatientAddress(Bundle bundle) {
         return getEntry(bundle, "Patient").getResource().getChildByName("address").getValues().get(0)
                 .getChildByName("line").getValues().get(0).primitiveValue();
     }
 
-    private String extractPostCode(Bundle bundle) {
+    private String extractPatientPostCode(Bundle bundle) {
         return getEntry(bundle, "Patient").getResource().getChildByName("address").getValues().get(0)
                 .getChildByName("postalCode").getValues().get(0).primitiveValue();
     }
 
-    private String extractCity(Bundle bundle) {
+    private String extractPatientCity(Bundle bundle) {
         return getEntry(bundle, "Patient").getResource().getChildByName("address").getValues().get(0)
                 .getChildByName("city").getValues().get(0).primitiveValue();
     }
