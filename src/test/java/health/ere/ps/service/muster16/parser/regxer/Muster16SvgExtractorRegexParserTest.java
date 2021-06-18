@@ -2,6 +2,7 @@ package health.ere.ps.service.muster16.parser.regxer;
 
 import health.ere.ps.service.extractor.SVGExtractor;
 import health.ere.ps.service.extractor.SVGExtractorConfiguration;
+import health.ere.ps.service.fhir.bundle.ExtractionToBundleWorkflowTest;
 import health.ere.ps.service.muster16.parser.rgxer.Muster16SvgRegexParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.junit.jupiter.api.Disabled;
@@ -10,19 +11,25 @@ import org.junit.jupiter.api.Test;
 import javax.xml.stream.XMLStreamException;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 public class Muster16SvgExtractorRegexParserTest {
 
+    private static final Logger log = Logger.getLogger(Muster16SvgExtractorRegexParserTest.class.getName());
+
+
     @Test
-    void testParseData_CGM_Z1() throws URISyntaxException, IOException, XMLStreamException {
+    void testParseData_CGM_Z1() throws IOException, XMLStreamException {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.CGM_Z1, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(getClass().getResourceAsStream("/muster-16-print-samples/cgm-z1-manuel-blechschmidt.pdf")));
+
+        map.forEach((key, value) -> log.info("Key:" + key + ", value:" + value.trim()));
 
         Muster16SvgRegexParser parser = new Muster16SvgRegexParser(map);
 
@@ -44,7 +51,7 @@ public class Muster16SvgExtractorRegexParserTest {
 
     @Test
     @Disabled
-    void testParse_CGMTurboMed() throws URISyntaxException, IOException, XMLStreamException {
+    void testParse_CGMTurboMed() throws IOException, XMLStreamException {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.CGM_TURBO_MED, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/CGM-Turbomed/test1.pdf")));
 
@@ -68,7 +75,7 @@ public class Muster16SvgExtractorRegexParserTest {
 
     @Test
     @Disabled
-    void testParse_Dens1() throws URISyntaxException, IOException, XMLStreamException {
+    void testParse_Dens1() throws IOException, XMLStreamException {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.DENS, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/DENSoffice - Rezept1.pdf")));
 
@@ -89,11 +96,20 @@ public class Muster16SvgExtractorRegexParserTest {
         assertEquals("30000000", parser.parseDoctorId());
         assertEquals("2021-04-29", parser.parsePrescriptionDate());
         assertEquals("", parser.parsePatientInsuranceId());
+        assertEquals("03328-334540", parser.parsePractitionerPhoneNumber());
+        assertEquals("03328-334547", parser.parsePractitionerFaxNumber());
+        assertEquals("14513", parser.parsePractitionerZipCode());
+        assertEquals("Teltow", parser.parsePractitionerCity());
+        assertEquals("DENS", parser.parsePractitionerFirstName());
+        assertEquals("GmbH", parser.parsePractitionerLastName());
+        assertEquals("Berliner Str.", parser.parsePractitionerStreetName());
+        assertEquals("13", parser.parsePractitionerStreetNumber());
+        assertEquals("", parser.parsePractitionerNamePrefix());
     }
 
     @Test
     @Disabled
-    void testExtractDensErezept() throws URISyntaxException, IOException, XMLStreamException {
+    void testExtractDensErezept() throws IOException, XMLStreamException {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.DENS, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/eRezept.pdf")));
 
@@ -102,7 +118,8 @@ public class Muster16SvgExtractorRegexParserTest {
         assertEquals("DENS GmbH", parser.parseInsuranceCompany());
         assertEquals("", parser.parseInsuranceCompanyId());
         List<String> expectedPrefix = List.of("Dr.");
-        assertEquals(expectedPrefix, parser.parsePatientNamePrefix());        assertEquals("Markus", parser.parsePatientFirstName());
+        assertEquals(expectedPrefix, parser.parsePatientNamePrefix());
+        assertEquals("Markus", parser.parsePatientFirstName());
         assertEquals("Heckner", parser.parsePatientLastName());
         assertEquals("Testweg", parser.parsePatientStreetName());
         assertEquals("1", parser.parsePatientStreetNumber());
@@ -113,5 +130,14 @@ public class Muster16SvgExtractorRegexParserTest {
         assertEquals("30000000", parser.parseDoctorId());
         assertEquals("2021-04-26", parser.parsePrescriptionDate());
         assertEquals("", parser.parsePatientInsuranceId());
+        assertEquals("03328-334540", parser.parsePractitionerPhoneNumber());
+        assertEquals("03328-334547", parser.parsePractitionerFaxNumber());
+        assertEquals("14513", parser.parsePractitionerZipCode());
+        assertEquals("Teltow", parser.parsePractitionerCity());
+        assertEquals("DENS", parser.parsePractitionerFirstName());
+        assertEquals("GmbH", parser.parsePractitionerLastName());
+        assertEquals("Berliner Str.", parser.parsePractitionerStreetName());
+        assertEquals("13", parser.parsePractitionerStreetNumber());
+        assertEquals("", parser.parsePractitionerNamePrefix());
     }
 }

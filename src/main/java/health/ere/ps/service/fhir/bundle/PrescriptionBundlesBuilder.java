@@ -13,17 +13,16 @@ import org.hl7.fhir.r4.model.Practitioner.PractitionerQualificationComponent;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class PrescriptionBundlesBuilder {
-    private static final String DEFAULT_DATE_FORMAT = "dd.MM.yyyy";
+    private static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
     private static final String DEFAULT_SHORT_DATE_FORMAT = "dd.MM.yy";
-    private final Muster16PrescriptionForm muster16PrescriptionForm;
+    private static final Logger log = Logger.getLogger(PrescriptionBundlesBuilder.class.getName());
 
+    private final Muster16PrescriptionForm muster16PrescriptionForm;
 
     public PrescriptionBundlesBuilder(Muster16PrescriptionForm muster16PrescriptionForm) {
         this.muster16PrescriptionForm = muster16PrescriptionForm;
@@ -132,10 +131,14 @@ public class PrescriptionBundlesBuilder {
                 .setFamily(muster16PrescriptionForm.getPatientLastName())
                 .addGiven(muster16PrescriptionForm.getPatientFirstName());
 
-        String patientDob = muster16PrescriptionForm.getPatientDateOfBirth();
+        String patientBirthDate = muster16PrescriptionForm.getPatientDateOfBirth();
 
-        patient.setBirthDate(new SimpleDateFormat(getDateFormat(patientDob))
-                .parse(patientDob, new ParsePosition(0)));
+        try {
+            patient.setBirthDate(new SimpleDateFormat(getDateFormat(patientBirthDate), Locale.GERMANY)
+                    .parse(patientBirthDate));
+        } catch (ParseException e) {
+            log.warning("Could not parse this birthdate when creating the bundle:" + patientBirthDate);
+        }
 
         patient.addAddress()
                 .setType(AddressType.BOTH)
@@ -180,6 +183,24 @@ public class PrescriptionBundlesBuilder {
         qualification = new PractitionerQualificationComponent();
         qualification.setCode(new CodeableConcept().setText("Arzt-Hausarzt"));
         practitioner.addQualification(qualification);
+
+        practitioner.addAddress()
+                .setType(AddressType.BOTH)
+                .setCountry("D")
+                .setCity(muster16PrescriptionForm.getPractitionerCity())
+                .setPostalCode(muster16PrescriptionForm.getPractitionerZipCode())
+                .addLine(muster16PrescriptionForm.getPractitionerStreetName() + " " +
+                        muster16PrescriptionForm.getPractitionerStreetNumber());
+
+        ContactPoint phoneContact = new ContactPoint()
+                .setSystem(ContactPointSystem.PHONE)
+                .setValue(muster16PrescriptionForm.getPractitionerPhone());
+        practitioner.getTelecom().add(phoneContact);
+
+        ContactPoint faxContact = new ContactPoint()
+                .setSystem(ContactPointSystem.FAX)
+                .setValue(muster16PrescriptionForm.getPractitionerFax());
+        practitioner.getTelecom().add(faxContact);
 
         return practitioner;
     }
@@ -254,8 +275,12 @@ public class PrescriptionBundlesBuilder {
         //TODO: Get actual insurance coverage period.
         String coveragePeriod = muster16PrescriptionForm.getPrescriptionDate();
 
-        coverage.getPeriod().setEnd(new SimpleDateFormat(getDateFormat(coveragePeriod))
-                .parse(coveragePeriod, new ParsePosition(0)));
+        try {
+            coverage.getPeriod().setEnd(new SimpleDateFormat(getDateFormat(coveragePeriod))
+                    .parse(coveragePeriod));
+        } catch (ParseException e) {
+            log.warning("Could not parse this coverage end period date when creating the bundle:" + coveragePeriod);
+        }
 
         coverage.addPayor()
                 .setDisplay(muster16PrescriptionForm.getInsuranceCompany())
@@ -329,8 +354,12 @@ public class PrescriptionBundlesBuilder {
 
         String prescriptionDate = muster16PrescriptionForm.getPrescriptionDate();
 
-        medicationRequest.setAuthoredOn(new SimpleDateFormat(getDateFormat(prescriptionDate))
-                .parse(prescriptionDate, new ParsePosition(0)));
+        try {
+            medicationRequest.setAuthoredOn(new SimpleDateFormat(getDateFormat(prescriptionDate))
+                    .parse(prescriptionDate));
+        } catch (ParseException e) {
+            log.warning("Could not set AuthoredOn Date when creating the bundle:" + prescriptionDate);
+        }
 
         medicationRequest.getRequester().setReference(
                 "Practitioner/" + muster16PrescriptionForm.getPractitionerId());

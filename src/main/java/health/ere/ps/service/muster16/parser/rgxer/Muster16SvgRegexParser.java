@@ -158,46 +158,46 @@ public class Muster16SvgRegexParser implements IMuster16FormParser {
 
     @Override
     public String parsePractitionerFirstName() {
-        return null;
+        return getValue(PRACTITIONER_FIRST_NAME);
     }
 
     @Override
     public String parsePractitionerLastName() {
-        return null;
+        return getValue(PRACTITIONER_LAST_NAME);
     }
 
     @Override
     public String parsePractitionerNamePrefix() {
-        return null;
+        return getValue(PRACTITIONER_NAME_PREFIX);
     }
 
     @Override
     public String parsePractitionerStreetName() {
-        return null;
+        return getValue(PRACTITIONER_STREET_NAME);
     }
 
     @Override
     public String parsePractitionerStreetNumber() {
-        return null;
+        return getValue(PRACTITIONER_STREET_NUMBER);
     }
 
     @Override
     public String parsePractitionerCity() {
-        return null;
+        return getValue(PRACTITIONER_CITY);
     }
 
     @Override
     public String parsePractitionerZipCode() {
-        return null;
+        return getValue(PRACTITIONER_ZIPCODE);
     }
 
     @Override
     public String parsePractitionerPhoneNumber() {
-        return null;
+        return getValue(PRACTITIONER_PHONE);
     }
 
     @Override
     public String parsePractitionerFaxNumber() {
-        return null;
+        return getValue(PRACTITIONER_FAX);
     }
 }
