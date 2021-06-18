@@ -4,7 +4,6 @@ import health.ere.ps.service.muster16.parser.rgxer.delegate.pattern.Practitioner
 import health.ere.ps.service.muster16.parser.rgxer.model.Muster16Field;
 
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -16,8 +15,6 @@ public class PractitionerEntryParseDelegate {
 
     private final Map<Muster16Field, String> details;
     private final PractitionerPatterns patterns;
-
-    private static final Logger log = Logger.getLogger(PractitionerEntryParseDelegate.class.getName());
 
 
     public PractitionerEntryParseDelegate(String entry) {
@@ -39,8 +36,8 @@ public class PractitionerEntryParseDelegate {
             matchAndExtractLine(lines, patterns.FAX_LINE).ifPresent(this::parseFaxNumber);
             matchAndExtractLine(lines, patterns.PHONE_LINE).ifPresent(this::parsePhoneNumber);
             matchAndExtractLine(lines, patterns.CITY_LINE).ifPresent(this::parseAddressLine);
-            matchAndExtractLine(lines, patterns.NAME_LINE).ifPresent(this::parseNames);
             matchAndExtractLine(lines, patterns.STREET_LINE).ifPresent(this::parseStreetLine);
+            matchAndExtractLine(lines, patterns.NAME_LINE).ifPresent(this::parseNames);
         }
     }
 
@@ -73,24 +70,18 @@ public class PractitionerEntryParseDelegate {
     }
 
     private void parseStreetLine(String line) {
-        List<String> streetNumber = Arrays.stream(line.split(" "))
-                .filter(word -> word.matches("[0-9]+"))
-                .collect(Collectors.toList());
+        String streetNumber = line.replaceAll("\\D+", "");
 
-        if (!streetNumber.isEmpty()) {
-            details.put(PRACTITIONER_STREET_NUMBER, streetNumber.get(0));
-            details.put(PRACTITIONER_STREET_NAME, line.replace(streetNumber.get(0), "").trim());
-        } else {
-            log.warning("Could not parse address from:" + line);
-        }
+        details.put(PRACTITIONER_STREET_NUMBER, streetNumber);
+        details.put(PRACTITIONER_STREET_NAME, line.replace(streetNumber, "").trim());
     }
 
     private void parsePhoneNumber(String line) {
-        details.put(PRACTITIONER_PHONE, line.trim());
+        details.put(PRACTITIONER_PHONE, line.replaceAll("\\D+", "").trim());
     }
 
     private void parseFaxNumber(String line) {
-        details.put(PRACTITIONER_FAX, line.replaceAll("[a-z A-Z:]", ""));
+        details.put(PRACTITIONER_FAX, line.replaceAll("\\D+", "").trim());
     }
 
     private boolean matches(String input, Pattern pattern) {
