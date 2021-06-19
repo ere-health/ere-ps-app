@@ -1,28 +1,44 @@
 package health.ere.ps.model.muster16;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-public class MedicationString {
-    public String name;
-    public String size;
-    public String dosageInstruction;
-    public String pzn;
+public final class MedicationString {
+    private final String name;
+    private final String size;
+    private final String form;
+    private final String dosage;
+    private final String instructions;
+    private final String pzn;
 
-    private static final Pattern MEDICATION_LINE = Pattern.compile("(.*)(N\\d)(.*)(PZN ?)(\\d+)");
-
-    public MedicationString() {
-
+    public MedicationString(String name, String size, String form, String dosage, String instructions, String pzn) {
+        this.name = name;
+        this.size = size;
+        this.form = form;
+        this.dosage = dosage;
+        this.instructions = instructions;
+        this.pzn = pzn;
     }
 
-    public MedicationString(String name) {
-        this.name = name;
-        Matcher m = MEDICATION_LINE.matcher(name);
-        if(m.matches()) {
-            this.name = m.group(1);
-            this.size = m.group(2);
-            this.dosageInstruction = m.group(3);
-            this.pzn = m.group(5);
-        }
+    public String getName() {
+        return name;
+    }
+
+    public String getSize() {
+        return size;
+    }
+
+    public String getForm() {
+        return form;
+    }
+
+    public String getDosage() {
+        return dosage;
+    }
+
+    public String getInstructions() {
+        return instructions;
+    }
+
+    public String getPzn() {
+        return pzn;
     }
 }

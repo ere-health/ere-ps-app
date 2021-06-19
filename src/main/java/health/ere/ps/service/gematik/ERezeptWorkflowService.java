@@ -55,11 +55,18 @@ import de.gematik.ws.conn.signatureservice.v7_5_5.SignatureModeEnum;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.FaultMessage;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureService;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortType;
+
+import health.ere.ps.config.AppConfig;
 import health.ere.ps.event.BundlesWithAccessCodeEvent;
 import health.ere.ps.event.RequestBearerTokenFromIdpEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
+import health.ere.ps.exception.common.security.SecretsManagerException;
+import health.ere.ps.exception.connector.ConnectorCardsException;
+import health.ere.ps.exception.gematik.ERezeptWorkflowException;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.service.common.security.SecretsManagerService;
+import health.ere.ps.service.common.security.SecureSoapTransportConfigurer;
+import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import health.ere.ps.vau.VAUEngine;
 import de.gematik.ws.conn.eventservice.v7.GetCards;
 import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
@@ -70,9 +77,12 @@ import oasis.names.tc.dss._1_0.core.schema.Base64Data;
 @ApplicationScoped
 public class ERezeptWorkflowService {
 
-    private static Logger log = Logger.getLogger(ERezeptWorkflowService.class.getName());
+    private static final Logger log = Logger.getLogger(ERezeptWorkflowService.class.getName());
 
     FhirContext fhirContext = FhirContext.forR4();
+
+    @Inject
+    AppConfig appConfig;
 
     @ConfigProperty(name = "prescriptionserver.url", defaultValue = "")
     String prescriptionserverUrl;
@@ -82,9 +92,6 @@ public class ERezeptWorkflowService {
 
     @ConfigProperty(name = "signature-service.endpointAddress", defaultValue = "")
     String signatureServiceEndpointAddress;
-
-    @ConfigProperty(name = "signature-service.cardHandle", defaultValue = "")
-    String signatureServiceCardHandle;
 
     @ConfigProperty(name = "signature-service.crypt", defaultValue = "")
     String signatureServiceCrypt;
@@ -117,6 +124,12 @@ public class ERezeptWorkflowService {
     EventServicePortType eventService;
 
     @Inject
+    ConnectorCardsService connectorCardsService;
+
+    @Inject
+    SecureSoapTransportConfigurer secureSoapTransportConfigurer;
+
+    @Inject
     Event<BundlesWithAccessCodeEvent> bundlesWithAccessCodeEvent;
 
     @Inject
@@ -138,7 +151,7 @@ public class ERezeptWorkflowService {
     }
 
     @PostConstruct
-    public void init() {
+    public void init() throws SecretsManagerException {
         try {
             if (titusClientCertificate != null && !("".equals(titusClientCertificate))
                     && !("!".equals(titusClientCertificate))) {
@@ -166,7 +179,7 @@ public class ERezeptWorkflowService {
                 bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
                         customSSLContext.getSocketFactory());
             }
-            
+
         } catch(Exception ex) {
             log.log(Level.SEVERE, "Could not init E-Rezept Service", ex);
         }
@@ -180,6 +193,13 @@ public class ERezeptWorkflowService {
             }
         }
         client = clientBuilder.build();
+
+        secureSoapTransportConfigurer.init(connectorCardsService);
+        secureSoapTransportConfigurer.configureSecureTransport(
+                appConfig.getEventServiceEndpointAddress(),
+                SecretsManagerService.SslContextType.TLS,
+                appConfig.getIdpConnectorTlsCertTrustStore(),
+                appConfig.getIdpConnectorTlsCertTustStorePwd());
     }
 
     public void setUpCustomSSLContext(InputStream p12Certificate) {
@@ -189,7 +209,7 @@ public class ERezeptWorkflowService {
     /**
      * This function catches the sign and upload bundle events and does the
      * necessary processing
-     * 
+     *
      * @param signAndUploadBundlesEvent
      */
     public void onSignAndUploadBundlesEvent(@ObservesAsync SignAndUploadBundlesEvent signAndUploadBundlesEvent) {
@@ -205,7 +225,7 @@ public class ERezeptWorkflowService {
             } else {
                 bearerTokenToUse = bearerToken;
             }
-            
+
             List<List<BundleWithAccessCodeOrThrowable>> bundleWithAccessCodeOrThrowable = new ArrayList<>();
             for (List<Bundle> bundles : signAndUploadBundlesEvent.listOfListOfBundles) {
                 bundleWithAccessCodeOrThrowable
@@ -225,7 +245,7 @@ public class ERezeptWorkflowService {
 
     /**
      * This function tries to create BundleWithAccessCodes for all given bundles.
-     * 
+     *
      * When an error is thrown it create an object that contains this error.
      */
     public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(String bearerToken,
@@ -254,21 +274,17 @@ public class ERezeptWorkflowService {
     /**
      * A typical muster 16 form can contain up to 3 e prescriptions This function
      * has to be called multiple times
-     * 
+     *
      * This function takes a bundle e.g.
      * https://github.com/ere-health/ere-ps-app/blob/main/src/test/resources/simplifier_erezept/0428d416-149e-48a4-977c-394887b3d85c.xml
-     * 
+     *
      * @param bundle
      * @return
-     * @throws IOException
-     * @throws FaultMessage
-     * @throws CanonicalizationException
-     * @throws XMLParserException
-     * @throws InvalidCanonicalizerException
+     * @throws ERezeptWorkflowException
      */
-    public BundleWithAccessCodeOrThrowable createERezeptOnPrescriptionServer(String bearerToken, Bundle bundle)
-            throws InvalidCanonicalizerException, XMLParserException, CanonicalizationException, FaultMessage,
-            IOException {
+    public BundleWithAccessCodeOrThrowable createERezeptOnPrescriptionServer(String bearerToken,
+                                                                             Bundle bundle)
+            throws ERezeptWorkflowException {
 
         log.fine("Bearer Token: " + bearerToken);
 
@@ -278,9 +294,9 @@ public class ERezeptWorkflowService {
         // Example:
         // src/test/resources/gematik/Bundle-4fe2013d-ae94-441a-a1b1-78236ae65680.xml
         BundleWithAccessCodeOrThrowable bundleWithAccessCode = updateBundleWithTask(task, bundle);
-        SignResponse signedDocument = signBundleWithIdentifiers(bundleWithAccessCode.bundle);
+        SignResponse signedDocument = signBundleWithIdentifiers(bundleWithAccessCode.getBundle());
 
-        updateERezeptTask(bearerToken, task, bundleWithAccessCode.accessCode,
+        updateERezeptTask(bearerToken, task, bundleWithAccessCode.getAccessCode(),
                 signedDocument.getSignatureObject().getBase64Signature().getValue());
 
         return bundleWithAccessCode;
@@ -288,12 +304,11 @@ public class ERezeptWorkflowService {
 
     /**
      * This function adds the E-Rezept to the previously created task.
-     * 
+     *
      * @param task
-     * @param signedDocument
      */
     public void updateERezeptTask(String bearerToken, Task task, String accessCode, byte[] signedBytes) {
-        
+
 
         Parameters parameters = new Parameters();
         ParametersParameterComponent ePrescriptionParameter = new ParametersParameterComponent();
@@ -322,7 +337,7 @@ public class ERezeptWorkflowService {
 
     /**
      * Adds the identifiers to the bundle.
-     * 
+     *
      * @param task
      * @param bundle
      */
@@ -347,69 +362,76 @@ public class ERezeptWorkflowService {
                 .get().getValue();
     }
 
-    public SignResponse signBundleWithIdentifiers(Bundle bundle) throws FaultMessage, InvalidCanonicalizerException,
-            XMLParserException, CanonicalizationException, IOException {
+    public SignResponse signBundleWithIdentifiers(Bundle bundle) throws ERezeptWorkflowException {
         return signBundleWithIdentifiers(bundle, false);
     }
 
     /**
      * This function signs the bundle with the signatureService.signDocument from
      * the connector.
-     * 
+     *
      * @return
-     * @throws FaultMessage
-     * @throws InvalidCanonicalizerException
-     * @throws IOException
-     * @throws CanonicalizationException
-     * @throws XMLParserException
+     * @throws ERezeptWorkflowException
      */
-    public SignResponse signBundleWithIdentifiers(Bundle bundle, boolean wait10secondsAfterJobNumber)
-            throws FaultMessage, InvalidCanonicalizerException, XMLParserException, CanonicalizationException,
-            IOException {
+    public SignResponse signBundleWithIdentifiers(Bundle bundle,
+                                                  boolean wait10secondsAfterJobNumber)
+            throws ERezeptWorkflowException {
 
-        String bundleXml = fhirContext.newXmlParser().encodeResourceToString(bundle);
+        List<SignResponse> signResponse = null;
 
-        log.fine(bundleXml);
+        try {
+            String bundleXml = fhirContext.newXmlParser().encodeResourceToString(bundle);
 
-        Canonicalizer canon = Canonicalizer.getInstance(Canonicalizer.ALGO_ID_C14N11_OMIT_COMMENTS);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        canon.canonicalize(bundleXml.getBytes(), baos, false);
-        byte[] canonXmlBytes = baos.toByteArray();
+            log.fine(bundleXml);
 
-        log.fine("Canonical: " + new String(canonXmlBytes));
+            Canonicalizer canon = Canonicalizer.getInstance(Canonicalizer.ALGO_ID_C14N11_OMIT_COMMENTS);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            canon.canonicalize(bundleXml.getBytes(), baos, false);
+            byte[] canonXmlBytes = baos.toByteArray();
 
-        SignRequest signRequest = new SignRequest();
-        DocumentType document = new DocumentType();
-        Base64Data base64Data = new Base64Data();
-        base64Data.setMimeType("text/plain; charset=utf-8");
-        base64Data.setValue(canonXmlBytes);
-        document.setBase64Data(base64Data);
-        OptionalInputs optionalInputs = new OptionalInputs();
-        optionalInputs.setSignatureType("urn:ietf:rfc:5652");
-        optionalInputs.setIncludeEContent(true);
-        signRequest.setOptionalInputs(optionalInputs);
-        signRequest.setRequestID(UUID.randomUUID().toString());
-        signRequest.setDocument(document);
-        signRequest.setIncludeRevocationInfo(true);
-        List<SignRequest> signRequests = Arrays.asList(signRequest);
+            log.fine("Canonical: " + new String(canonXmlBytes));
 
-        ContextType contextType = createContextType();
+            SignRequest signRequest = new SignRequest();
+            DocumentType document = new DocumentType();
+            Base64Data base64Data = new Base64Data();
+            base64Data.setMimeType("text/plain; charset=utf-8");
+            base64Data.setValue(canonXmlBytes);
+            document.setBase64Data(base64Data);
+            OptionalInputs optionalInputs = new OptionalInputs();
+            optionalInputs.setSignatureType("urn:ietf:rfc:5652");
+            optionalInputs.setIncludeEContent(true);
+            signRequest.setOptionalInputs(optionalInputs);
+            signRequest.setRequestID(UUID.randomUUID().toString());
+            signRequest.setDocument(document);
+            signRequest.setIncludeRevocationInfo(true);
+            List<SignRequest> signRequests = Arrays.asList(signRequest);
 
-        String jobNumber = signatureService.getJobNumber(contextType);
+            ContextType contextType = createContextType();
 
-        if (wait10secondsAfterJobNumber) {
-            // Wait 10 seconds to start titus test case
-            log.info(
-                    "Waiting 10 seconds. Please enable titus test case on https://frontend.titus.ti-dienste.de/#/erezept/vps/testsuiterun");
-            try {
-                Thread.sleep(1000 * 10);
-            } catch (InterruptedException e) {
-                log.log(Level.SEVERE, "Could not wait", e);
+            String jobNumber = signatureService.getJobNumber(contextType);
+
+            if (wait10secondsAfterJobNumber) {
+                // Wait 10 seconds to start titus test case
+                log.info(
+                        "Waiting 10 seconds. Please enable titus test case on https://frontend.titus.ti-dienste.de/#/erezept/vps/testsuiterun");
+                try {
+                    Thread.sleep(1000 * 10);
+                } catch (InterruptedException e) {
+                    log.log(Level.SEVERE, "Could not wait", e);
+                }
             }
+
+            String signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
+                    ConnectorCardsService.CardHandleType.HBA).get();
+
+            signResponse = signatureService.signDocument(signatureServiceCardHandle,
+                    signatureServiceCrypt, contextType, signatureServiceTvMode,
+                    jobNumber, signRequests);
+        } catch(ConnectorCardsException | InvalidCanonicalizerException | XMLParserException |
+                IOException | CanonicalizationException | FaultMessage e) {
+            throw new ERezeptWorkflowException("Exception signing bundles with identifiers.", e);
         }
 
-        List<SignResponse> signResponse = signatureService.signDocument(signatureServiceCardHandle,
-                signatureServiceCrypt, contextType, signatureServiceTvMode, jobNumber, signRequests);
         return signResponse.get(0);
     }
 
@@ -428,7 +450,7 @@ public class ERezeptWorkflowService {
     /**
      * This function creates an empty task based on workflow 160 (Muster 16) on the
      * prescription server.
-     * 
+     *
      * @return
      */
     public Task createERezeptTask(String bearerToken) {
@@ -468,7 +490,7 @@ public class ERezeptWorkflowService {
     /**
      * This function creates an empty task based on workflow 160 (Muster 16) on the
      * prescription server.
-     * 
+     *
      * @return
      */
     public void abortERezeptTask(String bearerToken, String taskId, String accessCode) {
@@ -484,34 +506,58 @@ public class ERezeptWorkflowService {
     }
 
     /**
-     * @throws FaultMessage
+     * @throws ERezeptWorkflowException
      */
-    public void activateComfortSignature() throws FaultMessage {
+    public void activateComfortSignature() throws ERezeptWorkflowException {
         final Holder<Status> status = new Holder<>();
         final Holder<SignatureModeEnum> signatureMode = new Holder<>();
         ContextType contextType = createContextType();
-        signatureService.activateComfortSignature(signatureServiceCardHandle, contextType, status, signatureMode);
+        String signatureServiceCardHandle = null;
+
+        try {
+            signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
+                    ConnectorCardsService.CardHandleType.HBA).get();
+            signatureService.activateComfortSignature(signatureServiceCardHandle, contextType,
+                    status, signatureMode);
+        } catch (ConnectorCardsException | FaultMessage e) {
+            throw new ERezeptWorkflowException("Activate comfort signature exception.", e);
+        }
     }
 
     /**
-     * @throws FaultMessage
+     * @throws ERezeptWorkflowException
      */
-    public void getSignatureMode() throws FaultMessage {
+    public void getSignatureMode() throws ERezeptWorkflowException {
         Holder<Status> status = new Holder<>();
         Holder<ComfortSignatureStatusEnum> comfortSignatureStatus = new Holder<>();
         Holder<Integer> comfortSignatureMax = new Holder<>();
         Holder<Duration> comfortSignatureTimer = new Holder<>();
         Holder<SessionInfo> sessionInfo = new Holder<>();
         ContextType contextType = createContextType();
-        signatureService.getSignatureMode(signatureServiceCardHandle, contextType, status, comfortSignatureStatus,
-                comfortSignatureMax, comfortSignatureTimer, sessionInfo);
+
+        String signatureServiceCardHandle = null;
+        try {
+            signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
+                    ConnectorCardsService.CardHandleType.HBA).get();
+            signatureService.getSignatureMode(signatureServiceCardHandle, contextType, status, comfortSignatureStatus,
+                    comfortSignatureMax, comfortSignatureTimer, sessionInfo);
+        } catch (ConnectorCardsException | FaultMessage e) {
+            throw new ERezeptWorkflowException("Error getting signature mode.", e);
+        }
     }
 
     /**
-     * @throws FaultMessage
+     * @throws ERezeptWorkflowException
      */
-    public void deactivateComfortSignature() throws FaultMessage {
-        signatureService.deactivateComfortSignature(Arrays.asList(signatureServiceCardHandle));
+    public void deactivateComfortSignature() throws ERezeptWorkflowException {
+        String signatureServiceCardHandle = null;
+        try {
+            signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
+                    ConnectorCardsService.CardHandleType.HBA).get();
+            signatureService.deactivateComfortSignature(Arrays.asList(signatureServiceCardHandle));
+        } catch (ConnectorCardsException | FaultMessage e) {
+            throw new ERezeptWorkflowException("Error deactivating comfort signature.", e);
+        }
     }
 
     /**
@@ -522,5 +568,4 @@ public class ERezeptWorkflowService {
         parameter.setContext(createContextType());
         return eventService.getCards(parameter);
     }
-
 }

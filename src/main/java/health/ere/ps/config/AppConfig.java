@@ -21,6 +21,9 @@ public class AppConfig {
     @ConfigProperty(name = "idp.connector.client.system.id")
     String clientSystem;
 
+    @ConfigProperty(name = "idp.connector.mandant.id")
+    String mandantId;
+
     @ConfigProperty(name = "idp.connector.workplace.id")
     String workplace;
 
@@ -29,6 +32,24 @@ public class AppConfig {
 
     @ConfigProperty(name = "idp.connector.auth-signature.endpoint.address")
     String idpConnectorAuthSignatureEndpointAddress;
+
+    @ConfigProperty(name = "signature-service.context.mandantId")
+    String signatureServiceContextMandantId;
+
+    @ConfigProperty(name = "signature-service.context.clientSystemId")
+    String signatureServiceContextClientSystemId;
+
+    @ConfigProperty(name = "signature-service.context.workplaceId")
+    String signatureServiceContextWorkplaceId;
+
+    @ConfigProperty(name = "signature-service.context.userId")
+    String signatureServiceContextUserId;
+
+    @ConfigProperty(name = "connector.simulator.titusClientCertificate")
+    String titusClientCertificate;
+
+    @ConfigProperty(name = "event-service.endpointAddress")
+    String eventServiceEndpointAddress;
 
     public String getIdpConnectorTlsCertTrustStore() {
 
@@ -62,5 +83,37 @@ public class AppConfig {
 
     public String getIdpConnectorAuthSignatureEndpointAddress() {
         return idpConnectorAuthSignatureEndpointAddress;
+    }
+
+    public String getSignatureServiceContextMandantId() {
+        return signatureServiceContextMandantId;
+    }
+
+    public String getSignatureServiceContextClientSystemId() {
+        return signatureServiceContextClientSystemId;
+    }
+
+    public String getSignatureServiceContextWorkplaceId() {
+        return signatureServiceContextWorkplaceId;
+    }
+
+    public String getSignatureServiceContextUserId() {
+        return signatureServiceContextUserId;
+    }
+
+    public String getEventServiceEndpointAddress() {
+        return eventServiceEndpointAddress;
+    }
+
+    public String getTitusClientCertificate() {
+        return titusClientCertificate;
+    }
+
+    public String getMandantId() {
+        return this.mandantId;
+    }
+
+    public void setMandantId(String mandantId) {
+        this.mandantId = mandantId;
     }
 }

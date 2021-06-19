@@ -1,10 +1,17 @@
 package health.ere.ps.event;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import health.ere.ps.model.pdf.ERezeptDocument;
 
+import java.util.List;
+
 public class ERezeptDocumentsEvent {
-    public List<ERezeptDocument> eRezeptDocuments = new ArrayList<>();
+    private final List<ERezeptDocument> eRezeptDocuments;
+
+    public ERezeptDocumentsEvent(List<ERezeptDocument> eRezeptDocuments) {
+        this.eRezeptDocuments = eRezeptDocuments;
+    }
+
+    public List<ERezeptDocument> getERezeptWithDocuments() {
+        return eRezeptDocuments;
+    }
 }

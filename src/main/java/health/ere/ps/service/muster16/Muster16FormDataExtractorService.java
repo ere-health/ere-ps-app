@@ -1,26 +1,24 @@
 package health.ere.ps.service.muster16;
 
 
-import java.net.URISyntaxException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.enterprise.event.ObservesAsync;
-import javax.inject.Inject;
-
 import health.ere.ps.event.Muster16PrescriptionFormEvent;
 import health.ere.ps.event.SVGExtractorResultEvent;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
 import health.ere.ps.service.muster16.parser.IMuster16FormParser;
 import health.ere.ps.service.muster16.parser.Muster16FormDataParser;
-import health.ere.ps.service.muster16.parser.Muster16SvgExtractorParser;
+import health.ere.ps.service.muster16.parser.rgxer.Muster16SvgRegexParser;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.enterprise.event.ObservesAsync;
+import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @ApplicationScoped
 public class Muster16FormDataExtractorService {
 
-    private static Logger log = Logger.getLogger(Muster16FormDataExtractorService.class.getName());
+    private static final Logger log = Logger.getLogger(Muster16FormDataExtractorService.class.getName());
 
     @Inject
     Event<Exception> exceptionEvent;
@@ -33,6 +31,7 @@ public class Muster16FormDataExtractorService {
         Muster16PrescriptionForm muster16Form = new Muster16PrescriptionForm(
                 parser.parseInsuranceCompany(),
                 parser.parseInsuranceCompanyId(),
+                parser.parsePatientNamePrefix(),
                 parser.parsePatientFirstName(),
                 parser.parsePatientLastName(),
                 parser.parsePatientStreetName(),
@@ -44,17 +43,15 @@ public class Muster16FormDataExtractorService {
                 parser.parseClinicId(),
                 parser.parseDoctorId(),
                 parser.parsePrescriptionDate(),
+                parser.parseIsWithPayment(),
                 parser.parsePrescriptionList()
         );
-
         muster16PrescriptionFormEvent.fireAsync(new Muster16PrescriptionFormEvent(muster16Form));
     }
 
     public void extractDataWithSvgExtractorParser(@ObservesAsync SVGExtractorResultEvent sVGExtractorResultEvent) {
-        log.info("Muster16FormDataExtractorService.extractDataWithSvgExtractorParser");
         try {
-            Muster16SvgExtractorParser parser = new Muster16SvgExtractorParser(sVGExtractorResultEvent.map);
-
+            Muster16SvgRegexParser parser = new Muster16SvgRegexParser(sVGExtractorResultEvent.getSvgExtractionResult());
             Muster16PrescriptionForm muster16Form = fillForm(parser);
 
             muster16PrescriptionFormEvent.fireAsync(new Muster16PrescriptionFormEvent(muster16Form));
@@ -64,10 +61,11 @@ public class Muster16FormDataExtractorService {
         }
     }
 
-    public static Muster16PrescriptionForm fillForm(Muster16SvgExtractorParser parser) {
+    public static Muster16PrescriptionForm fillForm(IMuster16FormParser parser) {
         return new Muster16PrescriptionForm(
             parser.parseInsuranceCompany(),
             parser.parseInsuranceCompanyId(),
+            parser.parsePatientNamePrefix(),
             parser.parsePatientFirstName(),
             parser.parsePatientLastName(),
             parser.parsePatientStreetName(),
@@ -79,6 +77,7 @@ public class Muster16FormDataExtractorService {
             parser.parseClinicId(),
             parser.parseDoctorId(),
             parser.parsePrescriptionDate(),
+            parser.parseIsWithPayment(),
             parser.parsePrescriptionList()
         );
     }
