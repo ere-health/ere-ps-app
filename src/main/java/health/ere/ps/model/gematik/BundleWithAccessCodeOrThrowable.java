@@ -3,9 +3,9 @@ package health.ere.ps.model.gematik;
 import org.hl7.fhir.r4.model.Bundle;
 
 public class BundleWithAccessCodeOrThrowable {
-    public Bundle bundle;
-    public String accessCode;
-    public Throwable throwable;
+    private Bundle bundle;
+    private String accessCode;
+    private Throwable throwable;
 
     public BundleWithAccessCodeOrThrowable(Bundle bundle, String accessCode) {
         this.bundle = bundle;
@@ -16,4 +16,11 @@ public class BundleWithAccessCodeOrThrowable {
         this.throwable = throwable;
     }
 
+    public Bundle getBundle() {
+        return bundle;
+    }
+
+    public String getAccessCode() {
+        return accessCode;
+    }
 }

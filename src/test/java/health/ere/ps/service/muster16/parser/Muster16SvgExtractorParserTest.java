@@ -31,7 +31,7 @@ class Muster16SvgExtractorParserTest {
     private Muster16PrescriptionForm muster16PrescriptionForm;
 
     @BeforeEach
-    void setUp() throws URISyntaxException, IOException {
+    void setUp() {
         logger.info("Setting up parser using SVGExtractor");
 
         Map<String, String> mappedFields = new HashMap<>();
@@ -39,6 +39,7 @@ class Muster16SvgExtractorParserTest {
         muster16PrescriptionForm = new Muster16PrescriptionForm(
                 parser.parseInsuranceCompany(),
                 parser.parseInsuranceCompanyId(),
+                parser.parsePatientNamePrefix(),
                 parser.parsePatientFirstName(),
                 parser.parsePatientLastName(),
                 parser.parsePatientStreetName(),
@@ -50,6 +51,7 @@ class Muster16SvgExtractorParserTest {
                 parser.parseClinicId(),
                 parser.parseDoctorId(),
                 parser.parsePrescriptionDate(),
+                parser.parseIsWithPayment(),
                 parser.parsePrescriptionList()
         );
     }

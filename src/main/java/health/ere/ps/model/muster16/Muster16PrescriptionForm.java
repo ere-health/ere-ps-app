@@ -2,15 +2,12 @@ package health.ere.ps.model.muster16;
 
 import java.util.List;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Muster16PrescriptionForm {
 
-    private static final Logger log = Logger.getLogger(Muster16PrescriptionForm.class.getName());
-
     private String insuranceCompany;
     private String insuranceCompanyId;
+    private List<String> PatientNamePrefix;
     private String patientFirstName;
     private String patientLastName;
     private String patientStreetName;
@@ -30,37 +27,32 @@ public class Muster16PrescriptionForm {
     private String doctorZipCode;
     private String doctorNamePrefix;
     private String doctorPhone;
+    private Boolean isWithPayment;
 
     private List<MedicationString> prescriptionList;
 
-    public Muster16PrescriptionForm(String insuranceCompany,
-            String insuranceCompanyId,
-            String patientFirstName,
-            String patientLastName,
-            String patientStreetName,
-            String patientStreetNumber,
-            String patientCity,
-            String patientZipCode,
-            String patientInsuranceId,
-            String patientDateOfBirth,
-            String clinicId,
-            String doctorId,
-            String prescriptionDate,
-            List<MedicationString> prescriptionList) {
+    public Muster16PrescriptionForm(String insuranceCompany, String insuranceCompanyId, List<String> PatientNamePrefix,
+                                    String patientFirstName, String patientLastName, String patientStreetName,
+                                    String patientStreetNumber, String patientCity, String patientZipCode,
+                                    String patientInsuranceId, String patientDateOfBirth, String clinicId,
+                                    String doctorId, String prescriptionDate, Boolean isWithPayment,
+                                    List<MedicationString> prescriptionList) {
         this.insuranceCompany = insuranceCompany;
         this.insuranceCompanyId = insuranceCompanyId;
+        this.PatientNamePrefix = PatientNamePrefix;
         this.patientFirstName = patientFirstName;
         this.patientLastName = patientLastName;
         this.patientStreetName = patientStreetName;
         this.patientStreetNumber = patientStreetNumber;
         this.patientCity = patientCity;
         this.patientZipCode = patientZipCode;
-        this.setPatientInsuranceId(patientInsuranceId);
+        this.patientInsuranceId = patientInsuranceId;
         this.patientDateOfBirth = patientDateOfBirth;
         this.clinicId = clinicId;
-        this.setDoctorId(doctorId);
+        this.doctorId = doctorId;
         this.prescriptionDate = prescriptionDate;
         this.prescriptionList = prescriptionList;
+        this.isWithPayment = isWithPayment;
     }
 
     public Muster16PrescriptionForm() {
@@ -81,6 +73,14 @@ public class Muster16PrescriptionForm {
 
     public void setInsuranceCompanyId(String insuranceCompanyId) {
         this.insuranceCompanyId = insuranceCompanyId;
+    }
+
+    public List<String> getPatientNamePrefix() {
+        return PatientNamePrefix;
+    }
+
+    public void setPatientNamePrefix(List<String> patientNamePrefix) {
+        this.PatientNamePrefix = patientNamePrefix;
     }
 
     public String getPatientFirstName() {
@@ -241,5 +241,13 @@ public class Muster16PrescriptionForm {
 
     public void setDoctorPhone(String doctorPhone) {
         this.doctorPhone = doctorPhone;
+    }
+
+    public Boolean getWithPayment() {
+        return isWithPayment;
+    }
+
+    public void setWithPayment(Boolean withPayment) {
+        isWithPayment = withPayment;
     }
 }
