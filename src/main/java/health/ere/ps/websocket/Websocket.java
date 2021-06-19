@@ -3,7 +3,6 @@ package health.ere.ps.websocket;
 import ca.uhn.fhir.context.FhirContext;
 import health.ere.ps.event.BundlesEvent;
 import health.ere.ps.event.ERezeptDocumentsEvent;
-import health.ere.ps.event.ErixaEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
 import health.ere.ps.jsonb.BundleAdapter;
 import health.ere.ps.jsonb.ByteAdapter;
@@ -33,7 +32,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-
 @ServerEndpoint("/websocket")
 @ApplicationScoped
 public class Websocket {
@@ -45,8 +43,6 @@ public class Websocket {
     @Inject
     Event<SignAndUploadBundlesEvent> signAndUploadBundlesEvent;
 
-    @Inject
-    Event<ErixaEvent> erixaEvent;
 
     @OnOpen
     public void onOpen(Session session) {

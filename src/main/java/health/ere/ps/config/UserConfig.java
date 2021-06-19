@@ -1,6 +1,10 @@
 package health.ere.ps.config;
 
 
+import health.ere.ps.service.extractor.TemplateProfile;
+import health.ere.ps.service.extractor.SVGExtractorConfiguration;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
 import javax.enterprise.context.ApplicationScoped;
 import java.io.IOException;
 import java.util.Properties;
@@ -13,6 +17,9 @@ public class UserConfig {
 
     private final Properties erixaProperties;
 
+    @ConfigProperty(name = "muster16.template.configuration", defaultValue = "DENS")
+    String muster16TemplateConfiguration;
+
     public UserConfig() {
         erixaProperties = erixaProperties();
     }
@@ -23,6 +30,16 @@ public class UserConfig {
 
     public String getErixaReceiverEmail() {
         return erixaProperties.getProperty("erixa.receiver.email");
+    }
+
+    public SVGExtractorConfiguration getMuster16TemplateConfiguration() {
+        TemplateProfile profile;
+        try {
+            profile = TemplateProfile.valueOf(muster16TemplateConfiguration);
+        } catch (IllegalArgumentException ignored) {
+            profile = TemplateProfile.DENS;
+        }
+        return profile.configuration;
     }
 
     private Properties erixaProperties() {
