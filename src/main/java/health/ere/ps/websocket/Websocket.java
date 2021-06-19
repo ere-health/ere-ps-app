@@ -32,6 +32,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import ca.uhn.fhir.context.FhirContext;
+import health.ere.ps.event.BundlesEvent;
+import health.ere.ps.event.ERezeptDocumentsEvent;
+import health.ere.ps.event.ErixaEvent;
+import health.ere.ps.event.SignAndUploadBundlesEvent;
+import health.ere.ps.jsonb.BundleAdapter;
+import health.ere.ps.jsonb.ByteAdapter;
+
+
 @ServerEndpoint("/websocket")
 @ApplicationScoped
 public class Websocket {
@@ -43,6 +52,8 @@ public class Websocket {
     @Inject
     Event<SignAndUploadBundlesEvent> signAndUploadBundlesEvent;
 
+    @Inject
+    Event<ErixaEvent> erixaEvent;
 
     @OnOpen
     public void onOpen(Session session) {
@@ -59,7 +70,7 @@ public class Websocket {
     @OnError
     public void onError(Session session, Throwable throwable) {
         sessions.remove(session);
-        log.severe("Websocket error: " + throwable);
+        log.info("Websocket error: " + throwable);
     }
 
     @OnMessage
@@ -68,7 +79,7 @@ public class Websocket {
 
         JsonReader jsonReader = Json.createReader(new StringReader(message));
         JsonObject object = jsonReader.readObject();
-        if ("SignAndUploadBundles".equals(object.getString("type"))) {
+        if("SignAndUploadBundles".equals(object.getString("type"))) {
             SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(object);
             signAndUploadBundlesEvent.fireAsync(event);
         }
@@ -76,8 +87,9 @@ public class Websocket {
     }
 
     public void onFhirBundle(@ObservesAsync BundlesEvent bundlesEvent) {
+
         // if nobody is connected to the websocket
-        if (sessions.isEmpty()) {
+        if(sessions.size() == 0) {
             if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
                 try {
                     // Open a browser with the given URL
@@ -107,6 +119,10 @@ public class Websocket {
                         log.severe("Unable to send eRezeptWithDocumentsEvent: " + result.getException());
                     }
                 }));
+    }
+
+    public String getJsonEventFor(ERezeptDocumentsEvent eRezeptDocumentsEvent) {
+        return "{\"type\": \"ERezeptDocuments\", \"payload\": " + generateJson(eRezeptDocumentsEvent) + "}";
     }
 
     public String getJson(ERezeptDocumentsEvent eRezeptDocumentsEvent) {
