@@ -59,7 +59,7 @@ public class Websocket {
     @OnError
     public void onError(Session session, Throwable throwable) {
         sessions.remove(session);
-        log.severe("Websocket error: " + throwable);
+        log.info("Websocket error: " + throwable);
     }
 
     @OnMessage
@@ -68,7 +68,7 @@ public class Websocket {
 
         JsonReader jsonReader = Json.createReader(new StringReader(message));
         JsonObject object = jsonReader.readObject();
-        if ("SignAndUploadBundles".equals(object.getString("type"))) {
+        if("SignAndUploadBundles".equals(object.getString("type"))) {
             SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(object);
             signAndUploadBundlesEvent.fireAsync(event);
         }
@@ -76,8 +76,9 @@ public class Websocket {
     }
 
     public void onFhirBundle(@ObservesAsync BundlesEvent bundlesEvent) {
+
         // if nobody is connected to the websocket
-        if (sessions.isEmpty()) {
+        if(sessions.size() == 0) {
             if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
                 try {
                     // Open a browser with the given URL
