@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static health.ere.ps.service.extractor.TemplateProfile.DENS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @QuarkusTest
@@ -34,7 +35,7 @@ public class ExtractionToBundleWorkflowTest {
         // GIVEN
         PDDocument testDocument = PDDocument.load(
                 new FileInputStream("../secret-test-print-samples/DENS-GmbH/DENSoffice - Rezept1.pdf"));
-        SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.DENS, false);
+        SVGExtractor svgExtractor = new SVGExtractor(DENS.configuration, false);
 
         // WHEN (simulates the extraction workflow from the start to finish without the events )
         Map<String, String> map = svgExtractor.extract(testDocument);
