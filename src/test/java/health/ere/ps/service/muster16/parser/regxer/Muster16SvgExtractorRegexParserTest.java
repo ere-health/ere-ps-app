@@ -1,7 +1,6 @@
 package health.ere.ps.service.muster16.parser.regxer;
 
 import health.ere.ps.service.extractor.SVGExtractor;
-import health.ere.ps.service.extractor.SVGExtractorConfiguration;
 import health.ere.ps.service.muster16.parser.rgxer.Muster16SvgRegexParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.junit.jupiter.api.Disabled;
@@ -14,6 +13,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 
+import static health.ere.ps.service.extractor.TemplateProfile.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -21,7 +21,8 @@ public class Muster16SvgExtractorRegexParserTest {
 
     @Test
     void testParseData_CGM_Z1() throws URISyntaxException, IOException, XMLStreamException {
-        SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.CGM_Z1, true);
+
+        SVGExtractor svgExtractor = new SVGExtractor(CGM_Z1.configuration, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(getClass().getResourceAsStream("/muster-16-print-samples/cgm-z1-manuel-blechschmidt.pdf")));
 
         Muster16SvgRegexParser parser = new Muster16SvgRegexParser(map);
@@ -45,7 +46,8 @@ public class Muster16SvgExtractorRegexParserTest {
     @Test
     @Disabled
     void testParse_CGMTurboMed() throws URISyntaxException, IOException, XMLStreamException {
-        SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.CGM_TURBO_MED, true);
+
+        SVGExtractor svgExtractor = new SVGExtractor(CGM_TURBO_MED.configuration, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/CGM-Turbomed/test1.pdf")));
 
         Muster16SvgRegexParser parser = new Muster16SvgRegexParser(map);
@@ -69,7 +71,8 @@ public class Muster16SvgExtractorRegexParserTest {
     @Test
     @Disabled
     void testParse_Dens1() throws URISyntaxException, IOException, XMLStreamException {
-        SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.DENS, true);
+
+        SVGExtractor svgExtractor = new SVGExtractor(DENS.configuration, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/DENSoffice - Rezept1.pdf")));
 
         Muster16SvgRegexParser parser = new Muster16SvgRegexParser(map);
@@ -94,7 +97,8 @@ public class Muster16SvgExtractorRegexParserTest {
     @Test
     @Disabled
     void testExtractDensErezept() throws URISyntaxException, IOException, XMLStreamException {
-        SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.DENS, true);
+
+        SVGExtractor svgExtractor = new SVGExtractor(DENS.configuration, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/eRezept.pdf")));
 
         Muster16SvgRegexParser parser = new Muster16SvgRegexParser(map);
@@ -102,7 +106,8 @@ public class Muster16SvgExtractorRegexParserTest {
         assertEquals("DENS GmbH", parser.parseInsuranceCompany());
         assertEquals("", parser.parseInsuranceCompanyId());
         List<String> expectedPrefix = List.of("Dr.");
-        assertEquals(expectedPrefix, parser.parsePatientNamePrefix());        assertEquals("Markus", parser.parsePatientFirstName());
+        assertEquals(expectedPrefix, parser.parsePatientNamePrefix());
+        assertEquals("Markus", parser.parsePatientFirstName());
         assertEquals("Heckner", parser.parsePatientLastName());
         assertEquals("Testweg", parser.parsePatientStreetName());
         assertEquals("1", parser.parsePatientStreetNumber());
