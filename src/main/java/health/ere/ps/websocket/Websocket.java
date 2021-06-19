@@ -3,6 +3,7 @@ package health.ere.ps.websocket;
 import ca.uhn.fhir.context.FhirContext;
 import health.ere.ps.event.BundlesEvent;
 import health.ere.ps.event.ERezeptDocumentsEvent;
+import health.ere.ps.event.ErixaEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
 import health.ere.ps.jsonb.BundleAdapter;
 import health.ere.ps.jsonb.ByteAdapter;
@@ -31,14 +32,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
-import ca.uhn.fhir.context.FhirContext;
-import health.ere.ps.event.BundlesEvent;
-import health.ere.ps.event.ERezeptDocumentsEvent;
-import health.ere.ps.event.ErixaEvent;
-import health.ere.ps.event.SignAndUploadBundlesEvent;
-import health.ere.ps.jsonb.BundleAdapter;
-import health.ere.ps.jsonb.ByteAdapter;
 
 
 @ServerEndpoint("/websocket")
@@ -119,10 +112,6 @@ public class Websocket {
                         log.severe("Unable to send eRezeptWithDocumentsEvent: " + result.getException());
                     }
                 }));
-    }
-
-    public String getJsonEventFor(ERezeptDocumentsEvent eRezeptDocumentsEvent) {
-        return "{\"type\": \"ERezeptDocuments\", \"payload\": " + generateJson(eRezeptDocumentsEvent) + "}";
     }
 
     public String getJson(ERezeptDocumentsEvent eRezeptDocumentsEvent) {
