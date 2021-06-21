@@ -4,6 +4,7 @@ import health.ere.ps.model.muster16.MedicationString;
 import health.ere.ps.service.muster16.parser.IMuster16FormParser;
 import health.ere.ps.service.muster16.parser.rgxer.delegate.medication.MedicationParseDelegate;
 import health.ere.ps.service.muster16.parser.rgxer.delegate.patient.PatientEntryParseDelegate;
+import health.ere.ps.service.muster16.parser.rgxer.delegate.practitioner.PractitionerEntryParseDelegate;
 import health.ere.ps.service.muster16.parser.rgxer.formatter.Muster16AtomicFormatter;
 import health.ere.ps.service.muster16.parser.rgxer.model.Muster16Field;
 
@@ -32,10 +33,14 @@ public class Muster16SvgRegexParser implements IMuster16FormParser {
         return formatValues(mappedFields);
     }
 
-    private Map<Muster16Field, String> extractIntermediateValues(Map<String, String> mappedValues) {
-        Map<Muster16Field, String> patientDetailsFields = new PatientEntryParseDelegate(mappedValues.getOrDefault("nameAndAddress", "")).getDetails();
-        // TODO parse practitioner's info
-        return patientDetailsFields;
+    private Map<Muster16Field, String> extractPatientAndPractitionerValues(Map<String, String> mappedValues) {
+        Map<Muster16Field, String> patientAndPractitionerDetailsFields = new PatientEntryParseDelegate(
+                mappedValues.getOrDefault("nameAndAddress", "")).getDetails();
+
+        patientAndPractitionerDetailsFields.putAll(new PractitionerEntryParseDelegate((
+                mappedValues.getOrDefault("practitionerText", ""))).getDetails());
+
+        return patientAndPractitionerDetailsFields;
     }
 
     private Map<Muster16Field, String> formatValues(Map<Muster16Field, String> mappedFields) {
@@ -52,8 +57,8 @@ public class Muster16SvgRegexParser implements IMuster16FormParser {
         fieldsMap.put(DOCTOR_ID, entries.getOrDefault("practitionerNumber", ""));
         fieldsMap.put(PRESCRIPTION_DATE, entries.getOrDefault("date", ""));
         fieldsMap.put(PATIENT_INSURANCE_ID, entries.getOrDefault("insuranceNumber", ""));
-        fieldsMap.put(IS_WITH_PAYMENT, entries.getOrDefault("isWithPayment", ""));
-        fieldsMap.putAll(extractIntermediateValues(entries));
+        fieldsMap.put(IS_WITH_PAYMENT, entries.getOrDefault("withPayment", ""));
+        fieldsMap.putAll(extractPatientAndPractitionerValues(entries));
         return fieldsMap;
     }
 
@@ -82,7 +87,7 @@ public class Muster16SvgRegexParser implements IMuster16FormParser {
     public List<String> parsePatientNamePrefix() {
         String value = getValue(PATIENT_NAME_PREFIX);
         if(value.isBlank())
-            return new ArrayList<>();
+            return Collections.emptyList();
         return List.of(value.split(" ")).stream().map(String::new).collect(Collectors.toList());
     }
 
@@ -149,5 +154,50 @@ public class Muster16SvgRegexParser implements IMuster16FormParser {
     @Override
     public Boolean parseIsWithPayment() {
         return getValue(IS_WITH_PAYMENT).equals("X");
+    }
+
+    @Override
+    public String parsePractitionerFirstName() {
+        return getValue(PRACTITIONER_FIRST_NAME);
+    }
+
+    @Override
+    public String parsePractitionerLastName() {
+        return getValue(PRACTITIONER_LAST_NAME);
+    }
+
+    @Override
+    public String parsePractitionerNamePrefix() {
+        return getValue(PRACTITIONER_NAME_PREFIX);
+    }
+
+    @Override
+    public String parsePractitionerStreetName() {
+        return getValue(PRACTITIONER_STREET_NAME);
+    }
+
+    @Override
+    public String parsePractitionerStreetNumber() {
+        return getValue(PRACTITIONER_STREET_NUMBER);
+    }
+
+    @Override
+    public String parsePractitionerCity() {
+        return getValue(PRACTITIONER_CITY);
+    }
+
+    @Override
+    public String parsePractitionerZipCode() {
+        return getValue(PRACTITIONER_ZIPCODE);
+    }
+
+    @Override
+    public String parsePractitionerPhoneNumber() {
+        return getValue(PRACTITIONER_PHONE);
+    }
+
+    @Override
+    public String parsePractitionerFaxNumber() {
+        return getValue(PRACTITIONER_FAX);
     }
 }

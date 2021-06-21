@@ -2,11 +2,11 @@ package health.ere.ps.service.fhir.bundle;
 
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
 import health.ere.ps.service.extractor.SVGExtractor;
-import health.ere.ps.service.extractor.SVGExtractorConfiguration;
 import health.ere.ps.service.muster16.Muster16FormDataExtractorService;
-import health.ere.ps.service.muster16.parser.Muster16SvgExtractorParser;
+import health.ere.ps.service.muster16.parser.rgxer.Muster16SvgRegexParser;
 import io.quarkus.test.junit.QuarkusTest;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.hl7.fhir.r4.model.Base;
 import org.hl7.fhir.r4.model.Bundle;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -17,30 +17,30 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static health.ere.ps.service.extractor.TemplateProfile.CGM_TURBO_MED;
 import static health.ere.ps.service.extractor.TemplateProfile.DENS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @QuarkusTest
 public class ExtractionToBundleWorkflowTest {
 
-    private static final Logger log = Logger.getLogger(ExtractionToBundleWorkflowTest.class.getName());
-
+//    private static final Logger log = Logger.getLogger(ExtractionToBundleWorkflowTest.class.getName());
 
     @Test
     @Disabled("Github doesn't have access to the secret repo, run this test manually")
-    public void extractionFromPdf_producesCorrectBundle() throws IOException, ParseException, XMLStreamException {
+    public void extractionFromPdf_producesCorrectBundle_givenDensPdf() throws IOException, ParseException, XMLStreamException {
         // GIVEN
         PDDocument testDocument = PDDocument.load(
                 new FileInputStream("../secret-test-print-samples/DENS-GmbH/DENSoffice - Rezept1.pdf"));
         SVGExtractor svgExtractor = new SVGExtractor(DENS.configuration, false);
 
-        // WHEN (simulates the extraction workflow from the start to finish without the events )
-        Map<String, String> map = svgExtractor.extract(testDocument);
+        // WHEN (simulates the extraction workflow from the extraction from the pdf to the creation of the bundle
+        // before we send it to the frontend through websocket without the events being fired)
+        Map<String, String> extractionResultsMap = svgExtractor.extract(testDocument);
 
-        Muster16SvgExtractorParser muster16Parser = new Muster16SvgExtractorParser(map);
+        Muster16SvgRegexParser muster16Parser = new Muster16SvgRegexParser(extractionResultsMap);
         Muster16PrescriptionForm muster16PrescriptionForm = Muster16FormDataExtractorService.fillForm(muster16Parser);
 
         PrescriptionBundlesBuilder bundleBuilder = new PrescriptionBundlesBuilder(muster16PrescriptionForm);
@@ -48,29 +48,123 @@ public class ExtractionToBundleWorkflowTest {
 
         // THEN
         bundles.forEach(bundle -> {
-            assertEquals("Berliner Str. 12", extractAddress(bundle));
-            assertEquals("14513", extractPostCode(bundle));
-            assertEquals("Teltow", extractCity(bundle));
+            assertEquals("Berliner Str. 12", extractPatientAddress(bundle));
+            assertEquals("14513", extractPatientPostCode(bundle));
+            assertEquals("Teltow", extractPatientCity(bundle));
             assertEquals("1976-02-14", extractBirthDate(bundle));
             assertEquals("Dr.", extractPatientPrefix(bundle));
             assertEquals("Markus", extractPatientFirstName(bundle));
             assertEquals("Heckner", extractPatientLastName(bundle));
             assertEquals("0", extractGebPfl(bundle));
+            assertEquals("DENS", extractPractitionerFirstName(bundle));
+            assertEquals("GmbH", extractPractitionerLastName(bundle));
+            assertEquals("Berliner Str. 13", extractPractitionerAddress(bundle));
+            assertEquals("Teltow", extractPractitionerCity(bundle));
+            assertEquals("14513", extractPractitionerPostCode(bundle));
+            assertEquals("03328334540", extractPractitionerPhoneNumber(bundle));
+            assertEquals("03328334547", extractPractitionerFaxNumber(bundle));
         });
+
+        assertEquals("Ibuprofen 600mg", extractMedicationName(bundles.get(0)));
+        assertEquals("Omeprazol 40 mg", extractMedicationName(bundles.get(1)));
+        assertEquals("Amoxicillin 1.000 mg", extractMedicationName(bundles.get(2)));
+    }
+
+    @Test
+    @Disabled("Github doesn't have access to the secret repo, run this test manually")
+    public void extractionFromPdf_producesCorrectBundle_givenCGMPdf() throws IOException, ParseException, XMLStreamException {
+        // GIVEN
+        PDDocument testDocument = PDDocument.load(
+                new FileInputStream("../secret-test-print-samples/CGM-Turbomed/test1_no_number_in_practitioner_name.pdf"));
+        SVGExtractor svgExtractor = new SVGExtractor(CGM_TURBO_MED.configuration, false);
+
+        // WHEN (simulates the extraction workflow from the extraction from the pdf to the creation of the bundle
+        // before we send it to the frontend through websocket without the events being fired)
+        Map<String, String> extractionResultsMap = svgExtractor.extract(testDocument);
+
+        Muster16SvgRegexParser muster16Parser = new Muster16SvgRegexParser(extractionResultsMap);
+        Muster16PrescriptionForm muster16PrescriptionForm = Muster16FormDataExtractorService.fillForm(muster16Parser);
+
+        PrescriptionBundlesBuilder bundleBuilder = new PrescriptionBundlesBuilder(muster16PrescriptionForm);
+        Bundle bundle = bundleBuilder.createBundles().get(0);
+
+        // THEN
+        assertEquals("Maria Trost 21", extractPatientAddress(bundle));
+        assertEquals("56070", extractPatientPostCode(bundle));
+        assertEquals("Koblenz", extractPatientCity(bundle));
+        assertEquals("1987-07-19", extractBirthDate(bundle));
+        assertEquals("", extractPatientPrefix(bundle));
+        assertEquals("Banholzer", extractPatientFirstName(bundle));
+        assertEquals("Dominik", extractPatientLastName(bundle));
+        assertEquals("0", extractGebPfl(bundle));
+        assertEquals("E-Reze pt", extractPractitionerFirstName(bundle));
+        assertEquals("Testarzt", extractPractitionerLastName(bundle));
+        assertEquals("Dr.", extractPractitionerPrefix(bundle));
+        assertEquals("Neustraße 10", extractPractitionerAddress(bundle));
+        assertEquals("Koblenz", extractPractitionerCity(bundle));
+        assertEquals("56068", extractPractitionerPostCode(bundle));
+        assertEquals("0261110110", extractPractitionerPhoneNumber(bundle));
+        assertEquals("Novalgin AMP N1 5X2 ml", extractMedicationName(bundle));
     }
 
 
-    private String extractAddress(Bundle bundle) {
+    private String extractMedicationName(Bundle bundle) {
+        return getEntry(bundle, "Medication").getResource().getChildByName("code").getValues().get(0)
+                .getChildByName("text").getValues().get(0).primitiveValue();
+    }
+
+    private String extractPractitionerPrefix(Bundle bundle) {
+        List<Base> prefix = getEntry(bundle, "Practitioner").getResource().getChildByName("name").getValues().get(0)
+                .getChildByName("prefix").getValues();
+        return (prefix.isEmpty()) ? "" : prefix.get(0).primitiveValue();
+    }
+
+    private String extractPractitionerFirstName(Bundle bundle) {
+        return getEntry(bundle, "Practitioner").getResource().getChildByName("name").getValues().get(0)
+                .getChildByName("given").getValues().get(0).primitiveValue();
+    }
+
+    private String extractPractitionerLastName(Bundle bundle) {
+        return getEntry(bundle, "Practitioner").getResource().getChildByName("name").getValues().get(0)
+                .getChildByName("family").getValues().get(0).primitiveValue();
+    }
+
+    private String extractPractitionerAddress(Bundle bundle) {
+        return getEntry(bundle, "Practitioner").getResource().getChildByName("address").getValues().get(0)
+                .getChildByName("line").getValues().get(0).primitiveValue();
+    }
+
+    private String extractPractitionerPostCode(Bundle bundle) {
+        return getEntry(bundle, "Practitioner").getResource().getChildByName("address").getValues().get(0)
+                .getChildByName("postalCode").getValues().get(0).primitiveValue();
+    }
+
+    private String extractPractitionerCity(Bundle bundle) {
+        return getEntry(bundle, "Practitioner").getResource().getChildByName("address").getValues().get(0)
+                .getChildByName("city").getValues().get(0).primitiveValue();
+    }
+
+    private String extractPractitionerPhoneNumber(Bundle bundle) {
+        return getEntry(bundle, "Practitioner").getResource().getChildByName("telecom").getValues().get(0)
+                .getChildByName("value").getValues().get(0).primitiveValue();
+    }
+
+    private String extractPractitionerFaxNumber(Bundle bundle) {
+        return getEntry(bundle, "Practitioner").getResource().getChildByName("telecom").getValues().get(1)
+                .getChildByName("value").getValues().get(0).primitiveValue();
+    }
+
+    private String extractPatientAddress(Bundle bundle) {
         return getEntry(bundle, "Patient").getResource().getChildByName("address").getValues().get(0)
                 .getChildByName("line").getValues().get(0).primitiveValue();
     }
 
-    private String extractPostCode(Bundle bundle) {
+    private String extractPatientPostCode(Bundle bundle) {
         return getEntry(bundle, "Patient").getResource().getChildByName("address").getValues().get(0)
                 .getChildByName("postalCode").getValues().get(0).primitiveValue();
     }
 
-    private String extractCity(Bundle bundle) {
+    private String extractPatientCity(Bundle bundle) {
         return getEntry(bundle, "Patient").getResource().getChildByName("address").getValues().get(0)
                 .getChildByName("city").getValues().get(0).primitiveValue();
     }
@@ -81,8 +175,9 @@ public class ExtractionToBundleWorkflowTest {
     }
 
     private String extractPatientPrefix(Bundle bundle) {
-        return getEntry(bundle, "Patient").getResource().getChildByName("name").getValues().get(0)
-                .getChildByName("prefix").getValues().get(0).primitiveValue();
+        List<Base> prefix = getEntry(bundle, "Patient").getResource().getChildByName("name").getValues().get(0)
+                .getChildByName("prefix").getValues();
+        return (prefix.isEmpty()) ? "" : prefix.get(0).primitiveValue();
     }
 
     private String extractPatientFirstName(Bundle bundle) {
