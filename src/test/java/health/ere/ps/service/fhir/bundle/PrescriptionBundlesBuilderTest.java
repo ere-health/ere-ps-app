@@ -41,7 +41,7 @@ public class PrescriptionBundlesBuilderTest {
 
         muster16PrescriptionForm.setPrescriptionList(Collections.singletonList(medicationString));
 
-        muster16PrescriptionForm.setDoctorId("LANR1234");
+        muster16PrescriptionForm.setPractitionerId("LANR1234");
 
         muster16PrescriptionForm.setInsuranceCompany("Test Insurance Company, Gmbh");
 
@@ -55,17 +55,17 @@ public class PrescriptionBundlesBuilderTest {
         muster16PrescriptionForm.setPatientCity("Berlin");
         muster16PrescriptionForm.setPatientInsuranceId("M310119800");
 
-        muster16PrescriptionForm.setDoctorNamePrefix("Dr.");
-        muster16PrescriptionForm.setDoctorFirstName("Testarzt");
-        muster16PrescriptionForm.setDoctorLastName("E-Rezept");
-        muster16PrescriptionForm.setDoctorPhone("123456789");
+        muster16PrescriptionForm.setPractitionerNamePrefix("Dr.");
+        muster16PrescriptionForm.setPractitionerFirstName("Testarzt");
+        muster16PrescriptionForm.setPractitionerLastName("E-Rezept");
+        muster16PrescriptionForm.setPractitionerPhone("123456789");
 
-        muster16PrescriptionForm.setDoctorStreetName("Doc Droysenstr.");
-        muster16PrescriptionForm.setDoctorStreetNumber("7a");
-        muster16PrescriptionForm.setDoctorZipCode("10630");
-        muster16PrescriptionForm.setDoctorCity("Berlinn");
+        muster16PrescriptionForm.setPractitionerStreetName("Doc Droysenstr.");
+        muster16PrescriptionForm.setPractitionerStreetNumber("7a");
+        muster16PrescriptionForm.setPractitionerZipCode("10630");
+        muster16PrescriptionForm.setPractitionerCity("Berlinn");
 
-        muster16PrescriptionForm.setDoctorPhone("030/123456");
+        muster16PrescriptionForm.setPractitionerPhone("030/123456");
 
         muster16PrescriptionForm.setInsuranceCompanyId("100038825");
         muster16PrescriptionForm.setWithPayment(true);
