@@ -51,7 +51,7 @@ public class Muster16SvgExtractorRegexParserTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("Github doesn't have access to the secret repo, run this test manually")
     void testParse_CGMTurboMed() throws IOException, XMLStreamException {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.CGM_TURBO_MED, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/CGM-Turbomed/test1_no_number_in_practitioner_name.pdf")));
@@ -83,7 +83,7 @@ public class Muster16SvgExtractorRegexParserTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("Github doesn't have access to the secret repo, run this test manually")
     void testParse_Dens1() throws IOException, XMLStreamException {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.DENS, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/DENSoffice - Rezept1.pdf")));
@@ -117,7 +117,7 @@ public class Muster16SvgExtractorRegexParserTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("Github doesn't have access to the secret repo, run this test manually")
     void testExtractDensErezept() throws IOException, XMLStreamException {
         SVGExtractor svgExtractor = new SVGExtractor(SVGExtractorConfiguration.DENS, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/eRezept.pdf")));
