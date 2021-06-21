@@ -1,0 +1,232 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+    <url value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle" />
+    <version value="1.0.1" />
+    <name value="KBV_PR_ERP_Bundle" />
+    <status value="active" />
+    <date value="2021-02-23" />
+    <publisher value="Kassen&#228;rztliche Bundesvereinigung" />
+    <fhirVersion value="4.0.1" />
+    <mapping>
+        <identity value="v2" />
+        <uri value="http://hl7.org/v2" />
+        <name value="HL7 v2 Mapping" />
+    </mapping>
+    <mapping>
+        <identity value="rim" />
+        <uri value="http://hl7.org/v3" />
+        <name value="RIM Mapping" />
+    </mapping>
+    <mapping>
+        <identity value="cda" />
+        <uri value="http://hl7.org/v3/cda" />
+        <name value="CDA (R2)" />
+    </mapping>
+    <mapping>
+        <identity value="w5" />
+        <uri value="http://hl7.org/fhir/fivews" />
+        <name value="FiveWs Pattern Mapping" />
+    </mapping>
+    <kind value="resource" />
+    <abstract value="false" />
+    <type value="Bundle" />
+    <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Bundle" />
+    <derivation value="constraint" />
+    <differential>
+        <element id="Bundle">
+            <path value="Bundle" />
+            <constraint>
+                <key value="-erp-compositionPflicht" />
+                <severity value="error" />
+                <human value="Die Ressource vom Typ Composition muss genau einmal vorhanden sein" />
+                <expression value="entry.where(resource is Composition).count()=1" />
+                <source value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle" />
+            </constraint>
+            <constraint>
+                <key value="-erp-angabePruefnummer" />
+                <severity value="error" />
+                <human value="Pr&#252;fnummer nicht vorhanden, aber Pflicht bei den Kostentr&#228;ger der Typen &quot;GKV&quot;, &quot;BG&quot;, &quot;SKT&quot; oder &quot;UK&quot;" />
+                <expression value="(entry.where(resource is Coverage).exists() and (entry.where(resource is Coverage).resource.type.coding.code=&#39;GKV&#39; or entry.where(resource is Coverage).resource.type.coding.code=&#39;BG&#39; or entry.where(resource is Coverage).resource.type.coding.code=&#39;SKT&#39; or entry.where(resource is Coverage).resource.type.coding.code=&#39;UK&#39;)) implies entry.where(resource is Composition).resource.author.identifier.where(system=&#39;https://fhir.kbv.de/NamingSystem/KBV_NS_FOR_Pruefnummer&#39;).exists()" />
+                <source value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle" />
+            </constraint>
+            <constraint>
+                <key value="-erp-angabeZuzahlung" />
+                <severity value="error" />
+                <human value="Zuzahlungsstatus nicht vorhanden, aber Pflicht bei den Kostentr&#228;gern der Typen &quot;GKV&quot;, &quot;BG&quot;, &quot;SKT&quot; oder &quot;UK&quot;" />
+                <expression value="(entry.where(resource is MedicationRequest).exists() and entry.where(resource is Coverage).exists() and (entry.where(resource is Coverage).resource.type.coding.code=&#39;GKV&#39; or entry.where(resource is Coverage).resource.type.coding.code=&#39;BG&#39; or entry.where(resource is Coverage).resource.type.coding.code=&#39;SKT&#39; or entry.where(resource is Coverage).resource.type.coding.code=&#39;UK&#39;)) implies entry.where(resource is MedicationRequest).resource.extension(&#39;https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_StatusCoPayment&#39;).exists()" />
+                <source value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle" />
+            </constraint>
+            <constraint>
+                <key value="-erp-angabePLZ" />
+                <severity value="error" />
+                <human value="Postleitzahl nicht vorhanden, aber Pflicht bei den Kostentraegern der Typen &quot;GKV&quot;, &quot;BG&quot;, &quot;SKT&quot; oder &quot;UK&quot;" />
+                <expression value="(entry.where(resource is Patient).exists() and entry.where(resource is Coverage).exists() and (entry.where(resource is Coverage).resource.type.coding.code=&#39;GKV&#39; or entry.where(resource is Coverage).resource.type.coding.code=&#39;BG&#39; or entry.where(resource is Coverage).resource.type.coding.code=&#39;SKT&#39; or entry.where(resource is Coverage).resource.type.coding.code=&#39;UK&#39;)) implies entry.where(resource is Patient).resource.address.postalCode.exists()" />
+                <source value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle" />
+            </constraint>
+            <constraint>
+                <key value="-erp-angabeNrAusstellendePerson" />
+                <severity value="error" />
+                <human value="Nummer der ausstellenden Person nicht vorhanden, aber Pflicht, wenn es sich um einen Arzt oder Zahnarzt handelt" />
+                <expression value="(entry.where(resource is Coverage).exists() and (entry.where(resource is Coverage).resource.type.coding.code=&#39;GKV&#39; or entry.where(resource is Coverage).resource.type.coding.code=&#39;BG&#39; or entry.where(resource is Coverage).resource.type.coding.code=&#39;SKT&#39; or entry.where(resource is Coverage).resource.type.coding.code=&#39;UK&#39;) and (entry.where(resource is Practitioner).resource.qualification.coding.code=&#39;00&#39; or entry.where(resource is Practitioner).resource.qualification.coding.code=&#39;01&#39;)) implies entry.where(resource is Practitioner).resource.identifier.exists()" />
+                <source value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle" />
+            </constraint>
+            <constraint>
+                <key value="-erp-angabeBestriebsstaettennr" />
+                <severity value="error" />
+                <human value="Betriebsstaettennummer nicht vorhanden, aber Pflicht, wenn es sich um einen Arzt, Zahnarzt oder Arzt in Weiterbildung handelt" />
+                <expression value="(entry.where(resource is Coverage).exists() and (entry.where(resource is Coverage).resource.type.coding.code=&#39;GKV&#39; or entry.where(resource is Coverage).resource.type.coding.code=&#39;BG&#39; or entry.where(resource is Coverage).resource.type.coding.code=&#39;SKT&#39; or entry.where(resource is Coverage).resource.type.coding.code=&#39;UK&#39;) and (entry.where(resource is Practitioner).resource.qualification.coding.code=&#39;00&#39; or entry.where(resource is Practitioner).resource.qualification.coding.code=&#39;01&#39; or entry.where(resource is Practitioner).resource.qualification.coding.code=&#39;03&#39;)) implies entry.where(resource is Organization).resource.identifier.exists()" />
+                <source value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle" />
+            </constraint>
+            <constraint>
+                <key value="-erp-angabeRechtsgrundlage" />
+                <severity value="error" />
+                <human value="Rechtsgrundlage nicht vorhanden, aber Pflicht bei den Kostentraegern der Typen &quot;GKV&quot;, &quot;BG&quot;, &quot;SKT&quot; oder &quot;UK&quot;" />
+                <expression value="(entry.where(resource is MedicationRequest).exists() and entry.where(resource is Coverage).exists() and (entry.where(resource is Coverage).resource.type.coding.code=&#39;GKV&#39; or entry.where(resource is Coverage).resource.type.coding.code=&#39;BG&#39; or entry.where(resource is Coverage).resource.type.coding.code=&#39;SKT&#39; or entry.where(resource is Coverage).resource.type.coding.code=&#39;UK&#39;)) implies entry.where(resource is Composition).resource.extension(&#39;https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Legal_basis&#39;).exists()" />
+                <source value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle" />
+            </constraint>
+            <constraint>
+                <key value="-erp-versionComposition" />
+                <severity value="error" />
+                <human value="Die Instanz der Composition muss vom Profil KBV_PR_ERP_Composition|1.0.1 sein" />
+                <expression value="entry.where(resource is Composition).resource.meta.profile = &#39;https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Composition|1.0.1&#39;" />
+                <source value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle" />
+            </constraint>
+            <constraint>
+                <key value="IK-Kostentraeger-BG-UK-Pflicht" />
+                <severity value="error" />
+                <human value="BG-Pflicht" />
+                <expression value="(entry.where(resource is Coverage).exists() and (entry.where(resource is Coverage).resource.type.coding.code=&#39;BG&#39; or entry.where(resource is Coverage).resource.type.coding.code=&#39;UK&#39;)) implies  entry.select(resource as Coverage).payor.identifier.extension(&#39;https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Alternative_IK&#39;).exists()" />
+                <source value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle" />
+            </constraint>
+        </element>
+        <element id="Bundle.id">
+            <path value="Bundle.id" />
+            <min value="1" />
+            <mustSupport value="true" />
+        </element>
+        <element id="Bundle.meta">
+            <path value="Bundle.meta" />
+            <min value="1" />
+            <mustSupport value="true" />
+        </element>
+        <element id="Bundle.meta.versionId">
+            <path value="Bundle.meta.versionId" />
+            <max value="0" />
+        </element>
+        <element id="Bundle.meta.lastUpdated">
+            <path value="Bundle.meta.lastUpdated" />
+            <mustSupport value="true" />
+        </element>
+        <element id="Bundle.meta.source">
+            <path value="Bundle.meta.source" />
+            <max value="0" />
+        </element>
+        <element id="Bundle.meta.profile">
+            <path value="Bundle.meta.profile" />
+            <min value="1" />
+            <max value="1" />
+            <fixedCanonical value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle|1.0.1" />
+            <mustSupport value="true" />
+        </element>
+        <element id="Bundle.meta.security">
+            <path value="Bundle.meta.security" />
+            <max value="0" />
+        </element>
+        <element id="Bundle.meta.tag">
+            <path value="Bundle.meta.tag" />
+            <max value="0" />
+        </element>
+        <element id="Bundle.implicitRules">
+            <path value="Bundle.implicitRules" />
+            <max value="0" />
+        </element>
+        <element id="Bundle.language">
+            <path value="Bundle.language" />
+            <max value="0" />
+        </element>
+        <element id="Bundle.identifier">
+            <path value="Bundle.identifier" />
+            <min value="1" />
+            <mustSupport value="true" />
+        </element>
+        <element id="Bundle.identifier.use">
+            <path value="Bundle.identifier.use" />
+            <max value="0" />
+        </element>
+        <element id="Bundle.identifier.type">
+            <path value="Bundle.identifier.type" />
+            <max value="0" />
+        </element>
+        <element id="Bundle.identifier.system">
+            <path value="Bundle.identifier.system" />
+            <definition value="F&#252;r den digitalen Vordruck &quot;Elektronische Arzneimittelverordnung (Vordruck e160)&quot; wird die Dokumenten-ID gem&#228;&#223; den Vorgaben der gematik gesetzt." />
+            <min value="1" />
+            <fixedUri value="https://gematik.de/fhir/NamingSystem/PrescriptionID" />
+            <mustSupport value="true" />
+        </element>
+        <element id="Bundle.identifier.value">
+            <path value="Bundle.identifier.value" />
+            <short value="Dokumenten-ID" />
+            <definition value="Eindeutige Identifikation des Dokuments, bzw. der Verordnung. Diese ID wird mit signiert und sichert damit die Verordnung vor F&#228;lschungen.\n\nF&#252;r den digitalen Vordruck &quot;Elektronische Arzneimittelverordnung (Vordruck e160)&quot; wird die Dokumenten-ID gem&#228;&#223; den Vorgaben der gematik gesetzt." />
+            <min value="1" />
+            <mustSupport value="true" />
+        </element>
+        <element id="Bundle.identifier.period">
+            <path value="Bundle.identifier.period" />
+            <max value="0" />
+        </element>
+        <element id="Bundle.identifier.assigner">
+            <path value="Bundle.identifier.assigner" />
+            <max value="0" />
+        </element>
+        <element id="Bundle.type">
+            <path value="Bundle.type" />
+            <fixedCode value="document" />
+            <mustSupport value="true" />
+        </element>
+        <element id="Bundle.timestamp">
+            <path value="Bundle.timestamp" />
+            <definition value="DateTime wann das Dokument technisch erstellt wurde. \nFachlich bildet das Ausstellungsdatum das entscheidende Datum ab" />
+            <min value="1" />
+            <mustSupport value="true" />
+        </element>
+        <element id="Bundle.total">
+            <path value="Bundle.total" />
+            <max value="0" />
+        </element>
+        <element id="Bundle.link">
+            <path value="Bundle.link" />
+            <max value="0" />
+        </element>
+        <element id="Bundle.entry">
+            <path value="Bundle.entry" />
+            <min value="1" />
+            <mustSupport value="true" />
+        </element>
+        <element id="Bundle.entry.link">
+            <path value="Bundle.entry.link" />
+            <max value="0" />
+        </element>
+        <element id="Bundle.entry.fullUrl">
+            <path value="Bundle.entry.fullUrl" />
+            <min value="1" />
+            <mustSupport value="true" />
+        </element>
+        <element id="Bundle.entry.resource">
+            <path value="Bundle.entry.resource" />
+            <min value="1" />
+            <mustSupport value="true" />
+        </element>
+        <element id="Bundle.entry.search">
+            <path value="Bundle.entry.search" />
+            <max value="0" />
+        </element>
+        <element id="Bundle.entry.request">
+            <path value="Bundle.entry.request" />
+            <max value="0" />
+        </element>
+        <element id="Bundle.entry.response">
+            <path value="Bundle.entry.response" />
+            <max value="0" />
+        </element>
+    </differential>
+</StructureDefinition>

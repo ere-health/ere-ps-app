@@ -1,4 +1,4 @@
-package health.ere.ps.validation.fhir.structuredefinition.fhir.kbv.de.extension;
+package health.ere.ps.validation.fhir.structuredefinition.fhir.kbv.de.v1_0_1.extension;
 
 import org.hl7.fhir.r4.model.Enumerations;
 import org.hl7.fhir.r4.model.StructureDefinition;
