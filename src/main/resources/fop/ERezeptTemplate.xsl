@@ -225,12 +225,13 @@
                         <fo:instream-foreign-object>
                             <barcode:barcode>
                                 <xsl:attribute name="message">
-                                    {"urls": [
-                                    <xsl:for-each select="fhir:bundle">"Task/<xsl:value-of
+                                    <xsl:variable name="bundles" select="fhir:bundle"/>
+                                    {"urls": [<xsl:for-each select="fhir:bundle">
+                                        <xsl:variable name="qrPos" select="position()"/>
+                                        <xsl:variable name="bundlesCount" select="count($bundles)"/>"Task/<xsl:value-of
                                             select="fhir:Bundle/fhir:identifier/fhir:value/@value"/>/$accept?ac=<xsl:value-of
-                                            select="fhir:accessCode"/>"
-                                    </xsl:for-each>
-                                    ]}
+                                            select="fhir:accessCode"/>"<xsl:if test="$qrPos &lt; $bundlesCount">,</xsl:if>
+                                    </xsl:for-each>]}
                                 </xsl:attribute>
                                 <barcode:datamatrix>
                                     <barcode:module-width>0.6mm</barcode:module-width>
@@ -265,8 +266,7 @@
                                                 <barcode:barcode>
                                                     <xsl:attribute name="message">
                                                         {"urls":["Task/<xsl:value-of
-                                                            select="fhir:Bundle/fhir:identifier/fhir:value/@value"/>
-                                                        /$accept?ac=<xsl:value-of
+                                                            select="fhir:Bundle/fhir:identifier/fhir:value/@value"/>/$accept?ac=<xsl:value-of
                                                             select="fhir:accessCode"/>"]}
                                                     </xsl:attribute>
                                                     <barcode:datamatrix>
