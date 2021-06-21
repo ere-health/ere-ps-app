@@ -76,94 +76,48 @@ public class Muster16AtomicFormatter {
         return date != null ? STANDARD_DATE_FORMAT.format(date) : "";
     }
 
-    private String formatInsuranceCompany(String entry) {
-        return FormattingChain.format(entry).apply(this::cleanToken).get();
-    }
-
-    private String formatInsuranceCompanyId(String entry) {
-        return FormattingChain.format(entry).apply(this::cleanToken).get();
-    }
-
-    private String formatPatientNamePrefix(String entry) {
-        return FormattingChain.format(entry).apply(this::cleanToken).get();
-    }
-
-    private String formatPatientFirstName(String entry) {
-        return FormattingChain.format(entry).apply(this::cleanToken).get();
-    }
-
-    private String formatPatientLastName(String entry) {
-        return FormattingChain.format(entry).apply(this::cleanToken).get();
-    }
-
-    private String formatPatientStreetName(String entry) {
-        return FormattingChain.format(entry).apply(this::cleanToken).get();
-    }
-
-    private String formatPatientStreetNumber(String entry) {
-        return FormattingChain.format(entry).apply(this::cleanToken).get();
-    }
-
-    private String formatPatientCity(String entry) {
-        return FormattingChain.format(entry).apply(this::cleanToken).get();
-    }
-
-    private String formatPatientZipcode(String entry) {
-        return FormattingChain.format(entry).apply(this::cleanToken).get();
-    }
-
-    private String formatPatientDateOfBirth(String entry) {
+    private String cleanDate(String entry) {
         return FormattingChain.format(entry).apply(s -> cleanNoise(s, DATE)).apply(this::reformatDate).get();
     }
 
-    private String formatClinicId(String entry) {
+    private String cleanNumber(String entry) {
         return FormattingChain.format(entry).apply(s -> cleanNoise(s, NUMBERS)).get();
-    }
-
-    private String formatDoctorId(String entry) {
-        return FormattingChain.format(entry).apply(s -> cleanNoise(s, NUMBERS)).get();
-    }
-
-    private String formatPrescriptionDate(String entry) {
-        return FormattingChain.format(entry).apply(s -> cleanNoise(s, DATE)).apply(this::reformatDate).get();
-    }
-
-    private String formatPatientInsuranceId(String entry) {
-        return FormattingChain.format(entry).apply(this::cleanToken).get();
     }
 
     String format(Muster16Field key, String value) {
         switch (key) {
             case INSURANCE_COMPANY:
-                return formatInsuranceCompany(value);
-            case INSURANCE_COMPANY_ID:
-                return formatInsuranceCompanyId(value);
-            case PATIENT_NAME_PREFIX:
-                return formatPatientNamePrefix(value);
-            case PATIENT_FIRST_NAME:
-                return formatPatientFirstName(value);
-            case PATIENT_LAST_NAME:
-                return formatPatientLastName(value);
-            case PATIENT_STREET_NAME:
-                return formatPatientStreetName(value);
             case PATIENT_STREET_NUMBER:
-                return formatPatientStreetNumber(value);
+            case PATIENT_STREET_NAME:
+            case PATIENT_LAST_NAME:
+            case PATIENT_FIRST_NAME:
+            case PATIENT_NAME_PREFIX:
+            case INSURANCE_COMPANY_ID:
             case PATIENT_CITY:
-                return formatPatientCity(value);
             case PATIENT_ZIPCODE:
-                return formatPatientZipcode(value);
+            case PRACTITIONER_CITY:
+            case PRACTITIONER_FAX:
+            case PRACTITIONER_FIRST_NAME:
+            case PRACTITIONER_LAST_NAME:
+            case PRACTITIONER_NAME_PREFIX:
+            case PRACTITIONER_PHONE:
+            case PRACTITIONER_STREET_NAME:
+            case PRACTITIONER_STREET_NUMBER:
+            case PRACTITIONER_ZIPCODE:
+            case PATIENT_INSURANCE_ID:
+            case IS_WITH_PAYMENT:
+                return removeExtraSpaces(value);
+
             case PATIENT_DATE_OF_BIRTH:
-                return formatPatientDateOfBirth(value);
-            case CLINIC_ID:
-                return formatClinicId(value);
-            case DOCTOR_ID:
-                return formatDoctorId(value);
             case PRESCRIPTION_DATE:
-                return formatPrescriptionDate(value);
+                return cleanDate(value);
+
+            case CLINIC_ID:
+            case DOCTOR_ID:
+                return cleanNumber(value);
+
             case PRESCRIPTION_LIST:
                 return "";
-            case PATIENT_INSURANCE_ID:
-                return formatPatientInsuranceId(value);
             default:
                 return "";
         }

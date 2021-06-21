@@ -8,11 +8,11 @@ import io.quarkus.test.junit.QuarkusTest;
 import org.hl7.fhir.r4.model.Bundle;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import javax.enterprise.event.Event;
-import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -30,8 +30,9 @@ public class DocumentServiceTest {
 
     private DocumentService documentService;
 
+
     @BeforeAll
-    public static void prepareTestDirectoryAndTestBundles() throws IOException {
+    public static void prepareTestDirectoryAndBundles() throws IOException {
         if (!Path.of(TARGET_PATH).toFile().exists()) {
             Files.createDirectory(Path.of(TARGET_PATH));
         }
@@ -118,73 +119,73 @@ public class DocumentServiceTest {
         Mockito.verify(mockedEvent, Mockito.times(numberOfPatientsInBundles)).fireAsync(Mockito.any());
     }
 
-    @Test
-    public void generateERezeptPdf_generatesCorrectPdf_givenOneMedicationToDisplay() throws IOException {
+
+    @Disabled("Running the pdf generation tests takes a lot of time, run them manually")
+    public void generateERezeptPdf_generatesCorrectPdf_givenOneMedicineToDisplay() throws IOException {
         // WHEN + THEN
-        ByteArrayOutputStream pdfDocumentsOStream = getOutputStreamForANumberOfPdfDocuments(1);
-        Files.write(Paths.get(TARGET_PATH + "Erezept_with_one_medication.pdf"), pdfDocumentsOStream.toByteArray());
+        ByteArrayOutputStream baos = createStreamForANumberOfPdfs(1);
+        Files.write(Paths.get(TARGET_PATH + "Erezept_with_one_medicine.pdf"), baos.toByteArray());
     }
 
     @Test
-    public void generateERezeptPdf_generatesCorrectPdf_givenTwoMedicationToDisplay() throws IOException {
+    @Disabled("Running the pdf generation tests takes a lot of time, run them manually")
+    public void generateERezeptPdf_generatesCorrectPdf_givenTwoMedicineToDisplay() throws IOException {
         // WHEN + THEN
-        ByteArrayOutputStream pdfDocumentsOStream = getOutputStreamForANumberOfPdfDocuments(2);
-        Files.write(Paths.get(TARGET_PATH + "Erezept_with_two_medications.pdf"), pdfDocumentsOStream.toByteArray());
+        ByteArrayOutputStream baos = createStreamForANumberOfPdfs(2);
+        Files.write(Paths.get(TARGET_PATH + "Erezept_with_two_medicines.pdf"), baos.toByteArray());
     }
 
     @Test
-    public void generateERezeptPdf_generatesCorrectPdf_givenThreeMedicationToDisplay() throws IOException {
+    @Disabled("Running the pdf generation tests takes a lot of time, run them manually")
+    public void generateERezeptPdf_generatesCorrectPdf_givenThreeMedicineToDisplay() throws IOException {
         // WHEN + THEN
-        ByteArrayOutputStream pdfDocumentsOStream = getOutputStreamForANumberOfPdfDocuments(3);
-        Files.write(Paths.get(TARGET_PATH + "Erezept_with_three_medications.pdf"), pdfDocumentsOStream.toByteArray());
+        ByteArrayOutputStream baos = createStreamForANumberOfPdfs(3);
+        Files.write(Paths.get(TARGET_PATH + "Erezept_with_three_medicines.pdf"), baos.toByteArray());
     }
 
     @Test
-    public void generateERezeptPdf_generatesCorrectPdfWithTwoPages_givenFourMedicationToDisplay() throws IOException {
+    @Disabled("Running the pdf generation tests takes a lot of time, run them manually")
+    public void generateERezeptPdf_generatesCorrectPdfWithTwoPages_givenFourMedicineToDisplay() throws IOException {
         // WHEN + THEN
-        ByteArrayOutputStream pdfDocumentsOStream = getOutputStreamForANumberOfPdfDocuments(4);
-        Files.write(Paths.get(TARGET_PATH + "Erezept_with_four_medications.pdf"), pdfDocumentsOStream.toByteArray());
+        ByteArrayOutputStream baos = createStreamForANumberOfPdfs(4);
+        Files.write(Paths.get(TARGET_PATH + "Erezept_with_four_medicines.pdf"), baos.toByteArray());
     }
 
     @Test
-    public void generateERezeptPdf_generatesCorrectPdfWithTwoPages_givenFiveMedicationToDisplay() throws IOException {
+    @Disabled("Running the pdf generation tests takes a lot of time, run them manually")
+    public void generateERezeptPdf_generatesCorrectPdfWithTwoPages_givenFiveMedicineToDisplay() throws IOException {
         // WHEN + THEN
-        ByteArrayOutputStream pdfDocumentsOStream = getOutputStreamForANumberOfPdfDocuments(5);
-        Files.write(Paths.get(TARGET_PATH + "Erezept_with_five_medications.pdf"), pdfDocumentsOStream.toByteArray());
+        ByteArrayOutputStream baos = createStreamForANumberOfPdfs(5);
+        Files.write(Paths.get(TARGET_PATH + "Erezept_with_five_medicines.pdf"), baos.toByteArray());
     }
 
     @Test
-    public void generateERezeptPdf_generatesCorrectPdfWithTwoPages_givenSixMedicationToDisplay() throws IOException {
+    @Disabled("Running the pdf generation tests takes a lot of time, run them manually")
+    public void generateERezeptPdf_generatesCorrectPdfWithTwoPages_givenSixMedicineToDisplay() throws IOException {
         // WHEN + THEN
-        ByteArrayOutputStream pdfDocumentsOStream = getOutputStreamForANumberOfPdfDocuments(6);
-        Files.write(Paths.get(TARGET_PATH + "Erezept_with_six_medications.pdf"), pdfDocumentsOStream.toByteArray());
+        ByteArrayOutputStream baos = createStreamForANumberOfPdfs(6);
+        Files.write(Paths.get(TARGET_PATH + "Erezept_with_six_medicines.pdf"), baos.toByteArray());
     }
 
-    //TODO: Starting at 7 the QR code on the top-right start being too big, why? How many should we support?
 
     @Test
-    public void generateERezeptPdf_generatesCorrectPdfWithThreePages_givenSevenMedicationToDisplay() throws IOException {
+    @Disabled("Running the pdf generation tests takes a lot of time, run them manually")
+    public void generateERezeptPdf_generatesCorrectPdfWithThreePages_givenEightMedicineToDisplay() throws IOException {
         // WHEN + THEN
-        ByteArrayOutputStream pdfDocumentsOStream = getOutputStreamForANumberOfPdfDocuments(7);
-        Files.write(Paths.get(TARGET_PATH + "Erezept_with_seven_medications.pdf"), pdfDocumentsOStream.toByteArray());
-    }
-
-    @Test
-    public void generateERezeptPdf_generatesCorrectPdfWithThreePages_givenEightMedicationToDisplay() throws IOException {
-        // WHEN + THEN
-        ByteArrayOutputStream pdfDocumentsOStream = getOutputStreamForANumberOfPdfDocuments(8);
-        Files.write(Paths.get(TARGET_PATH + "Erezept_with_eight_medications.pdf"), pdfDocumentsOStream.toByteArray());
+        ByteArrayOutputStream baos = createStreamForANumberOfPdfs(8);
+        Files.write(Paths.get(TARGET_PATH + "Erezept_with_eight_medicines.pdf"), baos.toByteArray());
     }
 
     @Test
-    public void generateERezeptPdf_generatesCorrectPdfWithThreePages_givenNineMedicationToDisplay() throws IOException {
+    @Disabled("Running the pdf generation tests takes a lot of time, run them manually")
+    public void generateERezeptPdf_generatesCorrectPdfWithThreePages_givenNineMedicineToDisplay() throws IOException {
         // WHEN + THEN
-        ByteArrayOutputStream pdfDocumentsOStream = getOutputStreamForANumberOfPdfDocuments(9);
-        Files.write(Paths.get(TARGET_PATH + "Erezept_with_nine_medications.pdf"), pdfDocumentsOStream.toByteArray());
+        ByteArrayOutputStream generatedPdfsStream = createStreamForANumberOfPdfs(9);
+        Files.write(Paths.get(TARGET_PATH + "Erezept_with_nine_medicines.pdf"), generatedPdfsStream.toByteArray());
     }
 
 
-    private ByteArrayOutputStream getOutputStreamForANumberOfPdfDocuments(int number) {
+    private ByteArrayOutputStream createStreamForANumberOfPdfs(int number) {
         List<BundleWithAccessCodeOrThrowable> bundles = new ArrayList<>();
         for (int i = 0; i < number; i++) {
             bundles.add(new BundleWithAccessCodeOrThrowable(testBundles.get(i % 5), "MOCK_CODE" + i));
