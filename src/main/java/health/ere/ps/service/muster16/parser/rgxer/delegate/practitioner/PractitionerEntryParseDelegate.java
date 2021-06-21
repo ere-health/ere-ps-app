@@ -45,8 +45,11 @@ public class PractitionerEntryParseDelegate {
         parseNamePrefix(entry);
         entry = entry.replaceAll(patterns.NAME_PREFIX.pattern(), "");
         String[] names = entry.split(" ");
-        details.put(PRACTITIONER_LAST_NAME, names[names.length - 1]);
-        details.put(PRACTITIONER_FIRST_NAME, entry.substring(0, entry.lastIndexOf(" ")));
+
+        if (!(names.length == 1)) {
+            details.put(PRACTITIONER_LAST_NAME, names[names.length - 1]);
+            details.put(PRACTITIONER_FIRST_NAME, entry.substring(0, entry.lastIndexOf(" ")));
+        }
     }
 
     private void parseNamePrefix(String entry) {
