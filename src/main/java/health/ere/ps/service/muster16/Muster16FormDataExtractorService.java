@@ -5,7 +5,6 @@ import health.ere.ps.event.Muster16PrescriptionFormEvent;
 import health.ere.ps.event.SVGExtractorResultEvent;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
 import health.ere.ps.service.muster16.parser.IMuster16FormParser;
-import health.ere.ps.service.muster16.parser.Muster16FormDataParser;
 import health.ere.ps.service.muster16.parser.rgxer.Muster16SvgRegexParser;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -26,28 +25,6 @@ public class Muster16FormDataExtractorService {
     @Inject
     Event<Muster16PrescriptionFormEvent> muster16PrescriptionFormEvent;
 
-    public void extractData(String muster16PdfFileData) {
-        IMuster16FormParser parser = new Muster16FormDataParser(muster16PdfFileData);
-        Muster16PrescriptionForm muster16Form = new Muster16PrescriptionForm(
-                parser.parseInsuranceCompany(),
-                parser.parseInsuranceCompanyId(),
-                parser.parsePatientNamePrefix(),
-                parser.parsePatientFirstName(),
-                parser.parsePatientLastName(),
-                parser.parsePatientStreetName(),
-                parser.parsePatientStreetNumber(),
-                parser.parsePatientCity(),
-                parser.parsePatientZipCode(),
-                parser.parsePatientDateOfBirth(),
-                parser.parsePatientInsuranceId(),
-                parser.parseClinicId(),
-                parser.parseDoctorId(),
-                parser.parsePrescriptionDate(),
-                parser.parseIsWithPayment(),
-                parser.parsePrescriptionList()
-        );
-        muster16PrescriptionFormEvent.fireAsync(new Muster16PrescriptionFormEvent(muster16Form));
-    }
 
     public void extractDataWithSvgExtractorParser(@ObservesAsync SVGExtractorResultEvent sVGExtractorResultEvent) {
         try {
@@ -77,6 +54,15 @@ public class Muster16FormDataExtractorService {
             parser.parseClinicId(),
             parser.parseDoctorId(),
             parser.parsePrescriptionDate(),
+            parser.parsePractitionerFirstName(),
+            parser.parsePractitionerLastName(),
+            parser.parsePractitionerStreetName(),
+            parser.parsePractitionerStreetNumber(),
+            parser.parsePractitionerCity(),
+            parser.parsePractitionerZipCode(),
+            parser.parsePractitionerNamePrefix(),
+            parser.parsePractitionerPhoneNumber(),
+            parser.parsePractitionerFaxNumber(),
             parser.parseIsWithPayment(),
             parser.parsePrescriptionList()
         );
