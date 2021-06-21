@@ -21,6 +21,15 @@ public interface IMuster16FormParser {
     List<MedicationString> parsePrescriptionList();
     String parsePatientInsuranceId();
     Boolean parseIsWithPayment();
+    String parsePractitionerFirstName();
+    String parsePractitionerLastName();
+    String parsePractitionerNamePrefix();
+    String parsePractitionerStreetName();
+    String parsePractitionerStreetNumber();
+    String parsePractitionerCity();
+    String parsePractitionerZipCode();
+    String parsePractitionerPhoneNumber();
+    String parsePractitionerFaxNumber();
 
     default boolean isDataFieldPresentAtPosition(String[] muster16PdfDataFields,
                                                  int fieldPosition) {
@@ -32,4 +41,6 @@ public interface IMuster16FormParser {
         return isDataFieldPresentAtPosition(muster16PdfDataFields, fieldPosition)?
                 muster16PdfDataFields[fieldPosition] : defaultValue;
     }
+
+
 }
