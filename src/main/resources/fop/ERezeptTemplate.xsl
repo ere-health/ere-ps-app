@@ -20,7 +20,7 @@
                  line-height-shift-adjustment="disregard-shifts" writing-mode="lr-tb"
                  language="DE">
             <fo:layout-master-set>
-                <fo:simple-page-master master-name="DIN-A5"  column-count="2"
+                <fo:simple-page-master master-name="DIN-A5" column-count="2"
                                        page-width="210mm" page-height="148mm"
                                        margin-top="5mm" margin-bottom="5mm"
                                        margin-left="8mm" margin-right="5mm">
@@ -227,7 +227,7 @@
                                 <xsl:attribute name="message">
                                     {"urls": [
                                     <xsl:for-each select="fhir:bundle">"Task/<xsl:value-of
-                                            select="fhir:Bundle/fhir:identifier/@fhir:value"/>/$accept?ac=<xsl:value-of
+                                            select="fhir:Bundle/fhir:identifier/fhir:value/@value"/>/$accept?ac=<xsl:value-of
                                             select="fhir:accessCode"/>"
                                     </xsl:for-each>
                                     ]}
@@ -258,14 +258,14 @@
                             <fo:table-column/>
                             <fo:table-column/>
                             <fo:table-body>
-                                <fo:table-row height="35mm" >
+                                <fo:table-row height="35mm">
                                     <fo:table-cell width="32mm">
                                         <fo:block>
                                             <fo:instream-foreign-object>
                                                 <barcode:barcode>
                                                     <xsl:attribute name="message">
                                                         {"urls":["Task/<xsl:value-of
-                                                            select="fhir:Bundle/fhir:identifier/@value"/>
+                                                            select="fhir:Bundle/fhir:identifier/fhir:value/@value"/>
                                                         /$accept?ac=<xsl:value-of
                                                             select="fhir:accessCode"/>"]}
                                                     </xsl:attribute>
