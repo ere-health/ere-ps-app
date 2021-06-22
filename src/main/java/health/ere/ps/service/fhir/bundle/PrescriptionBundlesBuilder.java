@@ -282,11 +282,16 @@ public class PrescriptionBundlesBuilder {
             log.warning("Could not parse this coverage end period date when creating the bundle:" + coveragePeriod);
         }
 
+        String payorIdentifier = "UNKNOWN";
+        if(muster16PrescriptionForm.getInsuranceCompanyId() != null && !("".equals(muster16PrescriptionForm.getInsuranceCompanyId()))) {
+            payorIdentifier = muster16PrescriptionForm.getInsuranceCompanyId();
+        }
+
         coverage.addPayor()
                 .setDisplay(muster16PrescriptionForm.getInsuranceCompany())
                 .getIdentifier()
                 .setSystem("http://fhir.de/NamingSystem/arge-ik/iknr")
-                .setValue(muster16PrescriptionForm.getInsuranceCompanyId());
+                .setValue(payorIdentifier);
 
         return coverage;
     }
