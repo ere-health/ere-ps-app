@@ -54,6 +54,7 @@ public class PrescriptionBundlesBuilderTest {
         muster16PrescriptionForm.setPatientZipCode("10629");
         muster16PrescriptionForm.setPatientCity("Berlin");
         muster16PrescriptionForm.setPatientInsuranceId("M310119800");
+        muster16PrescriptionForm.setPatientStatus("30000");
 
         muster16PrescriptionForm.setPractitionerNamePrefix("Dr.");
         muster16PrescriptionForm.setPractitionerFirstName("Testarzt");

@@ -40,6 +40,7 @@ public class Muster16SvgExtractorRegexParserTest {
         assertEquals("10629", parser.parsePatientZipCode());
         assertEquals("Berlin", parser.parsePatientCity());
         assertEquals("1986-07-16", parser.parsePatientDateOfBirth());
+        assertEquals("1000000", parser.parsePatientStatus());
         assertEquals("30001234", parser.parseClinicId());
         assertEquals("30001234", parser.parseDoctorId());
         assertEquals("2021-04-13", parser.parsePrescriptionDate());
@@ -70,6 +71,7 @@ public class Muster16SvgExtractorRegexParserTest {
         assertEquals("56070", parser.parsePatientZipCode());
         assertEquals("Koblenz", parser.parsePatientCity());
         assertEquals("1987-07-19", parser.parsePatientDateOfBirth());
+        assertEquals("5000000", parser.parsePatientStatus());
         assertEquals("999123456", parser.parseClinicId());
         assertEquals("471100815", parser.parseDoctorId());
         assertEquals("2021-04-30", parser.parsePrescriptionDate());
@@ -104,6 +106,7 @@ public class Muster16SvgExtractorRegexParserTest {
         assertEquals("14513", parser.parsePatientZipCode());
         assertEquals("Teltow", parser.parsePatientCity());
         assertEquals("1976-02-14", parser.parsePatientDateOfBirth());
+        assertEquals("3000000", parser.parsePatientStatus());
         assertEquals("30000000", parser.parseClinicId());
         assertEquals("30000000", parser.parseDoctorId());
         assertEquals("2021-04-29", parser.parsePrescriptionDate());
@@ -139,6 +142,7 @@ public class Muster16SvgExtractorRegexParserTest {
         assertEquals("13403", parser.parsePatientZipCode());
         assertEquals("Berlin", parser.parsePatientCity());
         assertEquals("1976-02-14", parser.parsePatientDateOfBirth());
+        assertEquals("3000000", parser.parsePatientStatus());
         assertEquals("30000000", parser.parseClinicId());
         assertEquals("30000000", parser.parseDoctorId());
         assertEquals("2021-04-26", parser.parsePrescriptionDate());

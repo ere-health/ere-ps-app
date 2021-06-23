@@ -51,6 +51,7 @@ public class Muster16FormDataExtractorService {
             parser.parsePatientZipCode(),
             parser.parsePatientInsuranceId(),
             parser.parsePatientDateOfBirth(),
+            parser.parsePatientStatus(),
             parser.parseClinicId(),
             parser.parseDoctorId(),
             parser.parsePrescriptionDate(),
