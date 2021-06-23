@@ -158,12 +158,11 @@ public class PrescriptionBundlesBuilder {
                 .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner|1.0.3");
 
         Identifier identifier = practitioner.addIdentifier();
+        CodeableConcept identifierCodeableConcept = identifier.getType();
 
-        CodeableConcept codeableConcept = identifier.getType();
-
-        codeableConcept.addCoding()
+        identifierCodeableConcept.addCoding()
                 .setSystem("http://terminology.hl7.org/CodeSystem/v2-0203")
-                .setCode("LANR");
+                .setCode("BSNR");
 
         identifier.setSystem("https://fhir.kbv.de/NamingSystem/KBV_NS_Base_ANR");
         identifier.setValue(muster16PrescriptionForm.getPractitionerId()); //TODO: Generate/get unique ID value. Need to check this.
@@ -176,12 +175,12 @@ public class PrescriptionBundlesBuilder {
                 .addExtension(new Extension("http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier", new StringType("AC")));
 
         PractitionerQualificationComponent qualification = new PractitionerQualificationComponent();
+        CodeableConcept qualificationCodeableConcept = new CodeableConcept();
         Coding hausarztCoding = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_Qualification_Type", "00", "Arzt-Hausarzt");
-        qualification.setCode(new CodeableConcept().addCoding(hausarztCoding));
-        practitioner.addQualification(qualification);
+        qualificationCodeableConcept.setText("Arzt-Hausarzt");
+        qualificationCodeableConcept.addCoding(hausarztCoding);
 
-        qualification = new PractitionerQualificationComponent();
-        qualification.setCode(new CodeableConcept().setText("Arzt-Hausarzt"));
+        qualification.setCode(qualificationCodeableConcept);
         practitioner.addQualification(qualification);
 
         practitioner.addAddress()
@@ -225,9 +224,9 @@ public class PrescriptionBundlesBuilder {
         identifier.setSystem("https://fhir.kbv.de/NamingSystem/KBV_NS_Base_BSNR");
         identifier.setValue(muster16PrescriptionForm.getClinicId());
 
-        organization.setName(muster16PrescriptionForm.getPractitionerNamePrefix() + " "
+        organization.setName((muster16PrescriptionForm.getPractitionerNamePrefix() + " "
                 + muster16PrescriptionForm.getPractitionerFirstName() + " "
-                + muster16PrescriptionForm.getPractitionerLastName());
+                + muster16PrescriptionForm.getPractitionerLastName()).trim());
 
         organization.addTelecom().setSystem(ContactPointSystem.PHONE)
                 .setValue(muster16PrescriptionForm.getPractitionerPhone());
