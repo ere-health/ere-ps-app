@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
  * @Deprecated Use Muster16SvgRegexParser instead
  * Has been replaced by the more efficient Muster16SvgRegexParser but is still up-to-date so far
  */
+@Deprecated
 public class Muster16SvgExtractorParser implements IMuster16FormParser {
 
     private static final Logger log = Logger.getLogger(Muster16SvgExtractorParser.class.getName());
@@ -159,6 +160,11 @@ public class Muster16SvgExtractorParser implements IMuster16FormParser {
     @Override
     public String parsePatientDateOfBirth() {
         return getMappedFields().getOrDefault("birthdate", "").trim();
+    }
+
+    @Override
+    public String parsePatientStatus() {
+        return getMappedFields().getOrDefault("status", "").trim();
     }
 
     @Override

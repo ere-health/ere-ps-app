@@ -114,6 +114,7 @@ public class Muster16AtomicFormatter {
 
             case CLINIC_ID:
             case DOCTOR_ID:
+            case PATIENT_STATUS:
                 return cleanNumber(value);
 
             case PRESCRIPTION_LIST:
