@@ -69,16 +69,16 @@ public class PrescriptionBundleValidator {
         // Create a PrePopulatedValidationSupport which can be used to load custom definitions.
         // In this example we're loading two things, but in a real scenario we might
         // load many StructureDefinitions, ValueSets, CodeSystems, etc.
-        PrePopulatedValidationSupport prePopulatedSupport = new PrePopulatedValidationSupport(ctx);
-        StructureDefinition kbvBundleStructureDefinition =
-                xmlParser.parseResource(StructureDefinition.class,
-                KBV_PR_ERP_Bundle_StructureDefinition.STRUCTURE_DEFINITION_XML);
-
-        kbvBundleStructureDefinition.setUrl("https://fhir.kbv" +
-                ".de/StructureDefinition/KBV_PR_ERP_Bundle");
-        kbvBundleStructureDefinition.setBaseDefinition("http://hl7.org/fhir/StructureDefinition" +
-                "/Bundle");
-        kbvBundleStructureDefinition.setVersion("1.0.1");
+//        PrePopulatedValidationSupport prePopulatedSupport = new PrePopulatedValidationSupport(ctx);
+//        StructureDefinition kbvBundleStructureDefinition =
+//                xmlParser.parseResource(StructureDefinition.class,
+//                KBV_PR_ERP_Bundle_StructureDefinition.STRUCTURE_DEFINITION_XML);
+//
+//        kbvBundleStructureDefinition.setUrl("https://fhir.kbv" +
+//                ".de/StructureDefinition/KBV_PR_ERP_Bundle");
+//        kbvBundleStructureDefinition.setBaseDefinition("http://hl7.org/fhir/StructureDefinition" +
+//                "/Bundle");
+//        kbvBundleStructureDefinition.setVersion("1.0.1");
 
 //        StructureDefinition kbvMedicationPznStructureDefinition =
 //                xmlParser.parseResource(StructureDefinition.class,
@@ -89,7 +89,7 @@ public class PrescriptionBundleValidator {
 
 //        StructureDefinition customProfile = loadResource(ctx, StructureDefinition.class, "/r4/profile.json");
 
-        prePopulatedSupport.addStructureDefinition(kbvBundleStructureDefinition);
+//        prePopulatedSupport.addStructureDefinition(kbvBundleStructureDefinition);
 //        addStructureDefinition(prePopulatedSupport,
 //                getClass().getResourceAsStream(
 //                        "/fhir/structuredefinition/kbv/de/v1_0_1/KBV_PR_ERP_Composition.xml"),
@@ -106,7 +106,7 @@ public class PrescriptionBundleValidator {
 
 
         // Add the custom definitions to the chain
-        validationSupportChain.addValidationSupport(prePopulatedSupport);
+//        validationSupportChain.addValidationSupport(prePopulatedSupport);
 
         // Wrap the chain in a cache to improve performance
         CachingValidationSupport cache = new CachingValidationSupport(validationSupportChain);
@@ -115,9 +115,9 @@ public class PrescriptionBundleValidator {
         // validator to perform validation
         FhirInstanceValidator validatorModule = new FhirInstanceValidator(cache);
 
-        validatorModule.setAnyExtensionsAllowed(false);
+        validatorModule.setAnyExtensionsAllowed(true);
         validatorModule.setErrorForUnknownProfiles(false);
-        validatorModule.setNoTerminologyChecks(false);
+        validatorModule.setNoTerminologyChecks(true);
         validatorModule.setCustomExtensionDomains("hl7.org/fhir",
                 "http://hl7.org/fhir/",
                 "https://fhir.kbv.de/StructureDefinition",
@@ -131,10 +131,10 @@ public class PrescriptionBundleValidator {
     public ValidationResult validateResource(IBaseResource resource, boolean showIssues) {
         ValidationResult validationResult = validator.validateWithResult(resource);
 
-        if(StringUtils.isNotBlank(getProfile())) {
-            validationResult = validator.validateWithResult(resource,
-                    new ValidationOptions().addProfile(getProfile()));
-        }
+//        if(StringUtils.isNotBlank(getProfile())) {
+//            validationResult = validator.validateWithResult(resource,
+//                    new ValidationOptions().addProfile(getProfile()));
+//        }
 
         if(showIssues) {
             showIssues(validationResult);
@@ -146,10 +146,10 @@ public class PrescriptionBundleValidator {
     public ValidationResult validateResource(String resourceText, boolean showIssues) {
         ValidationResult validationResult = validator.validateWithResult(resourceText);
 
-        if(StringUtils.isNotBlank(getProfile())) {
-            validationResult = validator.validateWithResult(resourceText,
-                    new ValidationOptions().addProfile(getProfile()));
-        }
+//        if(StringUtils.isNotBlank(getProfile())) {
+//            validationResult = validator.validateWithResult(resourceText,
+//                    new ValidationOptions().addProfile(getProfile()));
+//        }
 
         if(showIssues) {
             showIssues(validationResult);

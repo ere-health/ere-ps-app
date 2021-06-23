@@ -51,10 +51,21 @@ public class KbvValidationSupport implements IValidationSupport {
                     terminologyResources.add("/fhir/r4/valueset/v1_0_1/KBV_VS_ERP_Accident_Type.xml");
                     terminologyResources.add("/fhir/r4/valueset/v1_0_1/KBV_VS_ERP_Medication_Category.xml");
                     terminologyResources.add("/fhir/r4/valueset/v1_0_1/KBV_VS_ERP_StatusCoPayment.xml");
+
+                    terminologyResources.add("/fhir/r4/valueset/v1_0_3/KBV_VS_FOR_Payor_type.xml");
+                    terminologyResources.add("/fhir/r4/valueset/v1_0_3/KBV_VS_FOR_Qualification_Type.xml");
+
                     terminologyResources.add("/fhir/r4/codesystem/v1_0_1/KBV_CS_ERP_Medication_Category.xml");
                     terminologyResources.add("/fhir/r4/codesystem/v1_0_1/KBV_CS_ERP_Medication_Type.xml");
                     terminologyResources.add("/fhir/r4/codesystem/v1_0_1/KBV_CS_ERP_Section_Type.xml");
                     terminologyResources.add("/fhir/r4/codesystem/v1_0_1/KBV_CS_ERP_StatusCoPayment.xml");
+
+                    terminologyResources.add("/fhir/r4/codesystem/v1_0_3/KBV_CS_ERP_StatusCoPayment.xml");
+                    terminologyResources.add("/fhir/r4/codesystem/v1_0_3/KBV_CS_FOR_Qualification_Type.xml");
+                    terminologyResources.add("/fhir/r4/codesystem/v1_0_3/KBV_CS_FOR_Ursache_Type.xml");
+
+                    terminologyResources.add("/fhir/r4/namingsystems/Pruefnummer.xml");
+
                     structureDefinitionResources.add("/fhir/r4/profile/v1_0_1/KBV_PR_ERP_Bundle.xml");
                     structureDefinitionResources.add("/fhir/r4/profile/v1_0_1/KBV_PR_ERP_Composition.xml");
                     structureDefinitionResources.add("/fhir/r4/profile/v1_0_1/KBV_PR_ERP_Medication_Compounding.xml");
@@ -63,6 +74,13 @@ public class KbvValidationSupport implements IValidationSupport {
                     structureDefinitionResources.add("/fhir/r4/profile/v1_0_1/KBV_PR_ERP_Medication_PZN.xml");
                     structureDefinitionResources.add("/fhir/r4/profile/v1_0_1/KBV_PR_ERP_PracticeSupply.xml");
                     structureDefinitionResources.add("/fhir/r4/profile/v1_0_1/KBV_PR_ERP_Prescription.xml");
+
+                    structureDefinitionResources.add("/fhir/r4/profile/v1_0_3/KBV_PR_FOR_Coverage.xml");
+                    structureDefinitionResources.add("/fhir/r4/profile/v1_0_3/KBV_PR_FOR_Organization.xml");
+                    structureDefinitionResources.add("/fhir/r4/profile/v1_0_3/KBV_PR_FOR_Patient.xml");
+                    structureDefinitionResources.add("/fhir/r4/profile/v1_0_3/KBV_PR_FOR_Practitioner.xml");
+                    structureDefinitionResources.add("/fhir/r4/profile/v1_0_3/KBV_PR_FOR_PractitionerRole.xml");
+
                     structureDefinitionResources.add("/fhir/r4/extension/v1_0_1/KBV_EX_ERP_Accident.xml");
                     structureDefinitionResources.add("/fhir/r4/extension/v1_0_1/KBV_EX_ERP_BVG.xml");
                     structureDefinitionResources.add("/fhir/r4/extension/v1_0_1/KBV_EX_ERP_DosageFlag.xml");
@@ -77,7 +95,10 @@ public class KbvValidationSupport implements IValidationSupport {
                     structureDefinitionResources.add("/fhir/r4/extension/v1_0_1/KBV_EX_ERP_PracticeSupply_Payor.xml");
                     structureDefinitionResources.add("/fhir/r4/extension/v1_0_1/KBV_EX_ERP_StatusCoPayment.xml");
 
-                    structureDefinitionResources.add("/fhir/r4/profile/v1_0_3/KBV_PR_FOR_Coverage.xml");
+                    structureDefinitionResources.add("/fhir/r4/extension/v1_0_3/KBV_EX_FOR_Alternative_IK.xml");
+                    structureDefinitionResources.add("/fhir/r4/extension/v1_0_3/KBV_EX_FOR_Legal_basis.xml");
+                    structureDefinitionResources.add("/fhir/r4/extension/v1_0_3/KBV_EX_FOR_PKV_Tariff.xml");
+
                     break;
             }
 
