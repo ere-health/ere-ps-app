@@ -20,7 +20,7 @@
                  line-height-shift-adjustment="disregard-shifts" writing-mode="lr-tb"
                  language="DE">
             <fo:layout-master-set>
-                <fo:simple-page-master master-name="DIN-A5"  column-count="2"
+                <fo:simple-page-master master-name="DIN-A5" column-count="2"
                                        page-width="210mm" page-height="148mm"
                                        margin-top="5mm" margin-bottom="5mm"
                                        margin-left="8mm" margin-right="5mm">
@@ -225,12 +225,12 @@
                         <fo:instream-foreign-object>
                             <barcode:barcode>
                                 <xsl:attribute name="message">
-                                    {"urls": [
-                                    <xsl:for-each select="fhir:bundle">"Task/<xsl:value-of
-                                            select="fhir:Bundle/fhir:identifier/@fhir:value"/>/$accept?ac=<xsl:value-of
-                                            select="fhir:accessCode"/>"
-                                    </xsl:for-each>
-                                    ]}
+                                    <xsl:variable name="bundles" select="fhir:bundle"/>{"urls": [<xsl:for-each select="fhir:bundle">
+                                        <xsl:variable name="qrPos" select="position()"/>
+                                        <xsl:variable name="bundlesCount" select="count($bundles)"/>"Task/<xsl:value-of
+                                            select="fhir:Bundle/fhir:identifier/fhir:value/@value"/>/$accept?ac=<xsl:value-of
+                                            select="fhir:accessCode"/>"<xsl:if test="$qrPos &lt; $bundlesCount">,</xsl:if>
+                                    </xsl:for-each>]}
                                 </xsl:attribute>
                                 <barcode:datamatrix>
                                     <barcode:module-width>0.6mm</barcode:module-width>
@@ -258,15 +258,14 @@
                             <fo:table-column/>
                             <fo:table-column/>
                             <fo:table-body>
-                                <fo:table-row height="35mm" >
+                                <fo:table-row height="35mm">
                                     <fo:table-cell width="32mm">
                                         <fo:block>
                                             <fo:instream-foreign-object>
                                                 <barcode:barcode>
                                                     <xsl:attribute name="message">
                                                         {"urls":["Task/<xsl:value-of
-                                                            select="fhir:Bundle/fhir:identifier/@value"/>
-                                                        /$accept?ac=<xsl:value-of
+                                                            select="fhir:Bundle/fhir:identifier/fhir:value/@value"/>/$accept?ac=<xsl:value-of
                                                             select="fhir:accessCode"/>"]}
                                                     </xsl:attribute>
                                                     <barcode:datamatrix>
