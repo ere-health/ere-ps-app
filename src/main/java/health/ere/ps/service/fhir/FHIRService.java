@@ -1,5 +1,7 @@
 package health.ere.ps.service.fhir;
 
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.IParser;
 import health.ere.ps.event.BundlesEvent;
 import health.ere.ps.event.Muster16PrescriptionFormEvent;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
@@ -12,6 +14,7 @@ import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
 import java.text.ParseException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,8 +34,17 @@ public class FHIRService {
 
         try {
             List<Bundle> bundles = bundleBuilder.createBundles();
+            FhirContext ctx = FhirContext.forR4();
+            IParser parser = ctx.newJsonParser();
+            parser.setPrettyPrint(true);
 
-            bundles.forEach(bundle -> bundleEvent.fireAsync(new BundlesEvent(bundle)));
+
+            bundles.forEach(bundle -> {
+                String serialized = parser.encodeResourceToString(bundle);
+
+                log.info("Bundle builder created bundle: " + serialized);
+                bundleEvent.fireAsync(new BundlesEvent(bundle));
+            });
         } catch (ParseException e) {
             log.log(Level.SEVERE, "Exception encountered while generating e-prescription bundle.", e);
             exceptionEvent.fireAsync(e);
