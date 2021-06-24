@@ -1,4 +1,4 @@
-package health.ere.ps.event;
+package health.ere.ps.event.erixa;
 
 
 import javax.json.JsonObject;

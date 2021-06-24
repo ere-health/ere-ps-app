@@ -1,7 +1,7 @@
 package health.ere.ps.resource.erixa;
 
 
-import health.ere.ps.event.ErixaSyncEvent;
+import health.ere.ps.event.erixa.ErixaSyncEvent;
 import health.ere.ps.model.erixa.ErixaSyncLoad;
 
 import javax.enterprise.event.Event;

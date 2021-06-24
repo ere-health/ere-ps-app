@@ -1,7 +1,7 @@
 package health.ere.ps.service.erixa;
 
-import health.ere.ps.event.ErixaEvent;
-import health.ere.ps.event.ErixaSyncEvent;
+import health.ere.ps.event.erixa.ErixaEvent;
+import health.ere.ps.event.erixa.ErixaSyncEvent;
 import health.ere.ps.model.erixa.ErixaSyncLoad;
 
 import javax.enterprise.context.ApplicationScoped;
