@@ -53,6 +53,7 @@ public class Muster16SvgRegexParser implements IMuster16FormParser {
         fieldsMap.put(INSURANCE_COMPANY, entries.getOrDefault("insurance", ""));
         fieldsMap.put(INSURANCE_COMPANY_ID, entries.getOrDefault("payor", ""));
         fieldsMap.put(PATIENT_DATE_OF_BIRTH, entries.getOrDefault("birthdate", ""));
+        fieldsMap.put(PATIENT_STATUS, entries.getOrDefault("status", ""));
         fieldsMap.put(CLINIC_ID, entries.getOrDefault("locationNumber", ""));
         fieldsMap.put(DOCTOR_ID, entries.getOrDefault("practitionerNumber", ""));
         fieldsMap.put(PRESCRIPTION_DATE, entries.getOrDefault("date", ""));
@@ -124,6 +125,11 @@ public class Muster16SvgRegexParser implements IMuster16FormParser {
     @Override
     public String parsePatientDateOfBirth() {
         return getValue(PATIENT_DATE_OF_BIRTH);
+    }
+
+    @Override
+    public String parsePatientStatus() {
+        return getValue(PATIENT_STATUS);
     }
 
     @Override

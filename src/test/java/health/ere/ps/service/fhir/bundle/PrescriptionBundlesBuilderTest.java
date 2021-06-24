@@ -54,6 +54,7 @@ public class PrescriptionBundlesBuilderTest {
         muster16PrescriptionForm.setPatientZipCode("10629");
         muster16PrescriptionForm.setPatientCity("Berlin");
         muster16PrescriptionForm.setPatientInsuranceId("M310119800");
+        muster16PrescriptionForm.setPatientStatus("30000");
 
         muster16PrescriptionForm.setPractitionerNamePrefix("Dr.");
         muster16PrescriptionForm.setPractitionerFirstName("Testarzt");
@@ -203,10 +204,11 @@ public class PrescriptionBundlesBuilderTest {
     @Disabled
     @Test
     public void test_Successful_Validation_Of_An_FHIR_Coverage_Resource() {
-        Coverage coverageResource = prescriptionBundlesBuilder.createCoverageResource();
+        Coverage coverageResource = prescriptionBundlesBuilder.createCoverageResource("random_patient_id");
 
         ValidationResult validationResult =
                 prescriptionBundleValidator.validateResource(coverageResource, true);
+        logger.info("messages:" + validationResult.getMessages());
         assertTrue(validationResult.isSuccessful());
     }
 

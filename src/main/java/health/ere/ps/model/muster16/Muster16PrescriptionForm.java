@@ -16,6 +16,7 @@ public class Muster16PrescriptionForm {
     private String patientZipCode;
     private String patientInsuranceId;
     private String patientDateOfBirth;
+    private String patientStatus;
     private String clinicId;
     private String practitionerId;
     private String prescriptionDate;
@@ -35,9 +36,9 @@ public class Muster16PrescriptionForm {
     public Muster16PrescriptionForm(String insuranceCompany, String insuranceCompanyId, List<String> patientNamePrefix,
                                     String patientFirstName, String patientLastName, String patientStreetName,
                                     String patientStreetNumber, String patientCity, String patientZipCode,
-                                    String patientInsuranceId, String patientDateOfBirth, String clinicId,
-                                    String practitionerId, String prescriptionDate, String practitionerFirstName,
-                                    String practitionerLastName, String practitionerStreetName,
+                                    String patientInsuranceId, String patientDateOfBirth, String patientStatus,
+                                    String clinicId, String practitionerId, String prescriptionDate,
+                                    String practitionerFirstName, String practitionerLastName, String practitionerStreetName,
                                     String practitionerStreetNumber, String practitionerCity, String practitionerZipCode,
                                     String practitionerNamePrefix, String practitionerPhone, String practitionerFax,
                                     Boolean isWithPayment, List<MedicationString> prescriptionList) {
@@ -52,6 +53,7 @@ public class Muster16PrescriptionForm {
         this.patientZipCode = patientZipCode;
         this.patientInsuranceId = patientInsuranceId;
         this.patientDateOfBirth = patientDateOfBirth;
+        this.patientStatus = patientStatus;
         this.clinicId = clinicId;
         this.practitionerId = practitionerId;
         this.prescriptionDate = prescriptionDate;
@@ -158,6 +160,14 @@ public class Muster16PrescriptionForm {
 
     public void setPatientDateOfBirth(String patientDateOfBirth) {
         this.patientDateOfBirth = patientDateOfBirth;
+    }
+
+    public String getPatientStatus() {
+        return patientStatus;
+    }
+
+    public void setPatientStatus(String patientStatus) {
+        this.patientStatus = patientStatus;
     }
 
     public String getClinicId() {
@@ -286,6 +296,7 @@ public class Muster16PrescriptionForm {
                 ", patientZipCode='" + patientZipCode + '\'' +
                 ", patientInsuranceId='" + patientInsuranceId + '\'' +
                 ", patientDateOfBirth='" + patientDateOfBirth + '\'' +
+                ", patientStatus='" + patientStatus + '\'' +
                 ", clinicId='" + clinicId + '\'' +
                 ", practitionerId='" + practitionerId + '\'' +
                 ", prescriptionDate='" + prescriptionDate + '\'' +

@@ -15,6 +15,7 @@ public interface IMuster16FormParser {
     String parsePatientCity();
     String parsePatientZipCode();
     String parsePatientDateOfBirth();
+    String parsePatientStatus();
     String parseClinicId();
     String parseDoctorId() ;
     String parsePrescriptionDate();
