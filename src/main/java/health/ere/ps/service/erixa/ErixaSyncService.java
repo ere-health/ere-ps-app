@@ -16,6 +16,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.logging.Logger;
 
+@Deprecated
 @ApplicationScoped
 public class ErixaSyncService {
 

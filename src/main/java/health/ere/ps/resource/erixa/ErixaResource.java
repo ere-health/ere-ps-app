@@ -18,6 +18,7 @@ public class ErixaResource {
     @Inject
     Event<ErixaSyncEvent> erixaEvent;
 
+    @Deprecated
     @POST
     @Path("/sync")
     public Response handleSync(ErixaSyncLoad load) {
