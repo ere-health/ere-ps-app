@@ -2,7 +2,6 @@ package health.ere.ps.service.erixa;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import health.ere.ps.event.erixa.ErixaUploadEvent;
 import health.ere.ps.model.erixa.api.credentials.BasicAuthCredentials;
@@ -10,24 +9,19 @@ import health.ere.ps.model.erixa.ErixaUploadMessagePayload;
 import health.ere.ps.model.erixa.api.mapping.DoctorUploadToDrugstorePrescriptionModel;
 import health.ere.ps.model.erixa.api.mapping.PrescriptionData;
 import health.ere.ps.model.erixa.api.mapping.PrescriptionDoctorData;
+import health.ere.ps.model.erixa.api.mapping.UserDetails;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.hl7.fhir.r4.model.Bundle;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 @ApplicationScoped
 public class ErixaUploadService {
 
-    @ConfigProperty(name = "erixa.api.url.upload")
-    String uploadURL;
-
     @Inject
-    ErixaHttpClient httpClient;
+    ErixaAPIInterface apiInterface;
 
     private final IParser bundleParser;
     private final ObjectMapper mapper;
@@ -46,20 +40,7 @@ public class ErixaUploadService {
         DoctorUploadToDrugstorePrescriptionModel model = buildBody(load.getDocument(), load.getBundle());
         String json = mapper.writeValueAsString(model);
 
-        httpClient.sendPostRequest(getUploadURI(), json);
-    }
-
-
-    private URL getUploadURI() {
-        try {
-            return new URL(uploadURL);
-        } catch (MalformedURLException e) {
-            return null;
-        }
-    }
-
-    private String toBasicAuth(BasicAuthCredentials credentials) {
-        return String.join(":", credentials.getEmail(), credentials.getPassword());
+        apiInterface.uploadToDrugstore(json);
     }
 
     private DoctorUploadToDrugstorePrescriptionModel buildBody(String document, String bundleString) {
@@ -120,10 +101,7 @@ public class ErixaUploadService {
     }
 
     private PrescriptionDoctorData getDoctorData() {
-        PrescriptionDoctorData doctorData = new PrescriptionDoctorData();
-        doctorData.setUserDataId(77);
-        doctorData.setDoctorNumber("987654321");
-        doctorData.setBusinessPlaceNumber("999888777");
-        return doctorData;
+        UserDetails userDetails = apiInterface.getUserDetails();
+        return new PrescriptionDoctorData(userDetails);
     }
 }

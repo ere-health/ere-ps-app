@@ -3,7 +3,6 @@ package health.ere.ps.service.erixa;
 
 import health.ere.ps.model.erixa.api.credentials.BasicAuthCredentials;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.logging.Log;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -13,9 +12,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.json.JsonObject;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
 
@@ -24,7 +21,9 @@ public class ErixaHttpClient {
 
     private final Logger log = Logger.getLogger(getClass().getName());
 
-    public void sendPostRequest(URL url, String json) throws IOException {
+    private final HttpClient httpClient = HttpClientBuilder.create().build();
+
+    public HttpResponse sendPostRequest(String url, String json) throws IOException {
 
         StringEntity entity = new StringEntity(json);
 
@@ -35,11 +34,18 @@ public class ErixaHttpClient {
         request.setHeader("ApiKey", getApiKey());
         request.setEntity(entity);
 
-        HttpClient client = HttpClientBuilder.create().build();
-        HttpResponse response = client.execute(request);
+        return httpClient.execute(request);
+    }
 
-        int statusCode = response.getStatusLine().getStatusCode();
-        log.info("Status code: " + statusCode);
+    public HttpResponse sendGetRequest(String url) throws IOException {
+
+        HttpGet request = new HttpGet(url.toString());
+
+        request.setHeader(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader());
+        request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+        request.setHeader("ApiKey", getApiKey());
+
+        return httpClient.execute(request);
     }
 
     private String getBasicAuthenticationHeader() {
