@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static health.ere.ps.service.extractor.TemplateProfile.CGM_TURBO_MED;
@@ -26,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @QuarkusTest
 public class ExtractionToBundleWorkflowTest {
 
-//    private static final Logger log = Logger.getLogger(ExtractionToBundleWorkflowTest.class.getName());
+    private static final Logger log = Logger.getLogger(ExtractionToBundleWorkflowTest.class.getName());
 
     @Test
     @Disabled("Github doesn't have access to the secret repo, run this test manually")
@@ -43,6 +44,8 @@ public class ExtractionToBundleWorkflowTest {
         Muster16SvgRegexParser muster16Parser = new Muster16SvgRegexParser(extractionResultsMap);
         Muster16PrescriptionForm muster16PrescriptionForm = Muster16FormDataExtractorService.fillForm(muster16Parser);
 
+//        logExtractionResultsAndMuster16Form(extractionResultsMap, muster16PrescriptionForm);
+
         PrescriptionBundlesBuilder bundleBuilder = new PrescriptionBundlesBuilder(muster16PrescriptionForm);
         List<Bundle> bundles = bundleBuilder.createBundles();
 
@@ -55,6 +58,7 @@ public class ExtractionToBundleWorkflowTest {
             assertEquals("Dr.", extractPatientPrefix(bundle));
             assertEquals("Markus", extractPatientFirstName(bundle));
             assertEquals("Heckner", extractPatientLastName(bundle));
+            assertEquals("3", extractPatientStatus(bundle));
             assertEquals("0", extractGebPfl(bundle));
             assertEquals("DENS", extractPractitionerFirstName(bundle));
             assertEquals("GmbH", extractPractitionerLastName(bundle));
@@ -96,6 +100,7 @@ public class ExtractionToBundleWorkflowTest {
         assertEquals("", extractPatientPrefix(bundle));
         assertEquals("Banholzer", extractPatientFirstName(bundle));
         assertEquals("Dominik", extractPatientLastName(bundle));
+        assertEquals("5", extractPatientStatus(bundle));
         assertEquals("0", extractGebPfl(bundle));
         assertEquals("E-Reze pt", extractPractitionerFirstName(bundle));
         assertEquals("Testarzt", extractPractitionerLastName(bundle));
@@ -154,6 +159,12 @@ public class ExtractionToBundleWorkflowTest {
                 .getChildByName("value").getValues().get(0).primitiveValue();
     }
 
+    private String extractPatientStatus(Bundle bundle) {
+        return getEntry(bundle, "Coverage").getResource().getChildByName("extension").getValues().get(3)
+                .getChildByName("value[x]").getValues().get(0).getChildByName("code").getValues().get(0)
+                .primitiveValue();
+    }
+
     private String extractPatientAddress(Bundle bundle) {
         return getEntry(bundle, "Patient").getResource().getChildByName("address").getValues().get(0)
                 .getChildByName("line").getValues().get(0).primitiveValue();
@@ -200,5 +211,14 @@ public class ExtractionToBundleWorkflowTest {
         return bundle.getEntry().stream()
                 .filter(entry -> entry.getResource().fhirType().equals(name))
                 .collect(Collectors.toList()).get(0);
+    }
+
+    private void logExtractionResultsAndMuster16Form(Map<String, String> extractionResultsMap,
+                                                     Muster16PrescriptionForm muster16PrescriptionForm) {
+        extractionResultsMap.entrySet().forEach(entry -> {
+            log.info("key:" + entry.getKey() + ", value:" + entry.getValue().trim());
+        });
+
+        log.info("Form:" + muster16PrescriptionForm);
     }
 }
