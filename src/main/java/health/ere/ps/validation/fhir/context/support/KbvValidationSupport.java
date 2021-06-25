@@ -5,6 +5,7 @@ import org.hl7.fhir.instance.model.api.IBase;
 import org.hl7.fhir.instance.model.api.IBaseBundle;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.instance.model.api.IPrimitiveType;
+import org.hl7.fhir.r4.model.StructureDefinition;
 import org.jboss.logging.Logger;
 
 import java.io.IOException;
@@ -29,7 +30,7 @@ import ca.uhn.fhir.util.BundleUtil;
 public class KbvValidationSupport implements IValidationSupport {
     private static final String URL_PREFIX_STRUCTURE_DEFINITION = "https://fhir.kbv.de/StructureDefinition/";
     private static final String URL_PREFIX_STRUCTURE_DEFINITION_BASE = "http://hl7.org/fhir/";
-    private static final Logger ourLog = Logger.getLogger(KbvValidationSupport.class);
+    private static final Logger logger = Logger.getLogger(KbvValidationSupport.class);
     private final FhirContext myCtx;
     private Map<String, IBaseResource> myCodeSystems;
     private Map<String, IBaseResource> myStructureDefinitions;
@@ -80,6 +81,10 @@ public class KbvValidationSupport implements IValidationSupport {
                     structureDefinitionResources.add("/fhir/r4/profile/v1_0_3/KBV_PR_FOR_Patient.xml");
                     structureDefinitionResources.add("/fhir/r4/profile/v1_0_3/KBV_PR_FOR_Practitioner.xml");
                     structureDefinitionResources.add("/fhir/r4/profile/v1_0_3/KBV_PR_FOR_PractitionerRole.xml");
+
+                    structureDefinitionResources.add("/fhir/r4/profile/v1_1_3/KBV_PR_Base_Organization.xml");
+                    structureDefinitionResources.add("/fhir/r4/profile/v1_1_3/KBV_PR_Base_Practitioner.xml");
+                    structureDefinitionResources.add("/fhir/r4/profile/v1_1_3/KBV_PR_Base_Patient.xml");
 
                     structureDefinitionResources.add("/fhir/r4/extension/v1_0_1/KBV_EX_ERP_Accident.xml");
                     structureDefinitionResources.add("/fhir/r4/extension/v1_0_1/KBV_EX_ERP_BVG.xml");
@@ -160,6 +165,8 @@ public class KbvValidationSupport implements IValidationSupport {
 
     @Override
     public IBaseResource fetchStructureDefinition(String theUrl) {
+        logger.infof("Fetching StructureDefinition having url: %s", theUrl);
+
         String url = theUrl;
         if (!theUrl.startsWith(URL_PREFIX_STRUCTURE_DEFINITION)) {
             if (theUrl.indexOf(47) == -1) {
@@ -171,6 +178,8 @@ public class KbvValidationSupport implements IValidationSupport {
 
         Map<String, IBaseResource> structureDefinitionMap = this.provideStructureDefinitionMap();
         IBaseResource retVal = (IBaseResource)structureDefinitionMap.get(url);
+
+        logger.infof("Fetched StructureDefinition %s having url: %s", retVal, theUrl);
         return retVal;
     }
 
@@ -209,7 +218,7 @@ public class KbvValidationSupport implements IValidationSupport {
     }
 
     private void loadCodeSystems(Map<String, IBaseResource> theCodeSystems, Map<String, IBaseResource> theValueSets, String theClasspath) {
-        ourLog.infof("Loading CodeSystem/ValueSet from classpath: %s", theClasspath);
+        logger.infof("Loading CodeSystem/ValueSet from classpath: %s", theClasspath);
         InputStream inputStream = getClass().getResourceAsStream(theClasspath);
         InputStreamReader reader = null;
         if (inputStream != null) {
@@ -272,18 +281,18 @@ public class KbvValidationSupport implements IValidationSupport {
 
                     inputStream.close();
                 } catch (IOException var18) {
-                    ourLog.warn("Failure closing stream", var18);
+                    logger.warn("Failure closing stream", var18);
                 }
 
             }
         } else {
-            ourLog.warnf("Unable to load resource: %s", theClasspath);
+            logger.warnf("Unable to load resource: %s", theClasspath);
         }
 
     }
 
     private void loadStructureDefinitions(Map<String, IBaseResource> theCodeSystems, String theClasspath) {
-        ourLog.infof("Loading structure definitions from classpath: %s", theClasspath);
+        logger.infof("Loading structure definitions from classpath: %s", theClasspath);
 
         try {
             InputStream valuesetText = KbvValidationSupport.class.getResourceAsStream(theClasspath);
@@ -300,7 +309,9 @@ public class KbvValidationSupport implements IValidationSupport {
                             IBaseResource next = (IBaseResource)var6.next();
                             String nextType = this.getFhirContext().getResourceType(next);
                             if ("StructureDefinition".equals(nextType)) {
-                                String url = this.getConformanceResourceUrl(next);
+                                String url =
+                                        this.getConformanceResourceUrl(next) + "|" +
+                                                ((StructureDefinition)next).getVersion();
                                 if (StringUtils.isNotBlank(url)) {
                                     theCodeSystems.put(url, next);
                                 }
@@ -318,7 +329,7 @@ public class KbvValidationSupport implements IValidationSupport {
 
                     reader.close();
                 } else {
-                    ourLog.warnf("Unable to load resource: %s", theClasspath);
+                    logger.warnf("Unable to load resource: %s", theClasspath);
                 }
             } catch (Throwable var13) {
                 if (valuesetText != null) {
@@ -336,7 +347,7 @@ public class KbvValidationSupport implements IValidationSupport {
                 valuesetText.close();
             }
         } catch (IOException var14) {
-            ourLog.warnf("Unable to load resource: %s", theClasspath);
+            logger.warnf("Unable to load resource: %s", theClasspath);
         }
 
     }
