@@ -46,7 +46,8 @@ public class FHIRService {
                 bundleEvent.fireAsync(new BundlesEvent(bundle));
             });
         } catch (ParseException e) {
-            log.log(Level.SEVERE, "Exception encountered while generating e-prescription bundle.", e);
+            log.log(Level.SEVERE, "Exception encountered while generating e-prescription bundle" +
+                    ".", e);
             exceptionEvent.fireAsync(e);
         }
     }

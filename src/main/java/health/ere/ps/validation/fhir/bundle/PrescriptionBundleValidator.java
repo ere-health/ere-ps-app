@@ -2,6 +2,7 @@ package health.ere.ps.validation.fhir.bundle;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.common.hapi.validation.support.CachingValidationSupport;
+import org.hl7.fhir.common.hapi.validation.support.CommonCodeSystemsTerminologyService;
 import org.hl7.fhir.common.hapi.validation.support.InMemoryTerminologyServerValidationSupport;
 import org.hl7.fhir.common.hapi.validation.support.PrePopulatedValidationSupport;
 import org.hl7.fhir.common.hapi.validation.support.SnapshotGeneratingValidationSupport;
@@ -27,6 +28,7 @@ import ca.uhn.fhir.validation.FhirValidator;
 import ca.uhn.fhir.validation.SingleValidationMessage;
 import ca.uhn.fhir.validation.ValidationOptions;
 import ca.uhn.fhir.validation.ValidationResult;
+import health.ere.ps.validation.fhir.context.support.ErePrePopulatedValidationSupport;
 import health.ere.ps.validation.fhir.context.support.KbvValidationSupport;
 import health.ere.ps.validation.fhir.structuredefinition.fhir.kbv.de.v1_0_1.KBV_PR_ERP_Bundle_StructureDefinition;
 import health.ere.ps.validation.fhir.structuredefinition.fhir.kbv.de.v1_0_1.KBV_PR_ERP_Medication_PZN;
@@ -54,11 +56,11 @@ public class PrescriptionBundleValidator {
         // definitions.
 //        DefaultProfileValidationSupport defaultSupport = new DefaultProfileValidationSupport(ctx);
         validationSupportChain.addValidationSupport(new DefaultProfileValidationSupport(ctx));
-        validationSupportChain.addValidationSupport(new KbvValidationSupport(ctx));
-        validationSupportChain.addValidationSupport(new SnapshotGeneratingValidationSupport(ctx));
+        validationSupportChain.addValidationSupport(new CommonCodeSystemsTerminologyService(ctx));
         validationSupportChain.addValidationSupport(new InMemoryTerminologyServerValidationSupport(ctx));
-
-
+//        validationSupportChain.addValidationSupport(new KbvValidationSupport(ctx));
+        validationSupportChain.addValidationSupport(new ErePrePopulatedValidationSupport(ctx));
+        validationSupportChain.addValidationSupport(new SnapshotGeneratingValidationSupport(ctx));
 
         // This module supplies several code systems that are commonly used in validation
 //        validationSupportChain.addValidationSupport(new CommonCodeSystemsTerminologyService(ctx));
@@ -69,16 +71,27 @@ public class PrescriptionBundleValidator {
         // Create a PrePopulatedValidationSupport which can be used to load custom definitions.
         // In this example we're loading two things, but in a real scenario we might
         // load many StructureDefinitions, ValueSets, CodeSystems, etc.
-//        PrePopulatedValidationSupport prePopulatedSupport = new PrePopulatedValidationSupport(ctx);
-//        StructureDefinition kbvBundleStructureDefinition =
-//                xmlParser.parseResource(StructureDefinition.class,
-//                KBV_PR_ERP_Bundle_StructureDefinition.STRUCTURE_DEFINITION_XML);
-//
-//        kbvBundleStructureDefinition.setUrl("https://fhir.kbv" +
-//                ".de/StructureDefinition/KBV_PR_ERP_Bundle");
-//        kbvBundleStructureDefinition.setBaseDefinition("http://hl7.org/fhir/StructureDefinition" +
-//                "/Bundle");
-//        kbvBundleStructureDefinition.setVersion("1.0.1");
+        PrePopulatedValidationSupport prePopulatedSupport = new PrePopulatedValidationSupport(ctx);
+
+        StructureDefinition kbvBundleStructureDefinition =
+                xmlParser.parseResource(StructureDefinition.class,
+                KBV_PR_ERP_Bundle_StructureDefinition.STRUCTURE_DEFINITION_XML);
+
+        kbvBundleStructureDefinition.setUrl("https://fhir.kbv" +
+                ".de/StructureDefinition/KBV_PR_ERP_Bundle|1.0.1");
+        kbvBundleStructureDefinition.setBaseDefinition("http://hl7.org/fhir/StructureDefinition" +
+                "/Bundle");
+        kbvBundleStructureDefinition.setVersion("1.0.1");
+
+        StructureDefinition kbvCoverageStructureDefinition =
+                xmlParser.parseResource(StructureDefinition.class,
+                        KBV_PR_ERP_Bundle_StructureDefinition.STRUCTURE_DEFINITION_XML);
+
+        kbvCoverageStructureDefinition.setUrl("https://fhir.kbv" +
+                ".de/StructureDefinition/KBV_PR_FOR_Coverage|1.0.3");
+        kbvBundleStructureDefinition.setBaseDefinition("http://hl7.org/fhir/StructureDefinition" +
+                "/Bundle");
+        kbvBundleStructureDefinition.setVersion("1.0.3");
 
 //        StructureDefinition kbvMedicationPznStructureDefinition =
 //                xmlParser.parseResource(StructureDefinition.class,
@@ -90,6 +103,7 @@ public class PrescriptionBundleValidator {
 //        StructureDefinition customProfile = loadResource(ctx, StructureDefinition.class, "/r4/profile.json");
 
 //        prePopulatedSupport.addStructureDefinition(kbvBundleStructureDefinition);
+//        prePopulatedSupport.addStructureDefinition(kbvCoverageStructureDefinition);
 //        addStructureDefinition(prePopulatedSupport,
 //                getClass().getResourceAsStream(
 //                        "/fhir/structuredefinition/kbv/de/v1_0_1/KBV_PR_ERP_Composition.xml"),
@@ -117,13 +131,23 @@ public class PrescriptionBundleValidator {
 
         validatorModule.setAnyExtensionsAllowed(true);
         validatorModule.setErrorForUnknownProfiles(false);
-        validatorModule.setNoTerminologyChecks(true);
-        validatorModule.setCustomExtensionDomains("hl7.org/fhir",
-                "http://hl7.org/fhir/",
-                "https://fhir.kbv.de/StructureDefinition",
-                "https://fhir.de/StructureDefinition",
-                "http://fhir.de/StructureDefinition", "fhir.kbv.de", "http://hl7.org/fhir",
-                "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Composition");
+        validatorModule.setNoTerminologyChecks(false);
+        validatorModule.setCustomExtensionDomains(
+                "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Legal_basis",
+                "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_PKV_Tariff",
+                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_StatusCoPayment",
+                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_EmergencyServicesFee",
+                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_BVG",
+                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription",
+                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_DosageFlag",
+                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Category",
+                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Vaccine",
+                "http://fhir.de/StructureDefinition/normgroesse",
+                "http://fhir.de/StructureDefinition/gkv/besondere-personengruppe",
+                "http://fhir.de/StructureDefinition/gkv/dmp-kennzeichen",
+                "http://fhir.de/StructureDefinition/gkv/wop",
+                "http://fhir.de/StructureDefinition/gkv/versichertenart"
+        );
 
         validator = ctx.newValidator().registerValidatorModule(validatorModule);
     }
@@ -175,30 +199,5 @@ public class PrescriptionBundleValidator {
 
     public void setProfile(String profile) {
         this.profile = profile;
-    }
-
-    protected void addStructureDefinition(
-            PrePopulatedValidationSupport prePopulatedSupport,
-            InputStream structureDefinitionInputStream,
-            String structureDefinitionUrl,
-            String structureDefinitionVersion,
-            String resourceType,
-            String baseDefinition, boolean closeStream) throws IOException {
-        StructureDefinition kbvPrErpCompositionStructureDefinition;
-        FhirContext ctx = FhirContext.forR4();
-        IParser xmlParser = ctx.newXmlParser();
-        StructureDefinition structureDefinition;
-
-        structureDefinition = xmlParser.parseResource(StructureDefinition.class,
-                structureDefinitionInputStream);
-        structureDefinition.setUrl(structureDefinitionUrl);
-        structureDefinition.setBaseDefinition(baseDefinition);
-        structureDefinition.setVersion(structureDefinitionVersion);
-        structureDefinition.setType(resourceType);
-
-        prePopulatedSupport.addStructureDefinition(structureDefinition);
-
-        if(closeStream)
-            structureDefinitionInputStream.close();
     }
 }
