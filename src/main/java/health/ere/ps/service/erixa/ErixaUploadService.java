@@ -1,21 +1,19 @@
 package health.ere.ps.service.erixa;
 
-import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.parser.IParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import health.ere.ps.event.erixa.ErixaUploadEvent;
-import health.ere.ps.model.erixa.api.credentials.BasicAuthCredentials;
-import health.ere.ps.model.erixa.ErixaUploadMessagePayload;
+import health.ere.ps.event.erixa.SendToPharmacyEvent;
+import health.ere.ps.model.erixa.PrescriptionTransferEntry;
 import health.ere.ps.model.erixa.api.mapping.DoctorUploadToDrugstorePrescriptionModel;
 import health.ere.ps.model.erixa.api.mapping.PrescriptionData;
 import health.ere.ps.model.erixa.api.mapping.PrescriptionDoctorData;
 import health.ere.ps.model.erixa.api.mapping.UserDetails;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @ApplicationScoped
 public class ErixaUploadService {
@@ -23,81 +21,96 @@ public class ErixaUploadService {
     @Inject
     ErixaAPIInterface apiInterface;
 
-    private final IParser bundleParser;
     private final ObjectMapper mapper;
 
 
     public ErixaUploadService() {
-        bundleParser = FhirContext.forR4().newJsonParser();
         mapper = new ObjectMapper();
     }
 
 
-    public void uploadPrescriptionToDrugstore(@ObservesAsync ErixaUploadEvent event) throws IOException {
+    public void uploadPrescriptionToDrugstore(@ObservesAsync SendToPharmacyEvent event) throws IOException {
+        String document = event.getDocument();
+        PrescriptionTransferEntry details = event.getDetails();
 
-        ErixaUploadMessagePayload load = event.getLoad();
-
-        DoctorUploadToDrugstorePrescriptionModel model = buildBody(load.getDocument(), load.getBundle());
+        DoctorUploadToDrugstorePrescriptionModel model = buildBody(document, details);
         String json = mapper.writeValueAsString(model);
 
         apiInterface.uploadToDrugstore(json);
     }
 
-    private DoctorUploadToDrugstorePrescriptionModel buildBody(String document, String bundleString) {
-
-        PrescriptionData prescriptionData = parseBundle(bundleString);
+    private DoctorUploadToDrugstorePrescriptionModel buildBody(String document, PrescriptionTransferEntry details) {
 
         DoctorUploadToDrugstorePrescriptionModel model = new DoctorUploadToDrugstorePrescriptionModel();
-        model.setBase64File(document);
-        model.setDrugstoreEmailAddress("mc30.apo@mail-mc.wps.de");
-        model.setDrugstoreSourceType(1);
-        model.setFileName("[2021-06-24] [Neithart] [mc30.apo@mail-mc.wps.de].pdf");
-        model.setFileSize(114783);
-        model.setFileType("application/pdf");
-        model.setPrescriptionData(prescriptionData);
-//        model.setDrugstoreId("13");
+        interpolateDrugstoreDetails(model);
+        interpolateDocumentDetails(model, details, document);
+        interpolatePrescriptionDetails(model, details);
 
         return model;
     }
 
-    private PrescriptionData parseBundle(String bundleString) {
+    private void interpolateDocumentDetails(DoctorUploadToDrugstorePrescriptionModel model, PrescriptionTransferEntry details, String document) {
+        model.setBase64File(document);
+        model.setFileType("PDF");
+        model.setFileName(getFileName(details));
+        model.setFileSize(getFileSize(document));
+    }
 
-        PrescriptionData prescriptionData = new PrescriptionData();
+    private String getFileName(PrescriptionTransferEntry details) {
+        String date = details.getCreationDateTime();
+        String name = String.format("%s %s", details.getFirstName(), details.getLastName());
+        String receiver = getDrugstoreEmail();
 
-        PrescriptionDoctorData doctorData = getDoctorData();
+        return String.format("%s %s %s.pdf", date, name, receiver);
+    }
 
-        // TODO parse the bundle and interpolate prescription data
+    private int getFileSize(String base64Document) {
+        // TODO implement method
+        throw new UnsupportedOperationException();
+    }
 
-        prescriptionData.setCreationDateTime("2021-06-23T15:30:00.000Z");
-        prescriptionData.setDeliveryType("SelfCollect");
-        prescriptionData.setEmailAddress("donotreply@am.gmbh");
-        prescriptionData.setExtraPaymentNecessary(false);
-        prescriptionData.setSalutation("Mr");
-        prescriptionData.setFirstName("John");
-        prescriptionData.setLastName("Doe");
-        prescriptionData.setLastName("1970-01-01T00:00:00.000Z");
-        prescriptionData.setStreet("Blumen Straße");
-        prescriptionData.setPostcode("12345");
-        prescriptionData.setCity("München");
-        prescriptionData.setCity("Deutschland");
-        prescriptionData.setInsuranceType("PKV");
-        prescriptionData.setPrescriptionColor("Blue");
-        prescriptionData.setRole("Patient");
-        prescriptionData.setDescription("New Prescription");
-        prescriptionData.setGender("W");
-        prescriptionData.setTelephoneNumber("030/12345678");
-//        prescriptionData.setHealthInsurance("030/12345678");
-//        prescriptionData.setHealthInsuranceNumber("030/12345678");
-//        prescriptionData.setOwnInsuredNumber("030/12345678");
-//        prescriptionData.setInsuranceState("030/12345678");
-        prescriptionData.setPzn1("04527098");
-        prescriptionData.setAutIdem1(false);
-        prescriptionData.setDosage1("2mal tägl. 5ml");
-        prescriptionData.setMedicineDescription1("1x Novalgin AMP N1 5X2 ml Tabletten / 10 St");
-//        prescriptionData.setIcdCode("A65_A69");
-        prescriptionData.setDoctorData(doctorData);
+    private void interpolateDrugstoreDetails(DoctorUploadToDrugstorePrescriptionModel model) {
+        model.setDrugstoreEmailAddress(getDrugstoreEmail());
+        model.setDrugstoreSourceType(0);
+    }
 
-        return prescriptionData;
+    private String getDrugstoreEmail() {
+        // TODO implement method
+        throw new UnsupportedOperationException();
+    }
+
+    private void interpolatePrescriptionDetails(DoctorUploadToDrugstorePrescriptionModel model, PrescriptionTransferEntry details) {
+        model.setPrescriptionData(buildPrescriptionData(details));
+    }
+
+    private PrescriptionData buildPrescriptionData(PrescriptionTransferEntry entry) {
+        PrescriptionData data = new PrescriptionData();
+        // TODO set role
+        data.setFirstName(entry.getFirstName());
+        data.setLastName(entry.getLastName());
+        data.setGender(entry.getGender());
+        data.setSalutation(entry.getSalutation());
+        data.setBirthday(parseBirthday(entry.getBirthday()));
+        data.setPostcode(entry.getPostcode());
+        data.setStreet(entry.getStreet());
+        data.setCity(entry.getCity());
+        data.setCountry("DE");
+        // TODO fetch and set email address
+        data.setInsuranceType(entry.getInsuranceType());
+        data.setCreationDateTime(entry.getCreationDateTime());
+        // TODO set delivery type
+        data.setPrescriptionColor("Red");
+        data.setPzn1(entry.getPzn());
+        data.setAutIdem1(entry.isAutIdem());
+        data.setDosage1(entry.getDosage());
+        data.setMedicineDescription1(entry.getMedicineDescription());
+        data.setExtraPaymentNecessary(entry.isExtraPaymentNecessary());
+        return data;
+    }
+
+    private String parseBirthday(Date birthday) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'");
+        return dateFormat.format(birthday);
     }
 
     private PrescriptionDoctorData getDoctorData() {
