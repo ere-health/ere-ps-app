@@ -1,12 +1,17 @@
 package health.ere.ps.websocket;
 
-import ca.uhn.fhir.context.FhirContext;
-import health.ere.ps.event.BundlesEvent;
-import health.ere.ps.event.ERezeptDocumentsEvent;
-import health.ere.ps.event.SignAndUploadBundlesEvent;
-import health.ere.ps.jsonb.BundleAdapter;
-import health.ere.ps.jsonb.ByteAdapter;
-import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
+import org.jboss.logging.Logger;
+
+import java.awt.*;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -20,31 +25,30 @@ import javax.json.JsonValue;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
-import javax.websocket.*;
+import javax.websocket.OnClose;
+import javax.websocket.OnError;
+import javax.websocket.OnMessage;
+import javax.websocket.OnOpen;
+import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import java.awt.*;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
+import ca.uhn.fhir.context.FhirContext;
+import health.ere.ps.event.BundlesEvent;
+import health.ere.ps.event.ERezeptDocumentsEvent;
+import health.ere.ps.event.SignAndUploadBundlesEvent;
+import health.ere.ps.jsonb.BundleAdapter;
+import health.ere.ps.jsonb.ByteAdapter;
+import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 
 @ServerEndpoint("/websocket")
 @ApplicationScoped
 public class Websocket {
 
     @Inject
-    PrescriptionBundleValidator prescriptionBundleValidator;
+    Event<SignAndUploadBundlesEvent> signAndUploadBundlesEvent;
 
     @Inject
-    Event<SignAndUploadBundlesEvent> signAndUploadBundlesEvent;
+    PrescriptionBundleValidator prescriptionBundleValidator;
 
     private static final Logger log = Logger.getLogger(Websocket.class.getName());
     private final FhirContext ctx = FhirContext.forR4();
@@ -72,7 +76,7 @@ public class Websocket {
     public void onMessage(String message) {
         log.info("Message: " + message);
 
-        try(JsonReader jsonReader = Json.createReader(new StringReader(message))) {
+        try (JsonReader jsonReader = Json.createReader(new StringReader(message))) {
             JsonObject object = jsonReader.readObject();
             if ("SignAndUploadBundles".equals(object.getString("type"))) {
                 if (!doIncomingBundleValidationChecks(object)) {
@@ -91,7 +95,7 @@ public class Websocket {
     public void onFhirBundle(@ObservesAsync BundlesEvent bundlesEvent) {
 
         // if nobody is connected to the websocket
-        if(sessions.size() == 0) {
+        if (sessions.size() == 0) {
             if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
                 try {
                     // Open a browser with the given URL
@@ -100,7 +104,7 @@ public class Websocket {
                     Desktop.getDesktop().browse(new URI("http://localhost:8080/frontend/app/src/index.html"));
                     Thread.sleep(5000);
                 } catch (IOException | URISyntaxException | InterruptedException e) {
-                    log.log(Level.WARNING, "Could not open browser", e);
+                    log.warn("Could not open browser", e);
                 }
             }
         }
@@ -109,7 +113,7 @@ public class Websocket {
                 "{\"type\": \"Bundles\", \"payload\": " + generateJson(bundlesEvent) + "}",
                 result -> {
                     if (!result.isOK()) {
-                        log.severe("Unable to send bundlesEvent: " + result.getException());
+                        log.fatal("Unable to send bundlesEvent: " + result.getException());
                     }
                 }));
     }
@@ -123,7 +127,7 @@ public class Websocket {
                 jsonPayload,
                 result -> {
                     if (!result.isOK()) {
-                        log.severe("Unable to send eRezeptWithDocumentsEvent: " +
+                        log.fatal("Unable to send eRezeptWithDocumentsEvent: " +
                                 result.getException());
                     }
                 }));
@@ -156,26 +160,28 @@ public class Websocket {
                             + exception.getClass().getName() + "\", \"message\": \"" + exception.getLocalizedMessage()
                             + "\", \"stacktrace\": \"" + sw.toString().replaceAll("\r?\n", "\\\\n").replaceAll("\t", "\\\\t") + "\"}}", result -> {
                         if (result.getException() != null) {
-                            log.severe("Unable to send message: " + result.getException());
+                            log.fatal("Unable to send message: " + result.getException());
                         }
                     });
         });
     }
 
-    private boolean doIncomingBundleValidationChecks(JsonObject bundlePayload) {
-        for(JsonValue jsonValue : bundlePayload.getJsonArray("payload")) {
-            if(jsonValue instanceof JsonArray) {
+    boolean doIncomingBundleValidationChecks(JsonObject bundlePayload) {
+        for (JsonValue jsonValue : bundlePayload.getJsonArray("payload")) {
+            if (jsonValue instanceof JsonArray) {
                 for (JsonValue singleBundle : (JsonArray) jsonValue) {
                     log.info("Now validating incoming sign and upload bundle:\n" +
                             singleBundle.toString());
-                    if(!prescriptionBundleValidator.validateResource(singleBundle.toString(),
-                            true).isSuccessful()) {
+
+                    String bundleJson = singleBundle.toString();
+                    if (!prescriptionBundleValidator.validateResource(bundleJson,
+                            false).isSuccessful()) {
                         log.info("Validation for the following incoming sign and " +
-                                        "upload bundle failed:\n" + singleBundle);
+                                "upload bundle failed:\n" + singleBundle);
                         return false;
                     } else {
                         log.info("Validation for the following incoming sign and " +
-                                        "upload bundle passed:\n" +
+                                "upload bundle passed:\n" +
                                 singleBundle.toString());
                     }
                 }

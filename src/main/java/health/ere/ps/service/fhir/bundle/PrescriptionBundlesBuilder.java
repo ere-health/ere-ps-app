@@ -261,12 +261,12 @@ public class PrescriptionBundlesBuilder {
         Extension wopEx = new Extension("http://fhir.de/StructureDefinition/gkv/wop", wop);
         coverage.addExtension(wopEx);
 
-//        Coding versichertenart = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_VERSICHERTENSTATUS", "3", null);
-//        Extension versichertenartEx = new Extension("http://fhir.de/StructureDefinition/gkv/versichertenart", versichertenart);
-
         String patientStatus = muster16PrescriptionForm.getPatientStatus().replaceAll("0", "");
-        Coding versichertenart = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_ITA_WOP", patientStatus, null);
-        Extension versichertenartEx = new Extension("https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_VERSICHERTENSTATUS", versichertenart);
+        Coding versichertenart = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_VERSICHERTENSTATUS", patientStatus, null);
+        Extension versichertenartEx = new Extension("http://fhir.de/StructureDefinition/gkv/versichertenart", versichertenart);
+
+//        Coding versichertenart = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_ITA_WOP", patientStatus, null);
+//        Extension versichertenartEx = new Extension("https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_VERSICHERTENSTATUS", versichertenart);
 
         coverage.addExtension(versichertenartEx);
 
