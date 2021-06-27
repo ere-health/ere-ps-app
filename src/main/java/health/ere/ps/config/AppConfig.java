@@ -18,83 +18,56 @@ public class AppConfig {
     @ConfigProperty(name = "idp.client.id")
     String clientId;
 
-    @ConfigProperty(name = "idp.connector.client.system.id")
-    String clientSystem;
+    @ConfigProperty(name = "connector.client.system.id")
+    String clientSystemId;
 
-    @ConfigProperty(name = "idp.connector.mandant.id")
+    @ConfigProperty(name = "connector.mandant.id")
     String mandantId;
 
-    @ConfigProperty(name = "idp.connector.workplace.id")
-    String workplace;
+    @ConfigProperty(name = "connector.workplace.id")
+    String workplaceId;
 
-    @ConfigProperty(name = "idp.connector.card.handle")
+    @ConfigProperty(name = "connector.card.handle")
     String cardHandle;
 
     @ConfigProperty(name = "idp.connector.auth-signature.endpoint.address")
     String idpConnectorAuthSignatureEndpointAddress;
 
-    @ConfigProperty(name = "signature-service.context.mandantId")
-    String signatureServiceContextMandantId;
-
-    @ConfigProperty(name = "signature-service.context.clientSystemId")
-    String signatureServiceContextClientSystemId;
-
-    @ConfigProperty(name = "signature-service.context.workplaceId")
-    String signatureServiceContextWorkplaceId;
-
-    @ConfigProperty(name = "signature-service.context.userId")
+    @ConfigProperty(name = "ere.signature-service.context.userId")
     String signatureServiceContextUserId;
 
     @ConfigProperty(name = "connector.simulator.titusClientCertificate")
     String titusClientCertificate;
 
-    @ConfigProperty(name = "ere.event-service.endpoint.address")
+    @ConfigProperty(name = "titus.event-service.endpoint.address")
     String eventServiceEndpointAddress;
 
     public String getIdpConnectorTlsCertTrustStore() {
-
         return idpConnectorTlsCertTrustStore;
     }
 
     public String getIdpConnectorTlsCertTustStorePwd() {
-		return StringUtils.defaultString(
-			idpConnectorTlsCertTustStorePwd).trim();
+        return StringUtils.defaultString(idpConnectorTlsCertTustStorePwd).trim();
     }
 
     public String getClientId() {
-
         return clientId;
     }
 
     public String getClientSystem() {
-
-        return clientSystem;
+        return clientSystemId;
     }
 
     public String getWorkplace() {
-
-        return workplace;
+        return workplaceId;
     }
 
     public String getCardHandle() {
-
         return cardHandle;
     }
 
     public String getIdpConnectorAuthSignatureEndpointAddress() {
         return idpConnectorAuthSignatureEndpointAddress;
-    }
-
-    public String getSignatureServiceContextMandantId() {
-        return signatureServiceContextMandantId;
-    }
-
-    public String getSignatureServiceContextClientSystemId() {
-        return signatureServiceContextClientSystemId;
-    }
-
-    public String getSignatureServiceContextWorkplaceId() {
-        return signatureServiceContextWorkplaceId;
     }
 
     public String getSignatureServiceContextUserId() {
@@ -110,7 +83,7 @@ public class AppConfig {
     }
 
     public String getMandantId() {
-        return this.mandantId;
+        return mandantId;
     }
 
     public void setMandantId(String mandantId) {
