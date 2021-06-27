@@ -67,6 +67,7 @@ import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.common.security.SecureSoapTransportConfigurer;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
+import health.ere.ps.ssl.SSLUtilities;
 import health.ere.ps.vau.VAUEngine;
 import de.gematik.ws.conn.eventservice.v7.GetCards;
 import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
@@ -169,6 +170,7 @@ public class ERezeptWorkflowService {
             if (customSSLContext != null) {
                 bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
                         customSSLContext.getSocketFactory());
+                bp.getRequestContext().put( "com.sun.xml.ws.transport.https.client.hostname.verifier", new SSLUtilities.FakeHostnameVerifier());
             }
 
             eventService = new EventService(getClass().getResource("/EventService.wsdl")).getEventServicePort();
@@ -178,6 +180,7 @@ public class ERezeptWorkflowService {
             if (customSSLContext != null) {
                 bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
                         customSSLContext.getSocketFactory());
+                bp.getRequestContext().put( "com.sun.xml.ws.transport.https.client.hostname.verifier", new SSLUtilities.FakeHostnameVerifier());
             }
 
         } catch(Exception ex) {

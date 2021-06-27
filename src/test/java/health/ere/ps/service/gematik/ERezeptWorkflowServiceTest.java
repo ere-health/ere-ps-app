@@ -68,17 +68,17 @@ public class ERezeptWorkflowServiceTest {
 
 //        eRezeptWorkflowService = new ERezeptWorkflowService();
         eRezeptWorkflowService.prescriptionserverUrl = "https://fd.erezept-instanz1.titus.ti-dienste.de";
-        eRezeptWorkflowService.signatureServiceEndpointAddress = "https://kon-instanz2.titus.ti-dienste.de:443/soap-api/SignatureService/7.5.4";
-        eRezeptWorkflowService.eventServiceEndpointAddress = "https://kon-instanz2.titus.ti-dienste.de/soap-api/EventService/7.2.0";
+        eRezeptWorkflowService.signatureServiceEndpointAddress = "https://10.0.0.98:443/ws/SignatureService";
+        eRezeptWorkflowService.eventServiceEndpointAddress = "https://10.0.0.98:443/ws/EventService";
 //        eRezeptWorkflowService.signatureServiceCardHandle = "1-1-ARZT-WaltrautFinkengrund01";
-        eRezeptWorkflowService.signatureServiceContextMandantId = "ps_erp_incentergy_01";
-        eRezeptWorkflowService.signatureServiceContextClientSystemId = "ps_erp_incentergy_01_HBA";
-        eRezeptWorkflowService.signatureServiceContextWorkplaceId = "CATS";
+        eRezeptWorkflowService.signatureServiceContextMandantId = "Incentergy";
+        eRezeptWorkflowService.signatureServiceContextClientSystemId = "Incentergy";
+        eRezeptWorkflowService.signatureServiceContextWorkplaceId = "1786_A1";
         eRezeptWorkflowService.signatureServiceContextUserId = "197610";
         eRezeptWorkflowService.signatureServiceTvMode = "NONE";
         eRezeptWorkflowService.enableVau = true;
 
-        InputStream p12Certificate = ERezeptWorkflowServiceTest.class.getResourceAsStream("/ps_erp_incentergy_01.p12");
+        InputStream p12Certificate = ERezeptWorkflowServiceTest.class.getResourceAsStream("/home/manuel/Desktop/RU-Connector-Cert/incentergy_U9pRlw8SBfMExkycgNDs.p12");
         eRezeptWorkflowService.setUpCustomSSLContext(p12Certificate);
         eRezeptWorkflowService.init();
     }
@@ -168,7 +168,7 @@ public class ERezeptWorkflowServiceTest {
 
     
     @Test
-    @Disabled
+    // @Disabled
     // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testUpdateBundleWithTaskAndSignBundleWithIdentifiers() throws IOException, ERezeptWorkflowException {
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/examples_erezept/Erezept_template_3.xml"));

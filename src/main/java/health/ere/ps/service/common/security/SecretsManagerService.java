@@ -27,10 +27,12 @@ import javax.crypto.KeyGenerator;
 import javax.enterprise.context.ApplicationScoped;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
 import javax.xml.ws.BindingProvider;
 
 import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.service.idp.crypto.CryptoLoader;
+import health.ere.ps.ssl.SSLUtilities;
 
 @ApplicationScoped
 public class SecretsManagerService {
@@ -203,9 +205,9 @@ public class SecretsManagerService {
             KeyStore ks = KeyStore.getInstance("PKCS12");
             // Download this file from the titus backend
             // https://frontend.titus.ti-dienste.de/#/platform/mandant
-            ks.load(p12Certificate, "00".toCharArray());
-            kmf.init(ks, "00".toCharArray());
-            sc.init(kmf.getKeyManagers(), null, null);
+            ks.load(p12Certificate, "U9pRlw8SBfMExkycgNDs".toCharArray());
+            kmf.init(ks, "U9pRlw8SBfMExkycgNDs".toCharArray());
+            sc.init(kmf.getKeyManagers(), new TrustManager[]{new SSLUtilities.FakeX509TrustManager()}, null);
             return sc;
         } catch (NoSuchAlgorithmException | CertificateException | IOException | KeyStoreException
                 | UnrecoverableKeyException | KeyManagementException e) {
