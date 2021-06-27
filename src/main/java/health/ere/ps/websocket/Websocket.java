@@ -65,51 +65,33 @@ public class Websocket {
     @OnError
     public void onError(Session session, Throwable throwable) {
         sessions.remove(session);
-        log.severe("Websocket error: " + throwable);
+        log.info("Websocket error: " + throwable);
     }
 
     @OnMessage
     public void onMessage(String message) {
         log.info("Message: " + message);
 
-        try (JsonReader jsonReader = Json.createReader(new StringReader(message))) {
-
-            log.info("Creating json object from incoming message : " + message);
-
+        try(JsonReader jsonReader = Json.createReader(new StringReader(message))) {
             JsonObject object = jsonReader.readObject();
-
-            log.info("Created json object from incoming message : " + message);
-
             if ("SignAndUploadBundles".equals(object.getString("type"))) {
-                log.info("Validating the following incoming SignAndUploadBundles payload: \n" +
-                        message);
-
-                if(!doIncomingBundleValidationChecks(object)) {
+                if (!doIncomingBundleValidationChecks(object)) {
                     log.info("Validation of incoming SignAndUploadBundles payload failed. " +
-                            "The following SignAndUploadBundles payload will now be dropped\n: " +
+                            "The following SignAndUploadBundles payload will now be dropped:\n" +
                             message);
                     return;
                 }
 
-                log.info("Creating SignAndUploadBundles object from incoming message : " +
-                        message);
-
                 SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(object);
-
-                log.info("Created SignAndUploadBundles object from incoming message : " +
-                        message);
-
                 signAndUploadBundlesEvent.fireAsync(event);
-
-                log.info("Fired SignAndUploadBundles event for SignAndUploadBundles object : " +
-                        object);
             }
         }
     }
 
     public void onFhirBundle(@ObservesAsync BundlesEvent bundlesEvent) {
+
         // if nobody is connected to the websocket
-        if (sessions.isEmpty()) {
+        if(sessions.size() == 0) {
             if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
                 try {
                     // Open a browser with the given URL
@@ -184,17 +166,16 @@ public class Websocket {
         for(JsonValue jsonValue : bundlePayload.getJsonArray("payload")) {
             if(jsonValue instanceof JsonArray) {
                 for (JsonValue singleBundle : (JsonArray) jsonValue) {
-                    log.log(Level.INFO, "Now validating incoming sign and upload bundle {0}",
+                    log.info("Now validating incoming sign and upload bundle:\n" +
                             singleBundle.toString());
                     if(!prescriptionBundleValidator.validateResource(singleBundle.toString(),
                             true).isSuccessful()) {
-                        log.log(Level.INFO, "Validation for the following incoming sign and " +
-                                        "upload bundle failed:\n{0}",
-                                singleBundle.toString());
+                        log.info("Validation for the following incoming sign and " +
+                                        "upload bundle failed:\n" + singleBundle);
                         return false;
                     } else {
-                        log.log(Level.INFO, "Validation for the following incoming sign and " +
-                                        "upload bundle passed:\n{0}",
+                        log.info("Validation for the following incoming sign and " +
+                                        "upload bundle passed:\n" +
                                 singleBundle.toString());
                     }
                 }
