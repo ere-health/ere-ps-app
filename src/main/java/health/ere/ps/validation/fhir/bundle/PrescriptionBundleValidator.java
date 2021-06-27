@@ -11,6 +11,9 @@ import org.jboss.logging.Logger;
 
 import java.io.IOException;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
+
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.context.support.DefaultProfileValidationSupport;
 import ca.uhn.fhir.interceptor.executor.InterceptorService;
@@ -20,6 +23,7 @@ import ca.uhn.fhir.validation.ValidationResult;
 import health.ere.ps.validation.fhir.context.support.ErePrePopulatedValidationSupport;
 import health.ere.ps.validation.fhir.hook.EreValidationHook;
 
+@ApplicationScoped
 public class PrescriptionBundleValidator {
     private static final Logger logger = Logger.getLogger(PrescriptionBundleValidator.class);
     private final FhirValidator validator;

@@ -67,6 +67,7 @@ import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.common.security.SecureSoapTransportConfigurer;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
+import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 import health.ere.ps.vau.VAUEngine;
 import de.gematik.ws.conn.eventservice.v7.GetCards;
 import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
@@ -83,6 +84,9 @@ public class ERezeptWorkflowService {
 
     @Inject
     AppConfig appConfig;
+
+    @Inject
+    PrescriptionBundleValidator prescriptionBundleValidator;
 
     @ConfigProperty(name = "prescriptionserver.url", defaultValue = "")
     String prescriptionserverUrl;

@@ -40,6 +40,7 @@ public class SignAndUploadBundlesEvent {
         for(JsonValue jsonValue : jsonObject.getJsonArray("payload")) {
             log.info("Inside SignAndUploadBundlesEvent object - about to process payload array");
             List<Bundle> bundles = new ArrayList<>();
+
             if(jsonValue instanceof JsonArray) {
                 log.info("Inside SignAndUploadBundlesEvent object - payload array present");
                 for(JsonValue singleBundle : (JsonArray) jsonValue) {
@@ -56,7 +57,7 @@ public class SignAndUploadBundlesEvent {
                                 "json to Bundle object");
 
                         bundles.add(bundle);
-                    }catch (Throwable e) {
+                    } catch (Throwable e) {
                         log.error("Inside SignAndUploadBundlesEvent object - Exception " +
                                 "occurred while parsing bundle json to Bundle object", e);
                     }
