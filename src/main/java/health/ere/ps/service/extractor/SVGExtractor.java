@@ -37,7 +37,6 @@ public class SVGExtractor {
 
     @Inject
     Event<Exception> exceptionEvent;
-
     @Inject
     Event<SVGExtractorResultEvent> sVGExtractorResultEvent;
 
@@ -54,7 +53,7 @@ public class SVGExtractor {
     }
 
     public SVGExtractor(SVGExtractorConfiguration configuration) {
-        if (configuration.MUSTER_16_TEMPLATE != null && !configuration.MUSTER_16_TEMPLATE.equals(""))
+        if (configuration.MUSTER_16_TEMPLATE != null && !configuration.MUSTER_16_TEMPLATE.isEmpty())
             log.log(Level.INFO, "Using muster 16 template: " + configuration.MUSTER_16_TEMPLATE);
 
         this.configuration = configuration;
@@ -62,7 +61,7 @@ public class SVGExtractor {
 
     public SVGExtractor(SVGExtractorConfiguration configuration, boolean debugRectangles) {
         this(configuration);
-        this.setDebugRectangles(debugRectangles);
+        this.debugRectangles = debugRectangles;
     }
 
     public void analyzeDocument(@ObservesAsync PDDocumentEvent pDDocumentEvent) {
@@ -85,11 +84,13 @@ public class SVGExtractor {
         XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
         XMLEventReader reader = xmlInputFactory.createXMLEventReader(getTemplate());
         boolean rectFetchMode = false;
+
         while (reader.hasNext()) {
             XMLEvent nextEvent = reader.nextEvent();
             if (nextEvent.isStartElement()) {
                 StartElement startElement = nextEvent.asStartElement();
                 String localPart = startElement.getName().getLocalPart();
+
                 if ("g".equals(localPart)
                         && "fields".equals(startElement.getAttributeByName(new QName("id")).getValue())) {
                     rectFetchMode = true;
@@ -99,7 +100,7 @@ public class SVGExtractor {
                     float y = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("y")).getValue()) * configuration.SCALE + configuration.Y_OFFSET;
                     float width = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("width")).getValue()) * configuration.SCALE;
                     float height = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("height")).getValue()) * configuration.SCALE;
-                    if (isDebugRectangles()) {
+                    if (debugRectangles) {
                         PDPageContentStream contentStream = new PDPageContentStream(document, page, AppendMode.APPEND, true);
                         if (configuration.ROTATE_DEGREE == 90)
                             contentStream.addRect(y, x, height, width);
@@ -115,7 +116,7 @@ public class SVGExtractor {
                 }
             }
         }
-        if (isDebugRectangles())
+        if (debugRectangles)
             saveDebugFile(document);
         return map;
     }
@@ -145,13 +146,5 @@ public class SVGExtractor {
 
     private InputStream getTemplate() {
         return SVGExtractor.class.getResourceAsStream(getTemplatePath());
-    }
-
-    public boolean isDebugRectangles() {
-        return debugRectangles;
-    }
-
-    public void setDebugRectangles(boolean debugRectangles) {
-        this.debugRectangles = debugRectangles;
     }
 }

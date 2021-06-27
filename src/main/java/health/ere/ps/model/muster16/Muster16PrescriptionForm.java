@@ -16,30 +16,35 @@ public class Muster16PrescriptionForm {
     private String patientZipCode;
     private String patientInsuranceId;
     private String patientDateOfBirth;
+    private String patientStatus;
     private String clinicId;
-    private String doctorId;
+    private String practitionerId;
     private String prescriptionDate;
-    private String doctorFirstName;
-    private String doctorLastName;
-    private String doctorStreetName;
-    private String doctorStreetNumber;
-    private String doctorCity;
-    private String doctorZipCode;
-    private String doctorNamePrefix;
-    private String doctorPhone;
+    private String practitionerFirstName;
+    private String practitionerLastName;
+    private String practitionerStreetName;
+    private String practitionerStreetNumber;
+    private String practitionerCity;
+    private String practitionerZipCode;
+    private String practitionerNamePrefix;
+    private String practitionerPhone;
+    private String practitionerFax;
     private Boolean isWithPayment;
 
     private List<MedicationString> prescriptionList;
 
-    public Muster16PrescriptionForm(String insuranceCompany, String insuranceCompanyId, List<String> PatientNamePrefix,
+    public Muster16PrescriptionForm(String insuranceCompany, String insuranceCompanyId, List<String> patientNamePrefix,
                                     String patientFirstName, String patientLastName, String patientStreetName,
                                     String patientStreetNumber, String patientCity, String patientZipCode,
-                                    String patientInsuranceId, String patientDateOfBirth, String clinicId,
-                                    String doctorId, String prescriptionDate, Boolean isWithPayment,
-                                    List<MedicationString> prescriptionList) {
+                                    String patientInsuranceId, String patientDateOfBirth, String patientStatus,
+                                    String clinicId, String practitionerId, String prescriptionDate,
+                                    String practitionerFirstName, String practitionerLastName, String practitionerStreetName,
+                                    String practitionerStreetNumber, String practitionerCity, String practitionerZipCode,
+                                    String practitionerNamePrefix, String practitionerPhone, String practitionerFax,
+                                    Boolean isWithPayment, List<MedicationString> prescriptionList) {
         this.insuranceCompany = insuranceCompany;
         this.insuranceCompanyId = insuranceCompanyId;
-        this.PatientNamePrefix = PatientNamePrefix;
+        this.PatientNamePrefix = patientNamePrefix;
         this.patientFirstName = patientFirstName;
         this.patientLastName = patientLastName;
         this.patientStreetName = patientStreetName;
@@ -48,11 +53,21 @@ public class Muster16PrescriptionForm {
         this.patientZipCode = patientZipCode;
         this.patientInsuranceId = patientInsuranceId;
         this.patientDateOfBirth = patientDateOfBirth;
+        this.patientStatus = patientStatus;
         this.clinicId = clinicId;
-        this.doctorId = doctorId;
+        this.practitionerId = practitionerId;
         this.prescriptionDate = prescriptionDate;
-        this.prescriptionList = prescriptionList;
+        this.practitionerFirstName = practitionerFirstName;
+        this.practitionerLastName = practitionerLastName;
+        this.practitionerStreetName = practitionerStreetName;
+        this.practitionerStreetNumber = practitionerStreetNumber;
+        this.practitionerCity = practitionerCity;
+        this.practitionerZipCode = practitionerZipCode;
+        this.practitionerNamePrefix = practitionerNamePrefix;
+        this.practitionerPhone = practitionerPhone;
+        this.practitionerFax = practitionerFax;
         this.isWithPayment = isWithPayment;
+        this.prescriptionList = prescriptionList;
     }
 
     public Muster16PrescriptionForm() {
@@ -80,7 +95,7 @@ public class Muster16PrescriptionForm {
     }
 
     public void setPatientNamePrefix(List<String> patientNamePrefix) {
-        this.PatientNamePrefix = patientNamePrefix;
+        PatientNamePrefix = patientNamePrefix;
     }
 
     public String getPatientFirstName() {
@@ -131,12 +146,28 @@ public class Muster16PrescriptionForm {
         this.patientZipCode = patientZipCode;
     }
 
+    public String getPatientInsuranceId() {
+        return patientInsuranceId;
+    }
+
+    public void setPatientInsuranceId(String patientInsuranceId) {
+        this.patientInsuranceId = patientInsuranceId;
+    }
+
     public String getPatientDateOfBirth() {
         return patientDateOfBirth;
     }
 
     public void setPatientDateOfBirth(String patientDateOfBirth) {
-        this.patientDateOfBirth = patientDateOfBirth.trim();
+        this.patientDateOfBirth = patientDateOfBirth;
+    }
+
+    public String getPatientStatus() {
+        return patientStatus;
+    }
+
+    public void setPatientStatus(String patientStatus) {
+        this.patientStatus = patientStatus;
     }
 
     public String getClinicId() {
@@ -147,12 +178,12 @@ public class Muster16PrescriptionForm {
         this.clinicId = clinicId;
     }
 
-    public String getDoctorId() {
-        return doctorId;
+    public String getPractitionerId() {
+        return practitionerId;
     }
 
-    public void setDoctorId(String doctorId) {
-        this.doctorId = doctorId;
+    public void setPractitionerId(String practitionerId) {
+        this.practitionerId = practitionerId;
     }
 
     public String getPrescriptionDate() {
@@ -160,7 +191,87 @@ public class Muster16PrescriptionForm {
     }
 
     public void setPrescriptionDate(String prescriptionDate) {
-        this.prescriptionDate = prescriptionDate.trim();
+        this.prescriptionDate = prescriptionDate;
+    }
+
+    public String getPractitionerFirstName() {
+        return practitionerFirstName;
+    }
+
+    public void setPractitionerFirstName(String practitionerFirstName) {
+        this.practitionerFirstName = practitionerFirstName;
+    }
+
+    public String getPractitionerLastName() {
+        return practitionerLastName;
+    }
+
+    public void setPractitionerLastName(String practitionerLastName) {
+        this.practitionerLastName = practitionerLastName;
+    }
+
+    public String getPractitionerStreetName() {
+        return practitionerStreetName;
+    }
+
+    public void setPractitionerStreetName(String practitionerStreetName) {
+        this.practitionerStreetName = practitionerStreetName;
+    }
+
+    public String getPractitionerStreetNumber() {
+        return practitionerStreetNumber;
+    }
+
+    public void setPractitionerStreetNumber(String practitionerStreetNumber) {
+        this.practitionerStreetNumber = practitionerStreetNumber;
+    }
+
+    public String getPractitionerCity() {
+        return practitionerCity;
+    }
+
+    public void setPractitionerCity(String practitionerCity) {
+        this.practitionerCity = practitionerCity;
+    }
+
+    public String getPractitionerZipCode() {
+        return practitionerZipCode;
+    }
+
+    public void setPractitionerZipCode(String practitionerZipCode) {
+        this.practitionerZipCode = practitionerZipCode;
+    }
+
+    public String getPractitionerNamePrefix() {
+        return practitionerNamePrefix;
+    }
+
+    public void setPractitionerNamePrefix(String practitionerNamePrefix) {
+        this.practitionerNamePrefix = practitionerNamePrefix;
+    }
+
+    public String getPractitionerPhone() {
+        return practitionerPhone;
+    }
+
+    public void setPractitionerPhone(String practitionerPhone) {
+        this.practitionerPhone = practitionerPhone;
+    }
+
+    public String getPractitionerFax() {
+        return practitionerFax;
+    }
+
+    public void setPractitionerFax(String practitionerFax) {
+        this.practitionerFax = practitionerFax;
+    }
+
+    public Boolean getWithPayment() {
+        return isWithPayment;
+    }
+
+    public void setWithPayment(Boolean withPayment) {
+        isWithPayment = withPayment;
     }
 
     public List<MedicationString> getPrescriptionList() {
@@ -171,83 +282,35 @@ public class Muster16PrescriptionForm {
         this.prescriptionList = prescriptionList;
     }
 
-    public String getPatientInsuranceId() {
-        return patientInsuranceId;
-    }
-
-    public void setPatientInsuranceId(String patientInsuranceId) {
-        this.patientInsuranceId = patientInsuranceId;
-    }
-
-    public String getDoctorFirstName() {
-        return this.doctorFirstName != null ? doctorFirstName : "Doctor First Name";
-    }
-
-    public void setDoctorFirstName(String doctorFirstName) {
-        this.doctorFirstName = doctorFirstName;
-    }
-
-    public String getDoctorLastName() {
-        return this.doctorLastName != null ? doctorLastName : "Doctor Last Name";
-    }
-
-    public void setDoctorLastName(String doctorLastName) {
-        this.doctorLastName = doctorLastName;
-    }
-
-    public String getDoctorStreetName() {
-        return this.doctorStreetName != null ? doctorStreetName : "Doctor Street Name";
-    }
-
-    public void setDoctorStreetName(String doctorStreetName) {
-        this.doctorStreetName = doctorStreetName;
-    }
-
-    public String getDoctorStreetNumber() {
-        return this.doctorStreetNumber != null ? doctorStreetNumber : "Doctor Street Number";
-    }
-
-    public void setDoctorStreetNumber(String doctorStreetNumber) {
-        this.doctorStreetNumber = doctorStreetNumber;
-    }
-
-    public String getDoctorCity() {
-        return this.doctorCity != null ? doctorCity : "Doctor City";
-    }
-
-    public void setDoctorCity(String doctorCity) {
-        this.doctorCity = doctorCity;
-    }
-
-    public String getDoctorZipCode() {
-        return this.doctorZipCode != null ? doctorCity : "012345";
-    }
-
-    public void setDoctorZipCode(String doctorZipCode) {
-        this.doctorZipCode = doctorZipCode;
-    }
-
-    public String getDoctorNamePrefix() {
-        return this.doctorNamePrefix;
-    }
-
-    public void setDoctorNamePrefix(String doctorNamePrefix) {
-        this.doctorNamePrefix = doctorNamePrefix;
-    }
-
-    public String getDoctorPhone() {
-        return this.doctorPhone != null ? doctorCity : "030/123456789";
-    }
-
-    public void setDoctorPhone(String doctorPhone) {
-        this.doctorPhone = doctorPhone;
-    }
-
-    public Boolean getWithPayment() {
-        return isWithPayment;
-    }
-
-    public void setWithPayment(Boolean withPayment) {
-        isWithPayment = withPayment;
+    @Override
+    public String toString() {
+        return "Muster16PrescriptionForm{" +
+                "insuranceCompany='" + insuranceCompany + '\'' +
+                ", insuranceCompanyId='" + insuranceCompanyId + '\'' +
+                ", PatientNamePrefix=" + PatientNamePrefix +
+                ", patientFirstName='" + patientFirstName + '\'' +
+                ", patientLastName='" + patientLastName + '\'' +
+                ", patientStreetName='" + patientStreetName + '\'' +
+                ", patientStreetNumber='" + patientStreetNumber + '\'' +
+                ", patientCity='" + patientCity + '\'' +
+                ", patientZipCode='" + patientZipCode + '\'' +
+                ", patientInsuranceId='" + patientInsuranceId + '\'' +
+                ", patientDateOfBirth='" + patientDateOfBirth + '\'' +
+                ", patientStatus='" + patientStatus + '\'' +
+                ", clinicId='" + clinicId + '\'' +
+                ", practitionerId='" + practitionerId + '\'' +
+                ", prescriptionDate='" + prescriptionDate + '\'' +
+                ", practitionerFirstName='" + practitionerFirstName + '\'' +
+                ", practitionerLastName='" + practitionerLastName + '\'' +
+                ", practitionerStreetName='" + practitionerStreetName + '\'' +
+                ", practitionerStreetNumber='" + practitionerStreetNumber + '\'' +
+                ", practitionerCity='" + practitionerCity + '\'' +
+                ", practitionerZipCode='" + practitionerZipCode + '\'' +
+                ", practitionerNamePrefix='" + practitionerNamePrefix + '\'' +
+                ", practitionerPhone='" + practitionerPhone + '\'' +
+                ", practitionerFax='" + practitionerFax + '\'' +
+                ", isWithPayment=" + isWithPayment +
+                ", prescriptionList=" + prescriptionList +
+                '}';
     }
 }

@@ -9,6 +9,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+/**
+ * @Deprecated Use Muster16SvgRegexParser instead
+ * Has been replaced by the more efficient Muster16SvgRegexParser but is still up-to-date so far
+ */
+@Deprecated
 public class Muster16SvgExtractorParser implements IMuster16FormParser {
 
     private static final Logger log = Logger.getLogger(Muster16SvgExtractorParser.class.getName());
@@ -17,14 +22,18 @@ public class Muster16SvgExtractorParser implements IMuster16FormParser {
     private static final Pattern PZN_MATCH = Pattern.compile("PZN(\\d+)");
     private static final Pattern MEDICATION_LINE = Pattern.compile("(.*)(N\\d)(.*)(PZN ?)(\\d+)");
     private final Map<String, String> mappedFields;
-    private final String[] nameAndAddressInfo;
+    private final String[] patientNameAndAddressInfo;
+    private final String[] practitionerNameAndAddressInfo;
     private List<String> prescriptionInfo;
 
     public Muster16SvgExtractorParser(Map<String, String> mappedFields) {
         this.mappedFields = mappedFields;
 
-        nameAndAddressInfo = getMappedFields().getOrDefault(
+        patientNameAndAddressInfo = getMappedFields().getOrDefault(
                 "nameAndAddress", "").split("\\n");
+
+        practitionerNameAndAddressInfo = getMappedFields().getOrDefault("practitionerText", "")
+                .split("\\n");
 
         prescriptionInfo = Arrays.stream(getMappedFields().getOrDefault(
                 "medication", "").split("\\n"))
@@ -91,7 +100,7 @@ public class Muster16SvgExtractorParser implements IMuster16FormParser {
 
     @Override
     public List<String> parsePatientNamePrefix() {
-        String firstName = getDataFieldAtPosOrDefault(nameAndAddressInfo, 1, "").trim();
+        String firstName = getDataFieldAtPosOrDefault(patientNameAndAddressInfo, 1, "").trim();
         if (firstName.contains(".")) {
             return List.of(firstName.split(" ")[0]);
         }
@@ -100,7 +109,7 @@ public class Muster16SvgExtractorParser implements IMuster16FormParser {
 
     @Override
     public String parsePatientFirstName() {
-        String firstName = getDataFieldAtPosOrDefault(nameAndAddressInfo, 1, "").trim();
+        String firstName = getDataFieldAtPosOrDefault(patientNameAndAddressInfo, 1, "").trim();
         if (firstName.contains(".")) {
             return firstName.split("\\.")[1].trim();
         } else {
@@ -110,19 +119,19 @@ public class Muster16SvgExtractorParser implements IMuster16FormParser {
 
     @Override
     public String parsePatientLastName() {
-        return getDataFieldAtPosOrDefault(nameAndAddressInfo, 0, "").trim();
+        return getDataFieldAtPosOrDefault(patientNameAndAddressInfo, 0, "").trim();
     }
 
     @Override
     public String parsePatientStreetName() {
-        String[] streetName = getDataFieldAtPosOrDefault(nameAndAddressInfo,
+        String[] streetName = getDataFieldAtPosOrDefault(patientNameAndAddressInfo,
                 2, "").split("\\d+");
         return getDataFieldAtPosOrDefault(streetName, 0, "").trim();
     }
 
     @Override
     public String parsePatientStreetNumber() {
-        String[] streetNumber = getDataFieldAtPosOrDefault(nameAndAddressInfo,
+        String[] streetNumber = getDataFieldAtPosOrDefault(patientNameAndAddressInfo,
                 2, "").split("[a-zA-Z]+");
         return getDataFieldAtPosOrDefault(streetNumber, streetNumber.length - 1, "")
                 .replace(".", "").trim();
@@ -130,7 +139,7 @@ public class Muster16SvgExtractorParser implements IMuster16FormParser {
 
     @Override
     public String parsePatientCity() {
-        String[] cityData = getDataFieldAtPosOrDefault(nameAndAddressInfo,
+        String[] cityData = getDataFieldAtPosOrDefault(patientNameAndAddressInfo,
                 3, "").split("\\d+");
         String extractedCityField =
                 Arrays.stream(cityData).map(String::trim)
@@ -140,7 +149,7 @@ public class Muster16SvgExtractorParser implements IMuster16FormParser {
 
     @Override
     public String parsePatientZipCode() {
-        String[] zipCodeData = getDataFieldAtPosOrDefault(nameAndAddressInfo,
+        String[] zipCodeData = getDataFieldAtPosOrDefault(patientNameAndAddressInfo,
                 3, "").split("[a-zA-Z]+");
         String extractedZipCodeField =
                 Arrays.stream(zipCodeData).map(field -> field.trim()).collect(
@@ -151,6 +160,11 @@ public class Muster16SvgExtractorParser implements IMuster16FormParser {
     @Override
     public String parsePatientDateOfBirth() {
         return getMappedFields().getOrDefault("birthdate", "").trim();
+    }
+
+    @Override
+    public String parsePatientStatus() {
+        return getMappedFields().getOrDefault("status", "").trim();
     }
 
     @Override
@@ -203,6 +217,71 @@ public class Muster16SvgExtractorParser implements IMuster16FormParser {
     @Override
     public Boolean parseIsWithPayment() {
         return mappedFields.get("withPayment").trim().equals("X");
+    }
+
+    @Override
+    public String parsePractitionerFirstName() {
+        String firstName = getDataFieldAtPosOrDefault(practitionerNameAndAddressInfo, 0, "")
+                .split(" ")[0].trim();
+        if (firstName.contains(".")) {
+            return firstName.split("\\.")[1].trim();
+        } else {
+            return firstName;
+        }
+    }
+
+    @Override
+    public String parsePractitionerLastName() {
+        return getDataFieldAtPosOrDefault(practitionerNameAndAddressInfo, 0, "")
+                .split(" ")[1].trim();
+    }
+
+    @Override
+    public String parsePractitionerNamePrefix() {
+        String firstName = getDataFieldAtPosOrDefault(practitionerNameAndAddressInfo, 0, "")
+                .split(" ")[0].trim();
+        if (firstName.contains(".")) {
+            return firstName.split(" ")[0];
+        }
+        return "";
+    }
+
+    @Override
+    public String parsePractitionerStreetName() {
+        String[] streetName = getDataFieldAtPosOrDefault(practitionerNameAndAddressInfo,
+                1, "").split("\\d+");
+        return getDataFieldAtPosOrDefault(streetName, 0, "").trim();
+    }
+
+    @Override
+    public String parsePractitionerStreetNumber() {
+        String[] streetNumber = getDataFieldAtPosOrDefault(practitionerNameAndAddressInfo,
+                1, "").split("[a-zA-Z]+");
+        return getDataFieldAtPosOrDefault(streetNumber, streetNumber.length - 1, "")
+                .replace(".", "").trim();
+    }
+
+    @Override
+    public String parsePractitionerCity() {
+        return getDataFieldAtPosOrDefault(practitionerNameAndAddressInfo,
+                2, "").split(" ")[1].trim();
+    }
+
+    @Override
+    public String parsePractitionerZipCode() {
+        return getDataFieldAtPosOrDefault(practitionerNameAndAddressInfo,
+                2, "").split(" ")[0].trim();
+    }
+
+    @Override
+    public String parsePractitionerPhoneNumber() {
+        return getDataFieldAtPosOrDefault(practitionerNameAndAddressInfo, 3, "").trim();
+    }
+
+    @Override
+    public String parsePractitionerFaxNumber() {
+        return getDataFieldAtPosOrDefault(practitionerNameAndAddressInfo, 4, "")
+                .split("Fax:")[1].trim();
     }
 
     public Map<String, String> getMappedFields() {
