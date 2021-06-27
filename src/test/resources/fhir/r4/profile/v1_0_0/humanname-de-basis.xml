@@ -1,0 +1,201 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+    <id value="humanname-de-basis" />
+    <url value="http://fhir.de/StructureDefinition/humanname-de-basis" />
+    <version value="1.0.0" />
+    <name value="HumannameDeBasis" />
+    <title value="HumanName, deutsches Basisprofil" />
+    <status value="active" />
+    <date value="2021-02-17" />
+    <publisher value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+    <contact>
+        <telecom>
+            <system value="url" />
+            <value value="http://hl7.de/technische-komitees/fhir/" />
+        </telecom>
+    </contact>
+    <description value="Personenname mit in Deutschland &#252;blichen Erweiterungen" />
+    <copyright value="HL7 Deutschland e.V." />
+    <fhirVersion value="4.0.1" />
+    <mapping>
+        <identity value="KVDT" />
+        <name value="KVDT Mapping" />
+    </mapping>
+    <mapping>
+        <identity value="BDT" />
+        <name value="BDT Mapping" />
+    </mapping>
+    <kind value="complex-type" />
+    <abstract value="false" />
+    <type value="HumanName" />
+    <baseDefinition value="http://hl7.org/fhir/StructureDefinition/HumanName" />
+    <derivation value="constraint" />
+    <differential>
+        <element id="HumanName">
+            <path value="HumanName" />
+            <short value="Personenname" />
+            <definition value="Personenname mit in Deutschland &#252;blichen Erweiterungen" />
+            <comment value="Names may be changed, or repudiated, or people may have different names in different contexts. Names may be divided into parts of different type that have variable significance depending on context, though the division into parts does not always matter. With personal names, the different parts may or may not be imbued with some implicit meaning; various cultures associate different importance with the name parts and the degree to which systems must care about name parts around the world varies widely." />
+            <constraint>
+                <key value="hum-1" />
+                <severity value="error" />
+                <human value="Wenn die Extension &#39;namenszusatz&#39; verwendet wird, dann muss der vollst&#228;ndige Name im Attribut &#39;family&#39; angegeben werden" />
+                <expression value="family.extension(&#39;http://fhir.de/StructureDefinition/humanname-namenszusatz&#39;).empty() or family.hasValue()" />
+                <source value="http://fhir.de/StructureDefinition/humanname-de-basis" />
+            </constraint>
+            <constraint>
+                <key value="hum-2" />
+                <severity value="error" />
+                <human value="Wenn die Extension &#39;nachname&#39; verwendet wird, dann muss der vollst&#228;ndige Name im Attribut &#39;family&#39; angegeben werden" />
+                <expression value="family.extension(&#39;http://hl7.org/fhir/StructureDefinition/humanname-own-name&#39;).empty() or family.hasValue()" />
+                <source value="http://fhir.de/StructureDefinition/humanname-de-basis" />
+            </constraint>
+            <constraint>
+                <key value="hum-3" />
+                <severity value="error" />
+                <human value="Wenn die Extension &#39;vorsatzwort&#39; verwendet wird, dann muss der vollst&#228;ndige Name im Attribut &#39;family&#39; angegeben werden" />
+                <expression value="family.extension(&#39;http://hl7.org/fhir/StructureDefinition/humanname-own-prefix&#39;).empty() or family.hasValue()" />
+                <source value="http://fhir.de/StructureDefinition/humanname-de-basis" />
+            </constraint>
+            <constraint>
+                <key value="hum-4" />
+                <severity value="error" />
+                <human value="Wenn die Extension &#39;prefix-qualifier&#39; verwendet wird, dann muss ein Namenspr&#228;fix im Attribut &#39;prefix&#39; angegeben werden" />
+                <expression value="prefix.all($this.extension(&#39;http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier&#39;).empty() or $this.hasValue())" />
+                <source value="http://fhir.de/StructureDefinition/humanname-de-basis" />
+            </constraint>
+        </element>
+        <element id="HumanName.use">
+            <path value="HumanName.use" />
+            <mapping>
+                <identity value="BDT" />
+                <map value="1211 (in BDT als Freitext!)" />
+            </mapping>
+        </element>
+        <element id="HumanName.family">
+            <path value="HumanName.family" />
+            <short value="Familienname" />
+            <definition value="Der vollst&#228;ndige Familienname, einschlie&#223;lich aller Vorsatz- und Zusatzw&#246;rter, mit Leerzeichen getrennt." />
+            <mapping>
+                <identity value="BDT" />
+                <map value="3120 + 3100 + 3101" />
+            </mapping>
+            <mapping>
+                <identity value="KVDT" />
+                <map value="3120 + 3100 + 3101" />
+            </mapping>
+        </element>
+        <element id="HumanName.family.extension">
+            <path value="HumanName.family.extension" />
+            <slicing>
+                <discriminator>
+                    <type value="value" />
+                    <path value="url" />
+                </discriminator>
+                <rules value="open" />
+            </slicing>
+        </element>
+        <element id="HumanName.family.extension:namenszusatz">
+            <path value="HumanName.family.extension" />
+            <sliceName value="namenszusatz" />
+            <max value="1" />
+            <type>
+                <code value="Extension" />
+                <profile value="http://fhir.de/StructureDefinition/humanname-namenszusatz" />
+            </type>
+            <mapping>
+                <identity value="KVDT" />
+                <map value="3100" />
+            </mapping>
+            <mapping>
+                <identity value="BDT" />
+                <map value="3100" />
+            </mapping>
+        </element>
+        <element id="HumanName.family.extension:nachname">
+            <path value="HumanName.family.extension" />
+            <sliceName value="nachname" />
+            <short value="Nachname ohne Vor- und Zus&#228;tze" />
+            <definition value="Nachname ohne Vor- und Zus&#228;tze.\nDient z.B. der alphabetischen Einordnung des Namens." />
+            <type>
+                <code value="Extension" />
+                <profile value="http://hl7.org/fhir/StructureDefinition/humanname-own-name" />
+            </type>
+            <mapping>
+                <identity value="KVDT" />
+                <map value="3101" />
+            </mapping>
+            <mapping>
+                <identity value="BDT" />
+                <map value="3101" />
+            </mapping>
+        </element>
+        <element id="HumanName.family.extension:vorsatzwort">
+            <path value="HumanName.family.extension" />
+            <sliceName value="vorsatzwort" />
+            <short value="Vorsatzwort" />
+            <definition value="Vorsatzwort wie z.B.: von, van, zu\nVgl. auch VSDM-Spezifikation der Gematik (Versichertenstammdatenmanagement, &quot;eGK&quot;)" />
+            <type>
+                <code value="Extension" />
+                <profile value="http://hl7.org/fhir/StructureDefinition/humanname-own-prefix" />
+            </type>
+            <mapping>
+                <identity value="BDT" />
+                <map value="3120" />
+            </mapping>
+            <mapping>
+                <identity value="KVDT" />
+                <map value="3120" />
+            </mapping>
+        </element>
+        <element id="HumanName.given">
+            <path value="HumanName.given" />
+            <short value="Vorname" />
+            <definition value="Vorname der Person" />
+            <mapping>
+                <identity value="KVDT" />
+                <map value="3102" />
+            </mapping>
+            <mapping>
+                <identity value="BDT" />
+                <map value="3102" />
+            </mapping>
+        </element>
+        <element id="HumanName.prefix">
+            <path value="HumanName.prefix" />
+            <short value="Namensteile vor dem Vornamen" />
+            <definition value="Namensteile vor dem Vornamen, z.B. akademischer Titel." />
+            <mapping>
+                <identity value="KVDT" />
+                <map value="3104" />
+            </mapping>
+            <mapping>
+                <identity value="BDT" />
+                <map value="3104" />
+            </mapping>
+        </element>
+        <element id="HumanName.prefix.extension">
+            <path value="HumanName.prefix.extension" />
+            <slicing>
+                <discriminator>
+                    <type value="value" />
+                    <path value="url" />
+                </discriminator>
+                <rules value="open" />
+            </slicing>
+        </element>
+        <element id="HumanName.prefix.extension:prefix-qualifier">
+            <path value="HumanName.prefix.extension" />
+            <sliceName value="prefix-qualifier" />
+            <definition value="Spezialisierung der Art des Pr&#228;fixes, z.B. &quot;AC&quot; f&#252;r Akademische Titel" />
+            <type>
+                <code value="Extension" />
+                <profile value="http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier" />
+            </type>
+        </element>
+        <element id="HumanName.suffix">
+            <path value="HumanName.suffix" />
+            <short value="Namensteile nach dem Nachnamen" />
+            <definition value="Namensteile nach dem Nachnamen" />
+        </element>
+    </differential>
+</StructureDefinition>
