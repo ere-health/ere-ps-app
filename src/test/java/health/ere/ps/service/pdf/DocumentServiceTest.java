@@ -8,11 +8,11 @@ import io.quarkus.test.junit.QuarkusTest;
 import org.hl7.fhir.r4.model.Bundle;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import javax.enterprise.event.Event;
-import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -27,14 +27,12 @@ public class DocumentServiceTest {
     private final static List<Bundle> testBundles = new ArrayList<>();
     private final static String TARGET_PATH = "target/test_Erezepten/";
     private final static FhirContext ctx = FhirContext.forR4();
-    private DocumentService documentService;
 
-    @Inject
-    Event<ERezeptDocumentsEvent> eRezeptDocumentsEvent;
+    private DocumentService documentService;
 
 
     @BeforeAll
-    public static void createTestDirectory() throws IOException {
+    public static void prepareTestDirectoryAndBundles() throws IOException {
         if (!Path.of(TARGET_PATH).toFile().exists()) {
             Files.createDirectory(Path.of(TARGET_PATH));
         }
@@ -53,21 +51,21 @@ public class DocumentServiceTest {
     }
 
     @BeforeEach
-    public void setUp() {
+    public void instantiateDocumentService() {
         documentService = new DocumentService();
         documentService.init();
     }
 
     @Test
-    public void onBundlesWithAccessCodes_respectsLimitOfMaxNumberOfMedicinesPerPrescription() {
+    public void onBundlesWithAccessCodes_respectsLimitOfMaxNumberOfMedicationsPerPrescription() {
         // GIVEN1
-        int maxNumberOfMedicinesPerPrescription = 9;
+        int maxNumberOfMedicationsPerPrescription = 9;
         Event<ERezeptDocumentsEvent> mockedEvent = Mockito.mock(Event.class);
         documentService.seteRezeptDocumentsEvent(mockedEvent);
 
         List<BundleWithAccessCodeOrThrowable> bundles = new ArrayList<>();
 
-        for (int i = 0; i < maxNumberOfMedicinesPerPrescription; i++) {
+        for (int i = 0; i < maxNumberOfMedicationsPerPrescription; i++) {
             bundles.add(new BundleWithAccessCodeOrThrowable(
                     (Bundle) ctx.newXmlParser().parseResource(
                             DocumentServiceTest.class.getResourceAsStream("/examples_erezept/Erezept_template_1.xml")),
@@ -122,72 +120,72 @@ public class DocumentServiceTest {
     }
 
     @Test
-    public void generateERezeptPdf_generatesCorrectPdf_givenOneMedicineToDisplay() throws IOException {
+    @Disabled("Running the pdf generation tests takes a lot of time, run them manually")
+    public void generateERezeptPdf_generatesCorrectPdf_givenOneMedicationToDisplay() throws IOException {
         // WHEN + THEN
-        ByteArrayOutputStream baos = getOutputStream(1);
-        Files.write(Paths.get(TARGET_PATH + "Erezept_with_one_medicine.pdf"), baos.toByteArray());
+        ByteArrayOutputStream baos = createStreamForANumberOfPdfs(1);
+        Files.write(Paths.get(TARGET_PATH + "Erezept_with_one_medications.pdf"), baos.toByteArray());
     }
 
     @Test
-    public void generateERezeptPdf_generatesCorrectPdf_givenTwoMedicineToDisplay() throws IOException {
+    @Disabled("Running the pdf generation tests takes a lot of time, run them manually")
+    public void generateERezeptPdf_generatesCorrectPdf_givenTwoMedicationsToDisplay() throws IOException {
         // WHEN + THEN
-        ByteArrayOutputStream baos = getOutputStream(2);
-        Files.write(Paths.get(TARGET_PATH + "Erezept_with_two_medicines.pdf"), baos.toByteArray());
+        ByteArrayOutputStream baos = createStreamForANumberOfPdfs(2);
+        Files.write(Paths.get(TARGET_PATH + "Erezept_with_two_medications.pdf"), baos.toByteArray());
     }
 
     @Test
-    public void generateERezeptPdf_generatesCorrectPdf_givenThreeMedicineToDisplay() throws IOException {
+    @Disabled("Running the pdf generation tests takes a lot of time, run them manually")
+    public void generateERezeptPdf_generatesCorrectPdf_givenThreeMedicationsToDisplay() throws IOException {
         // WHEN + THEN
-        ByteArrayOutputStream baos = getOutputStream(3);
-        Files.write(Paths.get(TARGET_PATH + "Erezept_with_three_medicines.pdf"), baos.toByteArray());
+        ByteArrayOutputStream baos = createStreamForANumberOfPdfs(3);
+        Files.write(Paths.get(TARGET_PATH + "Erezept_with_three_medications.pdf"), baos.toByteArray());
     }
 
     @Test
-    public void generateERezeptPdf_generatesCorrectPdfWithTwoPages_givenFourMedicineToDisplay() throws IOException {
+    @Disabled("Running the pdf generation tests takes a lot of time, run them manually")
+    public void generateERezeptPdf_generatesCorrectPdfWithTwoPages_givenFourMedicationsToDisplay() throws IOException {
         // WHEN + THEN
-        ByteArrayOutputStream baos = getOutputStream(4);
-        Files.write(Paths.get(TARGET_PATH + "Erezept_with_four_medicines.pdf"), baos.toByteArray());
+        ByteArrayOutputStream baos = createStreamForANumberOfPdfs(4);
+        Files.write(Paths.get(TARGET_PATH + "Erezept_with_four_medications.pdf"), baos.toByteArray());
     }
 
     @Test
-    public void generateERezeptPdf_generatesCorrectPdfWithTwoPages_givenFiveMedicineToDisplay() throws IOException {
+    @Disabled("Running the pdf generation tests takes a lot of time, run them manually")
+    public void generateERezeptPdf_generatesCorrectPdfWithTwoPages_givenFiveMedicationsToDisplay() throws IOException {
         // WHEN + THEN
-        ByteArrayOutputStream baos = getOutputStream(5);
-        Files.write(Paths.get(TARGET_PATH + "Erezept_with_five_medicines.pdf"), baos.toByteArray());
+        ByteArrayOutputStream baos = createStreamForANumberOfPdfs(5);
+        Files.write(Paths.get(TARGET_PATH + "Erezept_with_five_medications.pdf"), baos.toByteArray());
     }
 
     @Test
-    public void generateERezeptPdf_generatesCorrectPdfWithTwoPages_givenSixMedicineToDisplay() throws IOException {
+    @Disabled("Running the pdf generation tests takes a lot of time, run them manually")
+    public void generateERezeptPdf_generatesCorrectPdfWithTwoPages_givenSixMedicationsToDisplay() throws IOException {
         // WHEN + THEN
-        ByteArrayOutputStream baos = getOutputStream(6);
-        Files.write(Paths.get(TARGET_PATH + "Erezept_with_six_medicines.pdf"), baos.toByteArray());
+        ByteArrayOutputStream baos = createStreamForANumberOfPdfs(6);
+        Files.write(Paths.get(TARGET_PATH + "Erezept_with_six_medications.pdf"), baos.toByteArray());
     }
 
-    //TODO: Starting at 7 the QR code on the top-right start being too big, why? How many should we support?
 
     @Test
-    public void generateERezeptPdf_generatesCorrectPdfWithThreePages_givenSevenMedicineToDisplay() throws IOException {
+    @Disabled("Running the pdf generation tests takes a lot of time, run them manually")
+    public void generateERezeptPdf_generatesCorrectPdfWithThreePages_givenEightMedicationsToDisplay() throws IOException {
         // WHEN + THEN
-        ByteArrayOutputStream baos = getOutputStream(7);
-        Files.write(Paths.get(TARGET_PATH + "Erezept_with_seven_medicines.pdf"), baos.toByteArray());
-    }
-
-    @Test
-    public void generateERezeptPdf_generatesCorrectPdfWithThreePages_givenEightMedicineToDisplay() throws IOException {
-        // WHEN + THEN
-        ByteArrayOutputStream baos = getOutputStream(8);
-        Files.write(Paths.get(TARGET_PATH + "Erezept_with_eight_medicines.pdf"), baos.toByteArray());
+        ByteArrayOutputStream baos = createStreamForANumberOfPdfs(8);
+        Files.write(Paths.get(TARGET_PATH + "Erezept_with_eight_medications.pdf"), baos.toByteArray());
     }
 
     @Test
-    public void generateERezeptPdf_generatesCorrectPdfWithThreePages_givenNineMedicineToDisplay() throws IOException {
+    @Disabled("Running the pdf generation tests takes a lot of time, run them manually")
+    public void generateERezeptPdf_generatesCorrectPdfWithThreePages_givenNineMedicationsToDisplay() throws IOException {
         // WHEN + THEN
-        ByteArrayOutputStream baos = getOutputStream(9);
-        Files.write(Paths.get(TARGET_PATH + "Erezept_with_nine_medicines.pdf"), baos.toByteArray());
+        ByteArrayOutputStream generatedPdfsStream = createStreamForANumberOfPdfs(9);
+        Files.write(Paths.get(TARGET_PATH + "Erezept_with_nine_medications.pdf"), generatedPdfsStream.toByteArray());
     }
 
 
-    private ByteArrayOutputStream getOutputStream(int number) {
+    private ByteArrayOutputStream createStreamForANumberOfPdfs(int number) {
         List<BundleWithAccessCodeOrThrowable> bundles = new ArrayList<>();
         for (int i = 0; i < number; i++) {
             bundles.add(new BundleWithAccessCodeOrThrowable(testBundles.get(i % 5), "MOCK_CODE" + i));
