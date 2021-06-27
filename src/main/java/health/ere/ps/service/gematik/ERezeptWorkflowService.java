@@ -84,40 +84,40 @@ public class ERezeptWorkflowService {
     @Inject
     AppConfig appConfig;
 
-    @ConfigProperty(name = "ere.prescription.server.url", defaultValue = "")
+    @ConfigProperty(name = "titus.prescription.server.url", defaultValue = "")
     String prescriptionserverUrl;
 
-    @ConfigProperty(name = "ere.event-service.endpoint.address", defaultValue = "")
+    @ConfigProperty(name = "titus.event-service.endpoint.address", defaultValue = "")
     String eventServiceEndpointAddress;
 
-    @ConfigProperty(name = "signature-service.endpointAddress", defaultValue = "")
+    @ConfigProperty(name = "ere.signature-service.crypt", defaultValue = "")
     String signatureServiceEndpointAddress;
 
-    @ConfigProperty(name = "signature-service.crypt", defaultValue = "")
+    @ConfigProperty(name = "ere.signature-service.crypt", defaultValue = "")
     String signatureServiceCrypt;
 
-    @ConfigProperty(name = "signature-service.context.mandantId", defaultValue = "")
+    @ConfigProperty(name = "connector.mandant.id", defaultValue = "")
     String signatureServiceContextMandantId;
 
-    @ConfigProperty(name = "signature-service.context.clientSystemId", defaultValue = "")
+    @ConfigProperty(name = "connector.client.system.id", defaultValue = "")
     String signatureServiceContextClientSystemId;
 
-    @ConfigProperty(name = "signature-service.context.workplaceId", defaultValue = "")
+    @ConfigProperty(name = "connector.workplace.id", defaultValue = "")
     String signatureServiceContextWorkplaceId;
 
-    @ConfigProperty(name = "signature-service.context.userId", defaultValue = "")
+    @ConfigProperty(name = "ere.signature-service.context.userId", defaultValue = "")
     String signatureServiceContextUserId;
 
-    @ConfigProperty(name = "signature-service.tvMode", defaultValue = "")
+    @ConfigProperty(name = "ere.signature-service.tv-mode", defaultValue = "")
     String signatureServiceTvMode;
 
     @ConfigProperty(name = "connector.simulator.titusClientCertificate", defaultValue = "!")
     String titusClientCertificate;
 
-    @ConfigProperty(name = "erezept-workflow-service.enableVau", defaultValue = "true")
+    @ConfigProperty(name = "ere-workflow-service.vau.enable", defaultValue = "true")
     Boolean enableVau;
 
-    @ConfigProperty(name = "erezept-workflow-service.userAgent", defaultValue = "IncentergyGmbH-ere.health/SNAPSHOT")
+    @ConfigProperty(name = "ere-workflow-service.user-agent", defaultValue = "IncentergyGmbH-ere.health/SNAPSHOT")
     String userAgent;
 
     SignatureServicePortType signatureService;

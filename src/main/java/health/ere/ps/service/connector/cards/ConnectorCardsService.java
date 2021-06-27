@@ -61,9 +61,9 @@ public class ConnectorCardsService implements SoapClient {
     @PostConstruct
     void init() {
         contextType = new ContextType();
-        contextType.setMandantId(appConfig.getSignatureServiceContextMandantId());
-        contextType.setClientSystemId(appConfig.getSignatureServiceContextClientSystemId());
-        contextType.setWorkplaceId(appConfig.getSignatureServiceContextWorkplaceId());
+        contextType.setMandantId(appConfig.getMandantId());
+        contextType.setClientSystemId(appConfig.getClientSystem());
+        contextType.setWorkplaceId(appConfig.getWorkplace());
         contextType.setUserId(appConfig.getSignatureServiceContextUserId());
 
         eventService = new EventService(getClass().getResource(
