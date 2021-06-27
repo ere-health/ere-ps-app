@@ -6,14 +6,17 @@ import health.ere.ps.event.ERezeptDocumentsEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
 import health.ere.ps.jsonb.BundleAdapter;
 import health.ere.ps.jsonb.ByteAdapter;
+import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
 import javax.json.Json;
+import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
+import javax.json.JsonValue;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
@@ -37,13 +40,15 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class Websocket {
 
-    private static final Logger log = Logger.getLogger(Websocket.class.getName());
-    private final FhirContext ctx = FhirContext.forR4();
-    private final Set<Session> sessions = new HashSet<>();
+    @Inject
+    PrescriptionBundleValidator prescriptionBundleValidator;
 
     @Inject
     Event<SignAndUploadBundlesEvent> signAndUploadBundlesEvent;
 
+    private static final Logger log = Logger.getLogger(Websocket.class.getName());
+    private final FhirContext ctx = FhirContext.forR4();
+    private final Set<Session> sessions = new HashSet<>();
 
     @OnOpen
     public void onOpen(Session session) {
@@ -76,6 +81,16 @@ public class Websocket {
             log.info("Created json object from incoming message : " + message);
 
             if ("SignAndUploadBundles".equals(object.getString("type"))) {
+                log.info("Validating the following incoming SignAndUploadBundles payload: \n" +
+                        message);
+
+                if(!doIncomingBundleValidationChecks(object)) {
+                    log.info("Validation of incoming SignAndUploadBundles payload failed. " +
+                            "The following SignAndUploadBundles payload will now be dropped\n: " +
+                            message);
+                    return;
+                }
+
                 log.info("Creating SignAndUploadBundles object from incoming message : " +
                         message);
 
@@ -163,5 +178,29 @@ public class Websocket {
                         }
                     });
         });
+    }
+
+    private boolean doIncomingBundleValidationChecks(JsonObject bundlePayload) {
+        for(JsonValue jsonValue : bundlePayload.getJsonArray("payload")) {
+            if(jsonValue instanceof JsonArray) {
+                for (JsonValue singleBundle : (JsonArray) jsonValue) {
+                    log.log(Level.INFO, "Now validating incoming sign and upload bundle {0}",
+                            singleBundle.toString());
+                    if(!prescriptionBundleValidator.validateResource(singleBundle.toString(),
+                            true).isSuccessful()) {
+                        log.log(Level.INFO, "Validation for the following incoming sign and " +
+                                        "upload bundle failed:\n{0}",
+                                singleBundle.toString());
+                        return false;
+                    } else {
+                        log.log(Level.INFO, "Validation for the following incoming sign and " +
+                                        "upload bundle passed:\n{0}",
+                                singleBundle.toString());
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 }

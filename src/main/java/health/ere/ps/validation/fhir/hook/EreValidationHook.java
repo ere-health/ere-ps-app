@@ -1,11 +1,9 @@
 package health.ere.ps.validation.fhir.hook;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.jboss.logging.Logger;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,7 +31,7 @@ public class EreValidationHook {
      * be returned for the same validation item.
      *
      * @param validationResult the validation result object returned by the validator.
-     * @return
+     * @return ValidationResult the original or updated ValidationResult object.
      */
     @Hook(Pointcut.VALIDATION_COMPLETED)
     public ValidationResult validationResultOverrideHook(ValidationResult validationResult) {
@@ -54,7 +52,7 @@ public class EreValidationHook {
      *
      * @param singleValidationMessages the original list of validation results intercepted from the
      *                                 validator.
-     * @return
+     * @return List<SingleValidationMessage> the list of original or updated validation results.
      */
     protected List<SingleValidationMessage> filterOutFailedAmbiguousValidationResults(
             List<SingleValidationMessage> singleValidationMessages) {
