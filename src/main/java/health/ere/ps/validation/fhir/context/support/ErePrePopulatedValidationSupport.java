@@ -1,10 +1,7 @@
 package health.ere.ps.validation.fhir.context.support;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.hl7.fhir.common.hapi.validation.support.PrePopulatedValidationSupport;
 import org.hl7.fhir.r4.model.CodeSystem;
-import org.hl7.fhir.r4.model.Extension;
 import org.hl7.fhir.r4.model.StructureDefinition;
 import org.hl7.fhir.r4.model.ValueSet;
 import org.jboss.logging.Logger;
@@ -12,9 +9,8 @@ import org.jboss.logging.Logger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
@@ -22,17 +18,39 @@ import ca.uhn.fhir.parser.IParser;
 public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupport {
     Logger logger = Logger.getLogger(ErePrePopulatedValidationSupport.class);
 
-    protected static final String URL_PREFIX_STRUCTURE_DEFINITION = "https://fhir.kbv" +
-            ".de/StructureDefinition/";
-    protected static final String URL_PREFIX_VALUE_SET_DEFINITION = "https://fhir.kbv" +
-            ".de/ValueSet/";
-    protected static final String URL_PREFIX_CODE_SYSTEM_DEFINITION = "https://fhir.kbv" +
-            ".de/CodeSystem/";
-    protected static final String URL_PREFIX_NAMING_SYSTEM_DEFINITION = "https://fhir.kbv" +
-            ".de/NamingSystem/";
-    protected static final String URL_PREFIX_STRUCTURE_DEFINITION_BASE = "http://hl7.org/fhir/";
+    private static final List<List<String>> structureDefinitionsAndExtensions = Arrays.asList(
+            // Add StructureDefinition profiles.
+            List.of("/fhir/r4/profile/v1_0_0/address-de-basis.xml",
+                    "http://fhir.de/StructureDefinition/address-de-basis|0.9.13", "1.0.0"),
+            List.of("/fhir/r4/profile/v1_0_0/identifier-efn.xml",
+                    "http://fhir.de/StructureDefinition/identifier-efn|0.9.13", "1.0.0"),
+            List.of("/fhir/r4/profile/v1_0_0/identifier-lanr.xml",
+                    "http://fhir.de/StructureDefinition/identifier-lanr|0.9.13", "1.0.0"),
+            List.of("/fhir/r4/profile/v1_0_0/identifier-iknr.xml",
+                    "http://fhir.de/StructureDefinition/identifier-iknr|0.9.13", "1.0.0"),
+            List.of("/fhir/r4/profile/v1_0_0/identifier-zanr.xml",
+                    "http://fhir.de/StructureDefinition/identifier-zanr|0.9.13", "1.0.0"),
+            List.of("/fhir/r4/profile/v1_0_0/humanname-de-basis.xml",
+                    "http://fhir.de/StructureDefinition/humanname-de-basis|0.9.13", "1.0.0"),
+            List.of("/fhir/r4/profile/v1_0_0/identifier-bsnr.xml",
+                    "http://fhir.de/StructureDefinition/identifier-bsnr|0.9.13", "1.0.0"),
+            List.of("/fhir/r4/profile/v1_0_0/identifier-vknr.xml",
+                    "http://fhir.de/StructureDefinition/identifier-vknr|0.9.13", "1.0.0"),
+            List.of("/fhir/r4/profile/v1_0_0/identifier-kzva.xml",
+                    "http://fhir.de/StructureDefinition/identifier-kzva|0.9.13", "1.0.0"),
+            List.of("/fhir/r4/profile/v1_0_0/identifier-pid.xml",
+                    "http://fhir.de/StructureDefinition/identifier-pid|0.9.13", "1.0.0"),
+            List.of("/fhir/r4/profile/v1_0_0/identifier-kvid-10.xml",
+                    "http://fhir.de/StructureDefinition/identifier-kvid-10|0.9.13", "1.0.0"),
+            List.of("/fhir/r4/profile/v1_0_0/identifier-pkv.xml",
+                    "http://fhir.de/StructureDefinition/identifier-pkv|0.9.13", "1.0.0"),
+            List.of("/fhir/r4/profile/v1_0_0/identifier-iknr-2.xml",
+                    "http://fhir.de/StructureDefinition/identifier-iknr", "1.0.0"),
 
-    protected List<List<String>> structureDefinitionFilePaths = Arrays.asList(
+            List.of("/fhir/r4/profile/v1_0_1/KBV_PR_FOR_Coverage.xml",
+                    "https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Coverage|1.0.1", "1.0.1"),
+            List.of("/fhir/r4/profile/v1_0_3/KBV_PR_FOR_Patient.xml",
+                    "https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.0.1", "1.0.1"),
             List.of("/fhir/r4/profile/v1_0_1/KBV_PR_ERP_Bundle.xml",
                     "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle|1.0.1", "1.0.1"),
             List.of("/fhir/r4/profile/v1_0_1/KBV_PR_ERP_Composition.xml",
@@ -80,6 +98,20 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
             List.of("/fhir/r4/profile/v1_1_3/KBV_PR_Base_Patient.xml",
                     "https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Patient|1.1.3", "1.1.3"),
 
+            // Add extensions.
+            List.of("/fhir/r4/extension/v1_0_0/humanname-namenszusatz.xml",
+                    "http://fhir.de/StructureDefinition/humanname-namenszusatz", "1.0.0"),
+            List.of("/fhir/r4/extension/v1_0_0/normgroesse.xml",
+                    "http://fhir.de/StructureDefinition/normgroesse", "1.0.0"),
+            List.of("/fhir/r4/extension/v1_0_0/besondere-personengruppe.xml",
+                    "http://fhir.de/StructureDefinition/gkv/besondere-personengruppe", "1.0.0"),
+            List.of("/fhir/r4/extension/v1_0_0/dmp-kennzeichen.xml",
+                    "http://fhir.de/StructureDefinition/gkv/dmp-kennzeichen", "1.0.0"),
+            List.of("/fhir/r4/extension/v1_0_0/versichertenart.xml",
+                    "http://fhir.de/StructureDefinition/gkv/versichertenart", "1.0.0"),
+            List.of("/fhir/r4/extension/v1_0_0/wop.xml",
+                    "http://fhir.de/StructureDefinition/gkv/wop", "1.0.0"),
+
             List.of("/fhir/r4/extension/v1_0_1/KBV_EX_ERP_Accident.xml",
                     "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Accident", "1.0.1"),
             List.of("/fhir/r4/extension/v1_0_1/KBV_EX_ERP_BVG.xml",
@@ -93,7 +125,7 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
                     "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Category",
                     "1.0.1"),
             List.of("/fhir/r4/extension/v1_0_1/KBV_EX_ERP_Medication_CompoundingInstruction" +
-                    ".xml",
+                            ".xml",
                     "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_CompoundingInstruction",
                     "1.0.1"),
             List.of("/fhir/r4/extension/v1_0_1/KBV_EX_ERP_Medication_Ingredient_Amount.xml",
@@ -122,49 +154,67 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
             List.of("/fhir/r4/extension/v1_0_3/KBV_EX_FOR_Legal_basis.xml",
                     "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Legal_basis", "1.0.3"),
             List.of("/fhir/r4/extension/v1_0_3/KBV_EX_FOR_PKV_Tariff.xml",
-                    "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_PKV_Tariff", "1.0.3")
+                    "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_PKV_Tariff", "1.0.3"),
+
+            List.of("/fhir/r4/extension/v1_1_3/KBV_EX_Base_Terminology_German.xml",
+                    "https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Terminology_German",
+                    "1.1.3")
     );
 
-    protected Map<List<String>, List<List<String>>> structureDefinitionExtensionsMap = Map.of(
-            List.of("KBV_PR_ERP_Medication_Compounding", "1.0.1"),
-            List.of(List.of("KBV_EX_ERP_Medication_Category", "1.0.1",
-                    "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Category"))
-    );
+    private static final List<List<String>> valueSets = Arrays.asList(
+            List.of("/fhir/r4/valueset/v1_01/KBV_VS_SFHIR_KBV_STATUSKENNZEICHEN.xml",
+                    "https://fhir.kbv.de/ValueSet/KBV_VS_SFHIR_KBV_STATUSKENNZEICHEN", "1.01"),
 
+            List.of("/fhir/r4/valueset/v1_02/KBV_VS_SFHIR_KBV_VERSICHERTENSTATUS.xml",
+                    "https://fhir.kbv.de/ValueSet/KBV_VS_SFHIR_KBV_VERSICHERTENSTATUS", "1.02"),
 
-    protected List<List<String>> valueSets = Arrays.asList(
             List.of("/fhir/r4/valueset/v1_0_1/KBV_VS_ERP_Accident_Type.xml",
-                    "KBV_VS_ERP_Accident_Type", "1.0.1"),
+                    "https://fhir.kbv.de/ValueSet/KBV_VS_ERP_Accident_Type", "1.0.1"),
             List.of("/fhir/r4/valueset/v1_0_1/KBV_VS_ERP_Medication_Category.xml",
-                    "KBV_VS_ERP_Medication_Category", "1.0.1"),
+                    "https://fhir.kbv.de/ValueSet/KBV_VS_ERP_Medication_Category", "1.0.1"),
             List.of("/fhir/r4/valueset/v1_0_1/KBV_VS_ERP_StatusCoPayment.xml",
-                    "KBV_VS_ERP_StatusCoPayment", "1.0.1"),
+                    "https://fhir.kbv.de/ValueSet/KBV_VS_ERP_StatusCoPayment", "1.0.1"),
 
             List.of("/fhir/r4/valueset/v1_0_3/KBV_VS_FOR_Payor_type.xml",
-                    "KBV_VS_FOR_Payor_type", "1.0.3"),
+                    "https://fhir.kbv.de/ValueSet/KBV_VS_FOR_Payor_type", "1.0.3"),
             List.of("/fhir/r4/valueset/v1_0_3/KBV_VS_FOR_Qualification_Type.xml",
-                    "KBV_VS_FOR_Qualification_Type", "1.0.3")
+                    "https://fhir.kbv.de/ValueSet/KBV_VS_FOR_Qualification_Type", "1.0.3")
     );
 
-    protected List<List<String>> namingSystems = Arrays.asList(
-            List.of("/fhir/r4/namingsystems/Pruefnummer.xml", "KBV_NS_FOR_Pruefnummer"));
+    private static final List<List<String>> namingSystems = Collections.singletonList(
+            List.of("/fhir/r4/namingsystems/Pruefnummer.xml",
+                    "https://fhir.kbv.de/NamingSystem/KBV_NS_FOR_Pruefnummer"));
 
-    protected List<List<String>> codeSystems = Arrays.asList(
+    private static final List<List<String>> codeSystems = Arrays.asList(
+            List.of("/fhir/r4/codesystem/v1_00/KBV_CS_SFHIR_ITA_WOP.xml",
+                    "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_ITA_WOP", "1.00"),
+
+            List.of("/fhir/r4/codesystem/v1_01/KBV_CS_SFHIR_KBV_STATUSKENNZEICHEN.xml",
+                    "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_STATUSKENNZEICHEN", "1.01"),
+
+            List.of("/fhir/r4/codesystem/v1_02/KBV_CS_SFHIR_KBV_VERSICHERTENSTATUS.xml",
+                    "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_VERSICHERTENSTATUS", "1.02"),
+            List.of("/fhir/r4/codesystem/v1_02/KBV_CS_SFHIR_KBV_PERSONENGRUPPE.xml",
+                    "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_PERSONENGRUPPE", "1.02"),
+
+            List.of("/fhir/r4/codesystem/v1_05/KBV_CS_SFHIR_KBV_DMP.xml",
+                    "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DMP", "1.05"),
+
             List.of("/fhir/r4/codesystem/v1_0_1/KBV_CS_ERP_Medication_Category.xml",
-                    "KBV_CS_ERP_Medication_Category", "1.0.1"),
+                    "https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Category", "1.0.1"),
             List.of("/fhir/r4/codesystem/v1_0_1/KBV_CS_ERP_Medication_Type.xml",
-                    "KBV_CS_ERP_Medication_Type", "1.0.1"),
+                    "https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Type", "1.0.1"),
             List.of("/fhir/r4/codesystem/v1_0_1/KBV_CS_ERP_Section_Type.xml",
-                    "KBV_CS_ERP_Section_Type", "1.0.1"),
+                    "https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Section_Type", "1.0.1"),
             List.of("/fhir/r4/codesystem/v1_0_1/KBV_CS_ERP_StatusCoPayment.xml",
-                    "KBV_CS_ERP_StatusCoPayment", "1.0.1"),
+                    "https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_StatusCoPayment", "1.0.1"),
 
             List.of("/fhir/r4/codesystem/v1_0_3/KBV_CS_FOR_Payor_Type_KBV.xml",
-                    "KBV_CS_ERP_StatusCoPayment", "1.0.3"),
+                    "https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_StatusCoPayment", "1.0.3"),
             List.of("/fhir/r4/codesystem/v1_0_3/KBV_CS_FOR_Qualification_Type.xml",
-                    "KBV_CS_FOR_Qualification_Type", "1.0.3"),
+                    "https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_Qualification_Type", "1.0.3"),
             List.of("/fhir/r4/codesystem/v1_0_3/KBV_CS_FOR_Ursache_Type.xml",
-                    "KBV_CS_FOR_Ursache_Type", "1.0.3")
+                    "https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_Ursache_Type", "1.0.3")
     );
 
     public ErePrePopulatedValidationSupport(FhirContext theContext) {
@@ -173,7 +223,7 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
         initValidationConfigs();
     }
 
-    protected void addStructureDefinition(String configUrl,
+    private void addStructureDefinition(String configUrl,
                                           String configVersion,
                                           InputStream configDefinitionInputStream) {
         FhirContext ctx = FhirContext.forR4();
@@ -187,26 +237,13 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
             structureDefinition.setUrl(configUrl);
             structureDefinition.setVersion(configVersion);
 
-            if(!structureDefinition.getType().equals("Extension")) {
-                List<List<String>> extensions = structureDefinitionExtensionsMap.get(Arrays.asList(
-                        structureDefinition.getName(), structureDefinition.getVersion()));
-
-                if (CollectionUtils.isNotEmpty(extensions)) {
-                    extensions.stream().forEach(extList -> {
-                        logger.infof("Adding extension %s to StructureDefinition %s",
-                                extList.get(2), structureDefinition.getUrl());
-                        structureDefinition.addExtension(new Extension(extList.get(2)));
-                    });
-                }
-            }
-
             addStructureDefinition(structureDefinition);
         } catch (IOException e) {
             logger.errorf(e,"Error loading StructureDefinition profile %s", configUrl);
         }
     }
 
-    protected void addValueSet(String configUrl, String configVersion,
+    private void addValueSet(String configUrl, String configVersion,
                                           InputStream configDefinitionInputStream) {
         FhirContext ctx = FhirContext.forR4();
         IParser xmlParser = ctx.newXmlParser();
@@ -224,7 +261,7 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
         }
     }
 
-    protected void addCodeSystem(String configUrl, String configVersion,
+    private void addCodeSystem(String configUrl, String configVersion,
                                InputStream configDefinitionInputStream) {
         FhirContext ctx = FhirContext.forR4();
         IParser xmlParser = ctx.newXmlParser();
@@ -242,29 +279,23 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
         }
     }
 
-    protected void initValidationConfigs() {
+    private void initValidationConfigs() {
         // Init Structure Definitions.
-        structureDefinitionFilePaths.stream().forEach(configList -> {
-            String url = configList.get(1).contains("/")? configList.get(1) :
-                    URL_PREFIX_STRUCTURE_DEFINITION + configList.get(1) +
-                            "|" + configList.get(2);
+        structureDefinitionsAndExtensions.forEach(configList -> {
+            String url = configList.get(1);
 
             addStructureDefinition(url, configList.get(2),
                     ErePrePopulatedValidationSupport.class.getResourceAsStream(configList.get(0)));
         });
 
         // Init value sets.
-        valueSets.stream().forEach(configList -> {
-            addValueSet(URL_PREFIX_VALUE_SET_DEFINITION + configList.get(1),
-                    configList.get(2),
-                    ErePrePopulatedValidationSupport.class.getResourceAsStream(configList.get(0)));
-        });
+        valueSets.forEach(configList -> addValueSet(configList.get(1), configList.get(2),
+                ErePrePopulatedValidationSupport.class.getResourceAsStream(configList.get(0))));
 
         // Init code systems
-        codeSystems.stream().forEach(configList -> {
+        codeSystems.forEach(configList -> {
             logger.infof("Loading CodeSystem %s", configList.get(0));
-            addCodeSystem(URL_PREFIX_CODE_SYSTEM_DEFINITION + configList.get(1),
-                    configList.get(2),
+            addCodeSystem(configList.get(1), configList.get(2),
                     ErePrePopulatedValidationSupport.class.getResourceAsStream(configList.get(0)));
             logger.infof("Loaded CodeSystem %s", configList.get(0));
         });
