@@ -1,0 +1,1 @@
+curl localhost:8080/erixa/sync -H "Content-type:application/json" -X POST -d @<filename>.json

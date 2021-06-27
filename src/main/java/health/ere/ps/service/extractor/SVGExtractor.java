@@ -1,5 +1,6 @@
 package health.ere.ps.service.extractor;
 
+import health.ere.ps.config.UserConfig;
 import health.ere.ps.event.PDDocumentEvent;
 import health.ere.ps.event.SVGExtractorResultEvent;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -32,26 +33,29 @@ import java.util.logging.Logger;
 public class SVGExtractor {
 
     private static final Logger log = Logger.getLogger(SVGExtractor.class.getName());
-    private final SVGExtractorConfiguration configuration;
+    private final String DEFAULT_TEMPLATE = "/svg-extract-templates/Muster-16-Template.svg";
 
     @Inject
     Event<Exception> exceptionEvent;
     @Inject
     Event<SVGExtractorResultEvent> sVGExtractorResultEvent;
 
-    private String templatePath = "/svg-extract-templates/Muster-16-Template.svg";
     private boolean debugRectangles = false;
 
+    private SVGExtractorConfiguration configuration;
 
     public SVGExtractor() {
-        this(SVGExtractorConfiguration.DENS);
+    }
+
+    @Inject
+    public SVGExtractor(UserConfig userConfig) {
+        this(userConfig.getMuster16TemplateConfiguration());
     }
 
     public SVGExtractor(SVGExtractorConfiguration configuration) {
-        if (configuration.MUSTER_16_TEMPLATE != null && !configuration.MUSTER_16_TEMPLATE.isEmpty()) {
+        if (configuration.MUSTER_16_TEMPLATE != null && !configuration.MUSTER_16_TEMPLATE.isEmpty())
             log.log(Level.INFO, "Using muster 16 template: " + configuration.MUSTER_16_TEMPLATE);
-            this.templatePath = configuration.MUSTER_16_TEMPLATE;
-        }
+
         this.configuration = configuration;
     }
 
@@ -63,8 +67,8 @@ public class SVGExtractor {
     public void analyzeDocument(@ObservesAsync PDDocumentEvent pDDocumentEvent) {
         log.info("SVGExtractor.analyzeDocument");
         try {
-            Map<String, String> extractionResult = extract(pDDocumentEvent.getPDDocument());
-            sVGExtractorResultEvent.fireAsync(new SVGExtractorResultEvent(extractionResult));
+            Map<String, String> extractResult = extract(pDDocumentEvent.getPDDocument());
+            sVGExtractorResultEvent.fireAsync(new SVGExtractorResultEvent(extractResult));
         } catch (Exception e) {
             log.log(Level.SEVERE, "Could not extract results", e);
             exceptionEvent.fireAsync(e);
@@ -76,7 +80,6 @@ public class SVGExtractor {
         if (configuration.ROTATE_DEGREE != 0) {
             page.setRotation(configuration.ROTATE_DEGREE);
         }
-
         Map<String, String> map = new HashMap<>();
         XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
         XMLEventReader reader = xmlInputFactory.createXMLEventReader(getTemplate());
@@ -97,7 +100,6 @@ public class SVGExtractor {
                     float y = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("y")).getValue()) * configuration.SCALE + configuration.Y_OFFSET;
                     float width = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("width")).getValue()) * configuration.SCALE;
                     float height = java.lang.Float.parseFloat(startElement.getAttributeByName(new QName("height")).getValue()) * configuration.SCALE;
-
                     if (debugRectangles) {
                         PDPageContentStream contentStream = new PDPageContentStream(document, page, AppendMode.APPEND, true);
                         if (configuration.ROTATE_DEGREE == 90)
@@ -119,7 +121,7 @@ public class SVGExtractor {
         return map;
     }
 
-    private String extractTextAtPosition(PDDocument document, String id, float x, float y, float width, float height) throws IOException {
+    public String extractTextAtPosition(PDDocument document, String id, float x, float y, float width, float height) throws IOException {
         PDFTextStripperByArea textStripper;
         textStripper = new PDFTextStripperByArea();
         PDPage docPage = document.getPage(0);
@@ -138,7 +140,11 @@ public class SVGExtractor {
         document.close();
     }
 
+    private String getTemplatePath() {
+        return configuration.MUSTER_16_TEMPLATE != null ? configuration.MUSTER_16_TEMPLATE : DEFAULT_TEMPLATE;
+    }
+
     private InputStream getTemplate() {
-        return SVGExtractor.class.getResourceAsStream(templatePath);
+        return SVGExtractor.class.getResourceAsStream(getTemplatePath());
     }
 }
