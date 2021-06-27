@@ -33,7 +33,7 @@ public class AppConfig {
     @ConfigProperty(name = "idp.connector.auth-signature.endpoint.address")
     String idpConnectorAuthSignatureEndpointAddress;
 
-    @ConfigProperty(name = "ere.signature-service.context.userId")
+    @ConfigProperty(name = "connector.context.userId")
     String signatureServiceContextUserId;
 
     @ConfigProperty(name = "connector.simulator.titusClientCertificate")
