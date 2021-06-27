@@ -48,7 +48,7 @@ public class AppConfig {
     @ConfigProperty(name = "connector.simulator.titusClientCertificate")
     String titusClientCertificate;
 
-    @ConfigProperty(name = "event-service.endpointAddress")
+    @ConfigProperty(name = "ere.event-service.endpoint.address")
     String eventServiceEndpointAddress;
 
     public String getIdpConnectorTlsCertTrustStore() {

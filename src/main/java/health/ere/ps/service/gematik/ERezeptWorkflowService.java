@@ -84,10 +84,10 @@ public class ERezeptWorkflowService {
     @Inject
     AppConfig appConfig;
 
-    @ConfigProperty(name = "prescriptionserver.url", defaultValue = "")
+    @ConfigProperty(name = "ere.prescription.server.url", defaultValue = "")
     String prescriptionserverUrl;
 
-    @ConfigProperty(name = "event-service.endpointAddress", defaultValue = "")
+    @ConfigProperty(name = "ere.event-service.endpoint.address", defaultValue = "")
     String eventServiceEndpointAddress;
 
     @ConfigProperty(name = "signature-service.endpointAddress", defaultValue = "")
