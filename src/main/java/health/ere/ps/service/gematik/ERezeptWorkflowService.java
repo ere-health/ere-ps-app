@@ -90,10 +90,10 @@ public class ERezeptWorkflowService {
     @ConfigProperty(name = "titus.event-service.endpoint.address", defaultValue = "")
     String eventServiceEndpointAddress;
 
-    @ConfigProperty(name = "ere.signature-service.crypt", defaultValue = "")
+    @ConfigProperty(name = "signature-service.endpointAddress", defaultValue = "")
     String signatureServiceEndpointAddress;
 
-    @ConfigProperty(name = "ere.signature-service.crypt", defaultValue = "")
+    @ConfigProperty(name = "connector.crypt", defaultValue = "")
     String signatureServiceCrypt;
 
     @ConfigProperty(name = "connector.mandant.id", defaultValue = "")
@@ -105,10 +105,10 @@ public class ERezeptWorkflowService {
     @ConfigProperty(name = "connector.workplace.id", defaultValue = "")
     String signatureServiceContextWorkplaceId;
 
-    @ConfigProperty(name = "ere.signature-service.context.userId", defaultValue = "")
+    @ConfigProperty(name = "connector.context.userId", defaultValue = "")
     String signatureServiceContextUserId;
 
-    @ConfigProperty(name = "ere.signature-service.tv-mode", defaultValue = "")
+    @ConfigProperty(name = "connector.tvMode", defaultValue = "")
     String signatureServiceTvMode;
 
     @ConfigProperty(name = "connector.simulator.titusClientCertificate", defaultValue = "!")
