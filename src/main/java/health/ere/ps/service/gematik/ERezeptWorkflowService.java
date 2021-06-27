@@ -90,7 +90,7 @@ public class ERezeptWorkflowService {
     @ConfigProperty(name = "titus.event-service.endpoint.address", defaultValue = "")
     String eventServiceEndpointAddress;
 
-    @ConfigProperty(name = "signature-service.endpointAddress", defaultValue = "")
+    @ConfigProperty(name = "titus.signature-service.endpointAddress", defaultValue = "")
     String signatureServiceEndpointAddress;
 
     @ConfigProperty(name = "connector.crypt", defaultValue = "")
