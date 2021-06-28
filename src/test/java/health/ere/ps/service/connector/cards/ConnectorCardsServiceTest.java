@@ -1,5 +1,6 @@
 package health.ere.ps.service.connector.cards;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jboss.logging.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,27 +44,28 @@ class ConnectorCardsServiceTest {
 
     @Test
     void test_Successful_Retrieval_Of_SMC_B_Card_Handle() throws ConnectorCardsException {
-        Optional<String> cardHandle = connectorCardsService.getConnectorCardHandle(
+        String cardHandle = connectorCardsService.getConnectorCardHandle(
                 ConnectorCardsService.CardHandleType.SMC_B);
-        Assertions.assertTrue(cardHandle.isPresent(), "Card handle result is present");
+        Assertions.assertTrue(StringUtils.isNotBlank(cardHandle), "Card handle result is present");
 
-        logger.info("Card handle: " + cardHandle.get());
+        logger.info("Card handle: " + cardHandle);
     }
 
     @Test
     void test_Successful_Retrieval_Of_eHBA_Card_Handle() throws ConnectorCardsException {
-        Optional<String> cardHandle = connectorCardsService.getConnectorCardHandle(
+        String cardHandle = connectorCardsService.getConnectorCardHandle(
                 ConnectorCardsService.CardHandleType.HBA);
-        Assertions.assertTrue(cardHandle.isPresent(), "Card handle result is present");
+        Assertions.assertTrue(StringUtils.isNotBlank(cardHandle), "Card handle result is " +
+                "present");
 
-        logger.info("Card handle: " + cardHandle.get());
+        logger.info("Card handle: " + cardHandle);
     }
 
     @Test
     void test_Unsuccessful_Retrieval_Of_Unsupported_KVK_Card_Handle() {
         Assertions.assertThrows(ConnectorCardsException.class,
                 () -> {
-                    Optional<String> cardHandle = connectorCardsService.getConnectorCardHandle(
+                    String cardHandle = connectorCardsService.getConnectorCardHandle(
                             ConnectorCardsService.CardHandleType.KVK);
                 }, "ConnectorCardsException thrown for missing or unsupported card handle");
     }
