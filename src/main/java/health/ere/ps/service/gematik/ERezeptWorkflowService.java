@@ -88,14 +88,8 @@ public class ERezeptWorkflowService {
       @Inject
     PrescriptionBundleValidator prescriptionBundleValidator;
 
-    @ConfigProperty(name = "titus.prescription.server.url", defaultValue = "")
-    String prescriptionserverUrl;
-
-    @ConfigProperty(name = "titus.event-service.endpoint.address", defaultValue = "")
-    String eventServiceEndpointAddress;
-
-    @ConfigProperty(name = "titus.signature-service.endpointAddress", defaultValue = "")
-    String signatureServiceEndpointAddress;
+    @ConfigProperty(name = "ere.workflow-service.prescription.server.url", defaultValue = "")
+    String prescriptionServerUrl;
 
     @ConfigProperty(name = "connector.crypt", defaultValue = "")
     String signatureServiceCrypt;
@@ -169,7 +163,7 @@ public class ERezeptWorkflowService {
             signatureService = new SignatureService(getClass().getResource("/SignatureService_V7_5_5.wsdl")).getSignatureServicePort();
             /* Set endpoint to configured endpoint */
             BindingProvider bp = (BindingProvider) signatureService;
-            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, signatureServiceEndpointAddress);
+            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, appConfig.getSignatureServiceEndpointAddress());
             if (customSSLContext != null) {
                 bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
                         customSSLContext.getSocketFactory());
@@ -178,7 +172,7 @@ public class ERezeptWorkflowService {
             eventService = new EventService(getClass().getResource("/EventService.wsdl")).getEventServicePort();
             /* Set endpoint to configured endpoint */
             bp = (BindingProvider) eventService;
-            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, eventServiceEndpointAddress);
+            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, appConfig.getEventServiceEndpointAddress());
             if (customSSLContext != null) {
                 bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
                         customSSLContext.getSocketFactory());
@@ -191,7 +185,7 @@ public class ERezeptWorkflowService {
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
         if(enableVau) {
             try {
-                ((ResteasyClientBuilderImpl)clientBuilder).httpEngine(new VAUEngine(prescriptionserverUrl));
+                ((ResteasyClientBuilderImpl)clientBuilder).httpEngine(new VAUEngine(prescriptionServerUrl));
             } catch(Exception ex) {
                 log.log(Level.SEVERE, "Could not enable VAU", ex);
             }
@@ -255,18 +249,16 @@ public class ERezeptWorkflowService {
         }
     }
 
-    public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(String bearerToken,
-            List<Bundle> bundles) {
+    public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(String bearerToken, List<Bundle> bundles) {
         return createMultipleERezeptsOnPrescriptionServer(bearerToken, bundles, false);
     }
 
     /**
      * This function tries to create BundleWithAccessCodes for all given bundles.
-     *
+     * <p>
      * When an error is thrown it create an object that contains this error.
      */
-    public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(String bearerToken,
-            List<Bundle> bundles, boolean comfortSignature) {
+    public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(String bearerToken, List<Bundle> bundles, boolean comfortSignature) {
         List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodes = new ArrayList<>();
         try {
             if (comfortSignature) {
@@ -291,7 +283,7 @@ public class ERezeptWorkflowService {
     /**
      * A typical muster 16 form can contain up to 3 e prescriptions This function
      * has to be called multiple times
-     *
+     * <p>
      * This function takes a bundle e.g.
      * https://github.com/ere-health/ere-ps-app/blob/main/src/test/resources/simplifier_erezept/0428d416-149e-48a4-977c-394887b3d85c.xml
      *
@@ -334,7 +326,7 @@ public class ERezeptWorkflowService {
         ePrescriptionParameter.setResource(binary);
         parameters.addParameter(ePrescriptionParameter);
 
-        Response response = client.target(prescriptionserverUrl).path("/Task")
+        Response response = client.target(prescriptionServerUrl).path("/Task")
                 .path("/" + task.getIdElement().getIdPart()).path("/$activate").request()
                 .header("User-Agent", userAgent)
                 .header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
@@ -488,7 +480,7 @@ public class ERezeptWorkflowService {
         String parameterString = fhirContext.newXmlParser().encodeResourceToString(parameters);
         log.fine("Parameter String: " + parameterString);
 
-        Response response = client.target(prescriptionserverUrl).path("/Task/$create").request()
+        Response response = client.target(prescriptionServerUrl).path("/Task/$create").request()
                 .header("User-Agent", userAgent)
                 .header("Authorization", "Bearer " + bearerToken)
                 .post(Entity.entity(parameterString, "application/fhir+xml; charset=UTF-8"));
@@ -513,7 +505,7 @@ public class ERezeptWorkflowService {
      * @return
      */
     public void abortERezeptTask(String bearerToken, String taskId, String accessCode) {
-        Response response = client.target(prescriptionserverUrl).path("/Task").path("/" + taskId).path("/$abort")
+        Response response = client.target(prescriptionServerUrl).path("/Task").path("/" + taskId).path("/$abort")
                 .request().header("User-Agent", userAgent).header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
                 .post(Entity.entity("", "application/fhir+xml; charset=UTF-8"));
         String taskString = response.readEntity(String.class);
