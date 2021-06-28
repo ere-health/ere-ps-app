@@ -9,6 +9,8 @@ jobs:
       ERE_DIRECTORY_WATCHER_DIR: watch-pdf
       ERE_TITUS_CONNECTOR_TLS_CERT_TRUST_STORE_DIR: ${{ github.workspace }}\\src\\test\\resources\\certs
       ERE_TITUS_CONNECTOR_TLS_CERT_TRUST_STORE_PWD: "00"
+      ERE_VALIDATOR_VALIDATE_SIGN_REQUEST_BUNDLES_ENABLED: no
+
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 11

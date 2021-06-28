@@ -2,6 +2,8 @@ package health.ere.ps.service.fhir.bundle;
 
 import health.ere.ps.model.muster16.MedicationString;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
+
+import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.Address.AddressType;
 import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.ContactPoint.ContactPointSystem;
@@ -260,18 +262,26 @@ public class PrescriptionBundlesBuilder {
         coverage.addExtension(wopEx);
 
         String patientStatus = muster16PrescriptionForm.getPatientStatus().replaceAll("0", "");
-        Coding versichertenart = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_ITA_WOP", patientStatus, null);
-        Extension versichertenartEx = new Extension("https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_VERSICHERTENSTATUS", versichertenart);
+        Coding versichertenart = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_VERSICHERTENSTATUS", patientStatus, null);
+        Extension versichertenartEx = new Extension("http://fhir.de/StructureDefinition/gkv/versichertenart", versichertenart);
+
+//        Coding versichertenart = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_ITA_WOP", patientStatus, null);
+//        Extension versichertenartEx = new Extension("https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_VERSICHERTENSTATUS", versichertenart);
+
         coverage.addExtension(versichertenartEx);
 
         coverage.setStatus(Coverage.CoverageStatus.fromCode("active"));
 
-        coverage.setType(new CodeableConcept().addCoding(new Coding("http://fhir.de/CodeSystem/versicherungsart-de-basis", "GKV", "")));
+        coverage.setType(new CodeableConcept().addCoding(new Coding("http://fhir" +
+                ".de/CodeSystem/versicherungsart-de-basis", "GKV", "")));
 
         coverage.getBeneficiary().setReference("Patient/" + patientId);
 
         //TODO: Get actual insurance coverage period.
-        String coveragePeriod = muster16PrescriptionForm.getPrescriptionDate();
+        String coveragePeriod =
+                StringUtils.isBlank(muster16PrescriptionForm.getPrescriptionDate()) ||
+                        !muster16PrescriptionForm.getPrescriptionDate().matches("dddd-dd-dd")?
+                "2200-01-01" : muster16PrescriptionForm.getPrescriptionDate();
 
         try {
             coverage.getPeriod().setEnd(new SimpleDateFormat(getDateFormat(coveragePeriod))
@@ -288,7 +298,10 @@ public class PrescriptionBundlesBuilder {
         coverage.addPayor()
                 .setDisplay(muster16PrescriptionForm.getInsuranceCompany())
                 .getIdentifier()
-                .setSystem("http://fhir.de/NamingSystem/arge-ik/iknr")
+
+                .setSystem("http://fhir.de/sid/arge-ik/iknr")
+
+//                .setSystem("http://fhir.de/NamingSystem/arge-ik/iknr")
                 .setValue(payorIdentifier);
 
         return coverage;

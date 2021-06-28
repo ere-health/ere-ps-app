@@ -1,5 +1,22 @@
 package health.ere.ps.service.fhir.bundle;
 
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Coverage;
+import org.hl7.fhir.r4.model.Patient;
+import org.jboss.logging.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.validation.ValidationResult;
@@ -7,27 +24,26 @@ import health.ere.ps.model.muster16.MedicationString;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
 import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 import io.quarkus.test.junit.QuarkusTest;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Coverage;
-import org.hl7.fhir.r4.model.Patient;
-import org.jboss.logging.Logger;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
 
-import javax.inject.Inject;
-import java.text.ParseException;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @QuarkusTest
 public class PrescriptionBundlesBuilderTest {
     @Inject
     Logger logger;
-    private PrescriptionBundleValidator prescriptionBundleValidator;
+
+    @Inject
+    PrescriptionBundleValidator prescriptionBundleValidator;
+
+    private static final String BAD_DENS_SIGN_REQUEST_KBV_JSON = " {\"resourceType\":\"Bundle\"," +
+            "\"id\":\"e6baf9c0-5d88-4b28-b15d-1c3a2c3f3d19\",\"meta\":{\"lastUpdated\":\"2021-06-16T13:05:38.948-04:00\",\"profile\":[\"https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle|1.0.1\"]},\"type\":\"document\",\"timestamp\":\"2021-06-16T13:05:38.948-04:00\",\"entry\":[{\"fullUrl\":\"http://pvs.praxis.local/fhir/Medication/9d8c5ab9-73b8-4165-9f3a-9eb354ea1f88\",\"resource\":{\"resourceType\":\"Medication\",\"id\":\"9d8c5ab9-73b8-4165-9f3a-9eb354ea1f88\",\"meta\":{\"profile\":[\"https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.0.1\"]},\"extension\":[{\"url\":\"https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Category\",\"valueCoding\":{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Category\",\"code\":\"00\"}},{\"url\":\"https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Vaccine\",\"valueBoolean\":false},{\"url\":\"http://fhir.de/StructureDefinition/normgroesse\",\"valueCode\":\"N1\"}],\"code\":{\"coding\":[{\"system\":\"http://fhir.de/CodeSystem/ifa/pzn\",\"code\":\"00027950\"}],\"text\":\"Ibuprofen 600mg\"},\"form\":{\"coding\":[{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM\",\"code\":\"FLE\"}]}}},{\"fullUrl\":\"http://pvs.praxis.local/fhir/MedicationRequest/028df042-2321-410c-9fa0-148af5d2b909\",\"resource\":{\"resourceType\":\"MedicationRequest\",\"id\":\"028df042-2321-410c-9fa0-148af5d2b909\",\"meta\":{\"lastUpdated\":\"2021-06-16T13:05:38.948-04:00\",\"profile\":[\"https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.0.1\"]},\"extension\":[{\"url\":\"https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_StatusCoPayment\",\"valueCoding\":{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_StatusCoPayment\",\"code\":\"1\"}},{\"url\":\"https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_EmergencyServicesFee\",\"valueBoolean\":false},{\"url\":\"https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_BVG\",\"valueBoolean\":false},{\"url\":\"https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription\",\"extension\":[{\"url\":\"Kennzeichen\",\"valueBoolean\":false}]}],\"status\":\"active\",\"intent\":\"order\",\"medicationReference\":{\"reference\":\"Medication/9d8c5ab9-73b8-4165-9f3a-9eb354ea1f88\"},\"subject\":{\"reference\":\"Patient/\"},\"requester\":{\"reference\":\"Practitioner/30000000\"},\"insurance\":[{\"reference\":\"Coverage/\"}],\"dosageInstruction\":[{\"extension\":[{\"url\":\"https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_DosageFlag\",\"valueBoolean\":true}],\"text\":\"1-1-1\"}],\"dispenseRequest\":{\"quantity\":{\"value\":1,\"system\":\"http://unitsofmeasure.org\",\"code\":\"{Package}\"}},\"substitution\":{\"allowedBoolean\":true}}},{\"fullUrl\":\"http://pvs.praxis.local/fhir/Composition/ba4fc629-93ce-4670-b47a-b0596bc0aaa6\",\"resource\":{\"resourceType\":\"Composition\",\"id\":\"ba4fc629-93ce-4670-b47a-b0596bc0aaa6\",\"meta\":{\"profile\":[\"https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Composition|1.0.1\"]},\"extension\":[{\"url\":\"https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Legal_basis\",\"valueCoding\":{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_STATUSKENNZEICHEN\",\"code\":\"04\"}}],\"status\":\"final\",\"type\":{\"coding\":[{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_FORMULAR_ART\",\"code\":\"e16A\"}]},\"subject\":{\"reference\":\"Patient/\"},\"date\":\"2021-06-16T13:05:38-04:00\",\"author\":[{\"reference\":\"Practitioner/30000000\",\"type\":\"Practitioner\"},{\"type\":\"Device\",\"identifier\":{\"system\":\"https://fhir.kbv.de/NamingSystem/KBV_NS_FOR_Pruefnummer\",\"value\":\"123456\"}}],\"title\":\"elektronische Arzneimittelverordnung\",\"attester\":[{\"mode\":\"legal\",\"party\":{\"reference\":\"Practitioner/30000000\"}}],\"custodian\":{\"reference\":\"Organization/30000000\"},\"section\":[{\"code\":{\"coding\":[{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Section_Type\",\"code\":\"Prescription\"}]},\"entry\":[{\"reference\":\"MedicationRequest/028df042-2321-410c-9fa0-148af5d2b909\"}]},{\"code\":{\"coding\":[{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Section_Type\",\"code\":\"Coverage\"}]},\"entry\":[{\"reference\":\"Coverage/\"}]}]}},{\"fullUrl\":\"http://pvs.praxis.local/fhir/Patient/null\",\"resource\":{\"resourceType\":\"Patient\",\"meta\":{\"profile\":[\"https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.0.3\"]},\"identifier\":[{\"type\":{\"coding\":[{\"system\":\"http://fhir.de/CodeSystem/identifier-type-de-basis\",\"code\":\"GKV\"}]},\"system\":\"http://fhir.de/NamingSystem/gkv/kvid-10\"}],\"name\":[{\"use\":\"official\",\"family\":\"Heckner\",\"given\":[\"Markus\"],\"prefix\":[\"Dr.\"]}],\"address\":[{\"type\":\"both\",\"line\":[\"Berliner Str. 12\"],\"city\":\"Teltow\",\"postalCode\":\"14513\",\"country\":\"D\",\"_line\":[{\"extension\":null}]}]}},{\"fullUrl\":\"http://pvs.praxis.local/fhir/Practitioner/30000000\",\"resource\":{\"resourceType\":\"Practitioner\",\"id\":\"30000000\",\"meta\":{\"profile\":[\"https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner|1.0.3\"]},\"identifier\":[{\"type\":{\"coding\":[{\"system\":\"http://terminology.hl7.org/CodeSystem/v2-0203\",\"code\":\"LANR\"}]},\"system\":\"https://fhir.kbv.de/NamingSystem/KBV_NS_Base_ANR\",\"value\":\"30000000\"}],\"name\":[{\"extension\":[{\"url\":\"http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier\",\"valueString\":\"AC\"}],\"use\":\"official\",\"family\":\"Doctor Last Name\",\"given\":[\"Doctor First Name\"]}],\"qualification\":[{\"code\":{\"coding\":[{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_Qualification_Type\",\"code\":\"00\",\"display\":\"Arzt-Hausarzt\"}]}},{\"code\":{\"text\":\"Arzt-Hausarzt\"}}]}},{\"fullUrl\":\"http://pvs.praxis.local/fhir/Organization/30000000\",\"resource\":{\"resourceType\":\"Organization\",\"id\":\"30000000\",\"meta\":{\"profile\":[\"https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Organization|1.0.3\",\"https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Coverage|1.0.3\"]},\"identifier\":[{\"type\":{\"coding\":[{\"system\":\"http://terminology.hl7.org/CodeSystem/v2-0203\",\"code\":\"BSNR\"}]},\"system\":\"https://fhir.kbv.de/NamingSystem/KBV_NS_Base_BSNR\",\"value\":\"30000000\"}],\"name\":\"null Doctor First Name Doctor Last Name\",\"telecom\":[{\"system\":\"phone\",\"value\":\"030/123456789\"}],\"address\":[{\"type\":\"both\",\"line\":[\"Doctor Street Name Doctor Street Number\"],\"city\":\"Doctor City\",\"postalCode\":\"012345\",\"country\":\"D\"}]}},{\"fullUrl\":\"http://pvs.praxis.local/fhir/Coverage/null\",\"resource\":{\"resourceType\":\"Coverage\",\"meta\":{\"profile\":[\"https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Coverage|1.0.3\"]},\"extension\":[{\"url\":\"http://fhir.de/StructureDefinition/gkv/besondere-personengruppe\",\"valueCoding\":{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_PERSONENGRUPPE\",\"code\":\"00\"}},{\"url\":\"http://fhir.de/StructureDefinition/gkv/dmp-kennzeichen\",\"valueCoding\":{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DMP\",\"code\":\"00\"}},{\"url\":\"http://fhir.de/StructureDefinition/gkv/wop\",\"valueCoding\":{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_ITA_WOP\",\"code\":\"72\"}},{\"url\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_VERSICHERTENSTATUS\",\"valueCoding\":{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_ITA_WOP\",\"code\":\"3\"}}],\"status\":\"active\",\"type\":{\"coding\":[{\"system\":\"http://fhir.de/CodeSystem/versicherungsart-de-basis\",\"code\":\"GKV\"}]},\"beneficiary\":{\"reference\":\"Patient/\"},\"payor\":[{\"identifier\":{\"system\":\"http://fhir.de/NamingSystem/arge-ik/iknr\"},\"display\":\"DENS GmbH\"}]}}]}";
+    private static final String GOOD_SIMPLIFIER_NET_SAMPLE_KBV_JSON = "{\"resourceType\":\"Bundle" +
+            "\",\"id\":\"f70585e0-82f9-4d3d-b248-94504ccf6a66\",\"meta\":{\"lastUpdated\":\"2021-04-06T08:30:00Z\",\"profile\":[\"https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle|1.0.1\"]},\"identifier\":{\"system\":\"https://gematik.de/fhir/NamingSystem/PrescriptionID\",\"value\":\"160.100.000.000.016.91\"},\"type\":\"document\",\"timestamp\":\"2021-04-06T08:30:00Z\",\"entry\":[{\"fullUrl\":\"http://pvs.praxis.local/fhir/Composition/1868bb7c-c1a6-48a6-a327-05ff8d24c64a\",\"resource\":{\"resourceType\":\"Composition\",\"id\":\"1868bb7c-c1a6-48a6-a327-05ff8d24c64a\",\"meta\":{\"profile\":[\"https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Composition|1.0.1\"]},\"extension\":[{\"url\":\"https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Legal_basis\",\"valueCoding\":{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_STATUSKENNZEICHEN\",\"code\":\"00\"}}],\"status\":\"final\",\"type\":{\"coding\":[{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_FORMULAR_ART\",\"code\":\"e16A\"}]},\"subject\":{\"reference\":\"Patient/ce4104af-b86b-4664-afee-1b5fc3ac8acf\"},\"date\":\"2021-04-06T08:00:00Z\",\"author\":[{\"reference\":\"Practitioner/667ffd79-42a3-4002-b7ca-6b9098f20ccb\",\"type\":\"Practitioner\"},{\"type\":\"Device\",\"identifier\":{\"system\":\"https://fhir.kbv.de/NamingSystem/KBV_NS_FOR_Pruefnummer\",\"value\":\"Y/410/2107/36/999\"}}],\"title\":\"elektronische Arzneimittelverordnung\",\"custodian\":{\"reference\":\"Organization/5d3f4ac0-2b44-4d48-b363-e63efa72973b\"},\"section\":[{\"code\":{\"coding\":[{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Section_Type\",\"code\":\"Prescription\"}]},\"entry\":[{\"reference\":\"MedicationRequest/76b5767d-55a5-4233-8f85-e15a24a5193a\"}]},{\"code\":{\"coding\":[{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Section_Type\",\"code\":\"Coverage\"}]},\"entry\":[{\"reference\":\"Coverage/da80211e-61ee-458e-a651-87370b6ec30c\"}]}]}},{\"fullUrl\":\"http://pvs.praxis.local/fhir/MedicationRequest/76b5767d-55a5-4233-8f85-e15a24a5193a\",\"resource\":{\"resourceType\":\"MedicationRequest\",\"id\":\"76b5767d-55a5-4233-8f85-e15a24a5193a\",\"meta\":{\"profile\":[\"https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.0.1\"]},\"extension\":[{\"url\":\"https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_StatusCoPayment\",\"valueCoding\":{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_StatusCoPayment\",\"code\":\"0\"}},{\"url\":\"https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_EmergencyServicesFee\",\"valueBoolean\":false},{\"url\":\"https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_BVG\",\"valueBoolean\":false},{\"url\":\"https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription\",\"extension\":[{\"url\":\"Kennzeichen\",\"valueBoolean\":true},{\"url\":\"Nummerierung\",\"valueRatio\":{\"numerator\":{\"value\":3},\"denominator\":{\"value\":4}}},{\"url\":\"Zeitraum\",\"valuePeriod\":{\"start\":\"2021-09-15\",\"end\":\"2021-12-31\"}}]}],\"status\":\"active\",\"intent\":\"order\",\"medicationReference\":{\"reference\":\"Medication/07c10a67-2ece-4d5d-9394-633e07c9656d\"},\"subject\":{\"reference\":\"Patient/ce4104af-b86b-4664-afee-1b5fc3ac8acf\"},\"authoredOn\":\"2021-04-01\",\"requester\":{\"reference\":\"Practitioner/667ffd79-42a3-4002-b7ca-6b9098f20ccb\"},\"insurance\":[{\"reference\":\"Coverage/da80211e-61ee-458e-a651-87370b6ec30c\"}],\"dosageInstruction\":[{\"extension\":[{\"url\":\"https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_DosageFlag\",\"valueBoolean\":false}]}],\"dispenseRequest\":{\"quantity\":{\"value\":1,\"system\":\"http://unitsofmeasure.org\",\"code\":\"{Package}\"}},\"substitution\":{\"allowedBoolean\":false}}},{\"fullUrl\":\"http://pvs.praxis.local/fhir/Medication/07c10a67-2ece-4d5d-9394-633e07c9656d\",\"resource\":{\"resourceType\":\"Medication\",\"id\":\"07c10a67-2ece-4d5d-9394-633e07c9656d\",\"meta\":{\"profile\":[\"https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.0.1\"]},\"extension\":[{\"url\":\"https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Category\",\"valueCoding\":{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Category\",\"code\":\"00\"}},{\"url\":\"https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Vaccine\",\"valueBoolean\":false},{\"url\":\"http://fhir.de/StructureDefinition/normgroesse\",\"valueCode\":\"N3\"}],\"code\":{\"coding\":[{\"system\":\"http://fhir.de/CodeSystem/ifa/pzn\",\"code\":\"02532741\"}],\"text\":\"L-Thyroxin Henning 75 100 Tbl. N3\"},\"form\":{\"coding\":[{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM\",\"code\":\"TAB\"}]}}},{\"fullUrl\":\"http://pvs.praxis.local/fhir/Patient/ce4104af-b86b-4664-afee-1b5fc3ac8acf\",\"resource\":{\"resourceType\":\"Patient\",\"id\":\"ce4104af-b86b-4664-afee-1b5fc3ac8acf\",\"meta\":{\"profile\":[\"https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.0.3\"]},\"identifier\":[{\"type\":{\"coding\":[{\"system\":\"http://fhir.de/CodeSystem/identifier-type-de-basis\",\"code\":\"GKV\"}]},\"system\":\"http://fhir.de/sid/gkv/kvid-10\",\"value\":\"K030182229\"}],\"name\":[{\"use\":\"official\",\"family\":\"Kluge\",\"_family\":{\"extension\":[{\"url\":\"http://hl7.org/fhir/StructureDefinition/humanname-own-name\",\"valueString\":\"Kluge\"}]},\"given\":[\"Eva\"],\"prefix\":[\"Prof. Dr. Dr. med\"],\"_prefix\":[{\"extension\":[{\"url\":\"http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier\",\"valueCode\":\"AC\"}]}]}],\"birthDate\":\"1982-01-03\",\"address\":[{\"type\":\"both\",\"line\":[\"Pflasterhofweg 111B\"],\"_line\":[{\"extension\":[{\"url\":\"http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber\",\"valueString\":\"111B\"},{\"url\":\"http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName\",\"valueString\":\"Pflasterhofweg\"}]}],\"city\":\"Köln\",\"postalCode\":\"50999\",\"country\":\"D\"}]}},{\"fullUrl\":\"http://pvs.praxis.local/fhir/Practitioner/667ffd79-42a3-4002-b7ca-6b9098f20ccb\",\"resource\":{\"resourceType\":\"Practitioner\",\"id\":\"667ffd79-42a3-4002-b7ca-6b9098f20ccb\",\"meta\":{\"profile\":[\"https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner|1.0.3\"]},\"identifier\":[{\"type\":{\"coding\":[{\"system\":\"http://terminology.hl7.org/CodeSystem/v2-0203\",\"code\":\"LANR\"}]},\"system\":\"https://fhir.kbv.de/NamingSystem/KBV_NS_Base_ANR\",\"value\":\"987654423\"}],\"name\":[{\"use\":\"official\",\"family\":\"Schneider\",\"_family\":{\"extension\":[{\"url\":\"http://hl7.org/fhir/StructureDefinition/humanname-own-name\",\"valueString\":\"Schneider\"}]},\"given\":[\"Emma\"],\"prefix\":[\"Dr. med.\"],\"_prefix\":[{\"extension\":[{\"url\":\"http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier\",\"valueCode\":\"AC\"}]}]}],\"qualification\":[{\"code\":{\"coding\":[{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_Qualification_Type\",\"code\":\"00\"}]}},{\"code\":{\"text\":\"Fachärztin für Innere Medizin\"}}]}},{\"fullUrl\":\"http://pvs.praxis.local/fhir/Organization/5d3f4ac0-2b44-4d48-b363-e63efa72973b\",\"resource\":{\"resourceType\":\"Organization\",\"id\":\"5d3f4ac0-2b44-4d48-b363-e63efa72973b\",\"meta\":{\"profile\":[\"https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Organization|1.0.3\"]},\"identifier\":[{\"type\":{\"coding\":[{\"system\":\"http://terminology.hl7.org/CodeSystem/v2-0203\",\"code\":\"BSNR\"}]},\"system\":\"https://fhir.kbv.de/NamingSystem/KBV_NS_Base_BSNR\",\"value\":\"721111100\"}],\"name\":\"MVZ\",\"telecom\":[{\"system\":\"phone\",\"value\":\"0301234567\"},{\"system\":\"fax\",\"value\":\"030123456789\"},{\"system\":\"email\",\"value\":\"mvz@e-mail.de\"}],\"address\":[{\"type\":\"both\",\"line\":[\"Herbert-Lewin-Platz 2\"],\"_line\":[{\"extension\":[{\"url\":\"http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber\",\"valueString\":\"2\"},{\"url\":\"http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName\",\"valueString\":\"Herbert-Lewin-Platz\"}]}],\"city\":\"Berlin\",\"postalCode\":\"10623\",\"country\":\"D\"}]}},{\"fullUrl\":\"http://pvs.praxis.local/fhir/Coverage/da80211e-61ee-458e-a651-87370b6ec30c\",\"resource\":{\"resourceType\":\"Coverage\",\"id\":\"da80211e-61ee-458e-a651-87370b6ec30c\",\"meta\":{\"profile\":[\"https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Coverage|1.0.3\"]},\"extension\":[{\"url\":\"http://fhir.de/StructureDefinition/gkv/besondere-personengruppe\",\"valueCoding\":{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_PERSONENGRUPPE\",\"code\":\"00\"}},{\"url\":\"http://fhir.de/StructureDefinition/gkv/dmp-kennzeichen\",\"valueCoding\":{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DMP\",\"code\":\"00\"}},{\"url\":\"http://fhir.de/StructureDefinition/gkv/wop\",\"valueCoding\":{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_ITA_WOP\",\"code\":\"38\"}},{\"url\":\"http://fhir.de/StructureDefinition/gkv/versichertenart\",\"valueCoding\":{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_VERSICHERTENSTATUS\",\"code\":\"3\"}}],\"status\":\"active\",\"type\":{\"coding\":[{\"system\":\"http://fhir.de/CodeSystem/versicherungsart-de-basis\",\"code\":\"GKV\"}]},\"beneficiary\":{\"reference\":\"Patient/ce4104af-b86b-4664-afee-1b5fc3ac8acf\"},\"payor\":[{\"identifier\":{\"system\":\"http://fhir.de/sid/arge-ik/iknr\",\"value\":\"109777509\"},\"display\":\"Techniker-Krankenkasse\"}]}}]}";
+    private static final String GOOD_SIMPLIFIER_NET_SAMPLE_KBV_JSON_AS_A_TEMPLATE = "{\"resourceType\":\"Bundle\",\"id\":\"$BUNDLE_ID\"," +
+            "\"meta\":{\"lastUpdated\":\"$LAST_UPDATED\",\"profile\":[\"https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle|1.0.1\"]},\"identifier\":{\"system\":\"https://gematik.de/fhir/NamingSystem/PrescriptionID\",\"value\":\"$PRESCRIPTION_ID\"},\"type\":\"document\",\"timestamp\":\"$TIMESTAMP\",\"entry\":[{\"fullUrl\":\"http://pvs.praxis.local/fhir/Composition/$COMPOSITION_ID\",\"resource\":{\"resourceType\":\"Composition\",\"id\":\"$COMPOSITION_ID\",\"meta\":{\"profile\":[\"https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Composition|1.0.1\"]},\"extension\":[{\"url\":\"https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Legal_basis\",\"valueCoding\":{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_STATUSKENNZEICHEN\",\"code\":\"00\"}}],\"status\":\"final\",\"type\":{\"coding\":[{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_FORMULAR_ART\",\"code\":\"e16A\"}]},\"subject\":{\"reference\":\"Patient/$PATIENT_ID\"},\"date\":\"$COMPOSITION_DATE\",\"author\":[{\"reference\":\"Practitioner/$PRACTITIONER_ID\",\"type\":\"Practitioner\"},{\"type\":\"Device\",\"identifier\":{\"system\":\"https://fhir.kbv.de/NamingSystem/KBV_NS_FOR_Pruefnummer\",\"value\":\"$DEVICE_ID\"}}],\"title\":\"elektronische Arzneimittelverordnung\",\"custodian\":{\"reference\":\"Organization/$ORGANIZATION_ID\"},\"section\":[{\"code\":{\"coding\":[{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Section_Type\",\"code\":\"Prescription\"}]},\"entry\":[{\"reference\":\"MedicationRequest/$MEDICATION_REQUEST_ID\"}]},{\"code\":{\"coding\":[{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Section_Type\",\"code\":\"Coverage\"}]},\"entry\":[{\"reference\":\"Coverage/$COVERAGE_ID\"}]}]}},{\"fullUrl\":\"http://pvs.praxis.local/fhir/MedicationRequest/$MEDICATION_REQUEST_ID\",\"resource\":{\"resourceType\":\"MedicationRequest\",\"id\":\"$MEDICATION_REQUEST_ID\",\"meta\":{\"profile\":[\"https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.0.1\"]},\"extension\":[{\"url\":\"https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_StatusCoPayment\",\"valueCoding\":{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_StatusCoPayment\",\"code\":\"$STATUS_CO_PAYMENT\"}},{\"url\":\"https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_EmergencyServicesFee\",\"valueBoolean\":false},{\"url\":\"https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_BVG\",\"valueBoolean\":false},{\"url\":\"https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription\",\"extension\":[{\"url\":\"Kennzeichen\",\"valueBoolean\":false}]}],\"status\":\"active\",\"intent\":\"order\",\"medicationReference\":{\"reference\":\"Medication/$MEDICATION_ID\"},\"subject\":{\"reference\":\"Patient/$PATIENT_ID\"},\"authoredOn\":\"$AUTHORED_ON\",\"requester\":{\"reference\":\"Practitioner/$PRACTITIONER_ID\"},\"insurance\":[{\"reference\":\"Coverage/$COVERAGE_ID\"}],\"dosageInstruction\":[{\"extension\":[{\"url\":\"https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_DosageFlag\",\"valueBoolean\":true}],\"text\":\"$DOSAGE_QUANTITY\"}],\"dispenseRequest\":{\"quantity\":{\"value\":1,\"system\":\"http://unitsofmeasure.org\",\"code\":\"{Package}\"}},\"substitution\":{\"allowedBoolean\":true}}},{\"fullUrl\":\"http://pvs.praxis.local/fhir/Medication/$MEDICATION_ID\",\"resource\":{\"resourceType\":\"Medication\",\"id\":\"$MEDICATION_ID\",\"meta\":{\"profile\":[\"https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.0.1\"]},\"extension\":[{\"url\":\"https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Category\",\"valueCoding\":{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Category\",\"code\":\"00\"}},{\"url\":\"https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Vaccine\",\"valueBoolean\":false},{\"url\":\"http://fhir.de/StructureDefinition/normgroesse\",\"valueCode\":\"N1\"}],\"code\":{\"coding\":[{\"system\":\"http://fhir.de/CodeSystem/ifa/pzn\",\"code\":\"$PZN\"}],\"text\":\"$MEDICATION_NAME\"},\"form\":{\"coding\":[{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM\",\"code\":\"FLE\"}]}}},{\"fullUrl\":\"http://pvs.praxis.local/fhir/Patient/$PATIENT_ID\",\"resource\":{\"resourceType\":\"Patient\",\"id\":\"$PATIENT_ID\",\"meta\":{\"profile\":[\"https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.0.3\"]},\"identifier\":[{\"type\":{\"coding\":[{\"system\":\"http://fhir.de/CodeSystem/identifier-type-de-basis\",\"code\":\"GKV\"}]},\"system\":\"http://fhir.de/NamingSystem/gkv/kvid-10\",\"value\":\"$KVID_10\"}],\"name\":[{\"use\":\"official\",\"family\":\"$PATIENT_NAME_FAMILY\",\"given\":[\"$PATIENT_NAME_FIRST\"],\"prefix\":[\"$PATIENT_NAME_PREFIX\"]}],\"birthDate\":\"$PATIENT_BIRTH_DATE\",\"address\":[{\"type\":\"both\",\"line\":[\"$PATIENT_ADDRESS_STREET_NUMBER $PATIENT_ADDRESS_STREET_NAME\"],\"_line\":[{\"extension\":[{\"url\":\"http://hl7.org/fhir/StructureDefinition/iso90-ADXP-houseNumber\",\"valueString\":\"$PATIENT_ADDRESS_STREET_NUMBER\"},{\"url\":\"http://hl7.org/fhir/StructureDefinition/iso90-ADXP-streetName\",\"valueString\":\"$PATIENT_ADDRESS_STREET_NAME\"}]}],\"city\":\"$PATIENT_ADDRESS_CITY\",\"postalCode\":\"$PATIENT_ADDRESS_POSTAL_CODE\",\"country\":\"D\"}]}},{\"fullUrl\":\"http://pvs.praxis.local/fhir/Practitioner/$PRACTITIONER_ID\",\"resource\":{\"resourceType\":\"Practitioner\",\"id\":\"$PRACTITIONER_ID\",\"meta\":{\"profile\":[\"https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner|1.0.3\"]},\"identifier\":[{\"type\":{\"coding\":[{\"system\":\"http://terminology.hl7.org/CodeSystem/v2-3\",\"code\":\"LANR\"}]},\"system\":\"https://fhir.kbv.de/NamingSystem/KBV_NS_Base_ANR\",\"value\":\"\"}],\"name\":[{\"use\":\"official\",\"family\":\"$PRACTITIONER_NAME_FAMILY\",\"_family\":{\"extension\":[{\"url\":\"http://hl7.org/fhir/StructureDefinition/humanname-own-name\",\"valueString\":\"$PRACTITIONER_NAME_FAMILY\"}]},\"given\":[\"$PRACTITIONER_NAME_FIRST\"],\"prefix\":[\"$PRACTITIONER_NAME_PREFIX\"],\"_prefix\":[{\"extension\":[{\"url\":\"http://hl7.org/fhir/StructureDefinition/iso90-EN-qualifier\",\"valueCode\":\"AC\"}]}]}],\"qualification\":[{\"code\":{\"coding\":[{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_Qualification_Type\",\"code\":\"00\"}]}},{\"code\":{\"text\":\"Arzt-Hausarzt\"}}]}},{\"fullUrl\":\"http://pvs.praxis.local/fhir/Organization/$ORGANIZATION_ID\",\"resource\":{\"resourceType\":\"Organization\",\"id\":\"$ORGANIZATION_ID\",\"meta\":{\"profile\":[\"https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Organization|1.0.3\"]},\"identifier\":[{\"type\":{\"coding\":[{\"system\":\"http://terminology.hl7.org/CodeSystem/v2-3\",\"code\":\"BSNR\"}]},\"system\":\"https://fhir.kbv.de/NamingSystem/KBV_NS_Base_BSNR\",\"value\":\"$CLINIC_ID\"}],\"name\":\"Kinderarztpraxis\",\"telecom\":[{\"system\":\"phone\",\"value\":\"$PRACTITIONER_PHONE\"},{\"system\":\"fax\",\"value\":\"$PRACTITIONER_FAX\"}],\"address\":[{\"type\":\"both\",\"line\":[\"$PRACTITIONER_ADDRESS_STREET_NAME $PRACTITIONER_ADDRESS_STREET_NUMBER\"],\"_line\":[{\"extension\":[{\"url\":\"http://hl7.org/fhir/StructureDefinition/iso90-ADXP-houseNumber\",\"valueString\":\"$PRACTITIONER_ADDRESS_STREET_NUMBER\"},{\"url\":\"http://hl7.org/fhir/StructureDefinition/iso90-ADXP-streetName\",\"valueString\":\"$PRACTITIONER_ADDRESS_STREET_NAME\"}]}],\"city\":\"$PRACTITIONER_ADDRESS_CITY\",\"postalCode\":\"$PRACTITIONER_ADDRESS_POSTAL_CODE\",\"country\":\"D\"}]}},{\"fullUrl\":\"http://pvs.praxis.local/fhir/Coverage/$COVERAGE_ID\",\"resource\":{\"resourceType\":\"Coverage\",\"id\":\"$COVERAGE_ID\",\"meta\":{\"profile\":[\"https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Coverage|1.0.3\"]},\"extension\":[{\"url\":\"http://fhir.de/StructureDefinition/gkv/besondere-personengruppe\",\"valueCoding\":{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_PERSONENGRUPPE\",\"code\":\"00\"}},{\"url\":\"http://fhir.de/StructureDefinition/gkv/dmp-kennzeichen\",\"valueCoding\":{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DMP\",\"code\":\"00\"}},{\"url\":\"http://fhir.de/StructureDefinition/gkv/wop\",\"valueCoding\":{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_ITA_WOP\",\"code\":\"72\"}},{\"url\":\"http://fhir.de/StructureDefinition/gkv/versichertenart\",\"valueCoding\":{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_VERSICHERTENSTATUS\",\"code\":\"$PATIENT_STATUS\"}}],\"status\":\"active\",\"type\":{\"coding\":[{\"system\":\"http://fhir.de/CodeSystem/versicherungsart-de-basis\",\"code\":\"GKV\"}]},\"beneficiary\":{\"reference\":\"Patient/$PATIENT_ID\"},\"period\":{\"end\":\"$COVERAGE_PERIOD_END\"},\"payor\":[{\"identifier\":{\"system\":\"http://fhir.de/NamingSystem/arge-ik/iknr\",\"value\":\"$COVERAGE_ID\"},\"display\":\"$INSURANCE_NAME\"}]}}]}";
+
     private PrescriptionBundlesBuilder prescriptionBundlesBuilder;
 
     public static Muster16PrescriptionForm getMuster16PrescriptionFormForTests() {
@@ -75,9 +91,8 @@ public class PrescriptionBundlesBuilderTest {
     }
 
     @BeforeEach
-    public void initialize() {
+    public void initialize() throws IOException {
         prescriptionBundlesBuilder = new PrescriptionBundlesBuilder(getMuster16PrescriptionFormForTests());
-        prescriptionBundleValidator = new PrescriptionBundleValidator();
     }
 
     @Test
@@ -154,44 +169,55 @@ public class PrescriptionBundlesBuilderTest {
         });
     }
 
-    @Disabled
     @Test
-    public void test_Successful_Validation_Of_An_FHIR_Patient_Resource()
-            throws ParseException {
-        Patient patientResource = prescriptionBundlesBuilder.createPatientResource();
+    public void test_Successful_JSON_To_Bundle_Object_Conversion() {
+        FhirContext ctx = FhirContext.forR4();
+        IParser jsonParser = ctx.newJsonParser();
 
-        ValidationResult validationResult =
-                prescriptionBundleValidator.validateResource(patientResource, true);
-        System.out.println(validationResult.getMessages().stream().map(m -> m.getMessage()).collect(Collectors.joining("\n")));
-
-        // Solutions for configuring HAPI validator can be found in a gematik presentation
-        // https://gematik.atlassian.net/plugins/servlet/servicedesk/customer/confluence/shim/download/attachments/620855297/20210517%20-%20Sprechstunde%20eRP.pptx?version=1&modificationDate=1621431687594&cacheVersion=1&api=v2
-        /*
-        https://hapifhir.io/hapi-fhir/docs/tools/hapi_fhir_cli.html
-
-        internalValidator = new FhirInstanceValidator(fhirContext);
-        ValidationSupportChain support = new ValidationSupportChain(
-                new DefaultProfileValidationSupport(fhirContext),
-                new InMemoryTerminologyServerValidationSupport(fhirContext),
-                new SnapshotGeneratingValidationSupport(fhirContext),
-                new FhirSupport()
-        );
-        internalValidator.setValidationSupport(support);
-        internalValidator.setNoTerminologyChecks(false);
-        internalValidator.setAssumeValidRestReferences(false);
-        internalValidator.setBestPracticeWarningLevel(IResourceValidator.BestPracticeWarningLevel.Hint);
-        validator.registerValidatorModule(internalValidator);
-        */
-        // TODO: Next issue WARNING - Patient.identifier[0].type - None of the codes provided are in the value set http://hl7.org/fhir/ValueSet/identifier-type (http://hl7.org/fhir/ValueSet/identifier-type), and a code should come from this value set unless it has no suitable code and the validator cannot judge what is suitable) (codes = http://fhir.de/CodeSystem/identifier-type-de-basis#GKV)
-        // TODO: Next issue ERROR - Patient.meta.profile[0] - Profile reference 'https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.0.3' has not been checked because it is unknown
-        // TODO: None of the codes provided are in the value set http://hl7.org/fhir/ValueSet/identifier-type (http://hl7.org/fhir/ValueSet/identifier-type), and a code should come from this value set unless it has no suitable code and the validator cannot judge what is suitable) (codes = http://fhir.de/CodeSystem/identifier-type-de-basis#GKV)
-        // TODO: Profile reference 'https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.0.3' has not been checked because it is unknown
-
-
-        // assertTrue(validationResult.isSuccessful());
+        Bundle bundle = jsonParser.parseResource(Bundle.class, GOOD_SIMPLIFIER_NET_SAMPLE_KBV_JSON);
     }
 
-    @Disabled
+    @Test
+    public void test_Successful_Validation_Of_A_Compliant_FHIR_KBV_Bundle_Json_Sample_From_SimplifierNet_Site() {
+        ValidationResult bundleValidationResult =
+                prescriptionBundleValidator.validateResource(GOOD_SIMPLIFIER_NET_SAMPLE_KBV_JSON,
+                        true);
+        logger.info("Bundle validation results");
+        logger.info("=========================");
+        logger.info(bundleValidationResult.getMessages().stream().map(msg -> msg.getMessage()
+        ).collect(Collectors.joining("\n")));
+
+        assertTrue(bundleValidationResult.isSuccessful());
+    }
+
+    @Test
+    public void test_Expected_Validation_Failure_Of_Good_Unfilled_FHIR_KBV_Bundle_Json_Template_Having_Unresolved_Template_Key_Values_Present() {
+        ValidationResult bundleValidationResult =
+                prescriptionBundleValidator.validateResource(GOOD_SIMPLIFIER_NET_SAMPLE_KBV_JSON_AS_A_TEMPLATE,
+                        true);
+        logger.info("Bundle validation results");
+        logger.info("=========================");
+        logger.info(bundleValidationResult.getMessages().stream().map(msg -> msg.getMessage()
+        ).collect(Collectors.joining("\n")));
+
+        Assertions.assertFalse(bundleValidationResult.isSuccessful());
+    }
+
+    @Test
+    public void test_Expected_Validation_Failure_Of_A_Non_Compliant_FHIR_KBV_Bundle_Json_Having_Incorrect_Structure_AND_Data() {
+        ValidationResult bundleValidationResult =
+                prescriptionBundleValidator.validateResource(BAD_DENS_SIGN_REQUEST_KBV_JSON,
+                        true);
+        logger.info("Bundle validation results");
+        logger.info("=========================");
+
+        bundleValidationResult.getMessages().stream().forEach(msg -> {
+            logger.infof("Validation message -> %s", msg.getMessage());
+        });
+
+        Assertions.assertFalse(bundleValidationResult.isSuccessful());
+    }
+
     @Test
     public void test_Validation_Failure_Of_FHIR_Patient_Resource_With_Missing_Content() {
         Patient patient = new Patient();
@@ -201,7 +227,7 @@ public class PrescriptionBundlesBuilderTest {
         assertFalse(validationResult.isSuccessful());
     }
 
-    @Disabled
+    @Disabled("Currently failing since previous merge.")
     @Test
     public void test_Successful_Validation_Of_An_FHIR_Coverage_Resource() {
         Coverage coverageResource = prescriptionBundlesBuilder.createCoverageResource("random_patient_id");
@@ -216,9 +242,16 @@ public class PrescriptionBundlesBuilderTest {
     @Test
     public void test_Successful_Validation_Of_XML_Serialization_Of_FHIR_EPrescription_Bundle_Object()
             throws ParseException {
+        FhirContext ctx = FhirContext.forR4();
+        IParser jsonParser = ctx.newJsonParser();
+
+        jsonParser.setPrettyPrint(true);
+
         List<Bundle> prescriptionBundles = prescriptionBundlesBuilder.createBundles();
 
         prescriptionBundles.forEach(bundle -> {
+            logger.infof("JSON serialised test bundle object created on back-end is:\n\n%s",
+                    jsonParser.encodeResourceToString(bundle));
             ValidationResult validationResult =
                     prescriptionBundleValidator.validateResource(bundle, true);
             assertTrue(validationResult.isSuccessful());

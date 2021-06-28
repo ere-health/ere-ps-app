@@ -13,7 +13,6 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -100,7 +99,7 @@ public class ConnectorCardsService implements SoapClient {
         return Optional.ofNullable(cardHandleTypeList);
     }
 
-    public Optional<String> getConnectorCardHandle(CardHandleType cardHandleType)
+    public String getConnectorCardHandle(CardHandleType cardHandleType)
             throws ConnectorCardsException {
         Optional<List<CardInfoType>> cardsInfoList = getConnectorCardsInfo();
         String cardHandle = null;
@@ -118,7 +117,7 @@ public class ConnectorCardsService implements SoapClient {
             }
         }
 
-        return Optional.ofNullable(cardHandle);
+        return cardHandle;
     }
 
     @Override

@@ -1,0 +1,61 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+    <id value="identifier-efn" />
+    <url value="http://fhir.de/StructureDefinition/identifier-efn" />
+    <version value="1.0.0" />
+    <name value="IdentifierEfn" />
+    <title value="Identifier-Profil f&#252;r die Abbildung der Einheitlichen Fortbildungsnummer (EFN)" />
+    <status value="active" />
+    <date value="2021-02-17" />
+    <publisher value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+    <contact>
+        <telecom>
+            <system value="other" />
+            <value value="http://hl7.de/technische-komitees/fhir/" />
+        </telecom>
+    </contact>
+    <description value="Identifier-Profil f&#252;r die Abbildung der Einheitlichen Fortbildungsnummer (EFN)" />
+    <copyright value="HL7 Deutschland e.V." />
+    <fhirVersion value="4.0.1" />
+    <kind value="complex-type" />
+    <abstract value="false" />
+    <type value="Identifier" />
+    <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Identifier" />
+    <derivation value="constraint" />
+    <differential>
+        <element id="Identifier.use">
+            <path value="Identifier.use" />
+            <fixedCode value="official" />
+        </element>
+        <element id="Identifier.type">
+            <path value="Identifier.type" />
+            <patternCodeableConcept>
+                <coding>
+                    <system value="http://terminology.hl7.org/CodeSystem/v2-0203" />
+                    <code value="DN" />
+                </coding>
+            </patternCodeableConcept>
+        </element>
+        <element id="Identifier.system">
+            <path value="Identifier.system" />
+            <min value="1" />
+            <fixedUri value="http://fhir.de/sid/bundesaerztekammer/efn" />
+        </element>
+        <element id="Identifier.value">
+            <path value="Identifier.value" />
+            <min value="1" />
+        </element>
+        <element id="Identifier.assigner.identifier.system">
+            <path value="Identifier.assigner.identifier.system" />
+            <min value="1" />
+            <fixedUri value="http://fhir.de/sid/arge-ik/iknr" />
+        </element>
+        <element id="Identifier.assigner.identifier.value">
+            <path value="Identifier.assigner.identifier.value" />
+            <min value="1" />
+        </element>
+        <element id="Identifier.assigner.display">
+            <path value="Identifier.assigner.display" />
+            <min value="1" />
+        </element>
+    </differential>
+</StructureDefinition>
