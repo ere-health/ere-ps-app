@@ -33,6 +33,7 @@ import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
 import ca.uhn.fhir.context.FhirContext;
+import health.ere.ps.config.AppConfig;
 import health.ere.ps.event.BundlesEvent;
 import health.ere.ps.event.ERezeptDocumentsEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
@@ -49,6 +50,9 @@ public class Websocket {
 
     @Inject
     PrescriptionBundleValidator prescriptionBundleValidator;
+
+    @Inject
+    AppConfig appConfig;
 
     private static final Logger log = Logger.getLogger(Websocket.class.getName());
     private final FhirContext ctx = FhirContext.forR4();
@@ -79,7 +83,8 @@ public class Websocket {
         try (JsonReader jsonReader = Json.createReader(new StringReader(message))) {
             JsonObject object = jsonReader.readObject();
             if ("SignAndUploadBundles".equals(object.getString("type"))) {
-                if (!doIncomingBundleValidationChecks(object)) {
+                if (appConfig.isValidateSignRequestBundles() &&
+                        !incomingSignRequestBundlesOK(object)) {
                     log.info("Validation of incoming SignAndUploadBundles payload failed. " +
                             "The following SignAndUploadBundles payload will now be dropped:\n" +
                             message);
@@ -166,7 +171,7 @@ public class Websocket {
         });
     }
 
-    boolean doIncomingBundleValidationChecks(JsonObject bundlePayload) {
+    boolean incomingSignRequestBundlesOK(JsonObject bundlePayload) {
         for (JsonValue jsonValue : bundlePayload.getJsonArray("payload")) {
             if (jsonValue instanceof JsonArray) {
                 for (JsonValue singleBundle : (JsonArray) jsonValue) {
