@@ -107,3 +107,40 @@ An example of the layout of the contents in the .env file is shown below:
 >ERE_TITUS_CONNECTOR_TLS_CERT_TRUST_STORE_DIR=<YOUR_LOCAL_PATH>/ere-ps-app/src/test/resources/certs
 
 >ERE_TITUS_CONNECTOR_TLS_CERT_TRUST_STORE_PWD=<SECRET_VALUE_ON_YOUR_COMPUTER>
+
+#### List of Application Environment Variables
+* **ERE_DIRECTORY_WATCHER_DIR** 
+
+    Specifies the path of the watch-folder for new muster 16 PDFs. Paths can be absolute or 
+    relative to the path location of the ere-ps-app.jar executable.  For Windows environments, make 
+    sure to use the double backslash characters to represent Windows specific file separators 
+    (i.e. \\).
+  
+  
+* **ERE_TITUS_CONNECTOR_TLS_CERT_TRUST_STORE_DIR**
+    
+    Specifies the path of the Titus Connector TLS certificate trust store. Paths can be 
+    absolute or relative to the path location of the ere-ps-app.jar executable. For Windows 
+    environments, make sure to use the double backslash characters to represent Windows specific 
+    file separators (i.e. \\).
+  
+  
+* **ERE_TITUS_CONNECTOR_TLS_CERT_TRUST_STORE_PWD**
+
+    Password for the Titus TLS certificate trust store. For Windows environments, make sure to use
+    double quotes around numeric values that are to be interpreted as a string. 
+  
+  
+* **ERE_VALIDATOR_VALIDATE_SIGN_REQUEST_BUNDLES_ENABLED**
+
+    To enable (config value: yes)  or disable (config value: no) the validation of incoming sign 
+    request bundles.  Sign request bundles that fail validation checks will be prevented from 
+    propagating to the BE prescription processing workflow. Do not add double quotation marks 
+    around the configuration values.
+  
+
+* **MUSTER16_TEMPLATE_CONFIGURATION**
+
+    Allows for configuring which parsing profile the SVGExtractor module should use on startup of 
+    the application.
+
