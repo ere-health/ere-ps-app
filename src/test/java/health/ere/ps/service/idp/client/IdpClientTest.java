@@ -48,13 +48,13 @@ public class IdpClientTest {
     @ConfigProperty(name = "idp.client.id")
     String clientId;
 
-    @ConfigProperty(name = "idp.connector.client.system.id")
+    @ConfigProperty(name = "connector.client.system.id")
     String clientSystem;
 
-    @ConfigProperty(name = "idp.connector.mandant.id")
+    @ConfigProperty(name = "connector.mandant.id")
     String mandantId;
 
-    @ConfigProperty(name = "idp.connector.workplace.id")
+    @ConfigProperty(name = "connector.workplace.id")
     String workplace;
 
     @ConfigProperty(name = "idp.base.url")
