@@ -79,13 +79,13 @@ public class IdPService {
             idpClient.init(clientId, redirectUrl, discoveryDocumentUrl, true);
             idpClient.initializeClient();
 
-            Optional<String> cardHandle = connectorCardsService.getConnectorCardHandle(
+            String cardHandle = connectorCardsService.getConnectorCardHandle(
                     ConnectorCardsService.CardHandleType.SMC_B);
 
             X509Certificate x509Certificate =
                     cardCertificateReaderService.retrieveSmcbCardCertificate(appConfig.getMandantId(),
                             appConfig.getClientSystem(), appConfig.getWorkplace(),
-                            cardHandle.get());
+                            cardHandle);
 
             IdpTokenResult idpTokenResult = idpClient.login(x509Certificate);
             requestBearerTokenFromIdpEvent.setBearerToken(idpTokenResult.getAccessToken().getRawString());

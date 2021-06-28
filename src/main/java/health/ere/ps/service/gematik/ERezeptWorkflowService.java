@@ -441,7 +441,7 @@ public class ERezeptWorkflowService {
             }
 
             String signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
-                    ConnectorCardsService.CardHandleType.HBA).get();
+                    ConnectorCardsService.CardHandleType.HBA);
 
             signResponse = signatureService.signDocument(signatureServiceCardHandle,
                     signatureServiceCrypt, contextType, signatureServiceTvMode,
@@ -535,7 +535,7 @@ public class ERezeptWorkflowService {
 
         try {
             signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
-                    ConnectorCardsService.CardHandleType.HBA).get();
+                    ConnectorCardsService.CardHandleType.HBA);
             signatureService.activateComfortSignature(signatureServiceCardHandle, contextType,
                     status, signatureMode);
         } catch (ConnectorCardsException | FaultMessage e) {
@@ -554,10 +554,10 @@ public class ERezeptWorkflowService {
         Holder<SessionInfo> sessionInfo = new Holder<>();
         ContextType contextType = createContextType();
 
-        String signatureServiceCardHandle = null;
+        String signatureServiceCardHandle;
         try {
             signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
-                    ConnectorCardsService.CardHandleType.HBA).get();
+                    ConnectorCardsService.CardHandleType.HBA);
             signatureService.getSignatureMode(signatureServiceCardHandle, contextType, status, comfortSignatureStatus,
                     comfortSignatureMax, comfortSignatureTimer, sessionInfo);
         } catch (ConnectorCardsException | FaultMessage e) {
@@ -572,7 +572,7 @@ public class ERezeptWorkflowService {
         String signatureServiceCardHandle = null;
         try {
             signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
-                    ConnectorCardsService.CardHandleType.HBA).get();
+                    ConnectorCardsService.CardHandleType.HBA);
             signatureService.deactivateComfortSignature(Arrays.asList(signatureServiceCardHandle));
         } catch (ConnectorCardsException | FaultMessage e) {
             throw new ERezeptWorkflowException("Error deactivating comfort signature.", e);
