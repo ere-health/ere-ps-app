@@ -9,7 +9,6 @@ import health.ere.ps.exception.gematik.ERezeptWorkflowException;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
 import health.ere.ps.service.extractor.SVGExtractor;
-import health.ere.ps.service.extractor.SVGExtractorConfiguration;
 import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilder;
 import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilderTest;
 import health.ere.ps.service.muster16.Muster16FormDataExtractorService;
@@ -65,22 +64,6 @@ public class ERezeptWorkflowServiceTest {
         System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
         System.setProperty("com.sun.xml.internal.ws.transport.http.HttpAdapter.dump", "true");
         System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dumpTreshold", "999999");
-
-//        eRezeptWorkflowService = new ERezeptWorkflowService();
-        eRezeptWorkflowService.prescriptionserverUrl = "https://fd.erezept-instanz1.titus.ti-dienste.de";
-        eRezeptWorkflowService.signatureServiceEndpointAddress = "https://kon-instanz2.titus.ti-dienste.de:443/soap-api/SignatureService/7.5.4";
-        eRezeptWorkflowService.eventServiceEndpointAddress = "https://kon-instanz2.titus.ti-dienste.de/soap-api/EventService/7.2.0";
-//        eRezeptWorkflowService.signatureServiceCardHandle = "1-1-ARZT-WaltrautFinkengrund01";
-        eRezeptWorkflowService.signatureServiceContextMandantId = "ps_erp_incentergy_01";
-        eRezeptWorkflowService.signatureServiceContextClientSystemId = "ps_erp_incentergy_01_HBA";
-        eRezeptWorkflowService.signatureServiceContextWorkplaceId = "CATS";
-        eRezeptWorkflowService.signatureServiceContextUserId = "197610";
-        eRezeptWorkflowService.signatureServiceTvMode = "NONE";
-        eRezeptWorkflowService.enableVau = true;
-
-        InputStream p12Certificate = ERezeptWorkflowServiceTest.class.getResourceAsStream("/ps_erp_incentergy_01.p12");
-        eRezeptWorkflowService.setUpCustomSSLContext(p12Certificate);
-        eRezeptWorkflowService.init();
     }
 
     @Test
