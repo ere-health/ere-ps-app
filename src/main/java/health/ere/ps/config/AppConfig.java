@@ -1,20 +1,20 @@
 package health.ere.ps.config;
 
+import health.ere.ps.service.connector.endpoint.EndpointDiscoveryService;
 import org.apache.commons.lang3.StringUtils;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import java.util.Arrays;
-
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 @ApplicationScoped
 public class AppConfig {
-	
-	@ConfigProperty(name = "idp.connector.cert.auth.store.file")
+
+    @ConfigProperty(name = "connector.cert.auth.store.file")
     String idpConnectorTlsCertTrustStore;
 
-    @ConfigProperty(name = "idp.connector.cert.auth.store.file.password")
+    @ConfigProperty(name = "connector.cert.auth.store.file.password")
     String idpConnectorTlsCertTustStorePwd;
 
     @ConfigProperty(name = "idp.client.id")
@@ -32,20 +32,17 @@ public class AppConfig {
     @ConfigProperty(name = "connector.card.handle")
     String cardHandle;
 
-    @ConfigProperty(name = "idp.connector.auth-signature.endpoint.address")
-    String idpConnectorAuthSignatureEndpointAddress;
-
     @ConfigProperty(name = "connector.context.userId")
     String signatureServiceContextUserId;
 
     @ConfigProperty(name = "connector.simulator.titusClientCertificate")
     String titusClientCertificate;
 
-    @ConfigProperty(name = "titus.event-service.endpoint.address")
-    String eventServiceEndpointAddress;
-
     @ConfigProperty(name = "ere.validator.validate.sign.request.bundles.enabled")
     String validateSignRequestBundles;
+
+    @Inject
+    EndpointDiscoveryService endpointDiscoveryService;
 
     public String getIdpConnectorTlsCertTrustStore() {
         return idpConnectorTlsCertTrustStore;
@@ -72,15 +69,11 @@ public class AppConfig {
     }
 
     public String getIdpConnectorAuthSignatureEndpointAddress() {
-        return idpConnectorAuthSignatureEndpointAddress;
+        return endpointDiscoveryService.getAuthSignatureServiceEndpointAddress();
     }
 
     public String getSignatureServiceContextUserId() {
         return signatureServiceContextUserId;
-    }
-
-    public String getEventServiceEndpointAddress() {
-        return eventServiceEndpointAddress;
     }
 
     public String getTitusClientCertificate() {
@@ -98,5 +91,21 @@ public class AppConfig {
     public boolean isValidateSignRequestBundles() {
         return StringUtils.isNotBlank(validateSignRequestBundles) &&
                 validateSignRequestBundles.equalsIgnoreCase("Yes");
+    }
+
+    public String getAuthSignatureServiceEndpointAddress() {
+        return endpointDiscoveryService.getAuthSignatureServiceEndpointAddress();
+    }
+
+    public String getCertificateServiceEndpointAddress() {
+        return endpointDiscoveryService.getCertificateServiceEndpointAddress();
+    }
+
+    public String getSignatureServiceEndpointAddress() {
+        return endpointDiscoveryService.getSignatureServiceEndpointAddress();
+    }
+
+    public String getEventServiceEndpointAddress() {
+        return endpointDiscoveryService.getEventServiceEndpointAddress();
     }
 }

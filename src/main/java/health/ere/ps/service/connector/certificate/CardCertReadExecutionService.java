@@ -10,6 +10,7 @@ import de.gematik.ws.conn.certificateservicecommon.v2.X509DataInfoListType;
 import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 
+import health.ere.ps.config.AppConfig;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.io.FileInputStream;
@@ -35,12 +36,12 @@ public class CardCertReadExecutionService {
 
     @Inject
     SecretsManagerService secretsManagerService;
-    
-    @ConfigProperty(name = "idp.connector.certificate-service.endpoint.address")
-    String certificateServiceEndpointAddress;
 
     @ConfigProperty(name = "connector.simulator.titusClientCertificate", defaultValue = "!")
     String titusClientCertificate;
+
+    @Inject
+    AppConfig appConfig;
 
     private CertificateServicePortType certificateService;
 
@@ -56,7 +57,7 @@ public class CardCertReadExecutionService {
         BindingProvider bp = (BindingProvider) certificateService;
         
         bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
-        certificateServiceEndpointAddress);
+        appConfig.getCertificateServiceEndpointAddress());
         
         if (titusClientCertificate != null && !("".equals(titusClientCertificate))
             && !("!".equals(titusClientCertificate))) {
