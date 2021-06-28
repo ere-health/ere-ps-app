@@ -89,7 +89,7 @@ public class ERezeptWorkflowServiceTest {
         eRezeptWorkflowService.getCards();
     }
 
-    
+
     @Test
     @Disabled
     void testCreateERezeptOnPrescriptionServer() throws ERezeptWorkflowException {
@@ -166,10 +166,10 @@ public class ERezeptWorkflowServiceTest {
         eRezeptWorkflowService.getSignatureMode();
     }
 
-    
+
     @Test
     @Disabled
-    // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
+        // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testUpdateBundleWithTaskAndSignBundleWithIdentifiers() throws IOException, ERezeptWorkflowException {
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/examples_erezept/Erezept_template_3.xml"));
 

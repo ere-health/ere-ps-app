@@ -29,6 +29,8 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import health.ere.ps.config.AppConfig;
+import health.ere.ps.exception.connector.ConnectorCardsException;
+import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import oasis.names.tc.dss._1_0.core.schema.Base64Data;
 
 @Dependent
@@ -36,6 +38,9 @@ public class SmcbAuthenticatorService {
 
     @Inject
     AppConfig appConfig;
+
+    @Inject
+    ConnectorCardsService connectorCardsService;
 
     @Inject
     SmcbAuthenticatorExecutionService smcbAuthExecutionService;
@@ -99,7 +104,16 @@ public class SmcbAuthenticatorService {
             }
             byte[] encodedhash = digest.digest(inputBytes);
 
-            byte[] signatureBytes = externalAuthenticate(encodedhash, appConfig.getCardHandle());
+            byte[] signatureBytes;
+
+            try {
+                signatureBytes = externalAuthenticate(encodedhash,
+                        connectorCardsService.getConnectorCardHandle(
+                                ConnectorCardsService.CardHandleType.SMC_B));
+            } catch (ConnectorCardsException e) {
+                throw new IllegalStateException("Cannot access the SMC-B card-handle info to " +
+                        "compute the json web token signature!", e);
+            }
             setSignature(signatureBytes);
         }
 

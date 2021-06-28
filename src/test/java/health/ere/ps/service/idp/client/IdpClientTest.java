@@ -104,11 +104,11 @@ public class IdpClientTest {
         idpClient.init(clientId, redirectUrl, discoveryDocumentUrl, true);
         idpClient.initializeClient();
 
-        Optional<String> cardHandle = connectorCardsService.getConnectorCardHandle(
+        String cardHandle = connectorCardsService.getConnectorCardHandle(
                 ConnectorCardsService.CardHandleType.SMC_B);
 
         X509Certificate x509Certificate = cardCertificateReaderService.retrieveSmcbCardCertificate(mandantId,
-                clientSystem, workplace, cardHandle.get());
+                clientSystem, workplace, cardHandle);
 
         IdpTokenResult idpTokenResult = idpClient.login(x509Certificate);
 

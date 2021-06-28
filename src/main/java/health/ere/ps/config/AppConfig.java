@@ -4,6 +4,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
+import java.util.Arrays;
+
 import javax.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
@@ -41,6 +43,9 @@ public class AppConfig {
 
     @ConfigProperty(name = "titus.event-service.endpoint.address")
     String eventServiceEndpointAddress;
+
+    @ConfigProperty(name = "ere.validator.validate.sign.request.bundles.enabled")
+    String validateSignRequestBundles;
 
     public String getIdpConnectorTlsCertTrustStore() {
         return idpConnectorTlsCertTrustStore;
@@ -88,5 +93,10 @@ public class AppConfig {
 
     public void setMandantId(String mandantId) {
         this.mandantId = mandantId;
+    }
+
+    public boolean isValidateSignRequestBundles() {
+        return StringUtils.isNotBlank(validateSignRequestBundles) &&
+                validateSignRequestBundles.equalsIgnoreCase("Yes");
     }
 }

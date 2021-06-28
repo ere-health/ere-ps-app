@@ -67,6 +67,7 @@ import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.common.security.SecureSoapTransportConfigurer;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
+import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 import health.ere.ps.vau.VAUEngine;
 import de.gematik.ws.conn.eventservice.v7.GetCards;
 import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
@@ -83,6 +84,9 @@ public class ERezeptWorkflowService {
 
     @Inject
     AppConfig appConfig;
+  
+      @Inject
+    PrescriptionBundleValidator prescriptionBundleValidator;
 
     @ConfigProperty(name = "titus.prescription.server.url", defaultValue = "")
     String prescriptionserverUrl;
@@ -226,11 +230,24 @@ public class ERezeptWorkflowService {
                 bearerTokenToUse = bearerToken;
             }
 
+            log.info(String.format("Received %d bundles to sign ",
+                    signAndUploadBundlesEvent.listOfListOfBundles.size()));
+            log.info("Contents of list of bundles to sign are as follows:");
+            signAndUploadBundlesEvent.listOfListOfBundles.stream().forEach(bundlesList ->
+            {
+                log.info("Bundles list contents is:");
+                bundlesList.stream().forEach(bundle -> log.info("Bundle content: " +
+                        bundle.toString()));
+            });
             List<List<BundleWithAccessCodeOrThrowable>> bundleWithAccessCodeOrThrowable = new ArrayList<>();
             for (List<Bundle> bundles : signAndUploadBundlesEvent.listOfListOfBundles) {
+                log.info(String.format("Getting access codes for %d bundles.",
+                        bundles.size()));
                 bundleWithAccessCodeOrThrowable
                         .add(createMultipleERezeptsOnPrescriptionServer(bearerTokenToUse, bundles));
             }
+            log.info(String.format("Firing event to create prescription receipts for %d bundles.",
+                    bundleWithAccessCodeOrThrowable.size()));
             bundlesWithAccessCodeEvent.fireAsync(new BundlesWithAccessCodeEvent(bundleWithAccessCodeOrThrowable));
         } catch(Exception e) {
             log.log(Level.WARNING, "Idp login did not work", e);
@@ -424,7 +441,7 @@ public class ERezeptWorkflowService {
             }
 
             String signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
-                    ConnectorCardsService.CardHandleType.HBA).get();
+                    ConnectorCardsService.CardHandleType.HBA);
 
             signResponse = signatureService.signDocument(signatureServiceCardHandle,
                     signatureServiceCrypt, contextType, signatureServiceTvMode,
@@ -518,7 +535,7 @@ public class ERezeptWorkflowService {
 
         try {
             signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
-                    ConnectorCardsService.CardHandleType.HBA).get();
+                    ConnectorCardsService.CardHandleType.HBA);
             signatureService.activateComfortSignature(signatureServiceCardHandle, contextType,
                     status, signatureMode);
         } catch (ConnectorCardsException | FaultMessage e) {
@@ -537,10 +554,10 @@ public class ERezeptWorkflowService {
         Holder<SessionInfo> sessionInfo = new Holder<>();
         ContextType contextType = createContextType();
 
-        String signatureServiceCardHandle = null;
+        String signatureServiceCardHandle;
         try {
             signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
-                    ConnectorCardsService.CardHandleType.HBA).get();
+                    ConnectorCardsService.CardHandleType.HBA);
             signatureService.getSignatureMode(signatureServiceCardHandle, contextType, status, comfortSignatureStatus,
                     comfortSignatureMax, comfortSignatureTimer, sessionInfo);
         } catch (ConnectorCardsException | FaultMessage e) {
@@ -555,7 +572,7 @@ public class ERezeptWorkflowService {
         String signatureServiceCardHandle = null;
         try {
             signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
-                    ConnectorCardsService.CardHandleType.HBA).get();
+                    ConnectorCardsService.CardHandleType.HBA);
             signatureService.deactivateComfortSignature(Arrays.asList(signatureServiceCardHandle));
         } catch (ConnectorCardsException | FaultMessage e) {
             throw new ERezeptWorkflowException("Error deactivating comfort signature.", e);

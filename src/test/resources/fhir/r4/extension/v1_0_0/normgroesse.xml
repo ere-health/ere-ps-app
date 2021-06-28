@@ -1,0 +1,56 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+    <id value="normgroesse" />
+    <url value="http://fhir.de/StructureDefinition/normgroesse" />
+    <version value="1.0.0" />
+    <name value="ExtensionNormgroesseDeBasis" />
+    <status value="active" />
+    <date value="2020-05-14" />
+    <publisher value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+    <contact>
+        <telecom>
+            <system value="url" />
+            <value value="http://hl7.de/technische-komitees/fhir/" />
+        </telecom>
+    </contact>
+    <description value="Die Packungsgr&#246;&#223;enkennzeichnung f&#252;r Medikamente ist eine in Deutschland bestehende Normierung der in der Apotheke abzugebenden Menge (St&#252;ckzahl bei Tabletten, Kapseln, Z&#228;pfchen und anderen einzeldosierten Formen, Milliliter oder Gramm bei halbfesten und fl&#252;ssigen Mitteln) eines Fertigarzneimittels im Rahmen der vertrags&#228;rztlichen Versorgung.\nRechtsgrundlage der Normierung war bis 2010 die Packungsgr&#246;&#223;enverordnung (PackungsV). Sie ordnete folgende drei Packungsgr&#246;&#223;en zu – das N steht f&#252;r Normgr&#246;&#223;e:\n\nN1 – kleine Packung\nN2 – mittlere Packung\nN3 – gro&#223;e Packung\n(siehe https://de.wikipedia.org/wiki/Packungsgr%C3%B6%C3%9Fenkennzeichnung)" />
+    <copyright value="HL7 Deutschland e.V." />
+    <fhirVersion value="4.0.1" />
+    <mapping>
+        <identity value="rim" />
+        <uri value="http://hl7.org/v3" />
+        <name value="RIM Mapping" />
+    </mapping>
+    <kind value="complex-type" />
+    <abstract value="false" />
+    <context>
+        <type value="element" />
+        <expression value="Medication" />
+    </context>
+    <context>
+        <type value="element" />
+        <expression value="MedicationRequest.dispenseRequest.quantity" />
+    </context>
+    <context>
+        <type value="element" />
+        <expression value="MedicationDispense.quantity" />
+    </context>
+    <type value="Extension" />
+    <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Extension" />
+    <derivation value="constraint" />
+    <differential>
+        <element id="Extension.url">
+            <path value="Extension.url" />
+            <fixedUri value="http://fhir.de/StructureDefinition/normgroesse" />
+        </element>
+        <element id="Extension.value[x]">
+            <path value="Extension.value[x]" />
+            <type>
+                <code value="code" />
+            </type>
+            <binding>
+                <strength value="required" />
+                <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_SFHIR_KBV_NORMGROESSE" />
+            </binding>
+        </element>
+    </differential>
+</StructureDefinition>
