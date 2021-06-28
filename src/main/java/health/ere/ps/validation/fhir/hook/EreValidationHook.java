@@ -81,10 +81,6 @@ public class EreValidationHook {
             ).collect(Collectors.toList()));
         }
 
-        singleValidationMessages.stream().forEach(valMsg -> logger.infof("Unfiltered " +
-                "results message = " +
-                "%s", valMsg.getMessage()));
-
         possibleAmbiguousValidationMessages.stream().forEach(valMsg -> logger.infof("Filtered " +
                 "results message = " +
                 "%s", valMsg.getMessage()));
