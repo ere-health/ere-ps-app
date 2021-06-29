@@ -27,6 +27,7 @@ import javax.xml.datatype.Duration;
 import javax.xml.ws.Holder;
 import javax.xml.ws.BindingProvider;
 
+import health.ere.ps.service.connector.endpoint.SSLUtilities;
 import org.apache.xml.security.c14n.CanonicalizationException;
 import org.apache.xml.security.c14n.Canonicalizer;
 import org.apache.xml.security.c14n.InvalidCanonicalizerException;
@@ -84,7 +85,7 @@ public class ERezeptWorkflowService {
 
     @Inject
     AppConfig appConfig;
-  
+
       @Inject
     PrescriptionBundleValidator prescriptionBundleValidator;
 
@@ -170,6 +171,7 @@ public class ERezeptWorkflowService {
             if (customSSLContext != null) {
                 bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
                         customSSLContext.getSocketFactory());
+                bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier", new SSLUtilities.FakeHostnameVerifier());
             }
 
             eventService = new EventService(getClass().getResource("/EventService.wsdl")).getEventServicePort();
@@ -179,6 +181,7 @@ public class ERezeptWorkflowService {
             if (customSSLContext != null) {
                 bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
                         customSSLContext.getSocketFactory());
+                bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier", new SSLUtilities.FakeHostnameVerifier());
             }
 
         } catch(Exception ex) {
