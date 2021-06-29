@@ -8,6 +8,7 @@ import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.exception.gematik.ERezeptWorkflowException;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
+import health.ere.ps.service.connector.endpoint.SSLUtilities;
 import health.ere.ps.service.extractor.SVGExtractor;
 import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilder;
 import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilderTest;
@@ -64,6 +65,10 @@ public class ERezeptWorkflowServiceTest {
         System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
         System.setProperty("com.sun.xml.internal.ws.transport.http.HttpAdapter.dump", "true");
         System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dumpTreshold", "999999");
+
+
+        SSLUtilities.trustAllHostnames();
+        SSLUtilities.trustAllHttpsCertificates();
     }
 
     @Test
