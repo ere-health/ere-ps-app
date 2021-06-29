@@ -253,10 +253,6 @@ public class PrescriptionBundlesBuilderTest {
         ValidationResult bundleValidationResult =
                 prescriptionBundleValidator.validateResource(GOOD_SIMPLIFIER_NET_SAMPLE_KBV_JSON,
                         true);
-        logger.info("Bundle validation results");
-        logger.info("=========================");
-        logger.info(bundleValidationResult.getMessages().stream().map(msg -> msg.getMessage()
-        ).collect(Collectors.joining("\n")));
 
         assertTrue(bundleValidationResult.isSuccessful());
     }
@@ -266,10 +262,6 @@ public class PrescriptionBundlesBuilderTest {
         ValidationResult bundleValidationResult =
                 prescriptionBundleValidator.validateResource(GOOD_SIMPLIFIER_NET_SAMPLE_KBV_JSON_AS_A_TEMPLATE,
                         true);
-        logger.info("Bundle validation results");
-        logger.info("=========================");
-        logger.info(bundleValidationResult.getMessages().stream().map(msg -> msg.getMessage()
-        ).collect(Collectors.joining("\n")));
 
         Assertions.assertFalse(bundleValidationResult.isSuccessful());
     }
@@ -279,12 +271,6 @@ public class PrescriptionBundlesBuilderTest {
         ValidationResult bundleValidationResult =
                 prescriptionBundleValidator.validateResource(BAD_DENS_SIGN_REQUEST_KBV_JSON,
                         true);
-        logger.info("Bundle validation results");
-        logger.info("=========================");
-
-        bundleValidationResult.getMessages().stream().forEach(msg -> {
-            logger.infof("Validation message -> %s", msg.getMessage());
-        });
 
         Assertions.assertFalse(bundleValidationResult.isSuccessful());
     }
@@ -298,7 +284,7 @@ public class PrescriptionBundlesBuilderTest {
         assertFalse(validationResult.isSuccessful());
     }
 
-    @Disabled("Currently failing since previous merge.")
+    @Disabled
     @Test
     public void test_Successful_Validation_Of_An_FHIR_Coverage_Resource() {
         Coverage coverageResource = prescriptionBundlesBuilder.createCoverageResource("random_patient_id");
