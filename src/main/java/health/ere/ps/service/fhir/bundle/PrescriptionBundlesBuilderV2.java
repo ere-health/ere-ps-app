@@ -86,6 +86,8 @@ public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
         initTemplateKeyMapper();
     }
 
+    //TODO: Use the templateKeyMapper Map tp implement reconciliation and tracking of values
+    // injected into template.
     protected void initTemplateKeyMapper() {
         templateKeyMapper = new HashMap<>();
         
@@ -149,7 +151,7 @@ public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
     }
 
     @Override
-    protected Bundle createBundleForMedication(MedicationString medication) {
+    public Bundle createBundleForMedication(MedicationString medication) {
         Bundle bundle;
 
         try(InputStream is = getClass().getResourceAsStream(
