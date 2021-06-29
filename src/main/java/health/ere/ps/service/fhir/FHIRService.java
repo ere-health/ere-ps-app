@@ -17,7 +17,8 @@ import ca.uhn.fhir.parser.IParser;
 import health.ere.ps.event.BundlesEvent;
 import health.ere.ps.event.Muster16PrescriptionFormEvent;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
-import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilder;
+import health.ere.ps.service.fhir.bundle.IBundlesBuilder;
+import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilderV2;
 import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 
 @ApplicationScoped
@@ -36,7 +37,7 @@ public class FHIRService {
 
     public void generatePrescriptionBundle(@ObservesAsync Muster16PrescriptionFormEvent muster16PrescriptionFormEvent) {
         Muster16PrescriptionForm muster16PrescriptionForm = muster16PrescriptionFormEvent.getMuster16PrescriptionForm();
-        PrescriptionBundlesBuilder bundleBuilder = new PrescriptionBundlesBuilder(muster16PrescriptionForm);
+        IBundlesBuilder bundleBuilder = new PrescriptionBundlesBuilderV2(muster16PrescriptionForm);
 
         try {
             List<Bundle> bundles = bundleBuilder.createBundles();
