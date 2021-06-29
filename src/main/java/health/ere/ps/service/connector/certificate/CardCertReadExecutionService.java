@@ -37,8 +37,8 @@ public class CardCertReadExecutionService {
     @Inject
     SecretsManagerService secretsManagerService;
 
-    @ConfigProperty(name = "connector.simulator.titusClientCertificate", defaultValue = "!")
-    String titusClientCertificate;
+    @ConfigProperty(name = "connector.cert.auth.store.file", defaultValue = "!")
+    String certAuthStoreFile;
 
     @Inject
     AppConfig appConfig;
@@ -59,10 +59,10 @@ public class CardCertReadExecutionService {
         bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
         appConfig.getCertificateServiceEndpointAddress());
         
-        if (titusClientCertificate != null && !("".equals(titusClientCertificate))
-            && !("!".equals(titusClientCertificate))) {
-            try(InputStream is = new FileInputStream(titusClientCertificate)) {
-                log.info(CardCertReadExecutionService.class.getSimpleName()+" uses titus client certifcate: "+titusClientCertificate);
+        if (certAuthStoreFile != null && !("".equals(certAuthStoreFile))
+            && !("!".equals(certAuthStoreFile))) {
+            try(InputStream is = new FileInputStream(certAuthStoreFile)) {
+                log.info(CardCertReadExecutionService.class.getSimpleName()+" uses titus client certifcate: "+ certAuthStoreFile);
                 setUpCustomSSLContext(is);
             } catch(FileNotFoundException e) {
                 log.log(Level.SEVERE, "Could find file", e);

@@ -109,8 +109,8 @@ public class ERezeptWorkflowService {
     @ConfigProperty(name = "connector.tvMode", defaultValue = "")
     String signatureServiceTvMode;
 
-    @ConfigProperty(name = "connector.simulator.titusClientCertificate", defaultValue = "!")
-    String titusClientCertificate;
+    @ConfigProperty(name = "connector.cert.auth.store.file", defaultValue = "!")
+    String certAuthStoreFile;
 
     @ConfigProperty(name = "ere-workflow-service.vau.enable", defaultValue = "true")
     Boolean enableVau;
@@ -151,10 +151,10 @@ public class ERezeptWorkflowService {
     @PostConstruct
     public void init() throws SecretsManagerException {
         try {
-            if (titusClientCertificate != null && !("".equals(titusClientCertificate))
-                    && !("!".equals(titusClientCertificate))) {
+            if (certAuthStoreFile != null && !("".equals(certAuthStoreFile))
+                    && !("!".equals(certAuthStoreFile))) {
                 try {
-                    setUpCustomSSLContext(new FileInputStream(titusClientCertificate));
+                    setUpCustomSSLContext(new FileInputStream(certAuthStoreFile));
                 } catch(FileNotFoundException e) {
                     log.log(Level.SEVERE, "Could find file", e);
                 }
