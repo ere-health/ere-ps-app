@@ -165,6 +165,10 @@ public class SecretsManagerService {
                                              KeyStoreType keyStoreType,
                                              BindingProvider bp)
             throws SecretsManagerException {
+
+        if("!".equals(trustStoreFilePath)) {
+            return;
+        }
         try(FileInputStream fileInputStream = new FileInputStream(trustStoreFilePath)) {
             SSLContext sc = createSSLContext(fileInputStream, trustStorePassword.toCharArray(),
                 sslContextType, keyStoreType);
