@@ -4,10 +4,13 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Composition;
+import org.hl7.fhir.r4.model.MedicationRequest;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -155,7 +158,7 @@ public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
         Bundle bundle;
 
         try(InputStream is = getClass().getResourceAsStream(
-                "/bundle-samples/bundleTemplatev2_filled-debug-3.json")) {
+                "/bundle-samples/bundleTemplatev3.json")) {
             jsonTemplateForBundle = new String(is.readAllBytes(), StandardCharsets.UTF_8);
 
             updateBundleResourceSection();
@@ -168,6 +171,12 @@ public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
             updateCoverageResourceSection();
 
             bundle = jsonParser.parseResource(Bundle.class, jsonTemplateForBundle);
+
+            bundle.getMeta().setLastUpdated(new Date());
+            bundle.setTimestamp(new Date());
+            ((Composition)bundle.getEntry().get(0).getResource()).setDate(new Date());
+            ((MedicationRequest)bundle.getEntry().get(1).getResource()).getMeta().setLastUpdated(
+                    new Date());
         } catch (IOException e) {
             throw new IllegalStateException("Cannot read bundle template or sample!", e);
         }
@@ -323,7 +332,7 @@ public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
                 muster16PrescriptionForm.getClinicId());
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($ORGANIZATION_NAME,
-                null);
+                StringUtils.defaultString(null));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($ORGANIZATION_PHONE,
                 StringUtils.defaultString(muster16PrescriptionForm.getPractitionerPhone()));
