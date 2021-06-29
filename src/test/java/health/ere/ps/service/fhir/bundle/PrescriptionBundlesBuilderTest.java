@@ -1,5 +1,6 @@
 package health.ere.ps.service.fhir.bundle;
 
+import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Coverage;
 import org.hl7.fhir.r4.model.Patient;
@@ -10,6 +11,10 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
@@ -175,6 +180,26 @@ public class PrescriptionBundlesBuilderTest {
         IParser jsonParser = ctx.newJsonParser();
 
         Bundle bundle = jsonParser.parseResource(Bundle.class, GOOD_SIMPLIFIER_NET_SAMPLE_KBV_JSON);
+        ValidationResult bundleValidationResult =
+                prescriptionBundleValidator.validateResource(bundle, true);
+
+        assertTrue(bundleValidationResult.isSuccessful());
+    }
+
+    @Test
+    public void test_Successful_Validation_Of_Good_Simplifier_Net_Sample_Used_As_Base_For_Bundle_Creation_Template() throws IOException {
+        FhirContext ctx = FhirContext.forR4();
+        IParser jsonParser = ctx.newJsonParser();
+
+        try(Reader reader =
+                    new InputStreamReader(PrescriptionBundlesBuilderTest.this.getClass().getResourceAsStream(
+                "/bundle-samples/bundleTemplatev2_filled-debug-3.json"))) {
+            Bundle bundle = jsonParser.parseResource(Bundle.class, reader);
+            ValidationResult bundleValidationResult =
+                    prescriptionBundleValidator.validateResource(bundle, true);
+
+            assertTrue(bundleValidationResult.isSuccessful());
+        }
     }
 
     @Test
