@@ -85,11 +85,9 @@ public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
 
     public PrescriptionBundlesBuilderV2(Muster16PrescriptionForm muster16PrescriptionForm) {
         super(muster16PrescriptionForm);
-
-        initTemplateKeyMapper();
     }
 
-    //TODO: Use the templateKeyMapper Map tp implement reconciliation and tracking of values
+    //TODO: Use the templateKeyMapper Map to implement reconciliation and tracking of values
     // injected into template.
     protected void initTemplateKeyMapper() {
         templateKeyMapper = new HashMap<>();
