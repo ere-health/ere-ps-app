@@ -189,7 +189,7 @@ public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
                 StringUtils.defaultString(null));
     }
 
-    void updateCompositionSection() {
+    protected void updateCompositionSection() {
         jsonTemplateForBundle = jsonTemplateForBundle.replace($COMPOSITION_ID,
                 StringUtils.defaultString(UUID.randomUUID().toString()));
 
@@ -201,7 +201,7 @@ public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
                 StringUtils.defaultString("Y/410/2107/36/999"));
     }
 
-    void updateMedicationRequestSection() {
+    protected void updateMedicationRequestSection() {
         jsonTemplateForBundle = jsonTemplateForBundle.replace($MEDICATION_REQUEST_ID,
                 StringUtils.defaultString(UUID.randomUUID().toString()));
 
@@ -213,7 +213,7 @@ public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
                 StringUtils.defaultString(muster16PrescriptionForm.getPrescriptionDate()));
     }
 
-    void updateMedicationResourceSection(MedicationString medicationString) {
+    protected void updateMedicationResourceSection(MedicationString medicationString) {
         jsonTemplateForBundle = jsonTemplateForBundle.replace($MEDICATION_ID,
                 StringUtils.defaultString(UUID.randomUUID().toString()));
 
@@ -236,7 +236,7 @@ public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
                 StringUtils.defaultString(medicationString.getInstructions()));
     }
 
-    void updatePatientResourceSection() {
+    protected void updatePatientResourceSection() {
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PATIENT_ID,
                 StringUtils.defaultString(UUID.randomUUID().toString()));
 
@@ -274,7 +274,7 @@ public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
                 StringUtils.defaultString(muster16PrescriptionForm.getPatientCity()));
     }
 
-    void updatePractitionerResourceSection() {
+    protected void updatePractitionerResourceSection() {
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PRACTITIONER_ID,
                 StringUtils.defaultString(UUID.randomUUID().toString()));
 
@@ -315,7 +315,7 @@ public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
                 StringUtils.defaultString(null));
     }
 
-    void updateOrganizationResourceSection() {
+    protected void updateOrganizationResourceSection() {
         jsonTemplateForBundle = jsonTemplateForBundle.replace($ORGANIZATION_ID,
                 UUID.randomUUID().toString());
 
@@ -351,7 +351,7 @@ public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
                 StringUtils.defaultString(muster16PrescriptionForm.getPractitionerFax()));
     }
 
-    void updateCoverageResourceSection() {
+    protected void updateCoverageResourceSection() {
         jsonTemplateForBundle = jsonTemplateForBundle.replace($COVERAGE_ID,
                 StringUtils.defaultString(UUID.randomUUID().toString()));
 
