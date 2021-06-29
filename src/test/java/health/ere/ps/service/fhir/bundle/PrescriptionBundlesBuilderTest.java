@@ -1,5 +1,9 @@
 package health.ere.ps.service.fhir.bundle;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Coverage;
 import org.hl7.fhir.r4.model.Patient;
@@ -10,18 +14,28 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.xml.stream.XMLStreamException;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.validation.ValidationResult;
 import health.ere.ps.model.muster16.MedicationString;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
+import health.ere.ps.service.extractor.SVGExtractor;
+import health.ere.ps.service.extractor.TemplateProfile;
+import health.ere.ps.service.muster16.Muster16FormDataExtractorService;
+import health.ere.ps.service.muster16.parser.rgxer.Muster16SvgRegexParser;
 import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 import io.quarkus.test.junit.QuarkusTest;
 
@@ -175,6 +189,63 @@ public class PrescriptionBundlesBuilderTest {
         IParser jsonParser = ctx.newJsonParser();
 
         Bundle bundle = jsonParser.parseResource(Bundle.class, GOOD_SIMPLIFIER_NET_SAMPLE_KBV_JSON);
+        ValidationResult bundleValidationResult =
+                prescriptionBundleValidator.validateResource(bundle, true);
+
+        assertTrue(bundleValidationResult.isSuccessful());
+    }
+
+    @Test
+    public void test_Successful_Validation_Of_Good_Simplifier_Net_Sample_Used_As_Base_For_Bundle_Creation_Template() throws IOException {
+        FhirContext ctx = FhirContext.forR4();
+        IParser jsonParser = ctx.newJsonParser();
+
+        try(Reader reader =
+                    new InputStreamReader(PrescriptionBundlesBuilderTest.this.getClass().getResourceAsStream(
+                "/bundle-samples/bundleTemplatev2_filled-debug-3.json"))) {
+            Bundle bundle = jsonParser.parseResource(Bundle.class, reader);
+            ValidationResult bundleValidationResult =
+                    prescriptionBundleValidator.validateResource(bundle, true);
+
+            assertTrue(bundleValidationResult.isSuccessful());
+        }
+    }
+
+    @Test
+    public void test_Successful_Conversion_Of_The_Populated_Bundle_Json_Template_To_A_Bundle_Object()
+            throws IOException, XMLStreamException, ParseException {
+        FhirContext ctx = FhirContext.forR4();
+        IParser jsonParser = ctx.newJsonParser();
+
+        jsonParser.setPrettyPrint(true);
+
+        SVGExtractor svgExtractor = new SVGExtractor(TemplateProfile.CGM_Z1.configuration);
+
+        try(PDDocument pdDocument = PDDocument.load(getClass()
+                .getResourceAsStream("/muster-16-print-samples/test1.pdf"))) {
+
+            Map<String, String> map = svgExtractor.extract(pdDocument);
+            Muster16SvgRegexParser parser = new Muster16SvgRegexParser(map);
+
+            Muster16PrescriptionForm muster16PrescriptionForm =
+                    Muster16FormDataExtractorService.fillForm(parser);
+
+            IBundlesBuilder bundleBuilder = new PrescriptionBundlesBuilderV2(
+                    muster16PrescriptionForm);
+
+            List<Bundle> bundles = bundleBuilder.createBundles();
+
+            if(CollectionUtils.isNotEmpty(bundles)) {
+                bundles.stream().forEach(bundle -> {
+                    String bundleJsonString = jsonParser.encodeResourceToString(bundle);
+                    logger.info("Filled bundle json template result shown below");
+                    logger.info("==============================================");
+                    logger.info(bundleJsonString);
+                });
+            }
+
+            Assertions.assertTrue(CollectionUtils.isNotEmpty(bundles));
+        }
     }
 
     @Test
@@ -182,10 +253,6 @@ public class PrescriptionBundlesBuilderTest {
         ValidationResult bundleValidationResult =
                 prescriptionBundleValidator.validateResource(GOOD_SIMPLIFIER_NET_SAMPLE_KBV_JSON,
                         true);
-        logger.info("Bundle validation results");
-        logger.info("=========================");
-        logger.info(bundleValidationResult.getMessages().stream().map(msg -> msg.getMessage()
-        ).collect(Collectors.joining("\n")));
 
         assertTrue(bundleValidationResult.isSuccessful());
     }
@@ -195,10 +262,6 @@ public class PrescriptionBundlesBuilderTest {
         ValidationResult bundleValidationResult =
                 prescriptionBundleValidator.validateResource(GOOD_SIMPLIFIER_NET_SAMPLE_KBV_JSON_AS_A_TEMPLATE,
                         true);
-        logger.info("Bundle validation results");
-        logger.info("=========================");
-        logger.info(bundleValidationResult.getMessages().stream().map(msg -> msg.getMessage()
-        ).collect(Collectors.joining("\n")));
 
         Assertions.assertFalse(bundleValidationResult.isSuccessful());
     }
@@ -208,12 +271,6 @@ public class PrescriptionBundlesBuilderTest {
         ValidationResult bundleValidationResult =
                 prescriptionBundleValidator.validateResource(BAD_DENS_SIGN_REQUEST_KBV_JSON,
                         true);
-        logger.info("Bundle validation results");
-        logger.info("=========================");
-
-        bundleValidationResult.getMessages().stream().forEach(msg -> {
-            logger.infof("Validation message -> %s", msg.getMessage());
-        });
 
         Assertions.assertFalse(bundleValidationResult.isSuccessful());
     }
@@ -227,7 +284,7 @@ public class PrescriptionBundlesBuilderTest {
         assertFalse(validationResult.isSuccessful());
     }
 
-    @Disabled("Currently failing since previous merge.")
+    @Disabled
     @Test
     public void test_Successful_Validation_Of_An_FHIR_Coverage_Resource() {
         Coverage coverageResource = prescriptionBundlesBuilder.createCoverageResource("random_patient_id");

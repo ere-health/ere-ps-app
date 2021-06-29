@@ -1,5 +1,36 @@
 package health.ere.ps.service.gematik;
 
+import de.gematik.ws.conn.connectorcommon.v5.Status;
+import de.gematik.ws.conn.connectorcontext.v2.ContextType;
+import de.gematik.ws.conn.eventservice.v7.GetCards;
+import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
+import de.gematik.ws.conn.eventservice.wsdl.v7.EventService;
+import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
+import de.gematik.ws.conn.signatureservice.v7_5_5.ComfortSignatureStatusEnum;
+import de.gematik.ws.conn.signatureservice.v7_5_5.DocumentType;
+import de.gematik.ws.conn.signatureservice.v7_5_5.SessionInfo;
+import de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest;
+import de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest.OptionalInputs;
+import de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse;
+import de.gematik.ws.conn.signatureservice.v7_5_5.SignatureModeEnum;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.FaultMessage;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureService;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortType;
+
+import org.apache.xml.security.c14n.CanonicalizationException;
+import org.apache.xml.security.c14n.Canonicalizer;
+import org.apache.xml.security.c14n.InvalidCanonicalizerException;
+import org.apache.xml.security.parser.XMLParserException;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.hl7.fhir.r4.model.Binary;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Coding;
+import org.hl7.fhir.r4.model.Identifier;
+import org.hl7.fhir.r4.model.Parameters;
+import org.hl7.fhir.r4.model.Parameters.ParametersParameterComponent;
+import org.hl7.fhir.r4.model.Task;
+import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
+
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -24,38 +55,10 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import javax.xml.datatype.Duration;
-import javax.xml.ws.Holder;
 import javax.xml.ws.BindingProvider;
-
-import org.apache.xml.security.c14n.CanonicalizationException;
-import org.apache.xml.security.c14n.Canonicalizer;
-import org.apache.xml.security.c14n.InvalidCanonicalizerException;
-import org.apache.xml.security.parser.XMLParserException;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.hl7.fhir.r4.model.Binary;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Coding;
-import org.hl7.fhir.r4.model.Identifier;
-import org.hl7.fhir.r4.model.Parameters;
-import org.hl7.fhir.r4.model.Parameters.ParametersParameterComponent;
-import org.hl7.fhir.r4.model.Task;
-
-import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
+import javax.xml.ws.Holder;
 
 import ca.uhn.fhir.context.FhirContext;
-import de.gematik.ws.conn.connectorcommon.v5.Status;
-import de.gematik.ws.conn.connectorcontext.v2.ContextType;
-import de.gematik.ws.conn.signatureservice.v7_5_5.ComfortSignatureStatusEnum;
-import de.gematik.ws.conn.signatureservice.v7_5_5.DocumentType;
-import de.gematik.ws.conn.signatureservice.v7_5_5.SessionInfo;
-import de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest;
-import de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest.OptionalInputs;
-import de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse;
-import de.gematik.ws.conn.signatureservice.v7_5_5.SignatureModeEnum;
-import de.gematik.ws.conn.signatureservice.wsdl.v7.FaultMessage;
-import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureService;
-import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortType;
-
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.event.BundlesWithAccessCodeEvent;
 import health.ere.ps.event.RequestBearerTokenFromIdpEvent;
@@ -67,12 +70,7 @@ import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.common.security.SecureSoapTransportConfigurer;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
-import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 import health.ere.ps.vau.VAUEngine;
-import de.gematik.ws.conn.eventservice.v7.GetCards;
-import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
-import de.gematik.ws.conn.eventservice.wsdl.v7.EventService;
-import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import oasis.names.tc.dss._1_0.core.schema.Base64Data;
 
 @ApplicationScoped
@@ -84,9 +82,6 @@ public class ERezeptWorkflowService {
 
     @Inject
     AppConfig appConfig;
-  
-      @Inject
-    PrescriptionBundleValidator prescriptionBundleValidator;
 
     @ConfigProperty(name = "ere.workflow-service.prescription.server.url", defaultValue = "")
     String prescriptionServerUrl;
