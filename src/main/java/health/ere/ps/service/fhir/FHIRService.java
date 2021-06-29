@@ -2,7 +2,6 @@ package health.ere.ps.service.fhir;
 
 import org.hl7.fhir.r4.model.Bundle;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
 import java.util.logging.Level;
@@ -15,7 +14,6 @@ import javax.inject.Inject;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
-import ca.uhn.fhir.validation.ValidationResult;
 import health.ere.ps.event.BundlesEvent;
 import health.ere.ps.event.Muster16PrescriptionFormEvent;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
@@ -57,7 +55,7 @@ public class FHIRService {
                 // Warning: Do not use return value of validation method below to stop submission of
                 // possible problem bundle to front-end. For now, only report possible
                 // validation issues for generated outgoing bundle for review in the logs.
-                doValidationChecks(bundle);
+                isOutgoingBundleOk(bundle);
                 bundleEvent.fireAsync(new BundlesEvent(bundle));
             });
         } catch (ParseException e) {
@@ -67,7 +65,7 @@ public class FHIRService {
         }
     }
 
-    private boolean doValidationChecks(Bundle bundle) {
+    private boolean isOutgoingBundleOk(Bundle bundle) {
         return prescriptionBundleValidator.validateResource(bundle, true).isSuccessful();
     }
 }

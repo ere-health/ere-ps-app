@@ -19,17 +19,17 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class PrescriptionBundlesBuilder {
-    private static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
-    private static final String DEFAULT_SHORT_DATE_FORMAT = "dd.MM.yy";
-    private static final Logger log = Logger.getLogger(PrescriptionBundlesBuilder.class.getName());
+    protected static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
+    protected static final String DEFAULT_SHORT_DATE_FORMAT = "dd.MM.yy";
+    protected static final Logger log = Logger.getLogger(PrescriptionBundlesBuilder.class.getName());
 
-    private final Muster16PrescriptionForm muster16PrescriptionForm;
+    protected final Muster16PrescriptionForm muster16PrescriptionForm;
 
     public PrescriptionBundlesBuilder(Muster16PrescriptionForm muster16PrescriptionForm) {
         this.muster16PrescriptionForm = muster16PrescriptionForm;
     }
 
-    private static String getDateFormat(String date) {
+    protected static String getDateFormat(String date) {
         return date.length() == 8 ? DEFAULT_SHORT_DATE_FORMAT : DEFAULT_DATE_FORMAT;
     }
 
@@ -42,7 +42,7 @@ public class PrescriptionBundlesBuilder {
         return bundles;
     }
 
-    private Bundle createBundleForMedication(MedicationString medication) {
+    protected Bundle createBundleForMedication(MedicationString medication) {
         Bundle bundle = new Bundle();
 
         bundle.setId(UUID.randomUUID().toString());
