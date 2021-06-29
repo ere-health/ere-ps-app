@@ -1,5 +1,8 @@
 package health.ere.ps.service.fhir.bundle;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Coverage;
@@ -18,15 +21,21 @@ import java.io.StringReader;
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.xml.stream.XMLStreamException;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.validation.ValidationResult;
 import health.ere.ps.model.muster16.MedicationString;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
+import health.ere.ps.service.extractor.SVGExtractor;
+import health.ere.ps.service.extractor.TemplateProfile;
+import health.ere.ps.service.muster16.Muster16FormDataExtractorService;
+import health.ere.ps.service.muster16.parser.rgxer.Muster16SvgRegexParser;
 import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 import io.quarkus.test.junit.QuarkusTest;
 
@@ -199,6 +208,43 @@ public class PrescriptionBundlesBuilderTest {
                     prescriptionBundleValidator.validateResource(bundle, true);
 
             assertTrue(bundleValidationResult.isSuccessful());
+        }
+    }
+
+    @Test
+    public void test_Successful_Conversion_Of_The_Populated_Bundle_Json_Template_To_A_Bundle_Object()
+            throws IOException, XMLStreamException, ParseException {
+        FhirContext ctx = FhirContext.forR4();
+        IParser jsonParser = ctx.newJsonParser();
+
+        jsonParser.setPrettyPrint(true);
+
+        SVGExtractor svgExtractor = new SVGExtractor(TemplateProfile.CGM_Z1.configuration);
+
+        try(PDDocument pdDocument = PDDocument.load(getClass()
+                .getResourceAsStream("/muster-16-print-samples/test1.pdf"))) {
+
+            Map<String, String> map = svgExtractor.extract(pdDocument);
+            Muster16SvgRegexParser parser = new Muster16SvgRegexParser(map);
+
+            Muster16PrescriptionForm muster16PrescriptionForm =
+                    Muster16FormDataExtractorService.fillForm(parser);
+
+            IBundlesBuilder bundleBuilder = new PrescriptionBundlesBuilderV2(
+                    muster16PrescriptionForm);
+
+            List<Bundle> bundles = bundleBuilder.createBundles();
+
+            if(CollectionUtils.isNotEmpty(bundles)) {
+                bundles.stream().forEach(bundle -> {
+                    String bundleJsonString = jsonParser.encodeResourceToString(bundle);
+                    logger.info("Filled bundle json template result shown below");
+                    logger.info("==============================================");
+                    logger.info(bundleJsonString);
+                });
+            }
+
+            Assertions.assertTrue(CollectionUtils.isNotEmpty(bundles));
         }
     }
 
