@@ -88,6 +88,9 @@ public class ERezeptWorkflowService {
       @Inject
     PrescriptionBundleValidator prescriptionBundleValidator;
 
+    @Inject
+    SecretsManagerService secretsManagerService;
+
     @ConfigProperty(name = "ere.workflow-service.prescription.server.url", defaultValue = "")
     String prescriptionServerUrl;
 
@@ -201,7 +204,7 @@ public class ERezeptWorkflowService {
     }
 
     public void setUpCustomSSLContext(InputStream p12Certificate) {
-        customSSLContext = SecretsManagerService.setUpCustomSSLContext(p12Certificate);
+        customSSLContext = secretsManagerService.setUpCustomSSLContext(p12Certificate);
     }
 
     /**

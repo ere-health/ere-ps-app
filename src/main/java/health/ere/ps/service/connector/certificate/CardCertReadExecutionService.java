@@ -71,7 +71,7 @@ public class CardCertReadExecutionService {
     }
 
     public void setUpCustomSSLContext(InputStream p12Certificate) {
-        SSLContext customSSLContext = SecretsManagerService.setUpCustomSSLContext(p12Certificate);
+        SSLContext customSSLContext = secretsManagerService.setUpCustomSSLContext(p12Certificate);
         BindingProvider bp = (BindingProvider) certificateService;
 
         bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
