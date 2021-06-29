@@ -1,5 +1,7 @@
 package health.ere.ps.service.common.security;
 
+import health.ere.ps.config.AppConfig;
+import health.ere.ps.service.connector.endpoint.SSLUtilities;
 import org.bouncycastle.crypto.CryptoException;
 
 import java.io.File;
@@ -25,8 +27,10 @@ import java.util.logging.Logger;
 
 import javax.crypto.KeyGenerator;
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
 import javax.xml.ws.BindingProvider;
 
 import health.ere.ps.exception.common.security.SecretsManagerException;
@@ -34,6 +38,9 @@ import health.ere.ps.service.idp.crypto.CryptoLoader;
 
 @ApplicationScoped
 public class SecretsManagerService {
+
+    @Inject
+    AppConfig appConfig;
 
     private static Logger log = Logger.getLogger(SecretsManagerService.class.getName());
 
@@ -195,7 +202,7 @@ public class SecretsManagerService {
         return sc;
     }
 
-    public static SSLContext setUpCustomSSLContext(InputStream p12Certificate) {
+    public SSLContext setUpCustomSSLContext(InputStream p12Certificate) {
         try {
             SSLContext sc = SSLContext.getInstance("TLS");
             KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
@@ -203,9 +210,10 @@ public class SecretsManagerService {
             KeyStore ks = KeyStore.getInstance("PKCS12");
             // Download this file from the titus backend
             // https://frontend.titus.ti-dienste.de/#/platform/mandant
-            ks.load(p12Certificate, "00".toCharArray());
-            kmf.init(ks, "00".toCharArray());
-            sc.init(kmf.getKeyManagers(), null, null);
+            String pwd = appConfig.getIdpConnectorTlsCertTustStorePwd();
+            ks.load(p12Certificate, pwd.toCharArray());
+            kmf.init(ks, pwd.toCharArray());
+            sc.init(kmf.getKeyManagers(), new TrustManager[]{new SSLUtilities.FakeX509TrustManager()}, null);
             return sc;
         } catch (NoSuchAlgorithmException | CertificateException | IOException | KeyStoreException
                 | UnrecoverableKeyException | KeyManagementException e) {
