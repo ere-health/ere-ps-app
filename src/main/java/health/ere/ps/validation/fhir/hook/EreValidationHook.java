@@ -88,8 +88,8 @@ public class EreValidationHook {
         if(CollectionUtils.isNotEmpty(possibleAmbiguousValidationMessages) &&
                 possibleAmbiguousValidationMessages.size() % 2 == 0) {
             return singleValidationMessages.stream().filter(singleValMsg ->
-                    singleValMsg.getSeverity() == ResultSeverityEnum.ERROR &&
-                            !possibleAmbiguousValidationMessages.contains(singleValMsg))
+                            !possibleAmbiguousValidationMessages.contains(singleValMsg) ||
+                                    singleValMsg.getSeverity() != ResultSeverityEnum.ERROR)
                     .collect(Collectors.toList());
         }
 
