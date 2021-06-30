@@ -6,11 +6,15 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Composition;
 import org.hl7.fhir.r4.model.DateTimeType;
+import org.hl7.fhir.r4.model.DateType;
 import org.hl7.fhir.r4.model.MedicationRequest;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,6 +27,7 @@ import health.ere.ps.model.muster16.Muster16PrescriptionForm;
 
 public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
     public static final String NULL_VALUE_PLACE_HOLDER = "$$$";
+    public static final String NULL_DATE_VALUE_PLACE_HOLDER = "9999-12-28";
 
     protected static final String $PRESCRIPTION_ID = "$PRESCRIPTION_ID";
     protected static final String $BUNDLE_ID = "$BUNDLE_ID";
@@ -179,7 +184,7 @@ public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
             ((Composition) bundle.getEntry().get(0).getResource()).setDate(new Date());
             ((MedicationRequest) bundle.getEntry().get(1).getResource()).getMeta().setLastUpdated(
                     new Date());
-            ((MedicationRequest) bundle.getEntry().get(1).getResource()).setAuthoredOn(new Date());
+//            ((MedicationRequest) bundle.getEntry().get(1).getResource()).setAuthoredOn(new Date());
         } catch (IOException e) {
             throw new IllegalStateException("Cannot read bundle template or sample!", e);
         }
@@ -206,7 +211,7 @@ public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
                 UUID.randomUUID().toString());
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($COMPOSITION_DATE,
-                getProtectedValue(null));
+                StringUtils.defaultString(null));
 
         //TODO: This is hardcoded but updated values may need to be sourced dynamically over time.
         jsonTemplateForBundle = jsonTemplateForBundle.replace($DEVICE_ID,
@@ -222,8 +227,7 @@ public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
                         (muster16PrescriptionForm.getWithPayment() ? "0" : "1") : null));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($AUTHORED_ON,
-                StringUtils.defaultString(muster16PrescriptionForm.getPrescriptionDate(),
-                        new DateTimeType().setValue(new Date()).getValueAsString()));
+                getProtectedDateValue(muster16PrescriptionForm.getPrescriptionDate()));
     }
 
     protected void updateMedicationResourceSection(MedicationString medicationString) {
@@ -274,12 +278,10 @@ public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
                 getProtectedValue(muster16PrescriptionForm.getPatientLastName()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PATIENT_BIRTH_DATE,
-                getProtectedValue(muster16PrescriptionForm.getPatientDateOfBirth()));
+                getProtectedDateValue(muster16PrescriptionForm.getPatientDateOfBirth()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PATIENT_ADDRESS_LINE,
-                getProtectedValue(muster16PrescriptionForm.getPatientStreetName()) +
-                        " " + getProtectedValue(
-                        muster16PrescriptionForm.getPatientStreetNumber()));
+                getProtectedValue(null));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PATIENT_ADDRESS_STREET_NAME,
                 getProtectedValue(muster16PrescriptionForm.getPatientStreetName()));
@@ -378,7 +380,7 @@ public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
                 UUID.randomUUID().toString());
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($COVERAGE_PERIOD_END,
-                getProtectedValue(muster16PrescriptionForm.getPrescriptionDate()));
+                getProtectedDateValue(muster16PrescriptionForm.getPrescriptionDate()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($INSURANCE_NAME,
                 getProtectedValue(muster16PrescriptionForm.getInsuranceCompany()));
@@ -390,7 +392,27 @@ public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
                 getProtectedValue(muster16PrescriptionForm.getInsuranceCompanyId()));
     }
 
-    private String getProtectedValue(String value) {
+    protected String getProtectedValue(String value) {
         return StringUtils.defaultString(value, NULL_VALUE_PLACE_HOLDER);
+    }
+
+    protected String getProtectedDateValue(String date) {
+        return isKbvFormattedDate(date)? date : NULL_DATE_VALUE_PLACE_HOLDER;
+    }
+
+    protected boolean isKbvFormattedDate(String date) {
+        return StringUtils.isNotBlank(date) && date.matches("\\d\\d\\d\\d\\-\\d\\d\\-\\d\\d");
+    }
+
+    public static String clearNullValuePlaceHolders(String bundleString) {
+        if(StringUtils.isNotBlank(bundleString)) {
+            String tempBundleString = bundleString.replace(
+                    NULL_DATE_VALUE_PLACE_HOLDER, "").replace(
+                            NULL_VALUE_PLACE_HOLDER, "");
+
+            return tempBundleString;
+        }
+
+        return bundleString;
     }
 }
