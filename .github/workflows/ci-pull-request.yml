@@ -19,14 +19,14 @@ jobs:
           java-version: '11'
           distribution: 'adopt'
       - name: Build with Maven
-        run: mvn -B -Dquarkus.test.profile=dev verify
+        run: mvn -B verify
       - name: Spotbugs
-        run: mvn -B -Dquarkus.test.profile=dev verify spotbugs:spotbugs
+        run: mvn -B verify spotbugs:spotbugs
       - uses: jwgmeligmeyling/spotbugs-github-action@master
         with:
           path: '**/spotbugsXml.xml'
       - name: PMD
-        run: mvn -B -Dquarkus.test.profile=dev verify pmd:pmd
+        run: mvn -B verify pmd:pmd
       - uses: jwgmeligmeyling/pmd-github-action@master
         with:
           path: '**/pmd.xml'
