@@ -35,7 +35,7 @@ public class AppConfig {
     @ConfigProperty(name = "connector.context.userId")
     String signatureServiceContextUserId;
 
-    @ConfigProperty(name = "ere.validator.validate.sign.request.bundles.enabled")
+    @ConfigProperty(name = "ere.validator.validate.sign.request.bundles.enabled", defaultValue = "no")
     String validateSignRequestBundles;
 
     @Inject
