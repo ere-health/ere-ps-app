@@ -1,8 +1,9 @@
 package health.ere.ps.service.idp.client;
 
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
-import health.ere.ps.test.StagingTestProfile;
+import health.ere.ps.test.DefaultTestProfile;
 
+import io.quarkus.test.junit.TestProfile;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -11,7 +12,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.security.cert.X509Certificate;
-import java.util.Optional;
 import java.util.logging.LogManager;
 
 import javax.inject.Inject;
@@ -29,10 +29,9 @@ import health.ere.ps.service.common.security.SecureSoapTransportConfigurer;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.TestProfile;
 
 @QuarkusTest
-@TestProfile(StagingTestProfile.class)
+@TestProfile(DefaultTestProfile.class)
 public class IdpClientTest {
 
     @Inject
