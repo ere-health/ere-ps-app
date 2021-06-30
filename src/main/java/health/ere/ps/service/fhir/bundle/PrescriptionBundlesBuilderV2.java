@@ -156,7 +156,7 @@ public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
         Bundle bundle;
 
         try(InputStream is = getClass().getResourceAsStream(
-                "/bundle-samples/bundleTemplatev3.json")) {
+                "/bundle-samples/FEbundleTemplate.json")) {
             jsonTemplateForBundle = new String(is.readAllBytes(), StandardCharsets.UTF_8);
 
             updateBundleResourceSection();
@@ -266,7 +266,8 @@ public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
                 StringUtils.defaultString(muster16PrescriptionForm.getPatientDateOfBirth()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PATIENT_ADDRESS_LINE,
-                StringUtils.defaultString(null));
+                StringUtils.defaultString(muster16PrescriptionForm.getPatientStreetName()) +
+                " " + muster16PrescriptionForm.getPatientStreetNumber());
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PATIENT_ADDRESS_STREET_NAME,
                 StringUtils.defaultString(muster16PrescriptionForm.getPatientStreetName()));
