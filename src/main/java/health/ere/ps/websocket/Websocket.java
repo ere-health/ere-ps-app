@@ -39,6 +39,7 @@ import health.ere.ps.event.ERezeptDocumentsEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
 import health.ere.ps.jsonb.BundleAdapter;
 import health.ere.ps.jsonb.ByteAdapter;
+import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilderV2;
 import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 
 @ServerEndpoint("/websocket")
@@ -150,7 +151,9 @@ public class Websocket {
     }
 
     String generateJson(BundlesEvent bundlesEvent) {
-        return bundlesEvent.getBundles().stream().map(bundle -> ctx.newJsonParser().encodeResourceToString(bundle))
+        return bundlesEvent.getBundles().stream().map(bundle ->
+                PrescriptionBundlesBuilderV2.clearNullValuePlaceHolders(
+                        ctx.newJsonParser().encodeResourceToString(bundle)))
                 .collect(Collectors.joining(",\n", "[", "]"));
     }
 

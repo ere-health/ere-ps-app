@@ -18,21 +18,23 @@ import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class PrescriptionBundlesBuilder {
-    private static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
-    private static final String DEFAULT_SHORT_DATE_FORMAT = "dd.MM.yy";
-    private static final Logger log = Logger.getLogger(PrescriptionBundlesBuilder.class.getName());
+public class PrescriptionBundlesBuilder implements IBundlesBuilder {
+    protected static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
+    protected static final String DEFAULT_SHORT_DATE_FORMAT = "dd.MM.yy";
 
-    private final Muster16PrescriptionForm muster16PrescriptionForm;
+    protected final Muster16PrescriptionForm muster16PrescriptionForm;
+
+    private static final Logger log = Logger.getLogger(PrescriptionBundlesBuilder.class.getName());
 
     public PrescriptionBundlesBuilder(Muster16PrescriptionForm muster16PrescriptionForm) {
         this.muster16PrescriptionForm = muster16PrescriptionForm;
     }
 
-    private static String getDateFormat(String date) {
+    protected static String getDateFormat(String date) {
         return date.length() == 8 ? DEFAULT_SHORT_DATE_FORMAT : DEFAULT_DATE_FORMAT;
     }
 
+    @Override
     public List<Bundle> createBundles() throws ParseException {
         List<Bundle> bundles = new ArrayList<>();
 
@@ -42,7 +44,8 @@ public class PrescriptionBundlesBuilder {
         return bundles;
     }
 
-    private Bundle createBundleForMedication(MedicationString medication) {
+    @Override
+    public Bundle createBundleForMedication(MedicationString medication) {
         Bundle bundle = new Bundle();
 
         bundle.setId(UUID.randomUUID().toString());
