@@ -480,9 +480,9 @@
           {
             "identifier": {
               "system": "http://fhir.de/NamingSystem/arge-ik/iknr",
-              "value": ""
+              "value": "$INSURANCE_NUMBER"
             },
-            "display": ""
+            "display": "$INSURANCE_NAME"
           }
         ]
       }

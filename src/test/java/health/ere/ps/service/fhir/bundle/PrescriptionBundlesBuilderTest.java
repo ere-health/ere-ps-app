@@ -66,7 +66,7 @@ public class PrescriptionBundlesBuilderTest {
 
         muster16PrescriptionForm.setClinicId("BS12345678");
 
-        muster16PrescriptionForm.setPrescriptionDate("05.04.2021");
+        muster16PrescriptionForm.setPrescriptionDate("2021-04-05");
         MedicationString medicationString = new MedicationString("Amoxicillin 1000mg N2", null, null, "3x täglich alle 8 Std", null, "2394428");
 
         muster16PrescriptionForm.setPrescriptionList(Collections.singletonList(medicationString));
@@ -75,7 +75,7 @@ public class PrescriptionBundlesBuilderTest {
 
         muster16PrescriptionForm.setInsuranceCompany("Test Insurance Company, Gmbh");
 
-        muster16PrescriptionForm.setPatientDateOfBirth("16.07.1986");
+        muster16PrescriptionForm.setPatientDateOfBirth("1986-07-16");
         muster16PrescriptionForm.setPatientNamePrefix(List.of("Dr."));
         muster16PrescriptionForm.setPatientFirstName("John");
         muster16PrescriptionForm.setPatientLastName("Doe");
@@ -229,6 +229,8 @@ public class PrescriptionBundlesBuilderTest {
 
             Muster16PrescriptionForm muster16PrescriptionForm =
                     Muster16FormDataExtractorService.fillForm(parser);
+//            Muster16PrescriptionForm muster16PrescriptionForm =
+//                    getMuster16PrescriptionFormForTests();
 
             IBundlesBuilder bundleBuilder = new PrescriptionBundlesBuilderV2(
                     muster16PrescriptionForm);
@@ -238,6 +240,9 @@ public class PrescriptionBundlesBuilderTest {
             if(CollectionUtils.isNotEmpty(bundles)) {
                 bundles.stream().forEach(bundle -> {
                     String bundleJsonString = jsonParser.encodeResourceToString(bundle);
+
+                    bundleJsonString = bundleJsonString.replace("$$$", "");
+
                     logger.info("Filled bundle json template result shown below");
                     logger.info("==============================================");
                     logger.info(bundleJsonString);
