@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Composition;
+import org.hl7.fhir.r4.model.DateTimeType;
 import org.hl7.fhir.r4.model.MedicationRequest;
 
 import java.io.IOException;
@@ -21,6 +22,8 @@ import health.ere.ps.model.muster16.MedicationString;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
 
 public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
+    public static final String NULL_VALUE_PLACE_HOLDER = "$$$";
+
     protected static final String $PRESCRIPTION_ID = "$PRESCRIPTION_ID";
     protected static final String $BUNDLE_ID = "$BUNDLE_ID";
     protected static final String $LAST_UPDATED = "$LAST_UPDATED";
@@ -91,7 +94,7 @@ public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
     // injected into template.
     protected void initTemplateKeyMapper() {
         templateKeyMapper = new HashMap<>();
-        
+
         templateKeyMapper.put($PRESCRIPTION_ID, Pair.of(true, 0));
         templateKeyMapper.put($BUNDLE_ID, Pair.of(true, 0));
         templateKeyMapper.put($LAST_UPDATED, Pair.of(true, 0));
@@ -108,7 +111,8 @@ public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
         templateKeyMapper.put($MEDICATION_NAME, Pair.of(true, 0));
         templateKeyMapper.put($MEDICATION_FORM, Pair.of(false, 0));
         templateKeyMapper.put($MEDICATION_SIZE, Pair.of(true, 0));
-        templateKeyMapper.put($DOSAGE_TEXT, Pair.of(false, 0));;
+        templateKeyMapper.put($DOSAGE_TEXT, Pair.of(false, 0));
+        ;
         templateKeyMapper.put($KVID_10, Pair.of(false, 0));
         templateKeyMapper.put($PATIENT_ID, Pair.of(true, 0));
         templateKeyMapper.put($PATIENT_NAME_PREFIX, Pair.of(false, 0));
@@ -155,7 +159,7 @@ public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
     public Bundle createBundleForMedication(MedicationString medication) {
         Bundle bundle;
 
-        try(InputStream is = getClass().getResourceAsStream(
+        try (InputStream is = getClass().getResourceAsStream(
                 "/bundle-samples/FEbundleTemplate.json")) {
             jsonTemplateForBundle = new String(is.readAllBytes(), StandardCharsets.UTF_8);
 
@@ -172,10 +176,10 @@ public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
 
             bundle.getMeta().setLastUpdated(new Date());
             bundle.setTimestamp(new Date());
-            ((Composition)bundle.getEntry().get(0).getResource()).setDate(new Date());
-            ((MedicationRequest)bundle.getEntry().get(1).getResource()).getMeta().setLastUpdated(
+            ((Composition) bundle.getEntry().get(0).getResource()).setDate(new Date());
+            ((MedicationRequest) bundle.getEntry().get(1).getResource()).getMeta().setLastUpdated(
                     new Date());
-            ((MedicationRequest)bundle.getEntry().get(1).getResource()).setAuthoredOn(new Date());
+            ((MedicationRequest) bundle.getEntry().get(1).getResource()).setAuthoredOn(new Date());
         } catch (IOException e) {
             throw new IllegalStateException("Cannot read bundle template or sample!", e);
         }
@@ -185,10 +189,10 @@ public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
 
     protected void updateBundleResourceSection() {
         jsonTemplateForBundle = jsonTemplateForBundle.replace($BUNDLE_ID,
-                StringUtils.defaultString(UUID.randomUUID().toString()));
+                UUID.randomUUID().toString());
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PRESCRIPTION_ID,
-                StringUtils.defaultString(UUID.randomUUID().toString()));
+                UUID.randomUUID().toString());
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($LAST_UPDATED,
                 StringUtils.defaultString(null));
@@ -199,129 +203,136 @@ public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
 
     protected void updateCompositionSection() {
         jsonTemplateForBundle = jsonTemplateForBundle.replace($COMPOSITION_ID,
-                StringUtils.defaultString(UUID.randomUUID().toString()));
+                UUID.randomUUID().toString());
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($COMPOSITION_DATE,
-                StringUtils.defaultString(null));
+                getProtectedValue(null));
 
         //TODO: This is hardcoded but updated values may need to be sourced dynamically over time.
         jsonTemplateForBundle = jsonTemplateForBundle.replace($DEVICE_ID,
-                StringUtils.defaultString("Y/410/2107/36/999"));
+                "Y/410/2107/36/999");
     }
 
     protected void updateMedicationRequestSection() {
         jsonTemplateForBundle = jsonTemplateForBundle.replace($MEDICATION_REQUEST_ID,
-                StringUtils.defaultString(UUID.randomUUID().toString()));
+                UUID.randomUUID().toString());
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($STATUS_CO_PAYMENT,
-                StringUtils.defaultString(
-                        muster16PrescriptionForm.getWithPayment() ? "0" : "1", null));
+                getProtectedValue(muster16PrescriptionForm.getWithPayment() != null ?
+                        (muster16PrescriptionForm.getWithPayment() ? "0" : "1") : null));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($AUTHORED_ON,
-                StringUtils.defaultString(muster16PrescriptionForm.getPrescriptionDate()));
+                StringUtils.defaultString(muster16PrescriptionForm.getPrescriptionDate(),
+                        new DateTimeType().setValue(new Date()).getValueAsString()));
     }
 
     protected void updateMedicationResourceSection(MedicationString medicationString) {
         jsonTemplateForBundle = jsonTemplateForBundle.replace($MEDICATION_ID,
-                StringUtils.defaultString(UUID.randomUUID().toString()));
+                UUID.randomUUID().toString());
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($DOSAGE_QUANTITY,
-                StringUtils.defaultString(medicationString.getDosage()));
+                getProtectedValue(medicationString.getDosage()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PZN,
-                StringUtils.defaultString(medicationString.getPzn()));
+                getProtectedValue(medicationString.getPzn()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($MEDICATION_FORM,
-                StringUtils.defaultString(medicationString.getForm()));
+                getProtectedValue(medicationString.getForm()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($MEDICATION_NAME,
-                StringUtils.defaultString(medicationString.getName()));
+                getProtectedValue(medicationString.getName()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($MEDICATION_SIZE,
-                StringUtils.defaultString(medicationString.getSize()));
+                getProtectedValue(medicationString.getSize()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($DOSAGE_TEXT,
-                StringUtils.defaultString(medicationString.getInstructions()));
+                getProtectedValue(medicationString.getInstructions()));
     }
 
     protected void updatePatientResourceSection() {
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PATIENT_ID,
-                StringUtils.defaultString(UUID.randomUUID().toString()));
+                UUID.randomUUID().toString());
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($KVID_10,
-                StringUtils.defaultString(muster16PrescriptionForm.getPatientInsuranceId()));
+                getProtectedValue(muster16PrescriptionForm.getPatientInsuranceId()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PATIENT_NAME_PREFIX,
-                StringUtils.defaultString(
-                        CollectionUtils.isNotEmpty(muster16PrescriptionForm.getPatientNamePrefix())?
-                         muster16PrescriptionForm.getPatientNamePrefix().stream().findFirst().get() :
-                                ""));
+                getProtectedValue(
+                        CollectionUtils.isNotEmpty(muster16PrescriptionForm.getPatientNamePrefix()) ?
+                                getProtectedValue(
+                                        muster16PrescriptionForm.getPatientNamePrefix()
+                                                .stream()
+                                                .findFirst()
+                                                .map(prefix -> prefix.replace("null", ""))
+                                                .get()) :
+                                NULL_VALUE_PLACE_HOLDER));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PATIENT_NAME_FIRST,
-                StringUtils.defaultString(muster16PrescriptionForm.getPatientFirstName()));
+                getProtectedValue(muster16PrescriptionForm.getPatientFirstName()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PATIENT_NAME_FAMILY,
-                StringUtils.defaultString(muster16PrescriptionForm.getPatientLastName()));
+                getProtectedValue(muster16PrescriptionForm.getPatientLastName()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PATIENT_BIRTH_DATE,
-                StringUtils.defaultString(muster16PrescriptionForm.getPatientDateOfBirth()));
+                getProtectedValue(muster16PrescriptionForm.getPatientDateOfBirth()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PATIENT_ADDRESS_LINE,
-                StringUtils.defaultString(muster16PrescriptionForm.getPatientStreetName()) +
-                " " + muster16PrescriptionForm.getPatientStreetNumber());
+                getProtectedValue(muster16PrescriptionForm.getPatientStreetName()) +
+                        " " + getProtectedValue(
+                        muster16PrescriptionForm.getPatientStreetNumber()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PATIENT_ADDRESS_STREET_NAME,
-                StringUtils.defaultString(muster16PrescriptionForm.getPatientStreetName()));
+                getProtectedValue(muster16PrescriptionForm.getPatientStreetName()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PATIENT_ADDRESS_STREET_NUMBER,
-                StringUtils.defaultString(muster16PrescriptionForm.getPatientStreetNumber()));
+                getProtectedValue(muster16PrescriptionForm.getPatientStreetNumber()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PATIENT_ADDRESS_POSTAL_CODE,
-                StringUtils.defaultString(muster16PrescriptionForm.getPatientZipCode()));
+                getProtectedValue(muster16PrescriptionForm.getPatientZipCode()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PATIENT_ADDRESS_CITY,
-                StringUtils.defaultString(muster16PrescriptionForm.getPatientCity()));
+                getProtectedValue(muster16PrescriptionForm.getPatientCity()));
     }
 
     protected void updatePractitionerResourceSection() {
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PRACTITIONER_ID,
-                StringUtils.defaultString(UUID.randomUUID().toString()));
+                UUID.randomUUID().toString());
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PRACTITIONER_NAME_PREFIX,
-                StringUtils.defaultString(muster16PrescriptionForm.getPractitionerNamePrefix()));
+                getProtectedValue(muster16PrescriptionForm.getPractitionerNamePrefix()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PRACTITIONER_NAME_FIRST,
-                StringUtils.defaultString(muster16PrescriptionForm.getPractitionerFirstName()));
+                getProtectedValue(muster16PrescriptionForm.getPractitionerFirstName()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PRACTITIONER_NAME_FAMILY,
-                StringUtils.defaultString(muster16PrescriptionForm.getPractitionerLastName()));
+                getProtectedValue(muster16PrescriptionForm.getPractitionerLastName()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PRACTITIONER_ADDRESS_STREET_NAME,
-                StringUtils.defaultString(muster16PrescriptionForm.getPractitionerStreetName()));
+                getProtectedValue(muster16PrescriptionForm.getPractitionerStreetName()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PRACTITIONER_ADDRESS_STREET_NUMBER,
-                StringUtils.defaultString(muster16PrescriptionForm.getPractitionerStreetNumber()));
+                getProtectedValue(muster16PrescriptionForm.getPractitionerStreetNumber()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PRACTITIONER_ADDRESS_POSTAL_CODE,
-                StringUtils.defaultString(muster16PrescriptionForm.getPractitionerZipCode()));
+                getProtectedValue(muster16PrescriptionForm.getPractitionerZipCode()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PRACTITIONER_ADDRESS_CITY,
-                StringUtils.defaultString(muster16PrescriptionForm.getPractitionerCity()));
+                getProtectedValue(muster16PrescriptionForm.getPractitionerCity()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PRACTITIONER_PHONE,
-                StringUtils.defaultString(muster16PrescriptionForm.getPractitionerPhone()));
+                getProtectedValue(muster16PrescriptionForm.getPractitionerPhone()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PRACTITIONER_FAX,
-                StringUtils.defaultString(muster16PrescriptionForm.getPractitionerFax()));
+                getProtectedValue(muster16PrescriptionForm.getPractitionerFax()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PRACTITIONER_QUALIFICATIONS,
-                StringUtils.defaultString(null));
+                getProtectedValue(null));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PRACTITIONER_NUMBER,
-                StringUtils.defaultString(muster16PrescriptionForm.getPractitionerId()));
+                getProtectedValue(muster16PrescriptionForm.getPractitionerId()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PRACTITIONER_QUALIFICATION_TEXT,
-                StringUtils.defaultString(null));
+                getProtectedValue(null));
     }
 
     protected void updateOrganizationResourceSection() {
@@ -329,51 +340,57 @@ public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
                 UUID.randomUUID().toString());
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($CLINIC_ID,
-                muster16PrescriptionForm.getClinicId());
+                getProtectedValue(muster16PrescriptionForm.getClinicId()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($ORGANIZATION_NAME,
-                StringUtils.defaultString(null));
+                NULL_VALUE_PLACE_HOLDER);
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($ORGANIZATION_PHONE,
-                StringUtils.defaultString(muster16PrescriptionForm.getPractitionerPhone()));
+                getProtectedValue(muster16PrescriptionForm.getPractitionerPhone()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($ORGANIZATION_ADDRESS_LINE,
-                StringUtils.defaultString(muster16PrescriptionForm.getPractitionerStreetName() +
-                        " " + muster16PrescriptionForm.getPractitionerStreetNumber()));
+                getProtectedValue(muster16PrescriptionForm.getPractitionerStreetName()) +
+                        " " +
+                        getProtectedValue(
+                                muster16PrescriptionForm.getPractitionerStreetNumber()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($ORGANIZATION_ADDRESS_STREET_NAME,
-                StringUtils.defaultString(muster16PrescriptionForm.getPractitionerStreetName()));
+                getProtectedValue(muster16PrescriptionForm.getPractitionerStreetName()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($ORGANIZATION_ADDRESS_STREET_NUMBER,
-                StringUtils.defaultString(muster16PrescriptionForm.getPractitionerStreetNumber()));
+                getProtectedValue(muster16PrescriptionForm.getPractitionerStreetNumber()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($ORGANIZATION_ADDRESS_POSTAL_CODE,
-                StringUtils.defaultString(muster16PrescriptionForm.getPractitionerZipCode()));
+                getProtectedValue(muster16PrescriptionForm.getPractitionerZipCode()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($ORGANIZATION_ADDRESS_CITY,
-                StringUtils.defaultString(muster16PrescriptionForm.getPractitionerCity()));
+                getProtectedValue(muster16PrescriptionForm.getPractitionerCity()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($ORGANIZATION_PHONE,
-                StringUtils.defaultString(muster16PrescriptionForm.getPractitionerPhone()));
+                getProtectedValue(muster16PrescriptionForm.getPractitionerPhone()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($ORGANIZATION_FAX,
-                StringUtils.defaultString(muster16PrescriptionForm.getPractitionerFax()));
+                getProtectedValue(muster16PrescriptionForm.getPractitionerFax()));
     }
 
     protected void updateCoverageResourceSection() {
         jsonTemplateForBundle = jsonTemplateForBundle.replace($COVERAGE_ID,
-                StringUtils.defaultString(UUID.randomUUID().toString()));
+                UUID.randomUUID().toString());
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($COVERAGE_PERIOD_END,
-                StringUtils.defaultString(muster16PrescriptionForm.getPrescriptionDate()));
+                getProtectedValue(muster16PrescriptionForm.getPrescriptionDate()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($INSURANCE_NAME,
-                StringUtils.defaultString(muster16PrescriptionForm.getInsuranceCompany()));
+                getProtectedValue(muster16PrescriptionForm.getInsuranceCompany()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($PATIENT_STATUS,
-                StringUtils.defaultString(muster16PrescriptionForm.getPatientStatus()));
+                getProtectedValue(muster16PrescriptionForm.getPatientStatus()));
 
         jsonTemplateForBundle = jsonTemplateForBundle.replace($INSURANCE_NUMBER,
-                StringUtils.defaultString(muster16PrescriptionForm.getInsuranceCompanyId()));
+                getProtectedValue(muster16PrescriptionForm.getInsuranceCompanyId()));
+    }
+
+    private String getProtectedValue(String value) {
+        return StringUtils.defaultString(value, NULL_VALUE_PLACE_HOLDER);
     }
 }
