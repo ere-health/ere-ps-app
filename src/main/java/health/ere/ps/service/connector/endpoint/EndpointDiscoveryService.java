@@ -23,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -86,6 +87,11 @@ public class EndpointDiscoveryService {
     @ConfigProperty(name = "connector.verify-hostname", defaultValue = "true")
     String connectorVerifyHostname;
 
+    @ConfigProperty(name = "card-service.endpoint.address")
+    Optional<String> fallbackCardServiceEndpointAddress;
+
+    private String cardServiceEndpointAddress;
+
     @Inject
     SecretsManagerService secretsManagerService;
 
@@ -96,12 +102,10 @@ public class EndpointDiscoveryService {
     void obtainConfiguration() throws IOException, ParserConfigurationException, SecretsManagerException {
         // code copied from IdpClient.java
 
-        authSignatureService = new AuthSignatureService(getClass().getResource(
-                "/AuthSignatureService_v7_4_1.wsdl")).getAuthSignatureServicePort();
-
+        authSignatureService = new AuthSignatureService(getClass().getResource("/AuthSignatureService_v7_4_1.wsdl")).getAuthSignatureServicePort();
+        BindingProvider bp = (BindingProvider) authSignatureService;
         SSLContext sslContext;
         try (FileInputStream fileInputStream = new FileInputStream(connectorTlsCertAuthStoreFile.orElseThrow())) {
-            BindingProvider bp = (BindingProvider) authSignatureService;
             sslContext = secretsManagerService.createSSLContext(fileInputStream,
                     connectorTlsCertAuthStorePwd.toCharArray(),
                     SecretsManagerService.SslContextType.TLS,
@@ -116,6 +120,7 @@ public class EndpointDiscoveryService {
 
         if (!isConnectorVerifyHostnames()) {
             // disable hostname verification
+            // This line is currently not working
             clientBuilder = clientBuilder.hostnameVerifier(new SSLUtilities.FakeHostnameVerifier());
         }
 
@@ -155,6 +160,10 @@ public class EndpointDiscoveryService {
                         authSignatureServiceEndpointAddress = getEndpoint(node);
                         break;
                     }
+                    case "CardService": {
+                        cardServiceEndpointAddress = getEndpoint(node);
+                        break;
+                    }
                     case "EventService": {
                         eventServiceEndpointAddress = getEndpoint(node);
                         break;
@@ -176,6 +185,9 @@ public class EndpointDiscoveryService {
         if (authSignatureServiceEndpointAddress == null) {
             authSignatureServiceEndpointAddress = fallbackAuthSignatureServiceEndpointAddress.orElseThrow();
         }
+        if (cardServiceEndpointAddress == null) {
+            cardServiceEndpointAddress = fallbackCardServiceEndpointAddress.orElseThrow();
+        }
         if (signatureServiceEndpointAddress == null) {
             signatureServiceEndpointAddress = fallbackSignatureServiceEndpointAddress.orElseThrow();
         }
@@ -189,6 +201,10 @@ public class EndpointDiscoveryService {
 
     public String getAuthSignatureServiceEndpointAddress() {
         return authSignatureServiceEndpointAddress;
+    }
+
+    public String getCardServiceEndpointAddress() {
+        return cardServiceEndpointAddress;
     }
 
     public String getSignatureServiceEndpointAddress() {
