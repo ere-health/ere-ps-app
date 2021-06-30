@@ -1,5 +1,7 @@
 package health.ere.ps.service.connector.endpoint;
 
+import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureService;
+import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureServicePortType;
 import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -21,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -84,19 +87,30 @@ public class EndpointDiscoveryService {
     @ConfigProperty(name = "connector.verify-hostname", defaultValue = "true")
     String connectorVerifyHostname;
 
+    @ConfigProperty(name = "card-service.endpoint.address")
+    Optional<String> fallbackCardServiceEndpointAddress;
+
+    private String cardServiceEndpointAddress;
+
     @Inject
     SecretsManagerService secretsManagerService;
+
+    private AuthSignatureServicePortType authSignatureService;
+
 
     @PostConstruct
     void obtainConfiguration() throws IOException, ParserConfigurationException, SecretsManagerException {
         // code copied from IdpClient.java
 
+        authSignatureService = new AuthSignatureService(getClass().getResource("/AuthSignatureService_v7_4_1.wsdl")).getAuthSignatureServicePort();
+        BindingProvider bp = (BindingProvider) authSignatureService;
         SSLContext sslContext;
         try (FileInputStream fileInputStream = new FileInputStream(connectorTlsCertAuthStoreFile.orElseThrow())) {
             sslContext = secretsManagerService.createSSLContext(fileInputStream,
                     connectorTlsCertAuthStorePwd.toCharArray(),
                     SecretsManagerService.SslContextType.TLS,
-                    SecretsManagerService.KeyStoreType.PKCS12);
+                    SecretsManagerService.KeyStoreType.PKCS12,
+                    bp);
         } catch (IOException e) {
             throw new SecretsManagerException("SSL transport configuration error.", e);
         }
@@ -106,6 +120,7 @@ public class EndpointDiscoveryService {
 
         if (!isConnectorVerifyHostnames()) {
             // disable hostname verification
+            // This line is currently not working
             clientBuilder = clientBuilder.hostnameVerifier(new SSLUtilities.FakeHostnameVerifier());
         }
 
@@ -145,6 +160,10 @@ public class EndpointDiscoveryService {
                         authSignatureServiceEndpointAddress = getEndpoint(node);
                         break;
                     }
+                    case "CardService": {
+                        cardServiceEndpointAddress = getEndpoint(node);
+                        break;
+                    }
                     case "EventService": {
                         eventServiceEndpointAddress = getEndpoint(node);
                         break;
@@ -166,6 +185,9 @@ public class EndpointDiscoveryService {
         if (authSignatureServiceEndpointAddress == null) {
             authSignatureServiceEndpointAddress = fallbackAuthSignatureServiceEndpointAddress.orElseThrow();
         }
+        if (cardServiceEndpointAddress == null) {
+            cardServiceEndpointAddress = fallbackCardServiceEndpointAddress.orElseThrow();
+        }
         if (signatureServiceEndpointAddress == null) {
             signatureServiceEndpointAddress = fallbackSignatureServiceEndpointAddress.orElseThrow();
         }
@@ -179,6 +201,10 @@ public class EndpointDiscoveryService {
 
     public String getAuthSignatureServiceEndpointAddress() {
         return authSignatureServiceEndpointAddress;
+    }
+
+    public String getCardServiceEndpointAddress() {
+        return cardServiceEndpointAddress;
     }
 
     public String getSignatureServiceEndpointAddress() {

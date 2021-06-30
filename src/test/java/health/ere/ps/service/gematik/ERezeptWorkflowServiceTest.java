@@ -8,12 +8,16 @@ import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.exception.gematik.ERezeptWorkflowException;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
+import health.ere.ps.service.connector.endpoint.SSLUtilities;
 import health.ere.ps.service.extractor.SVGExtractor;
 import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilder;
 import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilderTest;
 import health.ere.ps.service.muster16.Muster16FormDataExtractorService;
 import health.ere.ps.service.muster16.parser.Muster16SvgExtractorParser;
+import health.ere.ps.test.DefaultTestProfile;
 import io.quarkus.test.junit.QuarkusTest;
+
+import io.quarkus.test.junit.TestProfile;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Task;
@@ -25,7 +29,6 @@ import javax.inject.Inject;
 import javax.xml.stream.XMLStreamException;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -38,12 +41,13 @@ import java.util.logging.Logger;
 import static health.ere.ps.service.extractor.TemplateProfile.CGM_TURBO_MED;
 
 @QuarkusTest
+@TestProfile(DefaultTestProfile.class)
 public class ERezeptWorkflowServiceTest {
 
     private static final Logger log = Logger.getLogger(ERezeptWorkflowServiceTest.class.getName());
     private final FhirContext fhirContext = FhirContext.forR4();
     private final IParser iParser = fhirContext.newXmlParser();
-    private final String testBearerToken = "eyJhbGciOiJCUDI1NlIxIiwidHlwIjoiYXQrSldUIiwia2lkIjoicHVrX2lkcF9zaWcifQ.eyJzdWIiOiJzM1pPekJtT01GZkdSbHB6R1E5d3NvQ3hBWFBZbFVQcUYwb0I3SWctMEJRIiwicHJvZmVzc2lvbk9JRCI6IjEuMi4yNzYuMC43Ni40LjUwIiwib3JnYW5pemF0aW9uTmFtZSI6IjIwMjExMDEyMiBOT1QtVkFMSUQiLCJpZE51bW1lciI6IjEtMi1BUlpULVdhbHRyYXV0RHJvbWJ1c2NoMDEiLCJhbXIiOlsibWZhIiwic2MiLCJwaW4iXSwiaXNzIjoiaHR0cHM6Ly9pZHAuemVudHJhbC5pZHAuc3BsaXRkbnMudGktZGllbnN0ZS5kZSIsImdpdmVuX25hbWUiOiJXYWx0cmF1dCIsImNsaWVudF9pZCI6ImVSZXplcHRBcHAiLCJhY3IiOiJnZW1hdGlrLWVoZWFsdGgtbG9hLWhpZ2giLCJhdWQiOiJodHRwczovL2VycC10ZXN0LnplbnRyYWwuZXJwLnNwbGl0ZG5zLnRpLWRpZW5zdGUuZGUvIiwiYXpwIjoiZVJlemVwdEFwcCIsInNjb3BlIjoiZS1yZXplcHQgb3BlbmlkIiwiYXV0aF90aW1lIjoxNjIzNjI4OTgyLCJleHAiOjE2MjM2MjkyODIsImZhbWlseV9uYW1lIjoiRHJvbWJ1c2NoIiwiaWF0IjoxNjIzNjI4OTgyLCJqdGkiOiI3NGRkMGRmNTNlZGUzYjI3In0.oR4PM_G218IFYPKyhCEdBnRgVeF2goE_fZYkVWmiXlF1FWetk-pCigoigBhqyPjGGbZTGnUL7Z2VgkdWQ9GirA";
+    private final String testBearerToken = "eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiY3R5IjoiTkpXVCIsImV4cCI6MTYyNTA2NjM0MH0..GSqrRDh8B9_4L4VO.nqMys3GE_dKBDgEfIA2O0Sg9QQc8csNlsl8XVWQRnP3iC5Q7777Ci_SbNTLkqBSeEX_cKUbFIo7ElfDGlW3doVt9lZrqUsYvZySewl4-Rb9d3D1hFugegY46_LXtzuzwEm36W8M38DRWaIrP759riLFUPqcB6vr3oIMKzjeYZ2l3A1-H8H8AKfFhYwneWAGG5RwXwDNWMocnn3--m3pRRjgVE7JdAli8Nw5rJ26aAJ4S9q9WOQElWOzFnYteAqqjdLlWXHgK_7rElgNvMckhOeEN9rg0rouWuhN-bNXyeJMFuRQALXZ1cl5c7LGwwfI5RB-OwpOE7hAHGcWoovs89_e0uL-R8M9zNSvqU0IIDmqnvhVMdP63yHRYOCnjlsy7Z6ViWkJ_O4BnD8HbdK0yBQknKDmriX1ofPaVzZFyuLyKCLdDIhw5Ub5ML_tJ0vZ9m9WO8u1cm_352qO0NWN4O1f6b8dO2UWb1X-copBjebsD-A1Kyw8BoJzRq2dGvfarfHI1bkRl_KhFkVX15dpoqPcyLpRcqYS4W26jK7MlrjNcy508FS7CcfheQ4zbi3hxQGZDfCZ9cEit3h5I6lZEGHRGDLm_QDbEC-2rkDRRAP_97n3zswa97c57B3xG366yn4FCe9GeZHiZCY4qMtRSijAcW71G3CYzArXWwMURxAuYL8cGOen_Fsit491AM6R3AtYK4yQ_eTk_4i6UYv6GqPmxvRYjNjzAfMeyKupkLY8N0wQnL67dkMTz7RH-N8BL1PDF-ETzXmKVFmUdvhojEYV7vfOJx2yV-cXv2cChBI7A--SSffFJhqZOQUYMFRtUphBiXZTLgF2_PFpS32lgdCpn5dkNW7kMK1ARIZx7iVvhIYcYxSByJcdNZ928nHT5Kpdz8Z5ap-O8L_FYjiPrRAJ9O28ZU7ZHTVRDyOb5nOZf7kG3xVIvxJV3FQ0kLmXp4xU8tW8G53sj161rFllBJLVBKDI_7fHTnOg2Aa58wCm4AeC4thH90szLkSAPS3GtFsWkkHaEuBWffBvrHEI2POOwVy2eyz991z3OZBrwF76N1bazJTrMc4CYp3BWSR7S6dYf-E2wYeXeKqJud0qrmfVlGjMfLre8NVn-8hYtrxPEOCFAoBMZRf1S2IPvOgdYRFMoRcJDQ6PyBiSetPWvNRmJJbdWiKEUxGK1ILSKfg5QQxvWpS3yj-evGLApJbL0BBmhougcvRcbm0xQQexcZF9VQdVKye7jEG0T49SQMhskh8KU3BwJaQ.A0rDmBg2FB_lLfswYqw8ww";
 
     @Inject
     ERezeptWorkflowService eRezeptWorkflowService;
@@ -64,6 +68,10 @@ public class ERezeptWorkflowServiceTest {
         System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
         System.setProperty("com.sun.xml.internal.ws.transport.http.HttpAdapter.dump", "true");
         System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dumpTreshold", "999999");
+
+
+        SSLUtilities.trustAllHostnames();
+        SSLUtilities.trustAllHttpsCertificates();
     }
 
     @Test
@@ -151,7 +159,7 @@ public class ERezeptWorkflowServiceTest {
 
 
     @Test
-    @Disabled
+    // @Disabled
         // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testUpdateBundleWithTaskAndSignBundleWithIdentifiers() throws IOException, ERezeptWorkflowException {
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/examples_erezept/Erezept_template_3.xml"));
