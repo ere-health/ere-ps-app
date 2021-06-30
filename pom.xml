@@ -274,6 +274,7 @@
                 <version>${surefire-plugin.version}</version>
                 <configuration>
                     <systemPropertyVariables>
+                        <quarkus.test.profile>dev</quarkus.test.profile>
                         <java.util.logging.manager>
                             org.jboss.logmanager.LogManager
                         </java.util.logging.manager>
@@ -326,6 +327,7 @@
                                 </goals>
                                 <configuration>
                                     <systemPropertyVariables>
+                                        <quarkus.test.profile>dev</quarkus.test.profile>
                                         <native.image.path>
                                             ${project.build.directory}/${project.build.finalName}-runner
                                         </native.image.path>

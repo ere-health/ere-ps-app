@@ -1,5 +1,9 @@
 package health.ere.ps.service.idp.client;
 
+import health.ere.ps.service.connector.endpoint.SSLUtilities;
+import health.ere.ps.test.DefaultTestProfile;
+
+import io.quarkus.test.junit.TestProfile;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -8,7 +12,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.security.cert.X509Certificate;
-import java.util.Optional;
 import java.util.logging.LogManager;
 
 import javax.inject.Inject;
@@ -28,6 +31,7 @@ import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
 import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest
+@TestProfile(DefaultTestProfile.class)
 public class IdpClientTest {
 
     @Inject
@@ -68,6 +72,9 @@ public class IdpClientTest {
     @BeforeAll
     public static void init() {
 
+        SSLUtilities.trustAllHostnames();
+        SSLUtilities.trustAllHttpsCertificates();
+
         try {
 			// https://community.oracle.com/thread/1307033?start=0&tstart=0
 			LogManager.getLogManager().readConfiguration(
@@ -92,6 +99,9 @@ public class IdpClientTest {
                 SecretsManagerService.SslContextType.TLS,
                 appConfig.getIdpConnectorTlsCertTrustStore(),
                 appConfig.getIdpConnectorTlsCertTustStorePwd());
+
+        SSLUtilities.trustAllHostnames();
+        SSLUtilities.trustAllHttpsCertificates();
     }
 
     @Test
