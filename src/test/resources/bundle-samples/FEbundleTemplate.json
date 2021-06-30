@@ -239,7 +239,7 @@
                 }
               ]
             },
-            "system": "http://fhir.de/sid/gkv/kvid-10",
+            "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
             "value": "$KVID_10"
           }
         ],
@@ -453,7 +453,7 @@
             "url": "http://fhir.de/StructureDefinition/gkv/wop",
             "valueCoding": {
               "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_ITA_WOP",
-              "code": "00"
+              "code": ""
             }
           },
           {
@@ -479,10 +479,10 @@
         "payor": [
           {
             "identifier": {
-              "system": "http://fhir.de/sid/arge-ik/iknr",
-              "value": "$INSURANCE_NUMBER"
+              "system": "http://fhir.de/NamingSystem/arge-ik/iknr",
+              "value": ""
             },
-            "display": "$INSURANCE_NAME"
+            "display": ""
           }
         ]
       }
