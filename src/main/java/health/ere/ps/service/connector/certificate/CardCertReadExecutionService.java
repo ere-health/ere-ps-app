@@ -1,5 +1,8 @@
 package health.ere.ps.service.connector.certificate;
 
+import de.gematik.ws.conn.cardservice.wsdl.v8.CardService;
+import de.gematik.ws.conn.cardservice.wsdl.v8.CardServicePortType;
+import de.gematik.ws.conn.cardservicecommon.v2.PinResultEnum;
 import de.gematik.ws.conn.certificateservice.v6.ReadCardCertificate;
 import de.gematik.ws.conn.certificateservice.v6.ReadCardCertificateResponse;
 import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateService;
@@ -16,6 +19,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,6 +32,9 @@ import javax.xml.ws.Holder;
 
 import health.ere.ps.exception.connector.ConnectorCardCertificateReadException;
 import health.ere.ps.service.common.security.SecretsManagerService;
+import health.ere.ps.service.connector.cards.ConnectorCardsService;
+import health.ere.ps.service.connector.endpoint.EndpointDiscoveryService;
+import health.ere.ps.service.connector.endpoint.SSLUtilities;
 
 @ApplicationScoped
 public class CardCertReadExecutionService {
@@ -37,6 +44,9 @@ public class CardCertReadExecutionService {
     @Inject
     SecretsManagerService secretsManagerService;
 
+    @Inject
+    EndpointDiscoveryService endpointDiscoveryService;
+
     @ConfigProperty(name = "connector.cert.auth.store.file", defaultValue = "!")
     String certAuthStoreFile;
 
@@ -44,6 +54,9 @@ public class CardCertReadExecutionService {
     AppConfig appConfig;
 
     private CertificateServicePortType certificateService;
+
+    CardServicePortType cardService;
+
 
     static {
         System.setProperty("javax.xml.accessExternalDTD", "all");
@@ -68,6 +81,13 @@ public class CardCertReadExecutionService {
                 log.log(Level.SEVERE, "Could find file", e);
             }
         }
+
+        cardService = new CardService(getClass().getResource("/CardService.wsdl")).getCardServicePort();
+        // Set endpoint to configured endpoint
+        bp = (BindingProvider) cardService;
+        bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+                endpointDiscoveryService.getCardServiceEndpointAddress());
+        endpointDiscoveryService.configureSSLTransportContext(bp);
     }
 
     public void setUpCustomSSLContext(InputStream p12Certificate) {
@@ -76,6 +96,7 @@ public class CardCertReadExecutionService {
 
         bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
                customSSLContext.getSocketFactory());
+        bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier", new SSLUtilities.FakeHostnameVerifier());
     }
 
     /**
@@ -97,11 +118,30 @@ public class CardCertReadExecutionService {
         Holder<X509DataInfoListType> certHolder = new Holder<X509DataInfoListType>();
 
         try {
+
+            contextType.setMandantId(appConfig.getMandantId());
             certificateService.readCardCertificate(cardHandle, contextType, certRefList,
                     statusHolder, certHolder);
         } catch (FaultMessage faultMessage) {
-            new ConnectorCardCertificateReadException("Exception reading aut certificate",
-                    faultMessage);
+                FaultMessage authSignatureFaultMessage = faultMessage;
+                // Zugriffsbedingungen nicht erfüllt
+                boolean code4085 = authSignatureFaultMessage.getFaultInfo().getTrace().stream().anyMatch(t -> t.getCode().equals(BigInteger.valueOf(4085l)));
+                if(code4085) {
+
+                        Holder<Status> status = new Holder<>();
+                        Holder<PinResultEnum> pinResultEnum = new Holder<>();
+                        Holder<BigInteger> error = new Holder<>();
+                        try {
+                            cardService.verifyPin(contextType,
+                                    cardHandle,
+                                    "PIN.SMC", status, pinResultEnum, error);
+                            doReadCardCertificate(invocationContext, cardHandle);
+                        } catch (de.gematik.ws.conn.cardservice.wsdl.v8.FaultMessage e) {
+                            throw new ConnectorCardCertificateReadException("Could not get certificate", faultMessage);
+                        }
+                } else {
+                    throw new ConnectorCardCertificateReadException("Could not get certificate", faultMessage);
+                }
         }
 
         ReadCardCertificateResponse readCardCertificateResponse = new ReadCardCertificateResponse();

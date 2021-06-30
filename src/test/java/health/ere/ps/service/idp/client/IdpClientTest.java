@@ -1,6 +1,8 @@
 package health.ere.ps.service.idp.client;
 
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
+import health.ere.ps.test.StagingTestProfile;
+
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -27,8 +29,10 @@ import health.ere.ps.service.common.security.SecureSoapTransportConfigurer;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
 
 @QuarkusTest
+@TestProfile(StagingTestProfile.class)
 public class IdpClientTest {
 
     @Inject
@@ -68,6 +72,9 @@ public class IdpClientTest {
 
     @BeforeAll
     public static void init() {
+
+        SSLUtilities.trustAllHostnames();
+        SSLUtilities.trustAllHttpsCertificates();
 
         try {
 			// https://community.oracle.com/thread/1307033?start=0&tstart=0
