@@ -227,10 +227,10 @@ public class PrescriptionBundlesBuilderTest {
             Map<String, String> map = svgExtractor.extract(pdDocument);
             Muster16SvgRegexParser parser = new Muster16SvgRegexParser(map);
 
-            Muster16PrescriptionForm muster16PrescriptionForm =
-                    Muster16FormDataExtractorService.fillForm(parser);
 //            Muster16PrescriptionForm muster16PrescriptionForm =
-//                    getMuster16PrescriptionFormForTests();
+//                    Muster16FormDataExtractorService.fillForm(parser);
+            Muster16PrescriptionForm muster16PrescriptionForm =
+                    getMuster16PrescriptionFormForTests();
 
             IBundlesBuilder bundleBuilder = new PrescriptionBundlesBuilderV2(
                     muster16PrescriptionForm);
@@ -241,7 +241,8 @@ public class PrescriptionBundlesBuilderTest {
                 bundles.stream().forEach(bundle -> {
                     String bundleJsonString = jsonParser.encodeResourceToString(bundle);
 
-                    bundleJsonString = bundleJsonString.replace("$$$", "");
+                    bundleJsonString = PrescriptionBundlesBuilderV2.clearNullValuePlaceHolders(
+                            bundleJsonString);
 
                     logger.info("Filled bundle json template result shown below");
                     logger.info("==============================================");
