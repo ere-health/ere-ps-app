@@ -14,10 +14,10 @@ import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilder;
 import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilderTest;
 import health.ere.ps.service.muster16.Muster16FormDataExtractorService;
 import health.ere.ps.service.muster16.parser.Muster16SvgExtractorParser;
-import health.ere.ps.test.StagingTestProfile;
+import health.ere.ps.test.DefaultTestProfile;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.TestProfile;
 
+import io.quarkus.test.junit.TestProfile;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Task;
@@ -29,7 +29,6 @@ import javax.inject.Inject;
 import javax.xml.stream.XMLStreamException;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -42,7 +41,7 @@ import java.util.logging.Logger;
 import static health.ere.ps.service.extractor.TemplateProfile.CGM_TURBO_MED;
 
 @QuarkusTest
-@TestProfile(StagingTestProfile.class)
+@TestProfile(DefaultTestProfile.class)
 public class ERezeptWorkflowServiceTest {
 
     private static final Logger log = Logger.getLogger(ERezeptWorkflowServiceTest.class.getName());
