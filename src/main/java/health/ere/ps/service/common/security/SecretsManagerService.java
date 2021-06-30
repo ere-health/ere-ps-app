@@ -197,7 +197,7 @@ public class SecretsManagerService {
 
             kmf.init(ks, keyStorePassword);
 
-            sc.init( kmf.getKeyManagers(), null, null );
+            sc.init( kmf.getKeyManagers(), new TrustManager[]{new SSLUtilities.FakeX509TrustManager()}, null );
         } catch (NoSuchAlgorithmException | KeyStoreException | CertificateException | IOException
                 | UnrecoverableKeyException | KeyManagementException e) {
             throw new SecretsManagerException("SSL context creation error.", e);
