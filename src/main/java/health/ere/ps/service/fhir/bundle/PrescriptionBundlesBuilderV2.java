@@ -175,6 +175,7 @@ public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
             ((Composition)bundle.getEntry().get(0).getResource()).setDate(new Date());
             ((MedicationRequest)bundle.getEntry().get(1).getResource()).getMeta().setLastUpdated(
                     new Date());
+            ((MedicationRequest)bundle.getEntry().get(1).getResource()).setAuthoredOn(new Date());
         } catch (IOException e) {
             throw new IllegalStateException("Cannot read bundle template or sample!", e);
         }
