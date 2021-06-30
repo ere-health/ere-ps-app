@@ -1,5 +1,7 @@
 package health.ere.ps.service.connector.endpoint;
 
+import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureService;
+import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureServicePortType;
 import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -87,16 +89,24 @@ public class EndpointDiscoveryService {
     @Inject
     SecretsManagerService secretsManagerService;
 
+    private AuthSignatureServicePortType authSignatureService;
+
+
     @PostConstruct
     void obtainConfiguration() throws IOException, ParserConfigurationException, SecretsManagerException {
         // code copied from IdpClient.java
 
+        authSignatureService = new AuthSignatureService(getClass().getResource(
+                "/AuthSignatureService_v7_4_1.wsdl")).getAuthSignatureServicePort();
+
         SSLContext sslContext;
         try (FileInputStream fileInputStream = new FileInputStream(connectorTlsCertAuthStoreFile.orElseThrow())) {
+            BindingProvider bp = (BindingProvider) authSignatureService;
             sslContext = secretsManagerService.createSSLContext(fileInputStream,
                     connectorTlsCertAuthStorePwd.toCharArray(),
                     SecretsManagerService.SslContextType.TLS,
-                    SecretsManagerService.KeyStoreType.PKCS12);
+                    SecretsManagerService.KeyStoreType.PKCS12,
+                    bp);
         } catch (IOException e) {
             throw new SecretsManagerException("SSL transport configuration error.", e);
         }

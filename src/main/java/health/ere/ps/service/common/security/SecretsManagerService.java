@@ -1,5 +1,6 @@
 package health.ere.ps.service.common.security;
 
+import com.sun.xml.ws.developer.JAXWSProperties;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
 import org.bouncycastle.crypto.CryptoException;
@@ -171,7 +172,7 @@ public class SecretsManagerService {
         }
         try(FileInputStream fileInputStream = new FileInputStream(trustStoreFilePath)) {
             SSLContext sc = createSSLContext(fileInputStream, trustStorePassword.toCharArray(),
-                sslContextType, keyStoreType);
+                sslContextType, keyStoreType, bp);
 
             bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
                     sc.getSocketFactory());
@@ -182,12 +183,15 @@ public class SecretsManagerService {
     }
 
     public SSLContext createSSLContext(InputStream trustStoreInputStream, char[] keyStorePassword,
-                                    SslContextType sslContextType, KeyStoreType keyStoreType)
+                                    SslContextType sslContextType, KeyStoreType keyStoreType, BindingProvider bp)
             throws SecretsManagerException {
         SSLContext sc;
 
         try {
             sc = SSLContext.getInstance(sslContextType.getSslContextType());
+
+
+            bp.getRequestContext().put(JAXWSProperties.HOSTNAME_VERIFIER, new SSLUtilities.FakeHostnameVerifier());
 
             KeyManagerFactory kmf =
                     KeyManagerFactory.getInstance( KeyManagerFactory.getDefaultAlgorithm() );
