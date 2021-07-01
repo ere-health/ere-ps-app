@@ -1,6 +1,5 @@
 package health.ere.ps.service.fhir.bundle;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.Bundle;
 
@@ -17,7 +16,7 @@ import health.ere.ps.model.muster16.MedicationString;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
 
 public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
-    public static final String NULL_VALUE_PLACE_HOLDER = "$$$";
+    public static final String NULL_VALUE_PLACE_HOLDER = "";
     public static final String NULL_DATE_VALUE_PLACE_HOLDER = "9999-12-28";
 
     protected static final String $PRESCRIPTION_ID = "$PRESCRIPTION_ID";
@@ -43,7 +42,6 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
     protected static final String $PATIENT_NAME_FIRST = "$PATIENT_NAME_FIRST";
     protected static final String $PATIENT_NAME_FAMILY = "$PATIENT_NAME_FAMILY";
     protected static final String $PATIENT_BIRTH_DATE = "$PATIENT_BIRTH_DATE";
-//    protected static final String $PATIENT_ADDRESS_LINE = "$PATIENT_ADDRESS_LINE";
     protected static final String $PATIENT_ADDRESS_STREET_NAME = "$PATIENT_ADDRESS_STREET_NAME";
     protected static final String $PATIENT_ADDRESS_STREET_NUMBER = "$PATIENT_ADDRESS_STREET_NUMBER";
     protected static final String $PATIENT_ADDRESS_POSTAL_CODE = "$PATIENT_ADDRESS_POSTAL_CODE";
@@ -66,7 +64,6 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
     protected static final String $CLINIC_ID = "$CLINIC_ID";
     protected static final String $ORGANIZATION_NAME = "$ORGANIZATION_NAME";
     protected static final String $ORGANIZATION_PHONE = "$ORGANIZATION_PHONE";
-//    protected static final String $ORGANIZATION_ADDRESS_LINE = "$ORGANIZATION_ADDRESS_LINE";
     protected static final String $ORGANIZATION_ADDRESS_STREET_NAME = "$ORGANIZATION_ADDRESS_STREET_NAME";
     protected static final String $ORGANIZATION_ADDRESS_STREET_NUMBER = "$ORGANIZATION_ADDRESS_STREET_NUMBER";
     protected static final String $ORGANIZATION_ADDRESS_POSTAL_CODE = "$ORGANIZATION_ADDRESS_POSTAL_CODE";
@@ -122,7 +119,6 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
         updatePractitionerResourceSection();
         updateOrganizationResourceSection();
         updateCoverageResourceSection();
-        clearNullValuePlaceHolders();
 
         EreBundle bundle = new EreBundle(templateKeyMapper);
 
@@ -306,18 +302,6 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
 
     protected boolean isKbvFormattedDate(String date) {
         return StringUtils.isNotBlank(date) && date.matches("\\d\\d\\d\\d\\-\\d\\d\\-\\d\\d");
-    }
-
-    protected void clearNullValuePlaceHolders() {
-        templateKeyMapper.keySet().stream().forEach(key -> {
-
-            String val = templateKeyMapper.get(key);
-
-            if (null == val || val.equals(NULL_DATE_VALUE_PLACE_HOLDER) ||
-                    val.equals(NULL_VALUE_PLACE_HOLDER)) {
-                templateKeyMapper.put(key, "");
-            }
-        });
     }
 
     public Map<String, String> getTemplateKeyMapper() {
