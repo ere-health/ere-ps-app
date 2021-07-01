@@ -199,10 +199,14 @@
                                                 </fo:table-cell>
                                                 <fo:table-cell>
                                                     <fo:block margin-left="10mm" font-weight="bold">
-                                                        <xsl:call-template name="formatDate">
-                                                            <xsl:with-param name="date"
-                                                                            select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:authoredOn/@value"/>
-                                                        </xsl:call-template>
+                                                        <xsl:variable name="authoredOn" select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:authoredOn/@value" />
+                                                        <xsl:for-each select="tokenize($authoredOn, 'T')">
+                                                            <xsl:if test="position()=1">
+                                                                <xsl:call-template name="formatDate">
+                                                                    <xsl:with-param name="date" select="."/>
+                                                                </xsl:call-template>
+                                                            </xsl:if>
+                                                        </xsl:for-each>
                                                     </fo:block>
                                                 </fo:table-cell>
                                             </fo:table-row>
