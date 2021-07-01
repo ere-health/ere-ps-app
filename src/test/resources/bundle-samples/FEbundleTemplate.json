@@ -248,7 +248,7 @@
             "use": "official",
             "family": "$PATIENT_NAME_FAMILY",
             "given": [
-              ""
+              "$PATIENT_NAME_FIRST"
             ]
           }
         ],
