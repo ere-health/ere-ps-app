@@ -233,7 +233,7 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
         templateKeyMapper.put($PRACTITIONER_NUMBER,
                 getProtectedValue(muster16PrescriptionForm.getPractitionerId()));
 
-        templateKeyMapper.put($PRACTITIONER_QUALIFICATION_TEXT, getProtectedValue(null));
+        templateKeyMapper.put($PRACTITIONER_QUALIFICATION_TEXT, "Arzt");
     }
 
     protected void updateOrganizationResourceSection() {
