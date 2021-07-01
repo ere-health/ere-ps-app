@@ -269,9 +269,6 @@
         "address": [
           {
             "type": "both",
-            "line": [
-              "$PATIENT_ADDRESS_LINE"
-            ],
             "_line": [
               {
                 "extension": [
@@ -400,9 +397,6 @@
         "address": [
           {
             "type": "both",
-            "line": [
-              "$ORGANIZATION_ADDRESS_LINE"
-            ],
             "_line": [
               {
                 "extension": [
@@ -479,7 +473,7 @@
         "payor": [
           {
             "identifier": {
-              "system": "http://fhir.de/sid/arge-ik/iknr",
+              "system": "http://fhir.de/NamingSystem/arge-ik/iknr",
               "value": "$INSURANCE_NUMBER"
             },
             "display": "$INSURANCE_NAME"
