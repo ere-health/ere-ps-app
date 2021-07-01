@@ -106,7 +106,7 @@ public class VAUEngine extends ApacheHttpClient43Engine {
         newHeaders.putSingle("Content-Type", "application/octet-stream");
         newHeaders.putSingle("Accept", "application/octet-stream");
         newHeaders.remove("Authorization");
-        // request.getHeaders().setHeaders(newHeaders);
+         request.getHeaders().setHeaders(newHeaders);
 
 
         byte[] finalMessageData;
