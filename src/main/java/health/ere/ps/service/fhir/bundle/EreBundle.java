@@ -63,9 +63,9 @@ public class EreBundle extends Bundle {
                 tempDate = new Date();
             }
 
-            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
-            templateMap.put(fieldName, dateFormat.format(tempDate));
+            templateMap.put(fieldName, dateFormat.format(tempDate) + "Z");
         }
     }
 
