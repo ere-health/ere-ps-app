@@ -64,6 +64,15 @@ public class VAUEngine extends ApacheHttpClient43Engine {
     private static final Pattern RESPONSE_PATTERN = Pattern.compile(responsePattern, Pattern.DOTALL);
 
     public VAUEngine(String fachdienstUrl) {
+       /*super(HttpClients.custom()
+         .setKeepAliveStrategy(new ConnectionKeepAliveStrategy() {
+         @Override
+         public long getKeepAliveDuration(HttpResponse response, HttpContext context) {
+            return 0;
+         }
+
+         })
+       .build());*/
         this.fachdienstUrl = fachdienstUrl;
     }
 
@@ -97,7 +106,8 @@ public class VAUEngine extends ApacheHttpClient43Engine {
         newHeaders.putSingle("Content-Type", "application/octet-stream");
         newHeaders.putSingle("Accept", "application/octet-stream");
         newHeaders.remove("Authorization");
-        request.getHeaders().setHeaders(newHeaders);
+        // request.getHeaders().setHeaders(newHeaders);
+
 
         byte[] finalMessageData;
         try {
