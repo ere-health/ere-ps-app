@@ -42,7 +42,7 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
     protected static final String $PATIENT_NAME_FIRST = "$PATIENT_NAME_FIRST";
     protected static final String $PATIENT_NAME_FAMILY = "$PATIENT_NAME_FAMILY";
     protected static final String $PATIENT_BIRTH_DATE = "$PATIENT_BIRTH_DATE";
-    protected static final String $PATIENT_ADDRESS_LINE = "$PATIENT_ADDRESS_LINE";
+//    protected static final String $PATIENT_ADDRESS_LINE = "$PATIENT_ADDRESS_LINE";
     protected static final String $PATIENT_ADDRESS_STREET_NAME = "$PATIENT_ADDRESS_STREET_NAME";
     protected static final String $PATIENT_ADDRESS_STREET_NUMBER = "$PATIENT_ADDRESS_STREET_NUMBER";
     protected static final String $PATIENT_ADDRESS_POSTAL_CODE = "$PATIENT_ADDRESS_POSTAL_CODE";
@@ -65,7 +65,7 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
     protected static final String $CLINIC_ID = "$CLINIC_ID";
     protected static final String $ORGANIZATION_NAME = "$ORGANIZATION_NAME";
     protected static final String $ORGANIZATION_PHONE = "$ORGANIZATION_PHONE";
-    protected static final String $ORGANIZATION_ADDRESS_LINE = "$ORGANIZATION_ADDRESS_LINE";
+//    protected static final String $ORGANIZATION_ADDRESS_LINE = "$ORGANIZATION_ADDRESS_LINE";
     protected static final String $ORGANIZATION_ADDRESS_STREET_NAME = "$ORGANIZATION_ADDRESS_STREET_NAME";
     protected static final String $ORGANIZATION_ADDRESS_STREET_NUMBER = "$ORGANIZATION_ADDRESS_STREET_NUMBER";
     protected static final String $ORGANIZATION_ADDRESS_POSTAL_CODE = "$ORGANIZATION_ADDRESS_POSTAL_CODE";
@@ -184,8 +184,6 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
         templateKeyMapper.put($PATIENT_BIRTH_DATE,
                 getProtectedDateValue(muster16PrescriptionForm.getPatientDateOfBirth()));
 
-        templateKeyMapper.put($PATIENT_ADDRESS_LINE, getProtectedValue(null));
-
         templateKeyMapper.put($PATIENT_ADDRESS_STREET_NAME,
                 getProtectedValue(muster16PrescriptionForm.getPatientStreetName()));
 
@@ -249,12 +247,6 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
 
         templateKeyMapper.put($ORGANIZATION_PHONE,
                 getProtectedValue(muster16PrescriptionForm.getPractitionerPhone()));
-
-        templateKeyMapper.put($ORGANIZATION_ADDRESS_LINE,
-                getProtectedValue(muster16PrescriptionForm.getPractitionerStreetName()) +
-                        " " +
-                        getProtectedValue(
-                                muster16PrescriptionForm.getPractitionerStreetNumber()));
 
         templateKeyMapper.put($ORGANIZATION_ADDRESS_STREET_NAME,
                 getProtectedValue(muster16PrescriptionForm.getPractitionerStreetName()));
