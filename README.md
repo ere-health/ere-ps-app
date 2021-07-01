@@ -104,9 +104,9 @@ An example of the layout of the contents in the .env file is shown below:
 
 >ERE_DIRECTORY_WATCHER_DIR=<YOUR_LOCAL_PATH>/watch-pdf
 
->ERE_TITUS_CONNECTOR_TLS_CERT_TRUST_STORE_DIR=<YOUR_LOCAL_PATH>/ere-ps-app/src/test/resources/certs
+>ERE_CONNECTOR_TLS_CERT_TRUST_STORE_FILE=<YOUR_LOCAL_PATH>/ere-ps-app/src/test/resources/certs/ps_erp_incentergy_01.p12
 
->ERE_TITUS_CONNECTOR_TLS_CERT_TRUST_STORE_PWD=<SECRET_VALUE_ON_YOUR_COMPUTER>
+>ERE_CONNECTOR_TLS_CERT_TRUST_STORE_PWD=<SECRET_VALUE_ON_YOUR_COMPUTER>
 
 #### List of Application Environment Variables
 * **ERE_DIRECTORY_WATCHER_DIR** 
@@ -117,7 +117,7 @@ An example of the layout of the contents in the .env file is shown below:
     (i.e. \\).
   
   
-* **ERE_TITUS_CONNECTOR_TLS_CERT_TRUST_STORE_DIR**
+* **ERE_CONNECTOR_TLS_CERT_TRUST_STORE_FILE**
     
     Specifies the path of the Titus Connector TLS certificate trust store. Paths can be 
     absolute or relative to the path location of the ere-ps-app.jar executable. For Windows 
@@ -125,7 +125,7 @@ An example of the layout of the contents in the .env file is shown below:
     file separators (i.e. \\).
   
   
-* **ERE_TITUS_CONNECTOR_TLS_CERT_TRUST_STORE_PWD**
+* **ERE_CONNECTOR_TLS_CERT_TRUST_STORE_PWD**
 
     Password for the Titus TLS certificate trust store. For Windows environments, make sure to use
     double quotes around numeric values that are to be interpreted as a string. 

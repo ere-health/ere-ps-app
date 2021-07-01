@@ -6,20 +6,18 @@ import com.google.gson.JsonParser;
 
 import com.diffplug.common.base.Errors;
 import com.diffplug.common.base.Throwing;
-
-import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureServicePortType;
-import de.gematik.ws.conn.connectorcontext.v2.ContextType;
-
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.jboss.logging.Logger;
+import org.jose4j.jca.ProviderContext;
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.lang.JoseException;
 
 import java.security.PublicKey;
+import java.security.Security;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.Objects;
@@ -29,7 +27,6 @@ import java.util.function.Function;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
-import javax.net.ssl.SSLContext;
 
 import health.ere.ps.exception.idp.IdpClientException;
 import health.ere.ps.exception.idp.IdpException;
@@ -78,6 +75,11 @@ public class IdpClient implements IIdpClient {
 
     private DiscoveryDocumentResponse discoveryDocumentResponse;
 
+
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+    }
+
     public void init(String clientId, String redirectUrl, String discoveryDocumentUrl,
                      boolean shouldVerifyState) {
         this.clientId = clientId;
@@ -99,6 +101,12 @@ public class IdpClient implements IIdpClient {
         jsonWebSignature.setHeader("typ", "JWT");
         jsonWebSignature.setHeader("cty", "NJWT");
         if (KeyAnalysis.isEcKey(certificate.getPublicKey())) {
+
+            ProviderContext providerCtx = new ProviderContext();
+            providerCtx.getGeneralProviderContext().setKeyPairGeneratorProvider("BC");
+            providerCtx.getGeneralProviderContext().setKeyAgreementProvider("BC");
+            jsonWebSignature.setProviderContext(providerCtx);
+
             jsonWebSignature.setAlgorithmHeaderValue(
                     BrainpoolAlgorithmSuiteIdentifiers.BRAINPOOL256_USING_SHA256);
         } else {
@@ -109,6 +117,8 @@ public class IdpClient implements IIdpClient {
             contentSigner.apply(Pair.of(
                 jsonWebSignature.getHeaders().getEncodedHeader(),
                 jsonWebSignature.getEncodedPayload())));
+        jwt.getHeaderClaims().remove("alg");
+        jwt.getHeaderClaims().put("alg", BrainpoolAlgorithmSuiteIdentifiers.BRAINPOOL256_USING_SHA256);
         String signedServerChallengeJwt = jwt
                 .encrypt(idpPublicKey)
                 .getRawString();
