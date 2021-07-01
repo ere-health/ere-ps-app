@@ -143,7 +143,7 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
                         (muster16PrescriptionForm.getWithPayment() ? "0" : "1") : null));
 
         templateKeyMapper.put($AUTHORED_ON,
-                getProtectedDateValue(muster16PrescriptionForm.getPrescriptionDate()));
+                getProtectedDateValue(muster16PrescriptionForm.getPrescriptionDate()) + "T00:00:00.000Z");
     }
 
     protected void updateMedicationResourceSection(MedicationString medicationString) {
@@ -259,9 +259,6 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
 
         templateKeyMapper.put($ORGANIZATION_ADDRESS_CITY,
                 getProtectedValue(muster16PrescriptionForm.getPractitionerCity()));
-
-        templateKeyMapper.put($ORGANIZATION_PHONE,
-                getProtectedValue(muster16PrescriptionForm.getPractitionerPhone()));
 
         templateKeyMapper.put($ORGANIZATION_FAX,
                 getProtectedValue(muster16PrescriptionForm.getPractitionerFax()));
