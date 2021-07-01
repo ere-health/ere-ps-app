@@ -245,7 +245,7 @@ public class EndpointDiscoveryService {
         NodeList versionNodes = versionsNode.getChildNodes();
 
         for (int i = 0, n = versionNodes.getLength(); i < n; ++i) {
-            Node endpointNode = getNodeWithTag(versionNodes.item(i), "Endpoint");
+            Node endpointNode = getNodeWithTag(versionNodes.item(i), "EndpointTLS");
 
             if (endpointNode == null || !endpointNode.hasAttributes()
                     || endpointNode.getAttributes().getNamedItem("Location") == null) {
