@@ -1,19 +1,13 @@
 package health.ere.ps.service.fhir.bundle;
 
-import org.apache.commons.lang3.StringUtils;
-import org.hl7.fhir.r4.model.Bundle;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 import ca.uhn.fhir.context.FhirContext;
 import health.ere.ps.model.muster16.MedicationString;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
+import org.apache.commons.lang3.StringUtils;
+import org.hl7.fhir.r4.model.Bundle;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
     public static final String NULL_VALUE_PLACE_HOLDER = "";
@@ -130,7 +124,6 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
     }
 
     protected void updateBundleResourceSection() {
-
         templateKeyMapper.put($BUNDLE_ID, UUID.randomUUID().toString());
         templateKeyMapper.put($PRESCRIPTION_ID, UUID.randomUUID().toString());
         templateKeyMapper.put($LAST_UPDATED, StringUtils.defaultString(null));
@@ -138,7 +131,6 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
     }
 
     protected void updateCompositionSection() {
-
         templateKeyMapper.put($COMPOSITION_ID, UUID.randomUUID().toString());
         templateKeyMapper.put($COMPOSITION_DATE, StringUtils.defaultString(null));
 
@@ -147,7 +139,6 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
     }
 
     protected void updateMedicationRequestSection() {
-
         templateKeyMapper.put($MEDICATION_REQUEST_ID, UUID.randomUUID().toString());
 
         templateKeyMapper.put($STATUS_CO_PAYMENT,
