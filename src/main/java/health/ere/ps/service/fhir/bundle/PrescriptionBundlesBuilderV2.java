@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import ca.uhn.fhir.context.FhirContext;
 import health.ere.ps.model.muster16.MedicationString;
@@ -75,6 +76,21 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
     protected static final String $COVERAGE_PERIOD_END = "$COVERAGE_PERIOD_END";
     protected static final String $INSURANCE_NAME = "$INSURANCE_NAME";
     protected static final String $INSURANCE_NUMBER = "$INSURANCE_NUMBER";
+
+    protected static final String PREFIX_TEMPLATE = ",\n" +
+            "                                        \"prefix\": [\n" +
+            "                                            \"$PREFIX\"\n" +
+            "                                        ],\n" +
+            "                                        \"_prefix\": [\n" +
+            "                                            {\n" +
+            "                                                \"extension\": [\n" +
+            "                                                    {\n" +
+            "                                                        \"url\": \"http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier\",\n" +
+            "                                                        \"valueCode\": \"AC\"\n" +
+            "                                                    }\n" +
+            "                                                ]\n" +
+            "                                            }\n" +
+            "                                        ]";
 
     protected Map<String, String> templateKeyMapper;
     protected FhirContext ctx = FhirContext.forR4();
@@ -163,18 +179,13 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
         templateKeyMapper.put($KVID_10,
                 getProtectedValue(muster16PrescriptionForm.getPatientInsuranceId()));
 
-        templateKeyMapper.put($PATIENT_NAME_PREFIX,
-                getProtectedValue(
-                        CollectionUtils.isNotEmpty(muster16PrescriptionForm.getPatientNamePrefix()) ?
-                                getProtectedValue(
-                                        muster16PrescriptionForm.getPatientNamePrefix()
-                                                .stream()
-                                                .findFirst()
-                                                .map(prefix -> prefix.replace("null", ""))
-                                                .get()) :
-                                NULL_VALUE_PLACE_HOLDER));
-
-
+        if (!muster16PrescriptionForm.getPatientNamePrefix().isEmpty()) {
+            String prefixes = muster16PrescriptionForm.getPatientNamePrefix().stream().collect(Collectors.joining(" "));
+            templateKeyMapper.put($PATIENT_NAME_PREFIX, PREFIX_TEMPLATE.replace("$PREFIX", prefixes));
+        } else {
+            templateKeyMapper.put($PATIENT_NAME_PREFIX, "");
+        }
+        
         templateKeyMapper.put($PATIENT_NAME_FIRST,
                 getProtectedValue(muster16PrescriptionForm.getPatientFirstName()));
 
@@ -200,8 +211,12 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
     protected void updatePractitionerResourceSection() {
         templateKeyMapper.put($PRACTITIONER_ID, UUID.randomUUID().toString());
 
-        templateKeyMapper.put($PRACTITIONER_NAME_PREFIX,
-                getProtectedValue(muster16PrescriptionForm.getPractitionerNamePrefix()));
+        if (!muster16PrescriptionForm.getPractitionerNamePrefix().isEmpty()) {
+            templateKeyMapper.put($PRACTITIONER_NAME_PREFIX, PREFIX_TEMPLATE.replace("$PREFIX",
+                    muster16PrescriptionForm.getPractitionerNamePrefix()));
+        } else {
+            templateKeyMapper.put($PRACTITIONER_NAME_PREFIX, "");
+        }
 
         templateKeyMapper.put($PRACTITIONER_NAME_FIRST,
                 getProtectedValue(muster16PrescriptionForm.getPractitionerFirstName()));
