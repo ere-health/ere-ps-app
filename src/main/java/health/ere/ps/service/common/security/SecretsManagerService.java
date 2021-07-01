@@ -1,5 +1,8 @@
 package health.ere.ps.service.common.security;
 
+import com.sun.xml.ws.developer.JAXWSProperties;
+import health.ere.ps.config.AppConfig;
+import health.ere.ps.service.connector.endpoint.SSLUtilities;
 import org.bouncycastle.crypto.CryptoException;
 
 import java.io.File;
@@ -25,8 +28,10 @@ import java.util.logging.Logger;
 
 import javax.crypto.KeyGenerator;
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
 import javax.xml.ws.BindingProvider;
 
 import health.ere.ps.exception.common.security.SecretsManagerException;
@@ -34,6 +39,9 @@ import health.ere.ps.service.idp.crypto.CryptoLoader;
 
 @ApplicationScoped
 public class SecretsManagerService {
+
+    @Inject
+    AppConfig appConfig;
 
     private static Logger log = Logger.getLogger(SecretsManagerService.class.getName());
 
@@ -158,9 +166,13 @@ public class SecretsManagerService {
                                              KeyStoreType keyStoreType,
                                              BindingProvider bp)
             throws SecretsManagerException {
+
+        if("!".equals(trustStoreFilePath)) {
+            return;
+        }
         try(FileInputStream fileInputStream = new FileInputStream(trustStoreFilePath)) {
             SSLContext sc = createSSLContext(fileInputStream, trustStorePassword.toCharArray(),
-                sslContextType, keyStoreType);
+                sslContextType, keyStoreType, bp);
 
             bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
                     sc.getSocketFactory());
@@ -171,12 +183,15 @@ public class SecretsManagerService {
     }
 
     public SSLContext createSSLContext(InputStream trustStoreInputStream, char[] keyStorePassword,
-                                    SslContextType sslContextType, KeyStoreType keyStoreType)
+                                    SslContextType sslContextType, KeyStoreType keyStoreType, BindingProvider bp)
             throws SecretsManagerException {
         SSLContext sc;
 
         try {
             sc = SSLContext.getInstance(sslContextType.getSslContextType());
+
+
+            bp.getRequestContext().put(JAXWSProperties.HOSTNAME_VERIFIER, new SSLUtilities.FakeHostnameVerifier());
 
             KeyManagerFactory kmf =
                     KeyManagerFactory.getInstance( KeyManagerFactory.getDefaultAlgorithm() );
@@ -186,7 +201,7 @@ public class SecretsManagerService {
 
             kmf.init(ks, keyStorePassword);
 
-            sc.init( kmf.getKeyManagers(), null, null );
+            sc.init( kmf.getKeyManagers(), new TrustManager[]{new SSLUtilities.FakeX509TrustManager()}, null );
         } catch (NoSuchAlgorithmException | KeyStoreException | CertificateException | IOException
                 | UnrecoverableKeyException | KeyManagementException e) {
             throw new SecretsManagerException("SSL context creation error.", e);
@@ -195,7 +210,7 @@ public class SecretsManagerService {
         return sc;
     }
 
-    public static SSLContext setUpCustomSSLContext(InputStream p12Certificate) {
+    public SSLContext setUpCustomSSLContext(InputStream p12Certificate) {
         try {
             SSLContext sc = SSLContext.getInstance("TLS");
             KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
@@ -203,9 +218,10 @@ public class SecretsManagerService {
             KeyStore ks = KeyStore.getInstance("PKCS12");
             // Download this file from the titus backend
             // https://frontend.titus.ti-dienste.de/#/platform/mandant
-            ks.load(p12Certificate, "00".toCharArray());
-            kmf.init(ks, "00".toCharArray());
-            sc.init(kmf.getKeyManagers(), null, null);
+            String pwd = appConfig.getIdpConnectorTlsCertTustStorePwd();
+            ks.load(p12Certificate, pwd.toCharArray());
+            kmf.init(ks, pwd.toCharArray());
+            sc.init(kmf.getKeyManagers(), new TrustManager[]{new SSLUtilities.FakeX509TrustManager()}, null);
             return sc;
         } catch (NoSuchAlgorithmException | CertificateException | IOException | KeyStoreException
                 | UnrecoverableKeyException | KeyManagementException e) {

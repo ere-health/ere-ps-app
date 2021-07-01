@@ -17,6 +17,7 @@ import de.gematik.ws.conn.signatureservice.wsdl.v7.FaultMessage;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureService;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortType;
 
+import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 import org.apache.xml.security.c14n.CanonicalizationException;
 import org.apache.xml.security.c14n.Canonicalizer;
 import org.apache.xml.security.c14n.InvalidCanonicalizerException;
@@ -56,6 +57,22 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import javax.xml.datatype.Duration;
 import javax.xml.ws.BindingProvider;
+
+import health.ere.ps.service.connector.endpoint.SSLUtilities;
+import org.apache.xml.security.c14n.CanonicalizationException;
+import org.apache.xml.security.c14n.Canonicalizer;
+import org.apache.xml.security.c14n.InvalidCanonicalizerException;
+import org.apache.xml.security.parser.XMLParserException;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.hl7.fhir.r4.model.Binary;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Coding;
+import org.hl7.fhir.r4.model.Identifier;
+import org.hl7.fhir.r4.model.Parameters;
+import org.hl7.fhir.r4.model.Parameters.ParametersParameterComponent;
+import org.hl7.fhir.r4.model.Task;
+
+import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
 import javax.xml.ws.Holder;
 
 import ca.uhn.fhir.context.FhirContext;
@@ -83,6 +100,12 @@ public class ERezeptWorkflowService {
     @Inject
     AppConfig appConfig;
 
+    @Inject
+    PrescriptionBundleValidator prescriptionBundleValidator;
+
+    @Inject
+    SecretsManagerService secretsManagerService;
+
     @ConfigProperty(name = "ere.workflow-service.prescription.server.url", defaultValue = "")
     String prescriptionServerUrl;
 
@@ -104,8 +127,8 @@ public class ERezeptWorkflowService {
     @ConfigProperty(name = "connector.tvMode", defaultValue = "")
     String signatureServiceTvMode;
 
-    @ConfigProperty(name = "connector.simulator.titusClientCertificate", defaultValue = "!")
-    String titusClientCertificate;
+    @ConfigProperty(name = "connector.cert.auth.store.file", defaultValue = "!")
+    String certAuthStoreFile;
 
     @ConfigProperty(name = "ere-workflow-service.vau.enable", defaultValue = "true")
     Boolean enableVau;
@@ -146,10 +169,10 @@ public class ERezeptWorkflowService {
     @PostConstruct
     public void init() throws SecretsManagerException {
         try {
-            if (titusClientCertificate != null && !("".equals(titusClientCertificate))
-                    && !("!".equals(titusClientCertificate))) {
+            if (certAuthStoreFile != null && !("".equals(certAuthStoreFile))
+                    && !("!".equals(certAuthStoreFile))) {
                 try {
-                    setUpCustomSSLContext(new FileInputStream(titusClientCertificate));
+                    setUpCustomSSLContext(new FileInputStream(certAuthStoreFile));
                 } catch(FileNotFoundException e) {
                     log.log(Level.SEVERE, "Could find file", e);
                 }
@@ -162,6 +185,7 @@ public class ERezeptWorkflowService {
             if (customSSLContext != null) {
                 bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
                         customSSLContext.getSocketFactory());
+                bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier", new SSLUtilities.FakeHostnameVerifier());
             }
 
             eventService = new EventService(getClass().getResource("/EventService.wsdl")).getEventServicePort();
@@ -171,6 +195,7 @@ public class ERezeptWorkflowService {
             if (customSSLContext != null) {
                 bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
                         customSSLContext.getSocketFactory());
+                bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier", new SSLUtilities.FakeHostnameVerifier());
             }
 
         } catch(Exception ex) {
@@ -196,7 +221,7 @@ public class ERezeptWorkflowService {
     }
 
     public void setUpCustomSSLContext(InputStream p12Certificate) {
-        customSSLContext = SecretsManagerService.setUpCustomSSLContext(p12Certificate);
+        customSSLContext = secretsManagerService.setUpCustomSSLContext(p12Certificate);
     }
 
     /**

@@ -35,10 +35,7 @@ public class AppConfig {
     @ConfigProperty(name = "connector.context.userId")
     String signatureServiceContextUserId;
 
-    @ConfigProperty(name = "connector.simulator.titusClientCertificate")
-    String titusClientCertificate;
-
-    @ConfigProperty(name = "ere.validator.validate.sign.request.bundles.enabled")
+    @ConfigProperty(name = "ere.validator.validate.sign.request.bundles.enabled", defaultValue = "no")
     String validateSignRequestBundles;
 
     @Inject
@@ -74,10 +71,6 @@ public class AppConfig {
 
     public String getSignatureServiceContextUserId() {
         return signatureServiceContextUserId;
-    }
-
-    public String getTitusClientCertificate() {
-        return titusClientCertificate;
     }
 
     public String getMandantId() {

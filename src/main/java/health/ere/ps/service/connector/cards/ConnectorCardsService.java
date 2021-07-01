@@ -10,28 +10,45 @@ import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.net.ssl.SSLContext;
 import javax.xml.ws.BindingProvider;
 
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.exception.connector.ConnectorCardsException;
+import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.common.security.SoapClient;
+import health.ere.ps.service.connector.endpoint.SSLUtilities;
 
 
 @ApplicationScoped
 public class ConnectorCardsService implements SoapClient {
 
+    private static final Logger log = Logger.getLogger(ConnectorCardsService.class.getName());
+
     @Inject
     AppConfig appConfig;
 
+    
+    @ConfigProperty(name = "connector.cert.auth.store.file", defaultValue = "!")
+    String certAuthStoreFile;
+
     private ContextType contextType;
     private EventServicePortType eventService;
+
+    @Inject
+    SecretsManagerService secretsManagerService;
 
     public enum CardHandleType {
         EGK("EGK"),
@@ -67,6 +84,28 @@ public class ConnectorCardsService implements SoapClient {
 
         eventService = new EventService(getClass().getResource(
                 "/EventService.wsdl")).getEventServicePort();
+
+        /* Set endpoint to configured endpoint */
+        BindingProvider bp = (BindingProvider) eventService;
+        bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, appConfig.getEventServiceEndpointAddress());
+
+        SSLContext customSSLContext = null;
+        if (certAuthStoreFile != null && !("".equals(certAuthStoreFile))
+                    && !("!".equals(certAuthStoreFile))) {
+            try {
+                customSSLContext  = secretsManagerService.setUpCustomSSLContext(new FileInputStream(certAuthStoreFile));
+            } catch(FileNotFoundException e) {
+                log.log(Level.SEVERE, "Could find file", e);
+            }
+        }
+
+        if (customSSLContext != null) {
+            bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
+                    customSSLContext.getSocketFactory());
+            bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier", new SSLUtilities.FakeHostnameVerifier());
+        }
+
+
     }
 
     public GetCardsResponse getConnectorCards()

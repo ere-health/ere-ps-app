@@ -323,8 +323,8 @@ public class AuthenticatorClient {
         }
 
         final java.security.spec.ECPoint ecPoint = new java.security.spec.ECPoint(
-                new BigInteger(Base64.getUrlDecoder().decode(keyObject.getString("x"))),
-                new BigInteger(Base64.getUrlDecoder().decode(keyObject.getString("y"))));
+                new BigInteger(1, Base64.getUrlDecoder().decode(keyObject.getString("x"))),
+                new BigInteger(1, Base64.getUrlDecoder().decode(keyObject.getString("y"))));
         final ECPublicKeySpec keySpec = new ECPublicKeySpec(ecPoint, BrainpoolCurves.BP256);
 
         try {
