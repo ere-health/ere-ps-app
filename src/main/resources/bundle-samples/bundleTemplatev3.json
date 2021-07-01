@@ -141,7 +141,7 @@
         "subject": {
           "reference": "Patient/$PATIENT_ID"
         },
-        "authoredOn": "2021-07-01",
+        "authoredOn": "$AUTHORED_ON",
         "requester": {
           "reference": "Practitioner/$PRACTITIONER_ID"
         },

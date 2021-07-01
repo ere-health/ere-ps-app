@@ -214,11 +214,6 @@ public class PrescriptionBundlesBuilderTest {
     @Test
     public void test_Successful_Conversion_Of_The_Populated_Bundle_Json_Template_To_A_Bundle_Object()
             throws IOException, XMLStreamException, ParseException {
-        FhirContext ctx = FhirContext.forR4();
-        IParser jsonParser = ctx.newJsonParser();
-
-        jsonParser.setPrettyPrint(true);
-
         SVGExtractor svgExtractor = new SVGExtractor(TemplateProfile.CGM_Z1.configuration);
 
         try(PDDocument pdDocument = PDDocument.load(getClass()
@@ -227,10 +222,12 @@ public class PrescriptionBundlesBuilderTest {
             Map<String, String> map = svgExtractor.extract(pdDocument);
             Muster16SvgRegexParser parser = new Muster16SvgRegexParser(map);
 
-//            Muster16PrescriptionForm muster16PrescriptionForm =
-//                    Muster16FormDataExtractorService.fillForm(parser);
             Muster16PrescriptionForm muster16PrescriptionForm =
-                    getMuster16PrescriptionFormForTests();
+                    Muster16FormDataExtractorService.fillForm(parser);
+//            Muster16PrescriptionForm muster16PrescriptionForm =
+//                    getMuster16PrescriptionFormForTests();
+
+            muster16PrescriptionForm.setPatientDateOfBirth("02.01.1986");
 
             IBundlesBuilder bundleBuilder = new PrescriptionBundlesBuilderV2(
                     muster16PrescriptionForm);
@@ -239,12 +236,9 @@ public class PrescriptionBundlesBuilderTest {
 
             if(CollectionUtils.isNotEmpty(bundles)) {
                 bundles.stream().forEach(bundle -> {
-                    String bundleJsonString = jsonParser.encodeResourceToString(bundle);
+                    String bundleJsonString = ((EreBundle)bundle).encodeToJson();
 
-                    bundleJsonString = PrescriptionBundlesBuilderV2.clearNullValuePlaceHolders(
-                            bundleJsonString);
-
-                    logger.info("Filled bundle json template result shown below");
+                    logger.info("Filled bundle json template result shown below.");
                     logger.info("==============================================");
                     logger.info(bundleJsonString);
                 });

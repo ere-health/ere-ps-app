@@ -2,30 +2,20 @@ package health.ere.ps.service.fhir.bundle;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Composition;
-import org.hl7.fhir.r4.model.DateTimeType;
-import org.hl7.fhir.r4.model.DateType;
-import org.hl7.fhir.r4.model.MedicationRequest;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.parser.IParser;
 import health.ere.ps.model.muster16.MedicationString;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
 
-public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
+public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
     public static final String NULL_VALUE_PLACE_HOLDER = "$$$";
     public static final String NULL_DATE_VALUE_PLACE_HOLDER = "9999-12-28";
 
@@ -86,181 +76,94 @@ public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
     protected static final String $INSURANCE_NAME = "$INSURANCE_NAME";
     protected static final String $INSURANCE_NUMBER = "$INSURANCE_NUMBER";
 
-    protected Map<String, Pair<Boolean, Integer>> templateKeyMapper;
-    protected String jsonTemplateForBundle;
+    protected Map<String, String> templateKeyMapper;
     protected FhirContext ctx = FhirContext.forR4();
-    protected IParser jsonParser = ctx.newJsonParser();
+    protected final Muster16PrescriptionForm muster16PrescriptionForm;
 
     public PrescriptionBundlesBuilderV2(Muster16PrescriptionForm muster16PrescriptionForm) {
-        super(muster16PrescriptionForm);
+        this.muster16PrescriptionForm = muster16PrescriptionForm;
     }
 
-    //TODO: Use the templateKeyMapper Map to implement reconciliation and tracking of values
-    // injected into template.
-    protected void initTemplateKeyMapper() {
-        templateKeyMapper = new HashMap<>();
+    @Override
+    public List<Bundle> createBundles() {
+        List<Bundle> bundles = new ArrayList<>();
 
-        templateKeyMapper.put($PRESCRIPTION_ID, Pair.of(true, 0));
-        templateKeyMapper.put($BUNDLE_ID, Pair.of(true, 0));
-        templateKeyMapper.put($LAST_UPDATED, Pair.of(true, 0));
-        templateKeyMapper.put($TIMESTAMP, Pair.of(true, 0));
-        templateKeyMapper.put($COMPOSITION_ID, Pair.of(true, 0));
-        templateKeyMapper.put($COMPOSITION_DATE, Pair.of(true, 0));
-        templateKeyMapper.put($DEVICE_ID, Pair.of(true, 0));
-        templateKeyMapper.put($MEDICATION_REQUEST_ID, Pair.of(true, 0));
-        templateKeyMapper.put($STATUS_CO_PAYMENT, Pair.of(true, 0));
-        templateKeyMapper.put($AUTHORED_ON, Pair.of(true, 0));
-        templateKeyMapper.put($MEDICATION_ID, Pair.of(true, 0));
-        templateKeyMapper.put($DOSAGE_QUANTITY, Pair.of(false, 0));
-        templateKeyMapper.put($PZN, Pair.of(true, 0));
-        templateKeyMapper.put($MEDICATION_NAME, Pair.of(true, 0));
-        templateKeyMapper.put($MEDICATION_FORM, Pair.of(false, 0));
-        templateKeyMapper.put($MEDICATION_SIZE, Pair.of(true, 0));
-        templateKeyMapper.put($DOSAGE_TEXT, Pair.of(false, 0));
-        ;
-        templateKeyMapper.put($KVID_10, Pair.of(false, 0));
-        templateKeyMapper.put($PATIENT_ID, Pair.of(true, 0));
-        templateKeyMapper.put($PATIENT_NAME_PREFIX, Pair.of(false, 0));
-        templateKeyMapper.put($PATIENT_NAME_FIRST, Pair.of(true, 0));
-        templateKeyMapper.put($PATIENT_NAME_FAMILY, Pair.of(true, 0));
-        templateKeyMapper.put($PATIENT_BIRTH_DATE, Pair.of(true, 0));
-        templateKeyMapper.put($PATIENT_ADDRESS_LINE, Pair.of(true, 0));
-        templateKeyMapper.put($PATIENT_ADDRESS_STREET_NAME, Pair.of(true, 0));
-        templateKeyMapper.put($PATIENT_ADDRESS_STREET_NUMBER, Pair.of(true, 0));
-        templateKeyMapper.put($PATIENT_ADDRESS_POSTAL_CODE, Pair.of(true, 0));
-        templateKeyMapper.put($PATIENT_ADDRESS_CITY, Pair.of(true, 0));
-        templateKeyMapper.put($PATIENT_STATUS, Pair.of(false, 0));
-        templateKeyMapper.put($PRACTITIONER_ID, Pair.of(true, 0));
-        templateKeyMapper.put($PRACTITIONER_NAME_PREFIX, Pair.of(false, 0));
-        templateKeyMapper.put($PRACTITIONER_NAME_FIRST, Pair.of(true, 0));
-        templateKeyMapper.put($PRACTITIONER_NAME_FAMILY, Pair.of(true, 0));
-        templateKeyMapper.put($PRACTITIONER_ADDRESS_STREET_NAME, Pair.of(true, 0));
-        templateKeyMapper.put($PRACTITIONER_ADDRESS_STREET_NUMBER, Pair.of(true, 0));
-        templateKeyMapper.put($PRACTITIONER_ADDRESS_POSTAL_CODE, Pair.of(true, 0));
-        templateKeyMapper.put($PRACTITIONER_ADDRESS_CITY, Pair.of(true, 0));
-        templateKeyMapper.put($PRACTITIONER_PHONE, Pair.of(false, 0));
-        templateKeyMapper.put($PRACTITIONER_FAX, Pair.of(false, 0));
-        templateKeyMapper.put($PRACTITIONER_QUALIFICATIONS, Pair.of(true, 0));
-        templateKeyMapper.put($PRACTITIONER_NUMBER, Pair.of(true, 0));
-        templateKeyMapper.put($PRACTITIONER_QUALIFICATION_TEXT, Pair.of(false, 0));
-        templateKeyMapper.put($ORGANIZATION_ID, Pair.of(true, 0));
-        templateKeyMapper.put($CLINIC_ID, Pair.of(true, 0));
-        templateKeyMapper.put($ORGANIZATION_PHONE, Pair.of(false, 0));
-        templateKeyMapper.put($ORGANIZATION_NAME, Pair.of(false, 0));
-        templateKeyMapper.put($ORGANIZATION_ADDRESS_LINE, Pair.of(false, 0));
-        templateKeyMapper.put($ORGANIZATION_ADDRESS_STREET_NAME, Pair.of(true, 0));
-        templateKeyMapper.put($ORGANIZATION_ADDRESS_STREET_NUMBER, Pair.of(true, 0));
-        templateKeyMapper.put($ORGANIZATION_ADDRESS_POSTAL_CODE, Pair.of(true, 0));
-        templateKeyMapper.put($ORGANIZATION_ADDRESS_CITY, Pair.of(true, 0));
-        templateKeyMapper.put($ORGANIZATION_PHONE, Pair.of(false, 0));
-        templateKeyMapper.put($ORGANIZATION_FAX, Pair.of(false, 0));
-        templateKeyMapper.put($COVERAGE_ID, Pair.of(true, 0));
-        templateKeyMapper.put($COVERAGE_PERIOD_END, Pair.of(true, 0));
-        templateKeyMapper.put($INSURANCE_NAME, Pair.of(true, 0));
-        templateKeyMapper.put($INSURANCE_NUMBER, Pair.of(true, 0));
+        muster16PrescriptionForm.getPrescriptionList().forEach(medicationString ->
+                bundles.add(createBundleForMedication(medicationString)));
+
+        return bundles;
     }
 
     @Override
     public Bundle createBundleForMedication(MedicationString medication) {
-        Bundle bundle;
+        templateKeyMapper = new HashMap<>();
 
-        try (InputStream is = getClass().getResourceAsStream(
-                "/bundle-samples/FEbundleTemplate.json")) {
-            jsonTemplateForBundle = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+        updateBundleResourceSection();
+        updateCompositionSection();
+        updateMedicationRequestSection();
+        updateMedicationResourceSection(medication);
+        updatePatientResourceSection();
+        updatePractitionerResourceSection();
+        updateOrganizationResourceSection();
+        updateCoverageResourceSection();
+        clearNullValuePlaceHolders();
 
-            updateBundleResourceSection();
-            updateCompositionSection();
-            updateMedicationRequestSection();
-            updateMedicationResourceSection(medication);
-            updatePatientResourceSection();
-            updatePractitionerResourceSection();
-            updateOrganizationResourceSection();
-            updateCoverageResourceSection();
+        EreBundle bundle = new EreBundle(templateKeyMapper);
 
-            bundle = jsonParser.parseResource(Bundle.class, jsonTemplateForBundle);
-
-            bundle.getMeta().setLastUpdated(new Date());
-            bundle.setTimestamp(new Date());
-            ((Composition) bundle.getEntry().get(0).getResource()).setDate(new Date());
-            ((MedicationRequest) bundle.getEntry().get(1).getResource()).getMeta().setLastUpdated(
-                    new Date());
-//            ((MedicationRequest) bundle.getEntry().get(1).getResource()).setAuthoredOn(new Date());
-        } catch (IOException e) {
-            throw new IllegalStateException("Cannot read bundle template or sample!", e);
-        }
+        bundle.setTimestampOnField($LAST_UPDATED, new Date());
+        bundle.setTimestampOnField($TIMESTAMP, new Date());
+        bundle.setTimestampOnField($COMPOSITION_DATE, new Date());
 
         return bundle;
     }
 
     protected void updateBundleResourceSection() {
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($BUNDLE_ID,
-                UUID.randomUUID().toString());
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($PRESCRIPTION_ID,
-                UUID.randomUUID().toString());
-
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($LAST_UPDATED,
-                StringUtils.defaultString(null));
-
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($TIMESTAMP,
-                StringUtils.defaultString(null));
+        templateKeyMapper.put($BUNDLE_ID, UUID.randomUUID().toString());
+        templateKeyMapper.put($PRESCRIPTION_ID, UUID.randomUUID().toString());
+        templateKeyMapper.put($LAST_UPDATED, StringUtils.defaultString(null));
+        templateKeyMapper.put($TIMESTAMP, StringUtils.defaultString(null));
     }
 
     protected void updateCompositionSection() {
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($COMPOSITION_ID,
-                UUID.randomUUID().toString());
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($COMPOSITION_DATE,
-                StringUtils.defaultString(null));
+        templateKeyMapper.put($COMPOSITION_ID, UUID.randomUUID().toString());
+        templateKeyMapper.put($COMPOSITION_DATE, StringUtils.defaultString(null));
 
         //TODO: This is hardcoded but updated values may need to be sourced dynamically over time.
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($DEVICE_ID,
-                "Y/410/2107/36/999");
+        templateKeyMapper.put($DEVICE_ID, "Y/410/2107/36/999");
     }
 
     protected void updateMedicationRequestSection() {
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($MEDICATION_REQUEST_ID,
-                UUID.randomUUID().toString());
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($STATUS_CO_PAYMENT,
+        templateKeyMapper.put($MEDICATION_REQUEST_ID, UUID.randomUUID().toString());
+
+        templateKeyMapper.put($STATUS_CO_PAYMENT,
                 getProtectedValue(muster16PrescriptionForm.getWithPayment() != null ?
                         (muster16PrescriptionForm.getWithPayment() ? "0" : "1") : null));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($AUTHORED_ON,
+        templateKeyMapper.put($AUTHORED_ON,
                 getProtectedDateValue(muster16PrescriptionForm.getPrescriptionDate()));
     }
 
     protected void updateMedicationResourceSection(MedicationString medicationString) {
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($MEDICATION_ID,
-                UUID.randomUUID().toString());
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($DOSAGE_QUANTITY,
-                getProtectedValue(medicationString.getDosage()));
-
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($PZN,
-                getProtectedValue(medicationString.getPzn()));
-
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($MEDICATION_FORM,
-                getProtectedValue(medicationString.getForm()));
-
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($MEDICATION_NAME,
-                getProtectedValue(medicationString.getName()));
-
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($MEDICATION_SIZE,
-                getProtectedValue(medicationString.getSize()));
-
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($DOSAGE_TEXT,
-                getProtectedValue(medicationString.getInstructions()));
+        templateKeyMapper.put($MEDICATION_ID, UUID.randomUUID().toString());
+        templateKeyMapper.put($DOSAGE_QUANTITY, getProtectedValue(medicationString.getDosage()));
+        templateKeyMapper.put($PZN, getProtectedValue(medicationString.getPzn()));
+        templateKeyMapper.put($MEDICATION_FORM, getProtectedValue(medicationString.getForm()));
+        templateKeyMapper.put($MEDICATION_NAME, getProtectedValue(medicationString.getName()));
+        templateKeyMapper.put($MEDICATION_SIZE, getProtectedValue(medicationString.getSize()));
+        templateKeyMapper.put($DOSAGE_TEXT, getProtectedValue(medicationString.getInstructions()));
     }
 
     protected void updatePatientResourceSection() {
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($PATIENT_ID,
-                UUID.randomUUID().toString());
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($KVID_10,
+        templateKeyMapper.put($PATIENT_ID, UUID.randomUUID().toString());
+        templateKeyMapper.put($KVID_10,
                 getProtectedValue(muster16PrescriptionForm.getPatientInsuranceId()));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($PATIENT_NAME_PREFIX,
+        templateKeyMapper.put($PATIENT_NAME_PREFIX,
                 getProtectedValue(
                         CollectionUtils.isNotEmpty(muster16PrescriptionForm.getPatientNamePrefix()) ?
                                 getProtectedValue(
@@ -271,124 +174,121 @@ public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
                                                 .get()) :
                                 NULL_VALUE_PLACE_HOLDER));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($PATIENT_NAME_FIRST,
+
+        templateKeyMapper.put($PATIENT_NAME_FIRST,
                 getProtectedValue(muster16PrescriptionForm.getPatientFirstName()));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($PATIENT_NAME_FAMILY,
+        templateKeyMapper.put($PATIENT_NAME_FAMILY,
                 getProtectedValue(muster16PrescriptionForm.getPatientLastName()));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($PATIENT_BIRTH_DATE,
+        templateKeyMapper.put($PATIENT_BIRTH_DATE,
                 getProtectedDateValue(muster16PrescriptionForm.getPatientDateOfBirth()));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($PATIENT_ADDRESS_LINE,
-                getProtectedValue(null));
+        templateKeyMapper.put($PATIENT_ADDRESS_LINE, getProtectedValue(null));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($PATIENT_ADDRESS_STREET_NAME,
+        templateKeyMapper.put($PATIENT_ADDRESS_STREET_NAME,
                 getProtectedValue(muster16PrescriptionForm.getPatientStreetName()));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($PATIENT_ADDRESS_STREET_NUMBER,
+        templateKeyMapper.put($PATIENT_ADDRESS_STREET_NUMBER,
                 getProtectedValue(muster16PrescriptionForm.getPatientStreetNumber()));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($PATIENT_ADDRESS_POSTAL_CODE,
+        templateKeyMapper.put($PATIENT_ADDRESS_POSTAL_CODE,
                 getProtectedValue(muster16PrescriptionForm.getPatientZipCode()));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($PATIENT_ADDRESS_CITY,
+        templateKeyMapper.put($PATIENT_ADDRESS_CITY,
                 getProtectedValue(muster16PrescriptionForm.getPatientCity()));
     }
 
     protected void updatePractitionerResourceSection() {
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($PRACTITIONER_ID,
-                UUID.randomUUID().toString());
+        templateKeyMapper.put($PRACTITIONER_ID, UUID.randomUUID().toString());
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($PRACTITIONER_NAME_PREFIX,
+        templateKeyMapper.put($PRACTITIONER_NAME_PREFIX,
                 getProtectedValue(muster16PrescriptionForm.getPractitionerNamePrefix()));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($PRACTITIONER_NAME_FIRST,
+        templateKeyMapper.put($PRACTITIONER_NAME_FIRST,
                 getProtectedValue(muster16PrescriptionForm.getPractitionerFirstName()));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($PRACTITIONER_NAME_FAMILY,
+        templateKeyMapper.put($PRACTITIONER_NAME_FAMILY,
                 getProtectedValue(muster16PrescriptionForm.getPractitionerLastName()));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($PRACTITIONER_ADDRESS_STREET_NAME,
+        templateKeyMapper.put($PRACTITIONER_ADDRESS_STREET_NAME,
                 getProtectedValue(muster16PrescriptionForm.getPractitionerStreetName()));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($PRACTITIONER_ADDRESS_STREET_NUMBER,
+        templateKeyMapper.put($PRACTITIONER_ADDRESS_STREET_NUMBER,
                 getProtectedValue(muster16PrescriptionForm.getPractitionerStreetNumber()));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($PRACTITIONER_ADDRESS_POSTAL_CODE,
+        templateKeyMapper.put($PRACTITIONER_ADDRESS_POSTAL_CODE,
                 getProtectedValue(muster16PrescriptionForm.getPractitionerZipCode()));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($PRACTITIONER_ADDRESS_CITY,
+        templateKeyMapper.put($PRACTITIONER_ADDRESS_CITY,
                 getProtectedValue(muster16PrescriptionForm.getPractitionerCity()));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($PRACTITIONER_PHONE,
+        templateKeyMapper.put($PRACTITIONER_PHONE,
                 getProtectedValue(muster16PrescriptionForm.getPractitionerPhone()));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($PRACTITIONER_FAX,
+        templateKeyMapper.put($PRACTITIONER_FAX,
                 getProtectedValue(muster16PrescriptionForm.getPractitionerFax()));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($PRACTITIONER_QUALIFICATIONS,
+        templateKeyMapper.put($PRACTITIONER_QUALIFICATIONS,
                 getProtectedValue(null));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($PRACTITIONER_NUMBER,
+        templateKeyMapper.put($PRACTITIONER_NUMBER,
                 getProtectedValue(muster16PrescriptionForm.getPractitionerId()));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($PRACTITIONER_QUALIFICATION_TEXT,
-                getProtectedValue(null));
+        templateKeyMapper.put($PRACTITIONER_QUALIFICATION_TEXT, getProtectedValue(null));
     }
 
     protected void updateOrganizationResourceSection() {
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($ORGANIZATION_ID,
-                UUID.randomUUID().toString());
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($CLINIC_ID,
+        templateKeyMapper.put($ORGANIZATION_ID, UUID.randomUUID().toString());
+
+        templateKeyMapper.put($CLINIC_ID,
                 getProtectedValue(muster16PrescriptionForm.getClinicId()));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($ORGANIZATION_NAME,
-                NULL_VALUE_PLACE_HOLDER);
+        templateKeyMapper.put($ORGANIZATION_NAME, getProtectedValue(null));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($ORGANIZATION_PHONE,
+        templateKeyMapper.put($ORGANIZATION_PHONE,
                 getProtectedValue(muster16PrescriptionForm.getPractitionerPhone()));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($ORGANIZATION_ADDRESS_LINE,
+        templateKeyMapper.put($ORGANIZATION_ADDRESS_LINE,
                 getProtectedValue(muster16PrescriptionForm.getPractitionerStreetName()) +
                         " " +
                         getProtectedValue(
                                 muster16PrescriptionForm.getPractitionerStreetNumber()));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($ORGANIZATION_ADDRESS_STREET_NAME,
+        templateKeyMapper.put($ORGANIZATION_ADDRESS_STREET_NAME,
                 getProtectedValue(muster16PrescriptionForm.getPractitionerStreetName()));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($ORGANIZATION_ADDRESS_STREET_NUMBER,
+        templateKeyMapper.put($ORGANIZATION_ADDRESS_STREET_NUMBER,
                 getProtectedValue(muster16PrescriptionForm.getPractitionerStreetNumber()));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($ORGANIZATION_ADDRESS_POSTAL_CODE,
+        templateKeyMapper.put($ORGANIZATION_ADDRESS_POSTAL_CODE,
                 getProtectedValue(muster16PrescriptionForm.getPractitionerZipCode()));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($ORGANIZATION_ADDRESS_CITY,
+        templateKeyMapper.put($ORGANIZATION_ADDRESS_CITY,
                 getProtectedValue(muster16PrescriptionForm.getPractitionerCity()));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($ORGANIZATION_PHONE,
+        templateKeyMapper.put($ORGANIZATION_PHONE,
                 getProtectedValue(muster16PrescriptionForm.getPractitionerPhone()));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($ORGANIZATION_FAX,
+        templateKeyMapper.put($ORGANIZATION_FAX,
                 getProtectedValue(muster16PrescriptionForm.getPractitionerFax()));
     }
 
     protected void updateCoverageResourceSection() {
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($COVERAGE_ID,
-                UUID.randomUUID().toString());
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($COVERAGE_PERIOD_END,
+        templateKeyMapper.put($COVERAGE_ID, UUID.randomUUID().toString());
+
+        templateKeyMapper.put($COVERAGE_PERIOD_END,
                 getProtectedDateValue(muster16PrescriptionForm.getPrescriptionDate()));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($INSURANCE_NAME,
+        templateKeyMapper.put($INSURANCE_NAME,
                 getProtectedValue(muster16PrescriptionForm.getInsuranceCompany()));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($PATIENT_STATUS,
+        templateKeyMapper.put($PATIENT_STATUS,
                 getProtectedValue(muster16PrescriptionForm.getPatientStatus()));
 
-        jsonTemplateForBundle = jsonTemplateForBundle.replace($INSURANCE_NUMBER,
+        templateKeyMapper.put($INSURANCE_NUMBER,
                 getProtectedValue(muster16PrescriptionForm.getInsuranceCompanyId()));
     }
 
@@ -397,22 +297,26 @@ public class PrescriptionBundlesBuilderV2 extends PrescriptionBundlesBuilder {
     }
 
     protected String getProtectedDateValue(String date) {
-        return isKbvFormattedDate(date)? date : NULL_DATE_VALUE_PLACE_HOLDER;
+        return isKbvFormattedDate(date) ? date : NULL_DATE_VALUE_PLACE_HOLDER;
     }
 
     protected boolean isKbvFormattedDate(String date) {
         return StringUtils.isNotBlank(date) && date.matches("\\d\\d\\d\\d\\-\\d\\d\\-\\d\\d");
     }
 
-    public static String clearNullValuePlaceHolders(String bundleString) {
-        if(StringUtils.isNotBlank(bundleString)) {
-            String tempBundleString = bundleString.replace(
-                    NULL_DATE_VALUE_PLACE_HOLDER, "").replace(
-                            NULL_VALUE_PLACE_HOLDER, "");
+    protected void clearNullValuePlaceHolders() {
+        templateKeyMapper.keySet().stream().forEach(key -> {
 
-            return tempBundleString;
-        }
+            String val = templateKeyMapper.get(key);
 
-        return bundleString;
+            if (null == val || val.equals(NULL_DATE_VALUE_PLACE_HOLDER) ||
+                    val.equals(NULL_VALUE_PLACE_HOLDER)) {
+                templateKeyMapper.put(key, "");
+            }
+        });
+    }
+
+    public Map<String, String> getTemplateKeyMapper() {
+        return templateKeyMapper;
     }
 }
