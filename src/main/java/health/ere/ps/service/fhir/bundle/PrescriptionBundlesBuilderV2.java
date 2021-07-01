@@ -1,6 +1,5 @@
 package health.ere.ps.service.fhir.bundle;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.Bundle;
 
@@ -143,7 +142,7 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
                         (muster16PrescriptionForm.getWithPayment() ? "0" : "1") : null));
 
         templateKeyMapper.put($AUTHORED_ON,
-                getProtectedDateValue(muster16PrescriptionForm.getPrescriptionDate()));
+                getProtectedValue(muster16PrescriptionForm.getPrescriptionDate()));
     }
 
     protected void updateMedicationResourceSection(MedicationString medicationString) {
@@ -170,7 +169,7 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
                 getProtectedValue(muster16PrescriptionForm.getPatientLastName()));
 
         templateKeyMapper.put($PATIENT_BIRTH_DATE,
-                getProtectedDateValue(muster16PrescriptionForm.getPatientDateOfBirth()));
+                getProtectedValue(muster16PrescriptionForm.getPatientDateOfBirth()));
 
         templateKeyMapper.put($PATIENT_ADDRESS_STREET_NAME,
                 getProtectedValue(muster16PrescriptionForm.getPatientStreetName()));
@@ -257,7 +256,7 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
         templateKeyMapper.put($COVERAGE_ID, UUID.randomUUID().toString());
 
         templateKeyMapper.put($COVERAGE_PERIOD_END,
-                getProtectedDateValue(muster16PrescriptionForm.getPrescriptionDate()));
+                getProtectedValue(muster16PrescriptionForm.getPrescriptionDate()));
 
         templateKeyMapper.put($INSURANCE_NAME,
                 getProtectedValue(muster16PrescriptionForm.getInsuranceCompany()));
@@ -271,14 +270,6 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
 
     protected String getProtectedValue(String value) {
         return StringUtils.defaultString(value, NULL_VALUE_PLACE_HOLDER);
-    }
-
-    protected String getProtectedDateValue(String date) {
-        return isKbvFormattedDate(date) ? date : NULL_DATE_VALUE_PLACE_HOLDER;
-    }
-
-    protected boolean isKbvFormattedDate(String date) {
-        return StringUtils.isNotBlank(date) && date.matches("\\d\\d\\d\\d\\-\\d\\d\\-\\d\\d");
     }
 
     protected void clearNullValuePlaceHolders() {
