@@ -14,9 +14,9 @@ import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilder;
 import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilderTest;
 import health.ere.ps.service.muster16.Muster16FormDataExtractorService;
 import health.ere.ps.service.muster16.parser.Muster16SvgExtractorParser;
+import health.ere.ps.service.pdf.DocumentService;
 import health.ere.ps.test.DefaultTestProfile;
 import io.quarkus.test.junit.QuarkusTest;
-
 import io.quarkus.test.junit.TestProfile;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.hl7.fhir.r4.model.Bundle;
@@ -27,12 +27,16 @@ import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 import javax.xml.stream.XMLStreamException;
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.text.ParseException;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.LogManager;
@@ -83,10 +87,117 @@ public class ERezeptWorkflowServiceTest {
 
     @Test
     @Disabled
-    void testCreateERezeptOnPrescriptionServer() throws ERezeptWorkflowException {
-        Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/examples_erezept/Erezept_template_2.xml"));
+    void testCreateERezeptOnPrescriptionServer() throws IOException, ERezeptWorkflowException {
+        Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/0428d416-149e-48a4-977c-394887b3d85c.xml"));
+        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
+        DocumentService documentService = new DocumentService();
+        documentService.init();
+        ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
+        String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmX")
+                .withZone(ZoneOffset.UTC)
+                .format(Instant.now());
+        Files.write(Paths.get("target/E-Rezept-"+thisMoment+".pdf"), a.toByteArray());
+    }
 
-        eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
+    @Test
+    @Disabled
+    void testCreateERezeptOnPrescriptionServer2() throws IOException, ERezeptWorkflowException {
+        Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/281a985c-f25b-4aae-91a6-41ad744080b0.xml"));
+        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
+        DocumentService documentService = new DocumentService();
+        documentService.init();
+        ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
+        String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmX")
+                .withZone(ZoneOffset.UTC)
+                .format(Instant.now());
+        Files.write(Paths.get("target/E-Rezept-"+thisMoment+".pdf"), a.toByteArray());
+    }
+
+    @Test
+    @Disabled
+    void testCreateERezeptOnPrescriptionServerX110479894() throws IOException, ERezeptWorkflowException {
+        Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/X110479894.xml"));
+        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
+        DocumentService documentService = new DocumentService();
+        documentService.init();
+        ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
+        String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmX")
+                .withZone(ZoneOffset.UTC)
+                .format(Instant.now());
+        Files.write(Paths.get("target/E-Rezept-"+thisMoment+".pdf"), a.toByteArray());
+    }
+
+
+    @Test
+    @Disabled
+    void testCreateERezeptOnPrescriptionServerX110493020() throws IOException, ERezeptWorkflowException {
+
+        Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/X110493020.xml"));
+        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
+        DocumentService documentService = new DocumentService();
+        documentService.init();
+        ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
+        String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmX")
+                .withZone(ZoneOffset.UTC)
+                .format(Instant.now());
+        Files.write(Paths.get("target/E-Rezept-"+thisMoment+".pdf"), a.toByteArray());
+    }
+
+
+    @Test
+    @Disabled
+    void testCreateERezeptOnPrescriptionServerX110433911() throws IOException, ERezeptWorkflowException {
+
+        Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/X110433911.xml"));
+        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
+        DocumentService documentService = new DocumentService();
+        documentService.init();
+        ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
+        String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmX")
+                .withZone(ZoneOffset.UTC)
+                .format(Instant.now());
+        Files.write(Paths.get("target/E-Rezept-"+thisMoment+".pdf"), a.toByteArray());
+    }
+
+    @Test
+    @Disabled
+    void testCreateERezeptOnPrescriptionServerX110452075() throws IOException, ERezeptWorkflowException {
+
+        Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/X110452075.xml"));
+        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
+        DocumentService documentService = new DocumentService();
+        documentService.init();
+        ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
+        String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmX")
+                .withZone(ZoneOffset.UTC)
+                .format(Instant.now());
+        Files.write(Paths.get("target/E-Rezept-"+thisMoment+".pdf"), a.toByteArray());
+    }
+
+    @Test
+    @Disabled
+    void testCreateERezeptMassCreate() throws IOException {
+        int i = 0;
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(ClassLoader.getSystemResource("/simplifier_erezept/demos/").toURI()), "*.{xml}")) {
+            for (Path entry: stream) {
+                Bundle bundle = iParser.parseResource(Bundle.class, new FileInputStream(entry.toFile()));
+                BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
+                DocumentService documentService = new DocumentService();
+                documentService.init();
+                ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
+                String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmX")
+                        .withZone(ZoneOffset.UTC)
+                        .format(Instant.now());
+                Files.write(Paths.get("target/E-Rezept-"+thisMoment+".pdf"), a.toByteArray());
+                i++;
+                if(i==2) {
+                    break;
+                }
+            }
+        } catch (DirectoryIteratorException | ERezeptWorkflowException | URISyntaxException ex) {
+            // I/O error encounted during the iteration, the cause is an IOException
+            // throw ex.getCause();
+        }
     }
 
     @Test

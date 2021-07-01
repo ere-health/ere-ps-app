@@ -1,16 +1,20 @@
 package health.ere.ps.service.idp.client;
 
+import health.ere.ps.exception.idp.crypto.IdpCryptoException;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
 import health.ere.ps.test.DefaultTestProfile;
 
 import io.quarkus.test.junit.TestProfile;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.Security;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.logging.LogManager;
 
@@ -68,6 +72,10 @@ public class IdpClientTest {
 
     @ConfigProperty(name = "idp.auth.request.redirect.url")
     String redirectUrl;
+
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+    }
 
     @BeforeAll
     public static void init() {

@@ -59,7 +59,8 @@ public class IdpJwe extends IdpJoseObject {
             .map(TokenClaimExtraction::zonedDateTimeToClaim)
             .ifPresent(expValue -> jwe.setHeader(ClaimName.EXPIRES_AT.getJoseName(), expValue));
         jwe.setHeader(ClaimName.CONTENT_TYPE.getJoseName(), contentType);
-       
+
+        // MERGE NOTE commented in connectatho branch
         ProviderContext providerCtx = new ProviderContext();
         providerCtx.getGeneralProviderContext().setKeyPairGeneratorProvider("BC");
         providerCtx.getGeneralProviderContext().setKeyAgreementProvider("BC");

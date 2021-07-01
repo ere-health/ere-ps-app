@@ -141,7 +141,7 @@ public class DocumentService {
         return bundlesByPatient;
     }
 
-    ByteArrayOutputStream generateERezeptPdf(List<BundleWithAccessCodeOrThrowable> bundles) {
+    public ByteArrayOutputStream generateERezeptPdf(List<BundleWithAccessCodeOrThrowable> bundles) {
         try {
             if (bundles.isEmpty()) {
                 log.severe("Cannot generate prescriptions pdf for an empty bundle");

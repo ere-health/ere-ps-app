@@ -1,81 +1,18 @@
 package health.ere.ps.service.gematik;
 
-import de.gematik.ws.conn.connectorcommon.v5.Status;
+import ca.uhn.fhir.context.FhirContext;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.v7.GetCards;
 import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventService;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
-import de.gematik.ws.conn.signatureservice.v7_5_5.ComfortSignatureStatusEnum;
 import de.gematik.ws.conn.signatureservice.v7_5_5.DocumentType;
-import de.gematik.ws.conn.signatureservice.v7_5_5.SessionInfo;
 import de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest;
 import de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest.OptionalInputs;
 import de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse;
-import de.gematik.ws.conn.signatureservice.v7_5_5.SignatureModeEnum;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.FaultMessage;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureService;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortType;
-
-import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
-import org.apache.xml.security.c14n.CanonicalizationException;
-import org.apache.xml.security.c14n.Canonicalizer;
-import org.apache.xml.security.c14n.InvalidCanonicalizerException;
-import org.apache.xml.security.parser.XMLParserException;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.hl7.fhir.r4.model.Binary;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Coding;
-import org.hl7.fhir.r4.model.Identifier;
-import org.hl7.fhir.r4.model.Parameters;
-import org.hl7.fhir.r4.model.Parameters.ParametersParameterComponent;
-import org.hl7.fhir.r4.model.Task;
-import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
-
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.enterprise.event.ObservesAsync;
-import javax.inject.Inject;
-import javax.net.ssl.SSLContext;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-import javax.xml.datatype.Duration;
-import javax.xml.ws.BindingProvider;
-
-import health.ere.ps.service.connector.endpoint.SSLUtilities;
-import org.apache.xml.security.c14n.CanonicalizationException;
-import org.apache.xml.security.c14n.Canonicalizer;
-import org.apache.xml.security.c14n.InvalidCanonicalizerException;
-import org.apache.xml.security.parser.XMLParserException;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.hl7.fhir.r4.model.Binary;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Coding;
-import org.hl7.fhir.r4.model.Identifier;
-import org.hl7.fhir.r4.model.Parameters;
-import org.hl7.fhir.r4.model.Parameters.ParametersParameterComponent;
-import org.hl7.fhir.r4.model.Task;
-
-import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
-import javax.xml.ws.Holder;
-
-import ca.uhn.fhir.context.FhirContext;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.event.BundlesWithAccessCodeEvent;
 import health.ere.ps.event.RequestBearerTokenFromIdpEvent;
@@ -87,8 +24,37 @@ import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.common.security.SecureSoapTransportConfigurer;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
+import health.ere.ps.service.connector.endpoint.SSLUtilities;
+import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 import health.ere.ps.vau.VAUEngine;
 import oasis.names.tc.dss._1_0.core.schema.Base64Data;
+import org.apache.xml.security.c14n.CanonicalizationException;
+import org.apache.xml.security.c14n.Canonicalizer;
+import org.apache.xml.security.c14n.InvalidCanonicalizerException;
+import org.apache.xml.security.parser.XMLParserException;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.Parameters.ParametersParameterComponent;
+import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.enterprise.event.ObservesAsync;
+import javax.inject.Inject;
+import javax.net.ssl.SSLContext;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import javax.xml.ws.BindingProvider;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @ApplicationScoped
 public class ERezeptWorkflowService {
@@ -351,7 +317,7 @@ public class ERezeptWorkflowService {
                 .header("User-Agent", userAgent)
                 .header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
                 .post(Entity.entity(fhirContext.newXmlParser().encodeResourceToString(parameters),
-                        "application/fhir+xml; charset=UTF-8"));
+                        "application/fhir+xml; charset=utf-8"));
 
         String taskString = response.readEntity(String.class);
         log.info("Response when trying to activate the task:" + taskString);
@@ -424,6 +390,7 @@ public class ERezeptWorkflowService {
 
             SignRequest signRequest = new SignRequest();
             DocumentType document = new DocumentType();
+            document.setShortText("E-Rezept");
             Base64Data base64Data = new Base64Data();
             base64Data.setMimeType("text/plain; charset=utf-8");
             base64Data.setValue(canonXmlBytes);
@@ -503,7 +470,7 @@ public class ERezeptWorkflowService {
         Response response = client.target(prescriptionServerUrl).path("/Task/$create").request()
                 .header("User-Agent", userAgent)
                 .header("Authorization", "Bearer " + bearerToken)
-                .post(Entity.entity(parameterString, "application/fhir+xml; charset=UTF-8"));
+                .post(Entity.entity(parameterString, "application/fhir+xml; charset=utf-8"));
 
         String taskString = response.readEntity(String.class);
         if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
@@ -527,7 +494,7 @@ public class ERezeptWorkflowService {
     public void abortERezeptTask(String bearerToken, String taskId, String accessCode) {
         Response response = client.target(prescriptionServerUrl).path("/Task").path("/" + taskId).path("/$abort")
                 .request().header("User-Agent", userAgent).header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
-                .post(Entity.entity("", "application/fhir+xml; charset=UTF-8"));
+                .post(Entity.entity("", "application/fhir+xml; charset=utf-8"));
         String taskString = response.readEntity(String.class);
         if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
             throw new RuntimeException(taskString);
@@ -540,7 +507,7 @@ public class ERezeptWorkflowService {
      * @throws ERezeptWorkflowException
      */
     public void activateComfortSignature() throws ERezeptWorkflowException {
-        final Holder<Status> status = new Holder<>();
+/*        final Holder<Status> status = new Holder<>();
         final Holder<SignatureModeEnum> signatureMode = new Holder<>();
         ContextType contextType = createContextType();
         String signatureServiceCardHandle = null;
@@ -552,14 +519,14 @@ public class ERezeptWorkflowService {
                     status, signatureMode);
         } catch (ConnectorCardsException | FaultMessage e) {
             throw new ERezeptWorkflowException("Activate comfort signature exception.", e);
-        }
+        }*/
     }
 
     /**
      * @throws ERezeptWorkflowException
      */
     public void getSignatureMode() throws ERezeptWorkflowException {
-        Holder<Status> status = new Holder<>();
+/*        Holder<Status> status = new Holder<>();
         Holder<ComfortSignatureStatusEnum> comfortSignatureStatus = new Holder<>();
         Holder<Integer> comfortSignatureMax = new Holder<>();
         Holder<Duration> comfortSignatureTimer = new Holder<>();
@@ -574,21 +541,21 @@ public class ERezeptWorkflowService {
                     comfortSignatureMax, comfortSignatureTimer, sessionInfo);
         } catch (ConnectorCardsException | FaultMessage e) {
             throw new ERezeptWorkflowException("Error getting signature mode.", e);
-        }
+        }*/
     }
 
     /**
      * @throws ERezeptWorkflowException
      */
     public void deactivateComfortSignature() throws ERezeptWorkflowException {
-        String signatureServiceCardHandle = null;
+/*        String signatureServiceCardHandle = null;
         try {
             signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
                     ConnectorCardsService.CardHandleType.HBA);
             signatureService.deactivateComfortSignature(Arrays.asList(signatureServiceCardHandle));
         } catch (ConnectorCardsException | FaultMessage e) {
             throw new ERezeptWorkflowException("Error deactivating comfort signature.", e);
-        }
+        }*/
     }
 
     /**
