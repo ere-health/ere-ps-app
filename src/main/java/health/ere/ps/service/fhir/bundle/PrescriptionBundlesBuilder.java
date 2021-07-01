@@ -35,7 +35,7 @@ public class PrescriptionBundlesBuilder implements IBundlesBuilder {
     }
 
     @Override
-    public List<Bundle> createBundles() throws ParseException {
+    public List<Bundle> createBundles() {
         List<Bundle> bundles = new ArrayList<>();
 
         muster16PrescriptionForm.getPrescriptionList().forEach(medicationString ->
