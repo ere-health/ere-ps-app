@@ -38,7 +38,7 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
     protected static final String $DOSAGE_TEXT = "$DOSAGE_TEXT";
     protected static final String $KVID_10 = "$KVID_10";
     protected static final String $PATIENT_ID = "$PATIENT_ID";
-    protected static final String $PATIENT_NAME_PREFIX = "$PATIENT_NAME_PREFIX";
+//    protected static final String $PATIENT_NAME_PREFIX = "$PATIENT_NAME_PREFIX";
     protected static final String $PATIENT_NAME_FIRST = "$PATIENT_NAME_FIRST";
     protected static final String $PATIENT_NAME_FAMILY = "$PATIENT_NAME_FAMILY";
     protected static final String $PATIENT_BIRTH_DATE = "$PATIENT_BIRTH_DATE";
@@ -49,7 +49,7 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
     protected static final String $PATIENT_ADDRESS_CITY = "$PATIENT_ADDRESS_CITY";
     protected static final String $PATIENT_STATUS = "$PATIENT_STATUS";
     protected static final String $PRACTITIONER_ID = "$PRACTITIONER_ID";
-    protected static final String $PRACTITIONER_NAME_PREFIX = "$PRACTITIONER_NAME_PREFIX";
+//    protected static final String $PRACTITIONER_NAME_PREFIX = "$PRACTITIONER_NAME_PREFIX";
     protected static final String $PRACTITIONER_NAME_FIRST = "$PRACTITIONER_NAME_FIRST";
     protected static final String $PRACTITIONER_NAME_FAMILY = "$PRACTITIONER_NAME_FAMILY";
     protected static final String $PRACTITIONER_ADDRESS_STREET_NAME = "$PRACTITIONER_ADDRESS_STREET_NAME";
@@ -163,18 +163,6 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
         templateKeyMapper.put($KVID_10,
                 getProtectedValue(muster16PrescriptionForm.getPatientInsuranceId()));
 
-        templateKeyMapper.put($PATIENT_NAME_PREFIX,
-                getProtectedValue(
-                        CollectionUtils.isNotEmpty(muster16PrescriptionForm.getPatientNamePrefix()) ?
-                                getProtectedValue(
-                                        muster16PrescriptionForm.getPatientNamePrefix()
-                                                .stream()
-                                                .findFirst()
-                                                .map(prefix -> prefix.replace("null", ""))
-                                                .get()) :
-                                NULL_VALUE_PLACE_HOLDER));
-
-
         templateKeyMapper.put($PATIENT_NAME_FIRST,
                 getProtectedValue(muster16PrescriptionForm.getPatientFirstName()));
 
@@ -199,9 +187,6 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
 
     protected void updatePractitionerResourceSection() {
         templateKeyMapper.put($PRACTITIONER_ID, UUID.randomUUID().toString());
-
-        templateKeyMapper.put($PRACTITIONER_NAME_PREFIX,
-                getProtectedValue(muster16PrescriptionForm.getPractitionerNamePrefix()));
 
         templateKeyMapper.put($PRACTITIONER_NAME_FIRST,
                 getProtectedValue(muster16PrescriptionForm.getPractitionerFirstName()));
