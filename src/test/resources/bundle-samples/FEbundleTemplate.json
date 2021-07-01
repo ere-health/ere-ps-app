@@ -239,7 +239,7 @@
                 }
               ]
             },
-            "system": "http://fhir.de/sid/gkv/kvid-10",
+            "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
             "value": "$KVID_10"
           }
         ],
