@@ -37,9 +37,10 @@ import health.ere.ps.config.AppConfig;
 import health.ere.ps.event.BundlesEvent;
 import health.ere.ps.event.ERezeptDocumentsEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
+import health.ere.ps.exception.bundle.EreParseException;
 import health.ere.ps.jsonb.BundleAdapter;
 import health.ere.ps.jsonb.ByteAdapter;
-import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilderV2;
+import health.ere.ps.service.fhir.bundle.EreBundle;
 import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 
 @ServerEndpoint("/websocket")
@@ -151,9 +152,21 @@ public class Websocket {
     }
 
     String generateJson(BundlesEvent bundlesEvent) {
+
+        bundlesEvent.getBundles().stream().forEach(bundle -> {
+
+            log.info("Filled bundle json template result shown below. Null value place" +
+                    " holders present.");
+            log.info("==============================================");
+
+            log.info(((EreBundle)bundle).encodeToJson());
+        });
+
+//        return bundlesEvent.getBundles().stream().map(bundle ->
+//                ctx.newJsonParser().encodeResourceToString(bundle))
+//                    .collect(Collectors.joining(",\n", "[", "]"));
         return bundlesEvent.getBundles().stream().map(bundle ->
-                PrescriptionBundlesBuilderV2.clearNullValuePlaceHolders(
-                        ctx.newJsonParser().encodeResourceToString(bundle)))
+                ((EreBundle)bundle).encodeToJson())
                 .collect(Collectors.joining(",\n", "[", "]"));
     }
 
