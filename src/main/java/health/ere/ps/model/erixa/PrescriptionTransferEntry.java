@@ -18,16 +18,18 @@ public class PrescriptionTransferEntry {
     private String postcode;
     private String city;
     private String telephoneNumber;
+    private String emailAddress;
     private String insuranceType;
     private String healthInsurance;
     private String healthInsuranceNumber;
-    private String deliveryType;
     private String pzn;
     private boolean autIdem;
     private String dosage;
     private String medicineDescription;
     private boolean extraPaymentNecessary;
-    private String creationDateTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd'T'hh:mm:ss'Z'")
+    private Date creationDateTime;
 
     public PrescriptionTransferEntry() {
     }
@@ -104,6 +106,14 @@ public class PrescriptionTransferEntry {
         this.telephoneNumber = telephoneNumber;
     }
 
+    public String getEmailAddress() {
+        return emailAddress;
+    }
+
+    public void setEmailAddress(String emailAddress) {
+        this.emailAddress = emailAddress;
+    }
+
     public String getInsuranceType() {
         return insuranceType;
     }
@@ -127,15 +137,6 @@ public class PrescriptionTransferEntry {
     public void setHealthInsuranceNumber(String healthInsuranceNumber) {
         this.healthInsuranceNumber = healthInsuranceNumber;
     }
-
-    public String getDeliveryType() {
-        return deliveryType;
-    }
-
-    public void setDeliveryType(String deliveryType) {
-        this.deliveryType = deliveryType;
-    }
-
     public String getPzn() {
         return pzn;
     }
@@ -176,11 +177,11 @@ public class PrescriptionTransferEntry {
         this.extraPaymentNecessary = extraPaymentNecessary;
     }
 
-    public String getCreationDateTime() {
+    public Date getCreationDateTime() {
         return creationDateTime;
     }
 
-    public void setCreationDateTime(String creationDateTime) {
+    public void setCreationDateTime(Date creationDateTime) {
         this.creationDateTime = creationDateTime;
     }
 }

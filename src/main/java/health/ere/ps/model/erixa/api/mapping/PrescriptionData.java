@@ -7,7 +7,7 @@ public class PrescriptionData {
     private String ownInsuredNumber;
     private boolean extraPaymentNecessary;
     private String creationDateTime;
-    private String prescriptionColor;
+    private PrescriptionColor prescriptionColor;
     private String icdCode;
 
     private String firstName;
@@ -19,11 +19,11 @@ public class PrescriptionData {
     private String street;
     private String city;
     private String country;
-    private String deliveryType;
+    private DeliveryType deliveryType;
     private String emailAddress;
     private String gender;
     private String insuranceType;
-    private String role;
+    private Role role;
     private String healthInsurance;
     private String healthInsuranceNumber;
 
@@ -82,11 +82,11 @@ public class PrescriptionData {
         this.creationDateTime = creationDateTime;
     }
 
-    public String getPrescriptionColor() {
+    public PrescriptionColor getPrescriptionColor() {
         return prescriptionColor;
     }
 
-    public void setPrescriptionColor(String prescriptionColor) {
+    public void setPrescriptionColor(PrescriptionColor prescriptionColor) {
         this.prescriptionColor = prescriptionColor;
     }
 
@@ -170,11 +170,11 @@ public class PrescriptionData {
         this.country = country;
     }
 
-    public String getDeliveryType() {
+    public DeliveryType getDeliveryType() {
         return deliveryType;
     }
 
-    public void setDeliveryType(String deliveryType) {
+    public void setDeliveryType(DeliveryType deliveryType) {
         this.deliveryType = deliveryType;
     }
 
@@ -202,11 +202,11 @@ public class PrescriptionData {
         this.insuranceType = insuranceType;
     }
 
-    public String getRole() {
+    public Role getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 

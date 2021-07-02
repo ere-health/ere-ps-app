@@ -3,16 +3,14 @@ package health.ere.ps.service.erixa;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import health.ere.ps.event.erixa.SendToPharmacyEvent;
 import health.ere.ps.model.erixa.PrescriptionTransferEntry;
-import health.ere.ps.model.erixa.api.mapping.DoctorUploadToDrugstorePrescriptionModel;
-import health.ere.ps.model.erixa.api.mapping.PrescriptionData;
-import health.ere.ps.model.erixa.api.mapping.PrescriptionDoctorData;
-import health.ere.ps.model.erixa.api.mapping.UserDetails;
+import health.ere.ps.model.erixa.api.mapping.*;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Base64;
 import java.util.Date;
 
 @ApplicationScoped
@@ -22,20 +20,21 @@ public class ErixaUploadService {
     ErixaAPIInterface apiInterface;
 
     private final ObjectMapper mapper;
+    private final SimpleDateFormat simpleDateFormat, timestampFormat;
 
 
     public ErixaUploadService() {
         mapper = new ObjectMapper();
+        simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        timestampFormat = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'");
     }
 
 
     public void uploadPrescriptionToDrugstore(@ObservesAsync SendToPharmacyEvent event) throws IOException {
-        String document = event.getDocument();
         PrescriptionTransferEntry details = event.getDetails();
 
-        DoctorUploadToDrugstorePrescriptionModel model = buildBody(document, details);
+        DoctorUploadToDrugstorePrescriptionModel model = buildBody(event.getDocument(), details);
         String json = mapper.writeValueAsString(model);
-
         apiInterface.uploadToDrugstore(json);
     }
 
@@ -57,7 +56,7 @@ public class ErixaUploadService {
     }
 
     private String getFileName(PrescriptionTransferEntry details) {
-        String date = details.getCreationDateTime();
+        String date = simpleDateFormat.format(details.getCreationDateTime());
         String name = String.format("%s %s", details.getFirstName(), details.getLastName());
         String receiver = getDrugstoreEmail();
 
@@ -65,8 +64,7 @@ public class ErixaUploadService {
     }
 
     private int getFileSize(String base64Document) {
-        // TODO implement method
-        throw new UnsupportedOperationException();
+        return Base64.getDecoder().decode(base64Document).length;
     }
 
     private void interpolateDrugstoreDetails(DoctorUploadToDrugstorePrescriptionModel model) {
@@ -85,7 +83,7 @@ public class ErixaUploadService {
 
     private PrescriptionData buildPrescriptionData(PrescriptionTransferEntry entry) {
         PrescriptionData data = new PrescriptionData();
-        // TODO set role
+        data.setRole(Role.PATIENT);
         data.setFirstName(entry.getFirstName());
         data.setLastName(entry.getLastName());
         data.setGender(entry.getGender());
@@ -95,11 +93,12 @@ public class ErixaUploadService {
         data.setStreet(entry.getStreet());
         data.setCity(entry.getCity());
         data.setCountry("DE");
-        // TODO fetch and set email address
+        data.setEmailAddress(entry.getEmailAddress());
         data.setInsuranceType(entry.getInsuranceType());
-        data.setCreationDateTime(entry.getCreationDateTime());
-        // TODO set delivery type
-        data.setPrescriptionColor("Red");
+        data.setHealthInsuranceNumber(entry.getHealthInsuranceNumber());
+        data.setCreationDateTime(toTimestamp(entry.getCreationDateTime()));
+        data.setDeliveryType(DeliveryType.HOME_DELIVERY);
+        data.setPrescriptionColor(PrescriptionColor.RED);
         data.setPzn1(entry.getPzn());
         data.setAutIdem1(entry.isAutIdem());
         data.setDosage1(entry.getDosage());
@@ -116,5 +115,9 @@ public class ErixaUploadService {
     private PrescriptionDoctorData getDoctorData() {
         UserDetails userDetails = apiInterface.getUserDetails();
         return new PrescriptionDoctorData(userDetails);
+    }
+
+    private String toTimestamp(Date date){
+        return timestampFormat.format(date);
     }
 }
