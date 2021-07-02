@@ -114,18 +114,17 @@ public class EndpointDiscoveryService {
                     SecretsManagerService.KeyStoreType.PKCS12,
                     bp);
 
-            clientBuilder.sslContext(sslContext);
         } catch (IOException e) {
             log.severe("SSL transport configuration error.");
             // throw new SecretsManagerException("SSL transport configuration error.", e);
         }
-
-        if (!isConnectorVerifyHostnames()) {
+        
+        clientBuilder.sslContext(secretsManagerService.createSSLContext());
+        //if (!isConnectorVerifyHostnames()) {
             // disable hostname verification
             // This line is currently not working
             clientBuilder = clientBuilder.hostnameVerifier(new SSLUtilities.FakeHostnameVerifier());
-        }
-
+        //}
         Invocation invocation = clientBuilder.build()
                 .target(connectorBaseUri)
                 .path("/connector.sds")

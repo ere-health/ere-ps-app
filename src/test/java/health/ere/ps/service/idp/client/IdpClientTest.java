@@ -3,7 +3,7 @@ package health.ere.ps.service.idp.client;
 import health.ere.ps.exception.idp.crypto.IdpCryptoException;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
 import health.ere.ps.test.DefaultTestProfile;
-
+import health.ere.ps.test.ProductionTestProfile;
 import io.quarkus.test.junit.TestProfile;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -35,7 +35,7 @@ import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
 import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest
-@TestProfile(DefaultTestProfile.class)
+@TestProfile(ProductionTestProfile.class)
 public class IdpClientTest {
 
     @Inject
@@ -129,6 +129,8 @@ public class IdpClientTest {
                 clientSystem, workplace, cardHandle);
 
         IdpTokenResult idpTokenResult = idpClient.login(x509Certificate);
+
+        System.out.println("Access Token: "+idpTokenResult.getAccessToken().getRawString());
 
         Assertions.assertNotNull(idpTokenResult, "Idp Token result present.");
         Assertions.assertNotNull(idpTokenResult.getAccessToken(), "Access Token present");
