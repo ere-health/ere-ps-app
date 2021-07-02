@@ -3,7 +3,7 @@ package health.ere.ps.service.gematik;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.DataFormatException;
 import ca.uhn.fhir.parser.IParser;
-import de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse;
+import de.gematik.ws.conn.signatureservice.v7.SignResponse;
 import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.exception.gematik.ERezeptWorkflowException;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
