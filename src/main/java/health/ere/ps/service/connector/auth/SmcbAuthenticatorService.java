@@ -139,7 +139,7 @@ public class SmcbAuthenticatorService {
             ContextType contextType = new ContextType();
 
             contextType.setClientSystemId(appConfig.getClientSystem());
-            contextType.setMandantId(appConfig.getClientId());
+            contextType.setMandantId(appConfig.getMandantId());
             contextType.setWorkplaceId(appConfig.getWorkplace());
 
             ExternalAuthenticateResponse response;
@@ -149,8 +149,7 @@ public class SmcbAuthenticatorService {
                 // de.gematik.ti.signenc.authsignature.SignatureScheme.RSASSA-PSS Please see the
                 // server log to find more detail regarding exact cause of the failure.
                 response = smcbAuthExecutionService.doExternalAuthenticate(smcbCardHandle,
-                        contextType, null
-                        /*optionalInputs*/,
+                        contextType, optionalInputs,
                         binaryDocumentType);
             } catch (FaultMessage e) {
                 throw new JoseException("Could not call externalAuthenticate", e);
