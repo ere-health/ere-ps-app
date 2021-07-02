@@ -6,10 +6,10 @@ import de.gematik.ws.conn.eventservice.v7.GetCards;
 import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventService;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
-import de.gematik.ws.conn.signatureservice.v7_5_5.DocumentType;
-import de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest;
-import de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest.OptionalInputs;
-import de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse;
+import de.gematik.ws.conn.signatureservice.v7.DocumentType;
+import de.gematik.ws.conn.signatureservice.v7.SignRequest;
+import de.gematik.ws.conn.signatureservice.v7.SignRequest.OptionalInputs;
+import de.gematik.ws.conn.signatureservice.v7.SignResponse;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.FaultMessage;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureService;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortType;
@@ -423,7 +423,7 @@ public class ERezeptWorkflowService {
                     ConnectorCardsService.CardHandleType.HBA);
 
             signResponse = signatureService.signDocument(signatureServiceCardHandle,
-                    signatureServiceCrypt, contextType, signatureServiceTvMode,
+                    contextType, signatureServiceTvMode,
                     jobNumber, signRequests);
         } catch(ConnectorCardsException | InvalidCanonicalizerException | XMLParserException |
                 IOException | CanonicalizationException | FaultMessage e) {
