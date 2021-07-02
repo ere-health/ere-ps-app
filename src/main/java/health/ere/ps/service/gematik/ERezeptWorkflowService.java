@@ -1,6 +1,7 @@
 package health.ere.ps.service.gematik;
 
 import ca.uhn.fhir.context.FhirContext;
+import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.v7.GetCards;
 import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
@@ -9,10 +10,15 @@ import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.signatureservice.v7.DocumentType;
 import de.gematik.ws.conn.signatureservice.v7.SignRequest;
 import de.gematik.ws.conn.signatureservice.v7.SignRequest.OptionalInputs;
+import de.gematik.ws.conn.signatureservice.v7_5_5.ComfortSignatureStatusEnum;
+import de.gematik.ws.conn.signatureservice.v7_5_5.SessionInfo;
+import de.gematik.ws.conn.signatureservice.v7_5_5.SignatureModeEnum;
 import de.gematik.ws.conn.signatureservice.v7.SignResponse;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.FaultMessage;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureService;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortType;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServiceV755;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.event.BundlesWithAccessCodeEvent;
 import health.ere.ps.event.RequestBearerTokenFromIdpEvent;
@@ -48,6 +54,8 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import javax.xml.ws.BindingProvider;
+import javax.xml.ws.Holder;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -103,6 +111,7 @@ public class ERezeptWorkflowService {
     String userAgent;
 
     SignatureServicePortType signatureService;
+    SignatureServicePortTypeV755 signatureServiceV755;
     EventServicePortType eventService;
 
     @Inject
@@ -144,9 +153,19 @@ public class ERezeptWorkflowService {
                 }
             }
 
-            signatureService = new SignatureService(getClass().getResource("/SignatureService_V7_5_5.wsdl")).getSignatureServicePort();
+            signatureService = new SignatureService(getClass().getResource("/SignatureService.wsdl")).getSignatureServicePort();
             /* Set endpoint to configured endpoint */
             BindingProvider bp = (BindingProvider) signatureService;
+            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, appConfig.getSignatureServiceEndpointAddress());
+            if (customSSLContext != null) {
+                bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
+                        customSSLContext.getSocketFactory());
+                bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier", new SSLUtilities.FakeHostnameVerifier());
+            }
+
+            signatureServiceV755 = new SignatureServiceV755(getClass().getResource("/SignatureService_V7_5_5.wsdl.wsdl")).getSignatureServicePortTypeV755();
+            /* Set endpoint to configured endpoint */
+            bp = (BindingProvider) signatureService;
             bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, appConfig.getSignatureServiceEndpointAddress());
             if (customSSLContext != null) {
                 bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
@@ -507,7 +526,7 @@ public class ERezeptWorkflowService {
      * @throws ERezeptWorkflowException
      */
     public void activateComfortSignature() throws ERezeptWorkflowException {
-/*        final Holder<Status> status = new Holder<>();
+        final Holder<Status> status = new Holder<>();
         final Holder<SignatureModeEnum> signatureMode = new Holder<>();
         ContextType contextType = createContextType();
         String signatureServiceCardHandle = null;
@@ -515,21 +534,21 @@ public class ERezeptWorkflowService {
         try {
             signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
                     ConnectorCardsService.CardHandleType.HBA);
-            signatureService.activateComfortSignature(signatureServiceCardHandle, contextType,
+            signatureServiceV755.activateComfortSignature(signatureServiceCardHandle, contextType,
                     status, signatureMode);
         } catch (ConnectorCardsException | FaultMessage e) {
             throw new ERezeptWorkflowException("Activate comfort signature exception.", e);
-        }*/
+        }
     }
 
     /**
      * @throws ERezeptWorkflowException
      */
     public void getSignatureMode() throws ERezeptWorkflowException {
-/*        Holder<Status> status = new Holder<>();
+        Holder<Status> status = new Holder<>();
         Holder<ComfortSignatureStatusEnum> comfortSignatureStatus = new Holder<>();
         Holder<Integer> comfortSignatureMax = new Holder<>();
-        Holder<Duration> comfortSignatureTimer = new Holder<>();
+        Holder<javax.xml.datatype.Duration> comfortSignatureTimer = new Holder<>();
         Holder<SessionInfo> sessionInfo = new Holder<>();
         ContextType contextType = createContextType();
 
@@ -537,25 +556,25 @@ public class ERezeptWorkflowService {
         try {
             signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
                     ConnectorCardsService.CardHandleType.HBA);
-            signatureService.getSignatureMode(signatureServiceCardHandle, contextType, status, comfortSignatureStatus,
+            signatureServiceV755.getSignatureMode(signatureServiceCardHandle, contextType, status, comfortSignatureStatus,
                     comfortSignatureMax, comfortSignatureTimer, sessionInfo);
         } catch (ConnectorCardsException | FaultMessage e) {
             throw new ERezeptWorkflowException("Error getting signature mode.", e);
-        }*/
+        }
     }
 
     /**
      * @throws ERezeptWorkflowException
      */
     public void deactivateComfortSignature() throws ERezeptWorkflowException {
-/*        String signatureServiceCardHandle = null;
+        String signatureServiceCardHandle = null;
         try {
             signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
                     ConnectorCardsService.CardHandleType.HBA);
-            signatureService.deactivateComfortSignature(Arrays.asList(signatureServiceCardHandle));
+            signatureServiceV755.deactivateComfortSignature(Arrays.asList(signatureServiceCardHandle));
         } catch (ConnectorCardsException | FaultMessage e) {
             throw new ERezeptWorkflowException("Error deactivating comfort signature.", e);
-        }*/
+        }
     }
 
     /**
