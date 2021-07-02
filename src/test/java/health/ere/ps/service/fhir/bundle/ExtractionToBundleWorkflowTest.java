@@ -31,7 +31,7 @@ public class ExtractionToBundleWorkflowTest {
 
     @Test
     @Disabled("Github doesn't have access to the secret repo, run this test manually")
-    public void extractionFromPdf_producesCorrectBundle_givenDensPdf() throws IOException, ParseException, XMLStreamException {
+    public void extractionFromPdf_producesCorrectBundle_givenDensPdf() throws IOException, XMLStreamException {
         // GIVEN
         PDDocument testDocument = PDDocument.load(
                 new FileInputStream("../secret-test-print-samples/DENS-GmbH/DENSoffice - Rezept1.pdf"));
@@ -67,6 +67,7 @@ public class ExtractionToBundleWorkflowTest {
             assertEquals("14513", extractPractitionerPostCode(bundle));
             assertEquals("03328334540", extractPractitionerPhoneNumber(bundle));
             assertEquals("03328334547", extractPractitionerFaxNumber(bundle));
+            assertEquals("2021-04-29T00:00:00+07:00", extractAuthoredOn(bundle));
         });
 
         assertEquals("Ibuprofen 600mg", extractMedicationName(bundles.get(0)));
@@ -74,9 +75,10 @@ public class ExtractionToBundleWorkflowTest {
         assertEquals("Amoxicillin 1.000 mg", extractMedicationName(bundles.get(2)));
     }
 
+
     @Test
     @Disabled("Github doesn't have access to the secret repo, run this test manually")
-    public void extractionFromPdf_producesCorrectBundle_givenCGMPdf() throws IOException, ParseException, XMLStreamException {
+    public void extractionFromPdf_producesCorrectBundle_givenCGMPdf() throws IOException, XMLStreamException {
         // GIVEN
         PDDocument testDocument = PDDocument.load(
                 new FileInputStream("../secret-test-print-samples/CGM-Turbomed/test1_no_number_in_practitioner_name.pdf"));
@@ -110,8 +112,8 @@ public class ExtractionToBundleWorkflowTest {
         assertEquals("56068", extractPractitionerPostCode(bundle));
         assertEquals("0261110110", extractPractitionerPhoneNumber(bundle));
         assertEquals("Novalgin AMP N1 5X2 ml", extractMedicationName(bundle));
+        assertEquals("2021-04-30T00:00:00+07:00", extractAuthoredOn(bundle));
     }
-
 
     private String extractMedicationName(Bundle bundle) {
         return getEntry(bundle, "Medication").getResource().getChildByName("code").getValues().get(0)
@@ -205,6 +207,11 @@ public class ExtractionToBundleWorkflowTest {
         return getEntry(bundle, "MedicationRequest").getResource().getChildByName("extension").getValues().get(0)
                 .getChildByName("value[x]").getValues().get(0).getChildByName("code").getValues().get(0)
                 .primitiveValue();
+    }
+
+    private String extractAuthoredOn(Bundle bundle) {
+        return getEntry(bundle, "MedicationRequest").getResource().getChildByName("authoredOn")
+                .getValues().get(0).primitiveValue();
     }
 
     private Bundle.BundleEntryComponent getEntry(Bundle bundle, String name) {
