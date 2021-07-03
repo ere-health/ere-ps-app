@@ -132,6 +132,7 @@ public class IdpClientTest {
 
         IdpTokenResult idpTokenResult = idpClient.login(x509Certificate);
 
+        System.out.println("Access code: "+idpTokenResult.getIdToken().getRawString());
         Assertions.assertNotNull(idpTokenResult, "Idp Token result present.");
         Assertions.assertNotNull(idpTokenResult.getAccessToken(), "Access Token present");
         Assertions.assertNotNull(idpTokenResult.getIdToken(), "Id Token present");
