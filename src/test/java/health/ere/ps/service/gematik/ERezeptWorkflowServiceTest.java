@@ -16,6 +16,7 @@ import health.ere.ps.service.muster16.Muster16FormDataExtractorService;
 import health.ere.ps.service.muster16.parser.Muster16SvgExtractorParser;
 import health.ere.ps.service.pdf.DocumentService;
 import health.ere.ps.test.DefaultTestProfile;
+import health.ere.ps.test.StagingTestProfile;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -45,13 +46,13 @@ import java.util.logging.Logger;
 import static health.ere.ps.service.extractor.TemplateProfile.CGM_TURBO_MED;
 
 @QuarkusTest
-@TestProfile(DefaultTestProfile.class)
+@TestProfile(StagingTestProfile.class)
 public class ERezeptWorkflowServiceTest {
 
     private static final Logger log = Logger.getLogger(ERezeptWorkflowServiceTest.class.getName());
     private final FhirContext fhirContext = FhirContext.forR4();
     private final IParser iParser = fhirContext.newXmlParser();
-    private final String testBearerToken = "eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiY3R5IjoiTkpXVCIsImV4cCI6MTYyNTA2NjM0MH0..GSqrRDh8B9_4L4VO.nqMys3GE_dKBDgEfIA2O0Sg9QQc8csNlsl8XVWQRnP3iC5Q7777Ci_SbNTLkqBSeEX_cKUbFIo7ElfDGlW3doVt9lZrqUsYvZySewl4-Rb9d3D1hFugegY46_LXtzuzwEm36W8M38DRWaIrP759riLFUPqcB6vr3oIMKzjeYZ2l3A1-H8H8AKfFhYwneWAGG5RwXwDNWMocnn3--m3pRRjgVE7JdAli8Nw5rJ26aAJ4S9q9WOQElWOzFnYteAqqjdLlWXHgK_7rElgNvMckhOeEN9rg0rouWuhN-bNXyeJMFuRQALXZ1cl5c7LGwwfI5RB-OwpOE7hAHGcWoovs89_e0uL-R8M9zNSvqU0IIDmqnvhVMdP63yHRYOCnjlsy7Z6ViWkJ_O4BnD8HbdK0yBQknKDmriX1ofPaVzZFyuLyKCLdDIhw5Ub5ML_tJ0vZ9m9WO8u1cm_352qO0NWN4O1f6b8dO2UWb1X-copBjebsD-A1Kyw8BoJzRq2dGvfarfHI1bkRl_KhFkVX15dpoqPcyLpRcqYS4W26jK7MlrjNcy508FS7CcfheQ4zbi3hxQGZDfCZ9cEit3h5I6lZEGHRGDLm_QDbEC-2rkDRRAP_97n3zswa97c57B3xG366yn4FCe9GeZHiZCY4qMtRSijAcW71G3CYzArXWwMURxAuYL8cGOen_Fsit491AM6R3AtYK4yQ_eTk_4i6UYv6GqPmxvRYjNjzAfMeyKupkLY8N0wQnL67dkMTz7RH-N8BL1PDF-ETzXmKVFmUdvhojEYV7vfOJx2yV-cXv2cChBI7A--SSffFJhqZOQUYMFRtUphBiXZTLgF2_PFpS32lgdCpn5dkNW7kMK1ARIZx7iVvhIYcYxSByJcdNZ928nHT5Kpdz8Z5ap-O8L_FYjiPrRAJ9O28ZU7ZHTVRDyOb5nOZf7kG3xVIvxJV3FQ0kLmXp4xU8tW8G53sj161rFllBJLVBKDI_7fHTnOg2Aa58wCm4AeC4thH90szLkSAPS3GtFsWkkHaEuBWffBvrHEI2POOwVy2eyz991z3OZBrwF76N1bazJTrMc4CYp3BWSR7S6dYf-E2wYeXeKqJud0qrmfVlGjMfLre8NVn-8hYtrxPEOCFAoBMZRf1S2IPvOgdYRFMoRcJDQ6PyBiSetPWvNRmJJbdWiKEUxGK1ILSKfg5QQxvWpS3yj-evGLApJbL0BBmhougcvRcbm0xQQexcZF9VQdVKye7jEG0T49SQMhskh8KU3BwJaQ.A0rDmBg2FB_lLfswYqw8ww";
+    private final String testBearerToken = "eyJhbGciOiJCUDI1NlIxIiwia2lkIjoicHVrX2lkcF9zaWciLCJ0eXAiOiJKV1QifQ.eyJhdXRoX3RpbWUiOjE2MjUzMjQ4MDAsIm5vbmNlIjoiY0dpeXd5OUZMWnJpTUJ2ZzJqbk0iLCJnaXZlbl9uYW1lIjpudWxsLCJmYW1pbHlfbmFtZSI6bnVsbCwib3JnYW5pemF0aW9uTmFtZSI6bnVsbCwicHJvZmVzc2lvbk9JRCI6IjEuMi4yNzYuMC43Ni40LjUzIiwiaWROdW1tZXIiOiI1LVNNQy1CLVRlc3RrYXJ0ZS04ODMxMTAwMDAxMTgwMDEiLCJhenAiOiJHRU1JbmNlbmVyZVN1ZDFQRXJVUiIsImFjciI6ImdlbWF0aWstZWhlYWx0aC1sb2EtaGlnaCIsImFtciI6WyJtZmEiLCJzYyIsInBpbiJdLCJhdWQiOiJHRU1JbmNlbmVyZVN1ZDFQRXJVUiIsInN1YiI6ImRmYWQ3MmFkZTFjY2MwY2VjNjBmOTA4MTYwMzIyZWE4YTk1NTI0Zjk4ZDkyZTE2YjFlZmZlYzM3NzMwNzJlMWUiLCJpc3MiOiJodHRwczovL2lkcC1yZWYuemVudHJhbC5pZHAuc3BsaXRkbnMudGktZGllbnN0ZS5kZSIsImlhdCI6MTYyNTMyNDgwMywiZXhwIjoxNjI1MzY4MDAzLCJqdGkiOiI1ZGFiYWI5NS01YzVhLTRmNzAtYWM0OS1iY2JiODM0N2VlNGIiLCJhdF9oYXNoIjoiNFNFLVBOSXRZbUtuSEVjTk9Wbml1USJ9.Atgvgl-Xjk_BRhBunclOUslht_1hYqNrEhJuawVlH2una6cmo3Ofw5jN84p7-BkYwNsTV_J0K6nlNgD2yuz4_g";
 
     @Inject
     ERezeptWorkflowService eRezeptWorkflowService;
@@ -86,14 +87,14 @@ public class ERezeptWorkflowServiceTest {
 
 
     @Test
-    @Disabled
+    // @Disabled
     void testCreateERezeptOnPrescriptionServer() throws IOException, ERezeptWorkflowException {
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/0428d416-149e-48a4-977c-394887b3d85c.xml"));
         BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
         DocumentService documentService = new DocumentService();
         documentService.init();
         ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
-        String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmX")
+        String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mmX")
                 .withZone(ZoneOffset.UTC)
                 .format(Instant.now());
         Files.write(Paths.get("target/E-Rezept-"+thisMoment+".pdf"), a.toByteArray());
@@ -279,6 +280,17 @@ public class ERezeptWorkflowServiceTest {
         BundleWithAccessCodeOrThrowable bundleWithAccessCode = eRezeptWorkflowService.updateBundleWithTask(task, bundle);
         SignResponse signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundleWithAccessCode.getBundle(), true);
         Files.write(Paths.get("target/titus-eRezeptWorkflowService-signBundleWithIdentifiers.dat"), signResponse.getSignatureObject().getBase64Signature().getValue());
+    }
+
+    @Test
+    // @Disabled
+        // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
+    void testSignDocument() throws IOException, ERezeptWorkflowException {
+        Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/examples_erezept/Erezept_template_3.xml"));
+
+        Task task = new Task();
+        BundleWithAccessCodeOrThrowable bundleWithAccessCode = eRezeptWorkflowService.updateBundleWithTask(task, bundle);
+        SignResponse signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundleWithAccessCode.getBundle());
     }
 
     @Test

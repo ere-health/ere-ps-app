@@ -163,7 +163,7 @@ public class ERezeptWorkflowService {
                 bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier", new SSLUtilities.FakeHostnameVerifier());
             }
 
-            signatureServiceV755 = new SignatureServiceV755(getClass().getResource("/SignatureService_V7_5_5.wsdl.wsdl")).getSignatureServicePortTypeV755();
+            signatureServiceV755 = new SignatureServiceV755(getClass().getResource("/SignatureService_V7_5_5.wsdl")).getSignatureServicePortTypeV755();
             /* Set endpoint to configured endpoint */
             bp = (BindingProvider) signatureService;
             bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, appConfig.getSignatureServiceEndpointAddress());
@@ -359,7 +359,7 @@ public class ERezeptWorkflowService {
      */
     public BundleWithAccessCodeOrThrowable updateBundleWithTask(Task task, Bundle bundle) {
         String prescriptionID = task.getIdentifier().stream()
-                .filter(id -> id.getSystem().equals(EREZEPT_IDENTIFIER_SYSTEM)).findFirst().get().getValue();
+                .filter(id -> id.getSystem().equals(EREZEPT_IDENTIFIER_SYSTEM)).findFirst().orElse(new Identifier()).getValue();
         Identifier identifier = new Identifier();
         identifier.setSystem(EREZEPT_IDENTIFIER_SYSTEM);
         identifier.setValue(prescriptionID);
@@ -375,7 +375,7 @@ public class ERezeptWorkflowService {
     static String getAccessCode(Task task) {
         return task.getIdentifier().stream()
                 .filter(id -> id.getSystem().equals("https://gematik.de/fhir/NamingSystem/AccessCode")).findFirst()
-                .get().getValue();
+                .orElse(new Identifier()).getValue();
     }
 
     public SignResponse signBundleWithIdentifiers(Bundle bundle) throws ERezeptWorkflowException {
