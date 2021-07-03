@@ -8,6 +8,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 
@@ -27,10 +28,10 @@ public class ErixaHttpClient {
 
         StringEntity entity = new StringEntity(json);
 
-        HttpPost request = new HttpPost(url.toString());
+        HttpPost request = new HttpPost(url);
 
         request.setHeader(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader());
-        request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+        request.setHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString());
         request.setHeader("ApiKey", getApiKey());
         request.setEntity(entity);
 
@@ -39,10 +40,10 @@ public class ErixaHttpClient {
 
     public HttpResponse sendGetRequest(String url) throws IOException {
 
-        HttpGet request = new HttpGet(url.toString());
+        HttpGet request = new HttpGet(url);
 
         request.setHeader(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader());
-        request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+        request.setHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString());
         request.setHeader("ApiKey", getApiKey());
 
         return httpClient.execute(request);
