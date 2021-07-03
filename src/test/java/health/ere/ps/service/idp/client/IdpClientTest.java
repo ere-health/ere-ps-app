@@ -3,6 +3,7 @@ package health.ere.ps.service.idp.client;
 import health.ere.ps.exception.idp.crypto.IdpCryptoException;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
 import health.ere.ps.test.DefaultTestProfile;
+import health.ere.ps.test.StagingTestProfile;
 
 import io.quarkus.test.junit.TestProfile;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -36,6 +37,7 @@ import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest
 @TestProfile(DefaultTestProfile.class)
+// @TestProfile(StagingTestProfile.class)
 public class IdpClientTest {
 
     @Inject
