@@ -36,8 +36,8 @@ import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
 import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest
-@TestProfile(DefaultTestProfile.class)
-// @TestProfile(StagingTestProfile.class)
+// @TestProfile(DefaultTestProfile.class)
+@TestProfile(StagingTestProfile.class)
 public class IdpClientTest {
 
     @Inject
