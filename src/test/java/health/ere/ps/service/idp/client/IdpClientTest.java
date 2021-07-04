@@ -1,5 +1,25 @@
 package health.ere.ps.service.idp.client;
 
+import health.ere.ps.exception.idp.crypto.IdpCryptoException;
+import health.ere.ps.service.connector.endpoint.SSLUtilities;
+import health.ere.ps.test.DefaultTestProfile;
+
+import io.quarkus.test.junit.TestProfile;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.junit.jupiter.api.*;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.Security;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.logging.LogManager;
+
+import javax.inject.Inject;
+
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.exception.connector.ConnectorCardCertificateReadException;
@@ -12,25 +32,10 @@ import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.common.security.SecureSoapTransportConfigurer;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
-import health.ere.ps.service.connector.endpoint.SSLUtilities;
-import health.ere.ps.test.DefaultTestProfile;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.TestProfile;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.security.Security;
-import java.security.cert.X509Certificate;
-import java.util.logging.LogManager;
 
 @QuarkusTest
- @TestProfile(DefaultTestProfile.class)
+@TestProfile(DefaultTestProfile.class)
 public class IdpClientTest {
 
     @Inject
@@ -125,7 +130,8 @@ public class IdpClientTest {
 
         IdpTokenResult idpTokenResult = idpClient.login(x509Certificate);
 
-        System.out.println("Access code: "+idpTokenResult.getIdToken().getRawString());
+        System.out.println("Access Token: "+idpTokenResult.getAccessToken().getRawString());
+
         Assertions.assertNotNull(idpTokenResult, "Idp Token result present.");
         Assertions.assertNotNull(idpTokenResult.getAccessToken(), "Access Token present");
         Assertions.assertNotNull(idpTokenResult.getIdToken(), "Id Token present");
