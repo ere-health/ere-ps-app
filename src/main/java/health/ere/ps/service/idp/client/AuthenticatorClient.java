@@ -22,7 +22,6 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.crypto.SecretKey;
@@ -343,8 +342,6 @@ public class AuthenticatorClient {
         try {
             idpHttpClientService = RestClientBuilder.newBuilder()
                     .baseUrl(new URL(url))
-                    .connectTimeout(60, TimeUnit.SECONDS)
-                    .readTimeout(60, TimeUnit.SECONDS)
                     .build(IdpHttpClientService.class);
         } catch (MalformedURLException e) {
             throw new IdpClientException("Bad URL: " + url, e);

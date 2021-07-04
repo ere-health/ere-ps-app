@@ -61,7 +61,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -191,7 +190,7 @@ public class ERezeptWorkflowService {
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
         if(enableVau) {
             try {
-                ((ResteasyClientBuilderImpl)clientBuilder).httpEngine(new VAUEngine(prescriptionServerUrl)).connectTimeout(30, TimeUnit.SECONDS).readTimeout(30, TimeUnit.SECONDS);
+                ((ResteasyClientBuilderImpl)clientBuilder).httpEngine(new VAUEngine(prescriptionServerUrl));
             } catch(Exception ex) {
                 log.log(Level.SEVERE, "Could not enable VAU", ex);
             }
