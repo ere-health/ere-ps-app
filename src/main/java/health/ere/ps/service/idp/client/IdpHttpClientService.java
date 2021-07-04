@@ -21,7 +21,7 @@ public interface IdpHttpClientService {
     String USER_AGENT = "IdP-Client";
 
     @GET
-    @Produces /*(MediaType.APPLICATION_JSON)*/
+    @Produces(MediaType.APPLICATION_JSON)
     @ClientHeaderParam(name=HttpHeaders.USER_AGENT, value=USER_AGENT)
     Response doGenericGetRequest();
 
