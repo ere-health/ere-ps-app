@@ -46,7 +46,7 @@ import java.util.logging.Logger;
 import static health.ere.ps.service.extractor.TemplateProfile.CGM_TURBO_MED;
 
 @QuarkusTest
-@TestProfile(StagingTestProfile.class)
+@TestProfile(DefaultTestProfile.class)
 public class ERezeptWorkflowServiceTest {
 
     private static final Logger log = Logger.getLogger(ERezeptWorkflowServiceTest.class.getName());
@@ -87,7 +87,7 @@ public class ERezeptWorkflowServiceTest {
 
 
     @Test
-    // @Disabled
+     @Disabled
     void testCreateERezeptOnPrescriptionServer() throws IOException, ERezeptWorkflowException {
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/0428d416-149e-48a4-977c-394887b3d85c.xml"));
         BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
@@ -283,7 +283,7 @@ public class ERezeptWorkflowServiceTest {
     }
 
     @Test
-    // @Disabled
+     @Disabled
         // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testSignDocument() throws IOException, ERezeptWorkflowException {
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/examples_erezept/Erezept_template_3.xml"));
