@@ -17,6 +17,7 @@ import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
@@ -72,6 +73,8 @@ public class IdpClientTest {
 
     @ConfigProperty(name = "idp.auth.request.redirect.url")
     String redirectUrl;
+
+    private final Logger log = Logger.getLogger(getClass().getName());
 
     static {
         Security.addProvider(new BouncyCastleProvider());
@@ -130,7 +133,7 @@ public class IdpClientTest {
 
         IdpTokenResult idpTokenResult = idpClient.login(x509Certificate);
 
-        System.out.println("Access Token: "+idpTokenResult.getAccessToken().getRawString());
+        log.info("Access Token: " + idpTokenResult.getAccessToken().getRawString());
 
         Assertions.assertNotNull(idpTokenResult, "Idp Token result present.");
         Assertions.assertNotNull(idpTokenResult.getAccessToken(), "Access Token present");
