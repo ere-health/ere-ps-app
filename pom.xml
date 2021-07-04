@@ -21,6 +21,7 @@
         <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
         <hapi.version>5.4.1</hapi.version>
     </properties>
+    <!-- Add a random line to update maven cache in github actions -->
     <dependencyManagement>
         <dependencies>
             <dependency>
