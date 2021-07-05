@@ -44,20 +44,11 @@ public class IdPService {
     @Inject
     AppConfig appConfig;
 
-    @ConfigProperty(name = "idp.client.id")
-    String clientId;
-
     @Inject
     ConnectorCardsService connectorCardsService;
 
     @Inject
     SecureSoapTransportConfigurer secureSoapTransportConfigurer;
-
-    @ConfigProperty(name = "idp.base.url")
-    String idpBaseUrl;
-
-    @ConfigProperty(name = "idp.auth.request.redirect.url")
-    String redirectUrl;
 
 
     @Inject
@@ -75,8 +66,8 @@ public class IdPService {
     
     public void requestBearerToken(@Observes RequestBearerTokenFromIdpEvent requestBearerTokenFromIdpEvent) {
         try {
-            String discoveryDocumentUrl = idpBaseUrl + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
-            idpClient.init(clientId, redirectUrl, discoveryDocumentUrl, true);
+            String discoveryDocumentUrl = appConfig.getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
+            idpClient.init(appConfig.getClientId(), appConfig.getRedirectURL(), discoveryDocumentUrl, true);
             idpClient.initializeClient();
 
             String cardHandle = connectorCardsService.getConnectorCardHandle(

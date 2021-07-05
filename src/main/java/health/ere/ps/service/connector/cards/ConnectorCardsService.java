@@ -40,10 +40,6 @@ public class ConnectorCardsService implements SoapClient {
     @Inject
     AppConfig appConfig;
 
-    
-    @ConfigProperty(name = "connector.cert.auth.store.file", defaultValue = "!")
-    String certAuthStoreFile;
-
     private ContextType contextType;
     private EventServicePortType eventService;
 
@@ -90,10 +86,11 @@ public class ConnectorCardsService implements SoapClient {
         bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, appConfig.getEventServiceEndpointAddress());
 
         SSLContext customSSLContext = null;
-        if (certAuthStoreFile != null && !("".equals(certAuthStoreFile))
-                    && !("!".equals(certAuthStoreFile))) {
+        if (appConfig.getIdpConnectorTlsCertTrustStore() != null
+                && !("".equals(appConfig.getIdpConnectorTlsCertTrustStore()))
+                && !("!".equals(appConfig.getIdpConnectorTlsCertTrustStore()))) {
             try {
-                customSSLContext  = secretsManagerService.setUpCustomSSLContext(new FileInputStream(certAuthStoreFile));
+                customSSLContext  = secretsManagerService.setUpCustomSSLContext(new FileInputStream(appConfig.getIdpConnectorTlsCertTrustStore()));
             } catch(FileNotFoundException e) {
                 log.log(Level.SEVERE, "Could find file", e);
             }

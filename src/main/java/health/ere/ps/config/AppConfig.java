@@ -11,6 +11,9 @@ import javax.inject.Inject;
 @ApplicationScoped
 public class AppConfig {
 
+    @ConfigProperty(name = "ere.workflow-service.prescription.server.url")
+    String prescriptionServerURL;
+
     @ConfigProperty(name = "connector.cert.auth.store.file")
     String idpConnectorTlsCertTrustStore;
 
@@ -37,6 +40,24 @@ public class AppConfig {
 
     @ConfigProperty(name = "ere.validator.validate.sign.request.bundles.enabled", defaultValue = "no")
     String validateSignRequestBundles;
+
+    @ConfigProperty(name = "connector.tvMode")
+    String tvMode;
+
+    @ConfigProperty(name = "ere-workflow-service.vau.enable", defaultValue = "true")
+    Boolean enableVau;
+
+    @ConfigProperty(name = "ere-workflow-service.user-agent", defaultValue = "IncentergyGmbH-ere.health/SNAPSHOT")
+    String userAgent;
+
+    @ConfigProperty(name = "idp.auth.request.url")
+    String authRequestURL;
+
+    @ConfigProperty(name = "idp.auth.request.redirect.url")
+    String redirectURL;
+
+    @ConfigProperty(name = "idp.base.url")
+    String idpBaseURL;
 
     @Inject
     EndpointDiscoveryService endpointDiscoveryService;
@@ -100,5 +121,33 @@ public class AppConfig {
 
     public String getEventServiceEndpointAddress() {
         return endpointDiscoveryService.getEventServiceEndpointAddress();
+    }
+
+    public String getPrescriptionServerURL() {
+        return prescriptionServerURL;
+    }
+
+    public String getTvMode() {
+        return tvMode;
+    }
+
+    public Boolean getEnableVau() {
+        return enableVau;
+    }
+
+    public String getUserAgent() {
+        return userAgent;
+    }
+
+    public String getAuthRequestURL() {
+        return authRequestURL;
+    }
+
+    public String getRedirectURL() {
+        return redirectURL;
+    }
+
+    public String getIdpBaseURL() {
+        return idpBaseURL;
     }
 }

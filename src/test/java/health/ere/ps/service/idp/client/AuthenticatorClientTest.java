@@ -1,5 +1,6 @@
 package health.ere.ps.service.idp.client;
 
+import health.ere.ps.config.AppConfig;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -32,17 +33,8 @@ class AuthenticatorClientTest {
     @Inject
     Logger logger;
 
-    @ConfigProperty(name = "idp.base.url")
-    String idpBaseUrl;
-
-    @ConfigProperty(name = "idp.client.id")
-    String idpCientId;
-    
-    @ConfigProperty(name = "idp.auth.request.url")
-    String idpAuthRequestUrl;
-
-    @ConfigProperty(name = "idp.auth.request.redirect.url")
-    String idpAuthRequestRedirectUrl;
+    @Inject
+    AppConfig appConfig;
 
     @Test
     void test_Successful_Authorization_Request() throws IdpClientException, IdpException {
@@ -50,12 +42,12 @@ class AuthenticatorClientTest {
 
         AuthorizationResponse authorizationResponse =
                 authenticatorClient.doAuthorizationRequest(AuthorizationRequest.builder()
-                .clientId(idpCientId)
-                .link(idpAuthRequestUrl)
+                .clientId(appConfig.getClientId())
+                .link(appConfig.getAuthRequestURL())
                 .codeChallenge(ClientUtilities.generateCodeChallenge(
                         ClientUtilities.generateCodeVerifier()))
                 .codeChallengeMethod(CodeChallengeMethod.S256)
-                .redirectUri(idpAuthRequestRedirectUrl)
+                .redirectUri(appConfig.getRedirectURL())
                 .state(RandomStringUtils.randomAlphanumeric(20))
                 .scopes(java.util.Set.of(IdpScope.OPENID, IdpScope.EREZEPT))
                 .nonce(RandomStringUtils.randomAlphanumeric(20))
@@ -96,7 +88,7 @@ class AuthenticatorClientTest {
             throws IdpClientException {
         IdpHttpClientService idpHttpClientService =
                 authenticatorClient.getIdpHttpClientInstanceByUrl(
-                        idpBaseUrl + IdpHttpClientService.DISCOVERY_DOCUMENT_URI);
+                        appConfig.getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI);
 
         try(Response response = idpHttpClientService.doGenericGetRequest()) {
             String jsonString = response.readEntity(String.class);
@@ -116,7 +108,7 @@ class AuthenticatorClientTest {
             throws IdpClientException, IdpException, IdpJoseException {
         DiscoveryDocumentResponse discoveryDocumentResponse =
                 authenticatorClient.retrieveDiscoveryDocument(
-                idpBaseUrl + IdpHttpClientService.DISCOVERY_DOCUMENT_URI);
+                appConfig.getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI);
 
         assertNotNull(discoveryDocumentResponse, "Discovery Document Present");
         assertNotNull(discoveryDocumentResponse.getIdpSig(), "Idp Signature Cert Present");

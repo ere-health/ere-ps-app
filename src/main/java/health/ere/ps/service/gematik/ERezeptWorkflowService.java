@@ -80,36 +80,6 @@ public class ERezeptWorkflowService {
     @Inject
     SecretsManagerService secretsManagerService;
 
-    @ConfigProperty(name = "ere.workflow-service.prescription.server.url", defaultValue = "")
-    String prescriptionServerUrl;
-
-    @ConfigProperty(name = "connector.crypt", defaultValue = "")
-    String signatureServiceCrypt;
-
-    @ConfigProperty(name = "connector.mandant.id", defaultValue = "")
-    String signatureServiceContextMandantId;
-
-    @ConfigProperty(name = "connector.client.system.id", defaultValue = "")
-    String signatureServiceContextClientSystemId;
-
-    @ConfigProperty(name = "connector.workplace.id", defaultValue = "")
-    String signatureServiceContextWorkplaceId;
-
-    @ConfigProperty(name = "connector.context.userId", defaultValue = "")
-    String signatureServiceContextUserId;
-
-    @ConfigProperty(name = "connector.tvMode", defaultValue = "")
-    String signatureServiceTvMode;
-
-    @ConfigProperty(name = "connector.cert.auth.store.file", defaultValue = "!")
-    String certAuthStoreFile;
-
-    @ConfigProperty(name = "ere-workflow-service.vau.enable", defaultValue = "true")
-    Boolean enableVau;
-
-    @ConfigProperty(name = "ere-workflow-service.user-agent", defaultValue = "IncentergyGmbH-ere.health/SNAPSHOT")
-    String userAgent;
-
     SignatureServicePortType signatureService;
     SignatureServicePortTypeV755 signatureServiceV755;
     EventServicePortType eventService;
@@ -144,10 +114,11 @@ public class ERezeptWorkflowService {
     @PostConstruct
     public void init() throws SecretsManagerException {
         try {
-            if (certAuthStoreFile != null && !("".equals(certAuthStoreFile))
-                    && !("!".equals(certAuthStoreFile))) {
+            if (appConfig.getIdpConnectorTlsCertTrustStore() != null
+                    && !("".equals(appConfig.getIdpConnectorTlsCertTrustStore()))
+                    && !("!".equals(appConfig.getIdpConnectorTlsCertTrustStore()))) {
                 try {
-                    setUpCustomSSLContext(new FileInputStream(certAuthStoreFile));
+                    setUpCustomSSLContext(new FileInputStream(appConfig.getIdpConnectorTlsCertTrustStore()));
                 } catch(FileNotFoundException e) {
                     log.log(Level.SEVERE, "Could find file", e);
                 }
@@ -188,9 +159,9 @@ public class ERezeptWorkflowService {
         }
 
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
-        if(enableVau) {
+        if(appConfig.getEnableVau()) {
             try {
-                ((ResteasyClientBuilderImpl)clientBuilder).httpEngine(new VAUEngine(prescriptionServerUrl));
+                ((ResteasyClientBuilderImpl)clientBuilder).httpEngine(new VAUEngine(appConfig.getPrescriptionServerURL()));
             } catch(Exception ex) {
                 log.log(Level.SEVERE, "Could not enable VAU", ex);
             }
@@ -331,9 +302,9 @@ public class ERezeptWorkflowService {
         ePrescriptionParameter.setResource(binary);
         parameters.addParameter(ePrescriptionParameter);
 
-        Response response = client.target(prescriptionServerUrl).path("/Task")
+        Response response = client.target(appConfig.getPrescriptionServerURL()).path("/Task")
                 .path("/" + task.getIdElement().getIdPart()).path("/$activate").request()
-                .header("User-Agent", userAgent)
+                .header("User-Agent", appConfig.getUserAgent())
                 .header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
                 .post(Entity.entity(fhirContext.newXmlParser().encodeResourceToString(parameters),
                         "application/fhir+xml; charset=utf-8"));
@@ -442,7 +413,7 @@ public class ERezeptWorkflowService {
                     ConnectorCardsService.CardHandleType.HBA);
 
             signResponse = signatureService.signDocument(signatureServiceCardHandle,
-                    contextType, signatureServiceTvMode,
+                    contextType, appConfig.getTvMode(),
                     jobNumber, signRequests);
         } catch(ConnectorCardsException | InvalidCanonicalizerException | XMLParserException |
                 IOException | CanonicalizationException | FaultMessage e) {
@@ -457,10 +428,10 @@ public class ERezeptWorkflowService {
      */
     ContextType createContextType() {
         ContextType contextType = new ContextType();
-        contextType.setMandantId(signatureServiceContextMandantId);
-        contextType.setClientSystemId(signatureServiceContextClientSystemId);
-        contextType.setWorkplaceId(signatureServiceContextWorkplaceId);
-        contextType.setUserId(signatureServiceContextUserId);
+        contextType.setMandantId(appConfig.getMandantId());
+        contextType.setClientSystemId(appConfig.getClientSystem());
+        contextType.setWorkplaceId(appConfig.getWorkplace());
+        contextType.setUserId(appConfig.getSignatureServiceContextUserId());
         return contextType;
     }
 
@@ -486,8 +457,8 @@ public class ERezeptWorkflowService {
         String parameterString = fhirContext.newXmlParser().encodeResourceToString(parameters);
         log.fine("Parameter String: " + parameterString);
 
-        Response response = client.target(prescriptionServerUrl).path("/Task/$create").request()
-                .header("User-Agent", userAgent)
+        Response response = client.target(appConfig.getPrescriptionServerURL()).path("/Task/$create").request()
+                .header("User-Agent", appConfig.getUserAgent())
                 .header("Authorization", "Bearer " + bearerToken)
                 .post(Entity.entity(parameterString, "application/fhir+xml; charset=utf-8"));
 
@@ -511,8 +482,8 @@ public class ERezeptWorkflowService {
      * @return
      */
     public void abortERezeptTask(String bearerToken, String taskId, String accessCode) {
-        Response response = client.target(prescriptionServerUrl).path("/Task").path("/" + taskId).path("/$abort")
-                .request().header("User-Agent", userAgent).header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
+        Response response = client.target(appConfig.getPrescriptionServerURL()).path("/Task").path("/" + taskId).path("/$abort")
+                .request().header("User-Agent", appConfig.getUserAgent()).header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
                 .post(Entity.entity("", "application/fhir+xml; charset=utf-8"));
         String taskString = response.readEntity(String.class);
         if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {

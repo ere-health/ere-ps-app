@@ -54,25 +54,7 @@ public class IdpClientTest {
     @Inject
     SecureSoapTransportConfigurer secureSoapTransportConfigurer;
 
-    @ConfigProperty(name = "idp.client.id")
-    String clientId;
-
-    @ConfigProperty(name = "connector.client.system.id")
-    String clientSystem;
-
-    @ConfigProperty(name = "connector.mandant.id")
-    String mandantId;
-
-    @ConfigProperty(name = "connector.workplace.id")
-    String workplace;
-
-    @ConfigProperty(name = "idp.base.url")
-    String idpBaseUrl;
-
     String discoveryDocumentUrl;
-
-    @ConfigProperty(name = "idp.auth.request.redirect.url")
-    String redirectUrl;
 
     private final Logger log = Logger.getLogger(getClass().getName());
 
@@ -120,16 +102,19 @@ public class IdpClientTest {
             IdpClientException, IdpException, ConnectorCardCertificateReadException,
             ConnectorCardsException {
 
-        discoveryDocumentUrl = idpBaseUrl + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
+        discoveryDocumentUrl = appConfig.getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
 
-        idpClient.init(clientId, redirectUrl, discoveryDocumentUrl, true);
+        idpClient.init(appConfig.getClientId(), appConfig.getRedirectURL(), discoveryDocumentUrl, true);
         idpClient.initializeClient();
 
         String cardHandle = connectorCardsService.getConnectorCardHandle(
                 ConnectorCardsService.CardHandleType.SMC_B);
 
-        X509Certificate x509Certificate = cardCertificateReaderService.retrieveSmcbCardCertificate(mandantId,
-                clientSystem, workplace, cardHandle);
+        X509Certificate x509Certificate = cardCertificateReaderService.retrieveSmcbCardCertificate(
+                appConfig.getMandantId(),
+                appConfig.getClientSystem(),
+                appConfig.getWorkplace(),
+                cardHandle);
 
         IdpTokenResult idpTokenResult = idpClient.login(x509Certificate);
 
