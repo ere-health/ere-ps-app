@@ -1,5 +1,6 @@
 package health.ere.ps.websocket;
 import java.net.URI;
+
 import javax.websocket.ClientEndpoint;
 import javax.websocket.CloseReason;
 import javax.websocket.ContainerProvider;
@@ -19,6 +20,10 @@ public class WebsocketClientEndpoint {
 
     Session userSession = null;
     private MessageHandler messageHandler;
+
+    public WebsocketClientEndpoint() {
+        
+    }
 
     public WebsocketClientEndpoint(URI endpointURI) {
         try {
@@ -80,6 +85,12 @@ public class WebsocketClientEndpoint {
      */
     public void sendMessage(String message) {
         this.userSession.getAsyncRemote().sendText(message);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     /**

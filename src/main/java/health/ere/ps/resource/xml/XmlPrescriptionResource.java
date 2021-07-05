@@ -8,7 +8,7 @@ import javax.ws.rs.core.Response;
 import org.hl7.fhir.r4.model.Bundle;
 
 import health.ere.ps.event.BundlesEvent;
-import health.ere.ps.util.XmlPrescriptionProcessor;
+import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
 
 @Path("xmlPrescription")
 public class XmlPrescriptionResource {

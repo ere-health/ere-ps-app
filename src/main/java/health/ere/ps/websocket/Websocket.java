@@ -41,8 +41,8 @@ import health.ere.ps.event.SignAndUploadBundlesEvent;
 import health.ere.ps.exception.bundle.EreParseException;
 import health.ere.ps.jsonb.BundleAdapter;
 import health.ere.ps.jsonb.ByteAdapter;
+import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
 import health.ere.ps.service.fhir.bundle.EreBundle;
-import health.ere.ps.util.XmlPrescriptionProcessor;
 import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 
 @ServerEndpoint("/websocket")
@@ -98,8 +98,8 @@ public class Websocket {
                 SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(object);
                 signAndUploadBundlesEvent.fireAsync(event);
             } else if("XMLBundle".equals(object.getString("type"))) {
-                Bundle[] bundle = XmlPrescriptionProcessor.parseFromString(object.getString("payload"));
-                onFhirBundle(new BundlesEvent(bundle));
+                Bundle[] bundles = XmlPrescriptionProcessor.parseFromString(object.getString("payload"));
+                onFhirBundle(new BundlesEvent(bundles));
             } 
         }
     }
@@ -120,9 +120,9 @@ public class Websocket {
                 }
             }
         }
-
+        String bundlesString = generateJson(bundlesEvent);
         sessions.forEach(session -> session.getAsyncRemote().sendObject(
-                "{\"type\": \"Bundles\", \"payload\": " + generateJson(bundlesEvent) + "}",
+                "{\"type\": \"Bundles\", \"payload\": " + bundlesString + "}",
                 result -> {
                     if (!result.isOK()) {
                         log.fatal("Unable to send bundlesEvent: " + result.getException());
