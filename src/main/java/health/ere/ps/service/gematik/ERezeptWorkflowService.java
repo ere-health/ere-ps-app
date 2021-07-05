@@ -110,6 +110,9 @@ public class ERezeptWorkflowService {
     @ConfigProperty(name = "ere-workflow-service.user-agent", defaultValue = "IncentergyGmbH-ere.health/SNAPSHOT")
     String userAgent;
 
+    @ConfigProperty(name = "connector.version", defaultValue="PTV4")
+    String connectorVersion;
+
     SignatureServicePortType signatureService;
     SignatureServicePortTypeV755 signatureServiceV755;
     EventServicePortType eventService;
@@ -165,7 +168,7 @@ public class ERezeptWorkflowService {
 
             signatureServiceV755 = new SignatureServiceV755(getClass().getResource("/SignatureService_V7_5_5.wsdl")).getSignatureServicePortTypeV755();
             /* Set endpoint to configured endpoint */
-            bp = (BindingProvider) signatureService;
+            bp = (BindingProvider) signatureServiceV755;
             bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, appConfig.getSignatureServiceEndpointAddress());
             if (customSSLContext != null) {
                 bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
@@ -185,6 +188,7 @@ public class ERezeptWorkflowService {
 
         } catch(Exception ex) {
             log.log(Level.SEVERE, "Could not init E-Rezept Service", ex);
+            exceptionEvent.fireAsync(ex);
         }
 
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
@@ -193,6 +197,7 @@ public class ERezeptWorkflowService {
                 ((ResteasyClientBuilderImpl)clientBuilder).httpEngine(new VAUEngine(prescriptionServerUrl));
             } catch(Exception ex) {
                 log.log(Level.SEVERE, "Could not enable VAU", ex);
+                exceptionEvent.fireAsync(ex);
             }
         }
         client = clientBuilder.build();
@@ -266,18 +271,12 @@ public class ERezeptWorkflowService {
     public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(String bearerToken, List<Bundle> bundles, boolean comfortSignature) {
         List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodes = new ArrayList<>();
         try {
-            if (comfortSignature) {
-                this.activateComfortSignature();
-            }
             for (Bundle bundle : bundles) {
                 try {
                     bundleWithAccessCodes.add(createERezeptOnPrescriptionServer(bearerToken, bundle));
                 } catch (Throwable t) {
                     bundleWithAccessCodes.add(new BundleWithAccessCodeOrThrowable(t));
                 }
-            }
-            if (comfortSignature) {
-                this.deactivateComfortSignature();
             }
         } catch (Throwable t) {
             bundleWithAccessCodes.add(new BundleWithAccessCodeOrThrowable(t));
@@ -425,7 +424,9 @@ public class ERezeptWorkflowService {
 
             ContextType contextType = createContextType();
 
-            String jobNumber = signatureService.getJobNumber(contextType);
+            String jobNumber = "PTV4+".equals(connectorVersion) ?
+                signatureServiceV755.getJobNumber(contextType) : 
+                signatureService.getJobNumber(contextType);
 
             if (wait10secondsAfterJobNumber) {
                 // Wait 10 seconds to start titus test case
@@ -440,10 +441,35 @@ public class ERezeptWorkflowService {
 
             String signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
                     ConnectorCardsService.CardHandleType.HBA);
+            if("PTV4+".equals(connectorVersion)) {
+                de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest signRequestsV755 = new de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest();
+                de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest.OptionalInputs optionalInputsC755 = new de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest.OptionalInputs();
+                optionalInputsC755.setSignatureType(optionalInputs.getSignatureType());
+                optionalInputsC755.setIncludeEContent(optionalInputs.isIncludeEContent());
+                signRequestsV755.setOptionalInputs(optionalInputsC755);
+                signRequestsV755.setRequestID(UUID.randomUUID().toString());
+                de.gematik.ws.conn.signatureservice.v7_5_5.DocumentType documentV755 = new de.gematik.ws.conn.signatureservice.v7_5_5.DocumentType();
+                documentV755.setBase64Data(document.getBase64Data());
+                documentV755.setShortText(document.getShortText());
+                signRequestsV755.setDocument(documentV755);
+                signRequestsV755.setIncludeRevocationInfo(signRequest.isIncludeRevocationInfo());
 
-            signResponse = signatureService.signDocument(signatureServiceCardHandle,
-                    contextType, signatureServiceTvMode,
-                    jobNumber, signRequests);
+
+                List<de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse> signResponsesV755 = signatureServiceV755.signDocument(signatureServiceCardHandle,
+                    signatureServiceCrypt, contextType, signatureServiceTvMode,
+                    jobNumber, Arrays.asList(signRequestsV755));
+
+                de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse signResponseV755 = signResponsesV755.get(0);
+                SignResponse signResponse744 = new SignResponse();
+                signResponse744.setSignatureObject(signResponseV755.getSignatureObject());
+                signResponse744.setStatus(signResponseV755.getStatus());
+                return signResponse744;
+            // PTV4
+            } else {
+                signResponse = signatureService.signDocument(signatureServiceCardHandle,
+                        contextType, signatureServiceTvMode,
+                        jobNumber, signRequests);
+            }
         } catch(ConnectorCardsException | InvalidCanonicalizerException | XMLParserException |
                 IOException | CanonicalizationException | FaultMessage e) {
             throw new ERezeptWorkflowException("Exception signing bundles with identifiers.", e);
