@@ -154,20 +154,24 @@ public class Websocket {
     String generateJson(BundlesEvent bundlesEvent) {
 
         bundlesEvent.getBundles().stream().forEach(bundle -> {
+            if(bundle instanceof EreBundle) {
+                log.info("Filled bundle json template result shown below. Null value place" +
+                        " holders present.");
+                log.info("==============================================");
 
-            log.info("Filled bundle json template result shown below. Null value place" +
-                    " holders present.");
-            log.info("==============================================");
-
-            log.info(((EreBundle)bundle).encodeToJson());
+                log.info(((EreBundle)bundle).encodeToJson());
+            }
         });
 
-//        return bundlesEvent.getBundles().stream().map(bundle ->
-//                ctx.newJsonParser().encodeResourceToString(bundle))
-//                    .collect(Collectors.joining(",\n", "[", "]"));
-        return bundlesEvent.getBundles().stream().map(bundle ->
-                ((EreBundle)bundle).encodeToJson())
-                .collect(Collectors.joining(",\n", "[", "]"));
+        if(bundlesEvent.getBundles().stream().filter(b -> b instanceof EreBundle).findAny().isPresent() ) {
+            return bundlesEvent.getBundles().stream().map(bundle ->
+                    ((EreBundle)bundle).encodeToJson())
+                    .collect(Collectors.joining(",\n", "[", "]"));
+        } else {
+            return bundlesEvent.getBundles().stream().map(bundle ->
+                    ctx.newJsonParser().encodeResourceToString(bundle))
+                        .collect(Collectors.joining(",\n", "[", "]"));
+        }
     }
 
     public void onException(@ObservesAsync Exception exception) {
