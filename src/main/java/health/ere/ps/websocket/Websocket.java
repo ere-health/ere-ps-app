@@ -1,5 +1,6 @@
 package health.ere.ps.websocket;
 
+import org.hl7.fhir.r4.model.Bundle;
 import org.jboss.logging.Logger;
 
 import java.awt.*;
@@ -41,6 +42,7 @@ import health.ere.ps.exception.bundle.EreParseException;
 import health.ere.ps.jsonb.BundleAdapter;
 import health.ere.ps.jsonb.ByteAdapter;
 import health.ere.ps.service.fhir.bundle.EreBundle;
+import health.ere.ps.util.XmlPrescriptionProcessor;
 import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 
 @ServerEndpoint("/websocket")
@@ -95,7 +97,10 @@ public class Websocket {
 
                 SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(object);
                 signAndUploadBundlesEvent.fireAsync(event);
-            }
+            } else if("XMLBundle".equals(object.getString("type"))) {
+                Bundle[] bundle = XmlPrescriptionProcessor.parseFromString(object.getString("payload"));
+                onFhirBundle(new BundlesEvent(bundle));
+            } 
         }
     }
 

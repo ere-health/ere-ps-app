@@ -35,7 +35,7 @@ class WebsocketTest {
 
       websocket.onMessage(signAndUploadBundles);
       verify(websocket.signAndUploadBundlesEvent, times(1)).fireAsync(any());
-  }  
+  }
 
   // Passing but also generating LogManager errors since the introduction of the validation checks
   // in the websocket.

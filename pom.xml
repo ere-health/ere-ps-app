@@ -240,6 +240,12 @@
             <artifactId>commons-csv</artifactId>
             <version>1.5</version>
         </dependency>
+        <dependency>
+            <groupId>org.glassfish.tyrus</groupId>
+            <artifactId>tyrus-container-jdk-client</artifactId>
+            <version>1.17</version>
+            <scope>test</scope>
+        </dependency>
         <!--
             Produces: Modules com.sun.xml.bind and com.sun.istack.runtime export package com.sun.istack.localization to module fop
         <dependency>
