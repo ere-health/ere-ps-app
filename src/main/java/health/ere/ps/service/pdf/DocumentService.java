@@ -96,16 +96,14 @@ public class DocumentService {
 
 
     public void onBundlesWithAccessCodes(@ObservesAsync BundlesWithAccessCodeEvent bundlesWithAccessCodeEvent) {
-        Map<String, List<BundleWithAccessCodeOrThrowable>> bundlesByPatient = filterBundlesByPatient(bundlesWithAccessCodeEvent);
-
         log.info(String.format("About to create prescription receipts for %d bundles",
-                bundlesByPatient.values().size()));
-        bundlesByPatient.values().forEach(bundlesForOnePatient -> {
+        bundlesWithAccessCodeEvent.getBundleWithAccessCodeOrThrowable().size()));
+        bundlesWithAccessCodeEvent.getBundleWithAccessCodeOrThrowable().forEach(bundles -> {
             try {
-                for (int i = 0; i < bundlesForOnePatient.size(); i += MAX_NUMBER_OF_MEDICINES_PER_PRESCRIPTIONS) {
+                for (int i = 0; i < bundles.size(); i += MAX_NUMBER_OF_MEDICINES_PER_PRESCRIPTIONS) {
                     log.info(String.format("Processing bundle with %d medication(s)", i));
-                    createAndSendPrescriptions(bundlesForOnePatient
-                            .subList(i, Math.min(i + MAX_NUMBER_OF_MEDICINES_PER_PRESCRIPTIONS, bundlesForOnePatient.size())));
+                    createAndSendPrescriptions(bundles
+                            .subList(i, Math.min(i + MAX_NUMBER_OF_MEDICINES_PER_PRESCRIPTIONS, bundles.size())));
                 }
             } catch(Exception ex) {
                 exceptionEvent.fireAsync(ex);
@@ -123,36 +121,6 @@ public class DocumentService {
         eRezeptDocumentsEvent.fireAsync(new ERezeptDocumentsEvent(List.of(eRezeptDocument)));
         log.info("Sending prescription receipts results.");
 
-    }
-
-    private Map<String, List<BundleWithAccessCodeOrThrowable>> filterBundlesByPatient(BundlesWithAccessCodeEvent event) {
-        List<BundleWithAccessCodeOrThrowable> allBundles = event.getBundleWithAccessCodeOrThrowable()
-                .stream()
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
-
-        Map<String, List<BundleWithAccessCodeOrThrowable>> bundlesByPatient = new HashMap<>();
-
-        allBundles.forEach(bundle -> {
-            if(bundle.getThrowable() == null) {
-                try {
-                    List<Bundle.BundleEntryComponent> entries = bundle.getBundle().getEntry();
-                    for (Bundle.BundleEntryComponent entry : entries) {
-                        if (entry.getResource().fhirType().equals("Patient")) {
-                            String patientId = entry.getResource().getId();
-                            bundlesByPatient.putIfAbsent(patientId, new ArrayList<>());
-                            bundlesByPatient.get(patientId).add(bundle);
-                        }
-                    }
-                } catch(Exception ex) {
-                    exceptionEvent.fireAsync(ex);
-                }
-            } else {
-                bundlesByPatient.putIfAbsent("exception", new ArrayList<>());
-                bundlesByPatient.get("exception").add(bundle);
-            }
-        });
-        return bundlesByPatient;
     }
 
     public ByteArrayOutputStream generateERezeptPdf(List<BundleWithAccessCodeOrThrowable> bundles) {
