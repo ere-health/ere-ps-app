@@ -32,9 +32,6 @@ public class AppConfig {
     @ConfigProperty(name = "connector.workplace.id")
     String workplaceId;
 
-    @ConfigProperty(name = "connector.card.handle")
-    String cardHandle;
-
     @ConfigProperty(name = "connector.context.userId")
     String signatureServiceContextUserId;
 
@@ -80,10 +77,6 @@ public class AppConfig {
 
     public String getWorkplace() {
         return workplaceId;
-    }
-
-    public String getCardHandle() {
-        return cardHandle;
     }
 
     public String getIdpConnectorAuthSignatureEndpointAddress() {
