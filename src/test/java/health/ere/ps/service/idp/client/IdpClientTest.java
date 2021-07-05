@@ -90,8 +90,8 @@ public class IdpClientTest {
         secureSoapTransportConfigurer.configureSecureTransport(
                 appConfig.getEventServiceEndpointAddress(),
                 SecretsManagerService.SslContextType.TLS,
-                appConfig.getIdpConnectorTlsCertTrustStore(),
-                appConfig.getIdpConnectorTlsCertTustStorePwd());
+                appConfig.getConnectorCertAuthStoreFile(),
+                appConfig.getConnectorCertAuthStoreFilePwd());
 
         SSLUtilities.trustAllHostnames();
         SSLUtilities.trustAllHttpsCertificates();
@@ -104,7 +104,7 @@ public class IdpClientTest {
 
         discoveryDocumentUrl = appConfig.getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
 
-        idpClient.init(appConfig.getClientId(), appConfig.getRedirectURL(), discoveryDocumentUrl, true);
+        idpClient.init(appConfig.getClientId(), appConfig.getIdpAuthRequestRedirectURL(), discoveryDocumentUrl, true);
         idpClient.initializeClient();
 
         String cardHandle = connectorCardsService.getConnectorCardHandle(
@@ -112,8 +112,8 @@ public class IdpClientTest {
 
         X509Certificate x509Certificate = cardCertificateReaderService.retrieveSmcbCardCertificate(
                 appConfig.getMandantId(),
-                appConfig.getClientSystem(),
-                appConfig.getWorkplace(),
+                appConfig.getClientSystemId(),
+                appConfig.getWorkplaceId(),
                 cardHandle);
 
         IdpTokenResult idpTokenResult = idpClient.login(x509Certificate);

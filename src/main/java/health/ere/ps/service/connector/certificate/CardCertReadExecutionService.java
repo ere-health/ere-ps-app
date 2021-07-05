@@ -69,11 +69,11 @@ public class CardCertReadExecutionService {
         bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
         appConfig.getCertificateServiceEndpointAddress());
         
-        if (appConfig.getIdpConnectorTlsCertTrustStore() != null
-                && !("".equals(appConfig.getIdpConnectorTlsCertTrustStore()))
-                && !("!".equals(appConfig.getIdpConnectorTlsCertTrustStore()))) {
-            try(InputStream is = new FileInputStream(appConfig.getIdpConnectorTlsCertTrustStore())) {
-                log.info(CardCertReadExecutionService.class.getSimpleName()+" uses titus client certifcate: "+ appConfig.getIdpConnectorTlsCertTrustStore());
+        if (appConfig.getConnectorCertAuthStoreFile() != null
+                && !("".equals(appConfig.getConnectorCertAuthStoreFile()))
+                && !("!".equals(appConfig.getConnectorCertAuthStoreFile()))) {
+            try(InputStream is = new FileInputStream(appConfig.getConnectorCertAuthStoreFile())) {
+                log.info(CardCertReadExecutionService.class.getSimpleName()+" uses titus client certifcate: "+ appConfig.getConnectorCertAuthStoreFile());
                 setUpCustomSSLContext(is);
             } catch(FileNotFoundException e) {
                 log.log(Level.SEVERE, "Could find file", e);

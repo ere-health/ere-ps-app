@@ -218,7 +218,7 @@ public class SecretsManagerService {
             KeyStore ks = KeyStore.getInstance("PKCS12");
             // Download this file from the titus backend
             // https://frontend.titus.ti-dienste.de/#/platform/mandant
-            String pwd = appConfig.getIdpConnectorTlsCertTustStorePwd();
+            String pwd = appConfig.getConnectorCertAuthStoreFilePwd();
             ks.load(p12Certificate, pwd.toCharArray());
             kmf.init(ks, pwd.toCharArray());
             sc.init(kmf.getKeyManagers(), new TrustManager[]{new SSLUtilities.FakeX509TrustManager()}, null);

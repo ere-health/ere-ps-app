@@ -38,8 +38,8 @@ class ConnectorCardsServiceTest {
         secureSoapTransportConfigurer.configureSecureTransport(
                 appConfig.getEventServiceEndpointAddress(),
                 SecretsManagerService.SslContextType.TLS,
-                appConfig.getIdpConnectorTlsCertTrustStore(),
-                appConfig.getIdpConnectorTlsCertTustStorePwd());
+                appConfig.getConnectorCertAuthStoreFile(),
+                appConfig.getConnectorCertAuthStoreFilePwd());
     }
 
     @Test

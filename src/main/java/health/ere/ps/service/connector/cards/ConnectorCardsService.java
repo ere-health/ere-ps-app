@@ -74,9 +74,9 @@ public class ConnectorCardsService implements SoapClient {
     void init() {
         contextType = new ContextType();
         contextType.setMandantId(appConfig.getMandantId());
-        contextType.setClientSystemId(appConfig.getClientSystem());
-        contextType.setWorkplaceId(appConfig.getWorkplace());
-        contextType.setUserId(appConfig.getSignatureServiceContextUserId());
+        contextType.setClientSystemId(appConfig.getClientSystemId());
+        contextType.setWorkplaceId(appConfig.getWorkplaceId());
+        contextType.setUserId(appConfig.getUserId());
 
         eventService = new EventService(getClass().getResource(
                 "/EventService.wsdl")).getEventServicePort();
@@ -86,11 +86,11 @@ public class ConnectorCardsService implements SoapClient {
         bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, appConfig.getEventServiceEndpointAddress());
 
         SSLContext customSSLContext = null;
-        if (appConfig.getIdpConnectorTlsCertTrustStore() != null
-                && !("".equals(appConfig.getIdpConnectorTlsCertTrustStore()))
-                && !("!".equals(appConfig.getIdpConnectorTlsCertTrustStore()))) {
+        if (appConfig.getConnectorCertAuthStoreFile() != null
+                && !("".equals(appConfig.getConnectorCertAuthStoreFile()))
+                && !("!".equals(appConfig.getConnectorCertAuthStoreFile()))) {
             try {
-                customSSLContext  = secretsManagerService.setUpCustomSSLContext(new FileInputStream(appConfig.getIdpConnectorTlsCertTrustStore()));
+                customSSLContext  = secretsManagerService.setUpCustomSSLContext(new FileInputStream(appConfig.getConnectorCertAuthStoreFile()));
             } catch(FileNotFoundException e) {
                 log.log(Level.SEVERE, "Could find file", e);
             }

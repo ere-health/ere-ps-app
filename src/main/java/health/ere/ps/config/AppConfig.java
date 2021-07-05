@@ -15,10 +15,10 @@ public class AppConfig {
     String prescriptionServerURL;
 
     @ConfigProperty(name = "connector.cert.auth.store.file")
-    String idpConnectorTlsCertTrustStore;
+    String connectorCertAuthStoreFile;
 
     @ConfigProperty(name = "connector.cert.auth.store.file.password")
-    String idpConnectorTlsCertTustStorePwd;
+    String connectorCertAuthStoreFilePwd;
 
     @ConfigProperty(name = "idp.client.id")
     String clientId;
@@ -33,7 +33,7 @@ public class AppConfig {
     String workplaceId;
 
     @ConfigProperty(name = "connector.context.userId")
-    String signatureServiceContextUserId;
+    String userId;
 
     @ConfigProperty(name = "ere.validator.validate.sign.request.bundles.enabled", defaultValue = "no")
     String validateSignRequestBundles;
@@ -48,10 +48,10 @@ public class AppConfig {
     String userAgent;
 
     @ConfigProperty(name = "idp.auth.request.url")
-    String authRequestURL;
+    String idpAuthRequestURL;
 
     @ConfigProperty(name = "idp.auth.request.redirect.url")
-    String redirectURL;
+    String idpAuthRequestRedirectURL;
 
     @ConfigProperty(name = "idp.base.url")
     String idpBaseURL;
@@ -59,32 +59,28 @@ public class AppConfig {
     @Inject
     EndpointDiscoveryService endpointDiscoveryService;
 
-    public String getIdpConnectorTlsCertTrustStore() {
-        return idpConnectorTlsCertTrustStore;
+    public String getConnectorCertAuthStoreFile() {
+        return connectorCertAuthStoreFile;
     }
 
-    public String getIdpConnectorTlsCertTustStorePwd() {
-        return StringUtils.defaultString(idpConnectorTlsCertTustStorePwd).trim();
+    public String getConnectorCertAuthStoreFilePwd() {
+        return StringUtils.defaultString(connectorCertAuthStoreFilePwd).trim();
     }
 
     public String getClientId() {
         return clientId;
     }
 
-    public String getClientSystem() {
+    public String getClientSystemId() {
         return clientSystemId;
     }
 
-    public String getWorkplace() {
+    public String getWorkplaceId() {
         return workplaceId;
     }
 
-    public String getIdpConnectorAuthSignatureEndpointAddress() {
-        return endpointDiscoveryService.getAuthSignatureServiceEndpointAddress();
-    }
-
-    public String getSignatureServiceContextUserId() {
-        return signatureServiceContextUserId;
+    public String getUserId() {
+        return userId;
     }
 
     public String getMandantId() {
@@ -132,12 +128,12 @@ public class AppConfig {
         return userAgent;
     }
 
-    public String getAuthRequestURL() {
-        return authRequestURL;
+    public String getIdpAuthRequestURL() {
+        return idpAuthRequestURL;
     }
 
-    public String getRedirectURL() {
-        return redirectURL;
+    public String getIdpAuthRequestRedirectURL() {
+        return idpAuthRequestRedirectURL;
     }
 
     public String getIdpBaseURL() {

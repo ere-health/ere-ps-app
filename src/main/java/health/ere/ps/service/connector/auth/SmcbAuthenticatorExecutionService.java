@@ -50,10 +50,10 @@ public class SmcbAuthenticatorExecutionService {
         BindingProvider bp = (BindingProvider) authSignatureService;
 
         bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
-                appConfig.getIdpConnectorAuthSignatureEndpointAddress());
+                appConfig.getAuthSignatureServiceEndpointAddress());
 
-        secretsManagerService.configureSSLTransportContext(appConfig.getIdpConnectorTlsCertTrustStore(),
-                 appConfig.getIdpConnectorTlsCertTustStorePwd(), SecretsManagerService.SslContextType.TLS,
+        secretsManagerService.configureSSLTransportContext(appConfig.getConnectorCertAuthStoreFile(),
+                 appConfig.getConnectorCertAuthStoreFilePwd(), SecretsManagerService.SslContextType.TLS,
                  SecretsManagerService.KeyStoreType.PKCS12, bp);
 
         cardService = new CardService(getClass().getResource("/CardService.wsdl")).getCardServicePort();

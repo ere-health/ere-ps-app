@@ -43,11 +43,11 @@ class AuthenticatorClientTest {
         AuthorizationResponse authorizationResponse =
                 authenticatorClient.doAuthorizationRequest(AuthorizationRequest.builder()
                 .clientId(appConfig.getClientId())
-                .link(appConfig.getAuthRequestURL())
+                .link(appConfig.getIdpAuthRequestURL())
                 .codeChallenge(ClientUtilities.generateCodeChallenge(
                         ClientUtilities.generateCodeVerifier()))
                 .codeChallengeMethod(CodeChallengeMethod.S256)
-                .redirectUri(appConfig.getRedirectURL())
+                .redirectUri(appConfig.getIdpAuthRequestRedirectURL())
                 .state(RandomStringUtils.randomAlphanumeric(20))
                 .scopes(java.util.Set.of(IdpScope.OPENID, IdpScope.EREZEPT))
                 .nonce(RandomStringUtils.randomAlphanumeric(20))

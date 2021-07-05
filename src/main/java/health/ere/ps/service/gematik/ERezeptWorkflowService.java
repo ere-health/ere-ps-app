@@ -114,11 +114,11 @@ public class ERezeptWorkflowService {
     @PostConstruct
     public void init() throws SecretsManagerException {
         try {
-            if (appConfig.getIdpConnectorTlsCertTrustStore() != null
-                    && !("".equals(appConfig.getIdpConnectorTlsCertTrustStore()))
-                    && !("!".equals(appConfig.getIdpConnectorTlsCertTrustStore()))) {
+            if (appConfig.getConnectorCertAuthStoreFile() != null
+                    && !("".equals(appConfig.getConnectorCertAuthStoreFile()))
+                    && !("!".equals(appConfig.getConnectorCertAuthStoreFile()))) {
                 try {
-                    setUpCustomSSLContext(new FileInputStream(appConfig.getIdpConnectorTlsCertTrustStore()));
+                    setUpCustomSSLContext(new FileInputStream(appConfig.getConnectorCertAuthStoreFile()));
                 } catch(FileNotFoundException e) {
                     log.log(Level.SEVERE, "Could find file", e);
                 }
@@ -172,8 +172,8 @@ public class ERezeptWorkflowService {
         secureSoapTransportConfigurer.configureSecureTransport(
                 appConfig.getEventServiceEndpointAddress(),
                 SecretsManagerService.SslContextType.TLS,
-                appConfig.getIdpConnectorTlsCertTrustStore(),
-                appConfig.getIdpConnectorTlsCertTustStorePwd());
+                appConfig.getConnectorCertAuthStoreFile(),
+                appConfig.getConnectorCertAuthStoreFilePwd());
     }
 
     public void setUpCustomSSLContext(InputStream p12Certificate) {
@@ -429,9 +429,9 @@ public class ERezeptWorkflowService {
     ContextType createContextType() {
         ContextType contextType = new ContextType();
         contextType.setMandantId(appConfig.getMandantId());
-        contextType.setClientSystemId(appConfig.getClientSystem());
-        contextType.setWorkplaceId(appConfig.getWorkplace());
-        contextType.setUserId(appConfig.getSignatureServiceContextUserId());
+        contextType.setClientSystemId(appConfig.getClientSystemId());
+        contextType.setWorkplaceId(appConfig.getWorkplaceId());
+        contextType.setUserId(appConfig.getUserId());
         return contextType;
     }
 
