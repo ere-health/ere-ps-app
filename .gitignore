@@ -39,4 +39,7 @@ nb-configuration.xml
 .env
 
 #Windows installer generated archive
-/windows-installer/windows-installer.zip
+/launcher/windows-installer/windows-installer.zip
+/launcher/target/
+/launcher/config-creation/
+
