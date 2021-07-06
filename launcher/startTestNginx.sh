@@ -1,1 +1,1 @@
-docker run --rm --name test_nginx_autoupdate -p 8080:80 -v $PWD/config-creation:/usr/share/nginx/html nginx
+docker run --rm --name test_nginx_autoupdate -p 8080:80 -v $PWD/windows-installer:/usr/share/nginx/html nginx

@@ -48,7 +48,6 @@ public class AutoUpdater {
             }
 
             if (Files.notExists(Path.of(applicationConfig.getApplicationPath()))) {
-                logger.log(System.Logger.Level.INFO, "need to create application path");
                 isFirstInstallation = true;
                 try {
                     Files.createDirectory(Path.of(applicationConfig.getApplicationPath()));
@@ -61,16 +60,16 @@ public class AutoUpdater {
 
             //Up-to-date logic involves putting all files to update into an archive but our download is already an archive
             //Also extracts the downloaded archive automatically in application.path, check CustomUpdateHandler#doneDownloads
-//            config.update();
-//            isFirstInstallation = true;
+            config.update();
+
             if (isFirstInstallation) {
-                logger.log(System.Logger.Level.INFO, "First installation detected, please now run the installer.bat" +
-                        " script to complete the installation");
-                WindowsServiceManager.createAndStartWindowsService();
+                logger.log(System.Logger.Level.INFO, "First installation detected, creating the startup script");
+                CustomUpdateHandler.createStartupScript();
             } else {
-                logger.log(System.Logger.Level.INFO, "Update process complete, now launching ere-health application");
-                config.launch();
+                logger.log(System.Logger.Level.INFO,
+                        "Update process complete, now launching the ere-health application");
             }
+            config.launch();
         }
     }
 }

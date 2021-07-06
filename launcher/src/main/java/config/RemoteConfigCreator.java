@@ -44,6 +44,7 @@ public class RemoteConfigCreator {
         FileWriter fileWriter = new FileWriter(remoteConfigurationFile);
         remoteConfiguration.write(fileWriter);
         fileWriter.close();
+
         logger.log(System.Logger.Level.INFO, "Remote configuration file created");
     }
 }

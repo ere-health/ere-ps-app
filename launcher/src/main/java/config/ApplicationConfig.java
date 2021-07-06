@@ -16,9 +16,6 @@ public enum ApplicationConfig {
     private final String remoteConfigurationCreationFolder;
     private final String applicationPath;
     private final String archiveName;
-    private final String windowsServiceName;
-    private final String applicationPathEnvVariable;
-
 
     ApplicationConfig() {
         System.Logger logger = System.getLogger(ApplicationConfig.class.getName());
@@ -42,8 +39,6 @@ public enum ApplicationConfig {
         remoteConfigurationFilename = properties.getProperty("remote.config.filename");
         applicationPath = properties.getProperty("application.path");
         archiveName = properties.getProperty("application.archive.filename");
-        windowsServiceName = properties.getProperty("application.service.name ");
-        applicationPathEnvVariable = properties.getProperty("application.path.variable");
 
         try {
             Objects.requireNonNull(inputStream).close();
@@ -70,13 +65,5 @@ public enum ApplicationConfig {
 
     public String getRemoteConfigurationCreationFolder() {
         return remoteConfigurationCreationFolder;
-    }
-
-    public String getWindowsServiceName() {
-        return windowsServiceName;
-    }
-
-    public String getApplicationPathEnvVariable() {
-        return applicationPathEnvVariable;
     }
 }

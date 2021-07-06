@@ -8,9 +8,14 @@ import me.tongfei.progressbar.ProgressBarStyle;
 import org.update4j.FileMetadata;
 import org.update4j.service.UpdateHandler;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -26,7 +31,6 @@ public class CustomUpdateHandler implements UpdateHandler {
             .setStyle(ProgressBarStyle.ASCII)
             .setUpdateIntervalMillis(100)
             .build();
-
 
     @Override
     public void doneDownloads() {
@@ -58,7 +62,6 @@ public class CustomUpdateHandler implements UpdateHandler {
     public void updateDownloadFileProgress(FileMetadata file, float progress) {
         pb.stepTo((long) (progress * 100));
     }
-
 
     private void extractArchiveToApplicationFolder() throws IOException {
         String archive = applicationConfig.getApplicationPath() + "/" + applicationConfig.getArchiveName();
@@ -104,7 +107,22 @@ public class CustomUpdateHandler implements UpdateHandler {
         if (!destFilePath.startsWith(destDirPath + File.separator)) {
             throw new IOException("Entry is outside of the target dir: " + zipEntry.getName());
         }
-
         return destFile;
+    }
+
+    public static void createStartupScript() {
+        List<String> scriptContent = List.of("@ECHO OFF", "cd " + System.getProperty("user.dir") +
+                " & start java -jar ere-health-launcher.jar");
+
+        Path startupScriptPath = Path.of(System.getenv("APPDATA") +
+                "\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\ere-health-launcher.bat");
+
+        try {
+            Files.createFile(startupScriptPath);
+            Files.write(startupScriptPath, scriptContent, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            logger.log(System.Logger.Level.ERROR, "Could not create startup script:");
+            e.printStackTrace();
+        }
     }
 }
