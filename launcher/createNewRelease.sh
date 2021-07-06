@@ -1,3 +1,4 @@
+mkdir -p windows-installer &&
 cd windows-installer &&
 rm *.zip &&
 mvn clean install -f ../../pom.xml &&
