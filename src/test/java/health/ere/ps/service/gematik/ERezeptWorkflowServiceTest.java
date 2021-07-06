@@ -15,7 +15,7 @@ import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilderTest;
 import health.ere.ps.service.muster16.Muster16FormDataExtractorService;
 import health.ere.ps.service.muster16.parser.Muster16SvgExtractorParser;
 import health.ere.ps.service.pdf.DocumentService;
-import health.ere.ps.test.DefaultTestProfile;
+import health.ere.ps.test.DevelopmentTestProfile;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -45,7 +45,7 @@ import java.util.logging.Logger;
 import static health.ere.ps.service.extractor.TemplateProfile.CGM_TURBO_MED;
 
 @QuarkusTest
-@TestProfile(DefaultTestProfile.class)
+@TestProfile(DevelopmentTestProfile.class)
 public class ERezeptWorkflowServiceTest {
 
     private static final Logger log = Logger.getLogger(ERezeptWorkflowServiceTest.class.getName());
