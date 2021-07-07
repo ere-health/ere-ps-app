@@ -16,6 +16,21 @@ public class BundleWithAccessCodeOrThrowable {
         this.throwable = throwable;
     }
 
+    public void setBundle(Bundle bundle) {
+        this.bundle = bundle;
+    }
+    public void setAccessCode(String accessCode) {
+        this.accessCode = accessCode;
+    }
+
+    public Throwable getThrowable() {
+        return this.throwable;
+    }
+
+    public void setThrowable(Throwable throwable) {
+        this.throwable = throwable;
+    }
+
     public Bundle getBundle() {
         return bundle;
     }

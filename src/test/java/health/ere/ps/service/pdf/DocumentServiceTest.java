@@ -4,7 +4,10 @@ import ca.uhn.fhir.context.FhirContext;
 import health.ere.ps.event.BundlesWithAccessCodeEvent;
 import health.ere.ps.event.ERezeptDocumentsEvent;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
+import health.ere.ps.test.DefaultTestProfile;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
+
 import org.hl7.fhir.r4.model.Bundle;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @QuarkusTest
+@TestProfile(DefaultTestProfile.class)
 public class DocumentServiceTest {
 
     private final static List<Bundle> testBundles = new ArrayList<>();
@@ -90,33 +94,6 @@ public class DocumentServiceTest {
 
         // THEN2
         Mockito.verify(mockedEvent, Mockito.times(2)).fireAsync(Mockito.any());
-    }
-
-
-    @Test
-    public void onBundlesWithAccessCodes_firesEventWithBundlesFilteredByPatient_givenMultipleBundlesWithDifferentPatients() {
-        // GIVEN
-        int numberOfPatientsInBundles = 3;
-        Event<ERezeptDocumentsEvent> mockedEvent = Mockito.mock(Event.class);
-        documentService.seteRezeptDocumentsEvent(mockedEvent);
-
-        List<BundleWithAccessCodeOrThrowable> firstBundles = List.of(
-                new BundleWithAccessCodeOrThrowable(testBundles.get(0), "MOCK_CODE0"),
-                new BundleWithAccessCodeOrThrowable(testBundles.get(1), "MOCK_CODE1"));
-
-        List<BundleWithAccessCodeOrThrowable> secondBundles = List.of(
-                new BundleWithAccessCodeOrThrowable(testBundles.get(2), "MOCK_CODE2"),
-                new BundleWithAccessCodeOrThrowable(testBundles.get(3), "MOCK_CODE3"),
-                new BundleWithAccessCodeOrThrowable(testBundles.get(4), "MOCK_CODE4"));
-
-        List<List<BundleWithAccessCodeOrThrowable>> bundles = List.of(firstBundles, secondBundles);
-        BundlesWithAccessCodeEvent event = new BundlesWithAccessCodeEvent(bundles);
-
-        // WHEN
-        documentService.onBundlesWithAccessCodes(event);
-
-        // THEN
-        Mockito.verify(mockedEvent, Mockito.times(numberOfPatientsInBundles)).fireAsync(Mockito.any());
     }
 
     @Test

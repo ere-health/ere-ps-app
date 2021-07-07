@@ -33,7 +33,7 @@ import java.util.logging.Logger;
  */
 @ApplicationScoped
 public class EndpointDiscoveryService {
-    private static final Logger LOG = Logger.getLogger(EndpointDiscoveryService.class.getName());
+    private static final Logger log = Logger.getLogger(EndpointDiscoveryService.class.getName());
 
     /**
      * Certificate to authenticate at the connector.
@@ -98,6 +98,7 @@ public class EndpointDiscoveryService {
     private AuthSignatureServicePortType authSignatureService;
 
 
+
     @PostConstruct
     void obtainConfiguration() throws IOException, ParserConfigurationException, SecretsManagerException {
         // code copied from IdpClient.java
@@ -105,25 +106,24 @@ public class EndpointDiscoveryService {
         authSignatureService = new AuthSignatureService(getClass().getResource("/AuthSignatureService_v7_4_1.wsdl")).getAuthSignatureServicePort();
         BindingProvider bp = (BindingProvider) authSignatureService;
         SSLContext sslContext;
+        ClientBuilder clientBuilder = ClientBuilder.newBuilder();
         try (FileInputStream fileInputStream = new FileInputStream(connectorTlsCertAuthStoreFile.orElseThrow())) {
             sslContext = secretsManagerService.createSSLContext(fileInputStream,
                     connectorTlsCertAuthStorePwd.toCharArray(),
                     SecretsManagerService.SslContextType.TLS,
                     SecretsManagerService.KeyStoreType.PKCS12,
                     bp);
+            clientBuilder.sslContext(sslContext);
         } catch (IOException e) {
-            throw new SecretsManagerException("SSL transport configuration error.", e);
+            log.severe("SSL transport configuration error.");
+            // throw new SecretsManagerException("SSL transport configuration error.", e);
         }
-
-        ClientBuilder clientBuilder = ClientBuilder.newBuilder()
-                .sslContext(sslContext);
 
         if (!isConnectorVerifyHostnames()) {
             // disable hostname verification
             // This line is currently not working
             clientBuilder = clientBuilder.hostnameVerifier(new SSLUtilities.FakeHostnameVerifier());
         }
-
         Invocation invocation = clientBuilder.build()
                 .target(connectorBaseUri)
                 .path("/connector.sds")
@@ -179,7 +179,7 @@ public class EndpointDiscoveryService {
             }
 
         } catch (SAXException | IllegalArgumentException e) {
-            LOG.log(Level.SEVERE, "Could not parse connector.sds", e);
+            log.log(Level.SEVERE, "Could not parse connector.sds", e);
         }
 
         if (authSignatureServiceEndpointAddress == null) {

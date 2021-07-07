@@ -250,4 +250,27 @@ public class SecretsManagerService {
 
         return key;
     }
+
+    public SSLContext createSSLContext() {
+        SSLContext sc;
+
+        try {
+            sc = SSLContext.getInstance("TLS");
+
+            KeyManagerFactory kmf =
+                    KeyManagerFactory.getInstance( KeyManagerFactory.getDefaultAlgorithm() );
+
+            KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+            ks.load(null, null);
+
+            kmf.init(ks, null);
+
+            sc.init( kmf.getKeyManagers(), new TrustManager[]{new SSLUtilities.FakeX509TrustManager()}, null );
+        } catch (NoSuchAlgorithmException | KeyStoreException | CertificateException | IOException
+                | UnrecoverableKeyException | KeyManagementException e) {
+            throw new RuntimeException("SSL context creation error.", e);
+        }
+
+        return sc;
+    }
 }

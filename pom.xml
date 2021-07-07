@@ -21,6 +21,7 @@
         <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
         <hapi.version>5.4.1</hapi.version>
     </properties>
+    <!-- Add a random line to update maven cache in github actions -->
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -97,7 +98,7 @@
         <dependency>
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
-            <version>2.0.23</version>
+            <version>2.0.24</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.xmlgraphics/fop -->
         <dependency>
@@ -238,6 +239,12 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-csv</artifactId>
             <version>1.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.tyrus</groupId>
+            <artifactId>tyrus-container-jdk-client</artifactId>
+            <version>1.17</version>
+            <scope>test</scope>
         </dependency>
         <!--
             Produces: Modules com.sun.xml.bind and com.sun.istack.runtime export package com.sun.istack.localization to module fop

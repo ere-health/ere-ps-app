@@ -1,5 +1,6 @@
 package health.ere.ps.websocket;
 
+import org.hl7.fhir.r4.model.Bundle;
 import org.jboss.logging.Logger;
 
 import java.awt.*;
@@ -40,6 +41,7 @@ import health.ere.ps.event.SignAndUploadBundlesEvent;
 import health.ere.ps.exception.bundle.EreParseException;
 import health.ere.ps.jsonb.BundleAdapter;
 import health.ere.ps.jsonb.ByteAdapter;
+import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
 import health.ere.ps.service.fhir.bundle.EreBundle;
 import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 
@@ -95,7 +97,10 @@ public class Websocket {
 
                 SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(object);
                 signAndUploadBundlesEvent.fireAsync(event);
-            }
+            } else if("XMLBundle".equals(object.getString("type"))) {
+                Bundle[] bundles = XmlPrescriptionProcessor.parseFromString(object.getString("payload"));
+                onFhirBundle(new BundlesEvent(bundles));
+            } 
         }
     }
 
@@ -115,9 +120,9 @@ public class Websocket {
                 }
             }
         }
-
+        String bundlesString = generateJson(bundlesEvent);
         sessions.forEach(session -> session.getAsyncRemote().sendObject(
-                "{\"type\": \"Bundles\", \"payload\": " + generateJson(bundlesEvent) + "}",
+                "{\"type\": \"Bundles\", \"payload\": " + bundlesString + "}",
                 result -> {
                     if (!result.isOK()) {
                         log.fatal("Unable to send bundlesEvent: " + result.getException());
@@ -154,20 +159,24 @@ public class Websocket {
     String generateJson(BundlesEvent bundlesEvent) {
 
         bundlesEvent.getBundles().stream().forEach(bundle -> {
+            if(bundle instanceof EreBundle) {
+                log.info("Filled bundle json template result shown below. Null value place" +
+                        " holders present.");
+                log.info("==============================================");
 
-            log.info("Filled bundle json template result shown below. Null value place" +
-                    " holders present.");
-            log.info("==============================================");
-
-            log.info(((EreBundle)bundle).encodeToJson());
+                log.info(((EreBundle)bundle).encodeToJson());
+            }
         });
 
-//        return bundlesEvent.getBundles().stream().map(bundle ->
-//                ctx.newJsonParser().encodeResourceToString(bundle))
-//                    .collect(Collectors.joining(",\n", "[", "]"));
-        return bundlesEvent.getBundles().stream().map(bundle ->
-                ((EreBundle)bundle).encodeToJson())
-                .collect(Collectors.joining(",\n", "[", "]"));
+        if(bundlesEvent.getBundles().stream().filter(b -> b instanceof EreBundle).findAny().isPresent() ) {
+            return bundlesEvent.getBundles().stream().map(bundle ->
+                    ((EreBundle)bundle).encodeToJson())
+                    .collect(Collectors.joining(",\n", "[", "]"));
+        } else {
+            return bundlesEvent.getBundles().stream().map(bundle ->
+                    ctx.newJsonParser().encodeResourceToString(bundle))
+                        .collect(Collectors.joining(",\n", "[", "]"));
+        }
     }
 
     public void onException(@ObservesAsync Exception exception) {
