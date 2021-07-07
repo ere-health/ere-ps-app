@@ -1,6 +1,7 @@
 package health.ere.ps.service.idp.client;
 
 import health.ere.ps.exception.idp.crypto.IdpCryptoException;
+import health.ere.ps.service.connector.endpoint.EndpointDiscoveryService;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
 import health.ere.ps.test.DevelopmentTestProfile;
 
