@@ -50,7 +50,7 @@ public class SmcbAuthenticatorExecutionService {
         BindingProvider bp = (BindingProvider) authSignatureService;
 
         bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
-                appConfig.getAuthSignatureServiceEndpointAddress());
+                endpointDiscoveryService.getAuthSignatureServiceEndpointAddress());
 
         secretsManagerService.configureSSLTransportContext(appConfig.getConnectorCertAuthStoreFile(),
                  appConfig.getConnectorCertAuthStoreFilePwd(), SecretsManagerService.SslContextType.TLS,

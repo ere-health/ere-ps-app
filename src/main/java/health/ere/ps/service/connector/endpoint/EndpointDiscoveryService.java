@@ -2,6 +2,7 @@ package health.ere.ps.service.connector.endpoint;
 
 import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureService;
 import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureServicePortType;
+import health.ere.ps.config.AppConfig;
 import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -34,32 +35,6 @@ import java.util.logging.Logger;
 @ApplicationScoped
 public class EndpointDiscoveryService {
     private static final Logger log = Logger.getLogger(EndpointDiscoveryService.class.getName());
-
-    /**
-     * Certificate to authenticate at the connector.
-     */
-    @ConfigProperty(name = "connector.cert.auth.store.file")
-    Optional<String> connectorTlsCertAuthStoreFile;
-
-    /**
-     * Password of the certificate to authenticate at the connector.
-     * The default value is a empty sting, so that the password must not be set.
-     */
-    @ConfigProperty(name = "connector.cert.auth.store.file.password", defaultValue = "!")
-    String connectorTlsCertAuthStorePwd;
-
-    /**
-     * Certificate to validate with the connector.
-     */
-    @ConfigProperty(name = "connector.cert.trust.store.file")
-    Optional<String> connectorTlsCertTrustStoreFile;
-
-    /**
-     * Password of the certificate to authenticate at the connector.
-     * The default value is a empty sting, so that the password must not be set.
-     */
-    @ConfigProperty(name = "connector.cert.trust.store.file.password", defaultValue = "!")
-    String connectorTlsCertTrustStorePwd;
 
     @ConfigProperty(name = "auth-signature.endpoint.address")
     Optional<String> fallbackAuthSignatureServiceEndpointAddress;
@@ -97,6 +72,8 @@ public class EndpointDiscoveryService {
 
     private AuthSignatureServicePortType authSignatureService;
 
+    @Inject
+    AppConfig appConfig;
 
 
     @PostConstruct
@@ -107,9 +84,9 @@ public class EndpointDiscoveryService {
         BindingProvider bp = (BindingProvider) authSignatureService;
         SSLContext sslContext;
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
-        try (FileInputStream fileInputStream = new FileInputStream(connectorTlsCertAuthStoreFile.orElseThrow())) {
+        try (FileInputStream fileInputStream = new FileInputStream(appConfig.getConnectorCertAuthStoreFile())) {
             sslContext = secretsManagerService.createSSLContext(fileInputStream,
-                    connectorTlsCertAuthStorePwd.toCharArray(),
+                    appConfig.getConnectorCertAuthStoreFilePwd().toCharArray(),
                     SecretsManagerService.SslContextType.TLS,
                     SecretsManagerService.KeyStoreType.PKCS12,
                     bp);
@@ -226,8 +203,8 @@ public class EndpointDiscoveryService {
     public void configureSSLTransportContext(BindingProvider bindingProvider) throws SecretsManagerException, FileNotFoundException {
 
         secretsManagerService.configureSSLTransportContext(
-                connectorTlsCertAuthStoreFile.orElse(null),
-                connectorTlsCertAuthStorePwd,
+                appConfig.getConnectorCertAuthStoreFile(),
+                appConfig.getConnectorCertAuthStoreFilePwd(),
                 SecretsManagerService.SslContextType.TLS,
                 SecretsManagerService.KeyStoreType.PKCS12,
                 bindingProvider);

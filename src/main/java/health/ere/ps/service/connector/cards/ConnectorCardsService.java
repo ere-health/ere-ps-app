@@ -9,8 +9,8 @@ import de.gematik.ws.conn.eventservice.wsdl.v7.EventService;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
 
+import health.ere.ps.service.connector.endpoint.EndpointDiscoveryService;
 import org.apache.commons.collections4.CollectionUtils;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -39,6 +39,9 @@ public class ConnectorCardsService implements SoapClient {
 
     @Inject
     AppConfig appConfig;
+
+    @Inject
+    EndpointDiscoveryService endpointDiscoveryService;
 
     private ContextType contextType;
     private EventServicePortType eventService;
@@ -83,7 +86,7 @@ public class ConnectorCardsService implements SoapClient {
 
         /* Set endpoint to configured endpoint */
         BindingProvider bp = (BindingProvider) eventService;
-        bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, appConfig.getEventServiceEndpointAddress());
+        bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointDiscoveryService.getEventServiceEndpointAddress());
 
         SSLContext customSSLContext = null;
         if (appConfig.getConnectorCertAuthStoreFile() != null

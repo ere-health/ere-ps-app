@@ -43,6 +43,9 @@ public class IdpClientTest {
     AppConfig appConfig;
 
     @Inject
+    EndpointDiscoveryService endpointDiscoveryService;
+
+    @Inject
     IdpClient idpClient;
 
     @Inject
@@ -88,7 +91,7 @@ public class IdpClientTest {
     void configureSecureTransport() throws SecretsManagerException {
         secureSoapTransportConfigurer.init(connectorCardsService);
         secureSoapTransportConfigurer.configureSecureTransport(
-                appConfig.getEventServiceEndpointAddress(),
+                endpointDiscoveryService.getEventServiceEndpointAddress(),
                 SecretsManagerService.SslContextType.TLS,
                 appConfig.getConnectorCertAuthStoreFile(),
                 appConfig.getConnectorCertAuthStoreFilePwd());

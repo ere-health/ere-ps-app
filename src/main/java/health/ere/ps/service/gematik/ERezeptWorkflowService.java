@@ -30,6 +30,7 @@ import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.common.security.SecureSoapTransportConfigurer;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
+import health.ere.ps.service.connector.endpoint.EndpointDiscoveryService;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
 import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 import health.ere.ps.vau.VAUEngine;
@@ -73,6 +74,9 @@ public class ERezeptWorkflowService {
 
     @Inject
     AppConfig appConfig;
+
+    @Inject
+    EndpointDiscoveryService endpointDiscoveryService;
 
     @Inject
     PrescriptionBundleValidator prescriptionBundleValidator;
@@ -127,7 +131,7 @@ public class ERezeptWorkflowService {
             signatureService = new SignatureService(getClass().getResource("/SignatureService.wsdl")).getSignatureServicePort();
             /* Set endpoint to configured endpoint */
             BindingProvider bp = (BindingProvider) signatureService;
-            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, appConfig.getSignatureServiceEndpointAddress());
+            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointDiscoveryService.getSignatureServiceEndpointAddress());
             if (customSSLContext != null) {
                 bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
                         customSSLContext.getSocketFactory());
@@ -137,7 +141,7 @@ public class ERezeptWorkflowService {
             signatureServiceV755 = new SignatureServiceV755(getClass().getResource("/SignatureService_V7_5_5.wsdl")).getSignatureServicePortTypeV755();
             /* Set endpoint to configured endpoint */
             bp = (BindingProvider) signatureService;
-            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, appConfig.getSignatureServiceEndpointAddress());
+            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointDiscoveryService.getSignatureServiceEndpointAddress());
             if (customSSLContext != null) {
                 bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
                         customSSLContext.getSocketFactory());
@@ -147,7 +151,7 @@ public class ERezeptWorkflowService {
             eventService = new EventService(getClass().getResource("/EventService.wsdl")).getEventServicePort();
             /* Set endpoint to configured endpoint */
             bp = (BindingProvider) eventService;
-            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, appConfig.getEventServiceEndpointAddress());
+            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointDiscoveryService.getEventServiceEndpointAddress());
             if (customSSLContext != null) {
                 bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
                         customSSLContext.getSocketFactory());
@@ -170,7 +174,7 @@ public class ERezeptWorkflowService {
 
         secureSoapTransportConfigurer.init(connectorCardsService);
         secureSoapTransportConfigurer.configureSecureTransport(
-                appConfig.getEventServiceEndpointAddress(),
+                endpointDiscoveryService.getEventServiceEndpointAddress(),
                 SecretsManagerService.SslContextType.TLS,
                 appConfig.getConnectorCertAuthStoreFile(),
                 appConfig.getConnectorCertAuthStoreFilePwd());

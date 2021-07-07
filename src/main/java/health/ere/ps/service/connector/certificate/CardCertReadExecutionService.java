@@ -14,7 +14,6 @@ import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 
 import health.ere.ps.config.AppConfig;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -67,7 +66,7 @@ public class CardCertReadExecutionService {
         BindingProvider bp = (BindingProvider) certificateService;
         
         bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
-        appConfig.getCertificateServiceEndpointAddress());
+        endpointDiscoveryService.getCertificateServiceEndpointAddress());
         
         if (appConfig.getConnectorCertAuthStoreFile() != null
                 && !("".equals(appConfig.getConnectorCertAuthStoreFile()))

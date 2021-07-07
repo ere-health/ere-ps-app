@@ -1,7 +1,7 @@
 package health.ere.ps.service.fs;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import health.ere.ps.config.AppConfig;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,19 +40,25 @@ public class DirectoryWatcher {
     @Inject
     Event<PDDocumentEvent> pdDocumentEvent;
 
+    @Inject
+    AppConfig appConfig;
+
     private static Logger log = Logger.getLogger(DirectoryWatcher.class.getName());
 
-    @ConfigProperty(name = "directory-watcher.dir", defaultValue = "!")
-    String dir;
-
-    private WatchService watcher = null;
-    private Map<WatchKey, Path> keys = new HashMap<WatchKey, Path>();
+    private WatchService watcher;
+    private Map<WatchKey, Path> keys;
 
     Path watchPath;
 
+    public DirectoryWatcher() {
+        watcher = null;
+        keys = new HashMap<>();
+    }
+
     @PostConstruct
     public void init() {
-        if (dir == null || dir.equals("") || dir.equals("!")) {
+        String dir = appConfig.getDirectoryWatcherDir();
+        if (dir == null || dir.isBlank()) {
             log.info("Not watching any directory");
             return;
         }

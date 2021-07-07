@@ -1,8 +1,5 @@
 package health.ere.ps.config;
 
-import health.ere.ps.service.connector.endpoint.EndpointDiscoveryService;
-import org.apache.commons.lang3.StringUtils;
-
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -13,12 +10,6 @@ public class AppConfig {
 
     @ConfigProperty(name = "ere.workflow-service.prescription.server.url")
     String prescriptionServerURL;
-
-    @ConfigProperty(name = "connector.cert.auth.store.file")
-    String connectorCertAuthStoreFile;
-
-    @ConfigProperty(name = "connector.cert.auth.store.file.password")
-    String connectorCertAuthStoreFilePwd;
 
     @ConfigProperty(name = "idp.client.id")
     String clientId;
@@ -36,7 +27,7 @@ public class AppConfig {
     String userId;
 
     @ConfigProperty(name = "ere.validator.validate.sign.request.bundles.enabled", defaultValue = "no")
-    String validateSignRequestBundles;
+    boolean validateSignRequestBundles;
 
     @ConfigProperty(name = "connector.tvMode")
     String tvMode;
@@ -56,15 +47,18 @@ public class AppConfig {
     @ConfigProperty(name = "idp.base.url")
     String idpBaseURL;
 
+    @ConfigProperty(name = "directory-watcher.dir", defaultValue = "watch-pdf")
+    String directoryWatcherDir;
+
     @Inject
-    EndpointDiscoveryService endpointDiscoveryService;
+    CertConfig certConfig;
 
     public String getConnectorCertAuthStoreFile() {
-        return connectorCertAuthStoreFile;
+        return certConfig.getConnectorCertAuthStoreFile();
     }
 
     public String getConnectorCertAuthStoreFilePwd() {
-        return StringUtils.defaultString(connectorCertAuthStoreFilePwd).trim();
+        return certConfig.getConnectorCertAuthStoreFilePwd();
     }
 
     public String getClientId() {
@@ -92,24 +86,7 @@ public class AppConfig {
     }
 
     public boolean isValidateSignRequestBundles() {
-        return StringUtils.isNotBlank(validateSignRequestBundles) &&
-                validateSignRequestBundles.equalsIgnoreCase("Yes");
-    }
-
-    public String getAuthSignatureServiceEndpointAddress() {
-        return endpointDiscoveryService.getAuthSignatureServiceEndpointAddress();
-    }
-
-    public String getCertificateServiceEndpointAddress() {
-        return endpointDiscoveryService.getCertificateServiceEndpointAddress();
-    }
-
-    public String getSignatureServiceEndpointAddress() {
-        return endpointDiscoveryService.getSignatureServiceEndpointAddress();
-    }
-
-    public String getEventServiceEndpointAddress() {
-        return endpointDiscoveryService.getEventServiceEndpointAddress();
+        return validateSignRequestBundles;
     }
 
     public String getPrescriptionServerURL() {
@@ -138,5 +115,9 @@ public class AppConfig {
 
     public String getIdpBaseURL() {
         return idpBaseURL;
+    }
+
+    public String getDirectoryWatcherDir() {
+        return directoryWatcherDir;
     }
 }

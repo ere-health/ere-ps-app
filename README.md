@@ -133,7 +133,7 @@ An example of the layout of the contents in the .env file is shown below:
   
 * **ERE_VALIDATOR_VALIDATE_SIGN_REQUEST_BUNDLES_ENABLED**
 
-    To enable (config value: yes)  or disable (config value: no) the validation of incoming sign 
+    To enable (config value: true)  or disable (config value: false) the validation of incoming sign 
     request bundles.  Sign request bundles that fail validation checks will be prevented from 
     propagating to the BE prescription processing workflow. Do not add double quotation marks 
     around the configuration values.

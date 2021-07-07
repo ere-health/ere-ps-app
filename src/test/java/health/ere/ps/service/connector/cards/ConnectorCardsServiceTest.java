@@ -1,12 +1,11 @@
 package health.ere.ps.service.connector.cards;
 
+import health.ere.ps.service.connector.endpoint.EndpointDiscoveryService;
 import org.apache.commons.lang3.StringUtils;
 import org.jboss.logging.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -32,11 +31,14 @@ class ConnectorCardsServiceTest {
     @Inject
     AppConfig appConfig;
 
+    @Inject
+    EndpointDiscoveryService endpointDiscoveryService;
+
     @BeforeEach
     void configureSecureTransport() throws SecretsManagerException {
         secureSoapTransportConfigurer.init(connectorCardsService);
         secureSoapTransportConfigurer.configureSecureTransport(
-                appConfig.getEventServiceEndpointAddress(),
+                endpointDiscoveryService.getEventServiceEndpointAddress(),
                 SecretsManagerService.SslContextType.TLS,
                 appConfig.getConnectorCertAuthStoreFile(),
                 appConfig.getConnectorCertAuthStoreFilePwd());

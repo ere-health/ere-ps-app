@@ -1,6 +1,6 @@
 package health.ere.ps.service.idp;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import health.ere.ps.service.connector.endpoint.EndpointDiscoveryService;
 
 import java.security.cert.X509Certificate;
 import java.util.Optional;
@@ -45,6 +45,9 @@ public class IdPService {
     AppConfig appConfig;
 
     @Inject
+    EndpointDiscoveryService endpointDiscoveryService;
+
+    @Inject
     ConnectorCardsService connectorCardsService;
 
     @Inject
@@ -58,7 +61,7 @@ public class IdPService {
     void init() throws SecretsManagerException {
         secureSoapTransportConfigurer.init(connectorCardsService);
         secureSoapTransportConfigurer.configureSecureTransport(
-                appConfig.getEventServiceEndpointAddress(),
+                endpointDiscoveryService.getEventServiceEndpointAddress(),
                 SecretsManagerService.SslContextType.TLS,
                 appConfig.getConnectorCertAuthStoreFile(),
                 appConfig.getConnectorCertAuthStoreFilePwd());
