@@ -3,7 +3,6 @@ package health.ere.ps.config;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 @ApplicationScoped
 public class AppConfig {
@@ -38,10 +37,10 @@ public class AppConfig {
     @ConfigProperty(name = "connector.tvMode")
     String tvMode;
 
-    @ConfigProperty(name = "ere-workflow-service.vau.enable", defaultValue = "true")
+    @ConfigProperty(name = "ere.workflow-service.vau.enable", defaultValue = "true")
     Boolean enableVau;
 
-    @ConfigProperty(name = "ere-workflow-service.user-agent", defaultValue = "IncentergyGmbH-ere.health/SNAPSHOT")
+    @ConfigProperty(name = "ere.workflow-service.user-agent", defaultValue = "IncentergyGmbH-ere.health/SNAPSHOT")
     String userAgent;
 
     @ConfigProperty(name = "idp.auth.request.url")
