@@ -26,6 +26,12 @@ public class AppConfig {
     @ConfigProperty(name = "connector.context.userId")
     String userId;
 
+    @ConfigProperty(name = "connector.cert.auth.store.file")
+    String connectorCertAuthStoreFile;
+
+    @ConfigProperty(name = "connector.cert.auth.store.file.password")
+    String connectorCertAuthStoreFilePwd;
+
     @ConfigProperty(name = "ere.validator.validate.sign.request.bundles.enabled", defaultValue = "no")
     boolean validateSignRequestBundles;
 
@@ -50,15 +56,12 @@ public class AppConfig {
     @ConfigProperty(name = "directory-watcher.dir", defaultValue = "watch-pdf")
     String directoryWatcherDir;
 
-    @Inject
-    CertConfig certConfig;
-
     public String getConnectorCertAuthStoreFile() {
-        return certConfig.getConnectorCertAuthStoreFile();
+        return connectorCertAuthStoreFile;
     }
 
     public String getConnectorCertAuthStoreFilePwd() {
-        return certConfig.getConnectorCertAuthStoreFilePwd();
+        return connectorCertAuthStoreFilePwd;
     }
 
     public String getClientId() {
