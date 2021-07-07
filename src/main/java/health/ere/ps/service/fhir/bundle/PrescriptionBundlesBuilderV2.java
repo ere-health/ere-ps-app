@@ -7,11 +7,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.Bundle;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
-    public static final String NULL_VALUE_PLACE_HOLDER = "";
-    public static final String NULL_DATE_VALUE_PLACE_HOLDER = "9999-12-28";
+    private static final String NULL_VALUE_PLACE_HOLDER = "";
+    private static final String NULL_DATE_VALUE_PLACE_HOLDER = "9999-12-28";
+    private static final String DEFAULT_QUALIFICATION_TEXT_FOR_DOCTOR = "Arzt";
 
     protected static final String $PRESCRIPTION_ID = "$PRESCRIPTION_ID";
     protected static final String $BUNDLE_ID = "$BUNDLE_ID";
@@ -67,25 +67,26 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
     protected static final String $COVERAGE_PERIOD_END = "$COVERAGE_PERIOD_END";
     protected static final String $INSURANCE_NAME = "$INSURANCE_NAME";
     protected static final String $INSURANCE_NUMBER = "$INSURANCE_NUMBER";
+    protected static final String PREFIX_TEMPLATE =
+            ",\n" +
+            "\"prefix\": [\n" +
+            "  \"$PREFIX\"\n" +
+            "],\n" +
+            "\"_prefix\": [\n" +
+            "  {\n" +
+            "    \"extension\": [\n" +
+            "       {\n" +
+            "         \"url\": \"http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier\",\n" +
+            "         \"valueCode\": \"AC\"\n" +
+            "       }\n" +
+            "     ]\n" +
+            "   }\n" +
+            "]";
+    protected static final String $PREFIX = "$PREFIX";
 
-    protected static final String PREFIX_TEMPLATE = ",\n" +
-            "                                        \"prefix\": [\n" +
-            "                                            \"$PREFIX\"\n" +
-            "                                        ],\n" +
-            "                                        \"_prefix\": [\n" +
-            "                                            {\n" +
-            "                                                \"extension\": [\n" +
-            "                                                    {\n" +
-            "                                                        \"url\": \"http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier\",\n" +
-            "                                                        \"valueCode\": \"AC\"\n" +
-            "                                                    }\n" +
-            "                                                ]\n" +
-            "                                            }\n" +
-            "                                        ]";
-
+    protected final Muster16PrescriptionForm muster16PrescriptionForm;
     protected Map<String, String> templateKeyMapper;
     protected FhirContext ctx = FhirContext.forR4();
-    protected final Muster16PrescriptionForm muster16PrescriptionForm;
 
     public PrescriptionBundlesBuilderV2(Muster16PrescriptionForm muster16PrescriptionForm) {
         this.muster16PrescriptionForm = muster16PrescriptionForm;
@@ -150,7 +151,6 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
     }
 
     protected void updateMedicationResourceSection(MedicationString medicationString) {
-
         templateKeyMapper.put($MEDICATION_ID, UUID.randomUUID().toString());
         templateKeyMapper.put($DOSAGE_QUANTITY, getProtectedValue(medicationString.getDosage()));
         templateKeyMapper.put($PZN, getProtectedValue(medicationString.getPzn()));
@@ -161,18 +161,17 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
     }
 
     protected void updatePatientResourceSection() {
-
         templateKeyMapper.put($PATIENT_ID, UUID.randomUUID().toString());
         templateKeyMapper.put($KVID_10,
                 getProtectedValue(muster16PrescriptionForm.getPatientInsuranceId()));
 
         if (!muster16PrescriptionForm.getPatientNamePrefix().isEmpty()) {
-            String prefixes = muster16PrescriptionForm.getPatientNamePrefix().stream().collect(Collectors.joining(" "));
-            templateKeyMapper.put($PATIENT_NAME_PREFIX, PREFIX_TEMPLATE.replace("$PREFIX", prefixes));
+            String prefixes = String.join(" ", muster16PrescriptionForm.getPatientNamePrefix());
+            templateKeyMapper.put($PATIENT_NAME_PREFIX, PREFIX_TEMPLATE.replace($PREFIX, prefixes));
         } else {
             templateKeyMapper.put($PATIENT_NAME_PREFIX, "");
         }
-        
+
         templateKeyMapper.put($PATIENT_NAME_FIRST,
                 getProtectedValue(muster16PrescriptionForm.getPatientFirstName()));
 
@@ -199,7 +198,7 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
         templateKeyMapper.put($PRACTITIONER_ID, UUID.randomUUID().toString());
 
         if (!muster16PrescriptionForm.getPractitionerNamePrefix().isEmpty()) {
-            templateKeyMapper.put($PRACTITIONER_NAME_PREFIX, PREFIX_TEMPLATE.replace("$PREFIX",
+            templateKeyMapper.put($PRACTITIONER_NAME_PREFIX, PREFIX_TEMPLATE.replace($PREFIX,
                     muster16PrescriptionForm.getPractitionerNamePrefix()));
         } else {
             templateKeyMapper.put($PRACTITIONER_NAME_PREFIX, "");
@@ -235,11 +234,10 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
         templateKeyMapper.put($PRACTITIONER_NUMBER,
                 getProtectedValue(muster16PrescriptionForm.getPractitionerId()));
 
-        templateKeyMapper.put($PRACTITIONER_QUALIFICATION_TEXT, "Arzt");
+        templateKeyMapper.put($PRACTITIONER_QUALIFICATION_TEXT, DEFAULT_QUALIFICATION_TEXT_FOR_DOCTOR);
     }
 
     protected void updateOrganizationResourceSection() {
-
         templateKeyMapper.put($ORGANIZATION_ID, UUID.randomUUID().toString());
 
         templateKeyMapper.put($CLINIC_ID,
@@ -267,7 +265,6 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
     }
 
     protected void updateCoverageResourceSection() {
-
         templateKeyMapper.put($COVERAGE_ID, UUID.randomUUID().toString());
 
         templateKeyMapper.put($COVERAGE_PERIOD_END,

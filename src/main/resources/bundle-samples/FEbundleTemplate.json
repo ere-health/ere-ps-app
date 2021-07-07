@@ -249,7 +249,7 @@
             "family": "$PATIENT_NAME_FAMILY",
             "given": [
               "$PATIENT_NAME_FIRST"
-            ]
+            ]$PATIENT_NAME_PREFIX
           }
         ],
         "birthDate": "$PATIENT_BIRTH_DATE",

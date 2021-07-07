@@ -18,6 +18,9 @@ import ca.uhn.fhir.parser.IParser;
 public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupport {
     Logger logger = Logger.getLogger(ErePrePopulatedValidationSupport.class);
 
+    FhirContext ctx = FhirContext.forR4();
+    IParser xmlParser = ctx.newXmlParser();
+
     private static final List<List<String>> structureDefinitionsAndExtensions = Arrays.asList(
             // Add StructureDefinition profiles.
             List.of("/fhir/r4/profile/v1_0_0/address-de-basis.xml",
@@ -226,8 +229,7 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
     private void addStructureDefinition(String configUrl,
                                           String configVersion,
                                           InputStream configDefinitionInputStream) {
-        FhirContext ctx = FhirContext.forR4();
-        IParser xmlParser = ctx.newXmlParser();
+        
 
         StructureDefinition structureDefinition;
 
@@ -245,8 +247,6 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
 
     private void addValueSet(String configUrl, String configVersion,
                                           InputStream configDefinitionInputStream) {
-        FhirContext ctx = FhirContext.forR4();
-        IParser xmlParser = ctx.newXmlParser();
 
         ValueSet valueSet;
 
@@ -263,8 +263,6 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
 
     private void addCodeSystem(String configUrl, String configVersion,
                                InputStream configDefinitionInputStream) {
-        FhirContext ctx = FhirContext.forR4();
-        IParser xmlParser = ctx.newXmlParser();
 
         CodeSystem codeSystem;
 

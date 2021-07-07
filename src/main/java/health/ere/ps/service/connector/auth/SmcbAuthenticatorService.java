@@ -94,27 +94,33 @@ public class SmcbAuthenticatorService {
          */
         @Override
         public void sign() throws JoseException {
-            byte[] inputBytes = getSigningInputBytes();
-
-            MessageDigest digest;
-            try {
-                digest = MessageDigest.getInstance("SHA-256");
-            } catch (NoSuchAlgorithmException e) {
-                throw new JoseException("Could not apply SHA-256 to signing bytes", e);
+            if(getKey() != null) {
+                super.sign();
             }
-            byte[] encodedhash = digest.digest(inputBytes);
+            else {
+                // otherwise use the connector for signing
+                byte[] inputBytes = getSigningInputBytes();
 
-            byte[] signatureBytes;
+                MessageDigest digest;
+                try {
+                    digest = MessageDigest.getInstance("SHA-256");
+                } catch (NoSuchAlgorithmException e) {
+                    throw new JoseException("Could not apply SHA-256 to signing bytes", e);
+                }
+                byte[] encodedhash = digest.digest(inputBytes);
 
-            try {
-                signatureBytes = externalAuthenticate(encodedhash,
-                        connectorCardsService.getConnectorCardHandle(
-                                ConnectorCardsService.CardHandleType.SMC_B));
-            } catch (ConnectorCardsException e) {
-                throw new IllegalStateException("Cannot access the SMC-B card-handle info to " +
-                        "compute the json web token signature!", e);
+                byte[] signatureBytes;
+
+                try {
+                    signatureBytes = externalAuthenticate(encodedhash,
+                            connectorCardsService.getConnectorCardHandle(
+                                    ConnectorCardsService.CardHandleType.SMC_B));
+                } catch (ConnectorCardsException e) {
+                    throw new IllegalStateException("Cannot access the SMC-B card-handle info to " +
+                            "compute the json web token signature!", e);
+                }
+                setSignature(signatureBytes);
             }
-            setSignature(signatureBytes);
         }
 
         public byte[] externalAuthenticate(byte[] sha265Hash, String smcbCardHandle) throws JoseException {
@@ -143,8 +149,7 @@ public class SmcbAuthenticatorService {
                 // de.gematik.ti.signenc.authsignature.SignatureScheme.RSASSA-PSS Please see the
                 // server log to find more detail regarding exact cause of the failure.
                 response = smcbAuthExecutionService.doExternalAuthenticate(smcbCardHandle,
-                        contextType, null
-                        /*optionalInputs*/,
+                        contextType, optionalInputs,
                         binaryDocumentType);
             } catch (FaultMessage e) {
                 throw new JoseException("Could not call externalAuthenticate", e);
