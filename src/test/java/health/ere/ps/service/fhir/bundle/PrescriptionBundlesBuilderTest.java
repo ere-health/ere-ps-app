@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
+import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
@@ -44,7 +45,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @QuarkusTest
-@Disabled
 public class PrescriptionBundlesBuilderTest {
     @Inject
     Logger logger;
@@ -314,5 +314,20 @@ public class PrescriptionBundlesBuilderTest {
                     prescriptionBundleValidator.validateResource(bundle, true);
             assertTrue(validationResult.isSuccessful());
         });
+    }
+
+    @Test
+    @Disabled("Disabled until validator has a complete configuration")
+    public void test_Successful_Validation_Of_XML_Prescription_Bundle() throws IOException {
+        try(InputStream is = getClass().getResourceAsStream(
+                            "/bundle-samples/bundle_July_2.xml")) {
+            byte[] bundleXmlBytes = is.readAllBytes();
+            String bundleXmlString = new String(bundleXmlBytes, Charset.forName("UTF-8"));
+
+            ValidationResult bundleValidationResult =
+                    prescriptionBundleValidator.validateResource(bundleXmlString, true);
+
+            assertTrue(bundleValidationResult.isSuccessful());
+        }
     }
 }

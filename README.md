@@ -1,9 +1,9 @@
 # ere-ps-app
-ERE Primary System Desktop Client Application of the Gematik TI
+ERE Primary System Desktop Client Application for the Gematik TI
 
 
 ### Overview
-The ere-ps-app is comprised of two main components. 
+The ere-ps-app comprises two main components. 
 
 * The ere-ps-app back-end which is a Java 11 Quarkus (https://quarkus.io/) application.
 * The ere-ps-app front-end UI, which is a browser based HTML, CSS and JavaScript application.
@@ -23,11 +23,31 @@ Open a terminal window and do the following:
   run the following command:
   > git submodule update --init
 
+* Cool tip! You can use one command which combines both of the previous commands to clone 
+      the ere-ps-app repository, and to update the front-end UI submodule as shown below:
+  
+    > git clone --recurse-submodules https://github.com/ere-health/ere-ps-app.git 
+
 The source files of the front-end UI will be located in the following directory location:
   > src/main/resources/META-INF/resources/frontend
 
 At this point, you should now have access to the source files for both the backend and front-end of 
 the application.
+
+#### Updating the Front-End UI Submodule to Reference a Particular Branch in the Front-End UI Repo
+
+Periodically, you may wish to update the front-end UI submodule to reference different branches 
+in the front-end UI repository.  You can do this by entering the following commands as shown 
+below from the ere-ps-app directory:
+
+* Linux/MacOS
+  1. >git submodule deinit --all
+  2. >rm -rf .git/modules
+  3. >git rm -rf src/main/resources/META-INF/resources/frontend
+  4. >rm -rf src/main/resources/META-INF/resources/frontend
+  5. >git submodule add -b < branch name > https://github.com/ere-health/front-end-ere.health.git src/main/resources/META-INF/resources/frontend
+
+
 
 
 ### Running the ERE-PS-App Application
@@ -95,7 +115,7 @@ For dev mode purposes, the environment variables referenced in the application.p
 are located in a file named .env. This file should be located in the root project folder 
 (ere-ps-app).
 
-In regards to file and directory paths, configure the values for the environment variables in the
+With regard to file and directory paths, configure the values for the environment variables in the
 .env file to reference paths on your local computer.
 
 > Important! Configure the .env file to be ignored and not checked into the source code repository.
