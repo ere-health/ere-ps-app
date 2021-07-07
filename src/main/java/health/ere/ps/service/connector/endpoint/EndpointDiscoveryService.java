@@ -20,7 +20,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.ws.BindingProvider;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
@@ -34,32 +33,10 @@ import java.util.logging.Logger;
 public class EndpointDiscoveryService {
     private static final Logger log = Logger.getLogger(EndpointDiscoveryService.class.getName());
 
-    /**
-     * Certificate to authenticate at the connector.
-     */
     @ConfigProperty(name = "connector.cert.auth.store.file")
     Optional<String> connectorTlsCertAuthStoreFile;
-
-    /**
-     * Password of the certificate to authenticate at the connector.
-     * The default value is a empty sting, so that the password must not be set.
-     */
     @ConfigProperty(name = "connector.cert.auth.store.file.password", defaultValue = "!")
     String connectorTlsCertAuthStorePwd;
-
-    /**
-     * Certificate to validate with the connector.
-     */
-    @ConfigProperty(name = "connector.cert.trust.store.file")
-    Optional<String> connectorTlsCertTrustStoreFile;
-
-    /**
-     * Password of the certificate to authenticate at the connector.
-     * The default value is a empty sting, so that the password must not be set.
-     */
-    @ConfigProperty(name = "connector.cert.trust.store.file.password", defaultValue = "!")
-    String connectorTlsCertTrustStorePwd;
-
     @ConfigProperty(name = "auth-signature.endpoint.address")
     Optional<String> fallbackAuthSignatureServiceEndpointAddress;
     @ConfigProperty(name = "signature-service.endpoint.address")
@@ -74,6 +51,7 @@ public class EndpointDiscoveryService {
     String connectorVerifyHostname;
     @ConfigProperty(name = "card-service.endpoint.address")
     Optional<String> fallbackCardServiceEndpointAddress;
+
     @Inject
     SecretsManagerService secretsManagerService;
 

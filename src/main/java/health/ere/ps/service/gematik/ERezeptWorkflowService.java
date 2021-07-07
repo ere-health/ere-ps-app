@@ -5,7 +5,6 @@ import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.v7.GetCards;
 import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
-import de.gematik.ws.conn.eventservice.wsdl.v7.EventService;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.signatureservice.v7.DocumentType;
 import de.gematik.ws.conn.signatureservice.v7.SignRequest;
@@ -14,18 +13,16 @@ import de.gematik.ws.conn.signatureservice.v7.SignResponse;
 import de.gematik.ws.conn.signatureservice.v7_5_5.ComfortSignatureStatusEnum;
 import de.gematik.ws.conn.signatureservice.v7_5_5.SessionInfo;
 import de.gematik.ws.conn.signatureservice.v7_5_5.SignatureModeEnum;
-import de.gematik.ws.conn.signatureservice.wsdl.v7.*;
-import health.ere.ps.config.AppConfig;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.FaultMessage;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortType;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
 import health.ere.ps.event.BundlesWithAccessCodeEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
 import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.exception.connector.ConnectorCardsException;
 import health.ere.ps.exception.gematik.ERezeptWorkflowException;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
-import health.ere.ps.service.common.security.SecretsManagerService;
-import health.ere.ps.service.common.security.SecureSoapTransportConfigurer;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
-import health.ere.ps.service.connector.endpoint.SSLUtilities;
 import health.ere.ps.service.idp.BearerTokenService;
 import health.ere.ps.vau.VAUEngine;
 import oasis.names.tc.dss._1_0.core.schema.Base64Data;
@@ -44,12 +41,10 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
-import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
-import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -65,30 +60,19 @@ import java.util.logging.Logger;
 public class ERezeptWorkflowService {
 
     private static final String EREZEPT_IDENTIFIER_SYSTEM = "https://gematik.de/fhir/NamingSystem/PrescriptionID";
-    private final FhirContext fhirContext = FhirContext.forR4();
     private static final Logger log = Logger.getLogger(ERezeptWorkflowService.class.getName());
 
     static {
         org.apache.xml.security.Init.init();
     }
 
-
+    private final FhirContext fhirContext = FhirContext.forR4();
     @ConfigProperty(name = "ere.workflow-service.prescription.server.url", defaultValue = "")
     String prescriptionServerUrl;
     @ConfigProperty(name = "connector.crypt", defaultValue = "")
     String signatureServiceCrypt;
-    @ConfigProperty(name = "connector.mandant.id", defaultValue = "")
-    String signatureServiceContextMandantId;
-    @ConfigProperty(name = "connector.client.system.id", defaultValue = "")
-    String signatureServiceContextClientSystemId;
-    @ConfigProperty(name = "connector.workplace.id", defaultValue = "")
-    String signatureServiceContextWorkplaceId;
-    @ConfigProperty(name = "connector.context.userId", defaultValue = "")
-    String signatureServiceContextUserId;
     @ConfigProperty(name = "connector.tvMode", defaultValue = "")
     String signatureServiceTvMode;
-    @ConfigProperty(name = "connector.cert.auth.store.file", defaultValue = "")
-    String certAuthStoreFile;
     @ConfigProperty(name = "ere-workflow-service.vau.enable", defaultValue = "true")
     Boolean enableVau;
     @ConfigProperty(name = "ere-workflow-service.user-agent", defaultValue = "IncentergyGmbH-ere.health/SNAPSHOT")
@@ -99,21 +83,20 @@ public class ERezeptWorkflowService {
     @Inject
     ConnectorCardsService connectorCardsService;
     @Inject
-    SecureSoapTransportConfigurer secureSoapTransportConfigurer;
-    @Inject
     Event<BundlesWithAccessCodeEvent> bundlesWithAccessCodeEvent;
     @Inject
     Event<Exception> exceptionEvent;
     @Inject
     BearerTokenService bearerTokenService;
     @Inject
-    AppConfig appConfig;
-    @Inject
     EventServicePortType eventService;
     @Inject
     SignatureServicePortType signatureService;
     @Inject
     SignatureServicePortTypeV755 signatureServiceV755;
+    @Inject
+    ContextType contextType;
+
     private Client client;
 
 
@@ -138,13 +121,6 @@ public class ERezeptWorkflowService {
             }
         }
         client = clientBuilder.build();
-
-        secureSoapTransportConfigurer.init(connectorCardsService);
-        secureSoapTransportConfigurer.configureSecureTransport(
-                appConfig.getEventServiceEndpointAddress(),
-                SecretsManagerService.SslContextType.TLS,
-                appConfig.getIdpConnectorTlsCertTrustStore(),
-                appConfig.getIdpConnectorTlsCertTustStorePwd());
     }
 
     /**
@@ -337,8 +313,6 @@ public class ERezeptWorkflowService {
             signRequest.setIncludeRevocationInfo(true);
             List<SignRequest> signRequests = Arrays.asList(signRequest);
 
-            ContextType contextType = createContextType();
-
             String jobNumber = "PTV4+".equals(connectorVersion) ?
                     signatureServiceV755.getJobNumber(contextType) :
                     signatureService.getJobNumber(contextType);
@@ -394,18 +368,6 @@ public class ERezeptWorkflowService {
     }
 
     /**
-     * Create a context type.
-     */
-    ContextType createContextType() {
-        ContextType contextType = new ContextType();
-        contextType.setMandantId(signatureServiceContextMandantId);
-        contextType.setClientSystemId(signatureServiceContextClientSystemId);
-        contextType.setWorkplaceId(signatureServiceContextWorkplaceId);
-        contextType.setUserId(signatureServiceContextUserId);
-        return contextType;
-    }
-
-    /**
      * This function creates an empty task based on workflow 160 (Muster 16) on the
      * prescription server.
      *
@@ -441,8 +403,7 @@ public class ERezeptWorkflowService {
         }
 
         log.info("Task Response: " + taskString);
-        Task task = fhirContext.newXmlParser().parseResource(Task.class, new StringReader(taskString));
-        return task;
+        return fhirContext.newXmlParser().parseResource(Task.class, new StringReader(taskString));
     }
 
     /**
@@ -469,7 +430,6 @@ public class ERezeptWorkflowService {
     public void activateComfortSignature() throws ERezeptWorkflowException {
         final Holder<Status> status = new Holder<>();
         final Holder<SignatureModeEnum> signatureMode = new Holder<>();
-        ContextType contextType = createContextType();
         String signatureServiceCardHandle = null;
 
         try {
@@ -491,7 +451,6 @@ public class ERezeptWorkflowService {
         Holder<Integer> comfortSignatureMax = new Holder<>();
         Holder<javax.xml.datatype.Duration> comfortSignatureTimer = new Holder<>();
         Holder<SessionInfo> sessionInfo = new Holder<>();
-        ContextType contextType = createContextType();
 
         String signatureServiceCardHandle;
         try {
@@ -523,7 +482,7 @@ public class ERezeptWorkflowService {
      */
     public GetCardsResponse getCards() throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         GetCards parameter = new GetCards();
-        parameter.setContext(createContextType());
+        parameter.setContext(contextType);
         return eventService.getCards(parameter);
     }
 }

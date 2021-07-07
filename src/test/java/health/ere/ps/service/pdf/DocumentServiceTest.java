@@ -7,7 +7,6 @@ import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.test.DefaultTestProfile;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
-
 import org.hl7.fhir.r4.model.Bundle;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import javax.enterprise.event.Event;
+import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,7 +32,8 @@ public class DocumentServiceTest {
     private final static String TARGET_PATH = "target/test_Erezepten/";
     private final static FhirContext ctx = FhirContext.forR4();
 
-    private DocumentService documentService;
+    @Inject
+    DocumentService documentService;
 
 
     @BeforeAll
@@ -56,7 +57,6 @@ public class DocumentServiceTest {
 
     @BeforeEach
     public void instantiateDocumentService() {
-        documentService = new DocumentService();
         documentService.init();
     }
 

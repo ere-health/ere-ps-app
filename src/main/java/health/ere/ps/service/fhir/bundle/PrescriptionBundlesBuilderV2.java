@@ -1,6 +1,5 @@
 package health.ere.ps.service.fhir.bundle;
 
-import ca.uhn.fhir.context.FhirContext;
 import health.ere.ps.model.muster16.MedicationString;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
 import org.apache.commons.lang3.StringUtils;
@@ -86,7 +85,7 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
 
     protected final Muster16PrescriptionForm muster16PrescriptionForm;
     protected Map<String, String> templateKeyMapper;
-    protected FhirContext ctx = FhirContext.forR4();
+
 
     public PrescriptionBundlesBuilderV2(Muster16PrescriptionForm muster16PrescriptionForm) {
         this.muster16PrescriptionForm = muster16PrescriptionForm;

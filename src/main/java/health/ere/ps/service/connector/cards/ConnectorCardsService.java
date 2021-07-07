@@ -8,19 +8,17 @@ import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
 import health.ere.ps.exception.connector.ConnectorCardsException;
-import health.ere.ps.service.common.security.SoapClient;
 import org.apache.commons.collections4.CollectionUtils;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.xml.ws.BindingProvider;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
 
 @ApplicationScoped
-public class ConnectorCardsService implements SoapClient {
+public class ConnectorCardsService {
     private static final Logger log = Logger.getLogger(ConnectorCardsService.class.getName());
 
     @Inject
@@ -75,11 +73,6 @@ public class ConnectorCardsService implements SoapClient {
         }
 
         return cardHandle;
-    }
-
-    @Override
-    public BindingProvider getBindingProvider() {
-        return (BindingProvider) eventService;
     }
 
     public enum CardHandleType {

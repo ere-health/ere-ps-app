@@ -8,7 +8,6 @@ import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.signatureservice.v7.BinaryDocumentType;
 import de.gematik.ws.conn.signatureservice.v7.ExternalAuthenticate;
 import de.gematik.ws.conn.signatureservice.v7.ExternalAuthenticateResponse;
-import health.ere.ps.config.AppConfig;
 import health.ere.ps.exception.connector.ConnectorCardsException;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import oasis.names.tc.dss._1_0.core.schema.Base64Data;
@@ -33,11 +32,9 @@ import java.util.Set;
 public class SmcbAuthenticatorService {
 
     @Inject
-    AppConfig appConfig;
-
+    ContextType contextType;
     @Inject
     ConnectorCardsService connectorCardsService;
-
     @Inject
     SmcbAuthenticatorExecutionService smcbAuthExecutionService;
 
@@ -122,12 +119,6 @@ public class SmcbAuthenticatorService {
             base64Data.setMimeType("application/octet-stream");
             base64Data.setValue(sha265Hash);
             binaryDocumentType.setBase64Data(base64Data);
-
-            ContextType contextType = new ContextType();
-
-            contextType.setClientSystemId(appConfig.getClientSystem());
-            contextType.setMandantId(appConfig.getMandantId());
-            contextType.setWorkplaceId(appConfig.getWorkplace());
 
             ExternalAuthenticateResponse response;
 

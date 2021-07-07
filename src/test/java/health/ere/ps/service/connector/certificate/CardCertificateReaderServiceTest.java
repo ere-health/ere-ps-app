@@ -30,12 +30,8 @@ class CardCertificateReaderServiceTest {
 
     @Inject
     ConnectorCardsService connectorCardsService;
-
     @Inject
     CardCertificateReaderService cardCertificateReaderService;
-
-    @Inject
-    AppConfig appConfig;
 
     @BeforeEach
     void init() {
@@ -62,9 +58,7 @@ class CardCertificateReaderServiceTest {
                 ConnectorCardsService.CardHandleType.SMC_B);
         
         Assertions.assertTrue(ArrayUtils.isNotEmpty(
-                cardCertificateReaderService.readCardCertificate(appConfig.getMandantId(),
-                        appConfig.getClientSystem(),
-                        appConfig.getWorkplace(), smcbHandle)),
+                cardCertificateReaderService.readCardCertificate(smcbHandle)),
                 "Smart card certificate was retrieved");
     }
 
@@ -78,9 +72,7 @@ class CardCertificateReaderServiceTest {
         
                 
         byte[] base64_Decoded_Asn1_DER_Format_CertBytes =
-                cardCertificateReaderService.readCardCertificate(appConfig.getMandantId(),
-                        appConfig.getClientSystem(),
-                        appConfig.getWorkplace(), smcbHandle);
+                cardCertificateReaderService.readCardCertificate(smcbHandle);
         Assertions.assertTrue(ArrayUtils.isNotEmpty(base64_Decoded_Asn1_DER_Format_CertBytes),
                 "Smart card certificate was retrieved");
 

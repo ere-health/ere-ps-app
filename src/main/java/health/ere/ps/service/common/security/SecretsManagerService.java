@@ -1,12 +1,12 @@
 package health.ere.ps.service.common.security;
 
 import com.sun.xml.ws.developer.JAXWSProperties;
-import health.ere.ps.config.AppConfig;
 import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -28,8 +28,9 @@ public class SecretsManagerService {
 
     private static final Logger log = Logger.getLogger(SecretsManagerService.class.getName());
 
-    @Inject
-    AppConfig appConfig;
+    @ConfigProperty(name = "connector.cert.auth.store.file.password")
+    String idpConnectorTlsCertTustStorePwd;
+
 
     public SecretsManagerService() {
     }
@@ -126,8 +127,11 @@ public class SecretsManagerService {
             KeyStore ks = KeyStore.getInstance("PKCS12");
             // Download this file from the titus backend
             // https://frontend.titus.ti-dienste.de/#/platform/mandant
-            String pwd = appConfig.getIdpConnectorTlsCertTustStorePwd();
-            ks.load(new FileInputStream(p12CertificateFile), pwd.toCharArray());
+            String pwd = StringUtils.defaultString(idpConnectorTlsCertTustStorePwd).trim();
+            FileInputStream certificateFileInputStream = new FileInputStream(p12CertificateFile);
+            ks.load(certificateFileInputStream, pwd.toCharArray());
+            certificateFileInputStream.close();
+
             kmf.init(ks, pwd.toCharArray());
             sc.init(kmf.getKeyManagers(), new TrustManager[]{new SSLUtilities.FakeX509TrustManager()}, null);
             return sc;

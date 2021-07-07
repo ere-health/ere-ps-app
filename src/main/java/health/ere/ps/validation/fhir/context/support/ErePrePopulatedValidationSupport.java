@@ -211,8 +211,7 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
                     "https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_Ursache_Type", "1.0.3")
     );
     Logger logger = Logger.getLogger(ErePrePopulatedValidationSupport.class);
-    FhirContext ctx = FhirContext.forR4();
-    IParser xmlParser = ctx.newXmlParser();
+    IParser xmlParser = FhirContext.forR4().newXmlParser();
 
     public ErePrePopulatedValidationSupport(FhirContext theContext) {
         super(theContext);

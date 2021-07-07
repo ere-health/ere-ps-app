@@ -1,4 +1,4 @@
-package health.ere.ps.service.connector;
+package health.ere.ps.service.connector.producers;
 
 
 import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureService;
@@ -14,28 +14,32 @@ import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureService;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortType;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServiceV755;
-import health.ere.ps.config.AppConfig;
-import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.connector.endpoint.EndpointDiscoveryService;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.net.ssl.SSLContext;
 import javax.xml.ws.BindingProvider;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.logging.Logger;
 
 @ApplicationScoped
 public class ConnectorServicesProducer {
     private static final Logger log = Logger.getLogger(ConnectorServicesProducer.class.getName());
 
-    @Inject
-    AppConfig appConfig;
+    @ConfigProperty(name = "connector.client.system.id")
+    String contextClientSystemId;
+    @ConfigProperty(name = "connector.mandant.id")
+    String contextMandantId;
+    @ConfigProperty(name = "connector.workplace.id")
+    String contextWorkplaceId;
+    @ConfigProperty(name = "connector.context.userId")
+    String contextUserId;
+
     @Inject
     EndpointDiscoveryService endpointDiscoveryService;
     @Inject
@@ -83,6 +87,11 @@ public class ConnectorServicesProducer {
         bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier",
                 new SSLUtilities.FakeHostnameVerifier());
 
+        //From SecureSoapTransportConfigurer.configureSecureTransport
+        secretsManagerService.configureSSLTransportContext(endpointDiscoveryService.getConnectorTlsCertAuthStoreFile(),
+                endpointDiscoveryService.getConnectorTlsCertAuthStorePwd(), SecretsManagerService.SslContextType.TLS,
+                SecretsManagerService.KeyStoreType.PKCS12, bp);
+
         return eventService;
     }
 
@@ -120,7 +129,7 @@ public class ConnectorServicesProducer {
 
     @Produces
     public SignatureServicePortTypeV755 signatureServicePortTypeV755() {
-        SignatureServicePortTypeV755  signatureServiceV755 = new SignatureServiceV755(getClass()
+        SignatureServicePortTypeV755 signatureServiceV755 = new SignatureServiceV755(getClass()
                 .getResource("/SignatureService_V7_5_5.wsdl")).getSignatureServicePortTypeV755();
 
         BindingProvider bp = (BindingProvider) signatureServiceV755;
@@ -147,10 +156,10 @@ public class ConnectorServicesProducer {
     @Produces
     public ContextType contextType() {
         ContextType contextType = new ContextType();
-        contextType.setMandantId(appConfig.getMandantId());
-        contextType.setClientSystemId(appConfig.getClientSystem());
-        contextType.setWorkplaceId(appConfig.getWorkplace());
-        contextType.setUserId(appConfig.getSignatureServiceContextUserId());
+        contextType.setMandantId(contextMandantId);
+        contextType.setClientSystemId(contextClientSystemId);
+        contextType.setWorkplaceId(contextWorkplaceId);
+        contextType.setUserId(contextUserId);
 
         return contextType;
     }

@@ -27,16 +27,15 @@ public class CardCertificateReaderService {
     /**
      * Reads the AUT certificate of a card managed in the connector.
      *
-     * @param invocationContext The context for the call to the connector.
-     * @param cardHandle        The handle of the card.
+     * @param cardHandle The handle of the card.
      * @return The card's AUT certificate.
      */
-    private byte[] readCardCertificate(InvocationContext invocationContext, String cardHandle)
+    byte[] readCardCertificate(String cardHandle)
             throws ConnectorCardCertificateReadException {
         byte[] x509Certificate = new byte[0];
 
         ReadCardCertificateResponse readCardCertificateResponse =
-                cardCertReadExecutionService.doReadCardCertificate(invocationContext, cardHandle);
+                cardCertReadExecutionService.doReadCardCertificate(cardHandle);
 
         Status status = readCardCertificateResponse.getStatus();
         if (status != null && status.getResult().equals(STATUS_OK)) {
@@ -57,18 +56,10 @@ public class CardCertificateReaderService {
         return x509Certificate;
     }
 
-    byte[] readCardCertificate(String mandantId, String clientSystem, String workplace,
-                               String cardHandle) throws ConnectorCardCertificateReadException {
-        return readCardCertificate(new InvocationContext(mandantId, clientSystem, workplace),
-                cardHandle);
-    }
-
-    public X509Certificate retrieveSmcbCardCertificate(String mandantId, String clientSystem,
-                                                       String workplace, String cardHandle)
+    public X509Certificate retrieveSmcbCardCertificate(String cardHandle)
             throws ConnectorCardCertificateReadException {
 
-        byte[] connector_cert_auth = readCardCertificate(mandantId, clientSystem, workplace,
-                cardHandle);
+        byte[] connector_cert_auth = readCardCertificate(cardHandle);
         X509Certificate x509Certificate;
 
         try {
