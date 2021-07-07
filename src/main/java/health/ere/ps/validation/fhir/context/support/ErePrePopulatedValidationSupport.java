@@ -1,5 +1,7 @@
 package health.ere.ps.validation.fhir.context.support;
 
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.IParser;
 import org.hl7.fhir.common.hapi.validation.support.PrePopulatedValidationSupport;
 import org.hl7.fhir.r4.model.CodeSystem;
 import org.hl7.fhir.r4.model.StructureDefinition;
@@ -12,15 +14,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.parser.IParser;
-
 public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupport {
-    Logger logger = Logger.getLogger(ErePrePopulatedValidationSupport.class);
-
-    FhirContext ctx = FhirContext.forR4();
-    IParser xmlParser = ctx.newXmlParser();
-
     private static final List<List<String>> structureDefinitionsAndExtensions = Arrays.asList(
             // Add StructureDefinition profiles.
             List.of("/fhir/r4/profile/v1_0_0/address-de-basis.xml",
@@ -163,7 +157,6 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
                     "https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Terminology_German",
                     "1.1.3")
     );
-
     private static final List<List<String>> valueSets = Arrays.asList(
             List.of("/fhir/r4/valueset/v1_01/KBV_VS_SFHIR_KBV_STATUSKENNZEICHEN.xml",
                     "https://fhir.kbv.de/ValueSet/KBV_VS_SFHIR_KBV_STATUSKENNZEICHEN", "1.01"),
@@ -183,11 +176,9 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
             List.of("/fhir/r4/valueset/v1_0_3/KBV_VS_FOR_Qualification_Type.xml",
                     "https://fhir.kbv.de/ValueSet/KBV_VS_FOR_Qualification_Type", "1.0.3")
     );
-
     private static final List<List<String>> namingSystems = Collections.singletonList(
             List.of("/fhir/r4/namingsystems/Pruefnummer.xml",
                     "https://fhir.kbv.de/NamingSystem/KBV_NS_FOR_Pruefnummer"));
-
     private static final List<List<String>> codeSystems = Arrays.asList(
             List.of("/fhir/r4/codesystem/v1_00/KBV_CS_SFHIR_ITA_WOP.xml",
                     "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_ITA_WOP", "1.00"),
@@ -219,6 +210,9 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
             List.of("/fhir/r4/codesystem/v1_0_3/KBV_CS_FOR_Ursache_Type.xml",
                     "https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_Ursache_Type", "1.0.3")
     );
+    Logger logger = Logger.getLogger(ErePrePopulatedValidationSupport.class);
+    FhirContext ctx = FhirContext.forR4();
+    IParser xmlParser = ctx.newXmlParser();
 
     public ErePrePopulatedValidationSupport(FhirContext theContext) {
         super(theContext);
@@ -227,13 +221,13 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
     }
 
     private void addStructureDefinition(String configUrl,
-                                          String configVersion,
-                                          InputStream configDefinitionInputStream) {
-        
+                                        String configVersion,
+                                        InputStream configDefinitionInputStream) {
+
 
         StructureDefinition structureDefinition;
 
-        try(configDefinitionInputStream) {
+        try (configDefinitionInputStream) {
             structureDefinition = xmlParser.parseResource(StructureDefinition.class,
                     configDefinitionInputStream);
             structureDefinition.setUrl(configUrl);
@@ -241,23 +235,23 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
 
             addStructureDefinition(structureDefinition);
         } catch (IOException e) {
-            logger.errorf(e,"Error loading StructureDefinition profile %s", configUrl);
+            logger.errorf(e, "Error loading StructureDefinition profile %s", configUrl);
         }
     }
 
     private void addValueSet(String configUrl, String configVersion,
-                                          InputStream configDefinitionInputStream) {
+                             InputStream configDefinitionInputStream) {
 
         ValueSet valueSet;
 
-        try(configDefinitionInputStream) {
+        try (configDefinitionInputStream) {
             valueSet = xmlParser.parseResource(ValueSet.class,
                     configDefinitionInputStream);
             valueSet.setUrl(configUrl);
             valueSet.setVersion(configVersion);
             addValueSet(valueSet);
         } catch (IOException e) {
-            logger.errorf(e,"Error loading ValueSet profile %s", configUrl);
+            logger.errorf(e, "Error loading ValueSet profile %s", configUrl);
         }
     }
 
@@ -266,14 +260,14 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
 
         CodeSystem codeSystem;
 
-        try(configDefinitionInputStream) {
+        try (configDefinitionInputStream) {
             codeSystem = xmlParser.parseResource(CodeSystem.class,
                     configDefinitionInputStream);
             codeSystem.setUrl(configUrl);
             codeSystem.setVersion(configVersion);
             addCodeSystem(codeSystem);
         } catch (IOException e) {
-            logger.errorf(e,"Error loading CodeSystem profile %s", configUrl);
+            logger.errorf(e, "Error loading CodeSystem profile %s", configUrl);
         }
     }
 

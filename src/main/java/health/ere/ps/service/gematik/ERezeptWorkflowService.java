@@ -10,18 +10,13 @@ import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.signatureservice.v7.DocumentType;
 import de.gematik.ws.conn.signatureservice.v7.SignRequest;
 import de.gematik.ws.conn.signatureservice.v7.SignRequest.OptionalInputs;
+import de.gematik.ws.conn.signatureservice.v7.SignResponse;
 import de.gematik.ws.conn.signatureservice.v7_5_5.ComfortSignatureStatusEnum;
 import de.gematik.ws.conn.signatureservice.v7_5_5.SessionInfo;
 import de.gematik.ws.conn.signatureservice.v7_5_5.SignatureModeEnum;
-import de.gematik.ws.conn.signatureservice.v7.SignResponse;
-import de.gematik.ws.conn.signatureservice.wsdl.v7.FaultMessage;
-import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureService;
-import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortType;
-import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
-import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServiceV755;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.*;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.event.BundlesWithAccessCodeEvent;
-import health.ere.ps.event.RequestBearerTokenFromIdpEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
 import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.exception.connector.ConnectorCardsException;
@@ -31,9 +26,10 @@ import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.common.security.SecureSoapTransportConfigurer;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
-import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
+import health.ere.ps.service.idp.BearerTokenService;
 import health.ere.ps.vau.VAUEngine;
 import oasis.names.tc.dss._1_0.core.schema.Base64Data;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.xml.security.c14n.CanonicalizationException;
 import org.apache.xml.security.c14n.Canonicalizer;
 import org.apache.xml.security.c14n.InvalidCanonicalizerException;
@@ -55,8 +51,9 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
-
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -67,135 +64,107 @@ import java.util.logging.Logger;
 @ApplicationScoped
 public class ERezeptWorkflowService {
 
+    private static final String EREZEPT_IDENTIFIER_SYSTEM = "https://gematik.de/fhir/NamingSystem/PrescriptionID";
+    private final FhirContext fhirContext = FhirContext.forR4();
     private static final Logger log = Logger.getLogger(ERezeptWorkflowService.class.getName());
-
-    FhirContext fhirContext = FhirContext.forR4();
-
-    @Inject
-    AppConfig appConfig;
-
-    @Inject
-    PrescriptionBundleValidator prescriptionBundleValidator;
-
-    @Inject
-    SecretsManagerService secretsManagerService;
-
-    @ConfigProperty(name = "ere.workflow-service.prescription.server.url", defaultValue = "")
-    String prescriptionServerUrl;
-
-    @ConfigProperty(name = "connector.crypt", defaultValue = "")
-    String signatureServiceCrypt;
-
-    @ConfigProperty(name = "connector.mandant.id", defaultValue = "")
-    String signatureServiceContextMandantId;
-
-    @ConfigProperty(name = "connector.client.system.id", defaultValue = "")
-    String signatureServiceContextClientSystemId;
-
-    @ConfigProperty(name = "connector.workplace.id", defaultValue = "")
-    String signatureServiceContextWorkplaceId;
-
-    @ConfigProperty(name = "connector.context.userId", defaultValue = "")
-    String signatureServiceContextUserId;
-
-    @ConfigProperty(name = "connector.tvMode", defaultValue = "")
-    String signatureServiceTvMode;
-
-    @ConfigProperty(name = "connector.cert.auth.store.file", defaultValue = "!")
-    String certAuthStoreFile;
-
-    @ConfigProperty(name = "ere-workflow-service.vau.enable", defaultValue = "true")
-    Boolean enableVau;
-
-    @ConfigProperty(name = "ere-workflow-service.user-agent", defaultValue = "IncentergyGmbH-ere.health/SNAPSHOT")
-    String userAgent;
-
-    @ConfigProperty(name = "connector.version", defaultValue="PTV4")
-    String connectorVersion;
-
-    SignatureServicePortType signatureService;
-    SignatureServicePortTypeV755 signatureServiceV755;
-    EventServicePortType eventService;
-
-    @Inject
-    ConnectorCardsService connectorCardsService;
-
-    @Inject
-    SecureSoapTransportConfigurer secureSoapTransportConfigurer;
-
-    @Inject
-    Event<BundlesWithAccessCodeEvent> bundlesWithAccessCodeEvent;
-
-    @Inject
-    Event<RequestBearerTokenFromIdpEvent> requestBearerTokenFromIdp;
-
-    SSLContext customSSLContext = null;
-
-    Client client;
-
-    String bearerToken;
-
-    @Inject
-    Event<Exception> exceptionEvent;
-
-    public static final String EREZEPT_IDENTIFIER_SYSTEM = "https://gematik.de/fhir/NamingSystem/PrescriptionID";
 
     static {
         org.apache.xml.security.Init.init();
     }
 
+
+    @ConfigProperty(name = "ere.workflow-service.prescription.server.url", defaultValue = "")
+    String prescriptionServerUrl;
+    @ConfigProperty(name = "connector.crypt", defaultValue = "")
+    String signatureServiceCrypt;
+    @ConfigProperty(name = "connector.mandant.id", defaultValue = "")
+    String signatureServiceContextMandantId;
+    @ConfigProperty(name = "connector.client.system.id", defaultValue = "")
+    String signatureServiceContextClientSystemId;
+    @ConfigProperty(name = "connector.workplace.id", defaultValue = "")
+    String signatureServiceContextWorkplaceId;
+    @ConfigProperty(name = "connector.context.userId", defaultValue = "")
+    String signatureServiceContextUserId;
+    @ConfigProperty(name = "connector.tvMode", defaultValue = "")
+    String signatureServiceTvMode;
+    @ConfigProperty(name = "connector.cert.auth.store.file", defaultValue = "")
+    String certAuthStoreFile;
+    @ConfigProperty(name = "ere-workflow-service.vau.enable", defaultValue = "true")
+    Boolean enableVau;
+    @ConfigProperty(name = "ere-workflow-service.user-agent", defaultValue = "IncentergyGmbH-ere.health/SNAPSHOT")
+    String userAgent;
+    @ConfigProperty(name = "connector.version", defaultValue = "PTV4")
+    String connectorVersion;
+
+    @Inject
+    ConnectorCardsService connectorCardsService;
+    @Inject
+    SecureSoapTransportConfigurer secureSoapTransportConfigurer;
+    @Inject
+    Event<BundlesWithAccessCodeEvent> bundlesWithAccessCodeEvent;
+    @Inject
+    Event<Exception> exceptionEvent;
+    @Inject
+    BearerTokenService bearerTokenService;
+    @Inject
+    AppConfig appConfig;
+    @Inject
+    SecretsManagerService secretsManagerService;
+
+    private SignatureServicePortType signatureService;
+    private SignatureServicePortTypeV755 signatureServiceV755;
+    private EventServicePortType eventService;
+    private Client client;
+
+
+    /**
+     * Extracts the access code from a task
+     */
+    static String getAccessCode(Task task) {
+        return task.getIdentifier().stream()
+                .filter(id -> id.getSystem().equals("https://gematik.de/fhir/NamingSystem/AccessCode")).findFirst()
+                .orElse(new Identifier()).getValue();
+    }
+
     @PostConstruct
     public void init() throws SecretsManagerException {
-        try {
-            if (certAuthStoreFile != null && !("".equals(certAuthStoreFile))
-                    && !("!".equals(certAuthStoreFile))) {
-                try {
-                    setUpCustomSSLContext(new FileInputStream(certAuthStoreFile));
-                } catch(FileNotFoundException e) {
-                    log.log(Level.SEVERE, "Could find file", e);
-                }
-            }
+        if (certAuthStoreFile != null && !certAuthStoreFile.isEmpty()) {
+            SSLContext customSSLContext = secretsManagerService.setUpCustomSSLContext(certAuthStoreFile);
 
             signatureService = new SignatureService(getClass().getResource("/SignatureService.wsdl")).getSignatureServicePort();
             /* Set endpoint to configured endpoint */
             BindingProvider bp = (BindingProvider) signatureService;
             bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, appConfig.getSignatureServiceEndpointAddress());
-            if (customSSLContext != null) {
-                bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
-                        customSSLContext.getSocketFactory());
-                bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier", new SSLUtilities.FakeHostnameVerifier());
-            }
+            bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
+                    customSSLContext.getSocketFactory());
+            bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier", new SSLUtilities.FakeHostnameVerifier());
+
 
             signatureServiceV755 = new SignatureServiceV755(getClass().getResource("/SignatureService_V7_5_5.wsdl")).getSignatureServicePortTypeV755();
             /* Set endpoint to configured endpoint */
             bp = (BindingProvider) signatureServiceV755;
             bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, appConfig.getSignatureServiceEndpointAddress());
-            if (customSSLContext != null) {
-                bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
-                        customSSLContext.getSocketFactory());
-                bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier", new SSLUtilities.FakeHostnameVerifier());
-            }
+            bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
+                    customSSLContext.getSocketFactory());
+            bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier", new SSLUtilities.FakeHostnameVerifier());
+
 
             eventService = new EventService(getClass().getResource("/EventService.wsdl")).getEventServicePort();
             /* Set endpoint to configured endpoint */
             bp = (BindingProvider) eventService;
             bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, appConfig.getEventServiceEndpointAddress());
-            if (customSSLContext != null) {
-                bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
-                        customSSLContext.getSocketFactory());
-                bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier", new SSLUtilities.FakeHostnameVerifier());
-            }
-
-        } catch(Exception ex) {
-            log.log(Level.SEVERE, "Could not init E-Rezept Service", ex);
-            exceptionEvent.fireAsync(ex);
+            bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
+                    customSSLContext.getSocketFactory());
+            bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier", new SSLUtilities.FakeHostnameVerifier());
+        } else {
+            log.log(Level.SEVERE, "Could not init E-Rezept Service as the cert auth store file is missing");
         }
 
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
-        if(enableVau) {
+        if (enableVau) {
             try {
-                ((ResteasyClientBuilderImpl)clientBuilder).httpEngine(new VAUEngine(prescriptionServerUrl));
-            } catch(Exception ex) {
+                ((ResteasyClientBuilderImpl) clientBuilder).httpEngine(new VAUEngine(prescriptionServerUrl));
+            } catch (Exception ex) {
                 log.log(Level.SEVERE, "Could not enable VAU", ex);
                 exceptionEvent.fireAsync(ex);
             }
@@ -210,39 +179,29 @@ public class ERezeptWorkflowService {
                 appConfig.getIdpConnectorTlsCertTustStorePwd());
     }
 
-    public void setUpCustomSSLContext(InputStream p12Certificate) {
-        customSSLContext = secretsManagerService.setUpCustomSSLContext(p12Certificate);
-    }
-
     /**
      * This function catches the sign and upload bundle events and does the
      * necessary processing
-     *
-     * @param signAndUploadBundlesEvent
      */
     public void onSignAndUploadBundlesEvent(@ObservesAsync SignAndUploadBundlesEvent signAndUploadBundlesEvent) {
         try {
             String bearerTokenToUse;
-            if(signAndUploadBundlesEvent.bearerToken != null && !"".equals(signAndUploadBundlesEvent.bearerToken)) {
+            if (!StringUtils.isEmpty(signAndUploadBundlesEvent.bearerToken)) {
                 bearerTokenToUse = signAndUploadBundlesEvent.bearerToken;
-            } else if(bearerToken == null || "".equals("")) {
-                RequestBearerTokenFromIdpEvent event = new RequestBearerTokenFromIdpEvent();
-                requestBearerTokenFromIdp.fire(event);
-                bearerToken = event.getBearerToken();
-                bearerTokenToUse = bearerToken;
             } else {
-                bearerTokenToUse = bearerToken;
+                bearerTokenToUse = bearerTokenService.requestBearerToken();
+                if (bearerTokenToUse.isEmpty()) {
+                    log.severe("Empty bearer token received, something went wrong with the IdpClient");
+                }
             }
 
-            log.info(String.format("Received %d bundles to sign ",
-                    signAndUploadBundlesEvent.listOfListOfBundles.size()));
+            log.info(String.format("Received %d bundles to sign ", signAndUploadBundlesEvent.listOfListOfBundles.size()));
             log.info("Contents of list of bundles to sign are as follows:");
-            signAndUploadBundlesEvent.listOfListOfBundles.stream().forEach(bundlesList ->
-            {
+            signAndUploadBundlesEvent.listOfListOfBundles.forEach(bundlesList -> {
                 log.info("Bundles list contents is:");
-                bundlesList.stream().forEach(bundle -> log.info("Bundle content: " +
-                        bundle.toString()));
+                bundlesList.forEach(bundle -> log.info("Bundle content: " + bundle.toString()));
             });
+
             List<List<BundleWithAccessCodeOrThrowable>> bundleWithAccessCodeOrThrowable = new ArrayList<>();
             for (List<Bundle> bundles : signAndUploadBundlesEvent.listOfListOfBundles) {
                 log.info(String.format("Getting access codes for %d bundles.",
@@ -250,10 +209,11 @@ public class ERezeptWorkflowService {
                 bundleWithAccessCodeOrThrowable
                         .add(createMultipleERezeptsOnPrescriptionServer(bearerTokenToUse, bundles));
             }
+
             log.info(String.format("Firing event to create prescription receipts for %d bundles.",
                     bundleWithAccessCodeOrThrowable.size()));
             bundlesWithAccessCodeEvent.fireAsync(new BundlesWithAccessCodeEvent(bundleWithAccessCodeOrThrowable));
-        } catch(Exception e) {
+        } catch (Exception e) {
             log.log(Level.WARNING, "Idp login did not work", e);
             exceptionEvent.fireAsync(e);
         }
@@ -295,10 +255,8 @@ public class ERezeptWorkflowService {
      * @return
      * @throws ERezeptWorkflowException
      */
-    public BundleWithAccessCodeOrThrowable createERezeptOnPrescriptionServer(String bearerToken,
-                                                                             Bundle bundle)
+    public BundleWithAccessCodeOrThrowable createERezeptOnPrescriptionServer(String bearerToken, Bundle bundle)
             throws ERezeptWorkflowException {
-
         log.fine("Bearer Token: " + bearerToken);
 
         // Example: src/test/resources/gematik/Task-4711.xml
@@ -317,8 +275,6 @@ public class ERezeptWorkflowService {
 
     /**
      * This function adds the E-Rezept to the previously created task.
-     *
-     * @param task
      */
     public void updateERezeptTask(String bearerToken, Task task, String accessCode, byte[] signedBytes) {
         Parameters parameters = new Parameters();
@@ -366,15 +322,6 @@ public class ERezeptWorkflowService {
 
         String accessCode = ERezeptWorkflowService.getAccessCode(task);
         return new BundleWithAccessCodeOrThrowable(bundle, accessCode);
-    }
-
-    /**
-     * Extracts the access code from a task
-     */
-    static String getAccessCode(Task task) {
-        return task.getIdentifier().stream()
-                .filter(id -> id.getSystem().equals("https://gematik.de/fhir/NamingSystem/AccessCode")).findFirst()
-                .orElse(new Identifier()).getValue();
     }
 
     public SignResponse signBundleWithIdentifiers(Bundle bundle) throws ERezeptWorkflowException {
@@ -425,8 +372,8 @@ public class ERezeptWorkflowService {
             ContextType contextType = createContextType();
 
             String jobNumber = "PTV4+".equals(connectorVersion) ?
-                signatureServiceV755.getJobNumber(contextType) : 
-                signatureService.getJobNumber(contextType);
+                    signatureServiceV755.getJobNumber(contextType) :
+                    signatureService.getJobNumber(contextType);
 
             if (wait10secondsAfterJobNumber) {
                 // Wait 10 seconds to start titus test case
@@ -441,7 +388,7 @@ public class ERezeptWorkflowService {
 
             String signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
                     ConnectorCardsService.CardHandleType.HBA);
-            if("PTV4+".equals(connectorVersion)) {
+            if ("PTV4+".equals(connectorVersion)) {
                 de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest signRequestsV755 = new de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest();
                 de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest.OptionalInputs optionalInputsC755 = new de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest.OptionalInputs();
                 optionalInputsC755.setSignatureType(optionalInputs.getSignatureType());
@@ -456,21 +403,21 @@ public class ERezeptWorkflowService {
 
 
                 List<de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse> signResponsesV755 = signatureServiceV755.signDocument(signatureServiceCardHandle,
-                    signatureServiceCrypt, contextType, signatureServiceTvMode,
-                    jobNumber, Arrays.asList(signRequestsV755));
+                        signatureServiceCrypt, contextType, signatureServiceTvMode,
+                        jobNumber, Arrays.asList(signRequestsV755));
 
                 de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse signResponseV755 = signResponsesV755.get(0);
                 SignResponse signResponse744 = new SignResponse();
                 signResponse744.setSignatureObject(signResponseV755.getSignatureObject());
                 signResponse744.setStatus(signResponseV755.getStatus());
                 return signResponse744;
-            // PTV4
+                // PTV4
             } else {
                 signResponse = signatureService.signDocument(signatureServiceCardHandle,
                         contextType, signatureServiceTvMode,
                         jobNumber, signRequests);
             }
-        } catch(ConnectorCardsException | InvalidCanonicalizerException | XMLParserException |
+        } catch (ConnectorCardsException | InvalidCanonicalizerException | XMLParserException |
                 IOException | CanonicalizationException | FaultMessage e) {
             throw new ERezeptWorkflowException("Exception signing bundles with identifiers.", e);
         }

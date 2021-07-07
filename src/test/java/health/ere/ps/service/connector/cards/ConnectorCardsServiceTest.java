@@ -1,21 +1,18 @@
 package health.ere.ps.service.connector.cards;
 
-import org.apache.commons.lang3.StringUtils;
-import org.jboss.logging.Logger;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.util.Optional;
-
-import javax.inject.Inject;
-
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.exception.connector.ConnectorCardsException;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.common.security.SecureSoapTransportConfigurer;
 import io.quarkus.test.junit.QuarkusTest;
+import org.apache.commons.lang3.StringUtils;
+import org.jboss.logging.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import javax.inject.Inject;
 
 @QuarkusTest
 class ConnectorCardsServiceTest {
@@ -65,7 +62,7 @@ class ConnectorCardsServiceTest {
     void test_Unsuccessful_Retrieval_Of_Unsupported_KVK_Card_Handle() {
         Assertions.assertThrows(ConnectorCardsException.class,
                 () -> {
-                    String cardHandle = connectorCardsService.getConnectorCardHandle(
+                    connectorCardsService.getConnectorCardHandle(
                             ConnectorCardsService.CardHandleType.KVK);
                 }, "ConnectorCardsException thrown for missing or unsupported card handle");
     }

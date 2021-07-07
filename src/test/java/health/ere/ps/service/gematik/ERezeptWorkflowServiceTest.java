@@ -58,7 +58,7 @@ public class ERezeptWorkflowServiceTest {
     ERezeptWorkflowService eRezeptWorkflowService;
 
     @BeforeEach
-    void init() throws SecretsManagerException {
+    void init() {
         try {
             // https://community.oracle.com/thread/1307033?start=0&tstart=0
             LogManager.getLogManager().readConfiguration(
@@ -73,7 +73,6 @@ public class ERezeptWorkflowServiceTest {
         System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
         System.setProperty("com.sun.xml.internal.ws.transport.http.HttpAdapter.dump", "true");
         System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dumpTreshold", "999999");
-
 
         SSLUtilities.trustAllHostnames();
         SSLUtilities.trustAllHttpsCertificates();
@@ -97,14 +96,14 @@ public class ERezeptWorkflowServiceTest {
         String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mmX")
                 .withZone(ZoneOffset.UTC)
                 .format(Instant.now());
-        Files.write(Paths.get("target/E-Rezept-"+thisMoment+".pdf"), a.toByteArray());
+        Files.write(Paths.get("target/E-Rezept-" + thisMoment + ".pdf"), a.toByteArray());
     }
 
     @Test
     @Disabled
     void testCreateERezeptOnPrescriptionServerFromXMLBundle() throws IOException, ERezeptWorkflowException {
         Bundle[] bundles = XmlPrescriptionProcessor.parseFromString(Files.readString(Paths.get("/home/manuel/git/secret-test-print-samples/CGM-Turbomed/XML/Bundle1.xml")));
-        
+
         List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createMultipleERezeptsOnPrescriptionServer(testBearerToken, Arrays.asList(bundles));
         DocumentService documentService = new DocumentService();
         documentService.init();
@@ -112,7 +111,7 @@ public class ERezeptWorkflowServiceTest {
         String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mmX")
                 .withZone(ZoneOffset.UTC)
                 .format(Instant.now());
-        Files.write(Paths.get("target/E-Rezept-"+thisMoment+".pdf"), a.toByteArray());
+        Files.write(Paths.get("target/E-Rezept-" + thisMoment + ".pdf"), a.toByteArray());
     }
 
     @Test
@@ -126,7 +125,7 @@ public class ERezeptWorkflowServiceTest {
         String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmX")
                 .withZone(ZoneOffset.UTC)
                 .format(Instant.now());
-        Files.write(Paths.get("target/E-Rezept-"+thisMoment+".pdf"), a.toByteArray());
+        Files.write(Paths.get("target/E-Rezept-" + thisMoment + ".pdf"), a.toByteArray());
     }
 
     @Test
@@ -140,7 +139,7 @@ public class ERezeptWorkflowServiceTest {
         String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmX")
                 .withZone(ZoneOffset.UTC)
                 .format(Instant.now());
-        Files.write(Paths.get("target/E-Rezept-"+thisMoment+".pdf"), a.toByteArray());
+        Files.write(Paths.get("target/E-Rezept-" + thisMoment + ".pdf"), a.toByteArray());
     }
 
 
@@ -156,7 +155,7 @@ public class ERezeptWorkflowServiceTest {
         String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmX")
                 .withZone(ZoneOffset.UTC)
                 .format(Instant.now());
-        Files.write(Paths.get("target/E-Rezept-"+thisMoment+".pdf"), a.toByteArray());
+        Files.write(Paths.get("target/E-Rezept-" + thisMoment + ".pdf"), a.toByteArray());
     }
 
 
@@ -172,7 +171,7 @@ public class ERezeptWorkflowServiceTest {
         String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmX")
                 .withZone(ZoneOffset.UTC)
                 .format(Instant.now());
-        Files.write(Paths.get("target/E-Rezept-"+thisMoment+".pdf"), a.toByteArray());
+        Files.write(Paths.get("target/E-Rezept-" + thisMoment + ".pdf"), a.toByteArray());
     }
 
     @Test
@@ -187,7 +186,7 @@ public class ERezeptWorkflowServiceTest {
         String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmX")
                 .withZone(ZoneOffset.UTC)
                 .format(Instant.now());
-        Files.write(Paths.get("target/E-Rezept-"+thisMoment+".pdf"), a.toByteArray());
+        Files.write(Paths.get("target/E-Rezept-" + thisMoment + ".pdf"), a.toByteArray());
     }
 
     @Test
@@ -195,7 +194,7 @@ public class ERezeptWorkflowServiceTest {
     void testCreateERezeptMassCreate() throws IOException {
         int i = 0;
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(ClassLoader.getSystemResource("/simplifier_erezept/demos/").toURI()), "*.{xml}")) {
-            for (Path entry: stream) {
+            for (Path entry : stream) {
                 Bundle bundle = iParser.parseResource(Bundle.class, new FileInputStream(entry.toFile()));
                 BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
                 DocumentService documentService = new DocumentService();
@@ -204,9 +203,9 @@ public class ERezeptWorkflowServiceTest {
                 String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmX")
                         .withZone(ZoneOffset.UTC)
                         .format(Instant.now());
-                Files.write(Paths.get("target/E-Rezept-"+thisMoment+".pdf"), a.toByteArray());
+                Files.write(Paths.get("target/E-Rezept-" + thisMoment + ".pdf"), a.toByteArray());
                 i++;
-                if(i==2) {
+                if (i == 2) {
                     break;
                 }
             }
@@ -298,7 +297,7 @@ public class ERezeptWorkflowServiceTest {
     }
 
     @Test
-     @Disabled
+    @Disabled
         // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testSignDocument() throws IOException, ERezeptWorkflowException {
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/examples_erezept/Erezept_template_3.xml"));

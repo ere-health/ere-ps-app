@@ -2,12 +2,31 @@ package health.ere.ps.service.idp.client;
 
 import com.diffplug.common.base.Errors;
 import com.diffplug.common.base.Throwing;
-
+import health.ere.ps.exception.idp.IdpClientException;
+import health.ere.ps.exception.idp.IdpException;
+import health.ere.ps.exception.idp.IdpJoseException;
+import health.ere.ps.model.idp.client.*;
+import health.ere.ps.model.idp.client.authentication.AuthenticationChallenge;
+import health.ere.ps.model.idp.client.brainPoolExtension.BrainpoolCurves;
+import health.ere.ps.model.idp.client.data.UserConsent;
+import health.ere.ps.model.idp.client.field.IdpScope;
+import health.ere.ps.model.idp.client.token.IdpJwe;
+import health.ere.ps.model.idp.client.token.JsonWebToken;
+import health.ere.ps.model.idp.client.token.TokenClaimExtraction;
+import health.ere.ps.service.idp.client.authentication.UriUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.jose4j.jwt.JwtClaims;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import javax.enterprise.context.ApplicationScoped;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
+import javax.json.JsonString;
+import javax.ws.rs.core.Response;
 import java.io.StringReader;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
@@ -24,37 +43,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import javax.enterprise.context.ApplicationScoped;
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-import javax.json.JsonString;
-import javax.ws.rs.core.Response;
-
-import health.ere.ps.exception.idp.IdpClientException;
-import health.ere.ps.exception.idp.IdpException;
-import health.ere.ps.exception.idp.IdpJoseException;
-import health.ere.ps.model.idp.client.AuthenticationRequest;
-import health.ere.ps.model.idp.client.AuthenticationResponse;
-import health.ere.ps.model.idp.client.AuthorizationRequest;
-import health.ere.ps.model.idp.client.AuthorizationResponse;
-import health.ere.ps.model.idp.client.DiscoveryDocumentResponse;
-import health.ere.ps.model.idp.client.IdpTokenResult;
-import health.ere.ps.model.idp.client.TokenRequest;
-import health.ere.ps.model.idp.client.authentication.AuthenticationChallenge;
-import health.ere.ps.model.idp.client.brainPoolExtension.BrainpoolCurves;
-import health.ere.ps.model.idp.client.data.UserConsent;
-import health.ere.ps.model.idp.client.field.IdpScope;
-import health.ere.ps.model.idp.client.token.IdpJwe;
-import health.ere.ps.model.idp.client.token.JsonWebToken;
-import health.ere.ps.model.idp.client.token.TokenClaimExtraction;
-import health.ere.ps.service.idp.client.authentication.UriUtils;
-
-import static health.ere.ps.model.idp.client.field.ClaimName.CODE_VERIFIER;
-import static health.ere.ps.model.idp.client.field.ClaimName.TOKEN_KEY;
-import static health.ere.ps.model.idp.client.field.ClaimName.X509_CERTIFICATE_CHAIN;
+import static health.ere.ps.model.idp.client.field.ClaimName.*;
 import static health.ere.ps.service.idp.client.authentication.UriUtils.extractParameterValue;
 import static health.ere.ps.service.idp.crypto.CryptoLoader.getCertificateFromPem;
 
@@ -77,7 +66,7 @@ public class AuthenticatorClient {
 
         JsonObject jsonObject;
 
-        try(Response response = idpHttpClientService.doAuthorizationRequest(scope, "code",
+        try (Response response = idpHttpClientService.doAuthorizationRequest(scope, "code",
                 authorizationRequest.getRedirectUri(), authorizationRequest.getState(),
                 "S256", authorizationRequest.getNonce(),
                 authorizationRequest.getClientId(), authorizationRequest.getCodeChallenge())) {
@@ -91,7 +80,7 @@ public class AuthenticatorClient {
                 new AuthenticationChallenge(
                         new JsonWebToken(jsonObject.getString("challenge")),
                         new UserConsent(toMap(jsonObject.getJsonObject("user_consent").getJsonObject(
-                                    "requested_scopes")),
+                                "requested_scopes")),
                                 toMap(jsonObject.getJsonObject("user_consent").getJsonObject(
                                         "requested_claims"))))).build();
     }
@@ -102,7 +91,7 @@ public class AuthenticatorClient {
         if (jsonObject != null) {
             java.util.Set<String> keySet = jsonObject.keySet();
 
-            if (keySet != null && keySet.size() > 0) {
+            if (keySet.size() > 0) {
                 keySet.forEach(key -> map.put(key, jsonObject.getString(key)));
             }
         }
@@ -117,11 +106,8 @@ public class AuthenticatorClient {
                 getIdpHttpClientInstanceByUrl(authenticationRequest.getAuthenticationEndpointUrl());
 
         String location;
-
-        try(Response response =
-                idpHttpClientService.doAuthenticationRequest(
-                    authenticationRequest.getSignedChallenge().getRawString())) {
-
+        try (Response response = idpHttpClientService.doAuthenticationRequest(
+                             authenticationRequest.getSignedChallenge().getRawString())) {
             checkResponseForErrorsAndThrowIfAny(response);
 
             location = retrieveLocationFromResponse(response);
@@ -168,10 +154,10 @@ public class AuthenticatorClient {
 
         String location;
 
-        try(Response response =
-                idpHttpClientService.doAuthenticationRequestWithSsoToken(
-                        authenticationRequest.getSsoToken(),
-                        authenticationRequest.getChallengeToken().getRawString())) {
+        try (Response response =
+                     idpHttpClientService.doAuthenticationRequestWithSsoToken(
+                             authenticationRequest.getSsoToken(),
+                             authenticationRequest.getChallengeToken().getRawString())) {
 
             checkResponseForErrorsAndThrowIfAny(response);
 
@@ -204,7 +190,7 @@ public class AuthenticatorClient {
 
         JsonObject jsonObject;
 
-        try(Response response = idpHttpClientService.doAccessTokenRequest("authorization_code",
+        try (Response response = idpHttpClientService.doAccessTokenRequest("authorization_code",
                 tokenRequest.getClientId(), tokenRequest.getCode(),
                 keyVerifierToken.getRawString(), tokenRequest.getRedirectUrl())) {
 
@@ -228,7 +214,7 @@ public class AuthenticatorClient {
     private JsonWebToken decryptToken(final SecretKey tokenKey, final Object tokenValue)
             throws IdpClientException {
         String tokenValueClean = tokenValue.toString();
-        if(tokenValue instanceof JsonString) {
+        if (tokenValue instanceof JsonString) {
             tokenValueClean = ((JsonString) tokenValue).getString();
         } else {
             tokenValueClean = tokenValue.toString();
@@ -257,8 +243,7 @@ public class AuthenticatorClient {
 
         Map<String, Object> discoveryClaims;
 
-        try(Response response = idpHttpClientService.doGenericGetRequest()) {
-
+        try (Response response = idpHttpClientService.doGenericGetRequest()) {
             checkResponseForErrorsAndThrowIfAny(response);
 
             discoveryClaims = TokenClaimExtraction
@@ -281,7 +266,7 @@ public class AuthenticatorClient {
 
         String jsonString;
 
-        try(Response response = idpHttpClientService.doGenericGetRequest()) {
+        try (Response response = idpHttpClientService.doGenericGetRequest()) {
 
             checkResponseForErrorsAndThrowIfAny(response);
 
@@ -307,7 +292,7 @@ public class AuthenticatorClient {
 
         String jsonString;
 
-        try(Response response = idpHttpClientService.doGenericGetRequest()) {
+        try (Response response = idpHttpClientService.doGenericGetRequest()) {
 
             checkResponseForErrorsAndThrowIfAny(response);
 
@@ -354,7 +339,7 @@ public class AuthenticatorClient {
         String jsonString = response.readEntity(String.class);
         JsonObject jsonObject = JsonObject.EMPTY_JSON_OBJECT;
 
-        if(StringUtils.isNotBlank(jsonString)) {
+        if (StringUtils.isNotBlank(jsonString)) {
             try (JsonReader jsonReader = Json.createReader(new StringReader(jsonString))) {
                 jsonObject = jsonReader.readObject();
             }

@@ -117,8 +117,7 @@ public class IdpClientTest {
 
     @Test
     public void test_Successful_Idp_Login_With_Connector_Smcb() throws IdpJoseException,
-            IdpClientException, IdpException, ConnectorCardCertificateReadException,
-            ConnectorCardsException {
+            IdpClientException, IdpException, ConnectorCardCertificateReadException, ConnectorCardsException {
 
         discoveryDocumentUrl = idpBaseUrl + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
 

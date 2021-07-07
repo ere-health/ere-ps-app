@@ -23,7 +23,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -63,41 +62,42 @@ public class EndpointDiscoveryService {
 
     @ConfigProperty(name = "auth-signature.endpoint.address")
     Optional<String> fallbackAuthSignatureServiceEndpointAddress;
-
-    private String authSignatureServiceEndpointAddress;
-
     @ConfigProperty(name = "signature-service.endpoint.address")
     Optional<String> fallbackSignatureServiceEndpointAddress;
-
-    private String signatureServiceEndpointAddress;
-
     @ConfigProperty(name = "certificate-service.endpoint.address")
     Optional<String> fallbackCertificateServiceEndpointAddress;
-
-    private String certificateServiceEndpointAddress;
-
     @ConfigProperty(name = "event-service.endpoint.address")
     Optional<String> fallbackEventServiceEndpointAddress;
-
-    private String eventServiceEndpointAddress;
-
     @ConfigProperty(name = "connector.base-uri")
     String connectorBaseUri;
-
     @ConfigProperty(name = "connector.verify-hostname", defaultValue = "true")
     String connectorVerifyHostname;
-
     @ConfigProperty(name = "card-service.endpoint.address")
     Optional<String> fallbackCardServiceEndpointAddress;
-
-    private String cardServiceEndpointAddress;
-
     @Inject
     SecretsManagerService secretsManagerService;
 
+    private String authSignatureServiceEndpointAddress;
+    private String signatureServiceEndpointAddress;
+    private String certificateServiceEndpointAddress;
+    private String eventServiceEndpointAddress;
+    private String cardServiceEndpointAddress;
     private AuthSignatureServicePortType authSignatureService;
 
+    private static Node getNodeWithTag(Node node, String tagName) {
+        NodeList nodeList = node.getChildNodes();
 
+        for (int i = 0, n = nodeList.getLength(); i < n; ++i) {
+            Node childNode = nodeList.item(i);
+
+            // ignore namespace entirely
+            if (tagName.equals(childNode.getNodeName()) || childNode.getNodeName().endsWith(":" + tagName)) {
+                return childNode;
+            }
+        }
+
+        return null;
+    }
 
     @PostConstruct
     void obtainConfiguration() throws IOException, ParserConfigurationException, SecretsManagerException {
@@ -107,6 +107,7 @@ public class EndpointDiscoveryService {
         BindingProvider bp = (BindingProvider) authSignatureService;
         SSLContext sslContext;
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
+
         try (FileInputStream fileInputStream = new FileInputStream(connectorTlsCertAuthStoreFile.orElseThrow())) {
             sslContext = secretsManagerService.createSSLContext(fileInputStream,
                     connectorTlsCertAuthStorePwd.toCharArray(),
@@ -124,6 +125,7 @@ public class EndpointDiscoveryService {
             // This line is currently not working
             clientBuilder = clientBuilder.hostnameVerifier(new SSLUtilities.FakeHostnameVerifier());
         }
+
         Invocation invocation = clientBuilder.build()
                 .target(connectorBaseUri)
                 .path("/connector.sds")
@@ -256,22 +258,6 @@ public class EndpointDiscoveryService {
                 return location;
             }
         }
-
         throw new IllegalArgumentException("Invalid service node");
-    }
-
-    private static Node getNodeWithTag(Node node, String tagName) {
-        NodeList nodeList = node.getChildNodes();
-
-        for (int i = 0, n = nodeList.getLength(); i < n; ++i) {
-            Node childNode = nodeList.item(i);
-
-            // ignore namespace entirely
-            if (tagName.equals(childNode.getNodeName()) || childNode.getNodeName().endsWith(":" + tagName)) {
-                return childNode;
-            }
-        }
-
-        return null;
     }
 }

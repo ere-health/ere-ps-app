@@ -1,8 +1,28 @@
 package health.ere.ps.websocket;
 
+import ca.uhn.fhir.context.FhirContext;
+import health.ere.ps.config.AppConfig;
+import health.ere.ps.event.BundlesEvent;
+import health.ere.ps.event.ERezeptDocumentsEvent;
+import health.ere.ps.event.SignAndUploadBundlesEvent;
+import health.ere.ps.jsonb.BundleAdapter;
+import health.ere.ps.jsonb.ByteAdapter;
+import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
+import health.ere.ps.service.fhir.bundle.EreBundle;
+import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 import org.hl7.fhir.r4.model.Bundle;
 import org.jboss.logging.Logger;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.enterprise.event.ObservesAsync;
+import javax.inject.Inject;
+import javax.json.*;
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
+import javax.json.bind.JsonbConfig;
+import javax.websocket.*;
+import javax.websocket.server.ServerEndpoint;
 import java.awt.*;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -14,53 +34,19 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.enterprise.event.ObservesAsync;
-import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-import javax.json.JsonValue;
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-import javax.json.bind.JsonbConfig;
-import javax.websocket.OnClose;
-import javax.websocket.OnError;
-import javax.websocket.OnMessage;
-import javax.websocket.OnOpen;
-import javax.websocket.Session;
-import javax.websocket.server.ServerEndpoint;
-
-import ca.uhn.fhir.context.FhirContext;
-import health.ere.ps.config.AppConfig;
-import health.ere.ps.event.BundlesEvent;
-import health.ere.ps.event.ERezeptDocumentsEvent;
-import health.ere.ps.event.SignAndUploadBundlesEvent;
-import health.ere.ps.exception.bundle.EreParseException;
-import health.ere.ps.jsonb.BundleAdapter;
-import health.ere.ps.jsonb.ByteAdapter;
-import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
-import health.ere.ps.service.fhir.bundle.EreBundle;
-import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
-
 @ServerEndpoint("/websocket")
 @ApplicationScoped
 public class Websocket {
 
-    @Inject
-    Event<SignAndUploadBundlesEvent> signAndUploadBundlesEvent;
-
-    @Inject
-    PrescriptionBundleValidator prescriptionBundleValidator;
-
-    @Inject
-    AppConfig appConfig;
-
     private static final Logger log = Logger.getLogger(Websocket.class.getName());
     private final FhirContext ctx = FhirContext.forR4();
     private final Set<Session> sessions = new HashSet<>();
+    @Inject
+    Event<SignAndUploadBundlesEvent> signAndUploadBundlesEvent;
+    @Inject
+    PrescriptionBundleValidator prescriptionBundleValidator;
+    @Inject
+    AppConfig appConfig;
 
     @OnOpen
     public void onOpen(Session session) {
@@ -97,27 +83,26 @@ public class Websocket {
 
                 SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(object);
                 signAndUploadBundlesEvent.fireAsync(event);
-            } else if("XMLBundle".equals(object.getString("type"))) {
+            } else if ("XMLBundle".equals(object.getString("type"))) {
                 Bundle[] bundles = XmlPrescriptionProcessor.parseFromString(object.getString("payload"));
                 onFhirBundle(new BundlesEvent(bundles));
-            } 
+            }
         }
     }
 
     public void onFhirBundle(@ObservesAsync BundlesEvent bundlesEvent) {
 
         // if nobody is connected to the websocket
-        if(sessions.size() == 0) {
-            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-                try {
-                    // Open a browser with the given URL
-                    //TODO: Open a Chrome browser
-                    // TODO: build link dynamically
-                    Desktop.getDesktop().browse(new URI("http://localhost:8080/frontend/app/src/index.html"));
-                    Thread.sleep(5000);
-                } catch (IOException | URISyntaxException | InterruptedException e) {
-                    log.warn("Could not open browser", e);
-                }
+        if (sessions.isEmpty() && Desktop.isDesktopSupported() &&
+                Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+            try {
+                // Open a browser with the given URL
+                //TODO: Open a Chrome browser
+                // TODO: build link dynamically
+                Desktop.getDesktop().browse(new URI("http://localhost:8080/frontend/app/src/index.html"));
+                Thread.sleep(5000);
+            } catch (IOException | URISyntaxException | InterruptedException e) {
+                log.warn("Could not open browser", e);
             }
         }
         String bundlesString = generateJson(bundlesEvent);
@@ -159,23 +144,23 @@ public class Websocket {
     String generateJson(BundlesEvent bundlesEvent) {
 
         bundlesEvent.getBundles().stream().forEach(bundle -> {
-            if(bundle instanceof EreBundle) {
+            if (bundle instanceof EreBundle) {
                 log.info("Filled bundle json template result shown below. Null value place" +
                         " holders present.");
                 log.info("==============================================");
 
-                log.info(((EreBundle)bundle).encodeToJson());
+                log.info(((EreBundle) bundle).encodeToJson());
             }
         });
 
-        if(bundlesEvent.getBundles().stream().filter(b -> b instanceof EreBundle).findAny().isPresent() ) {
+        if (bundlesEvent.getBundles().stream().filter(b -> b instanceof EreBundle).findAny().isPresent()) {
             return bundlesEvent.getBundles().stream().map(bundle ->
-                    ((EreBundle)bundle).encodeToJson())
+                    ((EreBundle) bundle).encodeToJson())
                     .collect(Collectors.joining(",\n", "[", "]"));
         } else {
             return bundlesEvent.getBundles().stream().map(bundle ->
                     ctx.newJsonParser().encodeResourceToString(bundle))
-                        .collect(Collectors.joining(",\n", "[", "]"));
+                    .collect(Collectors.joining(",\n", "[", "]"));
         }
     }
 
