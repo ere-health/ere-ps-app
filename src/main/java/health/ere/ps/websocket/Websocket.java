@@ -1,9 +1,6 @@
 package health.ere.ps.websocket;
 
-import org.hl7.fhir.r4.model.Bundle;
-import org.jboss.logging.Logger;
-
-import java.awt.*;
+import java.awt.Desktop;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
@@ -33,12 +30,16 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
+import org.hl7.fhir.r4.model.Bundle;
+import org.jboss.logging.Logger;
+
 import ca.uhn.fhir.context.FhirContext;
 import health.ere.ps.config.AppConfig;
+import health.ere.ps.event.AbortTasksEvent;
+import health.ere.ps.event.AbortTasksStatusEvent;
 import health.ere.ps.event.BundlesEvent;
 import health.ere.ps.event.ERezeptDocumentsEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
-import health.ere.ps.exception.bundle.EreParseException;
 import health.ere.ps.jsonb.BundleAdapter;
 import health.ere.ps.jsonb.ByteAdapter;
 import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
@@ -53,10 +54,19 @@ public class Websocket {
     Event<SignAndUploadBundlesEvent> signAndUploadBundlesEvent;
 
     @Inject
+    Event<AbortTasksEvent> abortTasksEvent;
+
+    @Inject
     PrescriptionBundleValidator prescriptionBundleValidator;
 
     @Inject
     AppConfig appConfig;
+
+    JsonbConfig customConfig = new JsonbConfig()
+                .setProperty(JsonbConfig.FORMATTING, true)
+                .withAdapters(new BundleAdapter())
+                .withAdapters(new ByteAdapter());
+    Jsonb jsonbFactory = JsonbBuilder.create(customConfig);
 
     private static final Logger log = Logger.getLogger(Websocket.class.getName());
     private final FhirContext ctx = FhirContext.forR4();
@@ -100,12 +110,41 @@ public class Websocket {
             } else if("XMLBundle".equals(object.getString("type"))) {
                 Bundle[] bundles = XmlPrescriptionProcessor.parseFromString(object.getString("payload"));
                 onFhirBundle(new BundlesEvent(bundles));
-            } 
+            } else if("AbortTasks".equals(object.getString("type"))) {
+                abortTasksEvent.fireAsync(new AbortTasksEvent(object.getJsonArray("payload")));
+            }
         }
     }
 
     public void onFhirBundle(@ObservesAsync BundlesEvent bundlesEvent) {
+        asureBrowserIsOpen();
+        String bundlesString = generateJson(bundlesEvent);
+        sessions.forEach(session -> session.getAsyncRemote().sendObject(
+                "{\"type\": \"Bundles\", \"payload\": " + bundlesString + "}",
+                result -> {
+                    if (!result.isOK()) {
+                        log.fatal("Unable to send bundlesEvent: " + result.getException());
+                    }
+                }));
+    }
 
+    public void onAbortTasksStatusEvent(@ObservesAsync AbortTasksStatusEvent abortTasksStatusEvent) {
+        asureBrowserIsOpen();
+        String abortTasksStatusString = generateJson(abortTasksStatusEvent);
+        sessions.forEach(session -> session.getAsyncRemote().sendObject(
+                "{\"type\": \"AbortTasksStatus\", \"payload\": " + abortTasksStatusString + "}",
+                result -> {
+                    if (!result.isOK()) {
+                        log.fatal("Unable to send bundlesEvent: " + result.getException());
+                    }
+                }));
+    }
+
+    String generateJson(AbortTasksStatusEvent abortTasksStatusEvent) {
+        return jsonbFactory.toJson(abortTasksStatusEvent.getTasks());
+    }
+
+    void asureBrowserIsOpen() {
         // if nobody is connected to the websocket
         if(sessions.size() == 0) {
             if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
@@ -120,18 +159,10 @@ public class Websocket {
                 }
             }
         }
-        String bundlesString = generateJson(bundlesEvent);
-        sessions.forEach(session -> session.getAsyncRemote().sendObject(
-                "{\"type\": \"Bundles\", \"payload\": " + bundlesString + "}",
-                result -> {
-                    if (!result.isOK()) {
-                        log.fatal("Unable to send bundlesEvent: " + result.getException());
-                    }
-                }));
     }
 
     public void onERezeptDocuments(@ObservesAsync ERezeptDocumentsEvent eRezeptDocumentsEvent) {
-        String jsonPayload = getJson(eRezeptDocumentsEvent);
+        String jsonPayload = generateJson(eRezeptDocumentsEvent);
         log.info("Sending prescription receipt payload to front-end: " +
                 jsonPayload);
 
@@ -145,13 +176,7 @@ public class Websocket {
                 }));
     }
 
-    public String getJson(ERezeptDocumentsEvent eRezeptDocumentsEvent) {
-        JsonbConfig customConfig = new JsonbConfig()
-                .setProperty(JsonbConfig.FORMATTING, true)
-                .withAdapters(new BundleAdapter())
-                .withAdapters(new ByteAdapter());
-        Jsonb jsonbFactory = JsonbBuilder.create(customConfig);
-
+    public String generateJson(ERezeptDocumentsEvent eRezeptDocumentsEvent) {
         return "{\"type\": \"ERezeptWithDocuments\", \"payload\": " +
                 jsonbFactory.toJson(eRezeptDocumentsEvent.getERezeptWithDocuments()) + "}";
     }
@@ -187,8 +212,8 @@ public class Websocket {
 
             session.getAsyncRemote()
                     .sendObject("{\"type\": \"Exception\", \"payload\": { \"class\": \""
-                            + exception.getClass().getName() + "\", \"message\": \"" + exception.getLocalizedMessage()
-                            + "\", \"stacktrace\": \"" + sw.toString().replaceAll("\r?\n", "\\\\n").replaceAll("\t", "\\\\t") + "\"}}", result -> {
+                            + exception.getClass().getName() + "\", \"message\": \"" + exception.getLocalizedMessage().replaceAll("\"", "\\\"")
+                            + "\", \"stacktrace\": \"" + sw.toString().replaceAll("\r?\n", "\\\\n").replaceAll("\t", "\\\\t").replaceAll("\"", "\\\"") + "\"}}", result -> {
                         if (result.getException() != null) {
                             log.fatal("Unable to send message: " + result.getException());
                         }

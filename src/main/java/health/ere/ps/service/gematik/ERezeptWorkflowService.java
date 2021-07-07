@@ -1,47 +1,17 @@
 package health.ere.ps.service.gematik;
 
-import ca.uhn.fhir.context.FhirContext;
-import de.gematik.ws.conn.connectorcommon.v5.Status;
-import de.gematik.ws.conn.connectorcontext.v2.ContextType;
-import de.gematik.ws.conn.eventservice.v7.GetCards;
-import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
-import de.gematik.ws.conn.eventservice.wsdl.v7.EventService;
-import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
-import de.gematik.ws.conn.signatureservice.v7.DocumentType;
-import de.gematik.ws.conn.signatureservice.v7.SignRequest;
-import de.gematik.ws.conn.signatureservice.v7.SignRequest.OptionalInputs;
-import de.gematik.ws.conn.signatureservice.v7_5_5.ComfortSignatureStatusEnum;
-import de.gematik.ws.conn.signatureservice.v7_5_5.SessionInfo;
-import de.gematik.ws.conn.signatureservice.v7_5_5.SignatureModeEnum;
-import de.gematik.ws.conn.signatureservice.v7.SignResponse;
-import de.gematik.ws.conn.signatureservice.wsdl.v7.FaultMessage;
-import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureService;
-import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortType;
-import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
-import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServiceV755;
-import health.ere.ps.config.AppConfig;
-import health.ere.ps.event.BundlesWithAccessCodeEvent;
-import health.ere.ps.event.RequestBearerTokenFromIdpEvent;
-import health.ere.ps.event.SignAndUploadBundlesEvent;
-import health.ere.ps.exception.common.security.SecretsManagerException;
-import health.ere.ps.exception.connector.ConnectorCardsException;
-import health.ere.ps.exception.gematik.ERezeptWorkflowException;
-import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
-import health.ere.ps.service.common.security.SecretsManagerService;
-import health.ere.ps.service.common.security.SecureSoapTransportConfigurer;
-import health.ere.ps.service.connector.cards.ConnectorCardsService;
-import health.ere.ps.service.connector.endpoint.SSLUtilities;
-import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
-import health.ere.ps.vau.VAUEngine;
-import oasis.names.tc.dss._1_0.core.schema.Base64Data;
-import org.apache.xml.security.c14n.CanonicalizationException;
-import org.apache.xml.security.c14n.Canonicalizer;
-import org.apache.xml.security.c14n.InvalidCanonicalizerException;
-import org.apache.xml.security.parser.XMLParserException;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.hl7.fhir.r4.model.*;
-import org.hl7.fhir.r4.model.Parameters.ParametersParameterComponent;
-import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -56,13 +26,58 @@ import javax.ws.rs.core.Response;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.xml.security.c14n.CanonicalizationException;
+import org.apache.xml.security.c14n.Canonicalizer;
+import org.apache.xml.security.c14n.InvalidCanonicalizerException;
+import org.apache.xml.security.parser.XMLParserException;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.hl7.fhir.r4.model.Binary;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Coding;
+import org.hl7.fhir.r4.model.Identifier;
+import org.hl7.fhir.r4.model.Parameters;
+import org.hl7.fhir.r4.model.Parameters.ParametersParameterComponent;
+import org.hl7.fhir.r4.model.Task;
+import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
+
+import ca.uhn.fhir.context.FhirContext;
+import de.gematik.ws.conn.connectorcommon.v5.Status;
+import de.gematik.ws.conn.connectorcontext.v2.ContextType;
+import de.gematik.ws.conn.eventservice.v7.GetCards;
+import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
+import de.gematik.ws.conn.eventservice.wsdl.v7.EventService;
+import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
+import de.gematik.ws.conn.signatureservice.v7.DocumentType;
+import de.gematik.ws.conn.signatureservice.v7.SignRequest;
+import de.gematik.ws.conn.signatureservice.v7.SignRequest.OptionalInputs;
+import de.gematik.ws.conn.signatureservice.v7.SignResponse;
+import de.gematik.ws.conn.signatureservice.v7_5_5.ComfortSignatureStatusEnum;
+import de.gematik.ws.conn.signatureservice.v7_5_5.SessionInfo;
+import de.gematik.ws.conn.signatureservice.v7_5_5.SignatureModeEnum;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.FaultMessage;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureService;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortType;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServiceV755;
+import health.ere.ps.config.AppConfig;
+import health.ere.ps.event.AbortTaskEntry;
+import health.ere.ps.event.AbortTaskStatus;
+import health.ere.ps.event.AbortTasksEvent;
+import health.ere.ps.event.AbortTasksStatusEvent;
+import health.ere.ps.event.BundlesWithAccessCodeEvent;
+import health.ere.ps.event.RequestBearerTokenFromIdpEvent;
+import health.ere.ps.event.SignAndUploadBundlesEvent;
+import health.ere.ps.exception.common.security.SecretsManagerException;
+import health.ere.ps.exception.connector.ConnectorCardsException;
+import health.ere.ps.exception.gematik.ERezeptWorkflowException;
+import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
+import health.ere.ps.service.common.security.SecretsManagerService;
+import health.ere.ps.service.common.security.SecureSoapTransportConfigurer;
+import health.ere.ps.service.connector.cards.ConnectorCardsService;
+import health.ere.ps.service.connector.endpoint.SSLUtilities;
+import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
+import health.ere.ps.vau.VAUEngine;
+import oasis.names.tc.dss._1_0.core.schema.Base64Data;
 
 @ApplicationScoped
 public class ERezeptWorkflowService {
@@ -125,6 +140,9 @@ public class ERezeptWorkflowService {
 
     @Inject
     Event<BundlesWithAccessCodeEvent> bundlesWithAccessCodeEvent;
+
+    @Inject
+    Event<AbortTasksStatusEvent> abortTasksStatusEvent;
 
     @Inject
     Event<RequestBearerTokenFromIdpEvent> requestBearerTokenFromIdp;
@@ -226,9 +244,7 @@ public class ERezeptWorkflowService {
             if(signAndUploadBundlesEvent.bearerToken != null && !"".equals(signAndUploadBundlesEvent.bearerToken)) {
                 bearerTokenToUse = signAndUploadBundlesEvent.bearerToken;
             } else if(bearerToken == null || "".equals("")) {
-                RequestBearerTokenFromIdpEvent event = new RequestBearerTokenFromIdpEvent();
-                requestBearerTokenFromIdp.fire(event);
-                bearerToken = event.getBearerToken();
+                bearerToken = getBearerTokenFromIdp();
                 bearerTokenToUse = bearerToken;
             } else {
                 bearerTokenToUse = bearerToken;
@@ -257,6 +273,12 @@ public class ERezeptWorkflowService {
             log.log(Level.WARNING, "Idp login did not work", e);
             exceptionEvent.fireAsync(e);
         }
+    }
+
+    String getBearerTokenFromIdp() {
+        RequestBearerTokenFromIdpEvent event = new RequestBearerTokenFromIdpEvent();
+        requestBearerTokenFromIdp.fire(event);
+        return event.getBearerToken();
     }
 
     public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(String bearerToken, List<Bundle> bundles) {
@@ -541,11 +563,30 @@ public class ERezeptWorkflowService {
                 .request().header("User-Agent", userAgent).header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
                 .post(Entity.entity("", "application/fhir+xml; charset=utf-8"));
         String taskString = response.readEntity(String.class);
-        if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
+        // if it is not successful and it was found
+        if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL
+                && response.getStatus() != Response.Status.NOT_FOUND.getStatusCode()) {
             throw new RuntimeException(taskString);
         }
 
         log.info("Task $abort Response: " + taskString);
+    }
+
+    public void onAbortTasksEvent(@ObservesAsync AbortTasksEvent abortTasksEvent) {
+        bearerToken = getBearerTokenFromIdp();
+        List<AbortTaskStatus> abortTaskStatusList = new ArrayList<>();
+        for(AbortTaskEntry abortTaskEntry : abortTasksEvent.getTasks()) {
+            AbortTaskStatus abortTaskStatus = new AbortTaskStatus(abortTaskEntry);
+            try {
+                abortERezeptTask(bearerToken, abortTaskEntry.getId(), abortTaskEntry.getAccessCode());
+                abortTaskStatus.setStatus(AbortTaskStatus.Status.OK);
+            } catch(Throwable t) {
+                abortTaskStatus.setThrowable(t);
+                abortTaskStatus.setStatus(AbortTaskStatus.Status.ERROR);
+            }
+            abortTaskStatusList.add(abortTaskStatus);
+        }
+        abortTasksStatusEvent.fireAsync(new AbortTasksStatusEvent(abortTaskStatusList));
     }
 
     /**
