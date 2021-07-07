@@ -82,28 +82,13 @@ public class EndpointDiscoveryService {
     private String certificateServiceEndpointAddress;
     private String eventServiceEndpointAddress;
     private String cardServiceEndpointAddress;
-    private AuthSignatureServicePortType authSignatureService;
 
-    private static Node getNodeWithTag(Node node, String tagName) {
-        NodeList nodeList = node.getChildNodes();
-
-        for (int i = 0, n = nodeList.getLength(); i < n; ++i) {
-            Node childNode = nodeList.item(i);
-
-            // ignore namespace entirely
-            if (tagName.equals(childNode.getNodeName()) || childNode.getNodeName().endsWith(":" + tagName)) {
-                return childNode;
-            }
-        }
-
-        return null;
-    }
 
     @PostConstruct
     void obtainConfiguration() throws IOException, ParserConfigurationException, SecretsManagerException {
         // code copied from IdpClient.java
 
-        authSignatureService = new AuthSignatureService(getClass().getResource("/AuthSignatureService_v7_4_1.wsdl")).getAuthSignatureServicePort();
+        AuthSignatureServicePortType authSignatureService = new AuthSignatureService(getClass().getResource("/AuthSignatureService_v7_4_1.wsdl")).getAuthSignatureServicePort();
         BindingProvider bp = (BindingProvider) authSignatureService;
         SSLContext sslContext;
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
@@ -217,6 +202,10 @@ public class EndpointDiscoveryService {
         return certificateServiceEndpointAddress;
     }
 
+    public String getConnectorTlsCertAuthStoreFile() {
+        return connectorTlsCertAuthStoreFile.orElseThrow();
+    }
+
     public String getEventServiceEndpointAddress() {
         return eventServiceEndpointAddress;
     }
@@ -225,8 +214,11 @@ public class EndpointDiscoveryService {
         return !("false".equals(connectorVerifyHostname));
     }
 
-    public void configureSSLTransportContext(BindingProvider bindingProvider) throws SecretsManagerException, FileNotFoundException {
+    public String getConnectorTlsCertAuthStorePwd() {
+        return connectorTlsCertAuthStorePwd;
+    }
 
+    public void configureSSLTransportContext(BindingProvider bindingProvider) {
         secretsManagerService.configureSSLTransportContext(
                 connectorTlsCertAuthStoreFile.orElse(null),
                 connectorTlsCertAuthStorePwd,
@@ -241,7 +233,6 @@ public class EndpointDiscoveryService {
         if (versionsNode == null) {
             throw new IllegalArgumentException("No version tags found");
         }
-
         NodeList versionNodes = versionsNode.getChildNodes();
 
         for (int i = 0, n = versionNodes.getLength(); i < n; ++i) {
@@ -253,11 +244,24 @@ public class EndpointDiscoveryService {
             }
 
             String location = endpointNode.getAttributes().getNamedItem("Location").getTextContent();
-
             if (location.startsWith(connectorBaseUri)) {
                 return location;
             }
         }
         throw new IllegalArgumentException("Invalid service node");
+    }
+
+    private Node getNodeWithTag(Node node, String tagName) {
+        NodeList nodeList = node.getChildNodes();
+
+        for (int i = 0, n = nodeList.getLength(); i < n; ++i) {
+            Node childNode = nodeList.item(i);
+
+            // ignore namespace entirely
+            if (tagName.equals(childNode.getNodeName()) || childNode.getNodeName().endsWith(":" + tagName)) {
+                return childNode;
+            }
+        }
+        return null;
     }
 }

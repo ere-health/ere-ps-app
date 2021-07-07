@@ -1,0 +1,157 @@
+package health.ere.ps.service.connector;
+
+
+import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureService;
+import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureServicePortType;
+import de.gematik.ws.conn.cardservice.wsdl.v8.CardService;
+import de.gematik.ws.conn.cardservice.wsdl.v8.CardServicePortType;
+import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateService;
+import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateServicePortType;
+import de.gematik.ws.conn.connectorcontext.v2.ContextType;
+import de.gematik.ws.conn.eventservice.wsdl.v7.EventService;
+import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureService;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortType;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServiceV755;
+import health.ere.ps.config.AppConfig;
+import health.ere.ps.exception.common.security.SecretsManagerException;
+import health.ere.ps.service.common.security.SecretsManagerService;
+import health.ere.ps.service.connector.endpoint.EndpointDiscoveryService;
+import health.ere.ps.service.connector.endpoint.SSLUtilities;
+import org.apache.commons.lang3.StringUtils;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
+import javax.net.ssl.SSLContext;
+import javax.xml.ws.BindingProvider;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.logging.Logger;
+
+@ApplicationScoped
+public class ConnectorServicesProducer {
+    private static final Logger log = Logger.getLogger(ConnectorServicesProducer.class.getName());
+
+    @Inject
+    AppConfig appConfig;
+    @Inject
+    EndpointDiscoveryService endpointDiscoveryService;
+    @Inject
+    SecretsManagerService secretsManagerService;
+
+    @Produces
+    public CardServicePortType cardServicePortType() {
+        CardServicePortType cardService = new CardService(getClass().getResource("/CardService.wsdl"))
+                .getCardServicePort();
+
+        BindingProvider bp = (BindingProvider) cardService;
+        bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+                endpointDiscoveryService.getCardServiceEndpointAddress());
+
+        endpointDiscoveryService.configureSSLTransportContext(bp);
+        return cardService;
+    }
+
+    @Produces
+    public CertificateServicePortType certificateService() {
+        CertificateServicePortType certificateService = new CertificateService(getClass()
+                .getResource("/CertificateService_v6_0_1.wsdl")).getCertificateServicePort();
+
+        BindingProvider bp = (BindingProvider) certificateService;
+        bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+                endpointDiscoveryService.getCertificateServiceEndpointAddress());
+        bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
+                sslContext().getSocketFactory());
+        bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier",
+                new SSLUtilities.FakeHostnameVerifier());
+
+        return certificateService;
+    }
+
+    @Produces
+    public EventServicePortType eventServicePortType() {
+        EventServicePortType eventService = new EventService(getClass().getResource("/EventService.wsdl"))
+                .getEventServicePort();
+
+        BindingProvider bp = (BindingProvider) eventService;
+        bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+                endpointDiscoveryService.getEventServiceEndpointAddress());
+        bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
+                sslContext().getSocketFactory());
+        bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier",
+                new SSLUtilities.FakeHostnameVerifier());
+
+        return eventService;
+    }
+
+    @Produces
+    public AuthSignatureServicePortType authSignatureServicePortType() {
+        AuthSignatureServicePortType authSignatureService = new AuthSignatureService(getClass().getResource(
+                "/AuthSignatureService_v7_4_1.wsdl")).getAuthSignatureServicePort();
+        BindingProvider bp = (BindingProvider) authSignatureService;
+
+        bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+                endpointDiscoveryService.getAuthSignatureServiceEndpointAddress());
+
+        secretsManagerService.configureSSLTransportContext(endpointDiscoveryService.getConnectorTlsCertAuthStoreFile(),
+                endpointDiscoveryService.getConnectorTlsCertAuthStorePwd(), SecretsManagerService.SslContextType.TLS,
+                SecretsManagerService.KeyStoreType.PKCS12, bp);
+
+        return authSignatureService;
+    }
+
+    @Produces
+    public SignatureServicePortType signatureServicePortType() {
+        SignatureServicePortType signatureService = new SignatureService(getClass()
+                .getResource("/SignatureService.wsdl")).getSignatureServicePort();
+
+        BindingProvider bp = (BindingProvider) signatureService;
+        bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+                endpointDiscoveryService.getSignatureServiceEndpointAddress());
+        bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
+                sslContext().getSocketFactory());
+        bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier",
+                new SSLUtilities.FakeHostnameVerifier());
+
+        return signatureService;
+    }
+
+    @Produces
+    public SignatureServicePortTypeV755 signatureServicePortTypeV755() {
+        SignatureServicePortTypeV755  signatureServiceV755 = new SignatureServiceV755(getClass()
+                .getResource("/SignatureService_V7_5_5.wsdl")).getSignatureServicePortTypeV755();
+
+        BindingProvider bp = (BindingProvider) signatureServiceV755;
+        bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+                endpointDiscoveryService.getSignatureServiceEndpointAddress());
+        bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
+                sslContext().getSocketFactory());
+        bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier",
+                new SSLUtilities.FakeHostnameVerifier());
+
+        return signatureServiceV755;
+    }
+
+    @Produces
+    public SSLContext sslContext() {
+        String authStoreFile = endpointDiscoveryService.getConnectorTlsCertAuthStoreFile();
+
+        if (StringUtils.isEmpty(authStoreFile)) {
+            log.severe("Auth store file is missing or invalid!");
+        }
+        return secretsManagerService.createCustomSSLContextFromCertificateFile(authStoreFile);
+    }
+
+    @Produces
+    public ContextType contextType() {
+        ContextType contextType = new ContextType();
+        contextType.setMandantId(appConfig.getMandantId());
+        contextType.setClientSystemId(appConfig.getClientSystem());
+        contextType.setWorkplaceId(appConfig.getWorkplace());
+        contextType.setUserId(appConfig.getSignatureServiceContextUserId());
+
+        return contextType;
+    }
+}

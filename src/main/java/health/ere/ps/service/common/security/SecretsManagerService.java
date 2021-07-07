@@ -73,20 +73,21 @@ public class SecretsManagerService {
                                              String trustStorePassword,
                                              SslContextType sslContextType,
                                              KeyStoreType keyStoreType,
-                                             BindingProvider bp) throws SecretsManagerException {
-
+                                             BindingProvider bp) {
         if ("!".equals(trustStoreFilePath)) {
+            log.severe("Trust store file path is not present");
             return;
         }
+
         try (FileInputStream fileInputStream = new FileInputStream(trustStoreFilePath)) {
             SSLContext sc = createSSLContext(fileInputStream, trustStorePassword.toCharArray(),
                     sslContextType, keyStoreType, bp);
 
             bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
                     sc.getSocketFactory());
-
-        } catch (IOException e) {
-            throw new SecretsManagerException("SSL transport configuration error.", e);
+        } catch (IOException | SecretsManagerException e) {
+            log.severe("There was an error when configuring the ssl transport context for a binding provider:");
+            e.printStackTrace();
         }
     }
 
@@ -117,7 +118,7 @@ public class SecretsManagerService {
         return sc;
     }
 
-    public SSLContext setUpCustomSSLContext(String p12CertificateFile) {
+    public SSLContext createCustomSSLContextFromCertificateFile(String p12CertificateFile) {
         try {
             SSLContext sc = SSLContext.getInstance("TLS");
             KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());

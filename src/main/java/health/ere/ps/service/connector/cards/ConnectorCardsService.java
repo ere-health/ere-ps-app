@@ -5,21 +5,14 @@ import de.gematik.ws.conn.cardservice.v8.Cards;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.v7.GetCards;
 import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
-import de.gematik.ws.conn.eventservice.wsdl.v7.EventService;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
-import health.ere.ps.config.AppConfig;
 import health.ere.ps.exception.connector.ConnectorCardsException;
-import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.common.security.SoapClient;
-import health.ere.ps.service.connector.endpoint.SSLUtilities;
 import org.apache.commons.collections4.CollectionUtils;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.net.ssl.SSLContext;
 import javax.xml.ws.BindingProvider;
 import java.util.List;
 import java.util.Optional;
@@ -28,48 +21,13 @@ import java.util.logging.Logger;
 
 @ApplicationScoped
 public class ConnectorCardsService implements SoapClient {
-
     private static final Logger log = Logger.getLogger(ConnectorCardsService.class.getName());
 
     @Inject
-    AppConfig appConfig;
-
-    @ConfigProperty(name = "connector.cert.auth.store.file", defaultValue = "!")
-    String certAuthStoreFile;
-
+    EventServicePortType eventService;
     @Inject
-    SecretsManagerService secretsManagerService;
+    ContextType contextType;
 
-    private ContextType contextType;
-    private EventServicePortType eventService;
-
-    @PostConstruct
-    void init() {
-        contextType = new ContextType();
-        contextType.setMandantId(appConfig.getMandantId());
-        contextType.setClientSystemId(appConfig.getClientSystem());
-        contextType.setWorkplaceId(appConfig.getWorkplace());
-        contextType.setUserId(appConfig.getSignatureServiceContextUserId());
-
-        eventService = new EventService(getClass().getResource(
-                "/EventService.wsdl")).getEventServicePort();
-
-        /* Set endpoint to configured endpoint */
-        BindingProvider bp = (BindingProvider) eventService;
-        bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, appConfig.getEventServiceEndpointAddress());
-
-        SSLContext customSSLContext = null;
-        if (certAuthStoreFile != null && !("".equals(certAuthStoreFile))
-                && !("!".equals(certAuthStoreFile))) {
-            customSSLContext = secretsManagerService.setUpCustomSSLContext(certAuthStoreFile);
-        }
-
-        if (customSSLContext != null) {
-            bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
-                    customSSLContext.getSocketFactory());
-            bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier", new SSLUtilities.FakeHostnameVerifier());
-        }
-    }
 
     private GetCardsResponse getConnectorCards() throws ConnectorCardsException {
         GetCards parameter = new GetCards();
@@ -120,8 +78,8 @@ public class ConnectorCardsService implements SoapClient {
     }
 
     @Override
-    public Optional<BindingProvider> getBindingProvider() {
-        return Optional.ofNullable((BindingProvider) eventService);
+    public BindingProvider getBindingProvider() {
+        return (BindingProvider) eventService;
     }
 
     public enum CardHandleType {

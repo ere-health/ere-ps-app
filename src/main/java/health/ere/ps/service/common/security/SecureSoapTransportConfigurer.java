@@ -16,13 +16,13 @@ public class SecureSoapTransportConfigurer {
     private BindingProvider bindingProvider;
 
     public void init(SoapClient soapClient) {
-        this.bindingProvider = soapClient.getBindingProvider().orElse(null);
+        this.bindingProvider = soapClient.getBindingProvider();
     }
 
     public void configureSecureTransport(String endpointAddress,
                                          SecretsManagerService.SslContextType sslContextType,
                                          String tlsCertTrustStore,
-                                         String tlsCertTrustStorePassword) throws SecretsManagerException {
+                                         String tlsCertTrustStorePassword) {
         if (bindingProvider != null && StringUtils.isNotBlank(endpointAddress) &&
                 StringUtils.isNotBlank(tlsCertTrustStore) &&
                 StringUtils.isNotBlank(tlsCertTrustStorePassword)) {

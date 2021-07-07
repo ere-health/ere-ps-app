@@ -109,11 +109,11 @@ public class ERezeptWorkflowService {
     @Inject
     AppConfig appConfig;
     @Inject
-    SecretsManagerService secretsManagerService;
-
-    private SignatureServicePortType signatureService;
-    private SignatureServicePortTypeV755 signatureServiceV755;
-    private EventServicePortType eventService;
+    EventServicePortType eventService;
+    @Inject
+    SignatureServicePortType signatureService;
+    @Inject
+    SignatureServicePortTypeV755 signatureServiceV755;
     private Client client;
 
 
@@ -128,38 +128,6 @@ public class ERezeptWorkflowService {
 
     @PostConstruct
     public void init() throws SecretsManagerException {
-        if (certAuthStoreFile != null && !certAuthStoreFile.isEmpty()) {
-            SSLContext customSSLContext = secretsManagerService.setUpCustomSSLContext(certAuthStoreFile);
-
-            signatureService = new SignatureService(getClass().getResource("/SignatureService.wsdl")).getSignatureServicePort();
-            /* Set endpoint to configured endpoint */
-            BindingProvider bp = (BindingProvider) signatureService;
-            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, appConfig.getSignatureServiceEndpointAddress());
-            bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
-                    customSSLContext.getSocketFactory());
-            bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier", new SSLUtilities.FakeHostnameVerifier());
-
-
-            signatureServiceV755 = new SignatureServiceV755(getClass().getResource("/SignatureService_V7_5_5.wsdl")).getSignatureServicePortTypeV755();
-            /* Set endpoint to configured endpoint */
-            bp = (BindingProvider) signatureServiceV755;
-            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, appConfig.getSignatureServiceEndpointAddress());
-            bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
-                    customSSLContext.getSocketFactory());
-            bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier", new SSLUtilities.FakeHostnameVerifier());
-
-
-            eventService = new EventService(getClass().getResource("/EventService.wsdl")).getEventServicePort();
-            /* Set endpoint to configured endpoint */
-            bp = (BindingProvider) eventService;
-            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, appConfig.getEventServiceEndpointAddress());
-            bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
-                    customSSLContext.getSocketFactory());
-            bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier", new SSLUtilities.FakeHostnameVerifier());
-        } else {
-            log.log(Level.SEVERE, "Could not init E-Rezept Service as the cert auth store file is missing");
-        }
-
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
         if (enableVau) {
             try {
