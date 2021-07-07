@@ -54,6 +54,7 @@
                 <wsdlFile>EventService.wsdl</wsdlFile>
                 <wsdlFile>CardService.wsdl</wsdlFile>
                 <wsdlFile>AuthSignatureService_v7_4_1.wsdl</wsdlFile>
+                <wsdlFile>SignatureService.wsdl</wsdlFile>
                 <wsdlFile>SignatureService_V7_5_5.wsdl</wsdlFile>
               </wsdlFiles>
               <vmArgs>
