@@ -1,8 +1,9 @@
 package health.ere.ps.websocket;
 
-import org.hl7.fhir.r4.model.Bundle;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -13,15 +14,14 @@ import java.util.List;
 
 import javax.enterprise.event.Event;
 
+import org.hl7.fhir.r4.model.Bundle;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import ca.uhn.fhir.context.FhirContext;
 import health.ere.ps.event.ERezeptDocumentsEvent;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.model.pdf.ERezeptDocument;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 class WebsocketTest {
 
@@ -47,7 +47,7 @@ class WebsocketTest {
 				getClass().getResourceAsStream("/examples_erezept/Erezept_template_2.xml"));
     list.add(new BundleWithAccessCodeOrThrowable(bundle, "MOCK_ACCESS_CODE"));
     ERezeptDocument eRezeptDocument = new ERezeptDocument(list, Files.readAllBytes(Paths.get("src/test/resources/document-service/0428d416-149e-48a4-977c-394887b3d85c.pdf")));
-      String json = websocket.getJson(new ERezeptDocumentsEvent(List.of(eRezeptDocument)));
+      String json = websocket.generateJson(new ERezeptDocumentsEvent(List.of(eRezeptDocument)));
 
     Files.writeString(Paths.get("src/test/resources/websocket-messages/ERezeptDocuments.json"), json);
   }

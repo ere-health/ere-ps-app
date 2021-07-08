@@ -5,28 +5,35 @@ import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.v7.GetCards;
 import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
+import de.gematik.ws.conn.eventservice.wsdl.v7.EventService;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.signatureservice.v7.DocumentType;
 import de.gematik.ws.conn.signatureservice.v7.SignRequest;
 import de.gematik.ws.conn.signatureservice.v7.SignRequest.OptionalInputs;
-import de.gematik.ws.conn.signatureservice.v7.SignResponse;
 import de.gematik.ws.conn.signatureservice.v7_5_5.ComfortSignatureStatusEnum;
 import de.gematik.ws.conn.signatureservice.v7_5_5.SessionInfo;
 import de.gematik.ws.conn.signatureservice.v7_5_5.SignatureModeEnum;
+import de.gematik.ws.conn.signatureservice.v7.SignResponse;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.FaultMessage;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureService;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortType;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServiceV755;
+import health.ere.ps.config.AppConfig;
 import health.ere.ps.event.BundlesWithAccessCodeEvent;
+import health.ere.ps.event.RequestBearerTokenFromIdpEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
 import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.exception.connector.ConnectorCardsException;
 import health.ere.ps.exception.gematik.ERezeptWorkflowException;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
+import health.ere.ps.service.common.security.SecretsManagerService;
+import health.ere.ps.service.common.security.SecureSoapTransportConfigurer;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
-import health.ere.ps.service.idp.BearerTokenService;
+import health.ere.ps.service.connector.endpoint.SSLUtilities;
+import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 import health.ere.ps.vau.VAUEngine;
 import oasis.names.tc.dss._1_0.core.schema.Base64Data;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.xml.security.c14n.CanonicalizationException;
 import org.apache.xml.security.c14n.Canonicalizer;
 import org.apache.xml.security.c14n.InvalidCanonicalizerException;
@@ -41,14 +48,15 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
+import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.StringReader;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -69,29 +77,51 @@ public class ERezeptWorkflowService {
     private final FhirContext fhirContext = FhirContext.forR4();
     @ConfigProperty(name = "ere.workflow-service.prescription.server.url", defaultValue = "")
     String prescriptionServerUrl;
+
     @ConfigProperty(name = "connector.crypt", defaultValue = "")
     String signatureServiceCrypt;
+
+    @ConfigProperty(name = "connector.mandant.id", defaultValue = "")
+    String signatureServiceContextMandantId;
+
+    @ConfigProperty(name = "connector.client.system.id", defaultValue = "")
+    String signatureServiceContextClientSystemId;
+
+    @ConfigProperty(name = "connector.workplace.id", defaultValue = "")
+    String signatureServiceContextWorkplaceId;
+
+    @ConfigProperty(name = "connector.context.userId", defaultValue = "")
+    String signatureServiceContextUserId;
+
     @ConfigProperty(name = "connector.tvMode", defaultValue = "")
     String signatureServiceTvMode;
+
+    @ConfigProperty(name = "connector.cert.auth.store.file", defaultValue = "!")
+    String certAuthStoreFile;
+
     @ConfigProperty(name = "ere-workflow-service.vau.enable", defaultValue = "true")
     Boolean enableVau;
+
     @ConfigProperty(name = "ere-workflow-service.user-agent", defaultValue = "IncentergyGmbH-ere.health/SNAPSHOT")
     String userAgent;
     @ConfigProperty(name = "connector.version", defaultValue = "PTV4")
     String connectorVersion;
 
+    SignatureServicePortType signatureService;
+    SignatureServicePortTypeV755 signatureServiceV755;
+    EventServicePortType eventService;
+
     @Inject
     ConnectorCardsService connectorCardsService;
+
     @Inject
     Event<BundlesWithAccessCodeEvent> bundlesWithAccessCodeEvent;
     @Inject
-    Event<Exception> exceptionEvent;
+    Event<BundlesWithAccessCodeEvent> bundlesWithAccessCodeEvent;
+
     @Inject
-    BearerTokenService bearerTokenService;
-    @Inject
-    EventServicePortType eventService;
-    @Inject
-    SignatureServicePortType signatureService;
+    Event<AbortTasksStatusEvent> abortTasksStatusEvent;
+
     @Inject
     SignatureServicePortTypeV755 signatureServiceV755;
     @Inject
@@ -99,33 +129,85 @@ public class ERezeptWorkflowService {
 
     private Client client;
 
-
-    /**
-     * Extracts the access code from a task
-     */
-    static String getAccessCode(Task task) {
-        return task.getIdentifier().stream()
-                .filter(id -> id.getSystem().equals("https://gematik.de/fhir/NamingSystem/AccessCode")).findFirst()
-                .orElse(new Identifier()).getValue();
+    static {
+        org.apache.xml.security.Init.init();
     }
 
     @PostConstruct
     public void init() throws SecretsManagerException {
+        try {
+            if (certAuthStoreFile != null && !("".equals(certAuthStoreFile))
+                    && !("!".equals(certAuthStoreFile))) {
+                try {
+                    setUpCustomSSLContext(new FileInputStream(certAuthStoreFile));
+                } catch(FileNotFoundException e) {
+                    log.log(Level.SEVERE, "Could find file", e);
+                }
+            }
+
+            signatureService = new SignatureService(getClass().getResource("/SignatureService.wsdl")).getSignatureServicePort();
+            /* Set endpoint to configured endpoint */
+            BindingProvider bp = (BindingProvider) signatureService;
+            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, appConfig.getSignatureServiceEndpointAddress());
+            if (customSSLContext != null) {
+                bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
+                        customSSLContext.getSocketFactory());
+                bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier", new SSLUtilities.FakeHostnameVerifier());
+            }
+
+            signatureServiceV755 = new SignatureServiceV755(getClass().getResource("/SignatureService_V7_5_5.wsdl")).getSignatureServicePortTypeV755();
+            /* Set endpoint to configured endpoint */
+            bp = (BindingProvider) signatureServiceV755;
+            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, appConfig.getSignatureServiceEndpointAddress());
+            if (customSSLContext != null) {
+                bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
+                        customSSLContext.getSocketFactory());
+                bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier", new SSLUtilities.FakeHostnameVerifier());
+            }
+
+            eventService = new EventService(getClass().getResource("/EventService.wsdl")).getEventServicePort();
+            /* Set endpoint to configured endpoint */
+            bp = (BindingProvider) eventService;
+            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, appConfig.getEventServiceEndpointAddress());
+            if (customSSLContext != null) {
+                bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
+                        customSSLContext.getSocketFactory());
+                bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier", new SSLUtilities.FakeHostnameVerifier());
+            }
+
+        } catch(Exception ex) {
+            log.log(Level.SEVERE, "Could not init E-Rezept Service", ex);
+            exceptionEvent.fireAsync(ex);
+        }
+
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
-        if (enableVau) {
+        if(enableVau) {
             try {
-                ((ResteasyClientBuilderImpl) clientBuilder).httpEngine(new VAUEngine(prescriptionServerUrl));
-            } catch (Exception ex) {
+                ((ResteasyClientBuilderImpl)clientBuilder).httpEngine(new VAUEngine(prescriptionServerUrl));
+            } catch(Exception ex) {
                 log.log(Level.SEVERE, "Could not enable VAU", ex);
                 exceptionEvent.fireAsync(ex);
             }
         }
         client = clientBuilder.build();
+
+        secureSoapTransportConfigurer.init(connectorCardsService);
+        secureSoapTransportConfigurer.configureSecureTransport(
+                appConfig.getEventServiceEndpointAddress(),
+                SecretsManagerService.SslContextType.TLS,
+                appConfig.getIdpConnectorTlsCertTrustStore(),
+                appConfig.getIdpConnectorTlsCertTustStorePwd());
+    }
+
+    public void setUpCustomSSLContext(InputStream p12Certificate) {
+        customSSLContext = secretsManagerService.setUpCustomSSLContext(p12Certificate);
     }
 
     /**
      * This function catches the sign and upload bundle events and does the
      * necessary processing
+     *
+     * @param signAndUploadBundlesEvent
      */
     public void onSignAndUploadBundlesEvent(@ObservesAsync SignAndUploadBundlesEvent signAndUploadBundlesEvent) {
         try {
@@ -145,7 +227,6 @@ public class ERezeptWorkflowService {
                 log.info("Bundles list contents is:");
                 bundlesList.forEach(bundle -> log.info("Bundle content: " + bundle.toString()));
             });
-
             List<List<BundleWithAccessCodeOrThrowable>> bundleWithAccessCodeOrThrowable = new ArrayList<>();
             for (List<Bundle> bundles : signAndUploadBundlesEvent.listOfListOfBundles) {
                 log.info(String.format("Getting access codes for %d bundles.",
@@ -153,11 +234,10 @@ public class ERezeptWorkflowService {
                 bundleWithAccessCodeOrThrowable
                         .add(createMultipleERezeptsOnPrescriptionServer(bearerTokenToUse, bundles));
             }
-
             log.info(String.format("Firing event to create prescription receipts for %d bundles.",
                     bundleWithAccessCodeOrThrowable.size()));
             bundlesWithAccessCodeEvent.fireAsync(new BundlesWithAccessCodeEvent(bundleWithAccessCodeOrThrowable));
-        } catch (Exception e) {
+        } catch(Exception e) {
             log.log(Level.WARNING, "Idp login did not work", e);
             exceptionEvent.fireAsync(e);
         }
@@ -266,6 +346,15 @@ public class ERezeptWorkflowService {
 
         String accessCode = ERezeptWorkflowService.getAccessCode(task);
         return new BundleWithAccessCodeOrThrowable(bundle, accessCode);
+    }
+
+    /**
+     * Extracts the access code from a task
+     */
+    static String getAccessCode(Task task) {
+        return task.getIdentifier().stream()
+                .filter(id -> id.getSystem().equals("https://gematik.de/fhir/NamingSystem/AccessCode")).findFirst()
+                .orElse(new Identifier()).getValue();
     }
 
     public SignResponse signBundleWithIdentifiers(Bundle bundle) throws ERezeptWorkflowException {
@@ -417,11 +506,30 @@ public class ERezeptWorkflowService {
                 .request().header("User-Agent", userAgent).header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
                 .post(Entity.entity("", "application/fhir+xml; charset=utf-8"));
         String taskString = response.readEntity(String.class);
-        if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
+        // if it is not successful and it was found
+        if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL
+                && response.getStatus() != Response.Status.NOT_FOUND.getStatusCode()) {
             throw new RuntimeException(taskString);
         }
 
         log.info("Task $abort Response: " + taskString);
+    }
+
+    public void onAbortTasksEvent(@ObservesAsync AbortTasksEvent abortTasksEvent) {
+        bearerToken = getBearerTokenFromIdp();
+        List<AbortTaskStatus> abortTaskStatusList = new ArrayList<>();
+        for(AbortTaskEntry abortTaskEntry : abortTasksEvent.getTasks()) {
+            AbortTaskStatus abortTaskStatus = new AbortTaskStatus(abortTaskEntry);
+            try {
+                abortERezeptTask(bearerToken, abortTaskEntry.getId(), abortTaskEntry.getAccessCode());
+                abortTaskStatus.setStatus(AbortTaskStatus.Status.OK);
+            } catch(Throwable t) {
+                abortTaskStatus.setThrowable(t);
+                abortTaskStatus.setStatus(AbortTaskStatus.Status.ERROR);
+            }
+            abortTaskStatusList.add(abortTaskStatus);
+        }
+        abortTasksStatusEvent.fireAsync(new AbortTasksStatusEvent(abortTaskStatusList));
     }
 
     /**
