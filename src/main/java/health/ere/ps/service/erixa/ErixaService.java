@@ -1,5 +1,6 @@
 package health.ere.ps.service.erixa;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import health.ere.ps.event.erixa.ErixaEvent;
 import health.ere.ps.event.erixa.ErixaSyncEvent;
 import health.ere.ps.event.erixa.SendToPharmacyEvent;
@@ -30,8 +31,12 @@ public class ErixaService {
             ErixaSyncEvent event = new ErixaSyncEvent(load);
             erixaSyncEvent.fireAsync(event);
         } else if("SendToPharmacy".equals(erixaEvent.processType)){
-            SendToPharmacyEvent event = new SendToPharmacyEvent(erixaEvent.payload);
-            sendToPharmacyEvent.fireAsync(event);
+            try {
+                SendToPharmacyEvent event = new SendToPharmacyEvent(erixaEvent.payload);
+                sendToPharmacyEvent.fireAsync(event);
+            } catch (JsonProcessingException e) {
+                log.severe("JsonProcessingException: " + e.getMessage());
+            }
         }
     }
 }

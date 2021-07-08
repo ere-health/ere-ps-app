@@ -14,18 +14,14 @@ public class SendToPharmacyEvent {
     private final PrescriptionTransferEntry details;
 
 
-    public SendToPharmacyEvent(JsonObject payload) {
+    public SendToPharmacyEvent(JsonObject payload) throws JsonProcessingException {
         document = payload.getString("document");
         details = parseDetails(payload.getJsonObject("details"));
     }
 
-    private PrescriptionTransferEntry parseDetails(JsonObject jsonObject) {
+    private PrescriptionTransferEntry parseDetails(JsonObject jsonObject) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        try {
-            return mapper.readValue(jsonObject.toString(), PrescriptionTransferEntry.class);
-        } catch (JsonProcessingException e) {
-            return null;
-        }
+        return mapper.readValue(jsonObject.toString(), PrescriptionTransferEntry.class);
     }
 
     public String getDocument() {
