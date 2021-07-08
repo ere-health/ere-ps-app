@@ -3,7 +3,7 @@ package health.ere.ps.websocket;
 import ca.uhn.fhir.context.FhirContext;
 import health.ere.ps.event.BundlesEvent;
 import health.ere.ps.event.ERezeptDocumentsEvent;
-import health.ere.ps.event.erixa.SendToPharmacyEvent;
+import health.ere.ps.event.erixa.ErixaEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
 import health.ere.ps.jsonb.BundleAdapter;
 import health.ere.ps.jsonb.ByteAdapter;
@@ -45,7 +45,7 @@ public class Websocket {
     Event<SignAndUploadBundlesEvent> signAndUploadBundlesEvent;
 
     @Inject
-    Event<SendToPharmacyEvent> sendPrescriptionEvent;
+    Event<ErixaEvent> erixaEvent;
 
 
     @OnOpen
@@ -75,9 +75,9 @@ public class Websocket {
         if ("SignAndUploadBundles".equals(object.getString("type"))) {
             SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(object);
             signAndUploadBundlesEvent.fireAsync(event);
-        } else if ("SendToPharmacy".equals(object.getString("type"))){
-            SendToPharmacyEvent event = new SendToPharmacyEvent(object);
-            sendPrescriptionEvent.fireAsync(event);
+        } else if ("ErixaEvent".equals(object.getString("type"))){
+            ErixaEvent event = new ErixaEvent(object);
+            erixaEvent.fireAsync(event);
         }
         jsonReader.close();
     }

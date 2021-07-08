@@ -14,8 +14,7 @@ public class SendToPharmacyEvent {
     private final PrescriptionTransferEntry details;
 
 
-    public SendToPharmacyEvent(JsonObject jsonObject) {
-        JsonObject payload = jsonObject.getJsonObject("payload");
+    public SendToPharmacyEvent(JsonObject payload) {
         document = payload.getString("document");
         details = parseDetails(payload.getJsonObject("details"));
     }

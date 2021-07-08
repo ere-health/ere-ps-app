@@ -2,6 +2,7 @@ package health.ere.ps.service.erixa;
 
 import health.ere.ps.event.erixa.ErixaEvent;
 import health.ere.ps.event.erixa.ErixaSyncEvent;
+import health.ere.ps.event.erixa.SendToPharmacyEvent;
 import health.ere.ps.model.erixa.ErixaSyncLoad;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -19,13 +20,18 @@ public class ErixaService {
     @Inject
     Event<ErixaSyncEvent> erixaSyncEvent;
 
+    @Inject
+    Event<SendToPharmacyEvent> sendToPharmacyEvent;
 
-    public void generatePrescriptionBundle(@ObservesAsync ErixaEvent event) {
+    public void generatePrescriptionBundle(@ObservesAsync ErixaEvent erixaEvent) {
 
-        if ("sync".equals(event.processType)) {
-            ErixaSyncLoad load = new ErixaSyncLoad(event.payload.getString("document"), event.payload.getString("patient"));
-            ErixaSyncEvent syncEvent = new ErixaSyncEvent(load);
-            erixaSyncEvent.fireAsync(syncEvent);
+        if ("sync".equals(erixaEvent.processType)) {
+            ErixaSyncLoad load = new ErixaSyncLoad(erixaEvent.payload.getString("document"), erixaEvent.payload.getString("patient"));
+            ErixaSyncEvent event = new ErixaSyncEvent(load);
+            erixaSyncEvent.fireAsync(event);
+        } else if("SendToPharmacy".equals(erixaEvent.processType)){
+            SendToPharmacyEvent event = new SendToPharmacyEvent(erixaEvent.payload);
+            sendToPharmacyEvent.fireAsync(event);
         }
     }
 }
