@@ -209,17 +209,22 @@ public class EndpointDiscoveryService {
     }
 
     private void extractAndSetConnectorVersion(Document document) {
-        Node productNameNode = getNodeWithTag(getNodeWithTag(Objects.requireNonNull(getNodeWithTag(document.getDocumentElement(),
-                "ProductInformation")), "pi:ProductMiscellaneous"), "pi:ProductName");
-        String productName = productNameNode.getTextContent();
+        try {
+            Node productNameNode = getNodeWithTag(getNodeWithTag(getNodeWithTag(document.getDocumentElement(),
+                    "ProductInformation"), "pi:ProductMiscellaneous"), "pi:ProductName");
+            String productName = productNameNode.getTextContent();
 
-        if (productName.contains("PTV4+")) {
-            log.info("Connection version PTV4+ found in connector.sds");
-            appConfig.setConnectorVersion("PTV4+");
-        } else if (productName.contains("PTV4")) {
-            log.info("Connection version PTV4 found in connector.sds");
-            appConfig.setConnectorVersion("PTV4");
-        } else {
+            if (productName.contains("PTV4+")) {
+                log.info("Connection version PTV4+ found in connector.sds");
+                appConfig.setConnectorVersion("PTV4+");
+            } else if (productName.contains("PTV4")) {
+                log.info("Connection version PTV4 found in connector.sds");
+                appConfig.setConnectorVersion("PTV4");
+            } else {
+                log.warning("Could not determine the version of the connector to use from connector.sds, " +
+                        "using the one from the configuration:" + appConfig.getConnectorVersion());
+            }
+        } catch (Exception e) {
             log.warning("Could not determine the version of the connector to use from connector.sds, " +
                     "using the one from the configuration:" + appConfig.getConnectorVersion());
         }
