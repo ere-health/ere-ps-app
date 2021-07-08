@@ -1,8 +1,5 @@
 package health.ere.ps.service.connector.endpoint;
 
-import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureService;
-import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureServicePortType;
-import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.w3c.dom.Document;
@@ -13,13 +10,10 @@ import org.xml.sax.SAXException;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.ws.BindingProvider;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
@@ -33,10 +27,6 @@ import java.util.logging.Logger;
 public class EndpointDiscoveryService {
     private static final Logger log = Logger.getLogger(EndpointDiscoveryService.class.getName());
 
-    @ConfigProperty(name = "connector.cert.auth.store.file")
-    Optional<String> connectorTlsCertAuthStoreFile;
-    @ConfigProperty(name = "connector.cert.auth.store.file.password", defaultValue = "!")
-    String connectorTlsCertAuthStorePwd;
     @ConfigProperty(name = "auth-signature.endpoint.address")
     Optional<String> fallbackAuthSignatureServiceEndpointAddress;
     @ConfigProperty(name = "signature-service.endpoint.address")
@@ -63,27 +53,11 @@ public class EndpointDiscoveryService {
 
 
     @PostConstruct
-    void obtainConfiguration() throws IOException, ParserConfigurationException, SecretsManagerException {
-        // code copied from IdpClient.java
-
-        AuthSignatureServicePortType authSignatureService = new AuthSignatureService(getClass().getResource("/AuthSignatureService_v7_4_1.wsdl")).getAuthSignatureServicePort();
-        BindingProvider bp = (BindingProvider) authSignatureService;
-        SSLContext sslContext;
+    void obtainConfiguration() throws IOException, ParserConfigurationException {
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
+        clientBuilder.sslContext(secretsManagerService.getSslContext());
 
-        try (FileInputStream fileInputStream = new FileInputStream(connectorTlsCertAuthStoreFile.orElseThrow())) {
-            sslContext = secretsManagerService.createSSLContext(fileInputStream,
-                    connectorTlsCertAuthStorePwd.toCharArray(),
-                    SecretsManagerService.SslContextType.TLS,
-                    SecretsManagerService.KeyStoreType.PKCS12,
-                    bp);
-            clientBuilder.sslContext(sslContext);
-        } catch (IOException e) {
-            log.severe("SSL transport configuration error.");
-            // throw new SecretsManagerException("SSL transport configuration error.", e);
-        }
-
-        if (!isConnectorVerifyHostnames()) {
+        if (!connectorVerifyHostname.equals("true")) {
             // disable hostname verification
             // This line is currently not working
             clientBuilder = clientBuilder.hostnameVerifier(new SSLUtilities.FakeHostnameVerifier());
@@ -180,30 +154,10 @@ public class EndpointDiscoveryService {
         return certificateServiceEndpointAddress;
     }
 
-    public String getConnectorTlsCertAuthStoreFile() {
-        return connectorTlsCertAuthStoreFile.orElseThrow();
-    }
-
     public String getEventServiceEndpointAddress() {
         return eventServiceEndpointAddress;
     }
 
-    private boolean isConnectorVerifyHostnames() {
-        return !("false".equals(connectorVerifyHostname));
-    }
-
-    public String getConnectorTlsCertAuthStorePwd() {
-        return connectorTlsCertAuthStorePwd;
-    }
-
-    public void configureSSLTransportContext(BindingProvider bindingProvider) {
-        secretsManagerService.configureSSLTransportContext(
-                connectorTlsCertAuthStoreFile.orElse(null),
-                connectorTlsCertAuthStorePwd,
-                SecretsManagerService.SslContextType.TLS,
-                SecretsManagerService.KeyStoreType.PKCS12,
-                bindingProvider);
-    }
 
     private String getEndpoint(Node serviceNode) {
         Node versionsNode = getNodeWithTag(serviceNode, "Versions");

@@ -1,16 +1,15 @@
 package health.ere.ps.service.common.security;
 
-import com.sun.xml.ws.developer.JAXWSProperties;
 import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
-import javax.xml.ws.BindingProvider;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -20,7 +19,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.*;
 import java.security.cert.CertificateException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @ApplicationScoped
@@ -28,14 +26,48 @@ public class SecretsManagerService {
 
     private static final Logger log = Logger.getLogger(SecretsManagerService.class.getName());
 
-    @ConfigProperty(name = "connector.cert.auth.store.file.password")
-    String idpConnectorTlsCertTustStorePwd;
+    @ConfigProperty(name = "connector.cert.auth.store.file.password", defaultValue = "")
+    String connectorTlsCertAuthStorePwd;
+    @ConfigProperty(name = "connector.cert.auth.store.file", defaultValue = "")
+    String connectorTlsCertAuthStoreFile;
+
+    private SSLContext sslContext;
 
 
     public SecretsManagerService() {
     }
 
-    public KeyStore createTrustStore(String trustStoreFilePath, KeyStoreType keyStoreType, char[] keyStorePassword)
+    @PostConstruct
+    void createSSLContext() {
+        if (StringUtils.isEmpty(connectorTlsCertAuthStoreFile) || StringUtils.isEmpty(connectorTlsCertAuthStorePwd)) {
+            log.severe("Certificate file or password missing, cannot instantiate SSLContext");
+        } else {
+            try (FileInputStream certificateInputStream = new FileInputStream(connectorTlsCertAuthStoreFile)) {
+                sslContext = SSLContext.getInstance(SslContextType.TLS.getSslContextType());
+
+                KeyStore ks = KeyStore.getInstance(KeyStoreType.PKCS12.getKeyStoreType());
+                ks.load(certificateInputStream, connectorTlsCertAuthStorePwd.toCharArray());
+
+                KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+                kmf.init(ks, connectorTlsCertAuthStorePwd.toCharArray());
+
+                sslContext.init(kmf.getKeyManagers(), new TrustManager[]{new SSLUtilities.FakeX509TrustManager()},
+                        null);
+            } catch (NoSuchAlgorithmException | KeyStoreException | CertificateException | IOException
+                    | UnrecoverableKeyException | KeyManagementException e) {
+                log.severe("There was a problem when creating the SSLContext:");
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public SSLContext getSslContext() {
+        return sslContext;
+    }
+
+
+    //METHODS USED IN TESTS
+    KeyStore createTrustStore(String trustStoreFilePath, KeyStoreType keyStoreType, char[] keyStorePassword)
             throws SecretsManagerException {
         KeyStore ks;
 
@@ -60,9 +92,9 @@ public class SecretsManagerService {
         return ks;
     }
 
-    public KeyStore initializeTrustStoreFromInputStream(InputStream trustStoreInputStream,
-                                                        KeyStoreType keyStoreType,
-                                                        char[] keyStorePassword)
+    KeyStore initializeTrustStoreFromInputStream(InputStream trustStoreInputStream,
+                                                 KeyStoreType keyStoreType,
+                                                 char[] keyStorePassword)
             throws KeyStoreException, CertificateException, IOException, NoSuchAlgorithmException {
         KeyStore trustStore = KeyStore.getInstance(keyStoreType.getKeyStoreType());
         trustStore.load(trustStoreInputStream, keyStorePassword);
@@ -70,77 +102,6 @@ public class SecretsManagerService {
         return trustStore;
     }
 
-    public void configureSSLTransportContext(String trustStoreFilePath,
-                                             String trustStorePassword,
-                                             SslContextType sslContextType,
-                                             KeyStoreType keyStoreType,
-                                             BindingProvider bp) {
-        if ("!".equals(trustStoreFilePath)) {
-            log.severe("Trust store file path is not present");
-            return;
-        }
-
-        try (FileInputStream fileInputStream = new FileInputStream(trustStoreFilePath)) {
-            SSLContext sc = createSSLContext(fileInputStream, trustStorePassword.toCharArray(),
-                    sslContextType, keyStoreType, bp);
-
-            bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
-                    sc.getSocketFactory());
-        } catch (IOException | SecretsManagerException e) {
-            log.severe("There was an error when configuring the ssl transport context for a binding provider:");
-            e.printStackTrace();
-        }
-    }
-
-    public SSLContext createSSLContext(InputStream trustStoreInputStream, char[] keyStorePassword,
-                                       SslContextType sslContextType, KeyStoreType keyStoreType, BindingProvider bp)
-            throws SecretsManagerException {
-        SSLContext sc;
-
-        try {
-            sc = SSLContext.getInstance(sslContextType.getSslContextType());
-
-            bp.getRequestContext().put(JAXWSProperties.HOSTNAME_VERIFIER, new SSLUtilities.FakeHostnameVerifier());
-
-            KeyManagerFactory kmf =
-                    KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-
-            KeyStore ks = KeyStore.getInstance(keyStoreType.getKeyStoreType());
-            ks.load(trustStoreInputStream, keyStorePassword);
-
-            kmf.init(ks, keyStorePassword);
-
-            sc.init(kmf.getKeyManagers(), new TrustManager[]{new SSLUtilities.FakeX509TrustManager()}, null);
-        } catch (NoSuchAlgorithmException | KeyStoreException | CertificateException | IOException
-                | UnrecoverableKeyException | KeyManagementException e) {
-            throw new SecretsManagerException("SSL context creation error.", e);
-        }
-
-        return sc;
-    }
-
-    public SSLContext createCustomSSLContextFromCertificateFile(String p12CertificateFile) {
-        try {
-            SSLContext sc = SSLContext.getInstance("TLS");
-            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-
-            KeyStore ks = KeyStore.getInstance("PKCS12");
-            // Download this file from the titus backend
-            // https://frontend.titus.ti-dienste.de/#/platform/mandant
-            String pwd = StringUtils.defaultString(idpConnectorTlsCertTustStorePwd).trim();
-            FileInputStream certificateFileInputStream = new FileInputStream(p12CertificateFile);
-            ks.load(certificateFileInputStream, pwd.toCharArray());
-            certificateFileInputStream.close();
-
-            kmf.init(ks, pwd.toCharArray());
-            sc.init(kmf.getKeyManagers(), new TrustManager[]{new SSLUtilities.FakeX509TrustManager()}, null);
-            return sc;
-        } catch (NoSuchAlgorithmException | CertificateException | IOException | KeyStoreException
-                | UnrecoverableKeyException | KeyManagementException e) {
-            log.log(Level.SEVERE, "Could not set up custom SSLContext", e);
-            throw new RuntimeException(e);
-        }
-    }
 
     public enum SslContextType {
         SSL("SSL"), TLS("TLS");

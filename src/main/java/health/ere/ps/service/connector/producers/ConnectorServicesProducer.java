@@ -17,13 +17,11 @@ import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServiceV755;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.connector.endpoint.EndpointDiscoveryService;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-import javax.net.ssl.SSLContext;
 import javax.xml.ws.BindingProvider;
 import java.util.logging.Logger;
 
@@ -53,8 +51,8 @@ public class ConnectorServicesProducer {
         BindingProvider bp = (BindingProvider) cardService;
         bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
                 endpointDiscoveryService.getCardServiceEndpointAddress());
+        configureBindingProvider(bp);
 
-        endpointDiscoveryService.configureSSLTransportContext(bp);
         return cardService;
     }
 
@@ -66,10 +64,7 @@ public class ConnectorServicesProducer {
         BindingProvider bp = (BindingProvider) certificateService;
         bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
                 endpointDiscoveryService.getCertificateServiceEndpointAddress());
-        bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
-                sslContext().getSocketFactory());
-        bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier",
-                new SSLUtilities.FakeHostnameVerifier());
+        configureBindingProvider(bp);
 
         return certificateService;
     }
@@ -82,15 +77,7 @@ public class ConnectorServicesProducer {
         BindingProvider bp = (BindingProvider) eventService;
         bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
                 endpointDiscoveryService.getEventServiceEndpointAddress());
-        bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
-                sslContext().getSocketFactory());
-        bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier",
-                new SSLUtilities.FakeHostnameVerifier());
-
-        //From SecureSoapTransportConfigurer.configureSecureTransport
-        secretsManagerService.configureSSLTransportContext(endpointDiscoveryService.getConnectorTlsCertAuthStoreFile(),
-                endpointDiscoveryService.getConnectorTlsCertAuthStorePwd(), SecretsManagerService.SslContextType.TLS,
-                SecretsManagerService.KeyStoreType.PKCS12, bp);
+        configureBindingProvider(bp);
 
         return eventService;
     }
@@ -103,10 +90,7 @@ public class ConnectorServicesProducer {
 
         bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
                 endpointDiscoveryService.getAuthSignatureServiceEndpointAddress());
-
-        secretsManagerService.configureSSLTransportContext(endpointDiscoveryService.getConnectorTlsCertAuthStoreFile(),
-                endpointDiscoveryService.getConnectorTlsCertAuthStorePwd(), SecretsManagerService.SslContextType.TLS,
-                SecretsManagerService.KeyStoreType.PKCS12, bp);
+        configureBindingProvider(bp);
 
         return authSignatureService;
     }
@@ -119,10 +103,7 @@ public class ConnectorServicesProducer {
         BindingProvider bp = (BindingProvider) signatureService;
         bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
                 endpointDiscoveryService.getSignatureServiceEndpointAddress());
-        bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
-                sslContext().getSocketFactory());
-        bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier",
-                new SSLUtilities.FakeHostnameVerifier());
+        configureBindingProvider(bp);
 
         return signatureService;
     }
@@ -135,22 +116,16 @@ public class ConnectorServicesProducer {
         BindingProvider bp = (BindingProvider) signatureServiceV755;
         bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
                 endpointDiscoveryService.getSignatureServiceEndpointAddress());
-        bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
-                sslContext().getSocketFactory());
-        bp.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier",
-                new SSLUtilities.FakeHostnameVerifier());
+        configureBindingProvider(bp);
 
         return signatureServiceV755;
     }
 
-    @Produces
-    public SSLContext sslContext() {
-        String authStoreFile = endpointDiscoveryService.getConnectorTlsCertAuthStoreFile();
-
-        if (StringUtils.isEmpty(authStoreFile)) {
-            log.severe("Auth store file is missing or invalid!");
-        }
-        return secretsManagerService.createCustomSSLContextFromCertificateFile(authStoreFile);
+    private void configureBindingProvider(BindingProvider bindingProvider) {
+        bindingProvider.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
+                secretsManagerService.getSslContext().getSocketFactory());
+        bindingProvider.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier",
+                new SSLUtilities.FakeHostnameVerifier());
     }
 
     @Produces
