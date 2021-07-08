@@ -2,8 +2,10 @@ package health.ere.ps.service.connector.endpoint;
 
 import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureService;
 import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureServicePortType;
+import health.ere.ps.config.AppConfig;
 import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.service.common.security.SecretsManagerService;
+import org.apache.commons.io.IOUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -24,6 +26,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,6 +38,9 @@ import java.util.logging.Logger;
 @ApplicationScoped
 public class EndpointDiscoveryService {
     private static final Logger log = Logger.getLogger(EndpointDiscoveryService.class.getName());
+
+    @Inject
+    AppConfig appConfig;
 
     /**
      * Certificate to authenticate at the connector.
@@ -135,6 +142,8 @@ public class EndpointDiscoveryService {
                     .newDocumentBuilder()
                     .parse(inputStream);
 
+            extractAndSetConnectorVersion(document);
+
             Node serviceInformationNode = getNodeWithTag(document.getDocumentElement(), "ServiceInformation");
 
             if (serviceInformationNode == null) {
@@ -196,6 +205,23 @@ public class EndpointDiscoveryService {
         }
         if (certificateServiceEndpointAddress == null) {
             certificateServiceEndpointAddress = fallbackCertificateServiceEndpointAddress.orElseThrow();
+        }
+    }
+
+    private void extractAndSetConnectorVersion(Document document) {
+        Node productNameNode = getNodeWithTag(getNodeWithTag(Objects.requireNonNull(getNodeWithTag(document.getDocumentElement(),
+                "ProductInformation")), "pi:ProductMiscellaneous"), "pi:ProductName");
+        String productName = productNameNode.getTextContent();
+
+        if (productName.contains("PTV4+")) {
+            log.info("Connection version PTV4+ found in connector.sds");
+            appConfig.setConnectorVersion("PTV4+");
+        } else if (productName.contains("PTV4")) {
+            log.info("Connection version PTV4 found in connector.sds");
+            appConfig.setConnectorVersion("PTV4");
+        } else {
+            log.warning("Could not determine the version of the connector to use from connector.sds, " +
+                    "using the one from the configuration:" + appConfig.getConnectorVersion());
         }
     }
 

@@ -38,6 +38,9 @@ public class AppConfig {
     @ConfigProperty(name = "ere.validator.validate.sign.request.bundles.enabled", defaultValue = "no")
     String validateSignRequestBundles;
 
+    @ConfigProperty(name = "connector.version", defaultValue="PTV4")
+    String connectorVersion;
+
     @Inject
     EndpointDiscoveryService endpointDiscoveryService;
 
@@ -100,5 +103,13 @@ public class AppConfig {
 
     public String getEventServiceEndpointAddress() {
         return endpointDiscoveryService.getEventServiceEndpointAddress();
+    }
+
+    public String getConnectorVersion() {
+        return connectorVersion;
+    }
+
+    public void setConnectorVersion(String connectorVersion) {
+        this.connectorVersion = connectorVersion;
     }
 }
