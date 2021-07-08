@@ -8,12 +8,11 @@ import javax.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class AppConfig {
 
-    @ConfigProperty(name = "ere.validator.validate.sign.request.bundles.enabled", defaultValue = "no")
-    String validateSignRequestBundles;
+    @ConfigProperty(name = "ere.validator.validate.sign.request.bundles.enabled")
+    boolean validateSignRequestBundles;
 
 
     public boolean isValidateSignRequestBundles() {
-        return StringUtils.isNotBlank(validateSignRequestBundles) &&
-                validateSignRequestBundles.equalsIgnoreCase("Yes");
+        return validateSignRequestBundles;
     }
 }
