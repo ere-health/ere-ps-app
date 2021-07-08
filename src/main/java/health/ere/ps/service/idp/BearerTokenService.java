@@ -1,6 +1,5 @@
 package health.ere.ps.service.idp;
 
-import health.ere.ps.config.AppConfig;
 import health.ere.ps.exception.connector.ConnectorCardCertificateReadException;
 import health.ere.ps.exception.connector.ConnectorCardsException;
 import health.ere.ps.exception.idp.IdpClientException;
@@ -28,8 +27,6 @@ public class BearerTokenService {
     IdpClient idpClient;
     @Inject
     CardCertificateReaderService cardCertificateReaderService;
-    @Inject
-    AppConfig appConfig;
     @Inject
     ConnectorCardsService connectorCardsService;
     @Inject

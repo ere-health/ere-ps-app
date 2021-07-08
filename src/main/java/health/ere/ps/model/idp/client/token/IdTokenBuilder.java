@@ -12,9 +12,10 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.jose4j.jwt.NumericDate;
 
 import java.time.ZonedDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class IdTokenBuilder {
 

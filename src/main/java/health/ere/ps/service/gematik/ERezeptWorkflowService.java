@@ -60,16 +60,12 @@ public class ERezeptWorkflowService {
 
     private static final String EREZEPT_IDENTIFIER_SYSTEM = "https://gematik.de/fhir/NamingSystem/PrescriptionID";
     private static final Logger log = Logger.getLogger(ERezeptWorkflowService.class.getName());
-
-    static {
-        org.apache.xml.security.Init.init();
-    }
-
-    static {
-        org.apache.xml.security.Init.init();
-    }
-
     private final FhirContext fhirContext = FhirContext.forR4();
+
+    static {
+        org.apache.xml.security.Init.init();
+    }
+
     @ConfigProperty(name = "ere.workflow-service.prescription.server.url", defaultValue = "")
     String prescriptionServerUrl;
     @ConfigProperty(name = "connector.crypt", defaultValue = "")
@@ -82,6 +78,7 @@ public class ERezeptWorkflowService {
     String userAgent;
     @ConfigProperty(name = "connector.version", defaultValue = "PTV4")
     String connectorVersion;
+
     @Inject
     ConnectorCardsService connectorCardsService;
     @Inject
@@ -100,7 +97,10 @@ public class ERezeptWorkflowService {
     ContextType contextType;
     @Inject
     Event<AbortTasksStatusEvent> abortTasksStatusEvent;
+
     private Client client;
+    //In the future it should be managed automatically by the webclient, including its renewal
+    private String bearerToken;
 
     /**
      * Extracts the access code from a task
@@ -130,39 +130,28 @@ public class ERezeptWorkflowService {
      * necessary processing
      */
     public void onSignAndUploadBundlesEvent(@ObservesAsync SignAndUploadBundlesEvent signAndUploadBundlesEvent) {
-        try {
-            String bearerTokenToUse;
-            if (StringUtils.isNotEmpty(signAndUploadBundlesEvent.bearerToken)) {
-                bearerTokenToUse = signAndUploadBundlesEvent.bearerToken;
-            } else {
-                bearerTokenToUse = bearerTokenService.requestBearerToken();
-                if (bearerTokenToUse.isEmpty()) {
-                    log.severe("Empty bearer token received, something went wrong with the IdpClient");
-                }
-            }
-
-            log.info(String.format("Received %d bundles to sign ", signAndUploadBundlesEvent.listOfListOfBundles.size()));
-            log.info("Contents of list of bundles to sign are as follows:");
-            signAndUploadBundlesEvent.listOfListOfBundles.forEach(bundlesList -> {
-                log.info("Bundles list contents is:");
-                bundlesList.forEach(bundle -> log.info("Bundle content: " + bundle.toString()));
-            });
-
-            List<List<BundleWithAccessCodeOrThrowable>> bundleWithAccessCodeOrThrowable = new ArrayList<>();
-            for (List<Bundle> bundles : signAndUploadBundlesEvent.listOfListOfBundles) {
-                log.info(String.format("Getting access codes for %d bundles.",
-                        bundles.size()));
-                bundleWithAccessCodeOrThrowable
-                        .add(createMultipleERezeptsOnPrescriptionServer(bearerTokenToUse, bundles));
-            }
-
-            log.info(String.format("Firing event to create prescription receipts for %d bundles.",
-                    bundleWithAccessCodeOrThrowable.size()));
-            bundlesWithAccessCodeEvent.fireAsync(new BundlesWithAccessCodeEvent(bundleWithAccessCodeOrThrowable));
-        } catch (Exception e) {
-            log.log(Level.WARNING, "Idp login did not work", e);
-            exceptionEvent.fireAsync(e);
+        if (StringUtils.isEmpty(bearerToken)) {
+            bearerToken = bearerTokenService.requestBearerToken();
         }
+
+        log.info(String.format("Received %d bundles to sign ", signAndUploadBundlesEvent.listOfListOfBundles.size()));
+        log.info("Contents of list of bundles to sign are as follows:");
+        signAndUploadBundlesEvent.listOfListOfBundles.forEach(bundlesList -> {
+            log.info("Bundles list contents is:");
+            bundlesList.forEach(bundle -> log.info("Bundle content: " + bundle.toString()));
+        });
+
+        List<List<BundleWithAccessCodeOrThrowable>> bundleWithAccessCodeOrThrowable = new ArrayList<>();
+        for (List<Bundle> bundles : signAndUploadBundlesEvent.listOfListOfBundles) {
+            log.info(String.format("Getting access codes for %d bundles.",
+                    bundles.size()));
+            bundleWithAccessCodeOrThrowable
+                    .add(createMultipleERezeptsOnPrescriptionServer(bearerToken, bundles));
+        }
+
+        log.info(String.format("Firing event to create prescription receipts for %d bundles.",
+                bundleWithAccessCodeOrThrowable.size()));
+        bundlesWithAccessCodeEvent.fireAsync(new BundlesWithAccessCodeEvent(bundleWithAccessCodeOrThrowable));
     }
 
     public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(String bearerToken, List<Bundle> bundles) {
@@ -427,11 +416,10 @@ public class ERezeptWorkflowService {
     }
 
     public void onAbortTasksEvent(@ObservesAsync AbortTasksEvent abortTasksEvent) {
-        String bearerToken = bearerTokenService.requestBearerToken();
-
         List<AbortTaskStatus> abortTaskStatusList = new ArrayList<>();
         for (AbortTaskEntry abortTaskEntry : abortTasksEvent.getTasks()) {
             AbortTaskStatus abortTaskStatus = new AbortTaskStatus(abortTaskEntry);
+
             try {
                 abortERezeptTask(bearerToken, abortTaskEntry.getId(), abortTaskEntry.getAccessCode());
                 abortTaskStatus.setStatus(AbortTaskStatus.Status.OK);
@@ -439,6 +427,7 @@ public class ERezeptWorkflowService {
                 abortTaskStatus.setThrowable(t);
                 abortTaskStatus.setStatus(AbortTaskStatus.Status.ERROR);
             }
+
             abortTaskStatusList.add(abortTaskStatus);
         }
         abortTasksStatusEvent.fireAsync(new AbortTasksStatusEvent(abortTaskStatusList));

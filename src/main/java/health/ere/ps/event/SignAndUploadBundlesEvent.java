@@ -12,19 +12,15 @@ import java.util.List;
 
 public class SignAndUploadBundlesEvent {
 
-    private final FhirContext ctx = FhirContext.forR4();
     public List<List<Bundle>> listOfListOfBundles = new ArrayList<>();
-    public String bearerToken;
 
     public SignAndUploadBundlesEvent(JsonObject jsonObject) {
-        bearerToken = jsonObject.getString("bearerToken", "");
-
         for (JsonValue jsonValue : jsonObject.getJsonArray("payload")) {
             List<Bundle> bundles = new ArrayList<>();
 
             if (jsonValue instanceof JsonArray) {
                 for (JsonValue singleBundle : (JsonArray) jsonValue) {
-                    IParser jsonParser = ctx.newJsonParser();
+                    IParser jsonParser = FhirContext.forR4().newJsonParser();
 
                     Bundle bundle = jsonParser.parseResource(Bundle.class, singleBundle.toString());
                     bundles.add(bundle);
