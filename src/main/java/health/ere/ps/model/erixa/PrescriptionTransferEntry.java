@@ -8,7 +8,6 @@ public class PrescriptionTransferEntry {
 
     private String firstName;
     private String lastName;
-    private String gender;
     private String salutation;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -17,7 +16,6 @@ public class PrescriptionTransferEntry {
     private String street;
     private String postcode;
     private String city;
-    private String telephoneNumber;
     private String emailAddress;
     private String insuranceType;
     private String healthInsurance;
@@ -30,6 +28,9 @@ public class PrescriptionTransferEntry {
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'hh:mm:ss'Z'")
     private Date creationDateTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private Date surgeryDate;
 
     public PrescriptionTransferEntry() {
     }
@@ -48,14 +49,6 @@ public class PrescriptionTransferEntry {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
-    }
-
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
     }
 
     public String getSalutation() {
@@ -96,14 +89,6 @@ public class PrescriptionTransferEntry {
 
     public void setCity(String city) {
         this.city = city;
-    }
-
-    public String getTelephoneNumber() {
-        return telephoneNumber;
-    }
-
-    public void setTelephoneNumber(String telephoneNumber) {
-        this.telephoneNumber = telephoneNumber;
     }
 
     public String getEmailAddress() {
@@ -183,5 +168,13 @@ public class PrescriptionTransferEntry {
 
     public void setCreationDateTime(Date creationDateTime) {
         this.creationDateTime = creationDateTime;
+    }
+
+    public Date getSurgeryDate() {
+        return surgeryDate;
+    }
+
+    public void setSurgeryDate(Date surgeryDate) {
+        this.surgeryDate = surgeryDate;
     }
 }

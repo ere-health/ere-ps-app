@@ -86,7 +86,6 @@ public class ErixaUploadService {
         data.setRole(Role.PATIENT);
         data.setFirstName(entry.getFirstName());
         data.setLastName(entry.getLastName());
-        data.setGender(entry.getGender());
         data.setSalutation(entry.getSalutation());
         data.setBirthday(parseBirthday(entry.getBirthday()));
         data.setPostcode(entry.getPostcode());
@@ -104,7 +103,18 @@ public class ErixaUploadService {
         data.setDosage1(entry.getDosage());
         data.setMedicineDescription1(entry.getMedicineDescription());
         data.setExtraPaymentNecessary(entry.isExtraPaymentNecessary());
+        if(entry.getSurgeryDate()!=null)
+            interpolateSurgeryData(data, entry);
         return data;
+    }
+
+
+    private void interpolateSurgeryData(PrescriptionData data, PrescriptionTransferEntry entry) {
+         // Invoked when entry.surgeryDate != null
+        // Set pzn3 = pzn1
+        // Set medicineDescription3 = surgeryDate
+        data.setPzn3(entry.getPzn());
+        data.setMedicineDescription3(toTimestamp(entry.getSurgeryDate()));
     }
 
     private String parseBirthday(Date birthday) {
