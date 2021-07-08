@@ -9,7 +9,7 @@ import health.ere.ps.model.idp.client.IdpTokenResult;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
-import health.ere.ps.test.DefaultTestProfile;
+import health.ere.ps.profile.DevelopmentTestProfile;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -27,7 +27,7 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 @QuarkusTest
-@TestProfile(DefaultTestProfile.class)
+@TestProfile(DevelopmentTestProfile.class)
 public class IdpClientTest {
 
     static {

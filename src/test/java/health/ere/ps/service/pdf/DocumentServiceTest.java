@@ -4,7 +4,7 @@ import ca.uhn.fhir.context.FhirContext;
 import health.ere.ps.event.BundlesWithAccessCodeEvent;
 import health.ere.ps.event.ERezeptDocumentsEvent;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
-import health.ere.ps.test.DefaultTestProfile;
+import health.ere.ps.profile.DevelopmentTestProfile;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import org.hl7.fhir.r4.model.Bundle;
@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @QuarkusTest
-@TestProfile(DefaultTestProfile.class)
+@TestProfile(DevelopmentTestProfile.class)
 public class DocumentServiceTest {
 
     private final static List<Bundle> testBundles = new ArrayList<>();
