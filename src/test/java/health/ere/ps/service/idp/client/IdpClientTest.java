@@ -1,5 +1,6 @@
 package health.ere.ps.service.idp.client;
 
+import health.ere.ps.config.AppConfig;
 import health.ere.ps.exception.connector.ConnectorCardCertificateReadException;
 import health.ere.ps.exception.connector.ConnectorCardsException;
 import health.ere.ps.exception.idp.IdpClientException;
@@ -35,19 +36,17 @@ public class IdpClientTest {
     }
 
     private final Logger log = Logger.getLogger(getClass().getName());
+
+    @Inject
+    AppConfig appConfig;
     @Inject
     IdpClient idpClient;
     @Inject
     CardCertificateReaderService cardCertificateReaderService;
     @Inject
     ConnectorCardsService connectorCardsService;
-    @ConfigProperty(name = "idp.client.id")
-    String clientId;
-    @ConfigProperty(name = "idp.base.url")
-    String idpBaseUrl;
+
     String discoveryDocumentUrl;
-    @ConfigProperty(name = "idp.auth.request.redirect.url")
-    String redirectUrl;
 
     @BeforeAll
     public static void init() {
@@ -81,9 +80,9 @@ public class IdpClientTest {
     public void test_Successful_Idp_Login_With_Connector_Smcb() throws IdpJoseException,
             IdpClientException, IdpException, ConnectorCardCertificateReadException, ConnectorCardsException {
 
-        discoveryDocumentUrl = idpBaseUrl + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
+        discoveryDocumentUrl = appConfig.getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
 
-        idpClient.init(clientId, redirectUrl, discoveryDocumentUrl, true);
+        idpClient.init(appConfig.getIdpClientId(), appConfig.getIdpAuthRequestRedirectURL(), discoveryDocumentUrl, true);
         idpClient.initializeClient();
 
         String cardHandle = connectorCardsService.getConnectorCardHandle(

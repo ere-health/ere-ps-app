@@ -1,5 +1,6 @@
 package health.ere.ps.service.connector.endpoint;
 
+import health.ere.ps.config.AppConfig;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.w3c.dom.Document;
@@ -35,13 +36,11 @@ public class EndpointDiscoveryService {
     Optional<String> fallbackCertificateServiceEndpointAddress;
     @ConfigProperty(name = "event-service.endpoint.address")
     Optional<String> fallbackEventServiceEndpointAddress;
-    @ConfigProperty(name = "connector.base-uri")
-    String connectorBaseUri;
-    @ConfigProperty(name = "connector.verify-hostname", defaultValue = "true")
-    String connectorVerifyHostname;
     @ConfigProperty(name = "card-service.endpoint.address")
     Optional<String> fallbackCardServiceEndpointAddress;
 
+    @Inject
+    AppConfig appConfig;
     @Inject
     SecretsManagerService secretsManagerService;
 
@@ -57,14 +56,14 @@ public class EndpointDiscoveryService {
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
         clientBuilder.sslContext(secretsManagerService.getSslContext());
 
-        if (!connectorVerifyHostname.equals("true")) {
+        if (!appConfig.getVerifyHostname().equals("true")) {
             // disable hostname verification
             // This line is currently not working
             clientBuilder = clientBuilder.hostnameVerifier(new SSLUtilities.FakeHostnameVerifier());
         }
 
         Invocation invocation = clientBuilder.build()
-                .target(connectorBaseUri)
+                .target(appConfig.getConnectorBaseURI())
                 .path("/connector.sds")
                 .request()
                 .buildGet();
@@ -176,7 +175,7 @@ public class EndpointDiscoveryService {
             }
 
             String location = endpointNode.getAttributes().getNamedItem("Location").getTextContent();
-            if (location.startsWith(connectorBaseUri)) {
+            if (location.startsWith(appConfig.getConnectorBaseURI())) {
                 return location;
             }
         }

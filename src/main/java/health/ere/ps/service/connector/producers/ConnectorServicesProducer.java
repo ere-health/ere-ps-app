@@ -14,6 +14,7 @@ import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureService;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortType;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServiceV755;
+import health.ere.ps.config.AppConfig;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.connector.endpoint.EndpointDiscoveryService;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
@@ -29,15 +30,8 @@ import java.util.logging.Logger;
 public class ConnectorServicesProducer {
     private static final Logger log = Logger.getLogger(ConnectorServicesProducer.class.getName());
 
-    @ConfigProperty(name = "connector.client.system.id")
-    String contextClientSystemId;
-    @ConfigProperty(name = "connector.mandant.id")
-    String contextMandantId;
-    @ConfigProperty(name = "connector.workplace.id")
-    String contextWorkplaceId;
-    @ConfigProperty(name = "connector.context.userId")
-    String contextUserId;
-
+    @Inject
+    AppConfig appConfig;
     @Inject
     EndpointDiscoveryService endpointDiscoveryService;
     @Inject
@@ -131,10 +125,10 @@ public class ConnectorServicesProducer {
     @Produces
     public ContextType contextType() {
         ContextType contextType = new ContextType();
-        contextType.setMandantId(contextMandantId);
-        contextType.setClientSystemId(contextClientSystemId);
-        contextType.setWorkplaceId(contextWorkplaceId);
-        contextType.setUserId(contextUserId);
+        contextType.setMandantId(appConfig.getMandantId());
+        contextType.setClientSystemId(appConfig.getClientSystemId());
+        contextType.setWorkplaceId(appConfig.getWorkplaceId());
+        contextType.setUserId(appConfig.getUserId());
 
         return contextType;
     }

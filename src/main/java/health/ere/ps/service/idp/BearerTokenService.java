@@ -1,5 +1,6 @@
 package health.ere.ps.service.idp;
 
+import health.ere.ps.config.AppConfig;
 import health.ere.ps.exception.connector.ConnectorCardCertificateReadException;
 import health.ere.ps.exception.connector.ConnectorCardsException;
 import health.ere.ps.exception.idp.IdpClientException;
@@ -24,6 +25,8 @@ public class BearerTokenService {
     private static final Logger log = Logger.getLogger(BearerTokenService.class.getName());
 
     @Inject
+    AppConfig appConfig;
+    @Inject
     IdpClient idpClient;
     @Inject
     CardCertificateReaderService cardCertificateReaderService;
@@ -32,18 +35,11 @@ public class BearerTokenService {
     @Inject
     Event<Exception> exceptionEvent;
 
-    @ConfigProperty(name = "idp.base.url")
-    String idpBaseUrl;
-    @ConfigProperty(name = "idp.client.id")
-    String clientId;
-    @ConfigProperty(name = "idp.auth.request.redirect.url")
-    String redirectUrl;
-
 
     public String requestBearerToken() {
         try {
-            String discoveryDocumentUrl = idpBaseUrl + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
-            idpClient.init(clientId, redirectUrl, discoveryDocumentUrl, true);
+            String discoveryDocumentUrl = appConfig.getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
+            idpClient.init(appConfig.getIdpClientId(), appConfig.getIdpAuthRequestRedirectURL(), discoveryDocumentUrl, true);
             idpClient.initializeClient();
 
             String cardHandle = connectorCardsService.getConnectorCardHandle(
