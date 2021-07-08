@@ -1,26 +1,35 @@
 package health.ere.ps.service.fs;
 
-import health.ere.ps.event.PDDocumentEvent;
-import io.quarkus.runtime.Startup;
-import io.quarkus.scheduler.Scheduled;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.ClosedWatchServiceException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+import health.ere.ps.event.PDDocumentEvent;
+import io.quarkus.runtime.Startup;
+import io.quarkus.scheduler.Scheduled;
 
 /**
  * Watches a directory and if PDF files are placed their they will be thrown as
@@ -39,7 +48,7 @@ public class DirectoryWatcher {
     @Inject
     Event<PDDocumentEvent> pdDocumentEvent;
 
-    @ConfigProperty(name = "directory-watcher.dir", defaultValue = "")
+    @ConfigProperty(name = "directory-watcher.dir", defaultValue = "watch-pdf")
     String dir;
 
     private WatchService watcher = null;
