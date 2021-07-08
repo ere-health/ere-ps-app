@@ -5,7 +5,10 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
+import health.ere.ps.exception.idp.IdpJoseException;
+import health.ere.ps.exception.idp.IdpJwtExpiredException;
+import health.ere.ps.exception.idp.IdpJwtSignatureInvalidException;
+import health.ere.ps.model.idp.client.field.ClaimName;
 import org.jose4j.jwt.consumer.ErrorCodes;
 import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.jose4j.jwt.consumer.JwtConsumer;
@@ -17,12 +20,6 @@ import java.security.PublicKey;
 import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.Optional;
-
-import health.ere.ps.exception.idp.IdpJoseException;
-import health.ere.ps.exception.idp.IdpJwtExpiredException;
-import health.ere.ps.exception.idp.IdpJwtSignatureInvalidException;
-import health.ere.ps.model.idp.client.authentication.JwtBuilder;
-import health.ere.ps.model.idp.client.field.ClaimName;
 
 @JsonSerialize(using = IdpJoseObject.Serializer.class)
 @JsonDeserialize(using = JsonWebToken.Deserializer.class)
@@ -42,23 +39,15 @@ public class JsonWebToken extends IdpJoseObject {
             jwtConsumer.process(getRawString());
         } catch (final InvalidJwtException e) {
             if (e.getErrorDetails().stream()
-                .filter(error -> error.getErrorCode() == ErrorCodes.EXPIRED)
-                .findAny().isPresent()) {
+                .anyMatch(error -> error.getErrorCode() == ErrorCodes.EXPIRED)) {
                 throw new IdpJwtExpiredException(e);
             }
             if (e.getErrorDetails().stream()
-                .filter(error -> error.getErrorCode() == ErrorCodes.SIGNATURE_INVALID)
-                .findAny().isPresent()) {
+                .anyMatch(error -> error.getErrorCode() == ErrorCodes.SIGNATURE_INVALID)) {
                 throw new IdpJwtSignatureInvalidException(e);
             }
             throw new IdpJoseException("Invalid JWT encountered", e);
         }
-    }
-
-    public JwtBuilder toJwtDescription() {
-        return new JwtBuilder()
-            .addAllBodyClaims(getBodyClaims())
-            .addAllHeaderClaims(getHeaderClaims());
     }
 
     public IdpJwe encrypt(final Key key) throws IdpJoseException {

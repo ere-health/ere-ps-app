@@ -1,7 +1,6 @@
 package health.ere.ps.model.muster16;
 
 import java.util.List;
-import java.util.logging.Logger;
 
 public class Muster16PrescriptionForm {
 

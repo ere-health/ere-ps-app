@@ -1,13 +1,9 @@
-
 package health.ere.ps.model.idp.client.data;
 
 import health.ere.ps.model.idp.client.field.ClaimName;
 import health.ere.ps.model.idp.client.field.IdpScope;
 
 import java.util.Map;
-
-import health.ere.ps.model.idp.client.field.ClaimName;
-import health.ere.ps.model.idp.client.field.IdpScope;
 
 public class UserConsentDescriptionTexts {
     private Map<IdpScope, String> scopes;
@@ -19,6 +15,10 @@ public class UserConsentDescriptionTexts {
     }
 
     public UserConsentDescriptionTexts() {
+    }
+
+    public static UserConsentDescriptionTextsBuilder builder() {
+        return new UserConsentDescriptionTextsBuilder();
     }
 
     public Map<IdpScope, String> getScopes() {
@@ -35,10 +35,6 @@ public class UserConsentDescriptionTexts {
 
     public void setClaims(Map<ClaimName, String> claims) {
         this.claims = claims;
-    }
-
-    public static UserConsentDescriptionTextsBuilder builder() {
-        return new UserConsentDescriptionTextsBuilder();
     }
 
     public static class UserConsentDescriptionTextsBuilder {

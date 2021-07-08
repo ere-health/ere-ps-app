@@ -3,19 +3,22 @@ package health.ere.ps.service.connector.auth;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
 import de.gematik.ws.conn.authsignatureservice.wsdl.v7.FaultMessage;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.signatureservice.v7.BinaryDocumentType;
 import de.gematik.ws.conn.signatureservice.v7.ExternalAuthenticate;
 import de.gematik.ws.conn.signatureservice.v7.ExternalAuthenticateResponse;
-
+import health.ere.ps.exception.connector.ConnectorCardsException;
+import health.ere.ps.service.connector.cards.ConnectorCardsService;
+import oasis.names.tc.dss._1_0.core.schema.Base64Data;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwx.CompactSerializer;
 import org.jose4j.lang.JoseException;
 import org.jose4j.lang.StringUtil;
 
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
@@ -25,32 +28,20 @@ import java.util.Base64;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-
-import health.ere.ps.config.AppConfig;
-import health.ere.ps.exception.connector.ConnectorCardsException;
-import health.ere.ps.service.connector.cards.ConnectorCardsService;
-import oasis.names.tc.dss._1_0.core.schema.Base64Data;
-
 @Dependent
 public class SmcbAuthenticatorService {
 
     @Inject
-    AppConfig appConfig;
-
+    ContextType contextType;
     @Inject
     ConnectorCardsService connectorCardsService;
-
     @Inject
     SmcbAuthenticatorExecutionService smcbAuthExecutionService;
 
     private X509Certificate x509Certificate;
 
     public String signIdpChallenge(Pair<String, String> jwtPair) {
-
-        JsonWebSignatureWithExternalAuthentification jws =
-                new JsonWebSignatureWithExternalAuthentification();
+        JsonWebSignatureWithExternalAuthentication jws = new JsonWebSignatureWithExternalAuthentication();
         jws.setPayload(new String(Base64.getUrlDecoder().decode(jwtPair.getRight())));
 
         Optional.ofNullable(jwtPair.getLeft())
@@ -62,17 +53,12 @@ public class SmcbAuthenticatorService {
                 .flatMap(Set::stream)
                 .forEach(entry -> jws.setHeader(entry.getKey(),
                         entry.getValue().getAsString()));
-
         try {
-            jws.setCertificateChainHeaderValue(getX509Certificate());
+            jws.setCertificateChainHeaderValue(x509Certificate);
             return jws.getCompactSerialization();
         } catch (JoseException e) {
             throw new IllegalStateException("Error during encryption", e);
         }
-    }
-
-    public X509Certificate getX509Certificate() {
-        return x509Certificate;
     }
 
     public void setX509Certificate(X509Certificate x509Certificate) {
@@ -85,7 +71,7 @@ public class SmcbAuthenticatorService {
      *
      * @see https://github.com/gematik/api-telematik/blob/bb3ac703c2df619b54b2fbf4ab91337a66b395b4/conn/AuthSignatureService.wsdl#L44
      */
-    private class JsonWebSignatureWithExternalAuthentification extends JsonWebSignature {
+    private class JsonWebSignatureWithExternalAuthentication extends JsonWebSignature {
 
         /**
          * Compute the JWS signature.
@@ -94,10 +80,9 @@ public class SmcbAuthenticatorService {
          */
         @Override
         public void sign() throws JoseException {
-            if(getKey() != null) {
+            if (getKey() != null) {
                 super.sign();
-            }
-            else {
+            } else {
                 // otherwise use the connector for signing
                 byte[] inputBytes = getSigningInputBytes();
 
@@ -124,7 +109,6 @@ public class SmcbAuthenticatorService {
         }
 
         public byte[] externalAuthenticate(byte[] sha265Hash, String smcbCardHandle) throws JoseException {
-
             ExternalAuthenticate.OptionalInputs optionalInputs = new ExternalAuthenticate.OptionalInputs();
 
             optionalInputs.setSignatureSchemes("RSASSA-PSS");
@@ -135,12 +119,6 @@ public class SmcbAuthenticatorService {
             base64Data.setMimeType("application/octet-stream");
             base64Data.setValue(sha265Hash);
             binaryDocumentType.setBase64Data(base64Data);
-
-            ContextType contextType = new ContextType();
-
-            contextType.setClientSystemId(appConfig.getClientSystem());
-            contextType.setMandantId(appConfig.getMandantId());
-            contextType.setWorkplaceId(appConfig.getWorkplace());
 
             ExternalAuthenticateResponse response;
 

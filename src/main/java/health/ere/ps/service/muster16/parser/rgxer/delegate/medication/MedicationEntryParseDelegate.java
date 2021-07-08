@@ -1,8 +1,8 @@
 package health.ere.ps.service.muster16.parser.rgxer.delegate.medication;
 
+import health.ere.ps.service.muster16.parser.rgxer.delegate.pattern.MedicationPatterns;
 import health.ere.ps.service.muster16.parser.rgxer.matcher.MedicationMatcher;
 import health.ere.ps.service.muster16.parser.rgxer.model.MedicationLine;
-import health.ere.ps.service.muster16.parser.rgxer.delegate.pattern.MedicationPatterns;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +29,7 @@ public class MedicationEntryParseDelegate {
 
     private List<MedicationLine> tryMerge(List<MedicationLine> lines) {
         for (int i = 1; i < lines.size(); )
-            if (canMerge(lines.get(i - 1), lines.get(i))) {
+            if (canMerge(lines.get(i))) {
                 MedicationLine first = lines.get(i - 1), second = lines.remove(i);
                 first.merge(second);
             } else
@@ -37,7 +37,7 @@ public class MedicationEntryParseDelegate {
         return lines;
     }
 
-    private boolean canMerge(MedicationLine first, MedicationLine second) {
+    private boolean canMerge(MedicationLine second) {
         float score = 0;
         score += nameExists(second) ? 4 : 0;
         score += hasDosage(second) ? 2 : 0;

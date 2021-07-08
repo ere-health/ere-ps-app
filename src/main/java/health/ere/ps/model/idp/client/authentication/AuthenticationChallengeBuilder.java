@@ -3,12 +3,11 @@ package health.ere.ps.model.idp.client.authentication;
 import health.ere.ps.exception.idp.IdpJoseException;
 import health.ere.ps.exception.idp.crypto.IdpCryptoException;
 import health.ere.ps.model.idp.client.IdpConstants;
-import health.ere.ps.service.idp.crypto.Nonce;
 import health.ere.ps.model.idp.client.data.UserConsent;
 import health.ere.ps.model.idp.client.data.UserConsentConfiguration;
 import health.ere.ps.model.idp.client.field.IdpScope;
 import health.ere.ps.model.idp.client.token.JsonWebToken;
-
+import health.ere.ps.service.idp.crypto.Nonce;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.ZonedDateTime;
@@ -19,22 +18,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-
-import static health.ere.ps.model.idp.client.field.ClaimName.CLIENT_ID;
-import static health.ere.ps.model.idp.client.field.ClaimName.CODE_CHALLENGE;
-import static health.ere.ps.model.idp.client.field.ClaimName.CODE_CHALLENGE_METHOD;
-import static health.ere.ps.model.idp.client.field.ClaimName.EXPIRES_AT;
-import static health.ere.ps.model.idp.client.field.ClaimName.ISSUED_AT;
-import static health.ere.ps.model.idp.client.field.ClaimName.ISSUER;
-import static health.ere.ps.model.idp.client.field.ClaimName.JWT_ID;
-import static health.ere.ps.model.idp.client.field.ClaimName.NONCE;
-import static health.ere.ps.model.idp.client.field.ClaimName.REDIRECT_URI;
-import static health.ere.ps.model.idp.client.field.ClaimName.RESPONSE_TYPE;
-import static health.ere.ps.model.idp.client.field.ClaimName.SCOPE;
-import static health.ere.ps.model.idp.client.field.ClaimName.SERVER_NONCE;
-import static health.ere.ps.model.idp.client.field.ClaimName.STATE;
-import static health.ere.ps.model.idp.client.field.ClaimName.TOKEN_TYPE;
-import static health.ere.ps.model.idp.client.field.ClaimName.TYPE;
+import static health.ere.ps.model.idp.client.field.ClaimName.*;
 
 public class AuthenticationChallengeBuilder {
     private static final long CHALLENGE_TOKEN_VALIDITY_IN_MINUTES = 3;
@@ -43,13 +27,11 @@ public class AuthenticationChallengeBuilder {
     private String uriIdpServer;
     private UserConsentConfiguration userConsentConfiguration;
 
-    public AuthenticationChallengeBuilder(IdpJwtProcessor serverSigner, String uriIdpServer, UserConsentConfiguration userConsentConfiguration) {
-        this.serverSigner = serverSigner;
-        this.uriIdpServer = uriIdpServer;
-        this.userConsentConfiguration = userConsentConfiguration;
+    public AuthenticationChallengeBuilder() {
     }
 
-    public AuthenticationChallengeBuilder() {
+    public static AuthenticationChallengeBuilderBuilder builder() {
+        return new AuthenticationChallengeBuilderBuilder();
     }
 
     public AuthenticationChallenge buildAuthenticationChallenge(final String clientId, final String state,
@@ -79,40 +61,40 @@ public class AuthenticationChallengeBuilder {
 
         final UserConsent userConsent = getUserConsent(scope);
         return AuthenticationChallenge.builder()
-            .challenge(buildJwt(claims, headerClaims))
-            .userConsent(userConsent)
-            .build();
+                .challenge(buildJwt(claims, headerClaims))
+                .userConsent(userConsent)
+                .build();
     }
 
     private UserConsent getUserConsent(final String scopes) {
         final List<IdpScope> requestedScopes = Stream.of(scopes.split(" "))
-            .map(IdpScope::fromJwtValue)
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .collect(Collectors.toList());
+                .map(IdpScope::fromJwtValue)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
         final Map<String, String> scopeMap = requestedScopes.stream()
-            .map(s -> Pair
-                .of(s.getJwtValue(), getUserConsentConfiguration().getDescriptionTexts().getScopes().get(s)))
-            .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+                .map(s -> Pair
+                        .of(s.getJwtValue(), getUserConsentConfiguration().getDescriptionTexts().getScopes().get(s)))
+                .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
         final Map<String, String> clientMap = requestedScopes.stream()
-            .filter(id -> getUserConsentConfiguration().getClaimsToBeIncluded().containsKey(id))
-            .map(id -> getUserConsentConfiguration().getClaimsToBeIncluded().get(id))
-            .flatMap(List::stream)
-            .distinct()
-            .map(s -> Pair
-                .of(s.getJoseName(), getUserConsentConfiguration().getDescriptionTexts().getClaims().get(s)))
-            .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+                .filter(id -> getUserConsentConfiguration().getClaimsToBeIncluded().containsKey(id))
+                .map(id -> getUserConsentConfiguration().getClaimsToBeIncluded().get(id))
+                .flatMap(List::stream)
+                .distinct()
+                .map(s -> Pair
+                        .of(s.getJoseName(), getUserConsentConfiguration().getDescriptionTexts().getClaims().get(s)))
+                .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
         return UserConsent.builder()
-            .requestedScopes(scopeMap)
-            .requestedClaims(clientMap)
-            .build();
+                .requestedScopes(scopeMap)
+                .requestedClaims(clientMap)
+                .build();
     }
 
     private JsonWebToken buildJwt(final Map<String, Object> bodyClaims, final Map<String,
             Object> headerClaims) throws IdpJoseException, IdpCryptoException {
         return getServerSigner().buildJwt(new JwtBuilder()
-            .addAllBodyClaims(bodyClaims)
-            .addAllHeaderClaims(headerClaims));
+                .addAllBodyClaims(bodyClaims)
+                .addAllHeaderClaims(headerClaims));
     }
 
     public IdpJwtProcessor getServerSigner() {
@@ -139,12 +121,8 @@ public class AuthenticationChallengeBuilder {
         this.userConsentConfiguration = userConsentConfiguration;
     }
 
-    public static AuthenticationChallengeBuilderBuilder builder() {
-        return new AuthenticationChallengeBuilderBuilder();
-    }
-
     public static class AuthenticationChallengeBuilderBuilder {
-        private AuthenticationChallengeBuilder authenticationChallengeBuilder;
+        private final AuthenticationChallengeBuilder authenticationChallengeBuilder;
 
         public AuthenticationChallengeBuilderBuilder() {
             authenticationChallengeBuilder = new AuthenticationChallengeBuilder();

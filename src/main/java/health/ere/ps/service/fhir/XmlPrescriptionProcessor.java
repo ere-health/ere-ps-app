@@ -1,46 +1,27 @@
 package health.ere.ps.service.fhir;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response.Status;
-
-import org.hl7.fhir.r4.model.Patient;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.CodeType;
-import org.hl7.fhir.r4.model.CodeableConcept;
-import org.hl7.fhir.r4.model.Coding;
-import org.hl7.fhir.r4.model.Composition;
-import org.hl7.fhir.r4.model.Extension;
-import org.hl7.fhir.r4.model.Medication;
-import org.hl7.fhir.r4.model.MedicationRequest;
-import org.hl7.fhir.r4.model.Practitioner;
-import org.hl7.fhir.r4.model.Quantity;
-import org.hl7.fhir.r4.model.Type;
+import ca.uhn.fhir.context.FhirContext;
+import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.r4.model.Practitioner.PractitionerQualificationComponent;
 
-import ca.uhn.fhir.context.FhirContext;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response.Status;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class XmlPrescriptionProcessor {
-    static FhirContext fhirContext = FhirContext.forR4();
-
     // Get <Bundle> tag including content
-    private static Pattern GET_BUNDLE = Pattern.compile("(<Bundle[^>]*>.*?</Bundle>)", Pattern.DOTALL);
-
-    private static Pattern GET_UUID = Pattern.compile("^urn:uuid:(.*)");
+    private static final Pattern GET_BUNDLE = Pattern.compile("(<Bundle[^>]*>.*?</Bundle>)", Pattern.DOTALL);
+    private static final Pattern GET_UUID = Pattern.compile("^urn:uuid:(.*)");
+    private static final FhirContext fhirContext = FhirContext.forR4();
 
     public static Bundle[] parseFromString(String xml) {
         List<Bundle> bundles = new ArrayList<>();
         Matcher m = GET_BUNDLE.matcher(xml);
         boolean found = false;
-        while(m.find()) {
+        while (m.find()) {
             found = true;
             String bundleXml = m.group(1);
             Bundle bundle = createFixedBundleFromString(bundleXml);
@@ -49,8 +30,8 @@ public class XmlPrescriptionProcessor {
         if (!found) {
             throw new WebApplicationException("Could not extract inner text", Status.NOT_ACCEPTABLE);
         }
-        return bundles.toArray(new Bundle[] {});
-        
+        return bundles.toArray(new Bundle[]{});
+
     }
 
     public static Bundle createFixedBundleFromString(String bundleXml) {
@@ -59,22 +40,22 @@ public class XmlPrescriptionProcessor {
         fixRefencesInComposition(bundle);
 
         // INFO:  Next issue ERROR - Bundle.entry[1].resource.ofType(MedicationRequest).dispenseRequest - MedicationRequest.dispenseRequest.quantity: minimum required = 1, but only found 0 (from https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.0.1)
-        
+
         MedicationRequest medicationRequest = getTypeFromBundle(MedicationRequest.class, bundle);
 
-        if(medicationRequest.getDispenseRequest().getQuantity().getValue() == null) {
+        if (medicationRequest.getDispenseRequest().getQuantity().getValue() == null) {
             Quantity quantity = new Quantity();
             quantity.setValue(1);
             quantity.setSystem("http://unitsofmeasure.org");
             quantity.setCode("{Package}");
             medicationRequest.getDispenseRequest().setQuantity(quantity);
         }
-        
+
         // INFO:  Next issue ERROR - Bundle.entry[2].resource.ofType(Medication) - -erp-NormgroesseOderMenge: 'Packungsgröße oder Normgröße müssen mindestens angegeben sein' Rule 'Packungsgröße oder Normgröße müssen mindestens angegeben sein' Failed
 
         Medication medication = getTypeFromBundle(Medication.class, bundle);
 
-        if(medication.getExtensionByUrl("http://fhir.de/StructureDefinition/normgroesse") == null) {
+        if (medication.getExtensionByUrl("http://fhir.de/StructureDefinition/normgroesse") == null) {
             Extension normgroesse = new Extension("http://fhir.de/StructureDefinition/normgroesse", new CodeType("N1"));
             medication.addExtension(normgroesse);
         }
@@ -84,7 +65,7 @@ public class XmlPrescriptionProcessor {
 
         Practitioner practitioner = getTypeFromBundle(Practitioner.class, bundle);
 
-        if(practitioner.getQualification().size() == 1) {
+        if (practitioner.getQualification().size() == 1) {
             PractitionerQualificationComponent qualification = new PractitionerQualificationComponent();
             CodeableConcept qualificationCodeableConcept = new CodeableConcept();
             qualificationCodeableConcept.setText("Arzt");
@@ -96,7 +77,7 @@ public class XmlPrescriptionProcessor {
         // Error while decoding XML: Missing Field (id=value, path=/Bundle/entry/resource/Patient/identifier)!
         Patient patient = getTypeFromBundle(Patient.class, bundle);
 
-        if(patient.getIdentifier().size() > 0 && !patient.getIdentifier().get(0).hasValue()) {
+        if (patient.getIdentifier().size() > 0 && !patient.getIdentifier().get(0).hasValue()) {
             patient.getIdentifier().get(0).setValue("X999999999");
         }
 
@@ -116,22 +97,22 @@ public class XmlPrescriptionProcessor {
         String medicationRequestId = getIdFor(bundle, "MedicationRequest");
         String coverageId = getIdFor(bundle, "Coverage");
 
-        Composition composition = (Composition)bundle.getEntry().stream().findFirst().get().getResource();
-        
-        composition.getSubject().setReference("Patient/"+patientId);
-        composition.getAuthor().get(0).setReference("Practitioner/"+practitionerId);
-        composition.getCustodian().setReference("Organization/"+organizationId);
-        composition.getSection().get(0).getEntry().get(0).setReference("MedicationRequest/"+medicationRequestId);
-        composition.getSection().get(1).getEntry().get(0).setReference("Coverage/"+coverageId);
+        Composition composition = (Composition) bundle.getEntry().stream().findFirst().get().getResource();
+
+        composition.getSubject().setReference("Patient/" + patientId);
+        composition.getAuthor().get(0).setReference("Practitioner/" + practitionerId);
+        composition.getCustodian().setReference("Organization/" + organizationId);
+        composition.getSection().get(0).getEntry().get(0).setReference("MedicationRequest/" + medicationRequestId);
+        composition.getSection().get(1).getEntry().get(0).setReference("Coverage/" + coverageId);
     }
 
     static void fixFullUrls(Bundle bundle) {
-        for(BundleEntryComponent bundleEntryComponent : bundle.getEntry()) {
+        for (BundleEntryComponent bundleEntryComponent : bundle.getEntry()) {
             String fullUrl = bundleEntryComponent.getFullUrl();
             Matcher m = GET_UUID.matcher(fullUrl);
-            if(m.matches()) {
+            if (m.matches()) {
                 String uuid = m.group(1);
-                String newFullUrl = "http://pvs.praxis.local/fhir/"+bundleEntryComponent.getResource().getResourceType().name()+"/"+uuid;
+                String newFullUrl = "http://pvs.praxis.local/fhir/" + bundleEntryComponent.getResource().getResourceType().name() + "/" + uuid;
                 bundleEntryComponent.setFullUrl(newFullUrl);
                 bundleEntryComponent.getResource().setId(uuid);
             }
@@ -211,12 +192,12 @@ public class XmlPrescriptionProcessor {
                 .setReference("Coverage/" + coverageId);
 
         BundleEntryComponent bundleEntryComponent = new BundleEntryComponent();
-        bundleEntryComponent.setFullUrl("http://pvs.praxis.local/fhir/Composition/"+composition.getId());
+        bundleEntryComponent.setFullUrl("http://pvs.praxis.local/fhir/Composition/" + composition.getId());
         bundleEntryComponent.setResource(composition);
         bundle.addEntry(bundleEntryComponent);
         List<BundleEntryComponent> myList = bundle.getEntry();
         // make Composition the first element
-        Collections.swap(myList, 0, myList.size()-1);
+        Collections.swap(myList, 0, myList.size() - 1);
 
     }
 }

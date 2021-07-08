@@ -9,7 +9,6 @@ import org.apache.fop.apps.*;
 import org.apache.fop.configuration.Configuration;
 import org.apache.fop.configuration.ConfigurationException;
 import org.apache.fop.configuration.DefaultConfigurationBuilder;
-import org.hl7.fhir.r4.model.Bundle;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -25,10 +24,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -37,8 +33,8 @@ public class DocumentService {
 
     private static final Logger log = Logger.getLogger(DocumentService.class.getName());
     private static final int MAX_NUMBER_OF_MEDICINES_PER_PRESCRIPTIONS = 9;
-
     private final FhirContext ctx = FhirContext.forR4();
+
     @Inject
     Event<ERezeptDocumentsEvent> eRezeptDocumentsEvent;
     @Inject
@@ -97,7 +93,7 @@ public class DocumentService {
 
     public void onBundlesWithAccessCodes(@ObservesAsync BundlesWithAccessCodeEvent bundlesWithAccessCodeEvent) {
         log.info(String.format("About to create prescription receipts for %d bundles",
-        bundlesWithAccessCodeEvent.getBundleWithAccessCodeOrThrowable().size()));
+                bundlesWithAccessCodeEvent.getBundleWithAccessCodeOrThrowable().size()));
         bundlesWithAccessCodeEvent.getBundleWithAccessCodeOrThrowable().forEach(bundles -> {
             try {
                 for (int i = 0; i < bundles.size(); i += MAX_NUMBER_OF_MEDICINES_PER_PRESCRIPTIONS) {
@@ -105,7 +101,7 @@ public class DocumentService {
                     createAndSendPrescriptions(bundles
                             .subList(i, Math.min(i + MAX_NUMBER_OF_MEDICINES_PER_PRESCRIPTIONS, bundles.size())));
                 }
-            } catch(Exception ex) {
+            } catch (Exception ex) {
                 exceptionEvent.fireAsync(ex);
             }
         });

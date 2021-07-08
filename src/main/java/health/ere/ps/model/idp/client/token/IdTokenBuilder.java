@@ -1,5 +1,12 @@
 package health.ere.ps.model.idp.client.token;
 
+import health.ere.ps.exception.idp.IdpJoseException;
+import health.ere.ps.exception.idp.crypto.IdpCryptoException;
+import health.ere.ps.model.idp.client.IdpConstants;
+import health.ere.ps.model.idp.client.authentication.IdpJwtProcessor;
+import health.ere.ps.model.idp.client.authentication.JwtBuilder;
+import health.ere.ps.model.idp.client.field.ClaimName;
+import health.ere.ps.service.idp.crypto.Nonce;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jose4j.jwt.NumericDate;
@@ -9,40 +16,23 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import health.ere.ps.exception.idp.IdpJoseException;
-import health.ere.ps.exception.idp.crypto.IdpCryptoException;
-import health.ere.ps.model.idp.client.IdpConstants;
-import health.ere.ps.model.idp.client.authentication.IdpJwtProcessor;
-import health.ere.ps.model.idp.client.authentication.JwtBuilder;
-import health.ere.ps.model.idp.client.field.ClaimName;
-import health.ere.ps.service.idp.crypto.Nonce;
 
 public class IdTokenBuilder {
 
-    private static final Set<String> requiredClaims = Stream.of(ClaimName.PROFESSION_OID,
-            ClaimName.GIVEN_NAME, ClaimName.FAMILY_NAME,
-            ClaimName.ORGANIZATION_NAME, ClaimName.ID_NUMBER, ClaimName.AUTHENTICATION_CLASS_REFERENCE,
-            ClaimName.CLIENT_ID, ClaimName.SCOPE, ClaimName.AUTH_TIME)
-        .map(ClaimName::getJoseName)
-        .collect(Collectors.toSet());
     private static final List<ClaimName> CLAIMS_TO_TAKE_FROM_AUTHENTICATION_TOKEN = List
-        .of(ClaimName.GIVEN_NAME, ClaimName.FAMILY_NAME, ClaimName.ORGANIZATION_NAME,
-                ClaimName.PROFESSION_OID, ClaimName.ID_NUMBER, ClaimName.AUTH_TIME, ClaimName.NONCE);
+            .of(ClaimName.GIVEN_NAME, ClaimName.FAMILY_NAME, ClaimName.ORGANIZATION_NAME,
+                    ClaimName.PROFESSION_OID, ClaimName.ID_NUMBER, ClaimName.AUTH_TIME, ClaimName.NONCE);
 
     private IdpJwtProcessor jwtProcessor;
     private String issuerUrl;
     private String serverSubjectSalt;
 
     public JsonWebToken buildIdToken(final String clientId, final JsonWebToken authenticationToken,
-        final byte[] accesTokenHash) {
+                                     final byte[] accesTokenHash) {
         final Map<String, Object> claimsMap = new HashMap<>();
         final ZonedDateTime now = ZonedDateTime.now();
         final String atHashValue = Base64.getUrlEncoder().withoutPadding().encodeToString(
-            ArrayUtils.subarray(accesTokenHash, 0, 16));
+                ArrayUtils.subarray(accesTokenHash, 0, 16));
 
         claimsMap.put(ClaimName.ISSUER.getJoseName(), getIssuerUrl());
         claimsMap.put(ClaimName.SUBJECT.getJoseName(), clientId);
@@ -50,14 +40,14 @@ public class IdTokenBuilder {
         claimsMap.put(ClaimName.ISSUED_AT.getJoseName(), now.toEpochSecond());
 
         CLAIMS_TO_TAKE_FROM_AUTHENTICATION_TOKEN.stream()
-            .map(claimName -> Pair.of(claimName, authenticationToken.getBodyClaim(claimName)))
-            .filter(pair -> pair.getValue().isPresent())
-            .forEach(pair -> claimsMap.put(pair.getKey().getJoseName(), pair.getValue().get()));
+                .map(claimName -> Pair.of(claimName, authenticationToken.getBodyClaim(claimName)))
+                .filter(pair -> pair.getValue().isPresent())
+                .forEach(pair -> claimsMap.put(pair.getKey().getJoseName(), pair.getValue().get()));
 
         try {
             claimsMap.put(ClaimName.AUTHORIZED_PARTY.getJoseName(),
-                authenticationToken.getBodyClaim(ClaimName.CLIENT_ID)
-                    .orElseThrow(() -> new IdpJoseException("Missing '" + ClaimName.AUTHORIZED_PARTY.getJoseName() + "' claim!")));
+                    authenticationToken.getBodyClaim(ClaimName.CLIENT_ID)
+                            .orElseThrow(() -> new IdpJoseException("Missing '" + ClaimName.AUTHORIZED_PARTY.getJoseName() + "' claim!")));
         } catch (IdpJoseException e) {
             throw new IllegalStateException(e);
         }
@@ -66,11 +56,11 @@ public class IdTokenBuilder {
         claimsMap.put(ClaimName.ACCESS_TOKEN_HASH.getJoseName(), atHashValue);
         try {
             claimsMap.put(ClaimName.SUBJECT.getJoseName(),
-                TokenBuilderUtil.buildSubjectClaim(
-                    IdpConstants.AUDIENCE,
-                    authenticationToken.getStringBodyClaim(ClaimName.ID_NUMBER)
-                        .orElseThrow(() -> new IdpJoseException("Missing '" + ClaimName.ID_NUMBER.getJoseName() + "' claim!")),
-                        getServerSubjectSalt()));
+                    TokenBuilderUtil.buildSubjectClaim(
+                            IdpConstants.AUDIENCE,
+                            authenticationToken.getStringBodyClaim(ClaimName.ID_NUMBER)
+                                    .orElseThrow(() -> new IdpJoseException("Missing '" + ClaimName.ID_NUMBER.getJoseName() + "' claim!")),
+                            getServerSubjectSalt()));
         } catch (IdpJoseException e) {
             throw new IllegalStateException(e);
         }
@@ -82,8 +72,8 @@ public class IdTokenBuilder {
 
         try {
             return getJwtProcessor().buildJwt(new JwtBuilder()
-                .addAllBodyClaims(claimsMap)
-                .addAllHeaderClaims(headerClaims));
+                    .addAllBodyClaims(claimsMap)
+                    .addAllHeaderClaims(headerClaims));
         } catch (IdpJoseException | IdpCryptoException e) {
             throw new IllegalStateException(e);
         }
