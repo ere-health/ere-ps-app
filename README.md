@@ -90,23 +90,6 @@ revision number:
 >  7887a70e4dbe35cede4d286dc57bc3bba608a48d src/main/resources/META-INF/resources/frontend (heads/main)
 
 ### Environment Variables
-#### Development Mode
-For dev mode purposes, the environment variables referenced in the application.properties file 
-are located in a file named .env. This file should be located in the root project folder 
-(ere-ps-app).
-
-In regards to file and directory paths, configure the values for the environment variables in the
-.env file to reference paths on your local computer.
-
-> Important! Configure the .env file to be ignored and not checked into the source code repository.
-
-An example of the layout of the contents in the .env file is shown below:
-
->ERE_DIRECTORY_WATCHER_DIR=<YOUR_LOCAL_PATH>/watch-pdf
-
->ERE_CONNECTOR_TLS_CERT_TRUST_STORE_FILE=<YOUR_LOCAL_PATH>/ere-ps-app/src/test/resources/certs/ps_erp_incentergy_01.p12
-
->ERE_CONNECTOR_TLS_CERT_TRUST_STORE_PWD=<SECRET_VALUE_ON_YOUR_COMPUTER>
 
 #### List of Application Environment Variables
 * **ERE_DIRECTORY_WATCHER_DIR** 
@@ -144,3 +127,22 @@ An example of the layout of the contents in the .env file is shown below:
     Allows for configuring which parsing profile the SVGExtractor module should use on startup of 
     the application.
 
+In the development `dev` profile, all environment variables have default values, provided through the 
+`application.properties` file. Under other profiles, certain variable values are required to be explicitly provided 
+as an environment variable.
+Namely, `ERE_CONNECTOR_TLS_CERT_TRUST_STORE_FILE` and `ERE_CONNECTOR_TLS_CERT_TRUST_STORE_PWD`.
+
+The .env file should be located in the root project folder (ere-ps-app).
+
+> Important! Configure the .env file to be ignored and not checked into the source code repository.
+
+In regards to file and directory paths, configure the values for the environment variables in the
+.env file to reference paths on your local computer.
+
+An example of the layout of the contents in the .env file is shown below:
+
+```
+ERE_DIRECTORY_WATCHER_DIR=<YOUR_LOCAL_PATH>/watch-pdf
+ERE_CONNECTOR_TLS_CERT_TRUST_STORE_FILE=<YOUR_LOCAL_PATH>/ere-ps-app/src/test/resources/certs/ps_erp_incentergy_01.p12
+ERE_CONNECTOR_TLS_CERT_TRUST_STORE_PWD=<SECRET_VALUE_ON_YOUR_COMPUTER>
+```
