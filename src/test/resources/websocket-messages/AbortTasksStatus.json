@@ -1,0 +1,26 @@
+{
+    "type": "AbortTasksStatus",
+    "payload": [
+        {
+            "abortTaskEntry": {
+                "accessCode": "441b4c74e5fdaa2ae308600f3e3db1c24f2f6ece831076cbea09456ead128da7",
+                "id": "160.001.622.813.100.69"
+            },
+            "status": "OK"
+        },
+        {
+            "abortTaskEntry": {
+                "accessCode": "8e33d1e209352cb0f09b4c2080b03d4d086578a28471382d51deef8bef79c3d8",
+                "id": "160.001.622.813.500.33"
+            },
+            "status": "OK"
+        },
+        {
+            "abortTaskEntry": {
+                "accessCode": "25f76f7bd278469b5db0b3c054e847059b7ed81472545116644add8ff7b3574c",
+                "id": "160.001.622.813.700.15"
+            },
+            "status": "OK"
+        }
+    ]
+}

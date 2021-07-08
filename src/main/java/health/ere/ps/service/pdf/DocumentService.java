@@ -53,8 +53,9 @@ public class DocumentService {
             FopFactoryBuilder fopFactoryBuilder = new FopFactoryBuilder(baseURI);
             initConfiguration(fopFactoryBuilder);
             fopFactory = fopFactoryBuilder.build();
-        } catch (URISyntaxException ex) {
+        } catch (Exception ex) {
             log.severe("FOP Factory not initializable:" + ex);
+            exceptionEvent.fireAsync(ex);
         }
     }
 
@@ -89,20 +90,23 @@ public class DocumentService {
         } catch (IllegalArgumentException | ConfigurationException | ArrayIndexOutOfBoundsException |
                 IOException | URISyntaxException e) {
             log.severe("Could not configure FOP from file in classpath: /fonts/fop.xconf:" + e);
+            exceptionEvent.fireAsync(e);
         }
     }
 
 
     public void onBundlesWithAccessCodes(@ObservesAsync BundlesWithAccessCodeEvent bundlesWithAccessCodeEvent) {
-        Map<String, List<BundleWithAccessCodeOrThrowable>> bundlesByPatient = filterBundlesByPatient(bundlesWithAccessCodeEvent);
-
         log.info(String.format("About to create prescription receipts for %d bundles",
-                bundlesByPatient.values().size()));
-        bundlesByPatient.values().forEach(bundlesForOnePatient -> {
-            for (int i = 0; i < bundlesForOnePatient.size(); i += MAX_NUMBER_OF_MEDICINES_PER_PRESCRIPTIONS) {
-                log.info(String.format("Processing bundle with %d medication(s)", i));
-                createAndSendPrescriptions(bundlesForOnePatient
-                        .subList(i, Math.min(i + MAX_NUMBER_OF_MEDICINES_PER_PRESCRIPTIONS, bundlesForOnePatient.size())));
+        bundlesWithAccessCodeEvent.getBundleWithAccessCodeOrThrowable().size()));
+        bundlesWithAccessCodeEvent.getBundleWithAccessCodeOrThrowable().forEach(bundles -> {
+            try {
+                for (int i = 0; i < bundles.size(); i += MAX_NUMBER_OF_MEDICINES_PER_PRESCRIPTIONS) {
+                    log.info(String.format("Processing bundle with %d medication(s)", i));
+                    createAndSendPrescriptions(bundles
+                            .subList(i, Math.min(i + MAX_NUMBER_OF_MEDICINES_PER_PRESCRIPTIONS, bundles.size())));
+                }
+            } catch(Exception ex) {
+                exceptionEvent.fireAsync(ex);
             }
         });
     }
@@ -110,35 +114,13 @@ public class DocumentService {
     private void createAndSendPrescriptions(List<BundleWithAccessCodeOrThrowable> bundles) {
         log.info("Now creating prescription receipts");
         ByteArrayOutputStream boas = generateERezeptPdf(bundles);
-        if (boas.size() > 0) {
-            ERezeptDocument eRezeptDocument = new ERezeptDocument(bundles, boas.toByteArray());
 
-            log.info("Created prescription receipts");
-            eRezeptDocumentsEvent.fireAsync(new ERezeptDocumentsEvent(List.of(eRezeptDocument)));
+        ERezeptDocument eRezeptDocument = new ERezeptDocument(bundles, boas.size() > 0 ? boas.toByteArray() : null);
 
-            log.info("Sending prescription receipts results.");
-        }
-    }
+        log.info("Created prescription receipts");
+        eRezeptDocumentsEvent.fireAsync(new ERezeptDocumentsEvent(List.of(eRezeptDocument)));
+        log.info("Sending prescription receipts results.");
 
-    private Map<String, List<BundleWithAccessCodeOrThrowable>> filterBundlesByPatient(BundlesWithAccessCodeEvent event) {
-        List<BundleWithAccessCodeOrThrowable> allBundles = event.getBundleWithAccessCodeOrThrowable()
-                .stream()
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
-
-        Map<String, List<BundleWithAccessCodeOrThrowable>> bundlesByPatient = new HashMap<>();
-
-        allBundles.forEach(bundle -> {
-            List<Bundle.BundleEntryComponent> entries = bundle.getBundle().getEntry();
-            for (Bundle.BundleEntryComponent entry : entries) {
-                if (entry.getResource().fhirType().equals("Patient")) {
-                    String patientId = entry.getResource().getId();
-                    bundlesByPatient.putIfAbsent(patientId, new ArrayList<>());
-                    bundlesByPatient.get(patientId).add(bundle);
-                }
-            }
-        });
-        return bundlesByPatient;
     }
 
     public ByteArrayOutputStream generateERezeptPdf(List<BundleWithAccessCodeOrThrowable> bundles) {
@@ -159,7 +141,7 @@ public class DocumentService {
 
     private File createTemporaryXmlFileFromBundles(List<BundleWithAccessCodeOrThrowable> bundles) throws IOException {
         String serialized = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root xmlns=\"http://hl7.org/fhir\">\n" +
-                bundles.stream().map(bundle ->
+                bundles.stream().filter(bundle -> bundle.getBundle() != null).map(bundle ->
                         "    <bundle>\n" +
                                 "        <accessCode>" + bundle.getAccessCode() + "</accessCode>\n" +
                                 "        " + ctx.newXmlParser().encodeResourceToString(bundle.getBundle()) + "\n" +

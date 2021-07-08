@@ -10,6 +10,7 @@ import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
 import health.ere.ps.service.extractor.SVGExtractor;
+import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
 import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilder;
 import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilderTest;
 import health.ere.ps.service.muster16.Muster16FormDataExtractorService;
@@ -51,7 +52,7 @@ public class ERezeptWorkflowServiceTest {
     private static final Logger log = Logger.getLogger(ERezeptWorkflowServiceTest.class.getName());
     private final FhirContext fhirContext = FhirContext.forR4();
     private final IParser iParser = fhirContext.newXmlParser();
-    private final String testBearerToken = "eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiY3R5IjoiTkpXVCIsImV4cCI6MTYyNTA2NjM0MH0..GSqrRDh8B9_4L4VO.nqMys3GE_dKBDgEfIA2O0Sg9QQc8csNlsl8XVWQRnP3iC5Q7777Ci_SbNTLkqBSeEX_cKUbFIo7ElfDGlW3doVt9lZrqUsYvZySewl4-Rb9d3D1hFugegY46_LXtzuzwEm36W8M38DRWaIrP759riLFUPqcB6vr3oIMKzjeYZ2l3A1-H8H8AKfFhYwneWAGG5RwXwDNWMocnn3--m3pRRjgVE7JdAli8Nw5rJ26aAJ4S9q9WOQElWOzFnYteAqqjdLlWXHgK_7rElgNvMckhOeEN9rg0rouWuhN-bNXyeJMFuRQALXZ1cl5c7LGwwfI5RB-OwpOE7hAHGcWoovs89_e0uL-R8M9zNSvqU0IIDmqnvhVMdP63yHRYOCnjlsy7Z6ViWkJ_O4BnD8HbdK0yBQknKDmriX1ofPaVzZFyuLyKCLdDIhw5Ub5ML_tJ0vZ9m9WO8u1cm_352qO0NWN4O1f6b8dO2UWb1X-copBjebsD-A1Kyw8BoJzRq2dGvfarfHI1bkRl_KhFkVX15dpoqPcyLpRcqYS4W26jK7MlrjNcy508FS7CcfheQ4zbi3hxQGZDfCZ9cEit3h5I6lZEGHRGDLm_QDbEC-2rkDRRAP_97n3zswa97c57B3xG366yn4FCe9GeZHiZCY4qMtRSijAcW71G3CYzArXWwMURxAuYL8cGOen_Fsit491AM6R3AtYK4yQ_eTk_4i6UYv6GqPmxvRYjNjzAfMeyKupkLY8N0wQnL67dkMTz7RH-N8BL1PDF-ETzXmKVFmUdvhojEYV7vfOJx2yV-cXv2cChBI7A--SSffFJhqZOQUYMFRtUphBiXZTLgF2_PFpS32lgdCpn5dkNW7kMK1ARIZx7iVvhIYcYxSByJcdNZ928nHT5Kpdz8Z5ap-O8L_FYjiPrRAJ9O28ZU7ZHTVRDyOb5nOZf7kG3xVIvxJV3FQ0kLmXp4xU8tW8G53sj161rFllBJLVBKDI_7fHTnOg2Aa58wCm4AeC4thH90szLkSAPS3GtFsWkkHaEuBWffBvrHEI2POOwVy2eyz991z3OZBrwF76N1bazJTrMc4CYp3BWSR7S6dYf-E2wYeXeKqJud0qrmfVlGjMfLre8NVn-8hYtrxPEOCFAoBMZRf1S2IPvOgdYRFMoRcJDQ6PyBiSetPWvNRmJJbdWiKEUxGK1ILSKfg5QQxvWpS3yj-evGLApJbL0BBmhougcvRcbm0xQQexcZF9VQdVKye7jEG0T49SQMhskh8KU3BwJaQ.A0rDmBg2FB_lLfswYqw8ww";
+    private final String testBearerToken = "eyJhbGciOiJCUDI1NlIxIiwidHlwIjoiYXQrSldUIiwia2lkIjoicHVrX2lkcF9zaWcifQ.eyJzdWIiOiJNU1lXUGYxVlJfaXdlNzFGQVBMVzJJY0YwemNlQTVqa0x2V1piWFlmSms0IiwicHJvZmVzc2lvbk9JRCI6IjEuMi4yNzYuMC43Ni40LjUwIiwib3JnYW5pemF0aW9uTmFtZSI6IjIwMjExMDEyMiBOT1QtVkFMSUQiLCJpZE51bW1lciI6IjEtMi1BUlpULVdhbHRyYXV0RHJvbWJ1c2NoMDEiLCJhbXIiOlsibWZhIiwic2MiLCJwaW4iXSwiaXNzIjoiaHR0cHM6Ly9pZHAuZXJlemVwdC1pbnN0YW56MS50aXR1cy50aS1kaWVuc3RlLmRlIiwiZ2l2ZW5fbmFtZSI6IldhbHRyYXV0IiwiY2xpZW50X2lkIjoiZ2VtYXRpa1Rlc3RQcyIsImFjciI6ImdlbWF0aWstZWhlYWx0aC1sb2EtaGlnaCIsImF1ZCI6Imh0dHBzOi8vZXJwLXRlc3QuemVudHJhbC5lcnAuc3BsaXRkbnMudGktZGllbnN0ZS5kZS8iLCJhenAiOiJnZW1hdGlrVGVzdFBzIiwic2NvcGUiOiJvcGVuaWQgZS1yZXplcHQiLCJhdXRoX3RpbWUiOjE2MjU1MjA2ODMsImV4cCI6MTYyNTUyMDk4MywiZmFtaWx5X25hbWUiOiJEcm9tYnVzY2giLCJpYXQiOjE2MjU1MjA2ODMsImp0aSI6ImI4MmMyMzgxYjQ1MTFjZGEifQ.K4qiZS6oSEe5izDiaIN-rBjcXzJM_y6HYUOpIEUKK-9evxEXco8BB4RJhfkagQJKwCgi11pctShMOs5seN1mOw";
 
     @Inject
     ERezeptWorkflowService eRezeptWorkflowService;
@@ -93,6 +94,21 @@ public class ERezeptWorkflowServiceTest {
         DocumentService documentService = new DocumentService();
         documentService.init();
         ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
+        String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mmX")
+                .withZone(ZoneOffset.UTC)
+                .format(Instant.now());
+        Files.write(Paths.get("target/E-Rezept-"+thisMoment+".pdf"), a.toByteArray());
+    }
+
+    @Test
+    @Disabled
+    void testCreateERezeptOnPrescriptionServerFromXMLBundle() throws IOException, ERezeptWorkflowException {
+        Bundle[] bundles = XmlPrescriptionProcessor.parseFromString(Files.readString(Paths.get("/home/manuel/git/secret-test-print-samples/CGM-Turbomed/XML/Bundle1.xml")));
+        
+        List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createMultipleERezeptsOnPrescriptionServer(testBearerToken, Arrays.asList(bundles));
+        DocumentService documentService = new DocumentService();
+        documentService.init();
+        ByteArrayOutputStream a = documentService.generateERezeptPdf(bundleWithAccessCodeOrThrowable);
         String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mmX")
                 .withZone(ZoneOffset.UTC)
                 .format(Instant.now());
