@@ -1,5 +1,6 @@
 package health.ere.ps.service.idp.client;
 
+import health.ere.ps.exception.idp.IdpClientException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jose4j.jwt.consumer.InvalidJwtException;
@@ -8,16 +9,8 @@ import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 
 import java.security.PublicKey;
 import java.util.Base64;
-import java.util.Locale;
-
-import health.ere.ps.exception.idp.IdpClientException;
 
 public class ClientUtilities {
-    private static final String UPPER_CASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    private static final String LOWER_CASE = UPPER_CASE.toLowerCase(Locale.ROOT);
-    private static final String DIGITS = "0123456789";
-    private static final String SPECIAL_SIGN = "-_.~";
-    private static final String ALPHANUM = UPPER_CASE + LOWER_CASE + DIGITS + SPECIAL_SIGN;
 
     private ClientUtilities() {
     }
@@ -25,9 +18,9 @@ public class ClientUtilities {
     public static void verifyJwt(final String jwt, final PublicKey publicKey)
             throws IdpClientException {
         final JwtConsumer jwtConsumer = new JwtConsumerBuilder()
-            .setVerificationKey(publicKey)
-            .setSkipDefaultAudienceValidation()
-            .build();
+                .setVerificationKey(publicKey)
+                .setSkipDefaultAudienceValidation()
+                .build();
 
         try {
             jwtConsumer.process(jwt);
@@ -44,6 +37,6 @@ public class ClientUtilities {
     @SuppressWarnings("java:S2245")
     public static String generateCodeVerifier() {
         return Base64.getUrlEncoder().withoutPadding()
-            .encodeToString(DigestUtils.sha256(RandomStringUtils.random(123)));
+                .encodeToString(DigestUtils.sha256(RandomStringUtils.random(123)));
     }
 }
