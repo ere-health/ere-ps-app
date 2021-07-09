@@ -10,10 +10,7 @@ import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateServicePortType;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventService;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
-import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureService;
-import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortType;
-import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
-import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServiceV755;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.*;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.connector.endpoint.EndpointDiscoveryService;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
@@ -96,9 +93,22 @@ public class ConnectorServicesProducer {
     }
 
     @Produces
-    public SignatureServicePortType signatureServicePortType() {
-        SignatureServicePortType signatureService = new SignatureService(getClass()
-                .getResource("/SignatureService.wsdl")).getSignatureServicePort();
+    public SignatureServicePortTypeV740 signatureServicePortTypeV740() {
+        SignatureServicePortTypeV740 signatureService = new SignatureServiceV740(getClass()
+                .getResource("/SignatureService.wsdl")).getSignatureServicePortV740();
+
+        BindingProvider bp = (BindingProvider) signatureService;
+        bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+                endpointDiscoveryService.getSignatureServiceEndpointAddress());
+        configureBindingProvider(bp);
+
+        return signatureService;
+    }
+
+    @Produces
+    public SignatureServicePortTypeV742 signatureServicePortTypeV742() {
+        SignatureServicePortTypeV742 signatureService = new SignatureServiceV742(getClass()
+                .getResource("/SignatureService_V7_4_2.wsdl")).getSignatureServicePortv742();
 
         BindingProvider bp = (BindingProvider) signatureService;
         bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,

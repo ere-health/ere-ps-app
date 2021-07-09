@@ -14,8 +14,10 @@ import de.gematik.ws.conn.signatureservice.v7_5_5.ComfortSignatureStatusEnum;
 import de.gematik.ws.conn.signatureservice.v7_5_5.SessionInfo;
 import de.gematik.ws.conn.signatureservice.v7_5_5.SignatureModeEnum;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.FaultMessage;
-import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortType;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV740;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV742;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
+import health.ere.ps.config.AppConfig;
 import health.ere.ps.event.*;
 import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.exception.connector.ConnectorCardsException;
@@ -48,10 +50,7 @@ import javax.xml.ws.Holder;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -60,12 +59,12 @@ public class ERezeptWorkflowService {
 
     private static final String EREZEPT_IDENTIFIER_SYSTEM = "https://gematik.de/fhir/NamingSystem/PrescriptionID";
     private static final Logger log = Logger.getLogger(ERezeptWorkflowService.class.getName());
-    private final FhirContext fhirContext = FhirContext.forR4();
 
     static {
         org.apache.xml.security.Init.init();
     }
 
+    private final FhirContext fhirContext = FhirContext.forR4();
     @ConfigProperty(name = "ere.workflow-service.prescription.server.url", defaultValue = "")
     String prescriptionServerUrl;
     @ConfigProperty(name = "connector.crypt", defaultValue = "")
@@ -76,8 +75,6 @@ public class ERezeptWorkflowService {
     Boolean enableVau;
     @ConfigProperty(name = "ere-workflow-service.user-agent", defaultValue = "IncentergyGmbH-ere.health/SNAPSHOT")
     String userAgent;
-    @ConfigProperty(name = "connector.version", defaultValue = "PTV4")
-    String connectorVersion;
 
     @Inject
     ConnectorCardsService connectorCardsService;
@@ -90,13 +87,17 @@ public class ERezeptWorkflowService {
     @Inject
     EventServicePortType eventService;
     @Inject
-    SignatureServicePortType signatureService;
+    SignatureServicePortTypeV740 signatureServiceV740;
+    @Inject
+    SignatureServicePortTypeV742 signatureServiceV742;
     @Inject
     SignatureServicePortTypeV755 signatureServiceV755;
     @Inject
     ContextType contextType;
     @Inject
     Event<AbortTasksStatusEvent> abortTasksStatusEvent;
+    @Inject
+    AppConfig appConfig;
 
     private Client client;
     //In the future it should be managed automatically by the webclient, including its renewal
@@ -300,11 +301,7 @@ public class ERezeptWorkflowService {
             signRequest.setRequestID(UUID.randomUUID().toString());
             signRequest.setDocument(document);
             signRequest.setIncludeRevocationInfo(true);
-            List<SignRequest> signRequests = Arrays.asList(signRequest);
-
-            String jobNumber = "PTV4+".equals(connectorVersion) ?
-                    signatureServiceV755.getJobNumber(contextType) :
-                    signatureService.getJobNumber(contextType);
+            List<SignRequest> signRequests = Collections.singletonList(signRequest);
 
             if (wait10secondsAfterJobNumber) {
                 // Wait 10 seconds to start titus test case
@@ -316,10 +313,10 @@ public class ERezeptWorkflowService {
                     log.log(Level.SEVERE, "Could not wait", e);
                 }
             }
-
             String signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
                     ConnectorCardsService.CardHandleType.HBA);
-            if ("PTV4+".equals(connectorVersion)) {
+
+            if ("PTV4+".equals(appConfig.getConnectorVersion())) {
                 de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest signRequestsV755 = new de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest();
                 de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest.OptionalInputs optionalInputsC755 = new de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest.OptionalInputs();
                 optionalInputsC755.setSignatureType(optionalInputs.getSignatureType());
@@ -332,21 +329,26 @@ public class ERezeptWorkflowService {
                 signRequestsV755.setDocument(documentV755);
                 signRequestsV755.setIncludeRevocationInfo(signRequest.isIncludeRevocationInfo());
 
-
-                List<de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse> signResponsesV755 = signatureServiceV755.signDocument(signatureServiceCardHandle,
-                        signatureServiceCrypt, contextType, signatureServiceTvMode,
-                        jobNumber, Arrays.asList(signRequestsV755));
+                List<de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse> signResponsesV755 =
+                        signatureServiceV755.signDocument(signatureServiceCardHandle,
+                                signatureServiceCrypt, contextType, signatureServiceTvMode,
+                                signatureServiceV755.getJobNumber(contextType), Collections.singletonList(signRequestsV755));
 
                 de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse signResponseV755 = signResponsesV755.get(0);
                 SignResponse signResponse744 = new SignResponse();
                 signResponse744.setSignatureObject(signResponseV755.getSignatureObject());
                 signResponse744.setStatus(signResponseV755.getStatus());
                 return signResponse744;
-                // PTV4, could be PTV3 as well, to be refactored in a future task
+                // PTV4
+            } else if ("PTV4".equals(appConfig.getConnectorVersion())) {
+                signResponse = signatureServiceV742.signDocument(signatureServiceCardHandle, signatureServiceCrypt,
+                        contextType, signatureServiceTvMode, signatureServiceV742.getJobNumber(contextType),
+                        signRequests);
+                // PTV3
             } else {
-                signResponse = signatureService.signDocument(signatureServiceCardHandle,
-                        contextType, signatureServiceTvMode,
-                        jobNumber, signRequests);
+                signResponse = signatureServiceV740.signDocument(signatureServiceCardHandle,
+                        contextType, signatureServiceTvMode, signatureServiceV740.getJobNumber(contextType),
+                        signRequests);
             }
         } catch (ConnectorCardsException | InvalidCanonicalizerException | XMLParserException |
                 IOException | CanonicalizationException | FaultMessage e) {
@@ -363,7 +365,6 @@ public class ERezeptWorkflowService {
      * @return
      */
     public Task createERezeptTask(String bearerToken) {
-
         // https://github.com/gematik/api-erp/blob/master/docs/erp_bereitstellen.adoc#e-rezept-erstellen
         // POST to https://prescriptionserver.telematik/Task/$create
 
