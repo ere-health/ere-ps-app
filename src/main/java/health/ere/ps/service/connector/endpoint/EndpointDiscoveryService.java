@@ -1,5 +1,6 @@
 package health.ere.ps.service.connector.endpoint;
 
+import health.ere.ps.config.AppConfig;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.w3c.dom.Document;
@@ -44,6 +45,8 @@ public class EndpointDiscoveryService {
 
     @Inject
     SecretsManagerService secretsManagerService;
+    @Inject
+    AppConfig appConfig;
 
     private String authSignatureServiceEndpointAddress;
     private String signatureServiceEndpointAddress;
@@ -73,6 +76,8 @@ public class EndpointDiscoveryService {
             Document document = DocumentBuilderFactory.newDefaultInstance()
                     .newDocumentBuilder()
                     .parse(inputStream);
+
+            extractAndSetConnectorVersion(document);
 
             Node serviceInformationNode = getNodeWithTag(document.getDocumentElement(), "ServiceInformation");
 
@@ -135,6 +140,45 @@ public class EndpointDiscoveryService {
         }
         if (certificateServiceEndpointAddress == null) {
             certificateServiceEndpointAddress = fallbackCertificateServiceEndpointAddress.orElseThrow();
+        }
+    }
+
+    private void extractAndSetConnectorVersion(Document document) {
+        try {
+            //Staging/probably prod as well
+            Node productTypeNode = getNodeWithTag(getNodeWithTag(getNodeWithTag(document.getDocumentElement(),
+                    "ProductInformation"), "ProductTypeInformation"), "ProductType");
+
+            //Titus
+            Node productNameNode = getNodeWithTag(getNodeWithTag(getNodeWithTag(document.getDocumentElement(),
+                    "ProductInformation"), "ProductMiscellaneous"), "ProductName");
+
+            String productType = productTypeNode.getTextContent();
+            String productName = productNameNode.getTextContent();
+            String versionContainingText = "";
+
+            if (productType.contains("PTV")) {
+                versionContainingText = productType;
+            } else if (productName.contains("PTV")) {
+                versionContainingText = productName;
+            } else {
+                log.warning("Could not find the version of the connector to use from connector.sds, " +
+                        "using the one from the configuration:" + appConfig.getConnectorVersion());
+            }
+
+            if (versionContainingText.contains("PTV4+")) {
+                log.info("Connector version PTV4+ found in connector.sds");
+                appConfig.setConnectorVersion("PTV4+");
+            } else if (versionContainingText.contains("PTV4")) {
+                log.info("Connector version PTV4 found in connector.sds");
+                appConfig.setConnectorVersion("PTV4");
+            } else {
+                log.warning("Could not determine the version of the connector to use from connector.sds, " +
+                        "using the one from the configuration:" + appConfig.getConnectorVersion());
+            }
+        } catch (Exception e) {
+            log.warning("Could not determine the version of the connector to use from connector.sds, " +
+                    "using the one from the configuration:" + appConfig.getConnectorVersion());
         }
     }
 
