@@ -1,31 +1,28 @@
 package health.ere.ps.service.connector.certificate;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.bouncycastle.crypto.CryptoException;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.Base64;
 import java.util.logging.LogManager;
 
 import javax.inject.Inject;
 
-import health.ere.ps.config.AppConfig;
+import org.apache.commons.lang3.ArrayUtils;
+import org.bouncycastle.crypto.CryptoException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import health.ere.ps.exception.connector.ConnectorCardCertificateReadException;
 import health.ere.ps.exception.connector.ConnectorCardsException;
+import health.ere.ps.profile.TitusTestProfile;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import health.ere.ps.service.idp.crypto.CryptoLoader;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
 
 @QuarkusTest
+@TestProfile(TitusTestProfile.class)
 class CardCertificateReaderServiceTest {
 
     @Inject
