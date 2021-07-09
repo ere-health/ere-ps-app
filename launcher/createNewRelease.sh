@@ -1,6 +1,6 @@
 mkdir -p windows-installer &&
 cd windows-installer &&
-rm *.zip &&
+rm -f *.zip &&
 mvn clean install -f ../../pom.xml &&
 cp -r ../../target/quarkus-app/ . &&
 zip -r windows-installer.zip quarkus-app &&
