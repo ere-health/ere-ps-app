@@ -43,8 +43,6 @@ public class EndpointDiscoveryService {
     AppConfig appConfig;
     @Inject
     SecretsManagerService secretsManagerService;
-    @Inject
-    AppConfig appConfig;
 
     private String authSignatureServiceEndpointAddress;
     private String signatureServiceEndpointAddress;

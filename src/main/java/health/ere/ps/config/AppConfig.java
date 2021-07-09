@@ -146,4 +146,8 @@ public class AppConfig {
     public String getCertAuthStoreFilePassword() {
         return certAuthStoreFilePassword;
     }
+
+    public void setConnectorVersion(String connectorVersion) {
+        this.connectorVersion = connectorVersion;
+    }
 }
