@@ -145,15 +145,32 @@ public class EndpointDiscoveryService {
 
     private void extractAndSetConnectorVersion(Document document) {
         try {
-            Node productNameNode = getNodeWithTag(getNodeWithTag(getNodeWithTag(document.getDocumentElement(),
-                    "ProductInformation"), "pi:ProductMiscellaneous"), "pi:ProductName");
-            String productName = productNameNode.getTextContent();
+            //Staging/probably prod as well
+            Node productTypeNode = getNodeWithTag(getNodeWithTag(getNodeWithTag(document.getDocumentElement(),
+                    "ProductInformation"), "ProductTypeInformation"), "ProductType");
 
-            if (productName.contains("PTV4+")) {
-                log.info("Connection version PTV4+ found in connector.sds");
+            //Titus
+            Node productNameNode = getNodeWithTag(getNodeWithTag(getNodeWithTag(document.getDocumentElement(),
+                    "ProductInformation"), "ProductMiscellaneous"), "ProductName");
+
+            String productType = productTypeNode.getTextContent();
+            String productName = productNameNode.getTextContent();
+            String versionContainingText = "";
+
+            if (productType.contains("PTV")) {
+                versionContainingText = productType;
+            } else if (productName.contains("PTV")) {
+                versionContainingText = productName;
+            } else {
+                log.warning("Could not find the version of the connector to use from connector.sds, " +
+                        "using the one from the configuration:" + appConfig.getConnectorVersion());
+            }
+
+            if (versionContainingText.contains("PTV4+")) {
+                log.info("Connector version PTV4+ found in connector.sds");
                 appConfig.setConnectorVersion("PTV4+");
-            } else if (productName.contains("PTV4")) {
-                log.info("Connection version PTV4 found in connector.sds");
+            } else if (versionContainingText.contains("PTV4")) {
+                log.info("Connector version PTV4 found in connector.sds");
                 appConfig.setConnectorVersion("PTV4");
             } else {
                 log.warning("Could not determine the version of the connector to use from connector.sds, " +
