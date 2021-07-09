@@ -58,23 +58,14 @@ public class ERezeptWorkflowService {
 
     private static final String EREZEPT_IDENTIFIER_SYSTEM = "https://gematik.de/fhir/NamingSystem/PrescriptionID";
     private static final Logger log = Logger.getLogger(ERezeptWorkflowService.class.getName());
+    private final FhirContext fhirContext = FhirContext.forR4();
 
     static {
         org.apache.xml.security.Init.init();
     }
 
-    private final FhirContext fhirContext = FhirContext.forR4();
-    @ConfigProperty(name = "ere.workflow-service.prescription.server.url", defaultValue = "")
-    String prescriptionServerUrl;
-    @ConfigProperty(name = "connector.crypt", defaultValue = "")
-    String signatureServiceCrypt;
-    @ConfigProperty(name = "connector.tvMode", defaultValue = "")
-    String signatureServiceTvMode;
-    @ConfigProperty(name = "ere-workflow-service.vau.enable", defaultValue = "true")
-    Boolean enableVau;
-    @ConfigProperty(name = "ere-workflow-service.user-agent", defaultValue = "IncentergyGmbH-ere.health/SNAPSHOT")
-    String userAgent;
-
+    @Inject
+    AppConfig appConfig;
     @Inject
     ConnectorCardsService connectorCardsService;
     @Inject
@@ -93,8 +84,6 @@ public class ERezeptWorkflowService {
     ContextType contextType;
     @Inject
     Event<AbortTasksStatusEvent> abortTasksStatusEvent;
-    @Inject
-    AppConfig appConfig;
 
     private Client client;
     //In the future it should be managed automatically by the webclient, including its renewal
@@ -112,9 +101,9 @@ public class ERezeptWorkflowService {
     @PostConstruct
     public void init() throws SecretsManagerException {
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
-        if (enableVau) {
+        if (appConfig.vauEnabled()) {
             try {
-                ((ResteasyClientBuilderImpl) clientBuilder).httpEngine(new VAUEngine(prescriptionServerUrl));
+                ((ResteasyClientBuilderImpl) clientBuilder).httpEngine(new VAUEngine(appConfig.getPrescriptionServiceURL()));
             } catch (Exception ex) {
                 log.log(Level.SEVERE, "Could not enable VAU", ex);
                 exceptionEvent.fireAsync(ex);
@@ -218,9 +207,9 @@ public class ERezeptWorkflowService {
         ePrescriptionParameter.setResource(binary);
         parameters.addParameter(ePrescriptionParameter);
 
-        Response response = client.target(prescriptionServerUrl).path("/Task")
+        Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task")
                 .path("/" + task.getIdElement().getIdPart()).path("/$activate").request()
-                .header("User-Agent", userAgent)
+                .header("User-Agent", appConfig.getUserAgent())
                 .header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
                 .post(Entity.entity(fhirContext.newXmlParser().encodeResourceToString(parameters),
                         "application/fhir+xml; charset=utf-8"));
@@ -312,7 +301,6 @@ public class ERezeptWorkflowService {
             }
             String signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
                     ConnectorCardsService.CardHandleType.HBA);
-
             if ("PTV4+".equals(appConfig.getConnectorVersion())) {
                 de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest signRequestsV755 = new de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest();
                 de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest.OptionalInputs optionalInputsC755 = new de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest.OptionalInputs();
@@ -326,10 +314,9 @@ public class ERezeptWorkflowService {
                 signRequestsV755.setDocument(documentV755);
                 signRequestsV755.setIncludeRevocationInfo(signRequest.isIncludeRevocationInfo());
 
-                List<de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse> signResponsesV755 =
-                        signatureServiceV755.signDocument(signatureServiceCardHandle,
-                                signatureServiceCrypt, contextType, signatureServiceTvMode,
-                                signatureServiceV755.getJobNumber(contextType), Collections.singletonList(signRequestsV755));
+                List<de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse> signResponsesV755 = signatureServiceV755.signDocument(signatureServiceCardHandle,
+                        appConfig.getConnectorCrypt(), contextType, appConfig.getTvMode(),
+                        signatureServiceV755.getJobNumber(contextType), Collections.singletonList(signRequestsV755));
 
                 de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse signResponseV755 = signResponsesV755.get(0);
                 SignResponse signResponse744 = new SignResponse();
@@ -339,7 +326,7 @@ public class ERezeptWorkflowService {
                 // PTV4, could be PTV3 as well, to be refactored in a future task
             } else {
                 signResponse = signatureService.signDocument(signatureServiceCardHandle,
-                        contextType, signatureServiceTvMode,
+                        contextType, appConfig.getTvMode(),
                         signatureService.getJobNumber(contextType), signRequests);
             }
         } catch (ConnectorCardsException | InvalidCanonicalizerException | XMLParserException |
@@ -371,8 +358,8 @@ public class ERezeptWorkflowService {
         String parameterString = fhirContext.newXmlParser().encodeResourceToString(parameters);
         log.fine("Parameter String: " + parameterString);
 
-        Response response = client.target(prescriptionServerUrl).path("/Task/$create").request()
-                .header("User-Agent", userAgent)
+        Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task/$create").request()
+                .header("User-Agent", appConfig.getUserAgent())
                 .header("Authorization", "Bearer " + bearerToken)
                 .post(Entity.entity(parameterString, "application/fhir+xml; charset=utf-8"));
 
@@ -395,8 +382,8 @@ public class ERezeptWorkflowService {
      * @return
      */
     public void abortERezeptTask(String bearerToken, String taskId, String accessCode) {
-        Response response = client.target(prescriptionServerUrl).path("/Task").path("/" + taskId).path("/$abort")
-                .request().header("User-Agent", userAgent).header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
+        Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task").path("/" + taskId).path("/$abort")
+                .request().header("User-Agent", appConfig.getUserAgent()).header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
                 .post(Entity.entity("", "application/fhir+xml; charset=utf-8"));
         String taskString = response.readEntity(String.class);
         // if it is not successful and it was found
