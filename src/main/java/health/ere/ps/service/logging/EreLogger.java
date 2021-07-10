@@ -299,7 +299,8 @@ public class EreLogger extends Logger {
 
     private void handlePostLogging(String loggingMsg, String logStatus, Throwable thrown) {
         setLogDetails(CollectionUtils.isNotEmpty(getLogDetails())? getLogDetails() :
-                thrown != null? List.of(thrown.getMessage()) : List.of());
+                thrown != null? List.of(StringUtils.defaultString(thrown.getMessage())) :
+                        List.of());
         setLogMessage(loggingMsg);
         setStatus(logStatus);
 
