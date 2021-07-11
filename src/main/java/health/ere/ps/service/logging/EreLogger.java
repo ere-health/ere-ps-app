@@ -2,6 +2,7 @@ package health.ere.ps.service.logging;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jboss.logging.Logger;
 
@@ -139,10 +140,10 @@ public class EreLogger extends Logger {
                     getSystemContextList().stream()
                             .map(ctx -> ctx.getSysContext())
                             .collect(Collectors.joining(",")) :
-                    StringUtils.defaultString(defaultMessage);
-            String decoratedMessage = String.format("[%s <--> %s] <==> " +
-                            StringUtils.defaultString(originalLogMessage), sysCtxPrefix,
-                    StringUtils.defaultString(simpleLogMessage, "?"));
+                    StringUtils.defaultString(defaultMessage, "?");
+            String decoratedMessage = String.format("[%s <--> %s] <==> ", sysCtxPrefix,
+                    StringUtils.defaultString(simpleLogMessage, "?")) +
+                    StringUtils.defaultString(originalLogMessage);
 
             return decoratedMessage;
         }
@@ -316,8 +317,13 @@ public class EreLogger extends Logger {
     protected void doLog(Level level, String loggerClassName, Object message,
                          Object[] parameters, Throwable thrown) {
 
-        String filledLogMessage = MessageFormat.format((String)message, parameters);
-        String decoratedMessage = getSimpleLogPrefix(filledLogMessage,
+        String filledLogMessage = (String)message;
+
+        if(ArrayUtils.isNotEmpty(parameters)) {
+            filledLogMessage = MessageFormat.format(filledLogMessage, parameters);
+        }
+
+        String decoratedMessage = getSimpleLogPrefix((String)message,
                 StringUtils.defaultString(loggerClassName));
 
         externalLogger.log(loggerClassName, level, decoratedMessage, parameters, thrown);
@@ -329,7 +335,7 @@ public class EreLogger extends Logger {
     protected void doLogf(Level level, String loggerClassName, String format,
                           Object[] parameters, Throwable thrown) {
         String filledLogMessage = String.format(format, parameters);
-        String decoratedMessage = getSimpleLogPrefix(filledLogMessage,
+        String decoratedMessage = getSimpleLogPrefix(format,
                 StringUtils.defaultString(loggerClassName));
 
         externalLogger.logf(loggerClassName, level, thrown, decoratedMessage, parameters);

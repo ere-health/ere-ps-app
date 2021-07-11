@@ -1,5 +1,6 @@
 package health.ere.ps.service.logging;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -11,12 +12,7 @@ import io.quarkus.test.junit.QuarkusTest;
 @QuarkusTest
 class EreLoggerTest {
 
-    private EreLogger logger;
-
-    @BeforeEach
-    void init() {
-        logger = EreLogger.getLogger(getClass());
-    }
+    private static final EreLogger logger = EreLogger.getLogger(EreLoggerTest.class);
 
     @Test
     void test_Successful_Message_Logging() {
@@ -44,7 +40,7 @@ class EreLoggerTest {
     void test_Successful_Message_Logging_With_Context_And_Simple_Log_Message() {
         logger.setLoggingContext(List.of(EreLogger.SystemContext.Connector,
                 EreLogger.SystemContext.CardTerminal),
-                "SMC-B Card NotPresent")
+                "SMC-B Card Not Present")
                 .info("Simple logging test with context and simple message Ok.");
     }
 
@@ -118,7 +114,7 @@ class EreLoggerTest {
     }
 
     @Test
-    void test_Successful_Formatted_Message_Logging_With_Exception_Context_And_Simple_Log_Message_And_Exception_Object_And_Log_Event_Publishing() {
+    void test_Successful_Formatted_Message_Logging_With_Exception_And_Context_And_Simple_Log_Message_And_Exception_Object_And_Log_Event_Publishing() {
         try {
            throw new Throwable("Test exception thrown.");
         } catch(Throwable e) {
