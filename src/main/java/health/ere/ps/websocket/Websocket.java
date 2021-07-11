@@ -37,10 +37,12 @@ import ca.uhn.fhir.context.FhirContext;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.event.BundlesEvent;
 import health.ere.ps.event.ERezeptDocumentsEvent;
+import health.ere.ps.event.EreLogNotificationEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
 import health.ere.ps.exception.bundle.EreParseException;
 import health.ere.ps.jsonb.BundleAdapter;
 import health.ere.ps.jsonb.ByteAdapter;
+import health.ere.ps.model.websocket.OutgoingPayload;
 import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
 import health.ere.ps.service.fhir.bundle.EreBundle;
 import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
@@ -97,17 +99,17 @@ public class Websocket {
 
                 SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(object);
                 signAndUploadBundlesEvent.fireAsync(event);
-            } else if("XMLBundle".equals(object.getString("type"))) {
+            } else if ("XMLBundle".equals(object.getString("type"))) {
                 Bundle[] bundles = XmlPrescriptionProcessor.parseFromString(object.getString("payload"));
                 onFhirBundle(new BundlesEvent(bundles));
-            } 
+            }
         }
     }
 
     public void onFhirBundle(@ObservesAsync BundlesEvent bundlesEvent) {
 
         // if nobody is connected to the websocket
-        if(sessions.size() == 0) {
+        if (sessions.size() == 0) {
             if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
                 try {
                     // Open a browser with the given URL
@@ -159,23 +161,23 @@ public class Websocket {
     String generateJson(BundlesEvent bundlesEvent) {
 
         bundlesEvent.getBundles().stream().forEach(bundle -> {
-            if(bundle instanceof EreBundle) {
+            if (bundle instanceof EreBundle) {
                 log.info("Filled bundle json template result shown below. Null value place" +
                         " holders present.");
                 log.info("==============================================");
 
-                log.info(((EreBundle)bundle).encodeToJson());
+                log.info(((EreBundle) bundle).encodeToJson());
             }
         });
 
-        if(bundlesEvent.getBundles().stream().filter(b -> b instanceof EreBundle).findAny().isPresent() ) {
+        if (bundlesEvent.getBundles().stream().filter(b -> b instanceof EreBundle).findAny().isPresent()) {
             return bundlesEvent.getBundles().stream().map(bundle ->
-                    ((EreBundle)bundle).encodeToJson())
+                    ((EreBundle) bundle).encodeToJson())
                     .collect(Collectors.joining(",\n", "[", "]"));
         } else {
             return bundlesEvent.getBundles().stream().map(bundle ->
                     ctx.newJsonParser().encodeResourceToString(bundle))
-                        .collect(Collectors.joining(",\n", "[", "]"));
+                    .collect(Collectors.joining(",\n", "[", "]"));
         }
     }
 
@@ -189,6 +191,21 @@ public class Websocket {
                     .sendObject("{\"type\": \"Exception\", \"payload\": { \"class\": \""
                             + exception.getClass().getName() + "\", \"message\": \"" + exception.getLocalizedMessage()
                             + "\", \"stacktrace\": \"" + sw.toString().replaceAll("\r?\n", "\\\\n").replaceAll("\t", "\\\\t") + "\"}}", result -> {
+                        if (result.getException() != null) {
+                            log.fatal("Unable to send message: " + result.getException());
+                        }
+                    });
+        });
+    }
+
+    public void onEreLogNotificationEvent(@ObservesAsync EreLogNotificationEvent event) {
+        sessions.forEach(session -> {
+            OutgoingPayload<EreLogNotificationEvent> outgoingPayload = new OutgoingPayload(event);
+
+            outgoingPayload.setType("Notification");
+
+            session.getAsyncRemote()
+                    .sendObject(outgoingPayload.toString(), result -> {
                         if (result.getException() != null) {
                             log.fatal("Unable to send message: " + result.getException());
                         }

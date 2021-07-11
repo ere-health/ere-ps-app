@@ -46,7 +46,7 @@ import health.ere.ps.event.EreLogNotificationEvent;
  *  DEBUG
  *  TRACE
  *
- *  Note that if the log details is manually set via the {@link EreLogger#setLogDetails(List)}
+ *  Note: If the log details are manually set via the {@link EreLogger#setLogDetails(List)}
  *  method call while an exception object is logged, the manually set log details will override
  *  the logged exception object and its contents will appear in the
  *  {@link EreLogNotificationEvent} object's logMessageDetails[] list instead of the exception
@@ -57,6 +57,9 @@ import health.ere.ps.event.EreLogNotificationEvent;
  *
  *  The exception stack trace details will still appear in the log file instead of the
  *  manually set log details if an exception object is being logged.
+ *
+ *  Note: After every log method call completes, all settings applied to a log method call will
+ *  be cleared.
  */
 public class EreLogger extends Logger {
     protected Logger externalLogger;
@@ -164,7 +167,7 @@ public class EreLogger extends Logger {
         return logDetails;
     }
 
-    public EreLogger setStatus(String status) {
+    protected EreLogger setStatus(String status) {
         this.status = status;
 
         return this;

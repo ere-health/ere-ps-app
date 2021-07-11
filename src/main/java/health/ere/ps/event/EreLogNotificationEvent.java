@@ -3,9 +3,10 @@ package health.ere.ps.event;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class EreLogNotificationEvent {
+public class EreLogNotificationEvent implements Serializable {
     private List<String> systemContextList;
     private String simpleLogMessage;
     private String status;
