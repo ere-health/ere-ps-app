@@ -1,0 +1,36 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="coding-ask" />
+  <url value="http://fhir.de/StructureDefinition/CodingASK" />
+  <version value="0.9.13" />
+  <name value="CodingASK" />
+  <title value="Coding-Profil für ASK" />
+  <status value="draft" />
+  <date value="2020-07-05" />
+  <publisher value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+  <contact>
+    <name value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+    <telecom>
+      <system value="url" />
+    </telecom>
+  </contact>
+  <description value="Abbildung der Mindestanforderungen einer ASK-Codierung" />
+  <fhirVersion value="4.0.1" />
+  <kind value="complex-type" />
+  <abstract value="false" />
+  <type value="Coding" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Coding" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Coding.system">
+      <path value="Coding.system" />
+      <short value="Canonische CodeSystem URL für ASK" />
+      <min value="1" />
+      <fixedUri value="http://fhir.de/CodeSystem/ask" />
+    </element>
+    <element id="Coding.code">
+      <path value="Coding.code" />
+      <short value="Der PZN-Code" />
+      <min value="1" />
+    </element>
+  </differential>
+</StructureDefinition>

@@ -1,0 +1,37 @@
+<NamingSystem xmlns="http://hl7.org/fhir">
+  <id value="namingSystem-kbv-vknr" />
+  <meta>
+    <profile value="http://fhir.de/StructureDefinition/namingsystem-de-basis" />
+  </meta>
+  <name value="KbvVknr" />
+  <status value="draft" />
+  <kind value="identifier" />
+  <date value="2020-04-23" />
+  <publisher value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+  <contact>
+    <telecom>
+      <system value="other" />
+      <value value="http://hl7.de/technische-komitees/fhir/" />
+    </telecom>
+  </contact>
+  <responsible value="Kassenärztliche Bundesvereinigung (KBV)" />
+  <type>
+    <coding>
+      <system value="http://terminology.hl7.org/CodeSystem/v2-0203" />
+      <code value="NIIP" />
+    </coding>
+  </type>
+  <description value="Die Vertragskassennummer der Kassenärztlichen Vereinigungen (VKNR) identifiziert Krankenkassen für Abrechnungszwecke. Rechtliche Grundlage hierfür ist § 15 der 1. Änderung des Vertrages über den Datenaustausch auf Datenträgern (Anlage 6 des Bundesmantelvertrages Ärzte vom 1. Juli 2018). Die VKNR ist wie folgt aufgebaut: 1. und 2. Stelle: Nummer der KV-Abrechnungsstelle; 3. bis 5. Stelle: Seriennummer der Krankenkasse innerhalb der Kassenart" />
+  <uniqueId>
+    <type value="oid" />
+    <value value="1.2.276.0.76.4.7" />
+  </uniqueId>
+  <uniqueId>
+    <type value="uri" />
+    <value value="http://fhir.de/NamingSystem/kbv/vknr" />
+    <preferred value="true" />
+    <period>
+      <start value="2020-04-23" />
+    </period>
+  </uniqueId>
+</NamingSystem>

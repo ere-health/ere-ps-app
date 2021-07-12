@@ -1,0 +1,147 @@
+<CodeSystem xmlns="http://hl7.org/fhir">
+  <id value="Aufnahmeart" />
+  <meta>
+    <profile value="http://hl7.org/fhir/StructureDefinition/shareablecodesystem" />
+  </meta>
+  <url value="http://fhir.de/CodeSystem/Aufnahmeart" />
+  <version value="0.9.13" />
+  <name value="Aufnahmeart" />
+  <status value="draft" />
+  <experimental value="true" />
+  <date value="2020-02-17" />
+  <publisher value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+  <contact>
+    <telecom>
+      <system value="url" />
+      <value value="http://hl7.de/technische-komitees/fhir/" />
+    </telecom>
+  </contact>
+  <description value="Codierung verschiedener in DE üblicher Aufnahmearten basierend gesetzlichen Grundlagen " />
+  <caseSensitive value="true" />
+  <valueSet value="http://fhir.de/ValueSet/Aufnahmeart" />
+  <content value="complete" />
+  <concept>
+    <code value="AOP" />
+    <display value="Ambulantes Operieren" />
+    <definition value="Aufnahme zum ambulanten Operieren gem. §115 SGB V" />
+  </concept>
+  <concept>
+    <code value="HSA" />
+    <display value="Hochschulambulanz" />
+    <definition value="Ambulante Aufnahme in Hochschulambulanz gem. §115 SGB V" />
+  </concept>
+  <concept>
+    <code value="PIA" />
+    <display value="Psychiatrische Institutsambulanz" />
+    <definition value="Ambulante Aufnahme in Psychiatrische Institutsambulanz gem. §115 SGB V" />
+  </concept>
+  <concept>
+    <code value="SPZ" />
+    <display value="Sozialpädiatrische Zentren" />
+    <definition value="Ambulante Aufnahme in Sozialpädiatrisches Zentrum gem. §115 SGB V" />
+  </concept>
+  <concept>
+    <code value="ASV" />
+    <display value="Ambulante Spezialfachärztliche Versorgung" />
+    <definition value="Ambulante Aufnahme zur spezialfachärztlichen Versorgung gem. §115 SGB V" />
+  </concept>
+  <concept>
+    <code value="KIA" />
+    <display value="Spezialambulanz in Kinderkliniken" />
+    <definition value="Ambulante Aufnahme in Spezialambulanz in Kinderkliniken" />
+  </concept>
+  <concept>
+    <code value="DRG" />
+    <display value="Diagnosebezogene Fallgruppen" />
+    <definition value="Voll-/Teilstationäre Aufnahme gem. §301 SGB V: Diagnosebezogene Fallgruppen" />
+  </concept>
+  <concept>
+    <code value="PEPP" />
+    <display value="Pauschalierendes Entgeltsystem Psychiatrie und Psychosomatik" />
+    <definition value="Voll-/Teilstationäre Aufnahme gem. §301 SGB V: Pauschalierendes Entgeltsystem Psychiatrie und Psychosomatik" />
+  </concept>
+  <concept>
+    <code value="VNSB" />
+    <display value="Vor-/Nachstationäre Behandlung" />
+    <definition value="Vor-/Nachstationäre Behandlung" />
+  </concept>
+  <concept>
+    <code value="AP" />
+    <display value="Ausländische Patienten (nicht EU)" />
+    <definition value="Voll-/Teilstationäre Aufnahme ausländischer Patienten (nicht-EU)" />
+  </concept>
+  <concept>
+    <code value="SPB" />
+    <display value="Stationsäquivalente psychiatrische Behandlung" />
+  </concept>
+  <concept>
+    <code value="WLU" />
+    <display value="Wahlleistung Unterkunft" />
+    <definition value="Voll-/Teilstationäre Aufnahme gem §301 SGB mit Wahlleistung Unterkunft" />
+  </concept>
+  <concept>
+    <code value="WLA" />
+    <display value="Wahlleistung Arzt" />
+    <definition value="Voll-/Teilstationäre Aufnahme gem §301 SGB mit Wahlleistung Arzt, Chefarztabrechnung, Privatliquidation" />
+  </concept>
+  <concept>
+    <code value="PS" />
+    <display value="Privatsprechstunge" />
+    <definition value="ambulante Aufnahme in Privatsprechstunge mit Privatliquidation" />
+  </concept>
+  <concept>
+    <code value="SZ" />
+    <display value="Selbstzahlerrechnung" />
+    <definition value="ambulante Aufnahme mit Selbstzahlerrechnung" />
+  </concept>
+  <concept>
+    <code value="IGEL" />
+    <display value="Medizinische Wahlleistung (IGeL)" />
+    <definition value="ambulante Aufnahme mit mit medizinischer Wahlleistung (IGeL)" />
+  </concept>
+  <concept>
+    <code value="KV" />
+    <display value="KV-Ermächtigung / Notfallabrechnung" />
+    <definition value="ambulante Aufnahme gem §295 SGB V" />
+  </concept>
+  <concept>
+    <code value="BG" />
+    <display value="Berufsgenossenschaft" />
+    <definition value="ambulante Aufnahme mit BG-Abrechnung" />
+  </concept>
+  <concept>
+    <code value="SL" />
+    <display value="sonstige Leistungserbringer" />
+    <definition value="Abrechnung sonstiger Leistungserbringer (z.B. Physiotherapie, Ergotherapie, Logopädie)" />
+  </concept>
+  <concept>
+    <code value="KEK" />
+    <display value="Konsile für externe Krankenhäuser" />
+    <definition value="Konsile für externe Krankenhäuser" />
+  </concept>
+  <concept>
+    <code value="IA" />
+    <display value="Gutachten, Institutsabrechnung" />
+    <definition value="Gutachten, Institutsabrechnung" />
+  </concept>
+  <concept>
+    <code value="MVZ" />
+    <display value="Medizinische Versorgungszentren" />
+    <definition value="ambulante Aufnahme in Medizinisches Versorgungszentrum" />
+  </concept>
+  <concept>
+    <code value="IV" />
+    <display value="integrierte Versorgung" />
+    <definition value="ambulante Aufnahme im Rahmen der integrierten Versorgung" />
+  </concept>
+  <concept>
+    <code value="DMP" />
+    <display value="Disease Management Program" />
+    <definition value="ambulante Aufnahme im Rahmen eines Disease Management Programs" />
+  </concept>
+  <concept>
+    <code value="REHA" />
+    <display value="Rehabilitations-Einrichtungen" />
+    <definition value="stationäre Aufnahme in Rehabilitations-Einrichtungen" />
+  </concept>
+</CodeSystem>

@@ -1,0 +1,85 @@
+<CodeSystem xmlns="http://hl7.org/fhir">
+  <id value="observation-category-supplement" />
+  <meta>
+    <profile value="http://hl7.org/fhir/StructureDefinition/shareablecodesystem" />
+  </meta>
+  <url value="http://fhir.de/CodeSystem/observation-category-supplement" />
+  <version value="0.9.13" />
+  <name value="SupplementObservationCategory" />
+  <status value="draft" />
+  <experimental value="true" />
+  <date value="2019-11-07" />
+  <publisher value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+  <contact>
+    <telecom>
+      <system value="url" />
+      <value value="http://hl7.de/technische-komitees/fhir/" />
+    </telecom>
+  </contact>
+  <description value="CodeSystem Supplement mit Deutschen Übersetzungen für ObservationCategoryCodes" />
+  <content value="supplement" />
+  <supplements value="http://terminology.hl7.org/CodeSystem/observation-category" />
+  <concept>
+    <code value="social-history" />
+    <designation>
+      <language value="de-DE" />
+      <value value="Anamnese" />
+    </designation>
+  </concept>
+  <concept>
+    <code value="vital-signs" />
+    <designation>
+      <language value="de-DE" />
+      <value value="Vitalparameter" />
+    </designation>
+  </concept>
+  <concept>
+    <code value="imaging" />
+    <designation>
+      <language value="de-DE" />
+      <value value="bildgebende Verfahren" />
+    </designation>
+  </concept>
+  <concept>
+    <code value="laboratory" />
+    <designation>
+      <language value="de-DE" />
+      <value value="Labor" />
+    </designation>
+  </concept>
+  <concept>
+    <code value="procedure" />
+    <designation>
+      <language value="de-DE" />
+      <value value="Prozeduren" />
+    </designation>
+  </concept>
+  <concept>
+    <code value="survey" />
+    <designation>
+      <language value="de-DE" />
+      <value value="Assessment-Instrumente" />
+    </designation>
+  </concept>
+  <concept>
+    <code value="exam" />
+    <designation>
+      <language value="de-DE" />
+      <value value="körperliche Untersuchungen" />
+    </designation>
+  </concept>
+  <concept>
+    <code value="therapy" />
+    <designation>
+      <language value="de-DE" />
+      <value value="therapeutische Maßnahmen" />
+    </designation>
+  </concept>
+  <concept>
+    <code value="activity" />
+    <designation>
+      <language value="de-DE" />
+      <value value="körperliche Aktivität" />
+    </designation>
+  </concept>
+</CodeSystem>

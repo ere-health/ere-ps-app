@@ -118,7 +118,7 @@ public class Websocket {
 
     @OnError
     public void onError(Session session, Throwable throwable) {
-        sessions.remove(session);
+        // sessions.remove(session);
         log.info("Websocket error: " + throwable);
     }
 

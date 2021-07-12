@@ -1,0 +1,39 @@
+<NamingSystem xmlns="http://hl7.org/fhir">
+  <id value="namingSystem-kbv-bsnr" />
+  <meta>
+    <profile value="http://fhir.de/StructureDefinition/namingsystem-de-basis" />
+  </meta>
+  <name value="KbvBsnr" />
+  <status value="retired" />
+  <kind value="identifier" />
+  <date value="2020-04-18" />
+  <publisher value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+  <contact>
+    <telecom>
+      <system value="other" />
+      <value value="http://hl7.de/technische-komitees/fhir/" />
+    </telecom>
+  </contact>
+  <responsible value="Kassenärztliche Bundesvereinigung (KBV)" />
+  <type>
+    <coding>
+      <system value="http://terminology.hl7.org/CodeSystem/v2-0203" />
+      <code value="PRN" />
+    </coding>
+  </type>
+  <description value="Der Namensraum für die BSNR ist nunmehr durch die KBV definiert. Vgl. das entsprechende Identifier-Profil." />
+  <usage value="BSNR und (L)ANR werden in der Regel kombiniert verwendet, um einen Arzt in seiner Funktion und seiner Praxis eindeutig zu identifizieren. Typische Use Cases sind Abrechnungen sowie die Übermittlung abrechnungsrelevanter medizinischer Daten" />
+  <uniqueId>
+    <type value="oid" />
+    <value value="1.2.276.0.76.4.17" />
+  </uniqueId>
+  <uniqueId>
+    <type value="uri" />
+    <value value="http://fhir.de/NamingSystem/kbv/bsnr" />
+    <preferred value="true" />
+    <period>
+      <start value="2017-09-15" />
+      <end value="2020-04-18" />
+    </period>
+  </uniqueId>
+</NamingSystem>
