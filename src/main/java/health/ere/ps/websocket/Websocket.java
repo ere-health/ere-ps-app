@@ -1,15 +1,21 @@
 package health.ere.ps.websocket;
 
 import java.awt.Desktop;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -84,6 +90,26 @@ public class Websocket {
         log.info("Websocket opened");
     }
 
+    void sendAllKBVExamples(){
+        sessions.forEach(session -> {
+
+            try (Stream<Path> paths = Files.walk(Paths.get("../src/test/resources/simplifier_erezept"))) {
+                paths
+                    .filter(Files::isRegularFile)
+                    .forEach(f -> {
+                        try (InputStream inputStream = new FileInputStream(f.toFile())) {
+                            Bundle bundle = ctx.newXmlParser().parseResource(Bundle.class, inputStream);
+                            onFhirBundle(new BundlesEvent(new Bundle[] { bundle }));
+                        } catch(IOException ex) {
+                            log.warn("Could read all files", ex);
+                        }
+                    });
+            } catch(IOException ex) {
+                log.warn("Could read all files", ex);
+            }
+        });
+    }
+
     @OnClose
     public void onClose(Session session) {
         sessions.remove(session);
@@ -123,6 +149,9 @@ public class Websocket {
             else if ("ErixaEvent".equals(object.getString("type"))){
                 ErixaEvent event = new ErixaEvent(object);
                 erixaEvent.fireAsync(event);
+            }
+            else if("AllKBVExamples".equals(object.getString("type")) { 
+                sendAllKBVExamples();
             }
         }
     }

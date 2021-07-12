@@ -1,636 +1,407 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="description" content="Bundle of type document" />
-    <meta name="author" content="Firely">
-    <title>eRezept | 8ce1c3d1-7eaa-45ea-b756-015cf2f2a04b - SIMPLIFIER.NET </title>
-    <link rel="icon" href="/images/favicon.ico">
-
-    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
-    <link rel="stylesheet" href="/fonts/fhir-webicons/styles.css">
-
-    <link rel="stylesheet" href="/bundles/vendor/jquery-ui.min.css?v=ex5yaMGUvcECIJMEDGTNbUu8Lox3lYMEw03SFBEha0I" />
-    <link rel="stylesheet" href="/bundles/vendor/jasny-bootstrap.min.css?v=IWtb8NMD1t35yeZSSSs4jW6TTp7bpBhNb-smYnGCRjQ" />
-    <link rel="stylesheet" href="/bundles/vendor/croppie.min.css?v=6F63CcL7zKu6P2HawKEjfYcy-dMD6AIKXUcbuu982As" />
-
-    
-
-    <script defer src="/bundles/vendor/jquery.min.js?v=wNQJi8izTG-Ho9dyOYiugSFKU6C7Sh1NNqZ2QPmO0Hk"></script>
-    <script defer src="/bundles/vendor/bootstrap.min.js?v=BBqki8mE5nej9mQVOQfcxAUiEyZV2kP_mj9GGs5NAkI"></script>
-    <script defer src="/bundles/vendor/jquery-ui.min.js?v=yXsOxk3VM-2LjzhXR0bu2uiLqA1P2B3h2vjSUSzX0BQ"></script>
-    <script defer src="/bundles/vendor/jquery-validate.min.js?v=X1rBf7KAq9c9yEOttvTZCkKwxi9_0MmWWhT9d211iek"></script>
-    <script defer src="/bundles/vendor/jquery-cookie.min.js?v=1A78rJEdiWTzco6qdn3igTBv9VupN3Q1ozZNTR4WE_Y"></script>
-    <script defer src="/bundles/vendor/jquery.custom.redirect.min.js?v=3-O68P3tLtVSe_oXSGZSjsEmWD9yRfDxoAyYv702WMw"></script>
-    <script defer src="/bundles/vendor/modernizr.min.js?v=pZUuydRLsmxbt2qKt57xPdjgcKz59PLT33iOdB4xPBk"></script>
-    <script defer src="/bundles/vendor/typeahead.min.js?v=RWiU4omUU7tQ2M3wmRQNW9UL50MB4CucbRPCbsQv-X0"></script>
-    <script defer src="/bundles/vendor/fhirjs.min.js?v=aSndolKlf6w4OiRs90aECOwa_B4zjJ0IlB0NMGGrXs8"></script>
-    <script defer src="/bundles/vendor/lodash.min.js?v=SmtwmVvHBrVWUXiJck4F7jgN2ioB-T2KPIBueY8S4SE"></script>
-    <script defer src="/bundles/vendor/signalR-client.min.js?v=1yGr-J4NjYMQVt6LP6vocjHIWhO-BFQLfdCs8x1Mv-U"></script>
-    <script defer src="/bundles/vendor/timeago.min.js?v=rkAXBjuWF8bdoJq_H-jlu5YNYq5I8VC2oAW-QQv3xV0"></script>
-
-    
-
-    
-
-        <link rel="stylesheet" href="/bundles/app/theme.min.css?v=22kHv1c2dw2t9KTjBde5lCe3IdkA0JkMZYVxuokewDY" />
-        <link rel="stylesheet" href="/bundles/app/app.min.css?v=hcR9lwpBE_uVFPxIZ_aMph-X8H5uclOeIQg3pusSkvs" />
-        <link rel="stylesheet" href="/bundles/app/rendering.min.css?v=mwgF7XMI7L1IAf1knqS2voB6bOKGIavPNw6_vmBcnAs" />
-
-        <script defer src="/bundles/app/treetable.min.js?v=SuTe3P4PyMqaBAIM5unp6bfNy4anyP6MFXOh-vkTsng"></script>
-        <script defer src="/bundles/app/modules.min.js?v=yX1kCyZI4nlmpI03zmzpXXTUYin9MZPeUpgWgwEBTUQ"></script>
-        <script defer src="/bundles/app/utilities.min.js?v=1a9ITHX6g0-DIMhfuO0-tyFSe5A04hX38Zcnf76F9UE"></script>
-        <script defer src="/bundles/app/shared.min.js?v=Y-K2oIIcAvbGKwmLmKvmkdcaQqaePTE0g_CLxVarG70"></script>
-        <script defer src="/bundles/app/services.min.js?v=kpHsN2iYE1tpHI4F45qmFrOJrgSURDJ-sMwOeCuSK00"></script>
-
-    
-
-    
-        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-75770883-1"></script>
-<script type="text/javascript">
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-    gtag('js', new Date());
-    gtag('config', 'UA-75770883-1', { 'anonymize_ip': true });
-</script>
-
-    
-
-    <script type="text/javascript">
-
-var sdkInstance="appInsightsSDK";window[sdkInstance]="appInsights";var aiName=window[sdkInstance],aisdk=window[aiName]||function(e){function n(e){t[e]=function(){var n=arguments;t.queue.push(function(){t[e].apply(t,n)})}}var t={config:e};t.initialize=!0;var i=document,a=window;setTimeout(function(){var n=i.createElement("script");n.src=e.url||"https://az416426.vo.msecnd.net/scripts/b/ai.2.min.js",i.getElementsByTagName("script")[0].parentNode.appendChild(n)});try{t.cookie=i.cookie}catch(e){}t.queue=[],t.version=2;for(var r=["Event","PageView","Exception","Trace","DependencyData","Metric","PageViewPerformance"];r.length;)n("track"+r.pop());n("startTrackPage"),n("stopTrackPage");var s="Track"+r[0];if(n("start"+s),n("stop"+s),n("addTelemetryInitializer"),n("setAuthenticatedUserContext"),n("clearAuthenticatedUserContext"),n("flush"),!(!0===e.disableExceptionTracking||e.extensionConfig&&e.extensionConfig.ApplicationInsightsAnalytics&&!0===e.extensionConfig.ApplicationInsightsAnalytics.disableExceptionTracking)){n("_"+(r="onerror"));var o=a[r];a[r]=function(e,n,i,a,s){var c=o&&o(e,n,i,a,s);return!0!==c&&t["_"+r]({message:e,url:n,lineNumber:i,columnNumber:a,error:s}),c},e.autoExceptionInstrumented=!0}return t}(
-{
-  instrumentationKey: '3897b433-fe6f-4616-82a8-64b8a0263450'
-});
-
-window[aiName]=aisdk,aisdk.queue&&0===aisdk.queue.length&&aisdk.trackPageView({});
-
-
-</script>
-</head>
-<body>
-
-    <div class="fullscreen-loading"></div>
-
-    <div id="info-message">
-
-        <div class="left-side">
-            <span class="logo">
-                <img src="/images/ms-icon-70x70.png" alt="Simplifier logo" />
-            </span>
-        </div>
-
-        <div class="center-content">
-            <span class="content">
-                <span class="title">
-                </span>
-                <span class="details">
-                </span>
-            </span>
-        </div>
-
-        <div class="right-side">
-            <span class="icon success-icon glyphicon glyphicon-ok-sign"></span>
-            <span class="icon error-icon glyphicon glyphicon-exclamation-sign"></span>
-        </div>
-
-    </div>
-
-    
-<div class="cool-popover-confirmation delete-mode">
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h1 class="title">
-                Confirmation
-            </h1>
-        </div>
-        <div class="panel-body">
-            <div class="question">
-                Are you sure?
-            </div>
-        </div>
-        <div class="panel-footer">
-            <button type="button" class="btn btn-default btn-yes">Yes</button>
-            <button type="button" class="btn btn-default btn-cancel">Cancel</button>
-        </div>
-    </div>
-</div>
-
-
-
-    <div class="body-stretch">
-
-            <div class="segment-header" role="banner" aria-label="Site header">
-    <div class="container">
-        <div class="row">
-            <nav class="navbar navbar-default" role="navigation" aria-label="Main menu">
-
-                <div class="col-lg-8 col-md-8 col-sm-12 col-xs-24">
-                    <div class="navbar-header">
-                        <a class="navbar-brand" href="/" title="Go to Simplifier Home">
-                            <img src="/images/simplifier-logo.png" alt="Simplifier.net">
-                        </a>
-                    </div>
-                </div>
-
-                <div class="col-lg-7 col-md-7 col-sm-12 col-xs-24">
-                    <form role="search" method="get" class="navbar-form" aria-label="Search" action="/search">
-                        <div class="">
-                            <input aria-label="Search" style="width: 100%" type="text" value="" placeholder="Search" name="q" id="text" class="form-control">
-                            <span class="input-group-btn hidden">
-                                <button type="submit" class="btn btn-success btn-strong" aria-label="Search">
-                                    <span class="glyphicon glyphicon-search"></span>Search
-                                </button>
-                            </span>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="col-lg-9 col-md-24 col-sm-24 col-xs-24">                    
-                    
-
-<div class="pull-right">
-    <div class="user-menu" role="navigation" aria-label="Main menu"> 
-        <div class="navbar">
-            <div class="nav">
-
-                <a class="btn btn-menu" href="/snippet">SNIPPETS</a>
-                <a id="feedbackButton" href="/" class="btn btn-menu">FEEDBACK</a>
-
-                <span class="vertical-divider"></span>
-
-                
-
-
-
-    <a href="/login" class="btn btn-menu">LOG IN</a>
-    <a href="/signup" class="btn btn-menu btn-primary">SIGN UP</a>
-
-
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="feedbackDialog" title="Feedback">
-    
-
-<div class="ui-dialog-content">
-
-    <form id="feedbackForm" method="post" class="form-horizontal" enctype="multipart/form-data" action="/ui/feedback/submitfeedback">
-
-        <div class="form-group" id="phone-group">
-            <label for="Phone">Phone</label>
-            <input class="form-control" autocomplete="off" type="text" id="Phone" name="Phone" value="" />
-        </div>
-
-        <div class="form-group feedbackText">
-            <label id="Feedback">Tell us your suggestions or report a problem</label>
-            <label id="FeedbackText-error" class="hidden">This field is required</label>
-            <textarea class="form-control" rows="10" cols="12" aria-labelledby="Feedback" aria-describedby="FeedbackText-error" data-val="true" data-val-required="The FeedbackText field is required." id="FeedbackText" name="FeedbackText">
-</textarea>
-        </div>
-
-        <div>
-                <div class="form-group feedbackText">
-                    <div class="col-md-24 feedback-email-textbox">
-                        <input type="text" class="form-control" placeholder="Email" id="user-feedback-email" aria-label="User email" data-val="true" data-val-email="The Email field is not a valid e-mail address." data-val-required="The Email field is required." name="Email" value="" />
-                    </div>
-                </div>
-        </div>
-
-
-    <input name="__RequestVerificationToken" type="hidden" value="CfDJ8OnITafdVJJGtU9ehXNKn9ekUTW0oJBtF46dMoV84Lemw1mXMoINYdw6_HGAVWWDulBeKF2pKj5sFCe1kwMj2VR4jXZscGdWQjHH9dXveg97qn5bycjem7q1Rq9uFmJvA-fc9mDrM2n3LQzAM1Hn8xo" /></form>
-
-</div>
-
-
-</div>
-
-<div id="feedbackMessageDialog">
-    <p id="message"></p>
-</div>
-
-                </div>
-
-            </nav>
-        </div>
-    </div>
-</div>
-
-        <div class="segment-content" role="main" aria-label="Main content">
-            
-
-
-
-
-<div id="publication-page">
-
-    <div class='segment-header-with-tabs ' role='banner' aria-label='Page header'>
-                                    <div class='container'>
-                                        <div class='row'>
-                                            
-                                            <header class='col-md-12 col-sm-24' aria-hidden='true'>
-                                                <div class='pre-title'>
-                                                    
-                <span>Organization <a href="/organization/kassenrztlichebundesvereinigungkbv">Kassen&#xE4;rztliche Bundesvereinigung (KBV)</a> / </span>
-
-            Project <a href="https://simplifier.net/erezept">eRezept</a>
-        
-                                                </div>
-                                                <h1 class='title'>
-                                                    <b>8ce1c3d1-7eaa-45ea-b756-015cf2f2a04b</b>
-                                                </h1>
-                                                <div class='description'>
-                                                    <p>Bundle of type document</p>
-
-                                                </div>
-                                            </header>
-                                            <div class='menu col-md-12 col-sm-24'>
-                                                
-            
-
-<div class="cool-menu" role="navigation" aria-label="Resource menu">
-
-
-
-        <div class="item dropdown keep-open">
-            <div role="button" class="dropdown-toggle" aria-haspopup="true" aria-expanded="false" id="endpoint-button" tabindex="0" data-toggle="dropdown">
-                <div class="icon fa fa-plug"></div>
-                <div class="description">API</div>
-                <div class="icon glyphicon glyphicon-triangle-bottom"></div>
-            </div>
-            <ul class="dropdown-menu api-dropdown-menu pull-right" id="dropdown-menu-endpoint" role="menu" tabindex="-1">
-
-                <li class="dropdown-element" role="none">
-                    <div class="dropdown-header">
-                        <b>Project FHIR API</b>
-                    </div>
-                    <div class="input-group input-group-sm">
-                        <input type="text" class="form-control input-sm" id="private-text-to-copy"
-                               value="https://fhir.simplifier.net/eRezept/Bundle/8ce1c3d1-7eaa-45ea-b756-015cf2f2a04b"
-                               readonly
-                               aria-labelledby="ProjectEndpoint-label"
-                               tabindex="-1" role="menuitem">
-                        <span class="input-group-btn">
-                            <a class="btn btn-beak btn-sm" id="private-copy-button" data-clipboard-target="#private-text-to-copy" tabindex="-1" role="menuitem">
-                                <i class="glyphicon glyphicon-copy"></i>
-                            </a>
-                        </span>
-                    </div>
-                    <p id="ProjectEndpoint-label">
-                        <i class="glyphicon glyphicon-info-sign"></i>
-                        &nbsp;This is the location where you can find your resource using a FHIR client.
-                    </p>
-                </li>
-                <li role="separator" class="divider"></li>
-                <li class="dropdown-element" role="none">
-                    <div class="dropdown-header">
-                        <b>Simplifier FHIR API</b>
-                    </div>
-                    <div class="input-group input-group-sm">
-                        <input type="text" class="form-control input-sm" id="public-text-to-copy"
-                               value="https://fhir.simplifier.net/r4/Bundle/0a160da1-14ce-4625-b01a-851426b335a6"
-                               readonly
-                               aria-labelledby="GlobalEndpoint-label"
-                               tabindex="-1" role="menuitem">
-                        <span class="input-group-btn">
-                            <a class="btn btn-beak btn-sm" id="public-copy-button" data-clipboard-target="#public-text-to-copy" tabindex="-1" role="menuitem">
-                                <span class="glyphicon glyphicon-copy"></span>
-                            </a>
-                        </span>
-                    </div>
-                    <p id="GlobalEndpoint-label">
-                        <i class="glyphicon glyphicon-info-sign"></i>
-                        &nbsp;The global endpoint is where users can search for all resources in Simplifier. Resources have a globally unique guid Id here.
-                    </p>
-                </li>
-            </ul>
-        </div>
-
-
-
-
-    <div class="item dropdown">
-        <div role="button" class="dropdown-toggle" aria-haspopup="true" aria-expanded="false" tabindex="0" data-toggle="dropdown">
-            <div class="icon glyphicon glyphicon-download"></div>
-            <div class="description">Download</div>
-            <div class="icon glyphicon glyphicon-triangle-bottom"></div>
-        </div>
-        <ul class="dropdown-menu pull-right" role="menu" tabindex="-1">
-
-                <li role="none">
-                    <a role="menuitem" tabindex="-1" href="/erezept/8ce1c3d1-7eaa-45ea-b756-015cf2f2a04b/$download?format=xml">
-                        Download as <b>XML</b>
-                    </a>
-                </li>
-                <li role="none">
-                    <a role="menuitem" tabindex="-1" href="/erezept/8ce1c3d1-7eaa-45ea-b756-015cf2f2a04b/$download?format=json">
-                        Download as <b>JSON</b>
-                    </a>
-                </li>
-                <li role="separator" class="divider"></li>
-                <li role="none">
-                    <a role="menuitem" tabindex="-1" href="/" class="copy-as-xml">
-                        Copy to clipboard as <b>XML</b>
-                    </a>
-                </li>
-                <li role="none">
-                    <a role="menuitem" tabindex="-1" href="/" class="copy-as-json">
-                        Copy to clipboard as <b>JSON</b>
-                    </a>
-                </li>
-
-        </ul>
-    </div>
-
-</div>
-
-        
-                                            </div>
-                                        </div>
-                                        
-
-        
-
-        
-
-        
-
-
-        <div class="tags-row">
-            
-<div class="clearfix">
-    <ul class="tags">
-        <li class="tag">
-            <span class="key">type</span>
-            <span class="value">Example of <b>Bundle</b></span>
-        </li>
-
-        <li class="tag">
-            <span class="key">FHIR</span>
-            <span class="value">R4</span>
-        </li>
-
-    </ul>
-    <div class="publication-urls">
-        <div class="form-inline">
-        </div>
-    </div>
-</div>
-
-        </div>
-
-        <div id="error-content" class="alert alert-danger" hidden="hidden"></div>
-
-    
-                                        <div class=''> 
-            
-<ul id="publication-tabs"
-    class="nav nav-tabs"
-    role="tablist">
-
-
-    <li role="presentation">
-        <a href="#overview"
-           id="renderedtab"
-           data-url="/ui/projectfiletabs/renderoverview?publicationId=424415"
-           aria-controls="overview"
-           role="tab"
-           data-toggle="tab">
-            Narrative
-        </a>
-    </li>
-
-        <li role="presentation">
-            <a href="#table"
-               id="tabletab"
-               data-url="/ui/projectfiletabs/renderresourcetable?publicationId=424415"
-               aria-controls="table"
-               role="tab"
-               data-toggle="tab">
-                Table
-            </a>
-        </li>
-        <li role="presentation" class="active">
-            <a href="#xml"
-               id="xmltab"
-               aria-controls="xml"
-               role="tab"
-               data-toggle="tab">
-                XML
-            </a>
-        </li>
-        <li role="presentation">
-            <a href="#json"
-               id="jsontab"
-               aria-controls="json"
-               role="tab"
-               data-toggle="tab">
-                JSON
-            </a>
-        </li>
-        <li role="presentation">
-            <a href="#related"
-               id="references-tab-header"
-               data-url=/ui/projectfiletabs/referencestab?projectKey=eRezept&amp;fileKey=8ce1c3d1-7eaa-45ea-b756-015cf2f2a04b
-               aria-controls="related"
-               role="tab"
-               data-toggle="tab">
-                Related
-            </a>
-        </li>
-
-    <li role="presentation">
-        <a href="#history"
-           id="historytab"
-           data-url="/ui/projectfiletabs/renderhistory?publicationId=424415"
-           aria-controls="history"
-           role="tab"
-           data-toggle="tab">
-            History
-        </a>
-    </li>
-
-
-</ul>
-        </div>
-                                    </div>
-                                </div>
-
-    <div class="container" role="region" aria-label="Page content">
-        <div class="row">
-            <div class="col-md-24">
-                
-
-<div class="tab-content">
-
-    <div role="tabpanel" class="tab-pane" id="overview">
-
-            <div class="rendered-resource">
-                <p></p>
-                <p class="content"></p>
-            </div>
-               
-    </div>
-
-        <div role="tabpanel" class="tab-pane" id="table">
-
-            <p></p>
-            <p class="content"></p>
-
-        </div>
-        <div role="tabpanel" class="tab-pane active" id="xml"></div>
-        <div role="tabpanel" class="tab-pane" id="json"></div>
-        <div role="tabpanel" class="tab-pane" id="related">
-                <div id="file-references-tab-content"></div>
-        </div>
-
-    <div role="tabpanel" class="tab-pane" id="history"></div>
-
-</div>
-            </div>
-        </div>
-    </div>
-
-    <input data-val="true" data-val-required="The Id field is required." id="publicationId" name="File.Id" type="hidden" value="424415" />
-    <input data-val="true" data-val-maxlength="The field ResourceType must be a string or array type with a maximum length of &#x27;50&#x27;." data-val-maxlength-max="50" data-val-required="The ResourceType field is required." id="resourceType" name="File.ResourceType" type="hidden" value="Bundle" />
-    <input id="resourceId" name="ResourceId" type="hidden" value="0a160da1-14ce-4625-b01a-851426b335a6" />
-    <input id="project-key" name="ProjectKey" type="hidden" value="erezept" />
-    <input data-val="true" data-val-maxlength="The field UrlKey must be a string or array type with a maximum length of &#x27;75&#x27;." data-val-maxlength-max="75" data-val-regex="The key can only contain alphanumeric characters, &#x27;-&#x27; and &#x27;.&#x27;" data-val-regex-pattern="[a-zA-Z0-9\-\.]&#x2B;" data-val-required="The UrlKey field is required." id="publicationUrlKey" name="File.UrlKey" type="hidden" value="8ce1c3d1-7eaa-45ea-b756-015cf2f2a04b" />
-    <input id="publicationUrl" name="publicationUrl" type="hidden" value="eRezept/8ce1c3d1-7eaa-45ea-b756-015cf2f2a04b" />
-    <input id="publicationEndpoint" name="publicationEndpoint" type="hidden" value="https://fhir.simplifier.net/r4/Bundle/0a160da1-14ce-4625-b01a-851426b335a6" />
-<input id="application-url" name="application-url" type="hidden" value="https://fhir.simplifier.net/r4" />
-    <div id="publication-page-footer">
-        <div class="container">
-
-            <div class="row">
-                <div class="col-md-16 left-panel">
-
-                </div>
-                <div class="col-md-8 right-panel">
-                    <div>
-                        <span>
-                            Last updated on <time class="localize" datetime="2021-02-23T18:10:45.6266649Z">2021-02-23 06:10</time>
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-</div>
-
-
-        </div>
-
-    </div>
-    <div class="footer" role="contentinfo" aria-label="Footer">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="footer-item">
-                        <h2>About</h2>
-                    </div>
-                    <div class="footer-item">
-                        <a href="/about">About</a>
-                    </div>
-                    <div class="footer-item">
-                        <a href="https://fire.ly/about-firely/" target="_blank">About Firely</a>
-                    </div>
-                    <div class="footer-item">
-                        <a href="/contact">Contact</a>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div>
-                        <h2>Information</h2>
-                    </div>
-                    <div class="footer-item">
-                        <a href="https://docs.fire.ly" target="_blank">Documentation</a>
-                    </div>
-                    <div class="footer-item">
-                        <a href="/terms">Terms</a>
-                    </div>
-                    <div class="footer-item">
-                        <a href="/privacy">Privacy</a>
-                    </div>
-                    <div class="footer-item">
-                        <a href="/features">Features</a>
-                    </div>
-                    <div class="footer-item">
-                        <a href="/pricing">Pricing</a>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div>
-                        <h2>Follow us</h2>
-                    </div>
-                    <div class="footer-item">
-                        <a href="https://github.com/firelyteam">Github</a>
-                    </div>
-                    <div class="footer-item">
-                        <a href="https://twitter.com/firelyteam">Twitter</a>
-                    </div>
-                    <div class="footer-item">
-                        <a href="https://vimeo.com/user12740828/videos">Vimeo</a>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div>
-                        <h2>Links</h2>
-                    </div>
-                    <div class="footer-item">
-                        <a href="http://www.fhirdevdays.com/">FHIR DevDays</a>
-                    </div>
-                    <div class="footer-item">
-                        <a target="_blank" href="http://hl7.org/fhir/R4/">FHIR specification R4</a>
-                    </div>
-                    <div class="footer-item">
-                        <a target="_blank" href="http://hl7.org/fhir/STU3/">FHIR specification STU3</a>
-                    </div>
-                    <div class="footer-item">
-                        <a target="_blank" href="http://hl7.org/fhir/DSTU2">FHIR DSTU 2</a>
-                    </div>
-                </div>
-                <div class="col-md-24">
-                    <br />
-                </div>
-                <div class="col-md-18">
-                    <p>
-                        <b>SIMPLIFIER.NET</b> version 27.2.5.0
-                    </p>
-                    <p>Copyright © 2015-2021 Firely</p>
-                    <div>
-                        HL7<sup>®</sup> and FHIR<sup>®</sup> are the registered trademarks of Health Level Seven International
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    
-
-    <script type="text/javascript">
-        window.ActiveTab = "xml";
-    </script>
-
-    <script defer src="/bundles/vendor/ace.min.js?v=4jBDHk_oMXVK8tPiQbbJ97U38rCN-Tlpmnk4zhBOS5Q"></script>
-    <script defer src="/bundles/vendor/monaco-editor/vs/loader.js?v=U4cULPfjICSsXjYkwD_BpTw-3uYNra-fshHNaILgzLY"></script>
-
-    
-    
-        <script defer src="/bundles/app/issues.min.js?v=NM9SHJsH1PIwst4zLEbzy05mfs0CvYn68JVD65O2YrM"></script>
-        <script defer src="/bundles/app/publication.min.js?v=LJPznDMlu04ygU4vh3-lSvZuLjmxbe59rc0KVJ0LQbY"></script>
-    
-
-    
-
-    
-
-</body>
-</html>
+<Bundle xmlns="http://hl7.org/fhir">
+  <!-- Beispiel-Bundle Rezepturverordnung -->
+  <id value="8ce1c3d1-7eaa-45ea-b756-015cf2f2a04b" />
+  <meta>
+    <lastUpdated value="2020-05-04T08:00:00Z" />
+    <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle|1.0.1" />
+  </meta>
+  <identifier>
+    <system value="https://gematik.de/fhir/NamingSystem/PrescriptionID" />
+    <value value="160.123.456.789.123.58" />
+  </identifier>
+  <type value="document" />
+  <timestamp value="2020-02-03T12:30:02Z" />
+  <entry>
+    <fullUrl value="http://pvs.praxis-topp-gluecklich.local/fhir/Composition/5e709fc5-c233-456c-bf81-20534cbf9565" />
+    <resource>
+      <Composition xmlns="http://hl7.org/fhir">
+        <id value="5e709fc5-c233-456c-bf81-20534cbf9565" />
+        <meta>
+          <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Composition|1.0.1" />
+        </meta>
+        <extension url="https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Legal_basis">
+          <valueCoding>
+            <system value="https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_STATUSKENNZEICHEN" />
+            <code value="00" />
+          </valueCoding>
+        </extension>
+        <status value="final" />
+        <type>
+          <coding>
+            <system value="https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_FORMULAR_ART" />
+            <code value="e16A" />
+          </coding>
+        </type>
+        <subject>
+          <reference value="Patient/9774f67f-a238-4daf-b4e6-679deeef3811" />
+        </subject>
+        <date value="2020-02-03T11:30:02Z" />
+        <author>
+          <reference value="Practitioner/20597e0e-cb2a-45b3-95f0-dc3dbdb617c3" />
+          <type value="Practitioner" />
+        </author>
+        <author>
+          <type value="Device" />
+          <identifier>
+            <system value="https://fhir.kbv.de/NamingSystem/KBV_NS_FOR_Pruefnummer" />
+            <value value="Y/400/1910/36/346" />
+          </identifier>
+        </author>
+        <title value="elektronische Arzneimittelverordnung" />
+        <custodian>
+          <reference value="Organization/cf042e44-086a-4d51-9c77-172f9a972e3b" />
+        </custodian>
+        <section>
+          <code>
+            <coding>
+              <system value="https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Section_Type" />
+              <code value="Prescription" />
+            </coding>
+          </code>
+          <entry>
+            <!-- Referenz auf Verordnung (MedicationRequest) -->
+            <reference value="MedicationRequest/931e9384-1b80-41f0-a40b-d2ced5e6d856" />
+          </entry>
+        </section>
+        <section>
+          <code>
+            <coding>
+              <system value="https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Section_Type" />
+              <code value="Coverage" />
+            </coding>
+          </code>
+          <entry>
+            <!-- Referenz auf Krankenkasse/KostentrĂ¤ger  -->
+            <reference value="Coverage/1b1ffb6e-eb05-43d7-87eb-e7818fe9661a" />
+          </entry>
+        </section>
+      </Composition>
+    </resource>
+  </entry>
+  <entry>
+    <fullUrl value="http://pvs.praxis-topp-gluecklich.local/fhir/MedicationRequest/931e9384-1b80-41f0-a40b-d2ced5e6d856" />
+    <resource>
+      <MedicationRequest xmlns="http://hl7.org/fhir">
+        <!--Beispiel MedicationRequest für eine Rezepturverordnung -->
+        <id value="931e9384-1b80-41f0-a40b-d2ced5e6d856" />
+        <meta>
+          <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.0.1" />
+        </meta>
+        <extension url="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_StatusCoPayment">
+          <valueCoding>
+            <system value="https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_StatusCoPayment" />
+            <code value="0" />
+          </valueCoding>
+        </extension>
+        <extension url="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_EmergencyServicesFee">
+          <valueBoolean value="false" />
+        </extension>
+        <extension url="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_BVG">
+          <valueBoolean value="false" />
+        </extension>
+        <extension url="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription">
+          <extension url="Kennzeichen">
+            <valueBoolean value="true" />
+          </extension>
+          <extension url="Nummerierung">
+            <valueRatio>
+              <numerator>
+                <value value="2" />
+              </numerator>
+              <denominator>
+                <value value="4" />
+              </denominator>
+            </valueRatio>
+          </extension>
+        </extension>
+        <status value="active" />
+        <intent value="order" />
+        <medicationReference>
+          <reference value="Medication/cabe8dc4-e1b7-4d2a-bc2d-9443167f88d8" />
+        </medicationReference>
+        <subject>
+          <reference value="Patient/9774f67f-a238-4daf-b4e6-679deeef3811" />
+        </subject>
+        <authoredOn value="2020-02-03" />
+        <requester>
+          <reference value="Practitioner/20597e0e-cb2a-45b3-95f0-dc3dbdb617c3" />
+        </requester>
+        <insurance>
+          <reference value="Coverage/1b1ffb6e-eb05-43d7-87eb-e7818fe9661a" />
+        </insurance>
+        <dosageInstruction>
+          <patientInstruction value="Dummy-Gebrauchsanweisung der Rezeptur für den Patienten" />
+        </dosageInstruction>
+        <dispenseRequest>
+          <quantity>
+            <value value="1" />
+            <system value="http://unitsofmeasure.org" />
+            <code value="{Package}" />
+          </quantity>
+        </dispenseRequest>
+        <substitution>
+          <allowedBoolean value="false" />
+        </substitution>
+      </MedicationRequest>
+    </resource>
+  </entry>
+  <entry>
+    <fullUrl value="http://pvs.praxis-topp-gluecklich.local/fhir/Medication/cabe8dc4-e1b7-4d2a-bc2d-9443167f88d8" />
+    <resource>
+      <Medication xmlns="http://hl7.org/fhir">
+        <id value="cabe8dc4-e1b7-4d2a-bc2d-9443167f88d8" />
+        <meta>
+          <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Compounding|1.0.1" />
+        </meta>
+        <extension url="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Category">
+          <valueCoding>
+            <system value="https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Category" />
+            <code value="00" />
+          </valueCoding>
+        </extension>
+        <extension url="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Vaccine">
+          <valueBoolean value="false" />
+        </extension>
+        <extension url="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_CompoundingInstruction">
+          <valueString value="Dummy-Herstellungsanweisung einer Rezeptur" />
+        </extension>
+        <extension url="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Packaging">
+          <valueString value="Flasche" />
+        </extension>
+        <code>
+          <coding>
+            <system value="https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Type" />
+            <code value="rezeptur" />
+          </coding>
+          <text value="Dummy-Rezeptur" />
+        </code>
+        <form>
+          <text value="Salbe" />
+        </form>
+        <amount>
+          <numerator>
+            <value value="100" />
+            <unit value="ml" />
+          </numerator>
+          <denominator>
+            <value value="1" />
+          </denominator>
+        </amount>
+        <ingredient>
+          <itemCodeableConcept>
+            <coding>
+              <system value="http://fhir.de/CodeSystem/ifa/pzn" />
+              <code value="09703312" />
+            </coding>
+            <text value="Hydrocortison ratiopharm 0,5%" />
+          </itemCodeableConcept>
+          <strength>
+            <numerator>
+              <value value="30" />
+              <unit value="g" />
+            </numerator>
+            <denominator>
+              <value value="1" />
+            </denominator>
+          </strength>
+        </ingredient>
+        <ingredient>
+          <extension url="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Ingredient_Form">
+            <valueString value="Freitextdarreichungsform" />
+          </extension>
+          <itemCodeableConcept>
+            <text value="weiterer Dummy-Freitextbestandteil" />
+          </itemCodeableConcept>
+          <strength>
+            <extension url="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Ingredient_Amount">
+              <valueString value="quantum satis" />
+            </extension>
+          </strength>
+        </ingredient>
+      </Medication>
+    </resource>
+  </entry>
+  <entry>
+    <fullUrl value="http://pvs.praxis-topp-gluecklich.local/fhir/Patient/9774f67f-a238-4daf-b4e6-679deeef3811" />
+    <resource>
+      <Patient xmlns="http://hl7.org/fhir">
+        <id value="9774f67f-a238-4daf-b4e6-679deeef3811" />
+        <meta>
+          <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.0.3" />
+        </meta>
+        <identifier>
+          <type>
+            <coding>
+              <system value="http://fhir.de/CodeSystem/identifier-type-de-basis" />
+              <code value="GKV" />
+            </coding>
+          </type>
+          <system value="http://fhir.de/NamingSystem/gkv/kvid-10" />
+          <value value="X234567890" />
+        </identifier>
+        <name>
+          <use value="official" />
+          <family value="Ludger Königsstein">
+            <extension url="http://hl7.org/fhir/StructureDefinition/humanname-own-name">
+              <valueString value="Königsstein" />
+            </extension>
+          </family>
+          <given value="Ludger" />
+        </name>
+        <birthDate value="1935-06-22" />
+        <address>
+          <type value="both" />
+          <line value="Musterstr. 1">
+            <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber">
+              <valueString value="1" />
+            </extension>
+            <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName">
+              <valueString value="Musterstr." />
+            </extension>
+          </line>
+          <city value="Berlin" />
+          <postalCode value="10623" />
+        </address>
+      </Patient>
+    </resource>
+  </entry>
+  <entry>
+    <fullUrl value="http://pvs.praxis-topp-gluecklich.local/fhir/Practitioner/20597e0e-cb2a-45b3-95f0-dc3dbdb617c3" />
+    <resource>
+      <Practitioner xmlns="http://hl7.org/fhir">
+        <id value="20597e0e-cb2a-45b3-95f0-dc3dbdb617c3" />
+        <meta>
+          <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner|1.0.3" />
+        </meta>
+        <identifier>
+          <type>
+            <coding>
+              <system value="http://terminology.hl7.org/CodeSystem/v2-0203" />
+              <code value="LANR" />
+            </coding>
+          </type>
+          <system value="https://fhir.kbv.de/NamingSystem/KBV_NS_Base_ANR" />
+          <value value="838382202" />
+        </identifier>
+        <name>
+          <use value="official" />
+          <family value="Topp-Glücklich">
+            <extension url="http://hl7.org/fhir/StructureDefinition/humanname-own-name">
+              <valueString value="Topp-Glücklich" />
+            </extension>
+          </family>
+          <given value="Hans" />
+          <prefix value="Dr. med.">
+            <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier">
+              <valueCode value="AC" />
+            </extension>
+          </prefix>
+        </name>
+        <qualification>
+          <code>
+            <coding>
+              <system value="https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_Qualification_Type" />
+              <code value="00" />
+            </coding>
+          </code>
+        </qualification>
+        <qualification>
+          <code>
+            <text value="Hausarzt" />
+          </code>
+        </qualification>
+      </Practitioner>
+    </resource>
+  </entry>
+  <entry>
+    <fullUrl value="http://pvs.praxis-topp-gluecklich.local/fhir/Organization/cf042e44-086a-4d51-9c77-172f9a972e3b" />
+    <resource>
+      <Organization xmlns="http://hl7.org/fhir">
+        <id value="cf042e44-086a-4d51-9c77-172f9a972e3b" />
+        <meta>
+          <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Organization|1.0.3" />
+        </meta>
+        <identifier>
+          <type>
+            <coding>
+              <system value="http://terminology.hl7.org/CodeSystem/v2-0203" />
+              <code value="BSNR" />
+            </coding>
+          </type>
+          <system value="https://fhir.kbv.de/NamingSystem/KBV_NS_Base_BSNR" />
+          <value value="031234567" />
+        </identifier>
+        <name value="Hausarztpraxis Dr. Topp-Glücklich" />
+        <telecom>
+          <system value="phone" />
+          <value value="0301234567" />
+        </telecom>
+        <address>
+          <type value="both" />
+          <line value="Musterstr. 2">
+            <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber">
+              <valueString value="2" />
+            </extension>
+            <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName">
+              <valueString value="Musterstr." />
+            </extension>
+          </line>
+          <city value="Berlin" />
+          <postalCode value="10623" />
+        </address>
+      </Organization>
+    </resource>
+  </entry>
+  <entry>
+    <fullUrl value="http://pvs.praxis-topp-gluecklich.local/fhir/Coverage/1b1ffb6e-eb05-43d7-87eb-e7818fe9661a" />
+    <resource>
+      <Coverage xmlns="http://hl7.org/fhir">
+        <id value="1b1ffb6e-eb05-43d7-87eb-e7818fe9661a" />
+        <meta>
+          <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Coverage|1.0.3" />
+        </meta>
+        <extension url="http://fhir.de/StructureDefinition/gkv/besondere-personengruppe">
+          <valueCoding>
+            <system value="https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_PERSONENGRUPPE" />
+            <code value="00" />
+          </valueCoding>
+        </extension>
+        <extension url="http://fhir.de/StructureDefinition/gkv/dmp-kennzeichen">
+          <valueCoding>
+            <system value="https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DMP" />
+            <code value="00" />
+          </valueCoding>
+        </extension>
+        <extension url="http://fhir.de/StructureDefinition/gkv/wop">
+          <valueCoding>
+            <system value="https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_ITA_WOP" />
+            <code value="03" />
+          </valueCoding>
+        </extension>
+        <extension url="http://fhir.de/StructureDefinition/gkv/versichertenart">
+          <valueCoding>
+            <system value="https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_VERSICHERTENSTATUS" />
+            <code value="1" />
+          </valueCoding>
+        </extension>
+        <status value="active" />
+        <type>
+          <coding>
+            <system value="http://fhir.de/CodeSystem/versicherungsart-de-basis" />
+            <code value="GKV" />
+          </coding>
+        </type>
+        <beneficiary>
+          <reference value="Patient/9774f67f-a238-4daf-b4e6-679deeef3811" />
+        </beneficiary>
+        <payor>
+          <identifier>
+            <system value="http://fhir.de/NamingSystem/arge-ik/iknr" />
+            <value value="104212059" />
+          </identifier>
+          <display value="AOK Rheinland/Hamburg" />
+        </payor>
+      </Coverage>
+    </resource>
+  </entry>
+</Bundle>
