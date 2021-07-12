@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" content="Bundle of type document" />
     <meta name="author" content="Firely">
-    <title>eRezept | 15da065c-5b75-4acf-a2ba-1355de821d6e - SIMPLIFIER.NET </title>
+    <title>eRezept | d9118e05-6e13-4df6-af50-552401cf9ba2 - SIMPLIFIER.NET </title>
     <link rel="icon" href="/images/favicon.ico">
 
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700' rel='stylesheet' type='text/css'>
@@ -203,7 +203,7 @@ window[aiName]=aisdk,aisdk.queue&&0===aisdk.queue.length&&aisdk.trackPageView({}
         </div>
 
 
-    <input name="__RequestVerificationToken" type="hidden" value="CfDJ8OnITafdVJJGtU9ehXNKn9dhPyN44uN1I6bY5jzdIMCCYbJii74hFw1npQABRSx24ziM2EDB-UYaHH0Yu0n3_LgZMFdJzygrNrIHOjeEITyfbB3kfsgDCy_aB7ra_7OBnh4Zsmzj0qS1voYNHY0AKPU" /></form>
+    <input name="__RequestVerificationToken" type="hidden" value="CfDJ8OnITafdVJJGtU9ehXNKn9ctiHlKJndTj47o5L72DKLOawZcvW66Qp4oPE3mRyP2NxFB2xlvIdtonOzXBPXp6Vom4PomMvs1xuaIoKOwxSREF7saVDW7Hz1q6PnPKgfP-sZk5RDaNyY5s-eRVwXblC0" /></form>
 
 </div>
 
@@ -242,7 +242,7 @@ window[aiName]=aisdk,aisdk.queue&&0===aisdk.queue.length&&aisdk.trackPageView({}
         
                                                 </div>
                                                 <h1 class='title'>
-                                                    <b>15da065c-5b75-4acf-a2ba-1355de821d6e</b>
+                                                    <b>d9118e05-6e13-4df6-af50-552401cf9ba2</b>
                                                 </h1>
                                                 <div class='description'>
                                                     <p>Bundle of type document</p>
@@ -271,7 +271,7 @@ window[aiName]=aisdk,aisdk.queue&&0===aisdk.queue.length&&aisdk.trackPageView({}
                     </div>
                     <div class="input-group input-group-sm">
                         <input type="text" class="form-control input-sm" id="private-text-to-copy"
-                               value="https://fhir.simplifier.net/eRezept/Bundle/15da065c-5b75-4acf-a2ba-1355de821d6e"
+                               value="https://fhir.simplifier.net/eRezept/Bundle/d9118e05-6e13-4df6-af50-552401cf9ba2"
                                readonly
                                aria-labelledby="ProjectEndpoint-label"
                                tabindex="-1" role="menuitem">
@@ -293,7 +293,7 @@ window[aiName]=aisdk,aisdk.queue&&0===aisdk.queue.length&&aisdk.trackPageView({}
                     </div>
                     <div class="input-group input-group-sm">
                         <input type="text" class="form-control input-sm" id="public-text-to-copy"
-                               value="https://fhir.simplifier.net/r4/Bundle/a3a142f2-1fd3-4907-b7fa-b91966af0d11"
+                               value="https://fhir.simplifier.net/r4/Bundle/cf800b80-2a12-440d-8380-f260ff58651c"
                                readonly
                                aria-labelledby="GlobalEndpoint-label"
                                tabindex="-1" role="menuitem">
@@ -323,12 +323,12 @@ window[aiName]=aisdk,aisdk.queue&&0===aisdk.queue.length&&aisdk.trackPageView({}
         <ul class="dropdown-menu pull-right" role="menu" tabindex="-1">
 
                 <li role="none">
-                    <a role="menuitem" tabindex="-1" href="/erezept/15da065c-5b75-4acf-a2ba-1355de821d6e/$download?format=xml">
+                    <a role="menuitem" tabindex="-1" href="/erezept/d9118e05-6e13-4df6-af50-552401cf9ba2/$download?format=xml">
                         Download as <b>XML</b>
                     </a>
                 </li>
                 <li role="none">
-                    <a role="menuitem" tabindex="-1" href="/erezept/15da065c-5b75-4acf-a2ba-1355de821d6e/$download?format=json">
+                    <a role="menuitem" tabindex="-1" href="/erezept/d9118e05-6e13-4df6-af50-552401cf9ba2/$download?format=json">
                         Download as <b>JSON</b>
                     </a>
                 </li>
@@ -397,7 +397,7 @@ window[aiName]=aisdk,aisdk.queue&&0===aisdk.queue.length&&aisdk.trackPageView({}
     <li role="presentation">
         <a href="#overview"
            id="renderedtab"
-           data-url="/ui/projectfiletabs/renderoverview?publicationId=490502"
+           data-url="/ui/projectfiletabs/renderoverview?publicationId=490491"
            aria-controls="overview"
            role="tab"
            data-toggle="tab">
@@ -408,7 +408,7 @@ window[aiName]=aisdk,aisdk.queue&&0===aisdk.queue.length&&aisdk.trackPageView({}
         <li role="presentation">
             <a href="#table"
                id="tabletab"
-               data-url="/ui/projectfiletabs/renderresourcetable?publicationId=490502"
+               data-url="/ui/projectfiletabs/renderresourcetable?publicationId=490491"
                aria-controls="table"
                role="tab"
                data-toggle="tab">
@@ -436,7 +436,7 @@ window[aiName]=aisdk,aisdk.queue&&0===aisdk.queue.length&&aisdk.trackPageView({}
         <li role="presentation">
             <a href="#related"
                id="references-tab-header"
-               data-url=/ui/projectfiletabs/referencestab?projectKey=eRezept&amp;fileKey=15da065c-5b75-4acf-a2ba-1355de821d6e
+               data-url=/ui/projectfiletabs/referencestab?projectKey=eRezept&amp;fileKey=d9118e05-6e13-4df6-af50-552401cf9ba2
                aria-controls="related"
                role="tab"
                data-toggle="tab">
@@ -447,7 +447,7 @@ window[aiName]=aisdk,aisdk.queue&&0===aisdk.queue.length&&aisdk.trackPageView({}
     <li role="presentation">
         <a href="#history"
            id="historytab"
-           data-url="/ui/projectfiletabs/renderhistory?publicationId=490502"
+           data-url="/ui/projectfiletabs/renderhistory?publicationId=490491"
            aria-controls="history"
            role="tab"
            data-toggle="tab">
@@ -496,13 +496,13 @@ window[aiName]=aisdk,aisdk.queue&&0===aisdk.queue.length&&aisdk.trackPageView({}
         </div>
     </div>
 
-    <input data-val="true" data-val-required="The Id field is required." id="publicationId" name="File.Id" type="hidden" value="490502" />
+    <input data-val="true" data-val-required="The Id field is required." id="publicationId" name="File.Id" type="hidden" value="490491" />
     <input data-val="true" data-val-maxlength="The field ResourceType must be a string or array type with a maximum length of &#x27;50&#x27;." data-val-maxlength-max="50" data-val-required="The ResourceType field is required." id="resourceType" name="File.ResourceType" type="hidden" value="Bundle" />
-    <input id="resourceId" name="ResourceId" type="hidden" value="a3a142f2-1fd3-4907-b7fa-b91966af0d11" />
+    <input id="resourceId" name="ResourceId" type="hidden" value="cf800b80-2a12-440d-8380-f260ff58651c" />
     <input id="project-key" name="ProjectKey" type="hidden" value="erezept" />
-    <input data-val="true" data-val-maxlength="The field UrlKey must be a string or array type with a maximum length of &#x27;75&#x27;." data-val-maxlength-max="75" data-val-regex="The key can only contain alphanumeric characters, &#x27;-&#x27; and &#x27;.&#x27;" data-val-regex-pattern="[a-zA-Z0-9\-\.]&#x2B;" data-val-required="The UrlKey field is required." id="publicationUrlKey" name="File.UrlKey" type="hidden" value="15da065c-5b75-4acf-a2ba-1355de821d6e" />
-    <input id="publicationUrl" name="publicationUrl" type="hidden" value="eRezept/15da065c-5b75-4acf-a2ba-1355de821d6e" />
-    <input id="publicationEndpoint" name="publicationEndpoint" type="hidden" value="https://fhir.simplifier.net/r4/Bundle/a3a142f2-1fd3-4907-b7fa-b91966af0d11" />
+    <input data-val="true" data-val-maxlength="The field UrlKey must be a string or array type with a maximum length of &#x27;75&#x27;." data-val-maxlength-max="75" data-val-regex="The key can only contain alphanumeric characters, &#x27;-&#x27; and &#x27;.&#x27;" data-val-regex-pattern="[a-zA-Z0-9\-\.]&#x2B;" data-val-required="The UrlKey field is required." id="publicationUrlKey" name="File.UrlKey" type="hidden" value="d9118e05-6e13-4df6-af50-552401cf9ba2" />
+    <input id="publicationUrl" name="publicationUrl" type="hidden" value="eRezept/d9118e05-6e13-4df6-af50-552401cf9ba2" />
+    <input id="publicationEndpoint" name="publicationEndpoint" type="hidden" value="https://fhir.simplifier.net/r4/Bundle/cf800b80-2a12-440d-8380-f260ff58651c" />
 <input id="application-url" name="application-url" type="hidden" value="https://fhir.simplifier.net/r4" />
     <div id="publication-page-footer">
         <div class="container">
@@ -514,7 +514,7 @@ window[aiName]=aisdk,aisdk.queue&&0===aisdk.queue.length&&aisdk.trackPageView({}
                 <div class="col-md-8 right-panel">
                     <div>
                         <span>
-                            Last updated on <time class="localize" datetime="2021-04-07T14:25:46.4116451Z">2021-04-07 02:25</time>
+                            Last updated on <time class="localize" datetime="2021-04-07T14:25:46.4133824Z">2021-04-07 02:25</time>
                         </span>
                     </div>
                 </div>
