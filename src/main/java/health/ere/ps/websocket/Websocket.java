@@ -150,7 +150,7 @@ public class Websocket {
                 ErixaEvent event = new ErixaEvent(object);
                 erixaEvent.fireAsync(event);
             }
-            else if("AllKBVExamples".equals(object.getString("type")) { 
+            else if("AllKBVExamples".equals(object.getString("type"))) { 
                 sendAllKBVExamples();
             }
         }
