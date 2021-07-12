@@ -1,12 +1,12 @@
 package health.ere.ps.config;
 
 
+import health.ere.ps.service.config.UserConfigurationService;
 import health.ere.ps.service.extractor.TemplateProfile;
 import health.ere.ps.service.extractor.SVGExtractorConfiguration;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.enterprise.context.ApplicationScoped;
-import java.io.IOException;
+import javax.inject.Inject;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -15,51 +15,60 @@ public class UserConfig {
 
     private final Logger log = Logger.getLogger(UserConfig.class.getName());
 
-    private final Properties erixaProperties;
+    @Inject
+    UserConfigurationService configurationManagementService;
 
-    @ConfigProperty(name = "muster16.template.configuration", defaultValue = "DENS")
-    String muster16TemplateConfiguration;
+    private Properties properties;
 
     public UserConfig() {
-        erixaProperties = erixaProperties();
+        configurationManagementService = new UserConfigurationService();
+        properties = configurationManagementService.getProperties();
     }
 
     public String getErixaHotfolder() {
-        return erixaProperties.getProperty("erixa.hotfolder");
+        return properties.getProperty("erixa.hotfolder");
     }
 
     public String getErixaReceiverEmail() {
-        return erixaProperties.getProperty("erixa.receiver.email");
+        return properties.getProperty("erixa.receiver.email");
     }
 
     public String getErixaUserEmail() {
-        return erixaProperties.getProperty("erixa.user.email");
+        return properties.getProperty("erixa.user.email");
     }
     public String getErixaUserPassword() {
-        return erixaProperties.getProperty("erixa.user.password");
+        return properties.getProperty("erixa.user.password");
     }
 
     public String getErixaApiKey(){
-        return erixaProperties.getProperty("erixa.api.key");
+        return properties.getProperty("erixa.api.key");
+    }
+
+    public String getCertificateFilePath() {
+        return properties.getProperty("certificate.file.path");
+    }
+
+    public String getCertificateFilePassword() {
+        return properties.getProperty("certificate.file.password");
+    }
+
+    public Properties getProperties() {
+        return properties;
+    }
+
+    public void setProperties(Properties properties) {
+        this.properties = properties;
+        configurationManagementService.update(properties);
     }
 
     public SVGExtractorConfiguration getMuster16TemplateConfiguration() {
         TemplateProfile profile;
+        String s = properties.getProperty("muster16.template.configuration", "DENS");
         try {
-            profile = TemplateProfile.valueOf(muster16TemplateConfiguration);
+            profile = TemplateProfile.valueOf(s);
         } catch (IllegalArgumentException ignored) {
             profile = TemplateProfile.DENS;
         }
         return profile.configuration;
-    }
-
-    private Properties erixaProperties() {
-        final Properties properties = new Properties();
-        try {
-            properties.load(UserConfig.class.getResourceAsStream("/eRiXa.properties"));
-        } catch (IOException e) {
-            log.warning("Failed to load eRiXa.properties");
-        }
-        return properties;
     }
 }
