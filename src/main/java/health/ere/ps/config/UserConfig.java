@@ -1,74 +1,93 @@
 package health.ere.ps.config;
 
 
+import health.ere.ps.event.UserConfigurationsUpdateEvent;
+import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.service.config.UserConfigurationService;
-import health.ere.ps.service.extractor.TemplateProfile;
 import health.ere.ps.service.extractor.SVGExtractorConfiguration;
+import health.ere.ps.service.extractor.TemplateProfile;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 @ApplicationScoped
 public class UserConfig {
 
+    // TODO
+    //  Send warning messages to the user when configurations are incomplete
+    //  This should be done on startup, as well as when retrieving configurations
     private final Logger log = Logger.getLogger(UserConfig.class.getName());
 
     @Inject
     UserConfigurationService configurationManagementService;
 
-    private Properties properties;
+    private UserConfigurations configurations;
+
+    @PostConstruct
+    void init() {
+        updateProperties();
+    }
 
     public UserConfig() {
         configurationManagementService = new UserConfigurationService();
-        properties = configurationManagementService.getProperties();
+    }
+
+    public UserConfigurations getConfigurations() {
+        return configurations;
     }
 
     public String getErixaHotfolder() {
-        return properties.getProperty("erixa.hotfolder");
+        return configurations.getErixaHotfolder();
     }
 
     public String getErixaReceiverEmail() {
-        return properties.getProperty("erixa.receiver.email");
+        return configurations.getErixaDrugstoreEmail();
     }
 
     public String getErixaUserEmail() {
-        return properties.getProperty("erixa.user.email");
-    }
-    public String getErixaUserPassword() {
-        return properties.getProperty("erixa.user.password");
+        return configurations.getErixaUserEmail();
     }
 
-    public String getErixaApiKey(){
-        return properties.getProperty("erixa.api.key");
+    public String getErixaUserPassword() {
+        return configurations.getErixaUserPassword();
+    }
+
+    public String getErixaApiKey() {
+        // FIXME Erixa ApiKey does not belong here
+        throw new UnsupportedOperationException();
     }
 
     public String getCertificateFilePath() {
-        return properties.getProperty("certificate.file.path");
+        return configurations.getConnectorCertificateFile();
     }
 
     public String getCertificateFilePassword() {
-        return properties.getProperty("certificate.file.password");
-    }
-
-    public Properties getProperties() {
-        return properties;
-    }
-
-    public void setProperties(Properties properties) {
-        this.properties = properties;
-        configurationManagementService.update(properties);
+        return configurations.getConnectorCertificatePassword();
     }
 
     public SVGExtractorConfiguration getMuster16TemplateConfiguration() {
         TemplateProfile profile;
-        String s = properties.getProperty("muster16.template.configuration", "DENS");
+        String s = configurations.getMuster16Profile();
         try {
             profile = TemplateProfile.valueOf(s);
         } catch (IllegalArgumentException ignored) {
             profile = TemplateProfile.DENS;
         }
         return profile.configuration;
+    }
+
+    public void handleUpdateProperties(@ObservesAsync UserConfigurationsUpdateEvent event) {
+        updateProperties(event.getConfigurations());
+    }
+
+    private void updateProperties(UserConfigurations configurations) {
+        this.configurations = configurations;
+    }
+
+    private void updateProperties() {
+        updateProperties(configurationManagementService.getConfig());
     }
 }
