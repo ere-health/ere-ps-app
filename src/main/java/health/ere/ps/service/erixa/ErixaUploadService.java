@@ -1,6 +1,7 @@
 package health.ere.ps.service.erixa;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import health.ere.ps.config.UserConfig;
 import health.ere.ps.event.erixa.SendToPharmacyEvent;
 import health.ere.ps.model.erixa.PrescriptionTransferEntry;
 import health.ere.ps.model.erixa.api.mapping.*;
@@ -18,6 +19,9 @@ public class ErixaUploadService {
 
     @Inject
     ErixaAPIInterface apiInterface;
+
+    @Inject
+    UserConfig userConfig;
 
     private final ObjectMapper mapper;
     private final SimpleDateFormat simpleDateFormat, timestampFormat;
@@ -73,8 +77,7 @@ public class ErixaUploadService {
     }
 
     private String getDrugstoreEmail() {
-        // TODO implement method
-        throw new UnsupportedOperationException();
+        return userConfig.getErixaReceiverEmail();
     }
 
     private void interpolatePrescriptionDetails(DoctorUploadToDrugstorePrescriptionModel model, PrescriptionTransferEntry details) {

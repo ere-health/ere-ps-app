@@ -1,6 +1,7 @@
 package health.ere.ps.service.erixa;
 
 
+import health.ere.ps.config.UserConfig;
 import health.ere.ps.model.erixa.api.credentials.BasicAuthCredentials;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpHeaders;
@@ -13,6 +14,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
@@ -21,6 +23,9 @@ import java.util.logging.Logger;
 public class ErixaHttpClient {
 
     private final Logger log = Logger.getLogger(getClass().getName());
+
+    @Inject
+    UserConfig userConfig;
 
     private final HttpClient httpClient = HttpClientBuilder.create().build();
 
@@ -57,12 +62,10 @@ public class ErixaHttpClient {
     }
 
     private BasicAuthCredentials getErixaCredentials() {
-        // TODO get user's credentials
-        return new BasicAuthCredentials("<User-Email-Address>", "<User-Password>");
+        return new BasicAuthCredentials(userConfig.getErixaUserEmail(), userConfig.getErixaUserPassword());
     }
 
     private String getApiKey() {
-        // TODO fetch from secret file
-        return "<ERE-API-Key>";
+        return userConfig.getErixaApiKey();
     }
 }
