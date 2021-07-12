@@ -7,6 +7,7 @@ import me.tongfei.progressbar.ProgressBarBuilder;
 import me.tongfei.progressbar.ProgressBarStyle;
 import org.update4j.FileMetadata;
 import org.update4j.service.UpdateHandler;
+import popup.PopupManager;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,19 +24,36 @@ public class CustomUpdateHandler implements UpdateHandler {
 
     private static final System.Logger logger = System.getLogger(CustomUpdateHandler.class.getName());
     private final ApplicationConfig applicationConfig = ApplicationConfig.INSTANCE;
+    private final PopupManager popupManager = PopupManager.INSTANCE;
 
     private final ProgressBar pb = new ProgressBarBuilder()
             .setInitialMax(100)
             .setTaskName("Download")
             .setConsumer(new DelegatingProgressBarConsumer(number -> logger.log(System.Logger.Level.INFO, number)))
+            .setConsumer(new DelegatingProgressBarConsumer(popupManager::updateProgressBar))
             .setStyle(ProgressBarStyle.ASCII)
             .setUpdateIntervalMillis(100)
             .build();
 
     @Override
+    public void doneCheckUpdateFile(FileMetadata file, boolean requires) {
+        String message;
+        if (requires) {
+            message = "The file: " + file.getPath() + " needs to be downloaded, starting download";
+            popupManager.startProgressBar();
+        } else {
+            message = "The file: " + file.getPath() + " is up-to-date, no need to download anything";
+        }
+        logAndDisplayMessage(message);
+    }
+
+
+
+    @Override
     public void doneDownloads() {
-        logger.log(System.Logger.Level.INFO, "Download of the update archive done, extraction in progress");
+        logAndDisplayMessage("Download done, extraction of update in progress");
         pb.close();
+
         try {
             extractArchiveToApplicationFolder();
         } catch (IOException e) {
@@ -47,25 +65,24 @@ public class CustomUpdateHandler implements UpdateHandler {
     @Override
     public void failed(Throwable t) {
         logger.log(System.Logger.Level.ERROR, "Update failed because:" + t.getLocalizedMessage());
+        popupManager.addTextToPanel("There was en ERROR during the update:" + t.getLocalizedMessage());
     }
 
-    @Override
-    public void doneCheckUpdateFile(FileMetadata file, boolean requires) {
-        if (requires) {
-            logger.log(System.Logger.Level.INFO, "The file:" + file.getPath() + " needs to be downloaded");
-        } else {
-            logger.log(System.Logger.Level.INFO, "The file:" + file.getPath() + " is up-to-date");
-        }
-    }
 
     @Override
     public void updateDownloadFileProgress(FileMetadata file, float progress) {
         pb.stepTo((long) (progress * 100));
     }
 
+    private void logAndDisplayMessage(String message) {
+        logger.log(System.Logger.Level.INFO, message);
+        popupManager.addTextToPanel(message);
+    }
+
     private void extractArchiveToApplicationFolder() throws IOException {
         String archive = applicationConfig.getApplicationPath() + "/" + applicationConfig.getArchiveName();
         File destDir = new File(applicationConfig.getApplicationPath());
+
         byte[] buffer = new byte[1024];
         ZipInputStream zis = new ZipInputStream(new FileInputStream(archive));
         ZipEntry zipEntry = zis.getNextEntry();
@@ -110,19 +127,26 @@ public class CustomUpdateHandler implements UpdateHandler {
         return destFile;
     }
 
+    //https://stackoverflow.com/questions/43063303/mac-os-terminal-command-to-set-jar-program-to-run-at-startup
     public static void createStartupScript() {
-        List<String> scriptContent = List.of("@ECHO OFF", "cd " + System.getProperty("user.dir") +
-                " & start java -jar ere-health-launcher.jar");
+        String os = System.getProperty("os.name").toLowerCase();
 
-        Path startupScriptPath = Path.of(System.getenv("APPDATA") +
-                "\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\ere-health-launcher.bat");
+        if ("windows".equals(os)) {
+            List<String> scriptContent = List.of("@ECHO OFF", "cd " + System.getProperty("user.dir") +
+                    " & start java -jar ere-health-launcher.jar");
 
-        try {
-            Files.createFile(startupScriptPath);
-            Files.write(startupScriptPath, scriptContent, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            logger.log(System.Logger.Level.ERROR, "Could not create startup script:");
-            e.printStackTrace();
+            Path startupScriptPath = Path.of(System.getenv("APPDATA") +
+                    "\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\ere-health-launcher.bat");
+
+            try {
+                Files.createFile(startupScriptPath);
+                Files.write(startupScriptPath, scriptContent, StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                logger.log(System.Logger.Level.ERROR, "Could not create startup script:");
+                e.printStackTrace();
+            }
+        } else if ("linux".equals(os)) {
+            logger.log(System.Logger.Level.INFO, "Linux detected, for now doing nothing");
         }
     }
 }
