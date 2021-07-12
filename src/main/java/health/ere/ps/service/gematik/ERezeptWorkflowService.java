@@ -1,5 +1,44 @@
 package health.ere.ps.service.gematik;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.enterprise.event.ObservesAsync;
+import javax.inject.Inject;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import javax.xml.ws.Holder;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.xml.security.c14n.CanonicalizationException;
+import org.apache.xml.security.c14n.Canonicalizer;
+import org.apache.xml.security.c14n.InvalidCanonicalizerException;
+import org.apache.xml.security.parser.XMLParserException;
+import org.hl7.fhir.r4.model.Binary;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Coding;
+import org.hl7.fhir.r4.model.Identifier;
+import org.hl7.fhir.r4.model.Parameters;
+import org.hl7.fhir.r4.model.Parameters.ParametersParameterComponent;
+import org.hl7.fhir.r4.model.Task;
+import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
+import org.jose4j.jwt.consumer.InvalidJwtException;
+import org.jose4j.jwt.consumer.JwtConsumer;
+import org.jose4j.jwt.consumer.JwtConsumerBuilder;
+
 import ca.uhn.fhir.context.FhirContext;
 import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
@@ -17,7 +56,12 @@ import de.gematik.ws.conn.signatureservice.wsdl.v7.FaultMessage;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortType;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
 import health.ere.ps.config.AppConfig;
-import health.ere.ps.event.*;
+import health.ere.ps.event.AbortTaskEntry;
+import health.ere.ps.event.AbortTaskStatus;
+import health.ere.ps.event.AbortTasksEvent;
+import health.ere.ps.event.AbortTasksStatusEvent;
+import health.ere.ps.event.BundlesWithAccessCodeEvent;
+import health.ere.ps.event.SignAndUploadBundlesEvent;
 import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.exception.connector.ConnectorCardsException;
 import health.ere.ps.exception.gematik.ERezeptWorkflowException;
@@ -26,32 +70,6 @@ import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import health.ere.ps.service.idp.BearerTokenService;
 import health.ere.ps.vau.VAUEngine;
 import oasis.names.tc.dss._1_0.core.schema.Base64Data;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.xml.security.c14n.CanonicalizationException;
-import org.apache.xml.security.c14n.Canonicalizer;
-import org.apache.xml.security.c14n.InvalidCanonicalizerException;
-import org.apache.xml.security.parser.XMLParserException;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.hl7.fhir.r4.model.*;
-import org.hl7.fhir.r4.model.Parameters.ParametersParameterComponent;
-import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.enterprise.event.ObservesAsync;
-import javax.inject.Inject;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-import javax.xml.ws.Holder;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @ApplicationScoped
 public class ERezeptWorkflowService {
@@ -117,9 +135,7 @@ public class ERezeptWorkflowService {
      * necessary processing
      */
     public void onSignAndUploadBundlesEvent(@ObservesAsync SignAndUploadBundlesEvent signAndUploadBundlesEvent) {
-        if (StringUtils.isEmpty(bearerToken)) {
-            bearerToken = bearerTokenService.requestBearerToken();
-        }
+        requestNewAcccessTokenIfNecessary();
 
         log.info(String.format("Received %d bundles to sign ", signAndUploadBundlesEvent.listOfListOfBundles.size()));
         log.info("Contents of list of bundles to sign are as follows:");
@@ -383,19 +399,41 @@ public class ERezeptWorkflowService {
      */
     public void abortERezeptTask(String bearerToken, String taskId, String accessCode) {
         Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task").path("/" + taskId).path("/$abort")
-                .request().header("User-Agent", appConfig.getUserAgent()).header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
+        .request().header("User-Agent", appConfig.getUserAgent()).header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
                 .post(Entity.entity("", "application/fhir+xml; charset=utf-8"));
         String taskString = response.readEntity(String.class);
         // if it is not successful and it was found
         if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL
-                && response.getStatus() != Response.Status.NOT_FOUND.getStatusCode()) {
+        && response.getStatus() != Response.Status.NOT_FOUND.getStatusCode()) {
             throw new RuntimeException(taskString);
         }
-
+        
         log.info("Task $abort Response: " + taskString);
+    }
+    
+    void requestNewAcccessTokenIfNecessary() {
+        if (StringUtils.isEmpty(bearerToken) || isExpired(bearerToken)) {
+            bearerToken = bearerTokenService.requestBearerToken();
+        }
+    }
+    
+    boolean isExpired(String bearerToken2) {
+        JwtConsumer consumer = new JwtConsumerBuilder()
+            .setDisableRequireSignature()
+            .setSkipSignatureVerification()
+            .setSkipDefaultAudienceValidation()
+            .setRequireExpirationTime()
+            .build();
+        try {
+            consumer.process(bearerToken2);
+            return false;
+        } catch (InvalidJwtException e) {
+            return true;
+        }
     }
 
     public void onAbortTasksEvent(@ObservesAsync AbortTasksEvent abortTasksEvent) {
+        requestNewAcccessTokenIfNecessary();
         List<AbortTaskStatus> abortTaskStatusList = new ArrayList<>();
         for (AbortTaskEntry abortTaskEntry : abortTasksEvent.getTasks()) {
             AbortTaskStatus abortTaskStatus = new AbortTaskStatus(abortTaskEntry);
