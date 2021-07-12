@@ -13,6 +13,7 @@ import org.hl7.fhir.common.hapi.validation.validator.FhirInstanceValidator;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.jboss.logging.Logger;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
@@ -20,9 +21,10 @@ public class PrescriptionBundleValidator {
 
     private static final Logger logger =
             Logger.getLogger(PrescriptionBundleValidator.class.getName());
-    private final FhirValidator validator;
+    private FhirValidator validator;
 
-    public PrescriptionBundleValidator() {
+    @PostConstruct
+    void init() {
         FhirContext ctx = FhirContext.forR4();
 
         // Create a chain that will hold our modules

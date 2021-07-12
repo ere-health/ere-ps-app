@@ -1,7 +1,6 @@
 package health.ere.ps.validation.fhir.context.support;
 
-import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.parser.IParser;
+import org.eclipse.microprofile.config.ConfigProvider;
 import org.hl7.fhir.common.hapi.validation.support.PrePopulatedValidationSupport;
 import org.hl7.fhir.r4.model.CodeSystem;
 import org.hl7.fhir.r4.model.StructureDefinition;
@@ -10,11 +9,23 @@ import org.jboss.logging.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.IParser;
+
 public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupport {
+    protected enum ConfigType {
+        PROFILE, EXTENSION, VALUE_SET, CODE_SYSTEM, NAMING_SYSTEM, UNKNOWN
+    }
+
     private static final List<List<String>> structureDefinitionsAndExtensions = Arrays.asList(
             // Add StructureDefinition profiles.
             List.of("/fhir/r4/profile/v1_0_0/address-de-basis.xml",
@@ -219,9 +230,9 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
         initValidationConfigs();
     }
 
-    private void addStructureDefinition(String configUrl,
-                                        String configVersion,
-                                        InputStream configDefinitionInputStream) {
+    protected void addProfile(String configUrl,
+                              String configVersion,
+                              InputStream configDefinitionInputStream) {
 
 
         StructureDefinition structureDefinition;
@@ -238,7 +249,7 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
         }
     }
 
-    private void addValueSet(String configUrl, String configVersion,
+    protected void addValueSet(String configUrl, String configVersion,
                              InputStream configDefinitionInputStream) {
 
         ValueSet valueSet;
@@ -254,7 +265,7 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
         }
     }
 
-    private void addCodeSystem(String configUrl, String configVersion,
+    protected void addCodeSystem(String configUrl, String configVersion,
                                InputStream configDefinitionInputStream) {
 
         CodeSystem codeSystem;
@@ -270,12 +281,16 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
         }
     }
 
-    private void initValidationConfigs() {
+    protected void addNamingSystem(InputStream configDefinitionInputStream) {
+
+    }
+
+    protected void initValidationConfigs() {
         // Init Structure Definitions.
         structureDefinitionsAndExtensions.forEach(configList -> {
             String url = configList.get(1);
 
-            addStructureDefinition(url, configList.get(2),
+            addProfile(url, configList.get(2),
                     ErePrePopulatedValidationSupport.class.getResourceAsStream(configList.get(0)));
         });
 
@@ -290,5 +305,35 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
                     ErePrePopulatedValidationSupport.class.getResourceAsStream(configList.get(0)));
             logger.infof("Loaded CodeSystem %s", configList.get(0));
         });
+
+        // Init naming systems
+
+    }
+
+    public void initKbvValidatorConfiguration() throws IOException {
+        String kbvValidatorConfigDirectory =
+                ConfigProvider.getConfig().getValue("kbv.validator.config.dir", String.class);
+        Path start = Path.of(kbvValidatorConfigDirectory);
+
+        Files.walkFileTree(start, new SimpleFileVisitor<Path>() {
+
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                    throws IOException
+            {
+                applyConfiguration(file);
+                return FileVisitResult.CONTINUE;
+            }
+        });
+    }
+
+    protected ConfigType getConfigType(Path kbvConfigFile) {
+        return ConfigType.UNKNOWN;
+    }
+
+    protected void applyConfiguration(Path kbvConfigFile) {
+        switch(getConfigType(kbvConfigFile)) {
+
+        }
     }
 }
