@@ -1,4 +1,4 @@
-package health.ere.ps.event;
+package health.ere.ps.event.erixa;
 
 
 import javax.json.JsonObject;
@@ -11,6 +11,6 @@ public class ErixaEvent {
 
     public ErixaEvent(JsonObject jsonObject) {
         payload = jsonObject.getJsonObject("payload");
-        processType = payload.getString("processType");
+        processType = jsonObject.getString("processType");
     }
 }

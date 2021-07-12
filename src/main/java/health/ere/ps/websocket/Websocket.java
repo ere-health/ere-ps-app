@@ -41,6 +41,7 @@ import health.ere.ps.event.BundlesEvent;
 import health.ere.ps.event.ERezeptDocumentsEvent;
 import health.ere.ps.event.EreLogNotificationEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
+import health.ere.ps.event.erixa.ErixaEvent;
 import health.ere.ps.jsonb.BundleAdapter;
 import health.ere.ps.jsonb.ByteAdapter;
 import health.ere.ps.model.websocket.OutgoingPayload;
@@ -57,6 +58,9 @@ public class Websocket {
 
     @Inject
     Event<AbortTasksEvent> abortTasksEvent;
+
+    @Inject
+    Event<ErixaEvent> erixaEvent;
 
     @Inject
     PrescriptionBundleValidator prescriptionBundleValidator;
@@ -115,6 +119,10 @@ public class Websocket {
 
             } else if("AbortTasks".equals(object.getString("type"))) {
                 abortTasksEvent.fireAsync(new AbortTasksEvent(object.getJsonArray("payload")));
+            }
+            else if ("ErixaEvent".equals(object.getString("type"))){
+                ErixaEvent event = new ErixaEvent(object);
+                erixaEvent.fireAsync(event);
             }
         }
     }
