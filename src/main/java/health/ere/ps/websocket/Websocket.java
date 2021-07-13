@@ -1,15 +1,21 @@
 package health.ere.ps.websocket;
 
 import java.awt.Desktop;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -41,6 +47,7 @@ import health.ere.ps.event.BundlesEvent;
 import health.ere.ps.event.ERezeptDocumentsEvent;
 import health.ere.ps.event.EreLogNotificationEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
+import health.ere.ps.event.erixa.ErixaEvent;
 import health.ere.ps.jsonb.BundleAdapter;
 import health.ere.ps.jsonb.ByteAdapter;
 import health.ere.ps.model.websocket.OutgoingPayload;
@@ -57,6 +64,9 @@ public class Websocket {
 
     @Inject
     Event<AbortTasksEvent> abortTasksEvent;
+
+    @Inject
+    Event<ErixaEvent> erixaEvent;
 
     @Inject
     PrescriptionBundleValidator prescriptionBundleValidator;
@@ -78,6 +88,26 @@ public class Websocket {
     public void onOpen(Session session) {
         sessions.add(session);
         log.info("Websocket opened");
+    }
+
+    void sendAllKBVExamples(){
+        sessions.forEach(session -> {
+
+            try (Stream<Path> paths = Files.walk(Paths.get("../src/test/resources/simplifier_erezept"))) {
+                paths
+                    .filter(Files::isRegularFile)
+                    .forEach(f -> {
+                        try (InputStream inputStream = new FileInputStream(f.toFile())) {
+                            Bundle bundle = ctx.newXmlParser().parseResource(Bundle.class, inputStream);
+                            onFhirBundle(new BundlesEvent(new Bundle[] { bundle }));
+                        } catch(IOException ex) {
+                            log.warn("Could read all files", ex);
+                        }
+                    });
+            } catch(IOException ex) {
+                log.warn("Could read all files", ex);
+            }
+        });
     }
 
     @OnClose
@@ -115,6 +145,13 @@ public class Websocket {
 
             } else if("AbortTasks".equals(object.getString("type"))) {
                 abortTasksEvent.fireAsync(new AbortTasksEvent(object.getJsonArray("payload")));
+            }
+            else if ("ErixaEvent".equals(object.getString("type"))){
+                ErixaEvent event = new ErixaEvent(object);
+                erixaEvent.fireAsync(event);
+            }
+            else if("AllKBVExamples".equals(object.getString("type"))) { 
+                sendAllKBVExamples();
             }
         }
     }

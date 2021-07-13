@@ -1,7 +1,9 @@
 package health.ere.ps.service.erixa;
 
-import health.ere.ps.event.ErixaEvent;
-import health.ere.ps.event.ErixaSyncEvent;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import health.ere.ps.event.erixa.ErixaEvent;
+import health.ere.ps.event.erixa.ErixaSyncEvent;
+import health.ere.ps.event.erixa.SendToPharmacyEvent;
 import health.ere.ps.model.erixa.ErixaSyncLoad;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -10,6 +12,7 @@ import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
 import java.util.logging.Logger;
 
+@Deprecated
 @ApplicationScoped
 public class ErixaService {
 
@@ -18,12 +21,22 @@ public class ErixaService {
     @Inject
     Event<ErixaSyncEvent> erixaSyncEvent;
 
-    public void generatePrescriptionBundle(@ObservesAsync ErixaEvent event) {
+    @Inject
+    Event<SendToPharmacyEvent> sendToPharmacyEvent;
 
-        if ("sync".equals(event.processType)) {
-            ErixaSyncLoad load = new ErixaSyncLoad(event.payload.getString("document"), event.payload.getString("patient"));
-            ErixaSyncEvent syncEvent = new ErixaSyncEvent(load);
-            erixaSyncEvent.fireAsync(syncEvent);
+    public void generatePrescriptionBundle(@ObservesAsync ErixaEvent erixaEvent) {
+
+        if ("sync".equals(erixaEvent.processType)) {
+            ErixaSyncLoad load = new ErixaSyncLoad(erixaEvent.payload.getString("document"), erixaEvent.payload.getString("patient"));
+            ErixaSyncEvent event = new ErixaSyncEvent(load);
+            erixaSyncEvent.fireAsync(event);
+        } else if("SendToPharmacy".equals(erixaEvent.processType)){
+            try {
+                SendToPharmacyEvent event = new SendToPharmacyEvent(erixaEvent.payload);
+                sendToPharmacyEvent.fireAsync(event);
+            } catch (JsonProcessingException e) {
+                log.severe("JsonProcessingException: " + e.getMessage());
+            }
         }
     }
 }

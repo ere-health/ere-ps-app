@@ -1,7 +1,7 @@
 package health.ere.ps.service.erixa;
 
 import health.ere.ps.config.UserConfig;
-import health.ere.ps.event.ErixaSyncEvent;
+import health.ere.ps.event.erixa.ErixaSyncEvent;
 import health.ere.ps.model.erixa.ErixaSyncLoad;
 import org.apache.pdfbox.pdmodel.PDDocument;
 
@@ -16,6 +16,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.logging.Logger;
 
+@Deprecated
 @ApplicationScoped
 public class ErixaSyncService {
 

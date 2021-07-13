@@ -11,12 +11,14 @@ public class MedicationMatcher {
 
     private final MedicationDataProvider provider;
     private final SimilarityCalculator similarityCalculator;
+    private final MedicationMatcherFilter matcherFilter;
 
     private Map<String, MedicationRecord> pznMedicationMap;
 
     public MedicationMatcher() {
         this.provider = new MedicationDataProvider();
         this.similarityCalculator = new SimilarityCalculator();
+        this.matcherFilter = new MedicationMatcherFilter();
         initializePZNMap();
     }
 
@@ -39,6 +41,7 @@ public class MedicationMatcher {
 
     public MedicationRecord bestMatch(String entry) {
         return provider.getRecords().stream()
+                .filter(record -> matcherFilter.containsFirstToken(entry, record))
                 .max(Comparator.comparing((MedicationRecord r) -> similarityCalculator.calculate(entry, r)))
                 .orElse(null);
     }
