@@ -1,0 +1,55 @@
+<ValueSet xmlns="http://hl7.org/fhir">
+  <id value="1.2.276.0.76.11.40--20180713132721" />
+  <meta>
+    <profile value="http://hl7.org/fhir/StructureDefinition/shareablevalueset" />
+    <!--<profile value="http://hl7.org/fhir/4.0/StructureDefinition/ValueSet"/>-->
+  </meta>
+  <extension url="http://hl7.org/fhir/StructureDefinition/resource-effectivePeriod">
+    <valuePeriod>
+      <start value="2018-07-13T13:27:21+01:00" />
+    </valuePeriod>
+  </extension>
+  <url value="http://ihe-d.de/ValueSets/IHEXDScodeList" />
+  <identifier>
+    <use value="official" />
+    <system value="http://art-decor.org/ns/oids/vs" />
+    <value value="1.2.276.0.76.11.40" />
+  </identifier>
+  <version value="2018-07-13T13:27:21" />
+  <name value="IHEXDScodeList" />
+  <title value="IHE XDS codeList" />
+  <status value="active" />
+  <experimental value="false" />
+  <publisher value="IHE Deutschland e.V." />
+  <description value="codeList (XDSFolder)The set of codes specifying the type of clinical activities that resulted in placing XDS Documents in a Folder." />
+  <immutable value="false" />
+  <compose>
+    <include>
+      <system value="http://ihe-d.de/CodeSystems/Ordnertypen" />
+      <concept>
+        <code value="DMP" />
+        <display value="Disease Management Programm" />
+      </concept>
+      <concept>
+        <code value="ECR" />
+        <display value="Elektronische Fallakte (EFA)" />
+      </concept>
+      <concept>
+        <code value="IVA" />
+        <display value="Integrierte Versorgung (IVa-Vertrag)" />
+      </concept>
+      <concept>
+        <code value="IVB" />
+        <display value="Integrierte Versorgung (IVb-Vertrag)" />
+      </concept>
+      <concept>
+        <code value="DIAG" />
+        <display value="Medizinischer Fall auf Diagnose Basis" />
+      </concept>
+      <concept>
+        <code value="EMERG" />
+        <display value="Notfall-relevante Dokumente" />
+      </concept>
+    </include>
+  </compose>
+</ValueSet>

@@ -1,0 +1,33 @@
+<NamingSystem xmlns="http://hl7.org/fhir">
+  <id value="namingSystem-KzvAbrechnungsnummer" />
+  <meta>
+    <profile value="http://fhir.de/StructureDefinition/namingsystem-de-basis" />
+  </meta>
+  <name value="KzvAbrechnungsnummer" />
+  <status value="draft" />
+  <kind value="identifier" />
+  <date value="2021-01-28" />
+  <publisher value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+  <contact>
+    <telecom>
+      <system value="other" />
+      <value value="http://hl7.de/technische-komitees/fhir/" />
+    </telecom>
+  </contact>
+  <responsible value="Kassenzahnärztliche Bundesvereinigung (KZBV), bzw. jeweils zuständige Landesvereinigung" />
+  <type>
+    <coding>
+      <system value="http://fhir.de/CodeSystem/identifier-type-de-basis" />
+      <code value="KZVA" />
+    </coding>
+  </type>
+  <usage value="Das NamingSystem wird in Identifiern von Betriebsstätten von Zahnärzten (Organization) verwendet." />
+  <uniqueId>
+    <type value="uri" />
+    <value value="http://fhir.de/NamingSystem/kzbv/kzvabrechnungsnummer" />
+    <preferred value="true" />
+    <period>
+      <start value="2021-01-28" />
+    </period>
+  </uniqueId>
+</NamingSystem>

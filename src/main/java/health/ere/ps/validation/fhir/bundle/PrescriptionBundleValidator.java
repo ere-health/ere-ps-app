@@ -45,24 +45,25 @@ public class PrescriptionBundleValidator {
 
         validatorModule.setAnyExtensionsAllowed(true);
         validatorModule.setErrorForUnknownProfiles(false);
-        validatorModule.setNoTerminologyChecks(true); // TODO: Fix issues when set to false.
-        validatorModule.setCustomExtensionDomains(
-                "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Legal_basis",
-                "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_PKV_Tariff",
-                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_StatusCoPayment",
-                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_EmergencyServicesFee",
-                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_BVG",
-                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription",
-                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_DosageFlag",
-                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Category",
-                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Vaccine",
-                "http://fhir.de",
-                "http://fhir.de/StructureDefinition/normgroesse",
-                "http://fhir.de/StructureDefinition/gkv/besondere-personengruppe",
-                "http://fhir.de/StructureDefinition/gkv/dmp-kennzeichen",
-                "http://fhir.de/StructureDefinition/gkv/wop",
-                "http://fhir.de/StructureDefinition/gkv/versichertenart"
-        );
+        validatorModule.setNoTerminologyChecks(false); // TODO: Fix issues when set to false.
+        validatorModule.setCustomExtensionDomains("http://fhir.de", "https://fhir.kbv.de");
+//        validatorModule.setCustomExtensionDomains(
+//                "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Legal_basis",
+//                "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_PKV_Tariff",
+//                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_StatusCoPayment",
+//                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_EmergencyServicesFee",
+//                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_BVG",
+//                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription",
+//                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_DosageFlag",
+//                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Category",
+//                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Vaccine",
+//                "http://fhir.de",
+//                "http://fhir.de/StructureDefinition/normgroesse",
+//                "http://fhir.de/StructureDefinition/gkv/besondere-personengruppe",
+//                "http://fhir.de/StructureDefinition/gkv/dmp-kennzeichen",
+//                "http://fhir.de/StructureDefinition/gkv/wop",
+//                "http://fhir.de/StructureDefinition/gkv/versichertenart"
+//        );
 
         validator = ctx.newValidator().registerValidatorModule(validatorModule);
 

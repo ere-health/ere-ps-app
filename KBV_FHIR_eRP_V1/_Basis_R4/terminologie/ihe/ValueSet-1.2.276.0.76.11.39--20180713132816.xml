@@ -1,0 +1,78 @@
+<ValueSet xmlns="http://hl7.org/fhir">
+  <id value="1.2.276.0.76.11.39--20180713132816" />
+  <meta>
+    <profile value="http://hl7.org/fhir/StructureDefinition/shareablevalueset" />
+    <!--<profile value="http://hl7.org/fhir/4.0/StructureDefinition/ValueSet"/>-->
+  </meta>
+  <extension url="http://hl7.org/fhir/StructureDefinition/resource-effectivePeriod">
+    <valuePeriod>
+      <start value="2018-07-13T13:28:16+01:00" />
+    </valuePeriod>
+  </extension>
+  <url value="http://ihe-d.de/ValueSets/IHEXDScontentTypeCode" />
+  <identifier>
+    <use value="official" />
+    <system value="http://art-decor.org/ns/oids/vs" />
+    <value value="1.2.276.0.76.11.39" />
+  </identifier>
+  <version value="2018-07-13T13:28:16" />
+  <name value="IHEXDScontentTypeCode" />
+  <title value="IHE XDS contentTypeCode" />
+  <status value="active" />
+  <experimental value="false" />
+  <publisher value="IHE Deutschland e.V." />
+  <description value="contentTypeCode (XDSSubmissionSet)The code specifying the type of clinical activity that resulted in placing XDS Documents in a SubmissionSet." />
+  <immutable value="false" />
+  <compose>
+    <include>
+      <system value="http://ihe-d.de/CodeSystems/GrundDerUebermittlung" />
+      <concept>
+        <code value="1" />
+        <display value="Patientenkontakt" />
+      </concept>
+      <concept>
+        <code value="2" />
+        <display value="Verlegung" />
+      </concept>
+      <concept>
+        <code value="3" />
+        <display value="Entlassung" />
+      </concept>
+      <concept>
+        <code value="4" />
+        <display value="Überweisung/Einweisung" />
+      </concept>
+      <concept>
+        <code value="5" />
+        <display value="Aufnahme" />
+      </concept>
+      <concept>
+        <code value="6" />
+        <display value="Anforderung" />
+      </concept>
+      <concept>
+        <code value="7" />
+        <display value="Auf Anfrage" />
+      </concept>
+      <concept>
+        <extension url="http://hl7.org/fhir/StructureDefinition/valueset-concept-comments">
+          <valueString value="Regelmäßige Übertragungen (z.B. Implantate, Fitnesstracker), auch wenn durch den Patienten ursprünglich veranlasst, werden über das Konzept 11 (&quot;Monitoring&quot;) abgebildet." />
+        </extension>
+        <code value="8" />
+        <display value="Veranlassung durch Patient" />
+      </concept>
+      <concept>
+        <code value="9" />
+        <display value="Konsil/Zweitmeinung" />
+      </concept>
+      <concept>
+        <code value="10" />
+        <display value="Systemwechsel/Archivierung" />
+      </concept>
+      <concept>
+        <code value="11" />
+        <display value="Monitoring" />
+      </concept>
+    </include>
+  </compose>
+</ValueSet>

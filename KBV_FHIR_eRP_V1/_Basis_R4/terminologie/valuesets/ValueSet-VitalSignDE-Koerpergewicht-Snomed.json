@@ -1,0 +1,48 @@
+{
+  "compose": {
+    "exclude": [
+      {
+        "concept": [
+          {
+            "code": "301334000",
+            "display": "Birth weight centile (observable entity)"
+          }
+        ],
+        "system": "http://snomed.info/sct"
+      }
+    ],
+    "include": [
+      {
+        "filter": [
+          {
+            "op": "is-a",
+            "property": "concept",
+            "value": "27113001"
+          }
+        ],
+        "system": "http://snomed.info/sct"
+      }
+    ]
+  },
+  "contact": [
+    {
+      "telecom": [
+        {
+          "system": "url",
+          "value": "http://hl7.de/technische-komitees/fhir/"
+        }
+      ]
+    }
+  ],
+  "copyright": "This artefact includes content from SNOMED Clinical Terms® (SNOMED CT®) which is copyright of the International Health Terminology Standards Development Organisation (IHTSDO). Implementers of these artefacts must have the appropriate SNOMED CT Affiliate license - for more information contact http://www.snomed.org/snomed-ct/getsnomed-ct or info@snomed.org.",
+  "date": "2020-12-04",
+  "description": "Enthaelt SNOMED Codes fuer das Koerpergewicht.",
+  "experimental": true,
+  "name": "KoerpergewichtSnomed",
+  "publisher": "HL7 Deutschland e.V. (Technisches Komitee FHIR)",
+  "status": "draft",
+  "title": "Koerpergewicht-SNOMED",
+  "url": "http://fhir.de/ValueSet/koerpergewicht-snomed-de",
+  "version": "0.9.13",
+  "resourceType": "ValueSet"
+}

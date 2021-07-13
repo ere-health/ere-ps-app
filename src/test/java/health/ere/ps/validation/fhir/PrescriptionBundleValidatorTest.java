@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import javax.inject.Inject;
+
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.validation.ValidationResult;
 import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
@@ -19,12 +21,15 @@ import io.quarkus.test.junit.QuarkusTest;
 @Disabled("KBV Validator needs additional configuration to ensure proper validation")
 public class PrescriptionBundleValidatorTest {
 
+    @Inject
+    PrescriptionBundleValidator prescriptionBundleValidator;
+
     FhirContext fhirContext = FhirContext.forR4();
 
     @Disabled
     @Test
     public void test() throws IOException {
-        PrescriptionBundleValidator prescriptionBundleValidator = new PrescriptionBundleValidator();
+//        PrescriptionBundleValidator prescriptionBundleValidator = new PrescriptionBundleValidator();
 
         Bundle bundle = XmlPrescriptionProcessor.createFixedBundleFromString(Files.readString(Paths.get("/home/manuel/git/secret-test-print-samples/CGM-Turbomed/XML/Bundle1.xml")));
 
@@ -37,7 +42,7 @@ public class PrescriptionBundleValidatorTest {
 
     @Test
     public void testKBV() throws IOException {
-        PrescriptionBundleValidator prescriptionBundleValidator = new PrescriptionBundleValidator();
+//        PrescriptionBundleValidator prescriptionBundleValidator = new PrescriptionBundleValidator();
 
         ValidationResult validationResult =
                 prescriptionBundleValidator.validateResource(Files.readString(Paths.get(

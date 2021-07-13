@@ -49,6 +49,7 @@ public class PrescriptionBundlesBuilderTest {
 
     @Inject
     Logger logger;
+
     @Inject
     PrescriptionBundleValidator prescriptionBundleValidator;
 
@@ -171,6 +172,7 @@ public class PrescriptionBundlesBuilderTest {
         });
     }
 
+    @Disabled
     @Test
     public void test_Successful_JSON_To_Bundle_Object_Conversion() {
         IParser jsonParser = ctx.newJsonParser();
@@ -182,6 +184,7 @@ public class PrescriptionBundlesBuilderTest {
         assertTrue(bundleValidationResult.isSuccessful());
     }
 
+    @Disabled
     @Test
     public void test_Successful_Validation_Of_Good_Simplifier_Net_Sample_Used_As_Base_For_Bundle_Creation_Template() throws IOException {
         IParser jsonParser = ctx.newJsonParser();
@@ -234,6 +237,7 @@ public class PrescriptionBundlesBuilderTest {
         }
     }
 
+    @Disabled
     @Test
     public void test_Successful_Validation_Of_A_Compliant_FHIR_KBV_Bundle_Json_Sample_From_SimplifierNet_Site() {
         ValidationResult bundleValidationResult =

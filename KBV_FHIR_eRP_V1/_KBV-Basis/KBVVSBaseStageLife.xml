@@ -1,0 +1,42 @@
+<ValueSet xmlns="http://hl7.org/fhir">
+  <url value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_Stage_Life" />
+  <version value="1.1.3" />
+  <name value="KBV_VS_Base_Stage_Life" />
+  <status value="active" />
+  <publisher value="Kassenärztliche Bundesvereinigung (KBV)" />
+  <description value="Dieses Valueset enthält Snomedcodes zur Angabe der Lebensphase" />
+  <compose>
+    <include>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20200131" />
+      <concept>
+        <code value="41847000" />
+        <display value="Adulthood (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="263659003" />
+        <display value="Adolescence (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="255398004" />
+        <display value="Childhood (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="713153009" />
+        <display value="Toddler (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="3658006" />
+        <display value="Infancy (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="255407002" />
+        <display value="Neonatal (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="271872005" />
+        <display value="Old age (qualifier value)" />
+      </concept>
+    </include>
+  </compose>
+</ValueSet>
