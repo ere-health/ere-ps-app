@@ -16,6 +16,12 @@ import java.io.IOException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+
+/**
+ * Custom update handler that overrides some UpdateHandler methods to allow for our own logic.
+ * Logs what is going on with the download process, extracts the downloaded archive and sets up + feeds the
+ * progress bar
+ */
 public class CustomUpdateHandler implements UpdateHandler {
 
     private static final System.Logger log = System.getLogger(CustomUpdateHandler.class.getName());

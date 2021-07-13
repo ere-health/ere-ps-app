@@ -8,6 +8,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+
+/**
+ * Install Java and Chrome if needed + creates the startup script
+ */
 public enum ThirdPartySoftwaresInstaller {
     INSTANCE;
 

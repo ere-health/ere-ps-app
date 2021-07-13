@@ -10,6 +10,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 
+/**
+ * Creates the remote configuration associated with an installer archive that will be read by the launcher
+ * to check if the local archive matches the remote one
+ */
 public class RemoteConfigCreator {
 
     private static final System.Logger log = System.getLogger(RemoteConfigCreator.class.getName());
@@ -29,6 +33,7 @@ public class RemoteConfigCreator {
                 .file(FileMetadata
                         .readFrom(applicationConfig.getRemoteConfigurationCreationFolder() + "/" +
                                 applicationConfig.getArchiveName())
+                        .classpath() //to avoid a warning in the logs
                         .uri(applicationConfig.getRemoteServerUri() + "/" + applicationConfig.getArchiveName())
                 )
                 .build();

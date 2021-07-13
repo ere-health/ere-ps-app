@@ -9,6 +9,9 @@ import java.io.InputStream;
 
 import static java.awt.BorderLayout.AFTER_LINE_ENDS;
 
+/**
+ * Manages the popup that will indicate to the user the process of the installation/update
+ */
 public enum PopupManager {
     INSTANCE;
 

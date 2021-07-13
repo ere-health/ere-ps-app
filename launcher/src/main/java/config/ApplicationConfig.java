@@ -5,7 +5,9 @@ import java.io.InputStream;
 import java.util.Objects;
 import java.util.Properties;
 
-//SINGLETON
+/**
+ * Singleton class reading the configuration variables from application.properties
+ */
 public enum ApplicationConfig {
     INSTANCE;
 

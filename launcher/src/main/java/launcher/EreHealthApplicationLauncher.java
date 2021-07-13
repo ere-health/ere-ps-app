@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+/**
+ * Runs the application, closes the popup and opens the webapp in Chrome
+ */
 public class EreHealthApplicationLauncher implements Launcher {
     private static final String DEFAULT_APPLICATION_JAR = "\\quarkus-app\\quarkus-run.jar";
     private static final System.Logger logger = System.getLogger(EreHealthApplicationLauncher.class.getName());

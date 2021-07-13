@@ -10,6 +10,11 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+
+/**
+ * Main class of the launcher. Can create a remote configuration file with the correct argument.
+ * Otherwise if the OS is Windows takes care of the update/installation process.
+ */
 public class AutoUpdater {
     private static final System.Logger log = System.getLogger(AutoUpdater.class.getName());
     private static final PopupManager popupManager = PopupManager.INSTANCE;
