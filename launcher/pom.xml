@@ -67,16 +67,14 @@
                         <configuration>
                             <headerType>console</headerType>
                             <jar>${project.build.directory}/ere-health-launcher.jar</jar>
-                            <outfile>${project.build.directory}/launcher.exe</outfile>
-                            <downloadUrl>http://java.com/download</downloadUrl>
+                            <outfile>${project.build.directory}/ere-health-launcher.exe</outfile>
                             <classPath>
                                 <mainClass>AutoUpdater</mainClass>
                                 <addDependencies>true</addDependencies>
                                 <preCp>anything</preCp>
                             </classPath>
                             <jre>
-                                <jdkPreference>preferJre</jdkPreference>
-                                <minVersion>11</minVersion>
+                                <path>jre</path>
                             </jre>
                             <versionInfo>
                                 <copyright>2021 https://github.com/ere-health/ere-ps-app</copyright>

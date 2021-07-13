@@ -32,7 +32,7 @@ public enum PopupManager {
         jFrame.add(jPanel);
         jFrame.setTitle("Ere-ps-app maintenance");
         jFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        jFrame.setSize(700, 400);
+        jFrame.setSize(700, 500);
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         jFrame.setLocation(dim.width / 2 - jFrame.getSize().width / 2, dim.height / 2 - jFrame.getSize().height / 2);
         jFrame.setVisible(true);
@@ -57,8 +57,8 @@ public enum PopupManager {
         jPanel.repaint();
     }
 
-    public void addTextToPanel(String text) {
-        //html tag for auto wrap-up
+    public void addTextToPanelAndLog(String text) {
+        //html tag for text wrap-up
         JLabel jLabel = new JLabel("<html>"+ text +"</html>");
         jLabel.setFont(DEFAULT_FONT);
 
@@ -66,6 +66,8 @@ public enum PopupManager {
         jPanel.add(new JLabel(" "));
         jPanel.revalidate();
         jPanel.repaint();
+
+        log.log(System.Logger.Level.INFO, text);
     }
 
     public void closePopup() {
@@ -77,6 +79,10 @@ public enum PopupManager {
         progressBarJLabel.setFont(DEFAULT_FONT);
         jPanel.add(progressBarJLabel, AFTER_LINE_ENDS);
         jPanel.add(new JLabel(" "));
+    }
+
+    public void closeProgressBar() {
+        jPanel.remove(progressBarJLabel);
     }
 
     public void updateProgressBar(String progress) {
