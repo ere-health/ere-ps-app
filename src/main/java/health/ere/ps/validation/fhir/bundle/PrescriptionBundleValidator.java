@@ -18,6 +18,7 @@ import ca.uhn.fhir.validation.FhirValidator;
 import ca.uhn.fhir.validation.SingleValidationMessage;
 import ca.uhn.fhir.validation.ValidationResult;
 import health.ere.ps.validation.fhir.context.support.KBVPrePopulatedValidationSupport;
+import health.ere.ps.validation.fhir.hook.EreValidationHook;
 
 @ApplicationScoped
 public class PrescriptionBundleValidator {
@@ -47,10 +48,10 @@ public class PrescriptionBundleValidator {
         FhirInstanceValidator validatorModule = new FhirInstanceValidator(cache);
 
         validatorModule.setAnyExtensionsAllowed(true);
-        validatorModule.setErrorForUnknownProfiles(true);
-        validatorModule.setNoTerminologyChecks(true); // TODO: Fix issues when set to false.
+        validatorModule.setErrorForUnknownProfiles(false);
+        validatorModule.setNoTerminologyChecks(false);
+        validatorModule.setAssumeValidRestReferences(true);
         validatorModule.setCustomExtensionDomains(
-            "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Composition",
                 "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Legal_basis",
                 "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_PKV_Tariff",
                 "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_StatusCoPayment",
@@ -72,7 +73,7 @@ public class PrescriptionBundleValidator {
 
         InterceptorService interceptorService = new InterceptorService();
 
-        // interceptorService.registerInterceptor(new EreValidationHook());
+        interceptorService.registerInterceptor(new EreValidationHook());
 
         validator.setInterceptorBroadcaster(interceptorService);
     }

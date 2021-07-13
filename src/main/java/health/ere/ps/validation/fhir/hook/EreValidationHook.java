@@ -1,11 +1,11 @@
 package health.ere.ps.validation.fhir.hook;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.jboss.logging.Logger;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.jboss.logging.Logger;
 
 import ca.uhn.fhir.interceptor.api.Hook;
 import ca.uhn.fhir.interceptor.api.Interceptor;
@@ -75,7 +75,15 @@ public class EreValidationHook {
                 singleValMsg.getMessage().matches("Details for Coverage/.+ " +
                         "matching against " +
                         "Profilehttps://fhir\\.kbv\\.de/StructureDefinition/KBV_PR_FOR_Coverage" +
-                        "\\|1\\.0\\.1") &&
+                        "\\|1\\.0\\.1") ||
+                singleValMsg.getMessage().matches("Unable to find a match for profile " +
+                        "Coverage/.+ " +
+                        "among choices: https://fhir\\.kbv" +
+                        "\\.de/StructureDefinition/KBV_PR_FOR_Coverage\\|1\\.0\\.3") ||
+                singleValMsg.getMessage().matches("Details for Coverage/.+ " +
+                        "matching against " +
+                        "Profilehttps://fhir\\.kbv\\.de/StructureDefinition/KBV_PR_FOR_Coverage" +
+                        "\\|1\\.0\\.3") &&
                         (singleValMsg.getSeverity() == ResultSeverityEnum.ERROR ||
                                 singleValMsg.getSeverity() == ResultSeverityEnum.INFORMATION)
             ).collect(Collectors.toList()));
