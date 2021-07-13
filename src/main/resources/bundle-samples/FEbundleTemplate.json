@@ -194,10 +194,6 @@
           {
             "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Vaccine",
             "valueBoolean": false
-          },
-          {
-            "url": "http://fhir.de/StructureDefinition/normgroesse",
-            "valueCode": ""
           }
         ],
         "code": {
@@ -305,14 +301,6 @@
           {
             "use": "official",
             "family": "$PRACTITIONER_NAME_FAMILY",
-            "_family": {
-              "extension": [
-                {
-                  "url": "http://hl7.org/fhir/StructureDefinition/humanname-own-name",
-                  "valueString": "$PRACTITIONER_NAME_FAMILY"
-                }
-              ]
-            },
             "given": [
               "$PRACTITIONER_NAME_FIRST"
             ]$PRACTITIONER_NAME_PREFIX
@@ -357,7 +345,7 @@
             "value": "$CLINIC_ID"
           }
         ],
-        "name": "$ORGANIZATION_NAME",
+        $ORGANIZATION_NAME
         "telecom": [
           {
             "system": "phone",
