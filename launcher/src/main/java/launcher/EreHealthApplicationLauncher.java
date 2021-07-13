@@ -36,7 +36,7 @@ public class EreHealthApplicationLauncher implements Launcher {
         }
 
         try {
-            Thread.sleep(3000);
+            Thread.sleep(5000);
             popupManager.closePopup();
             startWebappInChrome();
         } catch (InterruptedException | IOException e) {

@@ -33,7 +33,8 @@ public enum ApplicationConfig {
                 e.printStackTrace();
             }
         } else {
-            logger.log(System.Logger.Level.ERROR, "Property file " + DEFAULT_APPLICATION_CONFIG + " not found in the classpath");
+            logger.log(System.Logger.Level.ERROR, "Property file " + DEFAULT_APPLICATION_CONFIG +
+                    " not found in the classpath");
         }
 
         remoteServerUri = properties.getProperty("remote.server");

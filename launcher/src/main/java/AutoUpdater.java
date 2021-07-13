@@ -44,9 +44,9 @@ public class AutoUpdater {
                 createApplicationPathIfNeeded(applicationConfig);
 
                 if (isFirstInstallation) {
-                    popupManager.addTextToPanelAndLog("Installation of ere-ps-app started");
+                    popupManager.addTextToPanelAndLog("Installation of the application ere.health started");
                 } else {
-                    popupManager.addTextToPanelAndLog("Update process of ere-ps-app started");
+                    popupManager.addTextToPanelAndLog("Update process of the application ere.health started");
                 }
 
                 config.update();
@@ -57,10 +57,11 @@ public class AutoUpdater {
                     thirdPartySoftwaresInstaller.createWindowsStartupScript();
                     popupManager.addTextToPanelAndLog("Everything has been installed successfully");
                 } else {
-                    popupManager.addTextToPanelAndLog("Update process complete, now launching the ere-health application");
+                    popupManager.addTextToPanelAndLog("Update process complete, now launching the ere.health application");
                 }
 
-                popupManager.addTextToPanelAndLog("Process done successfully! Now launching ere-ps-app and starting Chrome");
+                popupManager.addTextToPanelAndLog("Process done successfully! Now starting the ere.health application " +
+                        "and starting Chrome");
                 config.launch();
             }
         }

@@ -33,7 +33,7 @@ public enum PopupManager {
 
         jPanel.setLayout(boxlayout);
         jFrame.add(jPanel);
-        jFrame.setTitle("Ere-ps-app maintenance");
+        jFrame.setTitle("Ere.health application maintenance");
         jFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         jFrame.setSize(700, 500);
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
