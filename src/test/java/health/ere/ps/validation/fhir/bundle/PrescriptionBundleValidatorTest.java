@@ -1,4 +1,4 @@
-package health.ere.ps.validation.fhir;
+package health.ere.ps.validation.fhir.bundle;
 
 import org.hl7.fhir.r4.model.Bundle;
 import org.junit.jupiter.api.Assertions;
