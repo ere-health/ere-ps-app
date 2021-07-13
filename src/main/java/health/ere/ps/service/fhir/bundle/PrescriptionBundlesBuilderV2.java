@@ -82,6 +82,14 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
             "   }\n" +
             "]";
     protected static final String $PREFIX = "$PREFIX";
+    protected static final String DOSAGE_TEXT_TEMPLATE = "\"dosageInstruction\": [{\n" +
+            "\t\t\t\t\t\t\"extension\": [{\n" +
+            "\t\t\t\t\t\t\t\"url\": \"https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_DosageFlag\",\n" +
+            "\t\t\t\t\t\t\t\"valueBoolean\": true\n" +
+            "\t\t\t\t\t\t}],\n" +
+            "\t\t\t\t\t\t\"text\": \"$DOSAGE\"\n" +
+            "\t\t\t\t\t}],";
+    protected static final String $DOSAGE = "$DOSAGE";
 
     protected final Muster16PrescriptionForm muster16PrescriptionForm;
     protected Map<String, String> templateKeyMapper;
@@ -156,7 +164,13 @@ public class PrescriptionBundlesBuilderV2 implements IBundlesBuilder {
         templateKeyMapper.put($MEDICATION_FORM, getProtectedValue(medicationString.getForm()));
         templateKeyMapper.put($MEDICATION_NAME, getProtectedValue(medicationString.getName()));
         templateKeyMapper.put($MEDICATION_SIZE, getProtectedValue(medicationString.getSize()));
-        templateKeyMapper.put($DOSAGE_TEXT, getProtectedValue(medicationString.getInstructions()));
+
+        if (StringUtils.isEmpty(medicationString.getInstructions())) {
+            templateKeyMapper.put($DOSAGE_TEXT, "");
+        } else {
+            templateKeyMapper.put($DOSAGE_TEXT, DOSAGE_TEXT_TEMPLATE
+                    .replace($DOSAGE, medicationString.getInstructions()));
+        }
     }
 
     protected void updatePatientResourceSection() {

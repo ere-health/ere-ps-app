@@ -150,17 +150,7 @@
             "reference": "Coverage/$COVERAGE_ID"
           }
         ],
-        "dosageInstruction": [
-          {
-            "extension": [
-              {
-                "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_DosageFlag",
-                "valueBoolean": true
-              }
-            ],
-            "text": "$DOSAGE_TEXT"
-          }
-        ],
+        $DOSAGE_TEXT
         "dispenseRequest": {
           "quantity": {
             "value": 1,
