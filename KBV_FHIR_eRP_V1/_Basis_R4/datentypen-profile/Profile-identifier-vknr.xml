@@ -1,0 +1,53 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="identifier-vknr" />
+  <url value="http://fhir.de/StructureDefinition/identifier-vknr" />
+  <version value="0.9.13" />
+  <name value="IdentifierVknr" />
+  <title value="Identifier-Profil für die Abbildung einer Vertragskassennummer (VKNR)" />
+  <status value="draft" />
+  <date value="2020-04-23" />
+  <description value="Identifier-Profil für die Abbildung einer Vertragskassennummer (VKNR)" />
+  <fhirVersion value="4.0.1" />
+  <kind value="complex-type" />
+  <abstract value="false" />
+  <type value="Identifier" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Identifier" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Identifier.use">
+      <path value="Identifier.use" />
+      <fixedCode value="official" />
+    </element>
+    <element id="Identifier.type">
+      <path value="Identifier.type" />
+      <patternCodeableConcept>
+        <coding>
+          <system value="http://terminology.hl7.org/CodeSystem/v2-0203" />
+          <code value="NIIP" />
+        </coding>
+      </patternCodeableConcept>
+    </element>
+    <element id="Identifier.system">
+      <path value="Identifier.system" />
+      <min value="1" />
+      <fixedUri value="http://fhir.de/NamingSystem/kbv/vknr" />
+    </element>
+    <element id="Identifier.value">
+      <path value="Identifier.value" />
+      <min value="1" />
+    </element>
+    <element id="Identifier.assigner.identifier.system">
+      <path value="Identifier.assigner.identifier.system" />
+      <min value="1" />
+      <fixedUri value="http://fhir.de/NamingSystem/arge-ik/iknr" />
+    </element>
+    <element id="Identifier.assigner.identifier.value">
+      <path value="Identifier.assigner.identifier.value" />
+      <min value="1" />
+    </element>
+    <element id="Identifier.assigner.display">
+      <path value="Identifier.assigner.display" />
+      <min value="1" />
+    </element>
+  </differential>
+</StructureDefinition>

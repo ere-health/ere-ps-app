@@ -1,0 +1,48 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="chargeitem-ebm" />
+  <url value="http://fhir.de/StructureDefinition/chargeitem-de-ebm" />
+  <version value="0.9.13" />
+  <name value="ChargeItemEBM" />
+  <title value="ChargeItem für EBM-Ziffer als Abrechnungsposition" />
+  <status value="draft" />
+  <date value="2019-10-30" />
+  <publisher value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+  <copyright value="HL7 Deutschland e.V." />
+  <fhirVersion value="4.0.1" />
+  <kind value="resource" />
+  <abstract value="false" />
+  <type value="ChargeItem" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/ChargeItem" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="ChargeItem.code">
+      <path value="ChargeItem.code" />
+      <constraint>
+        <key value="chrg-1" />
+        <severity value="warning" />
+        <human value="EBM-Ziffern müssen dem Schema '[0-9]{5}[A-Z]{0,1}' entsprechen" />
+        <expression value="coding.code.matches('[0-9]{5}[A-Z]{0,1}')" />
+        <source value="http://fhir.de/StructureDefinition/chargeitem-de-ebm" />
+      </constraint>
+      <binding>
+        <strength value="required" />
+        <description value="EBM-Katalog" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/74_VS_AW_EBM" />
+      </binding>
+    </element>
+    <element id="ChargeItem.occurrence[x]">
+      <path value="ChargeItem.occurrence[x]" />
+      <type>
+        <code value="dateTime" />
+      </type>
+    </element>
+    <element id="ChargeItem.quantity">
+      <path value="ChargeItem.quantity" />
+      <min value="1" />
+    </element>
+    <element id="ChargeItem.quantity.value">
+      <path value="ChargeItem.quantity.value" />
+      <min value="1" />
+    </element>
+  </differential>
+</StructureDefinition>

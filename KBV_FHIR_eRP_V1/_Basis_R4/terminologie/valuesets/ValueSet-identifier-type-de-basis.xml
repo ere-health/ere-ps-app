@@ -1,0 +1,52 @@
+<ValueSet xmlns="http://hl7.org/fhir">
+  <id value="valueset-identifier-type-de-basis" />
+  <meta>
+    <profile value="http://hl7.org/fhir/StructureDefinition/shareablevalueset" />
+  </meta>
+  <url value="http://fhir.de/ValueSet/identifier-type-de-basis" />
+  <version value="0.9.13" />
+  <name value="IdentifierTypeDeBasis" />
+  <status value="draft" />
+  <experimental value="true" />
+  <date value="2020-01-10" />
+  <publisher value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+  <contact>
+    <telecom>
+      <system value="other" />
+      <value value="http://hl7.de/technische-komitees/fhir/" />
+    </telecom>
+  </contact>
+  <description value="ValueSet zur Codierung des Identifier-Typs" />
+  <copyright value="HL7 Deutschland e.V." />
+  <compose>
+    <include>
+      <valueSet value="http://hl7.org/fhir/ValueSet/identifier-type" />
+    </include>
+    <include>
+      <system value="http://terminology.hl7.org/CodeSystem/v2-0203" />
+      <concept>
+        <code value="XX" />
+        <display value="Organisations-ID" />
+      </concept>
+      <concept>
+        <code value="BSNR" />
+        <display value="Betriebsstätten-Nummer" />
+      </concept>
+      <concept>
+        <code value="LANR" />
+        <display value="Lebenslange Arztnummer" />
+      </concept>
+      <concept>
+        <code value="RI" />
+        <display value="Resource identifier" />
+      </concept>
+      <concept>
+        <code value="DN" />
+        <display value="Doctor number" />
+      </concept>
+    </include>
+    <include>
+      <system value="http://fhir.de/CodeSystem/identifier-type-de-basis" />
+    </include>
+  </compose>
+</ValueSet>

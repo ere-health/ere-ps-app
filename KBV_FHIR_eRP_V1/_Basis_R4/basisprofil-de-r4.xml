@@ -1,0 +1,538 @@
+<ImplementationGuide xmlns="http://hl7.org/fhir">
+  <url value="https://simplifier.net/guide/basisprofil-de-r4" />
+  <version value="0.9" />
+  <name value="Leitfaden Basis DE (R4)" />
+  <status value="draft" />
+  <description value="Die Leitfaden wird von der [Projektgruppe Basisprofilierung](http://wiki.hl7.de/index.php?title=FHIR-Basisprofilierung_(Projekt)) des [Technischen Komitees FHIR von HL7 Deutschland e.V.](http://hl7.de/technische-komitees/fhir/ ) erstellt.&#xD;&#xA;&#xD;&#xA;Die Diskussion der Inhalte findet auf [Zulip](https://chat.fhir.org/#narrow/stream/german.20(d-a-ch)) statt. &#xD;&#xA;Implementierer und Interessenten sind herzlich eingeladen, sich an der Diskussion zu beteiligen, Fragen zu stellen,&#xD;&#xA;oder Feedback zu geben.&#xD;&#xA;&#xD;&#xA;Die Weiterentwicklung der deutschen Basisprofile kann im [GitHub-Repository](https://github.com/hl7germany/basisprofil-de-r4) verfolgt werden.&#xD;&#xA;&#xD;&#xA;Verbesserungs- und Korrekturvorschläge sollten ebenfalls über den [GitHub-Issue-Tracker](https://github.com/hl7germany/basisprofil-de-r4/issues) eingereicht werden.&#xD;&#xA;&#xD;&#xA;**Die neueste stabile Fassung findet sich unter http://ig.fhir.de/basisprofile-de/stable/**&#xD;&#xA;&#xD;&#xA;Eine formelle Abstimmung folgt. Um über Kommentierungsphasen, anstehende Abstimmungen und aktuelle Themen informiert zu werden, registrieren Sie sich bitte für den FHIR-Newsletter durch formlose Mail an fhir@hl7.de." />
+  <fhirVersion value="4.0.0" />
+  <definition>
+    <page>
+      <title value="Leitfaden Basis DE (R4)" />
+      <page>
+        <nameUrl value="Home.md" />
+        <title value="Home" />
+        <generation value="markdown" />
+      </page>
+      <page>
+        <nameUrl value="UeberDiesenLeitfaden.md" />
+        <title value="Über diesen Leitfaden" />
+        <generation value="markdown" />
+      </page>
+      <page>
+        <nameUrl value="Grundlagen.md" />
+        <title value="Grundlagen" />
+        <generation value="markdown" />
+      </page>
+      <page>
+        <nameUrl value="Anwendungshinweise.md" />
+        <title value="Anwendungshinweise" />
+        <generation value="markdown" />
+        <page>
+          <nameUrl value="RessourcenPaket.md" />
+          <title value="Ressourcen-Paket" />
+          <generation value="markdown" />
+        </page>
+        <page>
+          <nameUrl value="NichtProfilierteRessourcen.md" />
+          <title value="Nicht profilierte Ressourcen, zukünftige Erweiterung" />
+          <generation value="markdown" />
+        </page>
+        <page>
+          <nameUrl value="AbleitungEigenerProfileBasisprofilen.md" />
+          <title value="Ableitung eigener Profile von den Basisprofilen" />
+          <generation value="markdown" />
+        </page>
+        <page>
+          <nameUrl value="Beispiele.md" />
+          <title value="Beispiele" />
+          <generation value="markdown" />
+        </page>
+        <page>
+          <nameUrl value="FAQ.md" />
+          <title value="FAQ" />
+          <generation value="markdown" />
+        </page>
+      </page>
+      <page>
+        <nameUrl value="Ressourcen.md" />
+        <title value="Ressourcen" />
+        <generation value="markdown" />
+        <page>
+          <nameUrl value="Patient.md" />
+          <title value="Patient" />
+          <generation value="markdown" />
+          <page>
+            <nameUrl value="Identifikatoren.md" />
+            <title value="Identifikatoren" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="Name.md" />
+            <title value="Name" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="Anrede.md" />
+            <title value="Anrede" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="Patient.gender.md" />
+            <title value="Geschlecht" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="Patient.address.md" />
+            <title value="Adresse" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="Patient.maritalStatus.md" />
+            <title value="Personenstand" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="Geburtsdatum.md" />
+            <title value="Geburtsdatum" />
+            <generation value="markdown" />
+          </page>
+        </page>
+        <page>
+          <nameUrl value="Condition.md" />
+          <title value="Diagnosen" />
+          <generation value="markdown" />
+          <page>
+            <nameUrl value="ICD-10-GM.md" />
+            <title value="ICD-10-GM" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="WeitereDiagnosekodiersysteme.md" />
+            <title value="Weitere Diagnosekodiersysteme" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="Diagnose-TypenundRangfolgen.md" />
+            <title value="Diagnose-Typen und Rangfolgen" />
+            <generation value="markdown" />
+          </page>
+        </page>
+        <page>
+          <nameUrl value="Prozeduren.md" />
+          <title value="Prozeduren" />
+          <generation value="markdown" />
+          <page>
+            <nameUrl value="OPS.md" />
+            <title value="OPS" />
+            <generation value="markdown" />
+          </page>
+        </page>
+        <page>
+          <nameUrl value="AmbulanterstationrerFallKontakt.md" />
+          <title value="Ambulanter/stationärer Fall (Kontakt)" />
+          <generation value="markdown" />
+        </page>
+        <page>
+          <nameUrl value="Dokumente.md" />
+          <title value="Dokumente" />
+          <generation value="markdown" />
+        </page>
+        <page>
+          <nameUrl value="Versicherungs-Informationen.md" />
+          <title value="Versicherungs-Informationen" />
+          <generation value="markdown" />
+          <page>
+            <nameUrl value="Basisprofil.md" />
+            <title value="Basisprofil" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="GKV-Profil.md" />
+            <title value="GKV-Profil" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="Selbstzahler-Profil.md" />
+            <title value="Selbstzahler-Profil" />
+            <generation value="markdown" />
+          </page>
+        </page>
+        <page>
+          <nameUrl value="AbrechnungsdatenLeistungsziffern.md" />
+          <title value="Abrechnungsdaten, Leistungsziffern" />
+          <generation value="markdown" />
+          <page>
+            <nameUrl value="EBM-Ziffern.md" />
+            <title value="EBM-Ziffern" />
+            <generation value="markdown" />
+          </page>
+        </page>
+        <page>
+          <nameUrl value="Observation.md" />
+          <title value="Beobachtungen, Messungen" />
+          <generation value="markdown" />
+          <page>
+            <nameUrl value="VitalParameter.md" />
+            <title value="VitalParameter" />
+            <generation value="markdown" />
+            <page>
+              <nameUrl value="Atemfrequenz.md" />
+              <title value="Atemfrequenz" />
+              <generation value="markdown" />
+            </page>
+            <page>
+              <nameUrl value="Blutdruck.md" />
+              <title value="Blutdruck" />
+              <generation value="markdown" />
+            </page>
+            <page>
+              <nameUrl value="Herzfrequenz.md" />
+              <title value="Herzfrequenz" />
+              <generation value="markdown" />
+            </page>
+            <page>
+              <nameUrl value="Newitem-duplicate-12.md" />
+              <title value="Körpergewicht" />
+              <generation value="markdown" />
+            </page>
+            <page>
+              <nameUrl value="Krpergre.md" />
+              <title value="Körpergröße" />
+              <generation value="markdown" />
+            </page>
+            <page>
+              <nameUrl value="Krpertemperatur.md" />
+              <title value="Körpertemperatur" />
+              <generation value="markdown" />
+            </page>
+            <page>
+              <nameUrl value="Kopfumfang.md" />
+              <title value="Kopfumfang" />
+              <generation value="markdown" />
+            </page>
+            <page>
+              <nameUrl value="Sauerstoffsttigung.md" />
+              <title value="Sauerstoffsättigung" />
+              <generation value="markdown" />
+            </page>
+          </page>
+          <page>
+            <nameUrl value="Pflegegrad.md" />
+            <title value="Pflegegrad" />
+            <generation value="markdown" />
+          </page>
+        </page>
+        <page>
+          <nameUrl value="VerweiseaufExterneLeitfden.md" />
+          <title value="Verweise auf Externe Leitfäden" />
+          <generation value="markdown" />
+          <page>
+            <nameUrl value="Medikation.md" />
+            <title value="Medikation" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="Labor.md" />
+            <title value="Labor" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="FragebgenundFormulare.md" />
+            <title value="Fragebögen und Formulare" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="Einwilligungsmanagement.md" />
+            <title value="Einwilligungsmanagement" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="AllergienundIntoleranzen.md" />
+            <title value="Allergien und Intoleranzen" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="BeobachtungenMessungen.md" />
+            <title value="Beobachtungen, Messungen" />
+            <generation value="markdown" />
+            <page>
+              <nameUrl value="Schwangerschaft.md" />
+              <title value="Schwangerschaft" />
+              <generation value="markdown" />
+              <page>
+                <nameUrl value="Newitem-duplicate-13.md" />
+                <title value="Schwangerschaftsstatus" />
+                <generation value="markdown" />
+              </page>
+              <page>
+                <nameUrl value="ErwarteterGeburtstermin.md" />
+                <title value="Erwarteter Geburtstermin" />
+                <generation value="markdown" />
+              </page>
+              <page>
+                <nameUrl value="Schwangerschafts-Historie.md" />
+                <title value="Schwangerschafts-Historie" />
+                <generation value="markdown" />
+              </page>
+            </page>
+            <page>
+              <nameUrl value="Anamnese.md" />
+              <title value="Anamnese" />
+              <generation value="markdown" />
+              <page>
+                <nameUrl value="Raucherstatus.md" />
+                <title value="Raucherstatus" />
+                <generation value="markdown" />
+              </page>
+              <page>
+                <nameUrl value="Alkoholkonsum.md" />
+                <title value="Alkoholkonsum" />
+                <generation value="markdown" />
+              </page>
+            </page>
+          </page>
+        </page>
+      </page>
+      <page>
+        <nameUrl value="Extensions-Uebersicht.md" />
+        <title value="Extensions" />
+        <generation value="markdown" />
+        <page>
+          <nameUrl value="Name-duplicate-2.md" />
+          <title value="Name" />
+          <generation value="markdown" />
+        </page>
+        <page>
+          <nameUrl value="Adresse.md" />
+          <title value="Adresse" />
+          <generation value="markdown" />
+        </page>
+        <page>
+          <nameUrl value="Geschlecht.md" />
+          <title value="Geschlecht" />
+          <generation value="markdown" />
+        </page>
+        <page>
+          <nameUrl value="ICD-10Codierung.md" />
+          <title value="ICD-10 Codierung" />
+          <generation value="markdown" />
+        </page>
+        <page>
+          <nameUrl value="Medikation-duplicate-2.md" />
+          <title value="Medikation" />
+          <generation value="markdown" />
+        </page>
+        <page>
+          <nameUrl value="Coverage.md" />
+          <title value="Coverage" />
+          <generation value="markdown" />
+        </page>
+      </page>
+      <page>
+        <nameUrl value="Datentypen.md" />
+        <title value="Datentypen" />
+        <generation value="markdown" />
+        <page>
+          <nameUrl value="Address.md" />
+          <title value="Address" />
+          <generation value="markdown" />
+        </page>
+        <page>
+          <nameUrl value="HumanName.md" />
+          <title value="HumanName" />
+          <generation value="markdown" />
+        </page>
+        <page>
+          <nameUrl value="Coding.md" />
+          <title value="Coding" />
+          <generation value="markdown" />
+          <page>
+            <nameUrl value="ICD-10GM.md" />
+            <title value="ICD-10 GM" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="Alpha-ID.md" />
+            <title value="Alpha-ID" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="Alpha-ID-SE.md" />
+            <title value="Alpha-ID-SE" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="OPS-duplicate-2.md" />
+            <title value="OPS" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="ASK.md" />
+            <title value="ASK" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="ATC.md" />
+            <title value="ATC" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="PZN.md" />
+            <title value="PZN" />
+            <generation value="markdown" />
+          </page>
+        </page>
+        <page>
+          <nameUrl value="Identifier.md" />
+          <title value="Identifier" />
+          <generation value="markdown" />
+          <page>
+            <nameUrl value="PrivateKrankenversichertennummer-duplicate-2.md" />
+            <title value="Private Krankenversichertennummer" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="GesetzlicheKrankenversichertennummer10-stelligeKVID-duplicate-2.md" />
+            <title value="Gesetzliche Krankenversichertennummer (10-stellige KVID)" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="OrganisationsinternerPatienten-IdentifierPID.md" />
+            <title value="Organisationsinterner Patienten-Identifier (PID)" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="BetriebsstttennummerBSN.md" />
+            <title value="Betriebsstättennummer (BSN)" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="EinheitlichenFortbildungsnummerEFN.md" />
+            <title value="Einheitlichen Fortbildungsnummer (EFN)" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="InstitutionskennzeichensIKNR.md" />
+            <title value="Institutionskennzeichens (IKNR)" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="10-stelligeKrankenversichertennummer.md" />
+            <title value="10-stellige Krankenversichertennummer" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="LebenslangeArztnummerANR-duplicate-2.md" />
+            <title value="Lebenslange Arztnummer (ANR)" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="Patienten-IDPID.md" />
+            <title value="Patienten-ID (PID)" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="PseudonymisierteKrankenversichertennummerPSN.md" />
+            <title value="Pseudonymisierte Krankenversichertennummer (PSN)" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="VertragskassennummerVKNR.md" />
+            <title value="Vertragskassennummer (VKNR)" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="LebenslangeZahnarztnummerZANR-duplicate-2.md" />
+            <title value="Lebenslange Zahnarztnummer (ZANR)" />
+            <generation value="markdown" />
+          </page>
+        </page>
+      </page>
+      <page>
+        <nameUrl value="Terminologie.md" />
+        <title value="Terminologie" />
+        <generation value="markdown" />
+        <page>
+          <nameUrl value="Newitem-duplicate-7.md" />
+          <title value="Nomenklatur der Ressourcen" />
+          <generation value="markdown" />
+        </page>
+        <page>
+          <nameUrl value="Newitem-duplicate-8.md" />
+          <title value="Codesystem-Versionen" />
+          <generation value="markdown" />
+        </page>
+        <page>
+          <nameUrl value="Newitem-duplicate-9.md" />
+          <title value="Platzhalter-Codesysteme" />
+          <generation value="markdown" />
+        </page>
+        <page>
+          <nameUrl value="ValueSets.md" />
+          <title value="Valuesets" />
+          <generation value="markdown" />
+          <page>
+            <nameUrl value="Coverage-duplicate-2.md" />
+            <title value="Coverage" />
+            <generation value="markdown" />
+          </page>
+        </page>
+        <page>
+          <nameUrl value="Codesysteme.md" />
+          <title value="Codesysteme" />
+          <generation value="markdown" />
+          <page>
+            <nameUrl value="Aufnahmeart.md" />
+            <title value="Aufnahmeart" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="Encounter.md" />
+            <title value="Encounter" />
+            <generation value="markdown" />
+          </page>
+        </page>
+        <page>
+          <nameUrl value="ConceptMaps.md" />
+          <title value="ConceptMaps" />
+          <generation value="markdown" />
+        </page>
+        <page>
+          <nameUrl value="Namensrume.md" />
+          <title value="Namensräume" />
+          <generation value="markdown" />
+          <page>
+            <nameUrl value="Newitem-duplicate-10.md" />
+            <title value="lokale Namensräume" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="Newitem-duplicate-11.md" />
+            <title value="nationale Namensräume" />
+            <generation value="markdown" />
+          </page>
+        </page>
+        <page>
+          <nameUrl value="bersetzungen.md" />
+          <title value="Codesystem-Übersetzungen" />
+          <generation value="markdown" />
+          <page>
+            <nameUrl value="Newitem-duplicate-15.md" />
+            <title value="administrative-gender" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="marital-status.md" />
+            <title value="marital-status" />
+            <generation value="markdown" />
+          </page>
+          <page>
+            <nameUrl value="LOINC.md" />
+            <title value="LOINC" />
+            <generation value="markdown" />
+          </page>
+        </page>
+      </page>
+    </page>
+  </definition>
+</ImplementationGuide>

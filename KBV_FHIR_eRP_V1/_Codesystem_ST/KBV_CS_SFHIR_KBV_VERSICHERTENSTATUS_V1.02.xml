@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<CodeSystem xmlns="http://hl7.org/fhir" xmlns:ns2="http://www.w3.org/1999/xhtml">
+    <url value="https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_VERSICHERTENSTATUS"/>
+    <identifier>
+        <system value="urn:ietf:rfc:3986"/>
+        <value value="urn:oid:2.16.840.1.113883.3.7.1.1"/>
+    </identifier>
+    <version value="1.02"/>
+    <name value="KBV_CS_SFHIR_KBV_VERSICHERTENSTATUS"/>
+    <status value="active"/>
+    <date value="2014-01-01"/>
+    <publisher value="Kassenärztliche Bundesvereinigung"/>
+    <contact>
+        <telecom>
+            <system value="url"/>
+            <value value="http://www.kbv.de"/>
+        </telecom>
+    </contact>
+    <description value="Versichertenstatus gibt an, ob ein Versicherter ein Familienversicherter, Mitglied oder Rentner ist. Auf der KVK ist diese Angabe Teil des Feldes VERSICHERTENSTATUS - die 1. Stelle."/>
+    <copyright value="Kassenärztliche Bundesvereinigung"/>
+    <caseSensitive value="true"/>
+    <content value="complete"/>
+    <concept>
+        <code value="1"/>
+        <display value="Mitglieder"/>
+    </concept>
+    <concept>
+        <code value="3"/>
+        <display value="Familienangehoerige"/>
+    </concept>
+    <concept>
+        <code value="5"/>
+        <display value="Rentner"/>
+    </concept>
+</CodeSystem>

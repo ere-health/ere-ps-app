@@ -85,6 +85,8 @@ public class EreLogger extends Logger {
         Muster16Parsing("Muster 16 Parsing"),
         KbvBundlesProcessing("KBV Bundles Processing"),
         KbvBundleValidation("KBV Bundle Validation"),
+        KbvBundleValidator("KBV Validator"),
+        KbvBundleValidatorConfiguration("KBV Validator Configuration"),
         SystemUpdate("System Update");
 
         SystemContext(String sysContext) {

@@ -1,0 +1,113 @@
+<ConceptMap xmlns="http://hl7.org/fhir">
+  <url value="https://fhir.kbv.de/ConceptMap/KBV_CM_Base_Apgar_Score_Value_German" />
+  <version value="1.1.3" />
+  <name value="KBV_CM_Base_Apgar_Score_Value_German" />
+  <status value="active" />
+  <experimental value="false" />
+  <publisher value="Kassenärztliche Bundesvereinigung (KBV)" />
+  <description value="Diese Conceptmap verknüpft die Codes für den AgpgarSore-Wert mit deutschen Bezeichnungen" />
+  <copyright value="Copyright © [2020], Kassenärztliche Bundesvereinigung (KBV). All rights reserved." />
+  <group>
+    <source value="http://snomed.info/sct" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Apgar_Score_Value_German" />
+    <element>
+      <code value="77714001" />
+      <display value="Apgar score 0 (finding)" />
+      <target>
+        <code value="Apgar0" />
+        <display value="Apgar 0" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="43610007" />
+      <display value="Apgar score 1 (finding)" />
+      <target>
+        <code value="Apgar1" />
+        <display value="Apgar 1" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="39910003" />
+      <display value="Apgar score 2 (finding)" />
+      <target>
+        <code value="Apgar2" />
+        <display value="Apgar 2" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="26635001" />
+      <display value="Apgar score 3 (finding)" />
+      <target>
+        <code value="Apgar3" />
+        <display value="Apgar 3" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="38107004" />
+      <display value="Apgar score 4 (finding)" />
+      <target>
+        <code value="Apgar4" />
+        <display value="Apgar 4" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="24388001" />
+      <display value="Apgar score 5 (finding)" />
+      <target>
+        <code value="Apgar5" />
+        <display value="Apgar 5" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="10318004" />
+      <display value="Apgar score 6 (finding)" />
+      <target>
+        <code value="Apgar6" />
+        <display value="Apgar 6" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="13323003" />
+      <display value="Apgar score 7 (finding)" />
+      <target>
+        <code value="Apgar7" />
+        <display value="Apgar 7" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="12431004" />
+      <display value="Apgar score 8 (finding)" />
+      <target>
+        <code value="Apgar8" />
+        <display value="Apgar 8" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="64198003" />
+      <display value="Apgar score 9 (finding)" />
+      <target>
+        <code value="Apgar9" />
+        <display value="Apgar 9" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="49544001" />
+      <display value="Apgar score 10 (finding)" />
+      <target>
+        <code value="Apgar10" />
+        <display value="Apgar 10" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+</ConceptMap>

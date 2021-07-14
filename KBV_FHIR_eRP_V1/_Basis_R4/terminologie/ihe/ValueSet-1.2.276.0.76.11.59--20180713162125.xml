@@ -1,0 +1,80 @@
+<ValueSet xmlns="http://hl7.org/fhir">
+  <id value="1.2.276.0.76.11.59--20180713162125" />
+  <meta>
+    <profile value="http://hl7.org/fhir/StructureDefinition/shareablevalueset" />
+    <!--<profile value="http://hl7.org/fhir/4.0/StructureDefinition/ValueSet"/>-->
+  </meta>
+  <extension url="http://hl7.org/fhir/StructureDefinition/resource-effectivePeriod">
+    <valuePeriod>
+      <start value="2018-07-13T16:21:25+01:00" />
+    </valuePeriod>
+  </extension>
+  <url value="http://art-decor.org/fhir/ValueSet/1.2.276.0.76.11.59--20180713162125" />
+  <identifier>
+    <use value="official" />
+    <system value="http://art-decor.org/ns/oids/vs" />
+    <value value="1.2.276.0.76.11.59" />
+  </identifier>
+  <version value="2018-07-13T16:21:25" />
+  <name value="IHEXDShealthcareFacilityTypeCodeOutsidePatientReleatedHealthcare" />
+  <title value="IHE XDS healthcareFacilityTypeCode Outside Patient-Related Healthcare" />
+  <status value="active" />
+  <experimental value="false" />
+  <publisher value="IHE Deutschland e.V." />
+  <description value="healthcareFacilityTypeCode (XDSDocumentEntry) This code for an XDS Document represents the type of organizational setting of the clinical encounter during which the documented act occurred." />
+  <immutable value="false" />
+  <compose>
+    <include>
+      <system value="http://ihe-d.de/CodeSystems/NichtPatientBezogeneGesundheitsversorgung" />
+      <concept>
+        <extension url="http://hl7.org/fhir/StructureDefinition/valueset-concept-comments">
+          <valueString value="Kindergarten, Schulen, Hochschulen und andere erzieherische Einrichtungen für Kinder oder Erwachsene" />
+        </extension>
+        <code value="BIL" />
+        <display value="Bildungseinrichtung" />
+      </concept>
+      <concept>
+        <extension url="http://hl7.org/fhir/StructureDefinition/valueset-concept-comments">
+          <valueString value="Einrichtung der medizinischen Forschung außerhalb von Arztpraxis oder Krankenhaus." />
+        </extension>
+        <code value="FOR" />
+        <display value="Forschungseinrichtung" />
+      </concept>
+      <concept>
+        <extension url="http://hl7.org/fhir/StructureDefinition/valueset-concept-comments">
+          <valueString value="Organisationen die Dienste für Vaterschafts-/Mutterschaftstest anbieten, für Abstammungtests, Riskoanalysen, etc. " />
+        </extension>
+        <code value="GEN" />
+        <display value="Gen-Analysedienste" />
+      </concept>
+      <concept>
+        <extension url="http://hl7.org/fhir/StructureDefinition/valueset-concept-comments">
+          <valueString value="Alle medizinischen Dienste die sozialmedizinische Begutachtungen nach § 275 SGB V für die Krankenversicherungen oder Pflegebegutachtungen nach § 18 bzw. §§ 114ff SGB XI für die Pflegeversicherungen durchführen." />
+        </extension>
+        <code value="MDK" />
+        <display value="Medizinischer Dienst der Krankenversicherung" />
+      </concept>
+      <concept>
+        <extension url="http://hl7.org/fhir/StructureDefinition/valueset-concept-comments">
+          <valueString value="Dieser Wert kann zur Kennzeichnung der Herkunft von Dokumenten verwendet werden, die der Patient selbstständig erstellt und eingestellt hat, zum Beispiel über ein Patientenportal oder eine Smartphone-App. Daten die vom Patienten über eine solche Lösung stellvertretend für einen Heilberufler eingestellt werden (z.B. gescannter Arztbrief, DICOM-DVD) sollten nicht diesen Wert verwenden, sondern den für den Heilberufler vorgesehenen Wert." />
+        </extension>
+        <code value="PAT" />
+        <display value="Patient außerhalb der Betreuung " />
+      </concept>
+      <concept>
+        <extension url="http://hl7.org/fhir/StructureDefinition/valueset-concept-comments">
+          <valueString value="Blutspendedienst, Knochenmarkspendedienst, Samenbank, Nabelschnur-Blutbank, Bio-Banken, etc." />
+        </extension>
+        <code value="SPE" />
+        <display value="Spendedienste" />
+      </concept>
+      <concept>
+        <extension url="http://hl7.org/fhir/StructureDefinition/valueset-concept-comments">
+          <valueString value="Träger der gesetzlichen Krankenversicherung (d.h. Krankenkasse) oder der privaten Krankenversicherung." />
+        </extension>
+        <code value="VER" />
+        <display value="Versicherungsträger" />
+      </concept>
+    </include>
+  </compose>
+</ValueSet>

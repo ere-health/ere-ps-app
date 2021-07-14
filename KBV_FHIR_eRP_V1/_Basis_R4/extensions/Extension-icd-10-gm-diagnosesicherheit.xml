@@ -1,0 +1,60 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="icd-10-gm-diagnosesicherheit" />
+  <url value="http://fhir.de/StructureDefinition/icd-10-gm-diagnosesicherheit" />
+  <version value="0.9.13" />
+  <name value="ExtensionICD10GMDiagnosesicherheit" />
+  <title value="Extension zur Erfassung der Diagnosesicherheit gemäß KBV-Kodierrichtlinien" />
+  <status value="draft" />
+  <date value="2020-06-30" />
+  <fhirVersion value="4.0.1" />
+  <kind value="complex-type" />
+  <abstract value="false" />
+  <context>
+    <type value="element" />
+    <expression value="CodeableConcept.coding" />
+  </context>
+  <type value="Extension" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Extension" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Extension.url">
+      <path value="Extension.url" />
+      <fixedUri value="http://fhir.de/StructureDefinition/icd-10-gm-diagnosesicherheit" />
+    </element>
+    <element id="Extension.value[x]">
+      <path value="Extension.value[x]" />
+      <min value="1" />
+      <type>
+        <code value="Coding" />
+      </type>
+      <constraint>
+        <key value="icd-4" />
+        <severity value="warning" />
+        <human value="Wenn die Diagnosesicherheit &quot;A (Ausschluss)&quot; verwendet wird, dann muss clinicalStatus leer bleiben und verificationStaus auf &quot;refuted&quot; gesetzt werden." />
+        <expression value="code!='A' or (%resource.verificationStatus.coding.where(code='refuted').exists() and %resource.clinicalStatus.empty())" />
+      </constraint>
+      <constraint>
+        <key value="icd-5" />
+        <severity value="warning" />
+        <human value="Wenn die Diagnosesicherheit &quot;G (Gesichert)&quot; verwendet wird, dann muss clinicalStatus auf &quot;active&quot; und verificationStatus auf &quot;confirmed&quot; gesetzt werden." />
+        <expression value="code!='G' or (%resource.clinicalStatus.coding.where(code='active').exists() and %resource.verificationStatus.coding.where(code='confirmed').exists())" />
+      </constraint>
+      <constraint>
+        <key value="icd-6" />
+        <severity value="warning" />
+        <human value="Wenn die Diagnosesicherheit &quot;V (Verdacht auf)&quot; verwendet wird, dann muss clinicalStatus auf &quot;active&quot; und verificationStatus auf &quot;provisional&quot; oder &quot;differential&quot; gesetzt werden." />
+        <expression value="code!='V' or (%resource.clinicalStatus.coding.where(code='active').exists() and (%resource.verificationStatus.coding.where(code='provisional').exists() or %resource.verificationStatus.coding.where(code='differential').exists()))" />
+      </constraint>
+      <constraint>
+        <key value="icd-7" />
+        <severity value="warning" />
+        <human value="Wenn die Diagnosesicherheit &quot;Z (Zustand nach)&quot; verwendet wird, dann muss clinicalStatus auf &quot;resolved&quot; und verificationStatus auf &quot;confirmed&quot; gesetzt werden." />
+        <expression value="code!='Z' or (%resource.clinicalStatus.coding.where(code='resolved').exists() and %resource.verificationStatus.coding.where(code='confirmed').exists())" />
+      </constraint>
+      <binding>
+        <strength value="required" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_SFHIR_ICD_DIAGNOSESICHERHEIT" />
+      </binding>
+    </element>
+  </differential>
+</StructureDefinition>

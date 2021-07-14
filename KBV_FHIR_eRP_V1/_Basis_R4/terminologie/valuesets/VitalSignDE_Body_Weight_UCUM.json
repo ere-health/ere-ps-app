@@ -1,0 +1,33 @@
+{
+  "resourceType": "ValueSet",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/StructureDefinition/shareablevalueset"
+    ]
+  },
+  "url": "http://fhir.de/ValueSet/VitalSignDE_Body_Weigth_UCUM",
+  "version": "0.9.13",
+  "title": "VitalSignDE_Body_Weigth_UCUM",
+  "status": "active",
+  "experimental": false,
+  "publisher": "Technisches Komitee FHIR HL7 Deutschland e.V.",
+  "name": "VitalSignDE_Body_Weigth_UCUM",
+  "description": "VitalSignDE_Body_Weigth_UCUM",
+  "compose": {
+    "include": [
+      {
+        "system": "http://unitsofmeasure.org",
+        "concept": [
+          {
+            "code": "kg",
+            "display": "kilogram"
+          },
+          {
+            "code": "g",
+            "display": "gram"
+          }
+        ]
+      }
+    ]
+  }
+}

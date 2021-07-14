@@ -1,0 +1,106 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="ruhender-leistungsanspruch" />
+  <url value="http://fhir.de/StructureDefinition/gkv/ruhender-leistungsanspruch" />
+  <version value="0.9.13" />
+  <name value="ExtensionGkvRuhenderLeistungsanspruch" />
+  <status value="draft" />
+  <date value="2019-12-10" />
+  <publisher value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+  <contact>
+    <telecom>
+      <system value="url" />
+      <value value="http://hl7.de/technische-komitees/fhir/" />
+    </telecom>
+  </contact>
+  <description value="Gibt Art und Dauer des ruhenden Leistungsanspruchs des Versicherten bei dem unter Klasse Kostenträger angegebenen Kostenträger an" />
+  <fhirVersion value="4.0.1" />
+  <mapping>
+    <identity value="rim" />
+    <uri value="http://hl7.org/v3" />
+    <name value="RIM Mapping" />
+  </mapping>
+  <kind value="complex-type" />
+  <abstract value="false" />
+  <context>
+    <type value="element" />
+    <expression value="Coverage" />
+  </context>
+  <type value="Extension" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Extension" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Extension.extension">
+      <path value="Extension.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="Extension.extension:art">
+      <path value="Extension.extension" />
+      <sliceName value="art" />
+      <short value="Gibt die Art des ruhenden Leistungsanspruchs an." />
+      <definition value="Gibt die Art des ruhenden Leistungsanspruchs an." />
+      <min value="1" />
+      <max value="1" />
+    </element>
+    <element id="Extension.extension:art.url">
+      <path value="Extension.extension.url" />
+      <fixedUri value="art" />
+    </element>
+    <element id="Extension.extension:art.value[x]">
+      <path value="Extension.extension.value[x]" />
+      <type>
+        <code value="Coding" />
+      </type>
+    </element>
+    <element id="Extension.extension:art.value[x].code">
+      <path value="Extension.extension.value[x].code" />
+      <min value="1" />
+      <constraint>
+        <key value="ruhend-1" />
+        <severity value="warning" />
+        <human value="Es sind nur die Werte &quot;1&quot; (vollständig) und &quot;2&quot; (eingeschränkt) erlaubt." />
+        <expression value="matches('[12]')" />
+      </constraint>
+    </element>
+    <element id="Extension.extension:dauer">
+      <path value="Extension.extension" />
+      <sliceName value="dauer" />
+      <min value="1" />
+      <max value="1" />
+    </element>
+    <element id="Extension.extension:dauer.url">
+      <path value="Extension.extension.url" />
+      <fixedUri value="dauer" />
+    </element>
+    <element id="Extension.extension:dauer.value[x]">
+      <path value="Extension.extension.value[x]" />
+      <type>
+        <code value="Period" />
+      </type>
+    </element>
+    <element id="Extension.extension:dauer.value[x].start">
+      <path value="Extension.extension.value[x].start" />
+      <short value="Beginn des ruhenden Leistungsanspruchs" />
+      <definition value="Gibt den Beginn des ruhenden Leistungsanspruchs des Versicherten bei dem&#xD;&#xA;unter Klasse Kostenträger angegebenen Kostenträger an. " />
+      <min value="1" />
+    </element>
+    <element id="Extension.extension:dauer.value[x].end">
+      <path value="Extension.extension.value[x].end" />
+      <short value="Ende des ruhenden Leistungsanspruchs" />
+      <definition value="Gibt das Ende des ruhenden Leistungsanspruchs des Versicherten bei dem&#xD;&#xA;unter Klasse Kostenträger angegebenen Kostenträger an. " />
+    </element>
+    <element id="Extension.url">
+      <path value="Extension.url" />
+      <fixedUri value="http://fhir.de/StructureDefinition/gkv/ruhender-leistungsanspruch" />
+    </element>
+    <element id="Extension.value[x]">
+      <path value="Extension.value[x]" />
+      <max value="0" />
+    </element>
+  </differential>
+</StructureDefinition>

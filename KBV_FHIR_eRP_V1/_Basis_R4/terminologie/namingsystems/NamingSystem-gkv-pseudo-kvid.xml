@@ -1,0 +1,38 @@
+<NamingSystem xmlns="http://hl7.org/fhir">
+  <id value="namingSystem-gkv-pseudo-kvid" />
+  <meta>
+    <profile value="http://fhir.de/StructureDefinition/namingsystem-de-basis" />
+  </meta>
+  <name value="GkvPseudoKvid" />
+  <status value="draft" />
+  <kind value="identifier" />
+  <date value="2017-10-30" />
+  <publisher value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+  <contact>
+    <telecom>
+      <system value="other" />
+      <value value="http://hl7.de/technische-komitees/fhir/" />
+    </telecom>
+  </contact>
+  <responsible value="Vertrauensstelle Krankenversichertennummer der GKV" />
+  <type>
+    <coding>
+      <system value="http://fhir.de/CodeSystem/identifier-type-de-basis" />
+      <code value="GKV" />
+    </coding>
+  </type>
+  <description value="pseudonymisierte Versichertennummer für die Meldung an Register" />
+  <!--
+	<uniqueId>
+		<type value="oid"/>
+		<value value="1.2.276.0.76.4.8"/>
+	</uniqueId>-->
+  <uniqueId>
+    <type value="uri" />
+    <value value="http://fhir.de/NamingSystem/gkv/pseudo-kvid" />
+    <preferred value="true" />
+    <period>
+      <start value="2017-10-30" />
+    </period>
+  </uniqueId>
+</NamingSystem>

@@ -1,5 +1,28 @@
 package health.ere.ps.service.fhir.bundle;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Coverage;
+import org.hl7.fhir.r4.model.Patient;
+import org.jboss.logging.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import javax.inject.Inject;
+import javax.xml.stream.XMLStreamException;
+
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.validation.ValidationResult;
@@ -11,31 +34,10 @@ import health.ere.ps.service.muster16.Muster16FormDataExtractorService;
 import health.ere.ps.service.muster16.parser.rgxer.Muster16SvgRegexParser;
 import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 import io.quarkus.test.junit.QuarkusTest;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Coverage;
-import org.hl7.fhir.r4.model.Patient;
-import org.jboss.logging.Logger;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
 
-import javax.inject.Inject;
-import javax.xml.stream.XMLStreamException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.text.ParseException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @QuarkusTest
 public class PrescriptionBundlesBuilderTest {
@@ -49,6 +51,7 @@ public class PrescriptionBundlesBuilderTest {
 
     @Inject
     Logger logger;
+
     @Inject
     PrescriptionBundleValidator prescriptionBundleValidator;
 
@@ -270,7 +273,6 @@ public class PrescriptionBundlesBuilderTest {
         assertFalse(validationResult.isSuccessful());
     }
 
-    @Disabled
     @Test
     public void test_Successful_Validation_Of_An_FHIR_Coverage_Resource() {
         Coverage coverageResource = prescriptionBundlesBuilder.createCoverageResource("random_patient_id");
@@ -281,9 +283,8 @@ public class PrescriptionBundlesBuilderTest {
         assertTrue(validationResult.isSuccessful());
     }
 
-    @Disabled
     @Test
-    public void test_Successful_Validation_Of_XML_Serialization_Of_FHIR_EPrescription_Bundle_Object() {
+    public void test_Expected_Validation_Failure_Of_Bad_Format_Json_Serialization_Of_FHIR_EPrescription_Bundle_Object() {
         IParser jsonParser = ctx.newJsonParser();
 
         jsonParser.setPrettyPrint(true);
@@ -295,12 +296,11 @@ public class PrescriptionBundlesBuilderTest {
                     jsonParser.encodeResourceToString(bundle));
             ValidationResult validationResult =
                     prescriptionBundleValidator.validateResource(bundle, true);
-            assertTrue(validationResult.isSuccessful());
+            assertFalse(validationResult.isSuccessful());
         });
     }
 
     @Test
-    @Disabled("Disabled until validator has a complete configuration")
     public void test_Successful_Validation_Of_XML_Prescription_Bundle() throws IOException {
         try (InputStream is = getClass().getResourceAsStream(
                 "/bundle-samples/bundle_July_2.xml")) {
