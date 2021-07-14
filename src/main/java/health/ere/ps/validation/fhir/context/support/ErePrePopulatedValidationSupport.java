@@ -55,6 +55,14 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
                     configDefinitionInputStream);
             if (configUrl != null) {
                 structureDefinition.setUrl(configUrl);
+            } else {
+                if (!structureDefinition.getType().equals("Extension")) {
+                    structureDefinition.setUrl(structureDefinition.getUrl() + "|" + structureDefinition.getVersion());
+
+                    if(structureDefinition.getType().equals("Identifier")) {
+                        structureDefinition.setVersion("1.0.0");
+                    }
+                }
             }
 
             if (configVersion != null) {
