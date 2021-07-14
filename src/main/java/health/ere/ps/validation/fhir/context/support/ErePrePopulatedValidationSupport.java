@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.hl7.fhir.common.hapi.validation.support.PrePopulatedValidationSupport;
 import org.hl7.fhir.r4.model.CodeSystem;
+import org.hl7.fhir.r4.model.Enumerations;
 import org.hl7.fhir.r4.model.StructureDefinition;
 import org.hl7.fhir.r4.model.ValueSet;
 
@@ -56,12 +57,11 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
             if (configUrl != null) {
                 structureDefinition.setUrl(configUrl);
             } else {
-                if (!structureDefinition.getType().equals("Extension")) {
-                    structureDefinition.setUrl(structureDefinition.getUrl() + "|" + structureDefinition.getVersion());
+                if (!structureDefinition.getType().equals("Extension") ||
+                        (!structureDefinition.getType().equals("Identifier") &&
+                                structureDefinition.getStatus() != Enumerations.PublicationStatus.ACTIVE)) {
 
-                    if(structureDefinition.getType().equals("Identifier")) {
-                        structureDefinition.setVersion("1.0.0");
-                    }
+                    structureDefinition.setUrl(structureDefinition.getUrl() + "|" + structureDefinition.getVersion());
                 }
             }
 
