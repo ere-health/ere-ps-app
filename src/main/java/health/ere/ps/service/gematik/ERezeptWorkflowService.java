@@ -14,8 +14,10 @@ import de.gematik.ws.conn.signatureservice.v7_5_5.ComfortSignatureStatusEnum;
 import de.gematik.ws.conn.signatureservice.v7_5_5.SessionInfo;
 import de.gematik.ws.conn.signatureservice.v7_5_5.SignatureModeEnum;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.FaultMessage;
-import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortType;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV740;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV742;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
+import health.ere.ps.config.AppConfig;
 import health.ere.ps.event.*;
 import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.exception.connector.ConnectorCardsException;
@@ -30,10 +32,12 @@ import org.apache.xml.security.c14n.CanonicalizationException;
 import org.apache.xml.security.c14n.Canonicalizer;
 import org.apache.xml.security.c14n.InvalidCanonicalizerException;
 import org.apache.xml.security.parser.XMLParserException;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.Parameters.ParametersParameterComponent;
 import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
+import org.jose4j.jwt.consumer.InvalidJwtException;
+import org.jose4j.jwt.consumer.JwtConsumer;
+import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -48,10 +52,7 @@ import javax.xml.ws.Holder;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -60,12 +61,12 @@ public class ERezeptWorkflowService {
 
     private static final String EREZEPT_IDENTIFIER_SYSTEM = "https://gematik.de/fhir/NamingSystem/PrescriptionID";
     private static final Logger log = Logger.getLogger(ERezeptWorkflowService.class.getName());
-    private final FhirContext fhirContext = FhirContext.forR4();
 
     static {
         org.apache.xml.security.Init.init();
     }
 
+    private final FhirContext fhirContext = FhirContext.forR4();
     @Inject
     AppConfig appConfig;
     @Inject
@@ -237,7 +238,9 @@ public class ERezeptWorkflowService {
      */
     public BundleWithAccessCodeOrThrowable updateBundleWithTask(Task task, Bundle bundle) {
         String prescriptionID = task.getIdentifier().stream()
-                .filter(id -> id.getSystem().equals(EREZEPT_IDENTIFIER_SYSTEM)).findFirst().orElse(new Identifier()).getValue();
+                .filter(id -> id.getSystem().equals(EREZEPT_IDENTIFIER_SYSTEM))
+                .findFirst()
+                .orElse(new Identifier()).getValue();
         Identifier identifier = new Identifier();
         identifier.setSystem(EREZEPT_IDENTIFIER_SYSTEM);
         identifier.setValue(prescriptionID);
@@ -291,31 +294,30 @@ public class ERezeptWorkflowService {
             signRequest.setIncludeRevocationInfo(true);
             List<SignRequest> signRequests = Arrays.asList(signRequest);
 
-            String jobNumber = "PTV4+".equals(connectorVersion) ?
-                    signatureServiceV755.getJobNumber(contextType) :
-                    signatureService.getJobNumber(contextType);
-
-            if (wait10secondsAfterJobNumber) {
-                // Wait 10 seconds to start titus test case
-                log.info(
-                        "Waiting 10 seconds. Please enable titus test case on https://frontend.titus.ti-dienste.de/#/erezept/vps/testsuiterun");
-                try {
-                    Thread.sleep(1000 * 10);
-                } catch (InterruptedException e) {
-                    log.log(Level.SEVERE, "Could not wait", e);
-                }
-            }
+//            if (wait10secondsAfterJobNumber) {
+//                // Wait 10 seconds to start titus test case
+//                log.info(
+//                        "Waiting 10 seconds. Please enable titus test case on https://frontend.titus.ti-dienste.de/#/erezept/vps/testsuiterun");
+//                try {
+//                    Thread.sleep(1000 * 10);
+//                } catch (InterruptedException e) {
+//                    log.log(Level.SEVERE, "Could not wait", e);
+//                }
+//            }
             String signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
                     ConnectorCardsService.CardHandleType.HBA);
 
             if ("PTV4+".equals(appConfig.getConnectorVersion())) {
-                de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest signRequestsV755 = new de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest();
-                de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest.OptionalInputs optionalInputsC755 = new de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest.OptionalInputs();
+                de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest signRequestsV755 =
+                        new de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest();
+                de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest.OptionalInputs optionalInputsC755 =
+                        new de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest.OptionalInputs();
                 optionalInputsC755.setSignatureType(optionalInputs.getSignatureType());
                 optionalInputsC755.setIncludeEContent(optionalInputs.isIncludeEContent());
                 signRequestsV755.setOptionalInputs(optionalInputsC755);
                 signRequestsV755.setRequestID(UUID.randomUUID().toString());
-                de.gematik.ws.conn.signatureservice.v7_5_5.DocumentType documentV755 = new de.gematik.ws.conn.signatureservice.v7_5_5.DocumentType();
+                de.gematik.ws.conn.signatureservice.v7_5_5.DocumentType documentV755 =
+                        new de.gematik.ws.conn.signatureservice.v7_5_5.DocumentType();
                 documentV755.setBase64Data(document.getBase64Data());
                 documentV755.setShortText(document.getShortText());
                 signRequestsV755.setDocument(documentV755);
@@ -323,7 +325,7 @@ public class ERezeptWorkflowService {
 
                 List<de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse> signResponsesV755 =
                         signatureServiceV755.signDocument(signatureServiceCardHandle,
-                                signatureServiceCrypt, contextType, signatureServiceTvMode,
+                                appConfig.getConnectorCrypt(), contextType, appConfig.getTvMode(),
                                 signatureServiceV755.getJobNumber(contextType), Collections.singletonList(signRequestsV755));
 
                 de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse signResponseV755 = signResponsesV755.get(0);
@@ -333,14 +335,14 @@ public class ERezeptWorkflowService {
                 return signResponse744;
                 // PTV4
             } else if ("PTV4".equals(appConfig.getConnectorVersion())) {
-                signResponse = signatureServiceV742.signDocument(signatureServiceCardHandle, signatureServiceCrypt,
-                        contextType, signatureServiceTvMode, signatureServiceV742.getJobNumber(contextType),
+                signResponse = signatureServiceV742.signDocument(signatureServiceCardHandle, appConfig.getConnectorCrypt(),
+                        contextType, appConfig.getTvMode(), signatureServiceV742.getJobNumber(contextType),
                         signRequests);
                 // PTV3
             } else {
-                signResponse = signatureService.signDocument(signatureServiceCardHandle,
-                        contextType, signatureServiceTvMode,
-                        jobNumber, signRequests);
+                signResponse = signatureServiceV740.signDocument(signatureServiceCardHandle,
+                        contextType, appConfig.getTvMode(),
+                        signatureServiceV740.getJobNumber(contextType), signRequests);
             }
         } catch (ConnectorCardsException | InvalidCanonicalizerException | XMLParserException |
                 IOException | CanonicalizationException | FaultMessage e) {
@@ -395,13 +397,15 @@ public class ERezeptWorkflowService {
      * @return
      */
     public void abortERezeptTask(String bearerToken, String taskId, String accessCode) {
-        Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task").path("/" + taskId).path("/$abort")
-        .request().header("User-Agent", appConfig.getUserAgent()).header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
+        Response response = client.target(appConfig.getPrescriptionServiceURL())
+                .path("/Task").path("/" + taskId).path("/$abort")
+                .request().header("User-Agent", appConfig.getUserAgent())
+                .header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
                 .post(Entity.entity("", "application/fhir+xml; charset=utf-8"));
         String taskString = response.readEntity(String.class);
         // if it is not successful and it was found
         if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL
-        && response.getStatus() != Response.Status.NOT_FOUND.getStatusCode()) {
+                && response.getStatus() != Response.Status.NOT_FOUND.getStatusCode()) {
             throw new RuntimeException(taskString);
         }
 
@@ -416,11 +420,11 @@ public class ERezeptWorkflowService {
 
     boolean isExpired(String bearerToken2) {
         JwtConsumer consumer = new JwtConsumerBuilder()
-            .setDisableRequireSignature()
-            .setSkipSignatureVerification()
-            .setSkipDefaultAudienceValidation()
-            .setRequireExpirationTime()
-            .build();
+                .setDisableRequireSignature()
+                .setSkipSignatureVerification()
+                .setSkipDefaultAudienceValidation()
+                .setRequireExpirationTime()
+                .build();
         try {
             consumer.process(bearerToken2);
             return false;

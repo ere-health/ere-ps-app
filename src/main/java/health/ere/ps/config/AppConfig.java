@@ -1,6 +1,5 @@
 package health.ere.ps.config;
 
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -28,9 +27,6 @@ public class AppConfig {
 
     @ConfigProperty(name = "connector.workplace.id")
     String workplaceId;
-
-    @ConfigProperty(name = "connector.version")
-    String connectorVersion;
 
     @ConfigProperty(name = "connector.client.system.id")
     String clientSystemId;
@@ -91,6 +87,10 @@ public class AppConfig {
         return connectorVersion;
     }
 
+    public void setConnectorVersion(String connectorVersion) {
+        this.connectorVersion = connectorVersion;
+    }
+
     public String getMandantId() {
         return mandantId;
     }
@@ -149,17 +149,5 @@ public class AppConfig {
 
     public String getCertAuthStoreFilePassword() {
         return certAuthStoreFilePassword;
-    }
-
-    public void setConnectorVersion(String connectorVersion) {
-        this.connectorVersion = connectorVersion;
-    }
-
-    public String getConnectorVersion() {
-        return connectorVersion;
-    }
-
-    public void setConnectorVersion(String connectorVersion) {
-        this.connectorVersion = connectorVersion;
     }
 }
