@@ -36,7 +36,7 @@ public class WebsocketXmlPrescriptionClientTest {
 
     @Test
     @Disabled("This test case needs unpublished data")
-    public void testPublishERezeptDocuments() {
+    public void testPublishERezeptWithDocuments() {
 
         String eRezeptDocuments;
         try {
