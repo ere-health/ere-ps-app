@@ -1,20 +1,23 @@
 package health.ere.ps.validation.fhir.bundle;
 
-import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.context.support.DefaultProfileValidationSupport;
-import ca.uhn.fhir.interceptor.executor.InterceptorService;
-import ca.uhn.fhir.validation.FhirValidator;
-import ca.uhn.fhir.validation.SingleValidationMessage;
-import ca.uhn.fhir.validation.ValidationResult;
-import health.ere.ps.validation.fhir.context.support.ErePrePopulatedValidationSupport;
-import health.ere.ps.validation.fhir.hook.EreValidationHook;
-import org.hl7.fhir.common.hapi.validation.support.*;
+import org.hl7.fhir.common.hapi.validation.support.CachingValidationSupport;
+import org.hl7.fhir.common.hapi.validation.support.CommonCodeSystemsTerminologyService;
+import org.hl7.fhir.common.hapi.validation.support.InMemoryTerminologyServerValidationSupport;
+import org.hl7.fhir.common.hapi.validation.support.SnapshotGeneratingValidationSupport;
+import org.hl7.fhir.common.hapi.validation.support.ValidationSupportChain;
 import org.hl7.fhir.common.hapi.validation.validator.FhirInstanceValidator;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.jboss.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.context.support.DefaultProfileValidationSupport;
+import ca.uhn.fhir.validation.FhirValidator;
+import ca.uhn.fhir.validation.SingleValidationMessage;
+import ca.uhn.fhir.validation.ValidationResult;
+import health.ere.ps.validation.fhir.context.support.ErePrePopulatedValidationSupport;
 
 @ApplicationScoped
 public class PrescriptionBundleValidator {
@@ -45,33 +48,10 @@ public class PrescriptionBundleValidator {
 
         validatorModule.setAnyExtensionsAllowed(true);
         validatorModule.setErrorForUnknownProfiles(false);
-        validatorModule.setNoTerminologyChecks(false); // TODO: Fix issues when set to false.
+        validatorModule.setNoTerminologyChecks(true); // TODO: Fix issues when set to false.
         validatorModule.setCustomExtensionDomains("http://fhir.de", "https://fhir.kbv.de");
-//        validatorModule.setCustomExtensionDomains(
-//                "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Legal_basis",
-//                "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_PKV_Tariff",
-//                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_StatusCoPayment",
-//                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_EmergencyServicesFee",
-//                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_BVG",
-//                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription",
-//                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_DosageFlag",
-//                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Category",
-//                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Vaccine",
-//                "http://fhir.de",
-//                "http://fhir.de/StructureDefinition/normgroesse",
-//                "http://fhir.de/StructureDefinition/gkv/besondere-personengruppe",
-//                "http://fhir.de/StructureDefinition/gkv/dmp-kennzeichen",
-//                "http://fhir.de/StructureDefinition/gkv/wop",
-//                "http://fhir.de/StructureDefinition/gkv/versichertenart"
-//        );
 
         validator = ctx.newValidator().registerValidatorModule(validatorModule);
-
-        InterceptorService interceptorService = new InterceptorService();
-
-        interceptorService.registerInterceptor(new EreValidationHook());
-
-        validator.setInterceptorBroadcaster(interceptorService);
     }
 
     public ValidationResult validateResource(IBaseResource resource, boolean showIssues) {
