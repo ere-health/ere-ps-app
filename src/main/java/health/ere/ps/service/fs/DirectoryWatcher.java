@@ -121,7 +121,7 @@ public class DirectoryWatcher {
     }
 
     private void storePdfFile(Path filePath, boolean wasParsingSuccessful) {
-        String newFilename = new SimpleDateFormat("yyyy-MM-dd_kk:mm:ss")
+        String newFilename = new SimpleDateFormat("yyyy-MM-dd_kk-mm-ss")
                 .format(new Date()) + "__" + filePath.getFileName();
         Path destinationFolder = Path.of(wasParsingSuccessful ? PROCESSED_DIRECTORY_NAME : FAILED_DIRECTORY_NAME);
 
