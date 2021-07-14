@@ -150,6 +150,15 @@ public class Websocket {
                 ErixaEvent event = new ErixaEvent(object);
                 erixaEvent.fireAsync(event);
             }
+            else if ("Publish".equals(object.getString("type"))){
+                sessions.forEach(session -> session.getAsyncRemote().sendObject(
+                object.getString("payload"),
+                result -> {
+                    if (!result.isOK()) {
+                        log.fatal("Unable to publish event: " + result.getException());
+                    }
+                }));
+            }
             else if("AllKBVExamples".equals(object.getString("type"))) { 
                 sendAllKBVExamples();
             }

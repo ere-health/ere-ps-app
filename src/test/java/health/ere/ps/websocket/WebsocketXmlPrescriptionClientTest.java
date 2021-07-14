@@ -16,6 +16,39 @@ public class WebsocketXmlPrescriptionClientTest {
     @Test
     @Disabled("This test case needs unpublished data")
     public void testXmlPrescription() {
+
+        String xmlBundle;
+        try {
+            xmlBundle = new String(Files.readAllBytes(Paths.get("../secret-test-print-samples/CGM-Turbomed/XML/Kaiser_Bella_20210630113252.xml")));
+            
+            xmlBundle = xmlBundle.replaceFirst("c23a81e7-8ec1-4a6f-9f35-0e7e0b9e1dc7", UUID.randomUUID().toString());
+
+            xmlBundle = xmlBundle.replaceFirst("4707031e-8592-45b0-8687-95df80d77a21", UUID.randomUUID().toString());
+
+            xmlBundle = xmlBundle.replaceFirst("93e12b90-26ff-40b0-ac10-1cbb29be04ea", UUID.randomUUID().toString());
+
+            String message = "{\"type\":\"XMLBundle\",\"payload\":"+new ObjectMapper().writeValueAsString(xmlBundle)+"}";
+            sendMessage(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    @Disabled("This test case needs unpublished data")
+    public void testPublishERezeptDocuments() {
+
+        String eRezeptDocuments;
+        try {
+            eRezeptDocuments = new String(Files.readAllBytes(Paths.get("src/test/resources/websocket-messages/ERezeptWithDocuments-2.json")));
+            String message = "{\"type\":\"Publish\",\"payload\":"+new ObjectMapper().writeValueAsString(eRezeptDocuments)+"}";
+            sendMessage(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendMessage(String message) {
         try {
             // open websocket
             final WebsocketClientEndpoint clientEndPoint = new WebsocketClientEndpoint(new URI("ws://localhost:8080/websocket"));
@@ -30,20 +63,8 @@ public class WebsocketXmlPrescriptionClientTest {
             Thread.sleep(1000);
 
             // send message to websocket
-            String xmlBundle;
-            try {
-                xmlBundle = new String(Files.readAllBytes(Paths.get("../secret-test-print-samples/CGM-Turbomed/XML/Kaiser_Bella_20210630113252.xml")));
-                
-                xmlBundle = xmlBundle.replaceFirst("c23a81e7-8ec1-4a6f-9f35-0e7e0b9e1dc7", UUID.randomUUID().toString());
-
-                xmlBundle = xmlBundle.replaceFirst("4707031e-8592-45b0-8687-95df80d77a21", UUID.randomUUID().toString());
-
-                xmlBundle = xmlBundle.replaceFirst("93e12b90-26ff-40b0-ac10-1cbb29be04ea", UUID.randomUUID().toString());
-
-                clientEndPoint.sendMessage("{\"type\":\"XMLBundle\",\"payload\":"+new ObjectMapper().writeValueAsString(xmlBundle)+"}");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+           clientEndPoint.sendMessage(message);
+            
 
             Thread.sleep(1000);
 
