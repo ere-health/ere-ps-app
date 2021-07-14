@@ -1,0 +1,21 @@
+<ValueSet xmlns="http://hl7.org/fhir">
+	<url value="https://fhir.kbv.de/ValueSet/KBV_VS_SFHIR_KBV_FHIR_DOKUMENTTYPE"/>
+    <version value="1.00"/>
+	<name value="KBV_VS_SFHIR_KBV_FHIR_DOKUMENTTYPE"/>
+	<status value="active"/>
+	<date value="2020-12-23"/>
+	<publisher value="Kassenärztliche Bundesvereinigung"/>
+	<contact>
+		<telecom>
+			<system value="url"/>
+			<value value="http://www.kbv.de"/>
+		</telecom>
+	</contact>
+	<description value="Das Valueset enthält alle Codes aus dem Codesystem https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_FHIR_DOKUMENTTYPE"/>
+	<copyright value="Kassenärztliche Bundesvereinigung"/>
+	<compose>
+		<include>
+			<system value="https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_FHIR_DOKUMENTTYPE"/>
+		</include>
+	</compose>
+</ValueSet>

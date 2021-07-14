@@ -9,7 +9,8 @@ jobs:
       ERE_DIRECTORY_WATCHER_DIR: watch-pdf
       ERE_CONNECTOR_TLS_CERT_TRUST_STORE_FILE: ${{ github.workspace }}\\src\\test\\resources\\certs\\ps_erp_incentergy_01.p12
       ERE_CONNECTOR_TLS_CERT_TRUST_STORE_PWD: "00"
-      ERE_VALIDATOR_VALIDATE_SIGN_REQUEST_BUNDLES_ENABLED: no
+      ERE_VALIDATOR_VALIDATE_SIGN_REQUEST_BUNDLES_ENABLED: false
+      ERE_KBV_VALIDATOR_CONFIG_DIR: ${{ github.workspace }}\\KBV_FHIR_eRP_V1
 
     steps:
       - uses: actions/checkout@v2

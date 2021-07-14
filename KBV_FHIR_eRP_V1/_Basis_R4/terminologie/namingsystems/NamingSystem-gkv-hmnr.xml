@@ -1,0 +1,34 @@
+<NamingSystem xmlns="http://hl7.org/fhir">
+  <id value="namingsystem-gkv-hmnr" />
+  <meta>
+    <profile value="http://fhir.de/StructureDefinition/namingsystem-de-basis" />
+  </meta>
+  <name value="GkvHmnr" />
+  <status value="draft" />
+  <kind value="identifier" />
+  <date value="2017-12-31" />
+  <publisher value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+  <contact>
+    <telecom>
+      <system value="other" />
+      <value value="http://hl7.de/technische-komitees/fhir/" />
+    </telecom>
+  </contact>
+  <responsible value="GKV-Spitzenverband" />
+  <type>
+    <coding>
+      <system value="http://terminology.hl7.org/CodeSystem/v2-0203" />
+      <code value="RI" />
+    </coding>
+  </type>
+  <description value="Eindeutige Identifikationsnummer im Format [Gruppennummer].[Ortsnummer].[Untergruppennummer].[Artnummer][Produktnummer]  Beispiel: 10.50.01.0001 gemδί Heil- und Hilfsmittelverzeichnis des GKV-Spitzenverbandes, siehe https://hilfsmittel.gkv-spitzenverband.de/" />
+  <usage value="Eindeutige Identifikationsnummer zu einem Hilfsmittel aus dem Verzeichnis der GKV." />
+  <uniqueId>
+    <type value="uri" />
+    <value value="http://fhir.de/NamingSystem/gkv/hmnr" />
+    <preferred value="true" />
+    <period>
+      <start value="2017-12-31T00:00:00.000+02:00" />
+    </period>
+  </uniqueId>
+</NamingSystem>

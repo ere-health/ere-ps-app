@@ -1,8 +1,0 @@
-<service>
-    <id>ere-ps-app</id>
-    <name>ere-ps-app</name>
-    <description>Windows service for ere-ps-app</description>
-    <executable>java</executable>
-    <arguments>-jar "$PATH\quarkus-app\quarkus-run.jar"</arguments>
-    <logmode>rotate</logmode>
-</service>

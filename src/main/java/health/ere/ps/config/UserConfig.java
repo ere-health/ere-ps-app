@@ -32,6 +32,17 @@ public class UserConfig {
         return erixaProperties.getProperty("erixa.receiver.email");
     }
 
+    public String getErixaUserEmail() {
+        return erixaProperties.getProperty("erixa.user.email");
+    }
+    public String getErixaUserPassword() {
+        return erixaProperties.getProperty("erixa.user.password");
+    }
+
+    public String getErixaApiKey(){
+        return erixaProperties.getProperty("erixa.api.key");
+    }
+
     public SVGExtractorConfiguration getMuster16TemplateConfiguration() {
         TemplateProfile profile;
         try {

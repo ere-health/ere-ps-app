@@ -1,12 +1,17 @@
 package health.ere.ps.service.connector.endpoint;
 
-import io.quarkus.test.junit.QuarkusTest;
-import org.junit.jupiter.api.Test;
-
-import javax.inject.Inject;
 import java.util.logging.Logger;
 
+import javax.inject.Inject;
+
+import org.junit.jupiter.api.Test;
+
+import health.ere.ps.profile.TitusTestProfile;
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
+
 @QuarkusTest
+@TestProfile(TitusTestProfile.class)
 public class EndpointDiscoveryServiceTest {
 
     @Inject

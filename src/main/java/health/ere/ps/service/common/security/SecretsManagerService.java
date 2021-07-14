@@ -1,12 +1,13 @@
 package health.ere.ps.service.common.security;
 
+import health.ere.ps.config.AppConfig;
 import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -26,10 +27,8 @@ public class SecretsManagerService {
 
     private static final Logger log = Logger.getLogger(SecretsManagerService.class.getName());
 
-    @ConfigProperty(name = "connector.cert.auth.store.file.password", defaultValue = "")
-    String connectorTlsCertAuthStorePwd;
-    @ConfigProperty(name = "connector.cert.auth.store.file", defaultValue = "")
-    String connectorTlsCertAuthStoreFile;
+    @Inject
+    AppConfig appConfig;
 
     private SSLContext sslContext;
 
@@ -39,6 +38,10 @@ public class SecretsManagerService {
 
     @PostConstruct
     void createSSLContext() {
+
+        String connectorTlsCertAuthStoreFile = appConfig.getCertAuthStoreFile();
+        String connectorTlsCertAuthStorePwd = appConfig.getCertAuthStoreFilePassword();
+
         if (StringUtils.isEmpty(connectorTlsCertAuthStoreFile) || StringUtils.isEmpty(connectorTlsCertAuthStorePwd)) {
             log.severe("Certificate file or password missing, cannot instantiate SSLContext");
         } else {

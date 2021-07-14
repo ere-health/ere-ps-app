@@ -1,0 +1,80 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="CoverageDeBasis" />
+  <url value="http://fhir.de/StructureDefinition/coverage-de-basis" />
+  <version value="0.9.13" />
+  <name value="CoverageDeBasis" />
+  <title value="Coverage, deutsches Basisprofil" />
+  <status value="draft" />
+  <experimental value="true" />
+  <date value="2019-12-11" />
+  <publisher value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+  <contact>
+    <telecom>
+      <system value="other" />
+      <value value="http://hl7.de/technische-komitees/fhir/" />
+    </telecom>
+  </contact>
+  <description value="Basis-Profil für die Nutzung der Coverage-Resource in Deutschland" />
+  <purpose value="Coverage wird verwedet um Informationen über die Versicherung eines Patienten zu speichern/kommunizieren" />
+  <copyright value="HL7 Deutschland e.V." />
+  <fhirVersion value="4.0.1" />
+  <kind value="resource" />
+  <abstract value="false" />
+  <type value="Coverage" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Coverage" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Coverage">
+      <path value="Coverage" />
+      <short value="Versicherungsdaten" />
+      <definition value="Angaben zur Versicherung oder zur Kostenübernahme durch den Patienten selbst oder durch Dritte." />
+    </element>
+    <element id="Coverage.type">
+      <path value="Coverage.type" />
+      <short value="Versicherungsart" />
+      <definition value="Art der Versicherung: Selbstzahler, gesetzliche/private Versicherung, Berufsgenossenschaft oder Sozialamt" />
+      <comment value="28.07.2017 (zulip): TC Konsens bzgl. Verwendung eines eigenen ValueSets anstelle des im Standrad definierten preferred bindings, da die dort igen Codes nicht passen." />
+      <min value="1" />
+      <binding>
+        <strength value="required" />
+        <description value="Art der Versicherung: Selbstzahler, gesetzliche/private Versicherung, Berufsgenossenschaft oder Sozialamt" />
+        <valueSet value="http://fhir.de/ValueSet/versicherungsart-de-basis" />
+      </binding>
+    </element>
+    <element id="Coverage.policyHolder">
+      <path value="Coverage.policyHolder" />
+      <comment value="Es gibt derzeit in DE keine Verwendung für dieses Attribut&#xD;&#xA;(Konsens Interop-Forum 12.6.2017)&#xD;&#xA;Falls es UseCases gibt, die dieses Attribut benötigen, bitte Info auf chat.fhir.org" />
+      <max value="0" />
+    </element>
+    <element id="Coverage.subscriber">
+      <path value="Coverage.subscriber" />
+      <short value="Hauptversicherte Person / Mitglied" />
+      <definition value="Hauptversicherte Person (ggf. abweichend von beneficiary), z.B. bei Familienversicherung" />
+    </element>
+    <element id="Coverage.subscriberId">
+      <path value="Coverage.subscriberId" />
+      <max value="0" />
+    </element>
+    <element id="Coverage.beneficiary">
+      <path value="Coverage.beneficiary" />
+      <short value="Begünstigte Person" />
+      <definition value="Person, auf die sich die Kostenübernahme bezieht (der Patient)" />
+    </element>
+    <element id="Coverage.payor">
+      <path value="Coverage.payor" />
+      <short value="Versicherer" />
+      <definition value="Versicherer, der die Police ausgegeben hat oder Persopn/Organisation, die die Kosten übernimmt." />
+    </element>
+    <element id="Coverage.order">
+      <path value="Coverage.order" />
+      <comment value="Es git derzeit in DE keine Verwendung für dieses Attribut&#xD;&#xA;(Konsens Interop-Forum 12.6.2017)&#xD;&#xA;Für die Priorisierung der Versicherungsverhältnisse sollte statt dessen Account.coverage.priority verwendet werden, da die Priorisierung abhängig von Fall-  und Abrechnungsart unterschiedlich sein kann.&#xD;&#xA;Falls es UseCases gibt, die dieses Attribut benötigen, bitte Info auf chat.fhir.org" />
+      <max value="0" />
+    </element>
+    <element id="Coverage.network">
+      <path value="Coverage.network" />
+      <definition value="Die Versicherungsleistungen sind an ein bestimmtes Netzwerk von Gesundheitsdienstleistern gebunden" />
+      <comment value="Es gibt derzeit in DE keine Verwendung für dieses Attribut&#xD;&#xA;(Konsens Interop-Forum 12.6.2017)&#xD;&#xA;Falls es UseCases gibt, die dieses Attribut benötigen, bitte Info auf chat.fhir.org" />
+      <max value="0" />
+    </element>
+  </differential>
+</StructureDefinition>

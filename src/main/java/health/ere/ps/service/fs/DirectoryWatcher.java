@@ -23,9 +23,9 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
+import health.ere.ps.config.AppConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import health.ere.ps.event.PDDocumentEvent;
 import io.quarkus.runtime.Startup;
@@ -47,8 +47,9 @@ public class DirectoryWatcher {
 
     @Inject
     Event<PDDocumentEvent> pdDocumentEvent;
+    @Inject
+    AppConfig appConfig;
 
-    @ConfigProperty(name = "directory-watcher.dir", defaultValue = "watch-pdf")
     String dir;
 
     private WatchService watcher = null;
@@ -56,6 +57,7 @@ public class DirectoryWatcher {
 
     @PostConstruct
     public void init() {
+        dir = appConfig.getDirectoryWatcherDir();
         if (StringUtils.isEmpty(dir)) {
             log.info("Not watching any directory");
             return;

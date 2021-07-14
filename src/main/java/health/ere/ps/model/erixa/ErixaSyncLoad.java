@@ -1,5 +1,6 @@
 package health.ere.ps.model.erixa;
 
+@Deprecated
 public class ErixaSyncLoad {
 
     private String document;

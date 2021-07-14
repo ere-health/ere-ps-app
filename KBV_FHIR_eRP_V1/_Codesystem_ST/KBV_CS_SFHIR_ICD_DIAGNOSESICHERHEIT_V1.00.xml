@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<CodeSystem xmlns="http://hl7.org/fhir" xmlns:ns2="http://www.w3.org/1999/xhtml">
+    <url value="https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_ICD_DIAGNOSESICHERHEIT"/>
+    <identifier>
+        <system value="urn:ietf:rfc:3986"/>
+        <value value="urn:oid:1.2.276.0.76.3.1.1.5.1.21"/>
+    </identifier>
+    <version value="1.00"/>
+    <name value="KBV_CS_SFHIR_ICD_DIAGNOSESICHERHEIT"/>
+    <status value="active"/>
+    <date value="2005-08-01"/>
+    <publisher value="Kassenärztliche Bundesvereinigung"/>
+    <contact>
+        <telecom>
+            <system value="url"/>
+            <value value="http://www.kbv.de"/>
+        </telecom>
+    </contact>
+    <description value="Die Diagnosesicherheit gibt an, wie sicher eine gestellte Diagnose ist. Es handelt sich hier um Zusatzkennzeichen zur Diagnose (ICD-10) im ambulanten Bereich. Die Angaben zur Diagnosesicherheit entsprechen der Vorgabe im KVDT."/>
+    <copyright value="Kassenärztliche Bundesvereinigung"/>
+    <caseSensitive value="true"/>
+    <content value="complete"/>
+    <concept>
+        <code value="A"/>
+        <display value="ausgeschlossen"/>
+    </concept>
+    <concept>
+        <code value="G"/>
+        <display value="gesicherte Diagnose"/>
+    </concept>
+    <concept>
+        <code value="V"/>
+        <display value="Verdacht auf / zum Ausschluss von"/>
+    </concept>
+    <concept>
+        <code value="Z"/>
+        <display value="Zustand nach"/>
+    </concept>
+</CodeSystem>

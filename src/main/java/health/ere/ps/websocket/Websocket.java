@@ -1,15 +1,21 @@
 package health.ere.ps.websocket;
 
 import java.awt.Desktop;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -39,9 +45,12 @@ import health.ere.ps.event.AbortTasksEvent;
 import health.ere.ps.event.AbortTasksStatusEvent;
 import health.ere.ps.event.BundlesEvent;
 import health.ere.ps.event.ERezeptDocumentsEvent;
+import health.ere.ps.event.EreLogNotificationEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
+import health.ere.ps.event.erixa.ErixaEvent;
 import health.ere.ps.jsonb.BundleAdapter;
 import health.ere.ps.jsonb.ByteAdapter;
+import health.ere.ps.model.websocket.OutgoingPayload;
 import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
 import health.ere.ps.service.fhir.bundle.EreBundle;
 import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
@@ -55,6 +64,9 @@ public class Websocket {
 
     @Inject
     Event<AbortTasksEvent> abortTasksEvent;
+
+    @Inject
+    Event<ErixaEvent> erixaEvent;
 
     @Inject
     PrescriptionBundleValidator prescriptionBundleValidator;
@@ -76,6 +88,26 @@ public class Websocket {
     public void onOpen(Session session) {
         sessions.add(session);
         log.info("Websocket opened");
+    }
+
+    void sendAllKBVExamples(){
+        sessions.forEach(session -> {
+
+            try (Stream<Path> paths = Files.walk(Paths.get("../src/test/resources/simplifier_erezept"))) {
+                paths
+                    .filter(Files::isRegularFile)
+                    .forEach(f -> {
+                        try (InputStream inputStream = new FileInputStream(f.toFile())) {
+                            Bundle bundle = ctx.newXmlParser().parseResource(Bundle.class, inputStream);
+                            onFhirBundle(new BundlesEvent(new Bundle[] { bundle }));
+                        } catch(IOException ex) {
+                            log.warn("Could read all files", ex);
+                        }
+                    });
+            } catch(IOException ex) {
+                log.warn("Could read all files", ex);
+            }
+        });
     }
 
     @OnClose
@@ -107,11 +139,28 @@ public class Websocket {
 
                 SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(object);
                 signAndUploadBundlesEvent.fireAsync(event);
-            } else if("XMLBundle".equals(object.getString("type"))) {
+            } else if ("XMLBundle".equals(object.getString("type"))) {
                 Bundle[] bundles = XmlPrescriptionProcessor.parseFromString(object.getString("payload"));
                 onFhirBundle(new BundlesEvent(bundles));
+
             } else if("AbortTasks".equals(object.getString("type"))) {
                 abortTasksEvent.fireAsync(new AbortTasksEvent(object.getJsonArray("payload")));
+            }
+            else if ("ErixaEvent".equals(object.getString("type"))){
+                ErixaEvent event = new ErixaEvent(object);
+                erixaEvent.fireAsync(event);
+            }
+            else if ("Publish".equals(object.getString("type"))){
+                sessions.forEach(session -> session.getAsyncRemote().sendObject(
+                object.getString("payload"),
+                result -> {
+                    if (!result.isOK()) {
+                        log.fatal("Unable to publish event: " + result.getException());
+                    }
+                }));
+            }
+            else if("AllKBVExamples".equals(object.getString("type"))) { 
+                sendAllKBVExamples();
             }
         }
     }
@@ -146,7 +195,7 @@ public class Websocket {
 
     void asureBrowserIsOpen() {
         // if nobody is connected to the websocket
-        if(sessions.size() == 0) {
+        if (sessions.size() == 0) {
             if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
                 try {
                     // Open a browser with the given URL
@@ -184,23 +233,23 @@ public class Websocket {
     String generateJson(BundlesEvent bundlesEvent) {
 
         bundlesEvent.getBundles().stream().forEach(bundle -> {
-            if(bundle instanceof EreBundle) {
+            if (bundle instanceof EreBundle) {
                 log.info("Filled bundle json template result shown below. Null value place" +
                         " holders present.");
                 log.info("==============================================");
 
-                log.info(((EreBundle)bundle).encodeToJson());
+                log.info(((EreBundle) bundle).encodeToJson());
             }
         });
 
-        if(bundlesEvent.getBundles().stream().filter(b -> b instanceof EreBundle).findAny().isPresent() ) {
+        if (bundlesEvent.getBundles().stream().filter(b -> b instanceof EreBundle).findAny().isPresent()) {
             return bundlesEvent.getBundles().stream().map(bundle ->
-                    ((EreBundle)bundle).encodeToJson())
+                    ((EreBundle) bundle).encodeToJson())
                     .collect(Collectors.joining(",\n", "[", "]"));
         } else {
             return bundlesEvent.getBundles().stream().map(bundle ->
                     ctx.newJsonParser().encodeResourceToString(bundle))
-                        .collect(Collectors.joining(",\n", "[", "]"));
+                    .collect(Collectors.joining(",\n", "[", "]"));
         }
     }
 
@@ -214,6 +263,21 @@ public class Websocket {
                     .sendObject("{\"type\": \"Exception\", \"payload\": { \"class\": \""
                             + exception.getClass().getName() + "\", \"message\": \"" + exception.getLocalizedMessage().replaceAll("\"", "\\\"")
                             + "\", \"stacktrace\": \"" + sw.toString().replaceAll("\r?\n", "\\\\n").replaceAll("\t", "\\\\t").replaceAll("\"", "\\\"") + "\"}}", result -> {
+                        if (result.getException() != null) {
+                            log.fatal("Unable to send message: " + result.getException());
+                        }
+                    });
+        });
+    }
+
+    public void onEreLogNotificationEvent(@ObservesAsync EreLogNotificationEvent event) {
+        sessions.forEach(session -> {
+            OutgoingPayload<EreLogNotificationEvent> outgoingPayload = new OutgoingPayload(event);
+
+            outgoingPayload.setType("Notification");
+
+            session.getAsyncRemote()
+                    .sendObject(outgoingPayload.toString(), result -> {
                         if (result.getException() != null) {
                             log.fatal("Unable to send message: " + result.getException());
                         }

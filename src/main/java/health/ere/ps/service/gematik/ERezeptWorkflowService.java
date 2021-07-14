@@ -14,10 +14,8 @@ import de.gematik.ws.conn.signatureservice.v7_5_5.ComfortSignatureStatusEnum;
 import de.gematik.ws.conn.signatureservice.v7_5_5.SessionInfo;
 import de.gematik.ws.conn.signatureservice.v7_5_5.SignatureModeEnum;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.FaultMessage;
-import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV740;
-import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV742;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortType;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
-import health.ere.ps.config.AppConfig;
 import health.ere.ps.event.*;
 import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.exception.connector.ConnectorCardsException;
@@ -50,7 +48,10 @@ import javax.xml.ws.Holder;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -59,23 +60,14 @@ public class ERezeptWorkflowService {
 
     private static final String EREZEPT_IDENTIFIER_SYSTEM = "https://gematik.de/fhir/NamingSystem/PrescriptionID";
     private static final Logger log = Logger.getLogger(ERezeptWorkflowService.class.getName());
+    private final FhirContext fhirContext = FhirContext.forR4();
 
     static {
         org.apache.xml.security.Init.init();
     }
 
-    private final FhirContext fhirContext = FhirContext.forR4();
-    @ConfigProperty(name = "ere.workflow-service.prescription.server.url", defaultValue = "")
-    String prescriptionServerUrl;
-    @ConfigProperty(name = "connector.crypt", defaultValue = "")
-    String signatureServiceCrypt;
-    @ConfigProperty(name = "connector.tvMode", defaultValue = "")
-    String signatureServiceTvMode;
-    @ConfigProperty(name = "ere-workflow-service.vau.enable", defaultValue = "true")
-    Boolean enableVau;
-    @ConfigProperty(name = "ere-workflow-service.user-agent", defaultValue = "IncentergyGmbH-ere.health/SNAPSHOT")
-    String userAgent;
-
+    @Inject
+    AppConfig appConfig;
     @Inject
     ConnectorCardsService connectorCardsService;
     @Inject
@@ -96,8 +88,6 @@ public class ERezeptWorkflowService {
     ContextType contextType;
     @Inject
     Event<AbortTasksStatusEvent> abortTasksStatusEvent;
-    @Inject
-    AppConfig appConfig;
 
     private Client client;
     //In the future it should be managed automatically by the webclient, including its renewal
@@ -115,9 +105,9 @@ public class ERezeptWorkflowService {
     @PostConstruct
     public void init() throws SecretsManagerException {
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
-        if (enableVau) {
+        if (appConfig.vauEnabled()) {
             try {
-                ((ResteasyClientBuilderImpl) clientBuilder).httpEngine(new VAUEngine(prescriptionServerUrl));
+                ((ResteasyClientBuilderImpl) clientBuilder).httpEngine(new VAUEngine(appConfig.getPrescriptionServiceURL()));
             } catch (Exception ex) {
                 log.log(Level.SEVERE, "Could not enable VAU", ex);
                 exceptionEvent.fireAsync(ex);
@@ -131,9 +121,7 @@ public class ERezeptWorkflowService {
      * necessary processing
      */
     public void onSignAndUploadBundlesEvent(@ObservesAsync SignAndUploadBundlesEvent signAndUploadBundlesEvent) {
-        if (StringUtils.isEmpty(bearerToken)) {
-            bearerToken = bearerTokenService.requestBearerToken();
-        }
+        requestNewAcccessTokenIfNecessary();
 
         log.info(String.format("Received %d bundles to sign ", signAndUploadBundlesEvent.listOfListOfBundles.size()));
         log.info("Contents of list of bundles to sign are as follows:");
@@ -221,9 +209,9 @@ public class ERezeptWorkflowService {
         ePrescriptionParameter.setResource(binary);
         parameters.addParameter(ePrescriptionParameter);
 
-        Response response = client.target(prescriptionServerUrl).path("/Task")
+        Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task")
                 .path("/" + task.getIdElement().getIdPart()).path("/$activate").request()
-                .header("User-Agent", userAgent)
+                .header("User-Agent", appConfig.getUserAgent())
                 .header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
                 .post(Entity.entity(fhirContext.newXmlParser().encodeResourceToString(parameters),
                         "application/fhir+xml; charset=utf-8"));
@@ -301,7 +289,11 @@ public class ERezeptWorkflowService {
             signRequest.setRequestID(UUID.randomUUID().toString());
             signRequest.setDocument(document);
             signRequest.setIncludeRevocationInfo(true);
-            List<SignRequest> signRequests = Collections.singletonList(signRequest);
+            List<SignRequest> signRequests = Arrays.asList(signRequest);
+
+            String jobNumber = "PTV4+".equals(connectorVersion) ?
+                    signatureServiceV755.getJobNumber(contextType) :
+                    signatureService.getJobNumber(contextType);
 
             if (wait10secondsAfterJobNumber) {
                 // Wait 10 seconds to start titus test case
@@ -346,9 +338,9 @@ public class ERezeptWorkflowService {
                         signRequests);
                 // PTV3
             } else {
-                signResponse = signatureServiceV740.signDocument(signatureServiceCardHandle,
-                        contextType, signatureServiceTvMode, signatureServiceV740.getJobNumber(contextType),
-                        signRequests);
+                signResponse = signatureService.signDocument(signatureServiceCardHandle,
+                        contextType, signatureServiceTvMode,
+                        jobNumber, signRequests);
             }
         } catch (ConnectorCardsException | InvalidCanonicalizerException | XMLParserException |
                 IOException | CanonicalizationException | FaultMessage e) {
@@ -379,8 +371,8 @@ public class ERezeptWorkflowService {
         String parameterString = fhirContext.newXmlParser().encodeResourceToString(parameters);
         log.fine("Parameter String: " + parameterString);
 
-        Response response = client.target(prescriptionServerUrl).path("/Task/$create").request()
-                .header("User-Agent", userAgent)
+        Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task/$create").request()
+                .header("User-Agent", appConfig.getUserAgent())
                 .header("Authorization", "Bearer " + bearerToken)
                 .post(Entity.entity(parameterString, "application/fhir+xml; charset=utf-8"));
 
@@ -403,20 +395,42 @@ public class ERezeptWorkflowService {
      * @return
      */
     public void abortERezeptTask(String bearerToken, String taskId, String accessCode) {
-        Response response = client.target(prescriptionServerUrl).path("/Task").path("/" + taskId).path("/$abort")
-                .request().header("User-Agent", userAgent).header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
+        Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task").path("/" + taskId).path("/$abort")
+        .request().header("User-Agent", appConfig.getUserAgent()).header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
                 .post(Entity.entity("", "application/fhir+xml; charset=utf-8"));
         String taskString = response.readEntity(String.class);
         // if it is not successful and it was found
         if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL
-                && response.getStatus() != Response.Status.NOT_FOUND.getStatusCode()) {
+        && response.getStatus() != Response.Status.NOT_FOUND.getStatusCode()) {
             throw new RuntimeException(taskString);
         }
 
         log.info("Task $abort Response: " + taskString);
     }
 
+    void requestNewAcccessTokenIfNecessary() {
+        if (StringUtils.isEmpty(bearerToken) || isExpired(bearerToken)) {
+            bearerToken = bearerTokenService.requestBearerToken();
+        }
+    }
+
+    boolean isExpired(String bearerToken2) {
+        JwtConsumer consumer = new JwtConsumerBuilder()
+            .setDisableRequireSignature()
+            .setSkipSignatureVerification()
+            .setSkipDefaultAudienceValidation()
+            .setRequireExpirationTime()
+            .build();
+        try {
+            consumer.process(bearerToken2);
+            return false;
+        } catch (InvalidJwtException e) {
+            return true;
+        }
+    }
+
     public void onAbortTasksEvent(@ObservesAsync AbortTasksEvent abortTasksEvent) {
+        requestNewAcccessTokenIfNecessary();
         List<AbortTaskStatus> abortTaskStatusList = new ArrayList<>();
         for (AbortTaskEntry abortTaskEntry : abortTasksEvent.getTasks()) {
             AbortTaskStatus abortTaskStatus = new AbortTaskStatus(abortTaskEntry);

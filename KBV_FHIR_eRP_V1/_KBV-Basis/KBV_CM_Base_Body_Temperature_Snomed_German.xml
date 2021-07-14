@@ -1,0 +1,130 @@
+<ConceptMap xmlns="http://hl7.org/fhir">
+  <url value="https://fhir.kbv.de/ConceptMap/KBV_CM_Base_Body_Temp_Snomed_German" />
+  <version value="1.1.3" />
+  <name value="KBV_CM_Base_Body_Temp_Snomed_German" />
+  <status value="active" />
+  <experimental value="false" />
+  <publisher value="Kassenärztliche Bundesvereinigung (KBV)" />
+  <description value="Diese Conceptmap verknüpft die Codes des Körpergewichts mit deutschen Bezeichnungen" />
+  <group>
+    <source value="http://snomed.info/sct" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CM_Base_Body_Temp_Snomed_German" />
+    <element>
+      <code value="386725007" />
+      <display value="Body temperature (observable entity)" />
+      <target>
+        <code value="Koerpertemperatur" />
+        <display value="Körpertemperatur" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="300076005" />
+      <display value="Basal body temperature (observable entity)" />
+      <target>
+        <code value="BasaleKoerpertemperatur" />
+        <display value="Basale Körpertemperatur" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="276885007" />
+      <display value="Core body temperature (observable entity)" />
+      <target>
+        <code value="Koerperkerntemperatur" />
+        <display value="Körperkerntemperatur" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="708499008" />
+      <display value="Core body temperature of neonate at birth (observable entity)" />
+      <target>
+        <code value="KoerperkerntemperaturDesNeugeborenenBeiDerGeburt" />
+        <display value="Körperkerntemperatur des Neugeborenen bei der Geburt" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="698832009" />
+      <display value="Core body temperature measured at urinary bladder (observable entity)" />
+      <target>
+        <code value="KoerperkerntemperaturGemessenInDerHarnblase" />
+        <display value="Körperkerntemperatur gemessen in der Harnblase" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="698831002" />
+      <display value="Core body temperature measured in nasopharynx (observable entity)" />
+      <target>
+        <code value="KoerperkerntemperaturGemessenImNasopharynx" />
+        <display value="Körperkerntemperatur gemessen im Nasopharynx" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="431598003" />
+      <display value="Core body temperature measured in esophagus (observable entity)" />
+      <target>
+        <code value="KoerperkerntemperaturGemessenInDerSpeiseröhre" />
+        <display value="Körperkerntemperatur gemessen in der Speiseröhre" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="415974002" />
+      <display value="Core body temperature measured at tympanic membrane (observable entity)" />
+      <target>
+        <code value="KoerperkerntemperaturGemessenAmTrommelfell" />
+        <display value="Körperkerntemperatur gemessen am Trommelfell" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="415945006" />
+      <display value="Core body temperature measured in sublingual space (observable entity)" />
+      <target>
+        <code value="KoerperkerntemperaturSublingualGemessen" />
+        <display value="Körperkerntemperatur Sublingual gemessen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="364246006" />
+      <display value="Core body temperature measured vaginally (observable entity)" />
+      <target>
+        <code value="KoerperkerntemperaturVaginalGemessen" />
+        <display value="Körperkerntemperatur vaginal gemessen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="307047009" />
+      <display value="Core body temperature measured in rectum (observable entity)" />
+      <target>
+        <code value="KörperkerntemperaturGemessenImRektum" />
+        <display value="Körperkerntemperatur gemessen im Rektum" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="860958002" />
+      <display value="Temperature of blood (observable entity)" />
+      <target>
+        <code value="TemperaturDesBlutes" />
+        <display value="Temperatur des Blutes" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="415922000" />
+      <display value="Temperature of forehead (observable entity)" />
+      <target>
+        <code value="TemperaturDerStirn" />
+        <display value="Temperatur der Stirn" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+</ConceptMap>

@@ -1,20 +1,19 @@
 package health.ere.ps.service.fhir;
 
-import org.hl7.fhir.r4.model.Bundle;
-
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
 
+import org.hl7.fhir.r4.model.Bundle;
+
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.event.BundlesEvent;
 import health.ere.ps.event.Muster16PrescriptionFormEvent;
-import health.ere.ps.exception.bundle.EreParseException;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
 import health.ere.ps.service.fhir.bundle.EreBundle;
 import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilderV2;
@@ -43,7 +42,7 @@ public class FHIRService {
 
         List<Bundle> bundles = bundleBuilder.createBundles();
 
-        bundles.forEach(bundle -> {
+        bundles = bundles.stream().filter(bundle -> {
 
             // Warning: Do not use return value of validation method below to stop submission of
             // possible problem bundle to front-end. For now, only report possible
@@ -51,11 +50,13 @@ public class FHIRService {
 
             //TODO: Create a separate configuration to enable/disable validating outgoing
             // bundles.
-            if (appConfig.isValidateSignRequestBundles())
-                isOutgoingBundleOk((EreBundle) bundle);
-
-            bundleEvent.fireAsync(new BundlesEvent(bundle));
-        });
+            if (appConfig.isValidateSignRequestBundles()) {
+                return isOutgoingBundleOk((EreBundle) bundle);
+            } else {
+                return true;
+            }
+        }).collect(Collectors.toList());
+        bundleEvent.fireAsync(new BundlesEvent(bundles.toArray(new Bundle[] {})));
     }
 
     private boolean isOutgoingBundleOk(EreBundle bundle) {

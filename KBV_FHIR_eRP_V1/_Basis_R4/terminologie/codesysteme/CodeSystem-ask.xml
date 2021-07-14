@@ -1,0 +1,20 @@
+<CodeSystem xmlns="http://hl7.org/fhir">
+  <id value="ask" />
+  <url value="http://fhir.de/CodeSystem/ask" />
+  <version value="0.9.13" />
+  <name value="ask" />
+  <status value="draft" />
+  <experimental value="true" />
+  <date value="2019-12-14" />
+  <publisher value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+  <contact>
+    <telecom>
+      <system value="other" />
+      <value value="http://hl7.de/technische-komitees/fhir/" />
+    </telecom>
+  </contact>
+  <description value="Arzneimittel-Stoffkatalog (ASK) Platzhalter-CodeSystem" />
+  <copyright value="HL7 Deutschland e.V." />
+  <caseSensitive value="true" />
+  <content value="not-present" />
+</CodeSystem>

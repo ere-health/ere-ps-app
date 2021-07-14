@@ -1,0 +1,40 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="identifier-pid" />
+  <url value="http://fhir.de/StructureDefinition/identifier-pid" />
+  <version value="0.9.13" />
+  <name value="IdentifierPid" />
+  <title value="Identifier-Profil für die Abbildung einer Patienten-ID" />
+  <status value="draft" />
+  <date value="2019-07-06" />
+  <description value="Identifier-Profil für die Abbildung einer organisationsspezifischen Patienten-ID" />
+  <fhirVersion value="4.0.1" />
+  <kind value="complex-type" />
+  <abstract value="false" />
+  <type value="Identifier" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Identifier" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Identifier.use">
+      <path value="Identifier.use" />
+      <fixedCode value="usual" />
+    </element>
+    <element id="Identifier.type">
+      <path value="Identifier.type" />
+      <min value="1" />
+      <patternCodeableConcept>
+        <coding>
+          <system value="http://terminology.hl7.org/CodeSystem/v2-0203" />
+          <code value="MR" />
+        </coding>
+      </patternCodeableConcept>
+    </element>
+    <element id="Identifier.system">
+      <path value="Identifier.system" />
+      <min value="1" />
+    </element>
+    <element id="Identifier.value">
+      <path value="Identifier.value" />
+      <min value="1" />
+    </element>
+  </differential>
+</StructureDefinition>

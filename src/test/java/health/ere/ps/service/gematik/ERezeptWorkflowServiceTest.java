@@ -1,37 +1,17 @@
 package health.ere.ps.service.gematik;
 
-import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.parser.DataFormatException;
-import ca.uhn.fhir.parser.IParser;
-import de.gematik.ws.conn.signatureservice.v7.SignResponse;
-import health.ere.ps.exception.gematik.ERezeptWorkflowException;
-import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
-import health.ere.ps.model.muster16.Muster16PrescriptionForm;
-import health.ere.ps.service.connector.endpoint.SSLUtilities;
-import health.ere.ps.service.extractor.SVGExtractor;
-import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
-import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilder;
-import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilderTest;
-import health.ere.ps.service.muster16.Muster16FormDataExtractorService;
-import health.ere.ps.service.muster16.parser.Muster16SvgExtractorParser;
-import health.ere.ps.service.pdf.DocumentService;
-import health.ere.ps.test.DefaultTestProfile;
-import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.TestProfile;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Task;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import static health.ere.ps.service.extractor.TemplateProfile.CGM_TURBO_MED;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import javax.inject.Inject;
-import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.*;
+import java.nio.file.DirectoryIteratorException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -42,10 +22,37 @@ import java.util.Map;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-import static health.ere.ps.service.extractor.TemplateProfile.CGM_TURBO_MED;
+import javax.inject.Inject;
+import javax.xml.stream.XMLStreamException;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Task;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.DataFormatException;
+import ca.uhn.fhir.parser.IParser;
+import de.gematik.ws.conn.signatureservice.v7.SignResponse;
+import health.ere.ps.exception.gematik.ERezeptWorkflowException;
+import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
+import health.ere.ps.model.muster16.Muster16PrescriptionForm;
+import health.ere.ps.profile.TitusTestProfile;
+import health.ere.ps.service.connector.endpoint.SSLUtilities;
+import health.ere.ps.service.extractor.SVGExtractor;
+import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
+import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilder;
+import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilderTest;
+import health.ere.ps.service.muster16.Muster16FormDataExtractorService;
+import health.ere.ps.service.muster16.parser.Muster16SvgExtractorParser;
+import health.ere.ps.service.pdf.DocumentService;
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
 
 @QuarkusTest
-@TestProfile(DefaultTestProfile.class)
+@TestProfile(TitusTestProfile.class)
 public class ERezeptWorkflowServiceTest {
 
     private static final Logger log = Logger.getLogger(ERezeptWorkflowServiceTest.class.getName());
@@ -82,6 +89,11 @@ public class ERezeptWorkflowServiceTest {
         eRezeptWorkflowService.getCards();
     }
 
+    @Test
+        // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
+    void testIsExired() {
+        assertTrue(eRezeptWorkflowService.isExpired("eyJhbGciOiJCUDI1NlIxIiwidHlwIjoiYXQrSldUIiwia2lkIjoicHVrX2lkcF9zaWcifQ.eyJzdWIiOiJNU1lXUGYxVlJfaXdlNzFGQVBMVzJJY0YwemNlQTVqa0x2V1piWFlmSms0IiwicHJvZmVzc2lvbk9JRCI6IjEuMi4yNzYuMC43Ni40LjUwIiwib3JnYW5pemF0aW9uTmFtZSI6IjIwMjExMDEyMiBOT1QtVkFMSUQiLCJpZE51bW1lciI6IjEtMi1BUlpULVdhbHRyYXV0RHJvbWJ1c2NoMDEiLCJhbXIiOlsibWZhIiwic2MiLCJwaW4iXSwiaXNzIjoiaHR0cHM6Ly9pZHAuZXJlemVwdC1pbnN0YW56MS50aXR1cy50aS1kaWVuc3RlLmRlIiwiZ2l2ZW5fbmFtZSI6IldhbHRyYXV0IiwiY2xpZW50X2lkIjoiZ2VtYXRpa1Rlc3RQcyIsImFjciI6ImdlbWF0aWstZWhlYWx0aC1sb2EtaGlnaCIsImF1ZCI6Imh0dHBzOi8vZXJwLXRlc3QuemVudHJhbC5lcnAuc3BsaXRkbnMudGktZGllbnN0ZS5kZS8iLCJhenAiOiJnZW1hdGlrVGVzdFBzIiwic2NvcGUiOiJvcGVuaWQgZS1yZXplcHQiLCJhdXRoX3RpbWUiOjE2MjU1MjA2ODMsImV4cCI6MTYyNTUyMDk4MywiZmFtaWx5X25hbWUiOiJEcm9tYnVzY2giLCJpYXQiOjE2MjU1MjA2ODMsImp0aSI6ImI4MmMyMzgxYjQ1MTFjZGEifQ.K4qiZS6oSEe5izDiaIN-rBjcXzJM_y6HYUOpIEUKK-9evxEXco8BB4RJhfkagQJKwCgi11pctShMOs5seN1mOw"));
+    }
 
     @Test
     @Disabled

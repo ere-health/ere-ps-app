@@ -1,0 +1,38 @@
+<NamingSystem xmlns="http://hl7.org/fhir">
+  <id value="namingsystem-bfarm-btmnr" />
+  <meta>
+    <profile value="http://fhir.de/StructureDefinition/namingsystem-de-basis" />
+  </meta>
+  <name value="BfarmBtmnr" />
+  <status value="draft" />
+  <kind value="identifier" />
+  <date value="2017-12-31" />
+  <publisher value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+  <contact>
+    <telecom>
+      <system value="other" />
+      <value value="http://hl7.de/technische-komitees/fhir/" />
+    </telecom>
+  </contact>
+  <responsible value="Bundesinstitut für Arzneimittel und Medizinprodukte" />
+  <type>
+    <coding>
+      <system value="http://terminology.hl7.org/CodeSystem/v2-0203" />
+      <code value="RI" />
+    </coding>
+  </type>
+  <description value="Einer Erlaubnis nach § 3 des Betäubungsmittelgesetzes (BtMG) bedarf nach § 4 BtMG nicht, wer im Rahmen des Betriebs einer Apotheke am Betäubungsmittelverkehr (BtM-Verkehr) teilnimmt. Die Apotheken haben jedoch ihre Teilnahme am Betäubungsmittelverkehr gem. § 4 Abs. 3 BtMG zuvor der Bundesopiumstelle schriftlich anzuzeigen. Aufgrund dieser Anzeige wird den Betreibern für jede ihrer Apotheken eine eigene BtM-Nummer schriftlich zugewiesen, mit der sie am BtM-Verkehr teilnehmen dürfen. (siehe: http://www.bfarm.de/DE/Bundesopiumstelle/Betaeubungsmittel/apoth/_node.html) Da aufgrund dieser Regelung jede Apotheke über eine BtM-Nummer verfügt, wird diese häufig auch in anderen Kontexten als Identifikator für Apotheken (IDF-Nummer) verwendet." />
+  <usage value="Identifikation von Apotheken" />
+  <uniqueId>
+    <type value="oid" />
+    <value value="1.2.276.0.76.4.197" />
+  </uniqueId>
+  <uniqueId>
+    <type value="uri" />
+    <value value="http://fhir.de/NamingSystem/bfarm/btmnr" />
+    <preferred value="true" />
+    <period>
+      <start value="2017-12-31T00:00:00.000+02:00" />
+    </period>
+  </uniqueId>
+</NamingSystem>
