@@ -545,7 +545,7 @@
       <max value="1" />
       <type>
         <code value="Reference" />
-        <targetProfile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Coverage|1.0.1" />
+        <targetProfile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Coverage|1.0.3" />
       </type>
       <mustSupport value="true" />
     </element>

@@ -239,7 +239,7 @@
                 }
               ]
             },
-            "system": "http://fhir.de/sid/gkv/kvid-10",
+            "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
             "value": "I715209637"
           }
         ],
@@ -479,7 +479,7 @@
         "payor": [
           {
             "identifier": {
-              "system": "http://fhir.de/sid/arge-ik/iknr",
+              "system": "http://fhir.de/NamingSystem/arge-ik/iknr",
               "value": "101320032"
             },
             "display": "Securvita Krankenkasse"
