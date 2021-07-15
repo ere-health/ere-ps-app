@@ -55,6 +55,7 @@ import health.ere.ps.event.SignAndUploadBundlesEvent;
 import health.ere.ps.event.erixa.ErixaEvent;
 import health.ere.ps.jsonb.BundleAdapter;
 import health.ere.ps.jsonb.ByteAdapter;
+import health.ere.ps.jsonb.ThrowableAdapter;
 import health.ere.ps.model.websocket.OutgoingPayload;
 import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
 import health.ere.ps.service.fhir.bundle.EreBundle;
@@ -82,7 +83,8 @@ public class Websocket {
     JsonbConfig customConfig = new JsonbConfig()
             .setProperty(JsonbConfig.FORMATTING, true)
             .withAdapters(new BundleAdapter())
-            .withAdapters(new ByteAdapter());
+            .withAdapters(new ByteAdapter())
+            .withAdapters(new ThrowableAdapter());
     Jsonb jsonbFactory = JsonbBuilder.create(customConfig);
 
     ObjectMapper objectMapper = new ObjectMapper();
