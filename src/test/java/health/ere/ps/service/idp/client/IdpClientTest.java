@@ -86,8 +86,7 @@ public class IdpClientTest {
         idpClient.init(appConfig.getIdpClientId(), appConfig.getIdpAuthRequestRedirectURL(), discoveryDocumentUrl, true);
         idpClient.initializeClient();
 
-        String cardHandle = connectorCardsService.getConnectorCardHandle(
-                ConnectorCardsService.CardHandleType.SMC_B);
+        String cardHandle = connectorCardsService.getSMCBConnectorCardHandle();
 
         X509Certificate x509Certificate = cardCertificateReaderService.retrieveSmcbCardCertificate(cardHandle);
 

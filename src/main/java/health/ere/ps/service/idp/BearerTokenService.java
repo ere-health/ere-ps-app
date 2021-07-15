@@ -12,6 +12,9 @@ import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
 import health.ere.ps.service.idp.client.IdpClient;
 import health.ere.ps.service.idp.client.IdpHttpClientService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jose4j.jwt.consumer.InvalidJwtException;
+import org.jose4j.jwt.consumer.JwtConsumer;
+import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -42,8 +45,7 @@ public class BearerTokenService {
             idpClient.init(appConfig.getIdpClientId(), appConfig.getIdpAuthRequestRedirectURL(), discoveryDocumentUrl, true);
             idpClient.initializeClient();
 
-            String cardHandle = connectorCardsService.getConnectorCardHandle(
-                    ConnectorCardsService.CardHandleType.SMC_B);
+            String cardHandle = connectorCardsService.getSMCBConnectorCardHandle();
 
             X509Certificate x509Certificate =
                     cardCertificateReaderService.retrieveSmcbCardCertificate(cardHandle);
@@ -56,5 +58,20 @@ public class BearerTokenService {
             exceptionEvent.fireAsync(e);
         }
         return "";
+    }
+
+    public boolean isTokenExpired(String bearerTokenToCheck) {
+        JwtConsumer consumer = new JwtConsumerBuilder()
+                .setDisableRequireSignature()
+                .setSkipSignatureVerification()
+                .setSkipDefaultAudienceValidation()
+                .setRequireExpirationTime()
+                .build();
+        try {
+            consumer.process(bearerTokenToCheck);
+            return false;
+        } catch (InvalidJwtException e) {
+            return true;
+        }
     }
 }

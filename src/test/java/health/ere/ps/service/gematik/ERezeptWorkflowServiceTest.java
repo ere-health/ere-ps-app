@@ -17,6 +17,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.LogManager;
@@ -25,6 +26,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 import javax.xml.stream.XMLStreamException;
 
+import health.ere.ps.service.idp.BearerTokenService;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Task;
@@ -61,6 +63,8 @@ public class ERezeptWorkflowServiceTest {
 
     @Inject
     ERezeptWorkflowService eRezeptWorkflowService;
+    @Inject
+    BearerTokenService bearerTokenService;
 
     @BeforeEach
     void init() {
@@ -85,14 +89,8 @@ public class ERezeptWorkflowServiceTest {
 
     @Test
         // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
-    void testGetCards() throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
-        eRezeptWorkflowService.getCards();
-    }
-
-    @Test
-        // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
-    void testIsExired() {
-        assertTrue(eRezeptWorkflowService.isExpired("eyJhbGciOiJCUDI1NlIxIiwidHlwIjoiYXQrSldUIiwia2lkIjoicHVrX2lkcF9zaWcifQ.eyJzdWIiOiJNU1lXUGYxVlJfaXdlNzFGQVBMVzJJY0YwemNlQTVqa0x2V1piWFlmSms0IiwicHJvZmVzc2lvbk9JRCI6IjEuMi4yNzYuMC43Ni40LjUwIiwib3JnYW5pemF0aW9uTmFtZSI6IjIwMjExMDEyMiBOT1QtVkFMSUQiLCJpZE51bW1lciI6IjEtMi1BUlpULVdhbHRyYXV0RHJvbWJ1c2NoMDEiLCJhbXIiOlsibWZhIiwic2MiLCJwaW4iXSwiaXNzIjoiaHR0cHM6Ly9pZHAuZXJlemVwdC1pbnN0YW56MS50aXR1cy50aS1kaWVuc3RlLmRlIiwiZ2l2ZW5fbmFtZSI6IldhbHRyYXV0IiwiY2xpZW50X2lkIjoiZ2VtYXRpa1Rlc3RQcyIsImFjciI6ImdlbWF0aWstZWhlYWx0aC1sb2EtaGlnaCIsImF1ZCI6Imh0dHBzOi8vZXJwLXRlc3QuemVudHJhbC5lcnAuc3BsaXRkbnMudGktZGllbnN0ZS5kZS8iLCJhenAiOiJnZW1hdGlrVGVzdFBzIiwic2NvcGUiOiJvcGVuaWQgZS1yZXplcHQiLCJhdXRoX3RpbWUiOjE2MjU1MjA2ODMsImV4cCI6MTYyNTUyMDk4MywiZmFtaWx5X25hbWUiOiJEcm9tYnVzY2giLCJpYXQiOjE2MjU1MjA2ODMsImp0aSI6ImI4MmMyMzgxYjQ1MTFjZGEifQ.K4qiZS6oSEe5izDiaIN-rBjcXzJM_y6HYUOpIEUKK-9evxEXco8BB4RJhfkagQJKwCgi11pctShMOs5seN1mOw"));
+    void test_isCurrentTokenExpired() {
+        assertTrue(bearerTokenService.isTokenExpired(testBearerToken));
     }
 
     @Test
@@ -102,7 +100,7 @@ public class ERezeptWorkflowServiceTest {
         BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
         DocumentService documentService = new DocumentService();
         documentService.init();
-        ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
+        ByteArrayOutputStream a = documentService.generateERezeptPdf(Collections.singletonList(bundleWithAccessCodeOrThrowable));
         String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mmX")
                 .withZone(ZoneOffset.UTC)
                 .format(Instant.now());
@@ -111,7 +109,7 @@ public class ERezeptWorkflowServiceTest {
 
     @Test
     @Disabled
-    void testCreateERezeptOnPrescriptionServerFromXMLBundle() throws IOException, ERezeptWorkflowException {
+    void testCreateERezeptOnPrescriptionServerFromXMLBundle() throws IOException {
         Bundle[] bundles = XmlPrescriptionProcessor.parseFromString(Files.readString(Paths.get("/home/manuel/git/secret-test-print-samples/CGM-Turbomed/XML/Bundle1.xml")));
 
         List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createMultipleERezeptsOnPrescriptionServer(testBearerToken, Arrays.asList(bundles));
@@ -131,7 +129,7 @@ public class ERezeptWorkflowServiceTest {
         BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
         DocumentService documentService = new DocumentService();
         documentService.init();
-        ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
+        ByteArrayOutputStream a = documentService.generateERezeptPdf(Collections.singletonList(bundleWithAccessCodeOrThrowable));
         String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmX")
                 .withZone(ZoneOffset.UTC)
                 .format(Instant.now());
@@ -145,7 +143,7 @@ public class ERezeptWorkflowServiceTest {
         BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
         DocumentService documentService = new DocumentService();
         documentService.init();
-        ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
+        ByteArrayOutputStream a = documentService.generateERezeptPdf(Collections.singletonList(bundleWithAccessCodeOrThrowable));
         String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmX")
                 .withZone(ZoneOffset.UTC)
                 .format(Instant.now());
@@ -156,12 +154,11 @@ public class ERezeptWorkflowServiceTest {
     @Test
     @Disabled
     void testCreateERezeptOnPrescriptionServerX110493020() throws IOException, ERezeptWorkflowException {
-
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/X110493020.xml"));
         BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
         DocumentService documentService = new DocumentService();
         documentService.init();
-        ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
+        ByteArrayOutputStream a = documentService.generateERezeptPdf(Collections.singletonList(bundleWithAccessCodeOrThrowable));
         String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmX")
                 .withZone(ZoneOffset.UTC)
                 .format(Instant.now());
@@ -177,7 +174,7 @@ public class ERezeptWorkflowServiceTest {
         BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
         DocumentService documentService = new DocumentService();
         documentService.init();
-        ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
+        ByteArrayOutputStream a = documentService.generateERezeptPdf(Collections.singletonList(bundleWithAccessCodeOrThrowable));
         String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmX")
                 .withZone(ZoneOffset.UTC)
                 .format(Instant.now());
@@ -192,7 +189,7 @@ public class ERezeptWorkflowServiceTest {
         BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
         DocumentService documentService = new DocumentService();
         documentService.init();
-        ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
+        ByteArrayOutputStream a = documentService.generateERezeptPdf(Collections.singletonList(bundleWithAccessCodeOrThrowable));
         String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmX")
                 .withZone(ZoneOffset.UTC)
                 .format(Instant.now());
@@ -209,7 +206,7 @@ public class ERezeptWorkflowServiceTest {
                 BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
                 DocumentService documentService = new DocumentService();
                 documentService.init();
-                ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
+                ByteArrayOutputStream a = documentService.generateERezeptPdf(Collections.singletonList(bundleWithAccessCodeOrThrowable));
                 String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmX")
                         .withZone(ZoneOffset.UTC)
                         .format(Instant.now());
@@ -227,7 +224,7 @@ public class ERezeptWorkflowServiceTest {
 
     @Test
     @Disabled
-    void testCreateERezeptWithPrescriptionBuilderOnPrescriptionServer() throws ParseException {
+    void testCreateERezeptWithPrescriptionBuilderOnPrescriptionServer() {
         List<Bundle> bundles = new PrescriptionBundlesBuilder(
                 PrescriptionBundlesBuilderTest.getMuster16PrescriptionFormForTests()).createBundles();
 
@@ -244,8 +241,7 @@ public class ERezeptWorkflowServiceTest {
     @Disabled
     @Test
         // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
-    void testCreateERezeptFromPdfOnPrescriptionServer() throws URISyntaxException,
-            IOException, ParseException, ERezeptWorkflowException, XMLStreamException {
+    void testCreateERezeptFromPdfOnPrescriptionServer() throws IOException, XMLStreamException {
         SVGExtractor svgExtractor = new SVGExtractor(CGM_TURBO_MED.configuration, true);
 
         try (PDDocument pdDocument = PDDocument.load(getClass().getResourceAsStream(
@@ -279,20 +275,6 @@ public class ERezeptWorkflowServiceTest {
         Files.write(Paths.get("target/titus-eRezeptWorkflowService-taskId.txt"), task.getIdElement().getIdPart().getBytes());
     }
 
-    @Test
-    @Disabled
-        // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
-    void testActivateComfortSignature() throws ERezeptWorkflowException {
-        eRezeptWorkflowService.activateComfortSignature();
-    }
-
-    @Test
-    @Disabled
-        // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
-    void testGetSignatureMode() throws ERezeptWorkflowException {
-        eRezeptWorkflowService.getSignatureMode();
-    }
-
 
     @Test
     @Disabled
@@ -309,7 +291,7 @@ public class ERezeptWorkflowServiceTest {
     @Test
     @Disabled
         // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
-    void testSignDocument() throws IOException, ERezeptWorkflowException {
+    void testSignDocument() throws ERezeptWorkflowException {
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/examples_erezept/Erezept_template_3.xml"));
 
         Task task = new Task();
@@ -334,12 +316,5 @@ public class ERezeptWorkflowServiceTest {
         String accessCode = new String(Files.readAllBytes(Paths.get("target/titus-eRezeptWorkflowService-accessToken.txt")));
         String taskId = new String(Files.readAllBytes(Paths.get("target/titus-eRezeptWorkflowService-taskId.txt")));
         eRezeptWorkflowService.abortERezeptTask(testBearerToken, taskId, accessCode);
-    }
-
-    @Test
-    @Disabled
-        // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
-    void testDeactivateComfortSignature() throws ERezeptWorkflowException {
-        eRezeptWorkflowService.deactivateComfortSignature();
     }
 }

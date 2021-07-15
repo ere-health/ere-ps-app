@@ -8,24 +8,66 @@ import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
 import health.ere.ps.exception.connector.ConnectorCardsException;
-import org.apache.commons.collections4.CollectionUtils;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 
 @ApplicationScoped
 public class ConnectorCardsService {
     private static final Logger log = Logger.getLogger(ConnectorCardsService.class.getName());
 
+    private final Map<String, String> hbaCardHandlesByPractitioner = new HashMap<>();
+
     @Inject
     EventServicePortType eventService;
     @Inject
     ContextType contextType;
 
+
+    public String getSMCBConnectorCardHandle() throws ConnectorCardsException {
+        List<CardInfoType> cardsInfoList = getConnectorCardsInfo();
+
+        Optional<String> smcBCardHandle = cardsInfoList.stream()
+                .filter(ch -> ch.getCardType().value().equalsIgnoreCase(CardHandleType.SMC_B.getCardHandleType()))
+                .map(CardInfoType::getCardHandle)
+                .findFirst();
+
+        return smcBCardHandle.orElseThrow(() -> new ConnectorCardsException("No SMC_B card handle was found"));
+    }
+
+    public String getHBAConnectorCardHandle(String practitionerName) throws ConnectorCardsException {
+        if (!hbaCardHandlesByPractitioner.containsKey(practitionerName)) {
+            List<CardInfoType> hbaCardInfoTypes = getConnectorCardsInfo().stream()
+                    .filter(ch -> CardHandleType.HBA.getCardHandleType().equalsIgnoreCase(ch.getCardType().value()))
+                    .collect(Collectors.toList());
+
+            //FOR PU TESTS, TODO:REMOVE ME BEFORE 19TH
+            hbaCardInfoTypes.forEach(ch -> log.info("Hba card owner name found:" + ch.getCardHolderName()));
+
+            Optional<String> practitionerHbaCardHandle = hbaCardInfoTypes.stream()
+                    .filter(ch -> practitionerName.equalsIgnoreCase(ch.getCardHolderName()))
+                    .map(CardInfoType::getCardHandle)
+                    .findFirst();
+
+            if (practitionerHbaCardHandle.isPresent()) {
+                log.info("Hba card handle was found for practitioner:" + practitionerName);
+                hbaCardHandlesByPractitioner.put(practitionerName, practitionerHbaCardHandle.get());
+            } else {
+                CardInfoType firstCardInfoType = hbaCardInfoTypes.stream()
+                        .findFirst()
+                        .orElseThrow(() -> new ConnectorCardsException("No HBA card handle was found"));
+
+                log.warning("No hba card handle was found for practitioner:" + practitionerName
+                        + ", returning the first one owned by:" + firstCardInfoType.getCardHolderName() + " instead");
+                return firstCardInfoType.getCardHandle();
+            }
+        }
+        return hbaCardHandlesByPractitioner.get(practitionerName);
+    }
 
     private GetCardsResponse getConnectorCards() throws ConnectorCardsException {
         GetCards parameter = new GetCards();
@@ -38,41 +80,20 @@ public class ConnectorCardsService {
         }
     }
 
-    private Optional<List<CardInfoType>> getConnectorCardsInfo() throws ConnectorCardsException {
+    private List<CardInfoType> getConnectorCardsInfo() throws ConnectorCardsException {
         GetCardsResponse response = getConnectorCards();
-        List<CardInfoType> cardHandleTypeList = null;
+        List<CardInfoType> cardHandleTypeList = new ArrayList<>();
 
         if (response != null) {
             Cards cards = response.getCards();
             cardHandleTypeList = cards.getCard();
 
-            if (CollectionUtils.isEmpty(cardHandleTypeList)) {
+            if (cardHandleTypeList.isEmpty()) {
                 throw new ConnectorCardsException("Error. Did not receive and card handle data.");
             }
         }
 
-        return Optional.ofNullable(cardHandleTypeList);
-    }
-
-    public String getConnectorCardHandle(CardHandleType cardHandleType)
-            throws ConnectorCardsException {
-        Optional<List<CardInfoType>> cardsInfoList = getConnectorCardsInfo();
-        String cardHandle = null;
-
-        if (cardsInfoList.isPresent()) {
-            Optional<CardInfoType> cardHndl =
-                    cardsInfoList.get().stream().filter(ch ->
-                            ch.getCardType().value().equalsIgnoreCase(
-                                    cardHandleType.getCardHandleType())).findFirst();
-            if (cardHndl.isPresent()) {
-                cardHandle = cardHndl.get().getCardHandle();
-            } else {
-                throw new ConnectorCardsException(String.format("No card handle found for card " +
-                        "handle type %s", cardHandleType.getCardHandleType()));
-            }
-        }
-
-        return cardHandle;
+        return cardHandleTypeList;
     }
 
     public enum CardHandleType {

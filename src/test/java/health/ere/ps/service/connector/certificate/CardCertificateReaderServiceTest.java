@@ -51,8 +51,7 @@ class CardCertificateReaderServiceTest {
     @Test
     void test_Successful_ReadCardCertificate_API_Call() throws ConnectorCardCertificateReadException, ConnectorCardsException {
         
-        String smcbHandle = connectorCardsService.getConnectorCardHandle(
-                ConnectorCardsService.CardHandleType.SMC_B);
+        String smcbHandle = connectorCardsService.getSMCBConnectorCardHandle();
         
         Assertions.assertTrue(ArrayUtils.isNotEmpty(
                 cardCertificateReaderService.readCardCertificate(smcbHandle)),
@@ -64,8 +63,7 @@ class CardCertificateReaderServiceTest {
             throws ConnectorCardCertificateReadException, IOException, CertificateException,
             CryptoException, ConnectorCardsException {
 
-                String smcbHandle = connectorCardsService.getConnectorCardHandle(
-                ConnectorCardsService.CardHandleType.SMC_B);
+                String smcbHandle = connectorCardsService.getSMCBConnectorCardHandle();
         
                 
         byte[] base64_Decoded_Asn1_DER_Format_CertBytes =

@@ -98,8 +98,7 @@ public class SmcbAuthenticatorService {
 
                 try {
                     signatureBytes = externalAuthenticate(encodedhash,
-                            connectorCardsService.getConnectorCardHandle(
-                                    ConnectorCardsService.CardHandleType.SMC_B));
+                            connectorCardsService.getSMCBConnectorCardHandle());
                 } catch (ConnectorCardsException e) {
                     throw new IllegalStateException("Cannot access the SMC-B card-handle info to " +
                             "compute the json web token signature!", e);

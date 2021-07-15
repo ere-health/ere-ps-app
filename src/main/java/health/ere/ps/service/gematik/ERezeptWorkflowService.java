@@ -1,15 +1,33 @@
 package health.ere.ps.service.gematik;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import ca.uhn.fhir.context.FhirContext;
+import de.gematik.ws.conn.connectorcontext.v2.ContextType;
+import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
+import de.gematik.ws.conn.signatureservice.v7.DocumentType;
+import de.gematik.ws.conn.signatureservice.v7.SignRequest;
+import de.gematik.ws.conn.signatureservice.v7.SignRequest.OptionalInputs;
+import de.gematik.ws.conn.signatureservice.v7.SignResponse;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.FaultMessage;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortType;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
+import health.ere.ps.config.AppConfig;
+import health.ere.ps.event.*;
+import health.ere.ps.exception.common.security.SecretsManagerException;
+import health.ere.ps.exception.connector.ConnectorCardsException;
+import health.ere.ps.exception.gematik.ERezeptWorkflowException;
+import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
+import health.ere.ps.service.connector.cards.ConnectorCardsService;
+import health.ere.ps.service.idp.BearerTokenService;
+import health.ere.ps.vau.VAUEngine;
+import oasis.names.tc.dss._1_0.core.schema.Base64Data;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.xml.security.c14n.CanonicalizationException;
+import org.apache.xml.security.c14n.Canonicalizer;
+import org.apache.xml.security.c14n.InvalidCanonicalizerException;
+import org.apache.xml.security.parser.XMLParserException;
+import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.Parameters.ParametersParameterComponent;
+import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -20,68 +38,28 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
-import javax.xml.ws.Holder;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.xml.security.c14n.CanonicalizationException;
-import org.apache.xml.security.c14n.Canonicalizer;
-import org.apache.xml.security.c14n.InvalidCanonicalizerException;
-import org.apache.xml.security.parser.XMLParserException;
-import org.hl7.fhir.r4.model.Binary;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Coding;
-import org.hl7.fhir.r4.model.Identifier;
-import org.hl7.fhir.r4.model.Parameters;
-import org.hl7.fhir.r4.model.Parameters.ParametersParameterComponent;
-import org.hl7.fhir.r4.model.Task;
-import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
-import org.jose4j.jwt.consumer.InvalidJwtException;
-import org.jose4j.jwt.consumer.JwtConsumer;
-import org.jose4j.jwt.consumer.JwtConsumerBuilder;
-
-import ca.uhn.fhir.context.FhirContext;
-import de.gematik.ws.conn.connectorcommon.v5.Status;
-import de.gematik.ws.conn.connectorcontext.v2.ContextType;
-import de.gematik.ws.conn.eventservice.v7.GetCards;
-import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
-import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
-import de.gematik.ws.conn.signatureservice.v7.DocumentType;
-import de.gematik.ws.conn.signatureservice.v7.SignRequest;
-import de.gematik.ws.conn.signatureservice.v7.SignRequest.OptionalInputs;
-import de.gematik.ws.conn.signatureservice.v7.SignResponse;
-import de.gematik.ws.conn.signatureservice.v7_5_5.ComfortSignatureStatusEnum;
-import de.gematik.ws.conn.signatureservice.v7_5_5.SessionInfo;
-import de.gematik.ws.conn.signatureservice.v7_5_5.SignatureModeEnum;
-import de.gematik.ws.conn.signatureservice.wsdl.v7.FaultMessage;
-import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortType;
-import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
-import health.ere.ps.config.AppConfig;
-import health.ere.ps.event.AbortTaskEntry;
-import health.ere.ps.event.AbortTaskStatus;
-import health.ere.ps.event.AbortTasksEvent;
-import health.ere.ps.event.AbortTasksStatusEvent;
-import health.ere.ps.event.BundlesWithAccessCodeEvent;
-import health.ere.ps.event.SignAndUploadBundlesEvent;
-import health.ere.ps.exception.common.security.SecretsManagerException;
-import health.ere.ps.exception.connector.ConnectorCardsException;
-import health.ere.ps.exception.gematik.ERezeptWorkflowException;
-import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
-import health.ere.ps.service.connector.cards.ConnectorCardsService;
-import health.ere.ps.service.idp.BearerTokenService;
-import health.ere.ps.vau.VAUEngine;
-import oasis.names.tc.dss._1_0.core.schema.Base64Data;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class ERezeptWorkflowService {
 
     private static final String EREZEPT_IDENTIFIER_SYSTEM = "https://gematik.de/fhir/NamingSystem/PrescriptionID";
     private static final Logger log = Logger.getLogger(ERezeptWorkflowService.class.getName());
-    private final FhirContext fhirContext = FhirContext.forR4();
 
     static {
         org.apache.xml.security.Init.init();
     }
 
+    private final FhirContext fhirContext = FhirContext.forR4();
     @Inject
     AppConfig appConfig;
     @Inject
@@ -135,7 +113,7 @@ public class ERezeptWorkflowService {
      * necessary processing
      */
     public void onSignAndUploadBundlesEvent(@ObservesAsync SignAndUploadBundlesEvent signAndUploadBundlesEvent) {
-        requestNewAcccessTokenIfNecessary();
+        requestNewAccessTokenIfNecessary();
 
         log.info(String.format("Received %d bundles to sign ", signAndUploadBundlesEvent.listOfListOfBundles.size()));
         log.info("Contents of list of bundles to sign are as follows:");
@@ -276,7 +254,6 @@ public class ERezeptWorkflowService {
             throws ERezeptWorkflowException {
 
         List<SignResponse> signResponse = null;
-
         try {
             String bundleXml = fhirContext.newXmlParser().encodeResourceToString(bundle);
 
@@ -303,7 +280,7 @@ public class ERezeptWorkflowService {
             signRequest.setRequestID(UUID.randomUUID().toString());
             signRequest.setDocument(document);
             signRequest.setIncludeRevocationInfo(true);
-            List<SignRequest> signRequests = Arrays.asList(signRequest);
+            List<SignRequest> signRequests = Collections.singletonList(signRequest);
 
             if (wait10secondsAfterJobNumber) {
                 // Wait 10 seconds to start titus test case
@@ -315,8 +292,10 @@ public class ERezeptWorkflowService {
                     log.log(Level.SEVERE, "Could not wait", e);
                 }
             }
-            String signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
-                    ConnectorCardsService.CardHandleType.HBA);
+
+            String practitionerName = extractPractitionerNameFromBundle(bundle);
+            String signatureServiceCardHandle = connectorCardsService.getHBAConnectorCardHandle(practitionerName);
+
             if ("PTV4+".equals(appConfig.getConnectorVersion())) {
                 de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest signRequestsV755 = new de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest();
                 de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest.OptionalInputs optionalInputsC755 = new de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest.OptionalInputs();
@@ -356,8 +335,6 @@ public class ERezeptWorkflowService {
     /**
      * This function creates an empty task based on workflow 160 (Muster 16) on the
      * prescription server.
-     *
-     * @return
      */
     public Task createERezeptTask(String bearerToken) {
         // https://github.com/gematik/api-erp/blob/master/docs/erp_bereitstellen.adoc#e-rezept-erstellen
@@ -394,46 +371,23 @@ public class ERezeptWorkflowService {
     /**
      * This function creates an empty task based on workflow 160 (Muster 16) on the
      * prescription server.
-     *
-     * @return
      */
     public void abortERezeptTask(String bearerToken, String taskId, String accessCode) {
         Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task").path("/" + taskId).path("/$abort")
-        .request().header("User-Agent", appConfig.getUserAgent()).header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
+                .request().header("User-Agent", appConfig.getUserAgent()).header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
                 .post(Entity.entity("", "application/fhir+xml; charset=utf-8"));
         String taskString = response.readEntity(String.class);
         // if it is not successful and it was found
         if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL
-        && response.getStatus() != Response.Status.NOT_FOUND.getStatusCode()) {
+                && response.getStatus() != Response.Status.NOT_FOUND.getStatusCode()) {
             throw new RuntimeException(taskString);
         }
-        
+
         log.info("Task $abort Response: " + taskString);
-    }
-    
-    void requestNewAcccessTokenIfNecessary() {
-        if (StringUtils.isEmpty(bearerToken) || isExpired(bearerToken)) {
-            bearerToken = bearerTokenService.requestBearerToken();
-        }
-    }
-    
-    boolean isExpired(String bearerToken2) {
-        JwtConsumer consumer = new JwtConsumerBuilder()
-            .setDisableRequireSignature()
-            .setSkipSignatureVerification()
-            .setSkipDefaultAudienceValidation()
-            .setRequireExpirationTime()
-            .build();
-        try {
-            consumer.process(bearerToken2);
-            return false;
-        } catch (InvalidJwtException e) {
-            return true;
-        }
     }
 
     public void onAbortTasksEvent(@ObservesAsync AbortTasksEvent abortTasksEvent) {
-        requestNewAcccessTokenIfNecessary();
+        requestNewAccessTokenIfNecessary();
         List<AbortTaskStatus> abortTaskStatusList = new ArrayList<>();
         for (AbortTaskEntry abortTaskEntry : abortTasksEvent.getTasks()) {
             AbortTaskStatus abortTaskStatus = new AbortTaskStatus(abortTaskEntry);
@@ -451,65 +405,22 @@ public class ERezeptWorkflowService {
         abortTasksStatusEvent.fireAsync(new AbortTasksStatusEvent(abortTaskStatusList));
     }
 
-    /**
-     * @throws ERezeptWorkflowException
-     */
-    public void activateComfortSignature() throws ERezeptWorkflowException {
-        final Holder<Status> status = new Holder<>();
-        final Holder<SignatureModeEnum> signatureMode = new Holder<>();
-        String signatureServiceCardHandle = null;
-
-        try {
-            signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
-                    ConnectorCardsService.CardHandleType.HBA);
-            signatureServiceV755.activateComfortSignature(signatureServiceCardHandle, contextType,
-                    status, signatureMode);
-        } catch (ConnectorCardsException | FaultMessage e) {
-            throw new ERezeptWorkflowException("Activate comfort signature exception.", e);
+    private void requestNewAccessTokenIfNecessary() {
+        if (StringUtils.isEmpty(bearerToken) || bearerTokenService.isTokenExpired(bearerToken)) {
+            bearerToken = bearerTokenService.requestBearerToken();
         }
     }
 
-    /**
-     * @throws ERezeptWorkflowException
-     */
-    public void getSignatureMode() throws ERezeptWorkflowException {
-        Holder<Status> status = new Holder<>();
-        Holder<ComfortSignatureStatusEnum> comfortSignatureStatus = new Holder<>();
-        Holder<Integer> comfortSignatureMax = new Holder<>();
-        Holder<javax.xml.datatype.Duration> comfortSignatureTimer = new Holder<>();
-        Holder<SessionInfo> sessionInfo = new Holder<>();
+    private String extractPractitionerNameFromBundle(Bundle bundle) {
+        Base PractitionerNameEntity = bundle.getEntry().stream()
+                .filter(entry -> entry.getResource().fhirType().equals("Practitioner"))
+                .collect(Collectors.toList())
+                .get(0)
+                .getResource().getChildByName("name").getValues().get(0);
 
-        String signatureServiceCardHandle;
-        try {
-            signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
-                    ConnectorCardsService.CardHandleType.HBA);
-            signatureServiceV755.getSignatureMode(signatureServiceCardHandle, contextType, status, comfortSignatureStatus,
-                    comfortSignatureMax, comfortSignatureTimer, sessionInfo);
-        } catch (ConnectorCardsException | FaultMessage e) {
-            throw new ERezeptWorkflowException("Error getting signature mode.", e);
-        }
-    }
+        String firstName = PractitionerNameEntity.getChildByName("given").getValues().get(0).primitiveValue();
+        String familyName = PractitionerNameEntity.getChildByName("family").getValues().get(0).primitiveValue();
 
-    /**
-     * @throws ERezeptWorkflowException
-     */
-    public void deactivateComfortSignature() throws ERezeptWorkflowException {
-        String signatureServiceCardHandle = null;
-        try {
-            signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
-                    ConnectorCardsService.CardHandleType.HBA);
-            signatureServiceV755.deactivateComfortSignature(Arrays.asList(signatureServiceCardHandle));
-        } catch (ConnectorCardsException | FaultMessage e) {
-            throw new ERezeptWorkflowException("Error deactivating comfort signature.", e);
-        }
-    }
-
-    /**
-     * @throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage
-     */
-    public GetCardsResponse getCards() throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
-        GetCards parameter = new GetCards();
-        parameter.setContext(contextType);
-        return eventService.getCards(parameter);
+        return firstName + " " + familyName;
     }
 }
