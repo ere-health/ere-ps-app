@@ -10,6 +10,8 @@ import org.hl7.fhir.r4.model.Bundle;
 import health.ere.ps.event.BundlesEvent;
 import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
 
+import java.util.Arrays;
+
 @Path("xmlPrescription")
 public class XmlPrescriptionResource {
 
@@ -19,7 +21,7 @@ public class XmlPrescriptionResource {
     @POST
     public Response post(String xml) {
         Bundle[] bundle = XmlPrescriptionProcessor.parseFromString(xml);
-        bundleEvent.fireAsync(new BundlesEvent(bundle));
+        bundleEvent.fireAsync(new BundlesEvent(Arrays.asList(bundle)));
         return Response.ok().build();
     }
 }

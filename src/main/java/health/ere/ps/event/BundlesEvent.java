@@ -9,8 +9,8 @@ public final class BundlesEvent {
 
     private final List<Bundle> bundles;
 
-    public BundlesEvent(Bundle... bundles) {
-        this.bundles = Arrays.asList(bundles);
+    public BundlesEvent(List<Bundle> bundles) {
+        this.bundles = bundles;
     }
 
     public List<Bundle> getBundles() {

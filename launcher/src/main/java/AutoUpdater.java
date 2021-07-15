@@ -30,6 +30,7 @@ public class AutoUpdater {
         if (args.length > 0 && "--create-remote-config".equals(args[0])) {
             try {
                 RemoteConfigCreator.createRemoteConfigurationFile();
+                System.exit(0);
             } catch (IOException e) {
                 log.log(System.Logger.Level.ERROR, "Error when creating the new remote configuration file");
                 e.printStackTrace();
