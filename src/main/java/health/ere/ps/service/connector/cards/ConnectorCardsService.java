@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class ConnectorCardsService {
     private static final Logger log = Logger.getLogger(ConnectorCardsService.class.getName());
 
-    private final Map<String, String> hbaCardHandlesByPractitioner = new HashMap<>();
+    private Map<String, String> hbaCardHandlesByPractitioner = new HashMap<>();
 
     @Inject
     EventServicePortType eventService;
@@ -94,6 +94,10 @@ public class ConnectorCardsService {
         }
 
         return cardHandleTypeList;
+    }
+
+    public void clearCacheOfHbaCards() {
+        hbaCardHandlesByPractitioner = new HashMap<>();
     }
 
     public enum CardHandleType {
