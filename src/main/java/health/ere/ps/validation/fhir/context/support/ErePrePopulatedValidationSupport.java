@@ -54,13 +54,11 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
         try (configDefinitionInputStream) {
             structureDefinition = xmlParser.parseResource(StructureDefinition.class,
                     configDefinitionInputStream);
+
             if (configUrl != null) {
                 structureDefinition.setUrl(configUrl);
             } else {
-                if (!structureDefinition.getType().equals("Extension") ||
-                        (!structureDefinition.getType().equals("Identifier") &&
-                                structureDefinition.getStatus() != Enumerations.PublicationStatus.ACTIVE)) {
-
+                if (!structureDefinition.getType().equals("Extension")) {
                     structureDefinition.setUrl(structureDefinition.getUrl() + "|" + structureDefinition.getVersion());
                 }
             }
@@ -156,7 +154,7 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
         } catch (IOException e) {
             ereLogger.setLoggingContext(systemContextList,
                     "Cannot initialise KBV Validator", true)
-                    .fatal("Error occured while configuring validator", e);
+                    .fatal("Error occurred while configuring validator", e);
         }
     }
 
