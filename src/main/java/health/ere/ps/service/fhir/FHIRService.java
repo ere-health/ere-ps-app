@@ -56,7 +56,7 @@ public class FHIRService {
                 return true;
             }
         }).collect(Collectors.toList());
-        bundleEvent.fireAsync(new BundlesEvent(bundles.toArray(new Bundle[] {})));
+        bundleEvent.fireAsync(new BundlesEvent(bundles));
     }
 
     private boolean isOutgoingBundleOk(EreBundle bundle) {
