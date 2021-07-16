@@ -26,7 +26,7 @@ public class EreHealthApplicationLauncher implements Launcher {
                 applicationConfig.getApplicationPath() + DEFAULT_APPLICATION_JAR);
 
         ProcessBuilder builder = new ProcessBuilder();
-        builder.command("java", "-jar", applicationConfig.getApplicationPath() + DEFAULT_APPLICATION_JAR);
+        builder.command("java", "-Dquarkus.profile=PU", "-jar", applicationConfig.getApplicationPath() + DEFAULT_APPLICATION_JAR);
 
         try {
             builder.start();

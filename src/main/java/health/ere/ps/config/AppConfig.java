@@ -1,8 +1,10 @@
 package health.ere.ps.config;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @ApplicationScoped
 public class AppConfig {
@@ -62,10 +64,10 @@ public class AppConfig {
     String tvMode;
 
     @ConfigProperty(name = "connector.cert.auth.store.file")
-    String certAuthStoreFile;
+    Optional<String> certAuthStoreFile;
 
     @ConfigProperty(name = "connector.cert.auth.store.file.password")
-    String certAuthStoreFilePassword;
+    Optional<String> certAuthStoreFilePassword;
 
     public String getDirectoryWatcherDir() {
         return directoryWatcherDir;
@@ -139,11 +141,11 @@ public class AppConfig {
         return tvMode;
     }
 
-    public String getCertAuthStoreFile() {
+    public Optional<String> getCertAuthStoreFile() {
         return certAuthStoreFile;
     }
 
-    public String getCertAuthStoreFilePassword() {
+    public Optional<String> getCertAuthStoreFilePassword() {
         return certAuthStoreFilePassword;
     }
 
