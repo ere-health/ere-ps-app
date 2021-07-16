@@ -14,6 +14,7 @@ import javax.enterprise.event.Event;
 import javax.enterprise.inject.spi.CDI;
 
 import health.ere.ps.event.EreLogNotificationEvent;
+import health.ere.ps.service.common.util.BundleJsonInfoExtractor;
 
 /**
  * This class decorates a JBoss Logger to allow for enhancing log statements with system context
@@ -70,6 +71,7 @@ public class EreLogger extends Logger {
     protected List<String> logDetails;
     protected String status;
     protected boolean publishLogNotificationEvent;
+    protected String bundleJson;
 
     public enum SystemContext {
         Connector("Connector"),
@@ -84,6 +86,8 @@ public class EreLogger extends Logger {
         WebSocket("Web Socket"),
         Muster16Parsing("Muster 16 Parsing"),
         KbvBundlesProcessing("KBV Bundles Processing"),
+        KbvBundleIdInfoExtraction("KBV Bundle Id Information Extraction"),
+        KbvBundlesSigning("KBV Bundles Signing"),
         KbvBundleValidation("KBV Bundle Validation"),
         KbvBundleValidator("KBV Validator"),
         KbvBundleValidatorConfiguration("KBV Validator Configuration"),
@@ -279,6 +283,15 @@ public class EreLogger extends Logger {
         return this;
     }
 
+    public EreLogger setBundleJson(String bundleJson) {
+        this.bundleJson = bundleJson;
+        return this;
+    }
+
+    public String getBundleJson() {
+        return StringUtils.defaultString(bundleJson);
+    }
+
     protected List<SystemContext> getSystemContextList() {
         return systemContextList;
     }
@@ -366,7 +379,9 @@ public class EreLogger extends Logger {
                             StringUtils.defaultString(getSimpleLogMessage()),
                             StringUtils.defaultString(getStatus()),
                             StringUtils.defaultString(getLogMessage()),
-                            ListUtils.defaultIfNull(getLogDetails(), null));
+                            ListUtils.defaultIfNull(getLogDetails(), null),
+                            BundleJsonInfoExtractor.extractDefaultBundleInfoFromBundleJson(
+                                    getBundleJson()));
             Event<EreLogNotificationEvent> ereLogNotificationEvent =
                     CDI.current().select(Event.class).get();
 
