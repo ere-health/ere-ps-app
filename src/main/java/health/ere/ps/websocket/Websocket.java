@@ -1,30 +1,12 @@
 package health.ere.ps.websocket;
 
-import ca.uhn.fhir.context.FhirContext;
-import health.ere.ps.config.AppConfig;
-import health.ere.ps.event.*;
-import health.ere.ps.event.erixa.ErixaEvent;
-import health.ere.ps.jsonb.BundleAdapter;
-import health.ere.ps.jsonb.ByteAdapter;
-import health.ere.ps.model.websocket.OutgoingPayload;
-import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
-import health.ere.ps.service.fhir.bundle.EreBundle;
-import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
-import org.hl7.fhir.r4.model.Bundle;
-import org.jboss.logging.Logger;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.enterprise.event.ObservesAsync;
-import javax.inject.Inject;
-import javax.json.*;
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-import javax.json.bind.JsonbConfig;
-import javax.websocket.*;
-import javax.websocket.server.ServerEndpoint;
-import java.awt.*;
-import java.io.*;
+import java.awt.Desktop;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -36,6 +18,48 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.enterprise.event.ObservesAsync;
+import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
+import javax.json.JsonValue;
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
+import javax.json.bind.JsonbConfig;
+import javax.websocket.OnClose;
+import javax.websocket.OnError;
+import javax.websocket.OnMessage;
+import javax.websocket.OnOpen;
+import javax.websocket.Session;
+import javax.websocket.server.ServerEndpoint;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.hl7.fhir.r4.model.Bundle;
+import org.jboss.logging.Logger;
+
+import ca.uhn.fhir.context.FhirContext;
+import health.ere.ps.config.AppConfig;
+import health.ere.ps.event.AbortTasksEvent;
+import health.ere.ps.event.AbortTasksStatusEvent;
+import health.ere.ps.event.BundlesEvent;
+import health.ere.ps.event.ERezeptDocumentsEvent;
+import health.ere.ps.event.EreLogNotificationEvent;
+import health.ere.ps.event.SignAndUploadBundlesEvent;
+import health.ere.ps.event.erixa.ErixaEvent;
+import health.ere.ps.jsonb.BundleAdapter;
+import health.ere.ps.jsonb.ByteAdapter;
+import health.ere.ps.jsonb.ThrowableAdapter;
+import health.ere.ps.model.websocket.OutgoingPayload;
+import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
+import health.ere.ps.service.fhir.bundle.EreBundle;
+import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 
 @ServerEndpoint("/websocket")
 @ApplicationScoped
@@ -59,8 +83,11 @@ public class Websocket {
     JsonbConfig customConfig = new JsonbConfig()
             .setProperty(JsonbConfig.FORMATTING, true)
             .withAdapters(new BundleAdapter())
-            .withAdapters(new ByteAdapter());
+            .withAdapters(new ByteAdapter())
+            .withAdapters(new ThrowableAdapter());
     Jsonb jsonbFactory = JsonbBuilder.create(customConfig);
+
+    ObjectMapper objectMapper = new ObjectMapper();
 
     @OnOpen
     public void onOpen(Session session) {
@@ -97,6 +124,7 @@ public class Websocket {
     @OnError
     public void onError(Session session, Throwable throwable) {
         sessions.remove(session);
+        throwable.printStackTrace();
         log.info("Websocket error: " + throwable);
     }
 
@@ -229,14 +257,23 @@ public class Websocket {
             PrintWriter pw = new PrintWriter(sw);
             exception.printStackTrace(pw);
 
-            session.getAsyncRemote()
+            String localizedMessage;
+            try {
+                localizedMessage = objectMapper.writeValueAsString(exception.getLocalizedMessage());
+                
+                String stackTrace = objectMapper.writeValueAsString(sw.toString());
+                session.getAsyncRemote()
                     .sendObject("{\"type\": \"Exception\", \"payload\": { \"class\": \""
-                            + exception.getClass().getName() + "\", \"message\": \"" + exception.getLocalizedMessage().replaceAll("\"", "\\\"")
-                            + "\", \"stacktrace\": \"" + sw.toString().replaceAll("\r?\n", "\\\\n").replaceAll("\t", "\\\\t").replaceAll("\"", "\\\"") + "\"}}", result -> {
+                            + exception.getClass().getName() + "\", \"message\": " + localizedMessage
+                            + ", \"stacktrace\": " + stackTrace + "}}", result -> {
                         if (result.getException() != null) {
                             log.fatal("Unable to send message: " + result.getException());
                         }
                     });
+            } catch (JsonProcessingException e) {
+                log.error("Could not generate json", e);
+            }
+                
         });
     }
 

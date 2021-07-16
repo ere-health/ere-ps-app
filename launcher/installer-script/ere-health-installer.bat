@@ -23,7 +23,7 @@ echo[
 echo[
 echo The launcher is being downloaded
 echo[
-powershell -Command "Invoke-WebRequest -Uri http://ec2-18-219-70-177.us-east-2.compute.amazonaws.com/ere-health-launcher.exe -OutFile ere-health-launcher.exe"
+powershell -Command "Invoke-WebRequest -Uri https://ere.health/ere-health-launcher.exe -OutFile ere-health-launcher.exe"
 
 echo[
 echo Now starting the launcher
