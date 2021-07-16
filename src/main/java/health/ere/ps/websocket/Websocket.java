@@ -124,6 +124,7 @@ public class Websocket {
     @OnError
     public void onError(Session session, Throwable throwable) {
         sessions.remove(session);
+        throwable.printStackTrace();
         log.info("Websocket error: " + throwable);
     }
 

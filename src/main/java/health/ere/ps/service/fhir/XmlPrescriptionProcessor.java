@@ -102,19 +102,31 @@ public class XmlPrescriptionProcessor {
         composition.getSubject().setReference("Patient/" + patientId);
         composition.getAuthor().get(0).setReference("Practitioner/" + practitionerId);
         composition.getCustodian().setReference("Organization/" + organizationId);
-        composition.getSection().get(0).getEntry().get(0).setReference("MedicationRequest/" + medicationRequestId);
-        composition.getSection().get(1).getEntry().get(0).setReference("Coverage/" + coverageId);
+        if(composition.getSection().size() > 0) {
+            composition.getSection().get(0).getEntry().get(0).setReference("MedicationRequest/" + medicationRequestId);
+        }
+        if(composition.getSection().size() > 1) {
+            composition.getSection().get(1).getEntry().get(0).setReference("Coverage/" + coverageId);
+        }
     }
 
     static void fixFullUrls(Bundle bundle) {
         for (BundleEntryComponent bundleEntryComponent : bundle.getEntry()) {
-            String fullUrl = bundleEntryComponent.getFullUrl();
-            Matcher m = GET_UUID.matcher(fullUrl);
-            if (m.matches()) {
-                String uuid = m.group(1);
+            try {
+                String fullUrl = bundleEntryComponent.getFullUrl();
+                Matcher m = GET_UUID.matcher(fullUrl);
+                if (m.matches()) {
+                    String uuid = m.group(1);
+                    String newFullUrl = "http://pvs.praxis.local/fhir/" + bundleEntryComponent.getResource().getResourceType().name() + "/" + uuid;
+                    bundleEntryComponent.setFullUrl(newFullUrl);
+                    bundleEntryComponent.getResource().setId(uuid);
+                }
+            } catch(Exception e) {
+                String uuid = UUID.randomUUID().toString();
                 String newFullUrl = "http://pvs.praxis.local/fhir/" + bundleEntryComponent.getResource().getResourceType().name() + "/" + uuid;
                 bundleEntryComponent.setFullUrl(newFullUrl);
                 bundleEntryComponent.getResource().setId(uuid);
+                e.printStackTrace();
             }
         }
     }
