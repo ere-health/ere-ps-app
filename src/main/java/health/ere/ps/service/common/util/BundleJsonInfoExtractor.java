@@ -1,6 +1,7 @@
 package health.ere.ps.service.common.util;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jboss.logging.Logger;
 
 import java.io.StringReader;
 import java.util.HashMap;
@@ -18,7 +19,7 @@ import health.ere.ps.service.logging.EreLogger;
  * A Utility class used to extract information of particular importance from a bundle json string.
  */
 public class BundleJsonInfoExtractor {
-    private static final EreLogger ereLogger = EreLogger.getLogger(BundleJsonInfoExtractor.class);
+    private static final Logger logger = Logger.getLogger(BundleJsonInfoExtractor.class);
 
     /**
      * Returns a map of info contained in a bundle json string with the following map keys:
@@ -48,7 +49,7 @@ public class BundleJsonInfoExtractor {
     public static Map<String, String> extractDefaultBundleInfoFromBundleJson(String bundleJson) {
         Map<String, String> bundleInfoMap = new HashMap<>(1);
 
-        // Absolutely no exceptions can be thrown from the method as it's used in the EreLogger
+        // Absolutely no exceptions can be thrown from this method as it's used in the EreLogger
         // class.
         try {
             if (StringUtils.isNotBlank(bundleJson)) {
@@ -85,11 +86,7 @@ public class BundleJsonInfoExtractor {
                 }
             }
         } catch (Throwable e) {
-            ereLogger.setLoggingContext(List.of(
-                    EreLogger.SystemContext.KbvBundlesProcessing,
-                    EreLogger.SystemContext.KbvBundleIdInfoExtraction),
-                    "Cannot extract bundle ID information").error(
-                    "Error occurred while extracting bundle ID information", e);
+            logger.error("Error occurred while extracting bundle ID information", e);
         }
 
         return bundleInfoMap;
