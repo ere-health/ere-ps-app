@@ -296,9 +296,11 @@ public class Websocket {
                                 .setSimpleLogMessage("Bundle validation failure.")
                                 .setBundleJson(bundleJson)
                                 .setLogDetails(errorsList)
-                                .error("Validation for the following " +
-                                "incoming sign and " +
-                                "upload bundle failed:\n" + singleBundle);
+                                .error("Validation for the incoming bundle failed.");
+
+                        ereLog.setLoggingContext(bundleValidationSysLogCtxList)
+                                .error("The following bundle failed validation:\n" +
+                                singleBundle.toString());
                         return false;
                     } else {
                         ereLog.info("Validation for the following incoming sign and " +
