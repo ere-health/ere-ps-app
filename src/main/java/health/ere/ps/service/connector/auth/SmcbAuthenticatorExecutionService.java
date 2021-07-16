@@ -9,6 +9,7 @@ import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.signatureservice.v7.BinaryDocumentType;
 import de.gematik.ws.conn.signatureservice.v7.ExternalAuthenticate;
 import de.gematik.ws.conn.signatureservice.v7.ExternalAuthenticateResponse;
+import health.ere.ps.service.connector.provider.ConnectorServicesProvider;
 import oasis.names.tc.dss._1_0.core.schema.SignatureObject;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -20,9 +21,7 @@ import java.math.BigInteger;
 public class SmcbAuthenticatorExecutionService {
 
     @Inject
-    CardServicePortType cardService;
-    @Inject
-    AuthSignatureServicePortType authSignatureService;
+    ConnectorServicesProvider connectorServicesProvider;
 
 
     public ExternalAuthenticateResponse doExternalAuthenticate(String cardHandle, ContextType contextType,
@@ -32,7 +31,7 @@ public class SmcbAuthenticatorExecutionService {
         Holder<SignatureObject> signatureObjectHolder = new Holder<>();
         ExternalAuthenticateResponse response = new ExternalAuthenticateResponse();
         try {
-            authSignatureService.externalAuthenticate(cardHandle, contextType, optionalInputs,
+            connectorServicesProvider.getAuthSignatureServicePortType().externalAuthenticate(cardHandle, contextType, optionalInputs,
                     binaryDocumentType, statusHolder, signatureObjectHolder);
         } catch (FaultMessage faultMessage) {
             // Zugriffsbedingungen nicht erfüllt
@@ -44,8 +43,8 @@ public class SmcbAuthenticatorExecutionService {
                 Holder<PinResultEnum> pinResultEnum = new Holder<>();
                 Holder<BigInteger> error = new Holder<>();
                 try {
-                    cardService.verifyPin(contextType, cardHandle, "PIN.SMC", status, pinResultEnum, error);
-                    authSignatureService.externalAuthenticate(cardHandle, contextType, optionalInputs,
+                    connectorServicesProvider.getCardServicePortType().verifyPin(contextType, cardHandle, "PIN.SMC", status, pinResultEnum, error);
+                    connectorServicesProvider.getAuthSignatureServicePortType().externalAuthenticate(cardHandle, contextType, optionalInputs,
                             binaryDocumentType, statusHolder, signatureObjectHolder);
                 } catch (de.gematik.ws.conn.cardservice.wsdl.v8.FaultMessage e) {
                     throw new RuntimeException("Could not verify pin", faultMessage);

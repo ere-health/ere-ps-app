@@ -22,6 +22,8 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import javax.xml.ws.Holder;
 
+import health.ere.ps.config.UserConfig;
+import health.ere.ps.service.connector.provider.ConnectorServicesProvider;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.xml.security.c14n.CanonicalizationException;
 import org.apache.xml.security.c14n.Canonicalizer;
@@ -85,6 +87,10 @@ public class ERezeptWorkflowService {
     @Inject
     AppConfig appConfig;
     @Inject
+    UserConfig userConfig;
+    @Inject
+    ConnectorServicesProvider connectorServicesProvider;
+    @Inject
     ConnectorCardsService connectorCardsService;
     @Inject
     Event<BundlesWithAccessCodeEvent> bundlesWithAccessCodeEvent;
@@ -92,14 +98,6 @@ public class ERezeptWorkflowService {
     Event<Exception> exceptionEvent;
     @Inject
     BearerTokenService bearerTokenService;
-    @Inject
-    EventServicePortType eventService;
-    @Inject
-    SignatureServicePortType signatureService;
-    @Inject
-    SignatureServicePortTypeV755 signatureServiceV755;
-    @Inject
-    ContextType contextType;
     @Inject
     Event<AbortTasksStatusEvent> abortTasksStatusEvent;
 
@@ -330,9 +328,9 @@ public class ERezeptWorkflowService {
                 signRequestsV755.setDocument(documentV755);
                 signRequestsV755.setIncludeRevocationInfo(signRequest.isIncludeRevocationInfo());
 
-                List<de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse> signResponsesV755 = signatureServiceV755.signDocument(signatureServiceCardHandle,
-                        appConfig.getConnectorCrypt(), contextType, appConfig.getTvMode(),
-                        signatureServiceV755.getJobNumber(contextType), Collections.singletonList(signRequestsV755));
+                List<de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse> signResponsesV755 = connectorServicesProvider.getSignatureServicePortTypeV755().signDocument(signatureServiceCardHandle,
+                        appConfig.getConnectorCrypt(), connectorServicesProvider.getContextType(), userConfig.getTvMode(),
+                        connectorServicesProvider.getSignatureServicePortTypeV755().getJobNumber(connectorServicesProvider.getContextType()), Collections.singletonList(signRequestsV755));
 
                 de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse signResponseV755 = signResponsesV755.get(0);
                 SignResponse signResponse744 = new SignResponse();
@@ -341,9 +339,9 @@ public class ERezeptWorkflowService {
                 return signResponse744;
                 // PTV4, could be PTV3 as well, to be refactored in a future task
             } else {
-                signResponse = signatureService.signDocument(signatureServiceCardHandle,
-                        contextType, appConfig.getTvMode(),
-                        signatureService.getJobNumber(contextType), signRequests);
+                signResponse = connectorServicesProvider.getSignatureServicePortType().signDocument(signatureServiceCardHandle,
+                        connectorServicesProvider.getContextType(), userConfig.getTvMode(),
+                        connectorServicesProvider.getSignatureServicePortType().getJobNumber(connectorServicesProvider.getContextType()), signRequests);
             }
         } catch (ConnectorCardsException | InvalidCanonicalizerException | XMLParserException |
                 IOException | CanonicalizationException | FaultMessage e) {
@@ -462,7 +460,7 @@ public class ERezeptWorkflowService {
         try {
             signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
                     ConnectorCardsService.CardHandleType.HBA);
-            signatureServiceV755.activateComfortSignature(signatureServiceCardHandle, contextType,
+            connectorServicesProvider.getSignatureServicePortTypeV755().activateComfortSignature(signatureServiceCardHandle, connectorServicesProvider.getContextType(),
                     status, signatureMode);
         } catch (ConnectorCardsException | FaultMessage e) {
             throw new ERezeptWorkflowException("Activate comfort signature exception.", e);
@@ -483,7 +481,7 @@ public class ERezeptWorkflowService {
         try {
             signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
                     ConnectorCardsService.CardHandleType.HBA);
-            signatureServiceV755.getSignatureMode(signatureServiceCardHandle, contextType, status, comfortSignatureStatus,
+            connectorServicesProvider.getSignatureServicePortTypeV755().getSignatureMode(signatureServiceCardHandle, connectorServicesProvider.getContextType(), status, comfortSignatureStatus,
                     comfortSignatureMax, comfortSignatureTimer, sessionInfo);
         } catch (ConnectorCardsException | FaultMessage e) {
             throw new ERezeptWorkflowException("Error getting signature mode.", e);
@@ -498,7 +496,7 @@ public class ERezeptWorkflowService {
         try {
             signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
                     ConnectorCardsService.CardHandleType.HBA);
-            signatureServiceV755.deactivateComfortSignature(Arrays.asList(signatureServiceCardHandle));
+            connectorServicesProvider.getSignatureServicePortTypeV755().deactivateComfortSignature(Arrays.asList(signatureServiceCardHandle));
         } catch (ConnectorCardsException | FaultMessage e) {
             throw new ERezeptWorkflowException("Error deactivating comfort signature.", e);
         }
@@ -509,7 +507,7 @@ public class ERezeptWorkflowService {
      */
     public GetCardsResponse getCards() throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         GetCards parameter = new GetCards();
-        parameter.setContext(contextType);
-        return eventService.getCards(parameter);
+        parameter.setContext(connectorServicesProvider.getContextType());
+        return connectorServicesProvider.getEventServicePortType().getCards(parameter);
     }
 }

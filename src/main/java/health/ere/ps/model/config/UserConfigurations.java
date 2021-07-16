@@ -18,14 +18,26 @@ public class UserConfigurations {
     @JsonbProperty("erixa.user.password")
     private String erixaUserPassword;
 
-    @JsonbProperty("connector.certificate.file")
-    private String connectorCertificateFile;
-
-    @JsonbProperty("connector.certificate.password")
-    private String connectorCertificatePassword;
-
     @JsonbProperty("extractor.template.profile")
-    private String muster16Profile;
+    private String muster16TemplateProfile;
+
+    @JsonbProperty("connector.base.url")
+    private String connectorBaseURL;
+
+    @JsonbProperty("connector.context.mandant.id")
+    private String mandantId;
+
+    @JsonbProperty("connector.context.workplace.id")
+    private String workplaceId;
+
+    @JsonbProperty("connector.context.client.system.id")
+    private String clientSystemId;
+
+    @JsonbProperty("connector.context.userId")
+    private String userId;
+
+    @JsonbProperty("connector.tvMode")
+    private String tvMode;
 
     public UserConfigurations() {
     }
@@ -66,40 +78,59 @@ public class UserConfigurations {
         this.erixaUserPassword = erixaUserPassword;
     }
 
-    public String getConnectorCertificateFile() {
-        return connectorCertificateFile;
+    public String getMuster16TemplateProfile() {
+        return muster16TemplateProfile;
     }
 
-    public void setConnectorCertificateFile(String connectorCertificateFile) {
-        this.connectorCertificateFile = connectorCertificateFile;
+    public void setMuster16TemplateProfile(String muster16TemplateProfile) {
+        this.muster16TemplateProfile = muster16TemplateProfile;
     }
 
-    public String getConnectorCertificatePassword() {
-        return connectorCertificatePassword;
+    public String getConnectorBaseURL() {
+        return connectorBaseURL;
     }
 
-    public void setConnectorCertificatePassword(String connectorCertificatePassword) {
-        this.connectorCertificatePassword = connectorCertificatePassword;
+    public void setConnectorBaseURL(String connectorBaseURL) {
+        this.connectorBaseURL = connectorBaseURL;
     }
 
-    public String getMuster16Profile() {
-        return muster16Profile;
+    public String getMandantId() {
+        return mandantId;
     }
 
-    public void setMuster16Profile(String muster16Profile) {
-        this.muster16Profile = muster16Profile;
+    public void setMandantId(String mandantId) {
+        this.mandantId = mandantId;
     }
 
-    @Override
-    public String toString() {
-        return "UserConfigurations{" +
-                "erixaHotfolder='" + erixaHotfolder + '\'' +
-                ", erixaDrugstoreEmail='" + erixaDrugstoreEmail + '\'' +
-                ", erixaUserEmail='" + erixaUserEmail + '\'' +
-                ", erixaUserPassword='" + erixaUserPassword + '\'' +
-                ", connectorCertificateFile='" + connectorCertificateFile + '\'' +
-                ", connectorCertificatePassword='" + connectorCertificatePassword + '\'' +
-                ", muster16Profile='" + muster16Profile + '\'' +
-                '}';
+    public String getWorkplaceId() {
+        return workplaceId;
+    }
+
+    public void setWorkplaceId(String workplaceId) {
+        this.workplaceId = workplaceId;
+    }
+
+    public String getClientSystemId() {
+        return clientSystemId;
+    }
+
+    public void setClientSystemId(String clientSystemId) {
+        this.clientSystemId = clientSystemId;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getTvMode() {
+        return tvMode;
+    }
+
+    public void setTvMode(String tvMode) {
+        this.tvMode = tvMode;
     }
 }

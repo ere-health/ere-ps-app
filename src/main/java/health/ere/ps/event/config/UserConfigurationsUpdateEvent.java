@@ -1,4 +1,4 @@
-package health.ere.ps.event;
+package health.ere.ps.event.config;
 
 import health.ere.ps.model.config.UserConfigurations;
 

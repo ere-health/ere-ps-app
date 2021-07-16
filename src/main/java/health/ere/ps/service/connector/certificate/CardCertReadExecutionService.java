@@ -11,6 +11,7 @@ import de.gematik.ws.conn.certificateservicecommon.v2.X509DataInfoListType;
 import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import health.ere.ps.exception.connector.ConnectorCardCertificateReadException;
+import health.ere.ps.service.connector.provider.ConnectorServicesProvider;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -27,11 +28,7 @@ public class CardCertReadExecutionService {
     }
 
     @Inject
-    CardServicePortType cardService;
-    @Inject
-    CertificateServicePortType certificateService;
-    @Inject
-    ContextType contextType;
+    ConnectorServicesProvider connectorServicesProvider;
 
 
     /**
@@ -50,7 +47,7 @@ public class CardCertReadExecutionService {
         Holder<X509DataInfoListType> certHolder = new Holder<>();
 
         try {
-            certificateService.readCardCertificate(cardHandle, contextType, certRefList,
+            connectorServicesProvider.getCertificateService().readCardCertificate(cardHandle, connectorServicesProvider.getContextType(), certRefList,
                     statusHolder, certHolder);
         } catch (FaultMessage faultMessage) {
             // Zugriffsbedingungen nicht erfüllt
@@ -62,7 +59,7 @@ public class CardCertReadExecutionService {
                 Holder<PinResultEnum> pinResultEnum = new Holder<>();
                 Holder<BigInteger> error = new Holder<>();
                 try {
-                    cardService.verifyPin(contextType, cardHandle, "PIN.SMC", status, pinResultEnum, error);
+                    connectorServicesProvider.getCardServicePortType().verifyPin(connectorServicesProvider.getContextType(), cardHandle, "PIN.SMC", status, pinResultEnum, error);
                     doReadCardCertificate(cardHandle);
                 } catch (de.gematik.ws.conn.cardservice.wsdl.v8.FaultMessage e) {
                     throw new ConnectorCardCertificateReadException("Could not get certificate", faultMessage);

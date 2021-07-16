@@ -1,6 +1,7 @@
 package health.ere.ps.service.connector.endpoint;
 
 import health.ere.ps.config.AppConfig;
+import health.ere.ps.config.UserConfig;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.w3c.dom.Document;
@@ -42,6 +43,8 @@ public class EndpointDiscoveryService {
     @Inject
     AppConfig appConfig;
     @Inject
+    UserConfig userConfig;
+    @Inject
     SecretsManagerService secretsManagerService;
 
     private String authSignatureServiceEndpointAddress;
@@ -63,7 +66,7 @@ public class EndpointDiscoveryService {
         }
 
         Invocation invocation = clientBuilder.build()
-                .target(appConfig.getConnectorBaseURI())
+                .target(userConfig.getConnectorBaseURL())
                 .path("/connector.sds")
                 .request()
                 .buildGet();
@@ -216,7 +219,7 @@ public class EndpointDiscoveryService {
             }
 
             String location = endpointNode.getAttributes().getNamedItem("Location").getTextContent();
-            if (location.startsWith(appConfig.getConnectorBaseURI())) {
+            if (location.startsWith(userConfig.getConnectorBaseURL())) {
                 return location;
             }
         }

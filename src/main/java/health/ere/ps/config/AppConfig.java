@@ -16,23 +16,8 @@ public class AppConfig {
     @ConfigProperty(name = "ere.workflow-service.prescription.server.url")
     String prescriptionServiceURL;
 
-    @ConfigProperty(name = "connector.base-uri")
-    String connectorBaseURI;
-
     @ConfigProperty(name = "connector.version")
     String connectorVersion;
-
-    @ConfigProperty(name = "connector.mandant.id")
-    String mandantId;
-
-    @ConfigProperty(name = "connector.workplace.id")
-    String workplaceId;
-
-    @ConfigProperty(name = "connector.client.system.id")
-    String clientSystemId;
-
-    @ConfigProperty(name = "connector.context.userId")
-    String userId;
 
     @ConfigProperty(name = "connector.verify-hostname")
     String verifyHostname;
@@ -58,9 +43,6 @@ public class AppConfig {
     @ConfigProperty(name = "connector.crypt")
     String connectorCrypt;
 
-    @ConfigProperty(name = "connector.tvMode")
-    String tvMode;
-
     @ConfigProperty(name = "connector.cert.auth.store.file")
     String certAuthStoreFile;
 
@@ -79,28 +61,8 @@ public class AppConfig {
         return prescriptionServiceURL;
     }
 
-    public String getConnectorBaseURI() {
-        return connectorBaseURI;
-    }
-
     public String getConnectorVersion() {
         return connectorVersion;
-    }
-
-    public String getMandantId() {
-        return mandantId;
-    }
-
-    public String getWorkplaceId() {
-        return workplaceId;
-    }
-
-    public String getClientSystemId() {
-        return clientSystemId;
-    }
-
-    public String getUserId() {
-        return userId;
     }
 
     public String getVerifyHostname() {
@@ -133,10 +95,6 @@ public class AppConfig {
 
     public String getConnectorCrypt() {
         return connectorCrypt;
-    }
-
-    public String getTvMode() {
-        return tvMode;
     }
 
     public String getCertAuthStoreFile() {

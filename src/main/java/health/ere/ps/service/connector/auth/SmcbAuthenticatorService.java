@@ -10,6 +10,7 @@ import de.gematik.ws.conn.signatureservice.v7.ExternalAuthenticate;
 import de.gematik.ws.conn.signatureservice.v7.ExternalAuthenticateResponse;
 import health.ere.ps.exception.connector.ConnectorCardsException;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
+import health.ere.ps.service.connector.provider.ConnectorServicesProvider;
 import oasis.names.tc.dss._1_0.core.schema.Base64Data;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jose4j.jws.JsonWebSignature;
@@ -32,7 +33,7 @@ import java.util.Set;
 public class SmcbAuthenticatorService {
 
     @Inject
-    ContextType contextType;
+    ConnectorServicesProvider connectorServicesProvider;
     @Inject
     ConnectorCardsService connectorCardsService;
     @Inject
@@ -127,7 +128,7 @@ public class SmcbAuthenticatorService {
                 // de.gematik.ti.signenc.authsignature.SignatureScheme.RSASSA-PSS Please see the
                 // server log to find more detail regarding exact cause of the failure.
                 response = smcbAuthExecutionService.doExternalAuthenticate(smcbCardHandle,
-                        contextType, optionalInputs,
+                        connectorServicesProvider.getContextType(), optionalInputs,
                         binaryDocumentType);
             } catch (FaultMessage e) {
                 throw new JoseException("Could not call externalAuthenticate", e);

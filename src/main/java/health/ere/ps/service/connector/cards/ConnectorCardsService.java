@@ -2,12 +2,11 @@ package health.ere.ps.service.connector.cards;
 
 import de.gematik.ws.conn.cardservice.v8.CardInfoType;
 import de.gematik.ws.conn.cardservice.v8.Cards;
-import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.v7.GetCards;
 import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
-import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
 import health.ere.ps.exception.connector.ConnectorCardsException;
+import health.ere.ps.service.connector.provider.ConnectorServicesProvider;
 import org.apache.commons.collections4.CollectionUtils;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -22,17 +21,15 @@ public class ConnectorCardsService {
     private static final Logger log = Logger.getLogger(ConnectorCardsService.class.getName());
 
     @Inject
-    EventServicePortType eventService;
-    @Inject
-    ContextType contextType;
+    ConnectorServicesProvider connectorServicesProvider;
 
 
     private GetCardsResponse getConnectorCards() throws ConnectorCardsException {
         GetCards parameter = new GetCards();
-        parameter.setContext(contextType);
+        parameter.setContext(connectorServicesProvider.getContextType());
 
         try {
-            return eventService.getCards(parameter);
+            return connectorServicesProvider.getEventServicePortType().getCards(parameter);
         } catch (FaultMessage e) {
             throw new ConnectorCardsException("Error getting connector card handles.", e);
         }

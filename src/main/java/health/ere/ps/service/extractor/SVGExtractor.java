@@ -52,11 +52,12 @@ public class SVGExtractor {
         this(userConfig.getMuster16TemplateConfiguration());
     }
 
-    public SVGExtractor(SVGExtractorConfiguration configuration) {
-        if (configuration.MUSTER_16_TEMPLATE != null && !configuration.MUSTER_16_TEMPLATE.isEmpty())
-            log.log(Level.INFO, "Using muster 16 template: " + configuration.MUSTER_16_TEMPLATE);
+    SVGExtractor(String muster16TemplateProfileName) {
+        setTemplateProfile(muster16TemplateProfileName);
+    }
 
-        this.configuration = configuration;
+    public SVGExtractor(SVGExtractorConfiguration configuration) {
+        setTemplateProfile(configuration);
     }
 
     public SVGExtractor(SVGExtractorConfiguration configuration, boolean debugRectangles) {
@@ -146,5 +147,22 @@ public class SVGExtractor {
 
     private InputStream getTemplate() {
         return SVGExtractor.class.getResourceAsStream(getTemplatePath());
+    }
+
+    void setTemplateProfile(String name){
+        TemplateProfile profile;
+        try {
+            profile = TemplateProfile.valueOf(name);
+        } catch (IllegalArgumentException ignored) {
+            profile = TemplateProfile.DENS;
+        }
+        setTemplateProfile(profile.configuration);
+    }
+
+    private void setTemplateProfile(SVGExtractorConfiguration configuration) {
+        if (configuration.MUSTER_16_TEMPLATE != null && !configuration.MUSTER_16_TEMPLATE.isEmpty())
+            log.log(Level.INFO, "Using muster 16 template: " + configuration.MUSTER_16_TEMPLATE);
+
+        this.configuration = configuration;
     }
 }
