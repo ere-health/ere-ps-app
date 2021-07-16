@@ -9,6 +9,8 @@ import org.hl7.fhir.common.hapi.validation.validator.FhirInstanceValidator;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.jboss.logging.Logger;
 
+import java.util.List;
+
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 
@@ -65,20 +67,42 @@ public class PrescriptionBundleValidator {
     }
 
     public ValidationResult validateResource(String resourceText, boolean showIssues) {
+        return validateResource(resourceText, showIssues, null);
+    }
+
+    public ValidationResult validateResource(String resourceText,
+                                             List<String> validationErrorsCollectorList) {
+        return validateResource(resourceText, false, validationErrorsCollectorList);
+    }
+
+    public ValidationResult validateResource(String resourceText, boolean showIssues,
+                                             List<String> validationErrorsCollectorList) {
         ValidationResult validationResult = validator.validateWithResult(resourceText);
 
-        if(showIssues) {
-            showIssues(validationResult);
+        if(showIssues || validationErrorsCollectorList != null) {
+            showIssues(validationResult, validationErrorsCollectorList);
         }
 
         return validationResult;
     }
 
     protected void showIssues(ValidationResult validationResult) {
+        showIssues(validationResult, null);
+    }
+
+    protected void showIssues(ValidationResult validationResult,
+                              List<String> validationErrorsCollectorList) {
         if(!validationResult.isSuccessful()) {
+            String errorReport = "";
+
             for (SingleValidationMessage next : validationResult.getMessages()) {
-                logger.info(" Next issue " + next.getSeverity() + " - " +
-                        next.getLocationString() + " - " + next.getMessage());
+                errorReport = " Next issue " + next.getSeverity() + " - " +
+                        next.getLocationString() + " - " + next.getMessage();
+                if(validationErrorsCollectorList != null) {
+                    validationErrorsCollectorList.add(errorReport);
+                }
+
+                logger.info(errorReport);
             }
         }
     }
