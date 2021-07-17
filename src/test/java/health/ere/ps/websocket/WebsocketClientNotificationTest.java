@@ -27,8 +27,12 @@ import health.ere.ps.service.logging.EreLogger;
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusTest;
 
+@Disabled("This test works consistently when tested on its own. However, there seems to be some " +
+        "port conflicts affecting its consistent positive execution when run with other tests. " +
+        "Some other tests including this test may be using the same port which is probably not " +
+        "being closed properly or in time for this test to run successfully on a consistent basis" +
+        " when run with other similar port accessing tests. This needs to be investigated.")
 @QuarkusTest
-@Disabled
 public class WebsocketClientNotificationTest {
 
     @TestHTTPResource("/websocket")
