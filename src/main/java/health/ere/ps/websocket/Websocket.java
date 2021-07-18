@@ -1,7 +1,6 @@
 package health.ere.ps.websocket;
 
 import java.awt.Desktop;
-import org.hl7.fhir.r4.model.Bundle;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,6 +43,8 @@ import javax.websocket.server.ServerEndpoint;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.hl7.fhir.r4.model.Bundle;
+
 import ca.uhn.fhir.context.FhirContext;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.event.AbortTasksEvent;
@@ -56,7 +57,9 @@ import health.ere.ps.event.erixa.ErixaEvent;
 import health.ere.ps.jsonb.BundleAdapter;
 import health.ere.ps.jsonb.ByteAdapter;
 import health.ere.ps.jsonb.ThrowableAdapter;
+import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.model.websocket.OutgoingPayload;
+import health.ere.ps.service.config.UserConfigurationService;
 import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
 import health.ere.ps.service.fhir.bundle.EreBundle;
 import health.ere.ps.service.logging.EreLogger;
@@ -75,6 +78,9 @@ public class Websocket {
     PrescriptionBundleValidator prescriptionBundleValidator;
     @Inject
     AppConfig appConfig;
+    @Inject
+    UserConfigurationService userConfigurationService;
+
     JsonbConfig customConfig = new JsonbConfig()
             .setProperty(JsonbConfig.FORMATTING, true)
             .withAdapters(new BundleAdapter())
@@ -154,12 +160,21 @@ public class Websocket {
             } else if ("XMLBundle".equals(object.getString("type"))) {
                 Bundle[] bundles = XmlPrescriptionProcessor.parseFromString(object.getString("payload"));
                 onFhirBundle(new BundlesEvent(Arrays.asList(bundles)));
-
             } else if ("AbortTasks".equals(object.getString("type"))) {
                 abortTasksEvent.fireAsync(new AbortTasksEvent(object.getJsonArray("payload")));
             } else if ("ErixaEvent".equals(object.getString("type"))) {
                 ErixaEvent event = new ErixaEvent(object);
                 erixaEvent.fireAsync(event);
+            } else if ("RequestSettings".equals(object.getString("type"))) {
+                UserConfigurations userConfigurations = userConfigurationService.getConfig();
+                String payload = jsonbFactory.toJson(userConfigurations);
+                sessions.forEach(session -> session.getAsyncRemote().sendObject(
+                    "{\"type\": \"Settings\", \"payload\": " + payload + "}",
+                    result -> {
+                        if (!result.isOK()) {
+                            ereLog.fatal("Unable to sent settings event: " + result.getException());
+                        }
+                    }));
             } else if ("Publish".equals(object.getString("type"))) {
                 sessions.forEach(session -> session.getAsyncRemote().sendObject(
                         object.getString("payload"),

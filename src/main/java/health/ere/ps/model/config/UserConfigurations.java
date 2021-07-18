@@ -2,48 +2,43 @@ package health.ere.ps.model.config;
 
 
 import javax.json.bind.annotation.JsonbProperty;
-import java.util.Properties;
 
 public class UserConfigurations {
 
-    @JsonbProperty("erixa.hotfolder")
+    @JsonbProperty(value="erixa.hotfolder", nillable=true)
     private String erixaHotfolder;
 
-    @JsonbProperty("erixa.drugstore.email")
+    @JsonbProperty(value="erixa.drugstore.email", nillable=true)
     private String erixaDrugstoreEmail;
 
-    @JsonbProperty("erixa.user.email")
+    @JsonbProperty(value="erixa.user.email", nillable=true)
     private String erixaUserEmail;
 
-    @JsonbProperty("erixa.user.password")
+    @JsonbProperty(value="erixa.user.password", nillable=true)
     private String erixaUserPassword;
 
-    @JsonbProperty("extractor.template.profile")
+    @JsonbProperty(value="extractor.template.profile", nillable=true)
     private String muster16TemplateProfile;
 
-    @JsonbProperty("connector.base.url")
+    @JsonbProperty(value="connector.base-url", nillable=true)
     private String connectorBaseURL;
 
-    @JsonbProperty("connector.context.mandant.id")
+    @JsonbProperty(value="connector.mandant-id", nillable=true)
     private String mandantId;
 
-    @JsonbProperty("connector.context.workplace.id")
+    @JsonbProperty(value="connector.workplace-id", nillable=true)
     private String workplaceId;
 
-    @JsonbProperty("connector.context.client.system.id")
+    @JsonbProperty(value="connector.client-system-id", nillable=true)
     private String clientSystemId;
 
-    @JsonbProperty("connector.context.userId")
+    @JsonbProperty(value="connector.user-id", nillable=true)
     private String userId;
 
-    @JsonbProperty("connector.tvMode")
+    @JsonbProperty(value="connector.tvMode", nillable=true)
     private String tvMode;
 
     public UserConfigurations() {
-    }
-
-    public UserConfigurations(Properties properties) {
-
     }
 
     public String getErixaHotfolder() {

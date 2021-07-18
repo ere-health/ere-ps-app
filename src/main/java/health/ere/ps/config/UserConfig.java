@@ -1,18 +1,25 @@
 package health.ere.ps.config;
 
 
-import health.ere.ps.event.config.UserConfigurationsUpdateEvent;
-import health.ere.ps.model.config.UserConfigurations;
-import health.ere.ps.service.config.UserConfigurationService;
-import health.ere.ps.service.logging.EreLogger;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import static health.ere.ps.config.UserConfigKey.CONNECTOR_BASE_URL;
+import static health.ere.ps.config.UserConfigKey.CONNECTOR_CLIENT_SYSTEM_ID;
+import static health.ere.ps.config.UserConfigKey.CONNECTOR_MANDANT_ID;
+import static health.ere.ps.config.UserConfigKey.CONNECTOR_TV_MODE;
+import static health.ere.ps.config.UserConfigKey.CONNECTOR_USER_ID;
+import static health.ere.ps.config.UserConfigKey.CONNECTOR_WORKPLACE_ID;
+import static health.ere.ps.config.UserConfigKey.EXTRACTOR_TEMPLATE_PROFILE;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
 
-import static health.ere.ps.config.UserConfigKey.*;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+import health.ere.ps.event.config.UserConfigurationsUpdateEvent;
+import health.ere.ps.model.config.UserConfigurations;
+import health.ere.ps.service.config.UserConfigurationService;
+import health.ere.ps.service.logging.EreLogger;
 
 @ApplicationScoped
 public class UserConfig {
@@ -25,16 +32,16 @@ public class UserConfig {
     @ConfigProperty(name = "connector.base-uri")
     String defaultConnectorBaseURI;
 
-    @ConfigProperty(name = "connector.mandant.id")
+    @ConfigProperty(name = "connector.mandant-id")
     String defaultMandantId;
 
-    @ConfigProperty(name = "connector.workplace.id")
+    @ConfigProperty(name = "connector.workplace-id")
     String defaultWorkplaceId;
 
-    @ConfigProperty(name = "connector.client.system.id")
+    @ConfigProperty(name = "connector.client-system-id")
     String defaultClientSystemId;
 
-    @ConfigProperty(name = "connector.context.userId")
+    @ConfigProperty(name = "connector.user-id")
     String defaultUserId;
 
     @ConfigProperty(name = "connector.tvMode")
