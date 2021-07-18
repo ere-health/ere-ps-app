@@ -1,0 +1,41 @@
+<ConceptMap xmlns="http://hl7.org/fhir">
+  <url value="https://fhir.kbv.de/ConceptMap/KBV_CM_Base_Diagnosis_Severity_German" />
+  <version value="1.1.3" />
+  <name value="KBV_CM_Base_Diagnosis_Severity_German" />
+  <status value="active" />
+  <experimental value="false" />
+  <publisher value="Kassenärztliche Bundesvereinigung (KBV)" />
+  <copyright value="Copyright © [2020], Kassenärztliche Bundesvereinigung (KBV). All rights reserved." />
+  <description value="Diese Conceptmap verknüpft die Codes für die Schwere einer Diagnose mit deutschen Bezeichnern" />
+  <group>
+    <source value="http://snomed.info/sct" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Diagnosis_Severity_German" />
+    <element>
+      <code value="255604002" />
+      <display value="Mild (qualifier value)" />
+      <target>
+        <code value="leicht" />
+        <display value="leicht" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="6736007" />
+      <display value="Moderate (severity modifier) (qualifier value)" />
+      <target>
+        <code value="mittelschwer" />
+        <display value="mittelschwer" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="24484000" />
+      <display value="Severe (severity modifier) (qualifier value)" />
+      <target>
+        <code value="schwer" />
+        <display value="schwer" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+</ConceptMap>

@@ -1,0 +1,19 @@
+<CodeSystem xmlns="http://hl7.org/fhir">
+  <id value="icd-10-gm" />
+  <url value="http://fhir.de/CodeSystem/dimdi/icd-10-gm" />
+  <name value="Icd-10-gm" />
+  <status value="draft" />
+  <experimental value="true" />
+  <date value="2020-05-01" />
+  <publisher value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+  <contact>
+    <telecom>
+      <system value="other" />
+      <value value="http://hl7.de/technische-komitees/fhir/" />
+    </telecom>
+  </contact>
+  <description value="ICD-10-GM Platzhalter-CodeSystem" />
+  <copyright value="DIMDI - Deutsches Institut für Medizinische Dokumentation und Information" />
+  <caseSensitive value="true" />
+  <content value="not-present" />
+</CodeSystem>

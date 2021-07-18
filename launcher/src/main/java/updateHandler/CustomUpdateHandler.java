@@ -7,55 +7,67 @@ import me.tongfei.progressbar.ProgressBarBuilder;
 import me.tongfei.progressbar.ProgressBarStyle;
 import org.update4j.FileMetadata;
 import org.update4j.service.UpdateHandler;
+import popup.PopupManager;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+
+/**
+ * Custom update handler that overrides some UpdateHandler methods to allow for our own logic.
+ * Logs what is going on with the download process, extracts the downloaded archive and sets up + feeds the
+ * progress bar
+ */
 public class CustomUpdateHandler implements UpdateHandler {
 
-    private static final System.Logger logger = System.getLogger(CustomUpdateHandler.class.getName());
+    private static final System.Logger log = System.getLogger(CustomUpdateHandler.class.getName());
     private final ApplicationConfig applicationConfig = ApplicationConfig.INSTANCE;
+    private final PopupManager popupManager = PopupManager.INSTANCE;
 
     private final ProgressBar pb = new ProgressBarBuilder()
             .setInitialMax(100)
             .setTaskName("Download")
-            .setConsumer(new DelegatingProgressBarConsumer(number -> logger.log(System.Logger.Level.INFO, number)))
+            .setConsumer(new DelegatingProgressBarConsumer(number -> log.log(System.Logger.Level.INFO, number)))
+            .setConsumer(new DelegatingProgressBarConsumer(popupManager::updateProgressBar))
             .setStyle(ProgressBarStyle.ASCII)
             .setUpdateIntervalMillis(100)
             .build();
 
+
+    @Override
+    public void doneCheckUpdateFile(FileMetadata file, boolean requires) {
+        String message;
+        if (requires) {
+            message = "The file: " + file.getPath() + " needs to be downloaded, starting download";
+            popupManager.startProgressBar();
+        } else {
+            message = "The file: " + file.getPath() + " is up-to-date, no need to download anything";
+        }
+        popupManager.addTextToPanelAndLog(message);
+    }
+
     @Override
     public void doneDownloads() {
-        logger.log(System.Logger.Level.INFO, "Download of the update archive done, extraction in progress");
+        popupManager.addTextToPanelAndLog("Download done, extraction of archive in progress");
+        popupManager.closeProgressBar();
         pb.close();
+
         try {
             extractArchiveToApplicationFolder();
         } catch (IOException e) {
-            logger.log(System.Logger.Level.ERROR, "There was an error during the extraction of the archive:");
+            log.log(System.Logger.Level.ERROR, "There was an error during the extraction of the archive:");
             e.printStackTrace();
         }
     }
 
     @Override
     public void failed(Throwable t) {
-        logger.log(System.Logger.Level.ERROR, "Update failed because:" + t.getLocalizedMessage());
-    }
-
-    @Override
-    public void doneCheckUpdateFile(FileMetadata file, boolean requires) {
-        if (requires) {
-            logger.log(System.Logger.Level.INFO, "The file:" + file.getPath() + " needs to be downloaded");
-        } else {
-            logger.log(System.Logger.Level.INFO, "The file:" + file.getPath() + " is up-to-date");
-        }
+        log.log(System.Logger.Level.ERROR, "Update failed because:" + t.getLocalizedMessage());
+        popupManager.addTextToPanelAndLog("There was en ERROR during the update:" + t.getLocalizedMessage());
     }
 
     @Override
@@ -63,9 +75,11 @@ public class CustomUpdateHandler implements UpdateHandler {
         pb.stepTo((long) (progress * 100));
     }
 
+
     private void extractArchiveToApplicationFolder() throws IOException {
         String archive = applicationConfig.getApplicationPath() + "/" + applicationConfig.getArchiveName();
         File destDir = new File(applicationConfig.getApplicationPath());
+
         byte[] buffer = new byte[1024];
         ZipInputStream zis = new ZipInputStream(new FileInputStream(archive));
         ZipEntry zipEntry = zis.getNextEntry();
@@ -108,21 +122,5 @@ public class CustomUpdateHandler implements UpdateHandler {
             throw new IOException("Entry is outside of the target dir: " + zipEntry.getName());
         }
         return destFile;
-    }
-
-    public static void createStartupScript() {
-        List<String> scriptContent = List.of("@ECHO OFF", "cd " + System.getProperty("user.dir") +
-                " & start java -jar ere-health-launcher.jar");
-
-        Path startupScriptPath = Path.of(System.getenv("APPDATA") +
-                "\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\ere-health-launcher.bat");
-
-        try {
-            Files.createFile(startupScriptPath);
-            Files.write(startupScriptPath, scriptContent, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            logger.log(System.Logger.Level.ERROR, "Could not create startup script:");
-            e.printStackTrace();
-        }
     }
 }

@@ -1,0 +1,19 @@
+<CodeSystem xmlns="http://hl7.org/fhir">
+  <id value="atc" />
+  <url value="http://fhir.de/CodeSystem/dimdi/atc" />
+  <name value="Atc" />
+  <status value="draft" />
+  <experimental value="true" />
+  <date value="2019-12-14" />
+  <publisher value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+  <contact>
+    <telecom>
+      <system value="other" />
+      <value value="http://hl7.de/technische-komitees/fhir/" />
+    </telecom>
+  </contact>
+  <description value="ATC Platzhalter-CodeSystem" />
+  <copyright value="DIMDI - Deutsches Institut für Medizinische Dokumentation und Information" />
+  <caseSensitive value="true" />
+  <content value="not-present" />
+</CodeSystem>

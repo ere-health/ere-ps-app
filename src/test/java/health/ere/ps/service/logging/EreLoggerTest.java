@@ -2,6 +2,12 @@ package health.ere.ps.service.logging;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Date;
 import java.util.List;
 
@@ -49,6 +55,29 @@ class EreLoggerTest {
                 "SMC-B Card Not Present",
                 true)
                 .warn("Warning! SMC-B Card Not Detected.");
+    }
+
+    @Test
+    void test_Successful_Message_Logging_With_Context_And_Simple_Log_Message_And_Bundle_Json_Info_And_Log_Event_Publishing() throws URISyntaxException, IOException {
+        String bundleJson;
+        URI bundleJsonUri = getClass().getResource(
+                "/bundle-samples/bundleTemplatev2_filled-debug-3.json").toURI();
+        bundleJson = Files.readString(Path.of(bundleJsonUri), Charset.forName("UTF-8"));
+
+        logger.setLoggingContext(List.of(EreLogger.SystemContext.Connector,
+                EreLogger.SystemContext.CardTerminal), "Simple log message with bundle info", true)
+                .setBundleJson(bundleJson)
+                .info("Simple logging test with context and bundle info.");
+    }
+
+    @Test
+    void test_Successful_Message_Logging_With_Context_And_Simple_Log_Message_And_Bad_Bundle_Json_Info_And_Log_Event_Publishing() throws URISyntaxException, IOException {
+        String badBundleJson = null;
+
+        logger.setLoggingContext(List.of(EreLogger.SystemContext.Connector,
+                EreLogger.SystemContext.CardTerminal), "Simple log message with bundle info", true)
+                .setBundleJson(badBundleJson)
+                .info("Simple logging test with context and bundle info.");
     }
 
     @Test

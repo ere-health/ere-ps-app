@@ -10,13 +10,17 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 
+/**
+ * Creates the remote configuration associated with an installer archive that will be read by the launcher
+ * to check if the local archive matches the remote one
+ */
 public class RemoteConfigCreator {
 
-    private static final System.Logger logger = System.getLogger(RemoteConfigCreator.class.getName());
+    private static final System.Logger log = System.getLogger(RemoteConfigCreator.class.getName());
 
     public static void createRemoteConfigurationFile() throws IOException {
         ApplicationConfig applicationConfig = ApplicationConfig.INSTANCE;
-        logger.log(System.Logger.Level.INFO, "Creating new remote configuration file:" +
+        log.log(System.Logger.Level.INFO, "Creating new remote configuration file:" +
                 applicationConfig.getRemoteConfigurationFilename() + " in folder:" +
                 applicationConfig.getRemoteConfigurationCreationFolder() + " from archive:" +
                 applicationConfig.getRemoteConfigurationCreationFolder() + "/" + applicationConfig.getArchiveName());
@@ -29,6 +33,7 @@ public class RemoteConfigCreator {
                 .file(FileMetadata
                         .readFrom(applicationConfig.getRemoteConfigurationCreationFolder() + "/" +
                                 applicationConfig.getArchiveName())
+                        .classpath() //to avoid a warning in the logs
                         .uri(applicationConfig.getRemoteServerUri() + "/" + applicationConfig.getArchiveName())
                 )
                 .build();
@@ -45,6 +50,6 @@ public class RemoteConfigCreator {
         remoteConfiguration.write(fileWriter);
         fileWriter.close();
 
-        logger.log(System.Logger.Level.INFO, "Remote configuration file created");
+        log.log(System.Logger.Level.INFO, "Remote configuration file created");
     }
 }

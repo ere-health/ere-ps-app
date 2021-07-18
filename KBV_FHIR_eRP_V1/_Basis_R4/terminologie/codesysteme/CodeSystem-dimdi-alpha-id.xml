@@ -1,0 +1,22 @@
+<CodeSystem xmlns="http://hl7.org/fhir">
+  <id value="Alpha-id" />
+  <url value="http://fhir.de/CodeSystem/dimdi/alpha-id" />
+  <identifier>
+    <value value="1.2.276.0.76.5.479" />
+  </identifier>
+  <name value="alpha-id" />
+  <status value="draft" />
+  <experimental value="true" />
+  <date value="2020-01-10" />
+  <publisher value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+  <contact>
+    <telecom>
+      <system value="other" />
+      <value value="http://hl7.de/technische-komitees/fhir/" />
+    </telecom>
+  </contact>
+  <description value="Alpha-ID Platzhalter-CodeSystem" />
+  <copyright value="DIMDI - Deutsches Institut für Medizinische Dokumentation und Information" />
+  <caseSensitive value="true" />
+  <content value="not-present" />
+</CodeSystem>

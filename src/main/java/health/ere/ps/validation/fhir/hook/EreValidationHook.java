@@ -61,23 +61,30 @@ public class EreValidationHook {
 
         if (CollectionUtils.isNotEmpty(singleValidationMessages)) {
             possibleAmbiguousValidationMessages.addAll(
-                    singleValidationMessages.stream().filter(singleValMsg ->
+                singleValidationMessages.stream().filter(singleValMsg ->
+
+                singleValMsg.getMessage().contains(
+                        "Slicing cannot be evaluated: Unable to resolve profile CanonicalType") /*||
+
                 singleValMsg.getMessage().matches("Unable to find a match for profile " +
                         "MedicationRequest/.+ among choices: https://fhir\\.kbv" +
                         "\\.de/StructureDefinition/KBV_PR_ERP_Prescription\\|1\\.0\\.1") ||
+
                 singleValMsg.getMessage().matches("Details for MedicationRequest/.+ " +
                         "matching against Profilehttps://fhir\\.kbv\\.de/StructureDefinition/" +
                         "KBV_PR_ERP_Prescription\\|1\\.0\\.1") ||
+
                 singleValMsg.getMessage().matches("Unable to find a match for profile " +
                         "Coverage/.+ " +
                         "among choices: https://fhir\\.kbv" +
                         "\\.de/StructureDefinition/KBV_PR_FOR_Coverage\\|1\\.0\\.1") ||
+
                 singleValMsg.getMessage().matches("Details for Coverage/.+ " +
                         "matching against " +
                         "Profilehttps://fhir\\.kbv\\.de/StructureDefinition/KBV_PR_FOR_Coverage" +
                         "\\|1\\.0\\.1") &&
                         (singleValMsg.getSeverity() == ResultSeverityEnum.ERROR ||
-                                singleValMsg.getSeverity() == ResultSeverityEnum.INFORMATION)
+                                singleValMsg.getSeverity() == ResultSeverityEnum.INFORMATION)*/
             ).collect(Collectors.toList()));
         }
 

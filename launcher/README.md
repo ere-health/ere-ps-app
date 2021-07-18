@@ -8,14 +8,20 @@ This launcher will search for a remote configuration file detailing the most up-
 for download, including its size and checksum. It uses it to compare the remote archive to the local one and 
 if they don't match it will download and extract the latest one before launching the ere-health application.
 
+For the first installation the practitioner will run the installer script ere-health-installer.bat. It downloads
+a needed jre and the exe file of the launcher first and then runs the launcher.
+
 # Usage
-Simply run the jar (target/ere-health-launcher.jar) without argument to start the update process 
-and launch the application.
+Simply run the jar (target/ere-health-launcher.jar) or the exe (target/ere-health-launcher.exe) without argument 
+to start the installation/update process and launch the application.
   
 # Create a new release
 Run the script createRelease.sh to automatically create the installer archive and 
 remote configuration file in the windows-installer folder. 
 You'll then have to copy these two files in our distribution server.
+
+If you want to update the launcher itself you have to copy the ere-health-launcher.exe in our delivery server and then
+ask the practitioner to run ere-health-installer.bat again.
 
 # Test
 You can use a local Nginx instance running in docker to test the update feature. Create a new release using the script and

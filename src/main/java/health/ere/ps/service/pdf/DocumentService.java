@@ -1,25 +1,10 @@
 package health.ere.ps.service.pdf;
 
-import ca.uhn.fhir.context.FhirContext;
-import health.ere.ps.event.BundlesWithAccessCodeEvent;
-import health.ere.ps.event.ERezeptDocumentsEvent;
-import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
-import health.ere.ps.model.pdf.ERezeptDocument;
-import org.apache.fop.apps.*;
-import org.apache.fop.configuration.Configuration;
-import org.apache.fop.configuration.ConfigurationException;
-import org.apache.fop.configuration.DefaultConfigurationBuilder;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.enterprise.event.ObservesAsync;
-import javax.inject.Inject;
-import javax.xml.XMLConstants;
-import javax.xml.transform.*;
-import javax.xml.transform.sax.SAXResult;
-import javax.xml.transform.stream.StreamSource;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -27,6 +12,36 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.enterprise.event.ObservesAsync;
+import javax.inject.Inject;
+import javax.xml.XMLConstants;
+import javax.xml.transform.ErrorListener;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXResult;
+import javax.xml.transform.stream.StreamSource;
+
+import org.apache.fop.apps.FOPException;
+import org.apache.fop.apps.Fop;
+import org.apache.fop.apps.FopFactory;
+import org.apache.fop.apps.FopFactoryBuilder;
+import org.apache.fop.apps.MimeConstants;
+import org.apache.fop.configuration.Configuration;
+import org.apache.fop.configuration.ConfigurationException;
+import org.apache.fop.configuration.DefaultConfigurationBuilder;
+
+import ca.uhn.fhir.context.FhirContext;
+import health.ere.ps.event.BundlesWithAccessCodeEvent;
+import health.ere.ps.event.ERezeptDocumentsEvent;
+import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
+import health.ere.ps.model.pdf.ERezeptDocument;
 
 @ApplicationScoped
 public class DocumentService {
@@ -92,6 +107,8 @@ public class DocumentService {
 
 
     public void onBundlesWithAccessCodes(@ObservesAsync BundlesWithAccessCodeEvent bundlesWithAccessCodeEvent) {
+        
+        
         log.info(String.format("About to create prescription receipts for %d bundles",
                 bundlesWithAccessCodeEvent.getBundleWithAccessCodeOrThrowable().size()));
         bundlesWithAccessCodeEvent.getBundleWithAccessCodeOrThrowable().forEach(bundles -> {
@@ -108,8 +125,12 @@ public class DocumentService {
     }
 
     private void createAndSendPrescriptions(List<BundleWithAccessCodeOrThrowable> bundles) {
-        log.info("Now creating prescription receipts");
-        ByteArrayOutputStream boas = generateERezeptPdf(bundles);
+        
+        ByteArrayOutputStream boas = new ByteArrayOutputStream();
+        if(!onlyContainsThrowables(bundles)) {
+            log.info("Now creating prescription receipts");
+            boas = generateERezeptPdf(bundles);
+        }
 
         ERezeptDocument eRezeptDocument = new ERezeptDocument(bundles, boas.size() > 0 ? boas.toByteArray() : null);
 
@@ -117,6 +138,10 @@ public class DocumentService {
         eRezeptDocumentsEvent.fireAsync(new ERezeptDocumentsEvent(List.of(eRezeptDocument)));
         log.info("Sending prescription receipts results.");
 
+    }
+
+    private boolean onlyContainsThrowables(List<BundleWithAccessCodeOrThrowable> bundles) {
+        return bundles.size() == bundles.stream().filter(bundle -> bundle.getThrowable() != null).count();
     }
 
     public ByteArrayOutputStream generateERezeptPdf(List<BundleWithAccessCodeOrThrowable> bundles) {

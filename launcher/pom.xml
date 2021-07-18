@@ -53,6 +53,45 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>com.akathist.maven.plugins.launch4j</groupId>
+                <artifactId>launch4j-maven-plugin</artifactId>
+                <version>2.1.1</version>
+                <executions>
+                    <execution>
+                        <id>l4j-clui</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>launch4j</goal>
+                        </goals>
+                        <configuration>
+                            <headerType>console</headerType>
+                            <jar>${project.build.directory}/ere-health-launcher.jar</jar>
+                            <outfile>${project.build.directory}/ere-health-launcher.exe</outfile>
+                            <classPath>
+                                <mainClass>AutoUpdater</mainClass>
+                                <addDependencies>true</addDependencies>
+                                <preCp>anything</preCp>
+                            </classPath>
+                            <jre>
+                                <path>jre</path>
+                            </jre>
+                            <versionInfo>
+                                <copyright>2021 https://github.com/ere-health/ere-ps-app</copyright>
+                                <fileVersion>1.0.0.0</fileVersion>
+                                <productVersion>1.0.0.0</productVersion>
+                                <txtProductVersion>1.0.0.0</txtProductVersion>
+                                <txtFileVersion>${project.version}</txtFileVersion>
+                                <fileDescription>${project.name}</fileDescription>
+                                <productName>${project.name}</productName>
+                                <companyName>com.health.ere</companyName>
+                                <internalName>ere-health-launcher</internalName>
+                                <originalFilename>launcher.exe</originalFilename>
+                            </versionInfo>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>

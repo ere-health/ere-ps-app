@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<CodeSystem xmlns="http://hl7.org/fhir" xmlns:ns2="http://www.w3.org/1999/xhtml">
+    <url value="https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_PKV_TARIFF"/>
+    <identifier>
+        <system value="urn:ietf:rfc:3986"/>
+        <value value="urn:oid:1.2.276.0.76.3.1.1.5.2.59"/>
+    </identifier>
+    <version value="1.01"/>
+    <name value="KBV_CS_SFHIR_KBV_PKV_TARIFF"/>
+    <status value="active"/>
+    <date value="2021-02-19"/>
+    <publisher value="Kassenärztliche Bundesvereinigung"/>
+    <contact>
+        <telecom>
+            <system value="url"/>
+            <value value="http://www.kbv.de"/>
+        </telecom>
+    </contact>
+    <description value="Diese Schlüsseltabelle beinhaltet die zulässigen Kostenträgerarten im PKV-Bereich"/>
+    <copyright value="Kassenärztliche Bundesvereinigung"/>
+    <caseSensitive value="true"/>
+    <content value="complete"/>
+    <concept>
+        <code value="01"/>
+        <display value="Individualtarif"/>
+    </concept>
+    <concept>
+        <code value="02"/>
+        <display value="Standardtarif"/>
+    </concept>
+    <concept>
+        <code value="03"/>
+        <display value="Basistarif"/>
+    </concept>
+    <concept>
+        <code value="04"/>
+        <display value="Notlagentarif"/>
+    </concept>
+</CodeSystem>

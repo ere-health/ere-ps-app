@@ -31,7 +31,8 @@ public class PrescriptionBundlesBuilder implements IBundlesBuilder {
     }
 
     protected static String getDateFormat(String date) {
-        return date.length() == 8 ? DEFAULT_SHORT_DATE_FORMAT : DEFAULT_DATE_FORMAT;
+        return StringUtils.isBlank(date) || date.length() == 8 ? DEFAULT_SHORT_DATE_FORMAT :
+                DEFAULT_DATE_FORMAT;
     }
 
     @Override
@@ -280,19 +281,6 @@ public class PrescriptionBundlesBuilder implements IBundlesBuilder {
 
         coverage.getBeneficiary().setReference("Patient/" + patientId);
 
-        //TODO: Get actual insurance coverage period.
-        String coveragePeriod =
-                StringUtils.isBlank(muster16PrescriptionForm.getPrescriptionDate()) ||
-                        !muster16PrescriptionForm.getPrescriptionDate().matches("dddd-dd-dd")?
-                "2200-01-01" : muster16PrescriptionForm.getPrescriptionDate();
-
-        try {
-            coverage.getPeriod().setEnd(new SimpleDateFormat(getDateFormat(coveragePeriod))
-                    .parse(coveragePeriod));
-        } catch (ParseException e) {
-            log.warning("Could not parse this coverage end period date when creating the bundle:" + coveragePeriod);
-        }
-
         String payorIdentifier = "UNKNOWN";
         if (muster16PrescriptionForm.getInsuranceCompanyId() != null && !("".equals(muster16PrescriptionForm.getInsuranceCompanyId()))) {
             payorIdentifier = muster16PrescriptionForm.getInsuranceCompanyId();
@@ -302,7 +290,7 @@ public class PrescriptionBundlesBuilder implements IBundlesBuilder {
                 .setDisplay(muster16PrescriptionForm.getInsuranceCompany())
                 .getIdentifier()
 
-                .setSystem("http://fhir.de/sid/arge-ik/iknr")
+                .setSystem("http://fhir.de/NamingSystem/arge-ik/iknr")
 
 //                .setSystem("http://fhir.de/NamingSystem/arge-ik/iknr")
                 .setValue(payorIdentifier);

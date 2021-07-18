@@ -1,0 +1,57 @@
+<CodeSystem xmlns="http://hl7.org/fhir">
+  <id value="identifier-type-v2-supplement" />
+  <meta>
+    <profile value="http://hl7.org/fhir/StructureDefinition/shareablecodesystem" />
+  </meta>
+  <url value="http://fhir.de/CodeSystem/identifier-type-v2-supplement" />
+  <version value="0.9.13" />
+  <name value="SupplementIdentifierTypeV2" />
+  <status value="draft" />
+  <experimental value="true" />
+  <date value="2019-07-11" />
+  <publisher value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+  <contact>
+    <telecom>
+      <system value="url" />
+      <value value="http://hl7.de/technische-komitees/fhir/" />
+    </telecom>
+  </contact>
+  <description value="CodeSystem Supplement mit Deutschen Übersetzungen für Identifier Types (V2)" />
+  <content value="supplement" />
+  <supplements value="http://terminology.hl7.org/CodeSystem/v2-0203" />
+  <concept>
+    <code value="DL" />
+    <designation>
+      <language value="de-DE" />
+      <value value="Führerscheinnummer" />
+    </designation>
+  </concept>
+  <concept>
+    <code value="MR" />
+    <designation>
+      <language value="de-DE" />
+      <value value="Patientennummer?" />
+    </designation>
+  </concept>
+  <concept>
+    <code value="TAX" />
+    <designation>
+      <language value="de-DE" />
+      <value value="Steuernummer" />
+    </designation>
+  </concept>
+  <concept>
+    <code value="PLAC" />
+    <designation>
+      <language value="de-DE" />
+      <value value="Auftragsnummer" />
+    </designation>
+  </concept>
+  <concept>
+    <code value="EN" />
+    <designation>
+      <language value="de-DE" />
+      <value value="Mitarbeiternummer" />
+    </designation>
+  </concept>
+</CodeSystem>

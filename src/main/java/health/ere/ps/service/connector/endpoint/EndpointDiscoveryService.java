@@ -1,13 +1,10 @@
 package health.ere.ps.service.connector.endpoint;
 
-import health.ere.ps.config.AppConfig;
-import health.ere.ps.config.UserConfig;
-import health.ere.ps.service.common.security.SecretsManagerService;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -16,11 +13,16 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import health.ere.ps.config.AppConfig;
+import health.ere.ps.config.UserConfig;
+import health.ere.ps.service.common.security.SecretsManagerService;
 
 /**
  * This service automatically discovers the endpoints that are available at the connector.
@@ -116,7 +118,7 @@ public class EndpointDiscoveryService {
                         break;
                     }
                     case "SignatureService": {
-                        signatureServiceEndpointAddress = getEndpoint(node);
+                        signatureServiceEndpointAddress = getEndpoint(node, "PTV4+".equals(appConfig.getConnectorVersion()) ? "7.5.4" : null);
                     }
                 }
             }
@@ -201,8 +203,11 @@ public class EndpointDiscoveryService {
         return eventServiceEndpointAddress;
     }
 
-
     private String getEndpoint(Node serviceNode) {
+        return getEndpoint(serviceNode, null);
+    }
+
+    private String getEndpoint(Node serviceNode, String version) {
         Node versionsNode = getNodeWithTag(serviceNode, "Versions");
 
         if (versionsNode == null) {
@@ -211,7 +216,14 @@ public class EndpointDiscoveryService {
         NodeList versionNodes = versionsNode.getChildNodes();
 
         for (int i = 0, n = versionNodes.getLength(); i < n; ++i) {
-            Node endpointNode = getNodeWithTag(versionNodes.item(i), "EndpointTLS");
+            Node versionNode = versionNodes.item(i);
+
+            // if we have a specified version search in the list until we find it
+            if(version != null && versionNode.hasAttributes() && !version.equals(versionNode.getAttributes().getNamedItem("Version").getTextContent())) {
+                continue;
+            }
+
+            Node endpointNode = getNodeWithTag(versionNode, "EndpointTLS");
 
             if (endpointNode == null || !endpointNode.hasAttributes()
                     || endpointNode.getAttributes().getNamedItem("Location") == null) {

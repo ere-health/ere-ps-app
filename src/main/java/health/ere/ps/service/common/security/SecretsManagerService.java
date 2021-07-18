@@ -1,16 +1,5 @@
 package health.ere.ps.service.common.security;
 
-import health.ere.ps.config.AppConfig;
-import health.ere.ps.exception.common.security.SecretsManagerException;
-import health.ere.ps.service.connector.endpoint.SSLUtilities;
-import org.apache.commons.lang3.StringUtils;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -18,9 +7,24 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.*;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.logging.Logger;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+
+import health.ere.ps.config.AppConfig;
+import health.ere.ps.exception.common.security.SecretsManagerException;
+import health.ere.ps.service.connector.endpoint.SSLUtilities;
 
 @ApplicationScoped
 public class SecretsManagerService {
@@ -39,12 +43,10 @@ public class SecretsManagerService {
     @PostConstruct
     void createSSLContext() {
 
-        String connectorTlsCertAuthStoreFile = appConfig.getCertAuthStoreFile();
-        String connectorTlsCertAuthStorePwd = appConfig.getCertAuthStoreFilePassword();
+        if (appConfig.getCertAuthStoreFile().isPresent() && appConfig.getCertAuthStoreFilePassword().isPresent()) {
+            String connectorTlsCertAuthStoreFile = appConfig.getCertAuthStoreFile().get();
+            String connectorTlsCertAuthStorePwd = appConfig.getCertAuthStoreFilePassword().get();
 
-        if (StringUtils.isEmpty(connectorTlsCertAuthStoreFile) || StringUtils.isEmpty(connectorTlsCertAuthStorePwd)) {
-            log.severe("Certificate file or password missing, cannot instantiate SSLContext");
-        } else {
             try (FileInputStream certificateInputStream = new FileInputStream(connectorTlsCertAuthStoreFile)) {
                 sslContext = SSLContext.getInstance(SslContextType.TLS.getSslContextType());
 
