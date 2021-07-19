@@ -150,6 +150,14 @@ public class ConnectorServicesProvider {
                 secretsManagerService.getSslContext().getSocketFactory());
         bindingProvider.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier",
                 new SSLUtilities.FakeHostnameVerifier());
+
+        String basicAuthUsername = userConfig.getConfigurations().getBasicAuthUsername();
+        String basicAuthPassword = userConfig.getConfigurations().getBasicAuthPassword();
+
+        if(basicAuthUsername != null && !basicAuthUsername.equals("")) {
+            bindingProvider.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, basicAuthUsername);
+            bindingProvider.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, basicAuthPassword);
+        }
     }
 
     @ProvidedConfig

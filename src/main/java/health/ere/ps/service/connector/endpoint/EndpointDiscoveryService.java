@@ -2,6 +2,7 @@ package health.ere.ps.service.connector.endpoint;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Base64;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -11,6 +12,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.Invocation.Builder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -67,10 +69,19 @@ public class EndpointDiscoveryService {
             clientBuilder = clientBuilder.hostnameVerifier(new SSLUtilities.FakeHostnameVerifier());
         }
 
-        Invocation invocation = clientBuilder.build()
+    
+
+        Builder builder = clientBuilder.build()
                 .target(userConfig.getConnectorBaseURL())
                 .path("/connector.sds")
-                .request()
+                .request();
+
+        String basicAuthUsername = userConfig.getConfigurations().getBasicAuthUsername();
+        String basicAuthPassword = userConfig.getConfigurations().getBasicAuthPassword();
+        if(basicAuthUsername != null && !basicAuthUsername.equals("")) {
+            builder.header("Authorization", "Basic "+Base64.getEncoder().encodeToString((basicAuthUsername+":"+basicAuthPassword).getBytes()));
+        }
+        Invocation invocation = builder
                 .buildGet();
 
         try (InputStream inputStream = invocation.invoke(InputStream.class)) {
