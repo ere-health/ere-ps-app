@@ -2,7 +2,6 @@ package health.ere.ps.service.fhir;
 
 import java.util.List;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -41,21 +40,6 @@ public class FHIRService {
         PrescriptionBundlesBuilderV2 bundleBuilder = new PrescriptionBundlesBuilderV2(muster16PrescriptionForm);
 
         List<Bundle> bundles = bundleBuilder.createBundles();
-
-        bundles = bundles.stream().filter(bundle -> {
-
-            // Warning: Do not use return value of validation method below to stop submission of
-            // possible problem bundle to front-end. For now, only report possible
-            // validation issues for generated outgoing bundle for review in the logs.
-
-            //TODO: Create a separate configuration to enable/disable validating outgoing
-            // bundles.
-            if (appConfig.isValidateSignRequestBundles()) {
-                return isOutgoingBundleOk((EreBundle) bundle);
-            } else {
-                return true;
-            }
-        }).collect(Collectors.toList());
         bundleEvent.fireAsync(new BundlesEvent(bundles));
     }
 
