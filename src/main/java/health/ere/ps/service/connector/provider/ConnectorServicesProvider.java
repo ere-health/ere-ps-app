@@ -1,5 +1,12 @@
 package health.ere.ps.service.connector.provider;
 
+import java.util.logging.Logger;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.xml.ws.BindingProvider;
+
 import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureService;
 import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureServicePortType;
 import de.gematik.ws.conn.cardservice.wsdl.v8.CardService;
@@ -19,14 +26,7 @@ import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.connector.endpoint.EndpointDiscoveryService;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.xml.ws.BindingProvider;
-import java.util.logging.Logger;
-
 @ApplicationScoped
-
 public class ConnectorServicesProvider {
     private final Logger log = Logger.getLogger(getClass().getName());
 

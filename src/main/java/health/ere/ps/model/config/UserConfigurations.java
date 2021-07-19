@@ -1,9 +1,20 @@
 package health.ere.ps.model.config;
 
 
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Method;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javax.json.bind.annotation.JsonbProperty;
 
 public class UserConfigurations {
+
+    private static Logger log = Logger.getLogger(UserConfigurations.class.getName());
 
     @JsonbProperty(value="erixa.hotfolder", nillable=true)
     private String erixaHotfolder;
@@ -35,10 +46,68 @@ public class UserConfigurations {
     @JsonbProperty(value="connector.user-id", nillable=true)
     private String userId;
 
+    @JsonbProperty(value="connector.version", nillable=true)
+    private String version;
+
     @JsonbProperty(value="connector.tvMode", nillable=true)
     private String tvMode;
 
+    @JsonbProperty(value="connector.client-certificate", nillable=true)
+    private String clientCertificate;
+
+    @JsonbProperty(value="connector.client-certificate-password", nillable=true)
+    private String clientCertificatePassword;
+
+    @JsonbProperty(value="connector.basic-auth-username", nillable=true)
+    private String basicAuthUsername;
+
+    @JsonbProperty(value="connector.basic-auth-password", nillable=true)
+    private String basicAuthPassword;
+
+    static BeanInfo beanInfo;
+
+    static {
+        try {
+            beanInfo = Introspector.getBeanInfo(UserConfigurations.class);
+        } catch (IntrospectionException e) {
+            log.log(Level.SEVERE, "Could not process user configurations", e);
+        }
+    }
+
     public UserConfigurations() {
+    }
+
+    public UserConfigurations(Properties properties) {
+        for(PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
+            try {
+                Method writeMethod = pd.getWriteMethod();
+                if(writeMethod != null) {
+                    writeMethod.invoke(this, properties.getProperty(pd.getName()));
+                } else {
+                    if(!"class".equals(pd.getName())) {
+                        log.warning("No write method for: "+pd.getName());
+                    }
+                }
+            } catch (Exception e) {
+                log.log(Level.SEVERE, "Could not process user configurations", e);
+            }
+        }
+    }
+
+    public Properties properties() {
+        Properties properties = new Properties();
+        for(PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
+            try {
+                Object o =  pd.getReadMethod().invoke(this);
+                if(o instanceof String) {
+                    String value = (String) o;
+                    properties.setProperty(pd.getName(), value == null ? "" : value);
+                }
+            } catch (Exception e) {
+                log.log(Level.SEVERE, "Could not process user configurations", e);
+            }
+        }
+        return properties;
     }
 
     public String getErixaHotfolder() {
@@ -127,5 +196,45 @@ public class UserConfigurations {
 
     public void setTvMode(String tvMode) {
         this.tvMode = tvMode;
+    }
+
+    public String getClientCertificate() {
+        return this.clientCertificate;
+    }
+
+    public void setClientCertificate(String clientCertificate) {
+        this.clientCertificate = clientCertificate;
+    }
+
+    public String getClientCertificatePassword() {
+        return this.clientCertificatePassword;
+    }
+
+    public void setClientCertificatePassword(String clientCertificatePassword) {
+        this.clientCertificatePassword = clientCertificatePassword;
+    }
+
+    public String getBasicAuthUsername() {
+        return this.basicAuthUsername;
+    }
+
+    public void setBasicAuthUsername(String basicAuthUsername) {
+        this.basicAuthUsername = basicAuthUsername;
+    }
+
+    public String getBasicAuthPassword() {
+        return this.basicAuthPassword;
+    }
+
+    public void setBasicAuthPassword(String basicAuthPassword) {
+        this.basicAuthPassword = basicAuthPassword;
+    }
+
+    public String getVersion() {
+        return this.version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 }

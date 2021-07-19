@@ -1,14 +1,6 @@
 package health.ere.ps.config;
 
 
-import static health.ere.ps.config.UserConfigKey.CONNECTOR_BASE_URL;
-import static health.ere.ps.config.UserConfigKey.CONNECTOR_CLIENT_SYSTEM_ID;
-import static health.ere.ps.config.UserConfigKey.CONNECTOR_MANDANT_ID;
-import static health.ere.ps.config.UserConfigKey.CONNECTOR_TV_MODE;
-import static health.ere.ps.config.UserConfigKey.CONNECTOR_USER_ID;
-import static health.ere.ps.config.UserConfigKey.CONNECTOR_WORKPLACE_ID;
-import static health.ere.ps.config.UserConfigKey.EXTRACTOR_TEMPLATE_PROFILE;
-
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.ObservesAsync;
@@ -57,7 +49,6 @@ public class UserConfig {
     }
 
     public UserConfig() {
-        configurationManagementService = new UserConfigurationService();
     }
 
     public UserConfigurations getConfigurations() {
@@ -81,27 +72,27 @@ public class UserConfig {
     }
 
     public String getConnectorBaseURL() {
-        return getConfigOrDefault(configurations.getConnectorBaseURL(), defaultConnectorBaseURI, CONNECTOR_BASE_URL);
+        return getConfigOrDefault(configurations.getConnectorBaseURL(), defaultConnectorBaseURI);
     }
 
     public String getMandantId() {
-        return getConfigOrDefault(configurations.getMandantId(), defaultMandantId, CONNECTOR_MANDANT_ID);
+        return getConfigOrDefault(configurations.getMandantId(), defaultMandantId);
     }
 
     public String getWorkplaceId() {
-        return getConfigOrDefault(configurations.getWorkplaceId(), defaultWorkplaceId, CONNECTOR_WORKPLACE_ID);
+        return getConfigOrDefault(configurations.getWorkplaceId(), defaultWorkplaceId);
     }
 
     public String getClientSystemId() {
-        return getConfigOrDefault(configurations.getClientSystemId(), defaultClientSystemId, CONNECTOR_CLIENT_SYSTEM_ID);
+        return getConfigOrDefault(configurations.getClientSystemId(), defaultClientSystemId);
     }
 
     public String getUserId() {
-        return getConfigOrDefault(configurations.getUserId(), defaultUserId, CONNECTOR_USER_ID);
+        return getConfigOrDefault(configurations.getUserId(), defaultUserId);
     }
 
     public String getTvMode() {
-        return getConfigOrDefault(configurations.getTvMode(), defaultTvMode, CONNECTOR_TV_MODE);
+        return getConfigOrDefault(configurations.getTvMode(), defaultTvMode);
     }
 
     public String getErixaApiKey() {
@@ -110,7 +101,7 @@ public class UserConfig {
     }
 
     public String getMuster16TemplateConfiguration() {
-        return getConfigOrDefault(configurations.getMuster16TemplateProfile(), defaultMuster16TemplateProfile, EXTRACTOR_TEMPLATE_PROFILE);
+        return getConfigOrDefault(configurations.getMuster16TemplateProfile(), defaultMuster16TemplateProfile);
     }
 
     public void handleUpdateProperties(@ObservesAsync UserConfigurationsUpdateEvent event) {
@@ -125,18 +116,13 @@ public class UserConfig {
         updateProperties(configurationManagementService.getConfig());
     }
 
-    private String getConfigOrDefault(String value, String defaultValue, UserConfigKey key) {
+    private String getConfigOrDefault(String value, String defaultValue) {
         if (value != null)
             return value;
         else if (defaultValue != null)
             return defaultValue;
         else {
-            logMissingConfig(key);
             return null;
         }
-    }
-
-    private void logMissingConfig(UserConfigKey key) {
-        log.info(String.format("Missing config value with key=%s.", key.key));
     }
 }

@@ -52,6 +52,7 @@ import health.ere.ps.event.AbortTasksStatusEvent;
 import health.ere.ps.event.BundlesEvent;
 import health.ere.ps.event.ERezeptDocumentsEvent;
 import health.ere.ps.event.EreLogNotificationEvent;
+import health.ere.ps.event.SaveSettingsEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
 import health.ere.ps.event.erixa.ErixaEvent;
 import health.ere.ps.jsonb.BundleAdapter;
@@ -75,11 +76,15 @@ public class Websocket {
     @Inject
     Event<ErixaEvent> erixaEvent;
     @Inject
+    Event<SaveSettingsEvent> saveSettingsEvent;
+    
+    @Inject
     PrescriptionBundleValidator prescriptionBundleValidator;
     @Inject
     AppConfig appConfig;
     @Inject
     UserConfigurationService userConfigurationService;
+
 
     JsonbConfig customConfig = new JsonbConfig()
             .setProperty(JsonbConfig.FORMATTING, true)
@@ -175,6 +180,10 @@ public class Websocket {
                             ereLog.fatal("Unable to sent settings event: " + result.getException());
                         }
                     }));
+            } else if("SaveSettings".equals(object.getString("type"))) {
+                String userConfiguration = object.getJsonObject("payload").toString();
+                UserConfigurations userConfigurations = jsonbFactory.fromJson(userConfiguration, UserConfigurations.class);
+                saveSettingsEvent.fireAsync(new SaveSettingsEvent(userConfigurations));
             } else if ("Publish".equals(object.getString("type"))) {
                 sessions.forEach(session -> session.getAsyncRemote().sendObject(
                         object.getString("payload"),
