@@ -132,14 +132,6 @@ revision number:
     Password for the Titus TLS certificate trust store. For Windows environments, make sure to use
     double quotes around numeric values that are to be interpreted as a string. 
   
-  
-* **ERE_VALIDATOR_VALIDATE_SIGN_REQUEST_BUNDLES_ENABLED**
-
-    Enables or disables  the validation of incoming sign request bundles.  Sign request bundles
-    that fail validation checks will be prevented from propagating to the BE prescription processing
-    workflow. Do not add double quotation marks 
-    around the configuration values.
-  
 
 * **MUSTER16_TEMPLATE_CONFIGURATION**
 

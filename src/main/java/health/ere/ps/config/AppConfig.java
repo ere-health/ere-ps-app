@@ -12,9 +12,6 @@ public class AppConfig {
     @ConfigProperty(name = "directory-watcher.dir")
     String directoryWatcherDir;
 
-    @ConfigProperty(name = "ere.validator.validate.sign.request.bundles.enabled")
-    boolean validateSignRequestBundles;
-
     @ConfigProperty(name = "ere.workflow-service.prescription.server.url")
     String prescriptionServiceURL;
 
@@ -53,10 +50,6 @@ public class AppConfig {
 
     public String getDirectoryWatcherDir() {
         return directoryWatcherDir;
-    }
-
-    public boolean isValidateSignRequestBundles() {
-        return validateSignRequestBundles;
     }
 
     public String getPrescriptionServiceURL() {

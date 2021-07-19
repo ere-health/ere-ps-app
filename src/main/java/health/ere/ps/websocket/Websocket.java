@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -27,7 +28,9 @@ import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 import javax.json.JsonReader;
 import javax.json.JsonValue;
 import javax.json.bind.Jsonb;
@@ -118,7 +121,9 @@ public class Websocket {
                         .filter(Files::isRegularFile)
                         .forEach(f -> {
                             try (InputStream inputStream = new FileInputStream(f.toFile())) {
-                                Bundle bundle = ctx.newXmlParser().parseResource(Bundle.class, inputStream);
+                                String xml = new String(inputStream.readAllBytes(), "UTF-8").replaceAll("<!--.*-->", "");
+                                Bundle bundle = ctx.newXmlParser().parseResource(Bundle.class, xml);
+                                bundle.setId(UUID.randomUUID().toString());
                                 onFhirBundle(new BundlesEvent(Collections.singletonList(bundle)));
                             } catch (IOException ex) {
                                 ereLog.warn("Could read all files", ex);
@@ -152,16 +157,26 @@ public class Websocket {
         try (JsonReader jsonReader = Json.createReader(new StringReader(message))) {
             JsonObject object = jsonReader.readObject();
             if ("SignAndUploadBundles".equals(object.getString("type"))) {
-                if (appConfig.isValidateSignRequestBundles() &&
-                        !incomingSignRequestBundlesOK(object)) {
-                    ereLog.info("Validation of incoming SignAndUploadBundles payload failed. " +
-                            "The following SignAndUploadBundles payload will now be dropped:\n" +
-                            message);
-                    return;
+                JsonObject bundlesValidationResultMessage = bundlesValidationResult(object);
+                
+                boolean bundlesValid = true;
+                bundlesValid = bundlesValidationResultMessage.getJsonArray("payload")
+                .stream().filter(jo -> jo instanceof JsonObject)
+                    .map(jo -> ((JsonObject) jo).getBoolean("valid"))
+                    .filter(b -> !b)
+                    .count() == 0;
+                if(bundlesValid || object.getBoolean("ignoreValidation", false)) {
+                    SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(object);
+                    signAndUploadBundlesEvent.fireAsync(event);
+                } else {
+                    sessions.forEach(session -> session.getAsyncRemote().sendObject(
+                        bundlesValidationResultMessage.toString(),
+                        result -> {
+                            if (!result.isOK()) {
+                                ereLog.fatal("Unable to sent bundlesValidationResult event: " + result.getException());
+                            }
+                        }));
                 }
-
-                SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(object);
-                signAndUploadBundlesEvent.fireAsync(event);
             } else if ("XMLBundle".equals(object.getString("type"))) {
                 Bundle[] bundles = XmlPrescriptionProcessor.parseFromString(object.getString("payload"));
                 onFhirBundle(new BundlesEvent(Arrays.asList(bundles)));
@@ -322,38 +337,38 @@ public class Websocket {
         });
     }
 
-    boolean incomingSignRequestBundlesOK(JsonObject bundlePayload) {
+    JsonObject bundlesValidationResult(JsonObject bundlePayload) {
+        JsonObjectBuilder builder = Json.createObjectBuilder();
+        builder.add("type", "BundlesValidationResult");
+        JsonArrayBuilder payload = Json.createArrayBuilder();
         for (JsonValue jsonValue : bundlePayload.getJsonArray("payload")) {
             if (jsonValue instanceof JsonArray) {
                 for (JsonValue singleBundle : (JsonArray) jsonValue) {
+                    JsonObjectBuilder singleBundleResults = Json.createObjectBuilder();
                     ereLog.info("Now validating incoming sign and upload bundle:\n" +
-                            singleBundle.toString());
-
+                    singleBundle.toString());
+                    
                     String bundleJson = singleBundle.toString();
                     List<String> errorsList = new ArrayList<>(1);
 
                     if (!prescriptionBundleValidator.validateResource(bundleJson,
-                            true, errorsList).isSuccessful()) {
-                        ereLog.setLoggingContext(bundleValidationSysLogCtxList)
-                                .setSimpleLogMessage("Bundle validation failure.")
-                                .setBundleJson(bundleJson)
-                                .setLogDetails(errorsList)
-                                .error("Validation for the incoming bundle failed.");
-
-                        ereLog.setLoggingContext(bundleValidationSysLogCtxList)
-                                .error("The following bundle failed validation:\n" +
-                                singleBundle.toString());
-                        return false;
+                    true, errorsList).isSuccessful()) {
+                        JsonArrayBuilder errorsJson = Json.createArrayBuilder();
+                        errorsList.stream().forEach(s -> errorsJson.add(s));
+                        singleBundleResults.add("errors", errorsJson);
+                        singleBundleResults.add("valid", false);
                     } else {
+                        singleBundleResults.add("valid", true);
                         ereLog.info("Validation for the following incoming sign and " +
-                                "upload bundle passed:\n" +
-                                singleBundle.toString());
+                        "upload bundle passed:\n" +
+                        singleBundle.toString());
                     }
+                    payload.add(singleBundleResults);
                 }
             }
         }
-
-        return true;
+        builder.add("payload", payload);
+        return builder.build();
     }
 
     private void startWebappInChrome() {
