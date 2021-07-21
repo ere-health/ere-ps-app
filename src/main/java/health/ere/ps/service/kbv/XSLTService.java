@@ -125,7 +125,8 @@ public class XSLTService {
                 try {
                     return generateHtmlForBundle(bundle);
                 } catch (Exception e) {
-                    exceptionEvent.fireAsync(ex);
+                    exceptionEvent.fireAsync(e);
+                    return "";
                 }
             }).collect(Collectors.toList());
             hTMLBundlesEvent.fireAsync(new HTMLBundlesEvent(htmlBundlesList));
