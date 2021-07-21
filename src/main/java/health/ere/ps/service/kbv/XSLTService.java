@@ -20,10 +20,9 @@ import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.sax.SAXResult;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -50,43 +49,44 @@ public class XSLTService {
 
     @PostConstruct
     public void init() {
-        // Step 4: Setup JAXP using identity transformer
-        TransformerFactory factory = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
-        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
-
-        // with XSLT:
-        String xslPath = "/kbv/ERP_Stylesheet.xslt";
-
-        InputStream inputStream = getClass().getResourceAsStream(xslPath);
-        String systemId = this.getClass().getResource(xslPath).toExternalForm();
-        StreamSource xslt = new StreamSource(inputStream, systemId);
-        xslt.setPublicId(systemId);
-        factory.setErrorListener(new ErrorListener() {
-            private static final String MSG = "Error in XSLT:";
-
-            @Override
-            public void warning(TransformerException exception) {
-                log.warning(MSG + exception);
-
-            }
-
-            @Override
-            public void fatalError(TransformerException exception) {
-                log.severe(MSG + exception);
-
-            }
-
-            @Override
-            public void error(TransformerException exception) {
-                log.severe(MSG + exception);
-            }
-        });
 
         try {
+            // Step 4: Setup JAXP using identity transformer
+            TransformerFactory factory = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
+            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+
+            // with XSLT:
+            String xslPath = "/kbv-xslt/ERP_Stylesheet.xslt";
+
+            InputStream inputStream = getClass().getResourceAsStream(xslPath);
+            String systemId = this.getClass().getResource(xslPath).toExternalForm();
+            StreamSource xslt = new StreamSource(inputStream, systemId);
+            xslt.setPublicId(systemId);
+            factory.setErrorListener(new ErrorListener() {
+                private static final String MSG = "Error in XSLT:";
+
+                @Override
+                public void warning(TransformerException exception) {
+                    log.warning(MSG + exception);
+
+                }
+
+                @Override
+                public void fatalError(TransformerException exception) {
+                    log.severe(MSG + exception);
+
+                }
+
+                @Override
+                public void error(TransformerException exception) {
+                    log.severe(MSG + exception);
+                }
+            });
+
             transformer = factory.newTransformer(xslt);
-        } catch (TransformerConfigurationException e) {
-            log.log(Level.SEVERE, "Could not create transformer", e);
+        } catch (Exception e) {
+            log.log(Level.SEVERE, "Could not init XSLTService", e);
         }
 
     }
@@ -106,7 +106,7 @@ public class XSLTService {
         Source src = new StreamSource(xml);
 
         // Resulting SAX events (the generated FO) must be piped through to FOP
-        Result res = new SAXResult();
+        Result res = new StreamResult(out);
 
         // Step 6: Start XSLT transformation and FOP processing
         transformer.transform(src, res);
@@ -133,7 +133,5 @@ public class XSLTService {
         } catch(Exception ex) {
             exceptionEvent.fireAsync(ex);
         }
-
-        
     }
 }

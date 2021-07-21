@@ -58,7 +58,6 @@ import health.ere.ps.event.AbortTaskStatus;
 import health.ere.ps.event.AbortTasksEvent;
 import health.ere.ps.event.AbortTasksStatusEvent;
 import health.ere.ps.event.BundlesWithAccessCodeEvent;
-import health.ere.ps.event.SignAndUploadBundlesEvent;
 import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.exception.connector.ConnectorCardsException;
 import health.ere.ps.exception.gematik.ERezeptWorkflowException;
@@ -128,7 +127,7 @@ public class ERezeptWorkflowService {
      * This function catches the sign and upload bundle events and does the
      * necessary processing
      */
-    public void onSignAndUploadBundlesEvent(@ObservesAsync SignAndUploadBundlesEvent signAndUploadBundlesEvent) {
+    /*public void onSignAndUploadBundlesEvent(@ObservesAsync SignAndUploadBundlesEvent signAndUploadBundlesEvent) {
         requestNewAccessTokenIfNecessary();
 
         log.info(String.format("Received %d bundles to sign ", signAndUploadBundlesEvent.listOfListOfBundles.size()));
@@ -149,7 +148,7 @@ public class ERezeptWorkflowService {
         log.info(String.format("Firing event to create prescription receipts for %d bundles.",
                 bundleWithAccessCodeOrThrowable.size()));
         bundlesWithAccessCodeEvent.fireAsync(new BundlesWithAccessCodeEvent(bundleWithAccessCodeOrThrowable));
-    }
+    }*/
 
     public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(String bearerToken, List<Bundle> bundles) {
         return createMultipleERezeptsOnPrescriptionServer(bearerToken, bundles, false);

@@ -20,7 +20,6 @@ import health.ere.ps.model.config.UserConfigurations;
 @ApplicationScoped
 public class UserConfigurationService {
 
-
     final Logger log = Logger.getLogger(getClass().getName());
 
     @Inject
