@@ -17,7 +17,7 @@ import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventService;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureService;
-import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortType;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV740;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServiceV755;
 import health.ere.ps.config.UserConfig;
@@ -41,7 +41,7 @@ public class ConnectorServicesProvider {
     private CertificateServicePortType certificateService;
     private EventServicePortType eventServicePortType;
     private AuthSignatureServicePortType authSignatureServicePortType;
-    private SignatureServicePortType signatureServicePortType;
+    private SignatureServicePortTypeV740 signatureServicePortType;
     private SignatureServicePortTypeV755 signatureServicePortTypeV755;
     private ContextType contextType;
 
@@ -112,7 +112,7 @@ public class ConnectorServicesProvider {
     }
 
     private void initializeSignatureServicePortType() {
-        SignatureServicePortType service = new SignatureService(getClass()
+        SignatureServicePortTypeV740 service = new SignatureService(getClass()
                 .getResource("/SignatureService.wsdl")).getSignatureServicePort();
 
         BindingProvider bp = (BindingProvider) service;
@@ -181,7 +181,7 @@ public class ConnectorServicesProvider {
     }
 
     @ProvidedConfig
-    public SignatureServicePortType getSignatureServicePortType() {
+    public SignatureServicePortTypeV740 getSignatureServicePortType() {
         return signatureServicePortType;
     }
 
