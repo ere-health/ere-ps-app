@@ -1,0 +1,138 @@
+package health.ere.ps.service.kbv;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.enterprise.event.ObservesAsync;
+import javax.inject.Inject;
+import javax.xml.XMLConstants;
+import javax.xml.transform.ErrorListener;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXResult;
+import javax.xml.transform.stream.StreamSource;
+
+import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.hl7.fhir.r4.model.Bundle;
+
+import ca.uhn.fhir.context.FhirContext;
+import health.ere.ps.event.HTMLBundlesEvent;
+import health.ere.ps.event.SignAndUploadBundlesEvent;
+
+@ApplicationScoped
+public class XSLTService {
+
+    private static Logger log = Logger.getLogger(XSLTService.class.getName());
+
+    private final FhirContext fhirContext = FhirContext.forR4();
+
+    @Inject
+    Event<Exception> exceptionEvent;
+
+    @Inject
+    Event<HTMLBundlesEvent> hTMLBundlesEvent;
+
+    Transformer transformer;
+
+    @PostConstruct
+    public void init() {
+        // Step 4: Setup JAXP using identity transformer
+        TransformerFactory factory = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
+        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+
+        // with XSLT:
+        String xslPath = "/kbv/ERP_Stylesheet.xslt";
+
+        InputStream inputStream = getClass().getResourceAsStream(xslPath);
+        String systemId = this.getClass().getResource(xslPath).toExternalForm();
+        StreamSource xslt = new StreamSource(inputStream, systemId);
+        xslt.setPublicId(systemId);
+        factory.setErrorListener(new ErrorListener() {
+            private static final String MSG = "Error in XSLT:";
+
+            @Override
+            public void warning(TransformerException exception) {
+                log.warning(MSG + exception);
+
+            }
+
+            @Override
+            public void fatalError(TransformerException exception) {
+                log.severe(MSG + exception);
+
+            }
+
+            @Override
+            public void error(TransformerException exception) {
+                log.severe(MSG + exception);
+            }
+        });
+
+        try {
+            transformer = factory.newTransformer(xslt);
+        } catch (TransformerConfigurationException e) {
+            log.log(Level.SEVERE, "Could not create transformer", e);
+        }
+
+    }
+
+    public String generateHtmlForBundle(Bundle bundle) throws IOException, TransformerException {
+        String xmlString = fhirContext.newXmlParser().encodeResourceToString(bundle);
+        File xml = Files.createTempFile("bundle-", ".xml").toFile();
+        Files.write(xml.toPath(), xmlString.getBytes(StandardCharsets.UTF_8));
+
+        // Step 2: Set up output stream.
+        // Note: Using BufferedOutputStream for performance reasons (helpful with
+        // FileOutputStreams).
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        // Step 5: Setup input and output for XSLT transformation
+        // Setup input stream
+        Source src = new StreamSource(xml);
+
+        // Resulting SAX events (the generated FO) must be piped through to FOP
+        Result res = new SAXResult();
+
+        // Step 6: Start XSLT transformation and FOP processing
+        transformer.transform(src, res);
+
+        return new String(out.toByteArray(), StandardCharsets.UTF_8);
+    }
+
+    public void onSignAndUploadBundlesEvent(@ObservesAsync SignAndUploadBundlesEvent signAndUploadBundlesEvent) {
+
+        log.info(String.format("Received %d bundles to show for signature ", signAndUploadBundlesEvent.listOfListOfBundles.size()));
+        
+        List<String> htmlBundlesList;
+
+        try {
+            htmlBundlesList = signAndUploadBundlesEvent.listOfListOfBundles.stream().flatMap(l -> l.stream()).map(bundle -> {
+                try {
+                    return generateHtmlForBundle(bundle);
+                } catch (Exception e) {
+                    exceptionEvent.fireAsync(ex);
+                }
+            }).collect(Collectors.toList());
+            hTMLBundlesEvent.fireAsync(new HTMLBundlesEvent(htmlBundlesList));
+        } catch(Exception ex) {
+            exceptionEvent.fireAsync(ex);
+        }
+
+        
+    }
+}

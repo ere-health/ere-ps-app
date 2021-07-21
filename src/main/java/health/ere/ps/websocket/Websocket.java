@@ -55,6 +55,7 @@ import health.ere.ps.event.AbortTasksStatusEvent;
 import health.ere.ps.event.BundlesEvent;
 import health.ere.ps.event.ERezeptDocumentsEvent;
 import health.ere.ps.event.EreLogNotificationEvent;
+import health.ere.ps.event.HTMLBundlesEvent;
 import health.ere.ps.event.SaveSettingsEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
 import health.ere.ps.event.erixa.ErixaEvent;
@@ -330,6 +331,20 @@ public class Websocket {
 
             session.getAsyncRemote()
                     .sendObject(outgoingPayload.toString(), result -> {
+                        if (result.getException() != null) {
+                            ereLog.fatal("Unable to send message: " + result.getException());
+                        }
+                    });
+        });
+    }
+
+    
+    public void onHTMLBundlesEvent(@ObservesAsync HTMLBundlesEvent event) {
+        sessions.forEach(session -> {
+        
+            session.getAsyncRemote()
+                    .sendObject("{\"type\": \"HTMLBundles\", \"payload\": " +
+                    jsonbFactory.toJson(event.getBundles()) + "}", result -> {
                         if (result.getException() != null) {
                             ereLog.fatal("Unable to send message: " + result.getException());
                         }
