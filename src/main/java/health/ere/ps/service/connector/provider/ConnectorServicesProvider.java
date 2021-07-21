@@ -16,9 +16,9 @@ import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateServicePortType;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventService;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
-import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureService;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV740;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServiceV740;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServiceV755;
 import health.ere.ps.config.UserConfig;
 import health.ere.ps.config.interceptor.ProvidedConfig;
@@ -112,8 +112,8 @@ public class ConnectorServicesProvider {
     }
 
     private void initializeSignatureServicePortType() {
-        SignatureServicePortTypeV740 service = new SignatureService(getClass()
-                .getResource("/SignatureService.wsdl")).getSignatureServicePort();
+        SignatureServicePortTypeV740 service = new SignatureServiceV740(getClass()
+                .getResource("/SignatureService.wsdl")).getSignatureServicePortV740();
 
         BindingProvider bp = (BindingProvider) service;
         bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
