@@ -1,4 +1,6 @@
 #NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
-#Fri Jul 09 15:21:46 ICT 2021
+#Wed Jul 21 08:51:47 CEST 2021
 api-telematik-service-OPD4.pom>=
 api-telematik-service-OPD4.jar>=
+api-telematik-service-OPD4.pom>project-repo=
+api-telematik-service-OPD4.jar>project-repo=

@@ -1,6 +1,16 @@
 #NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
-#Fri Jul 09 14:42:50 ICT 2021
-https\://repo.maven.apache.org/maven2/.lastUpdated=1625816570791
-file\:///home/xavier/workspace/ere-health/ere-ps-app/project-repo/.error=
+#Wed Jun 23 08:23:43 CEST 2021
+https\://repo1.maven.org/maven2/.error=
+file\:///home/manuel/git/ere-ps-app-rezept/project-repo/.lastUpdated=1623500942004
+file\:///home/manuel/git/ere-ps-app/project-repo/.lastUpdated=1621431769372
+file\:///home/manuel/git/dgc-ps-app/project-repo/.error=
+https\://repo1.maven.org/maven2/.lastUpdated=1624429422631
+file\:///home/manuel/git/ere-ps-app/project-repo/.error=
+https\://repo.maven.apache.org/maven2/.lastUpdated=1621431769841
+file\:///home/manuel/git/dgc-ps-app/project-repo/.lastUpdated=1623684729217
+https\://maven.pkg.github.com/DKE-Data/agrirouter-api-protobuf-definitions/.error=
+https\://maven.pkg.github.com/DKE-Data/agrirouter-api-java/.lastUpdated=1624429423651
 https\://repo.maven.apache.org/maven2/.error=
-file\:///home/xavier/workspace/ere-health/ere-ps-app/project-repo/.lastUpdated=1625816568354
+file\:///home/manuel/git/ere-ps-app-rezept/project-repo/.error=
+https\://maven.pkg.github.com/DKE-Data/agrirouter-api-java/.error=
+https\://maven.pkg.github.com/DKE-Data/agrirouter-api-protobuf-definitions/.lastUpdated=1624429423173
