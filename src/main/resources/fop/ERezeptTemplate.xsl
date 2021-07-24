@@ -192,9 +192,11 @@
                                                     </fo:block>
                                                     <xsl:for-each
                                                             select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Organization/fhir:telecom">
-                                                        <fo:block font-size="10pt" font-weight="bold">
-                                                            <xsl:value-of select="fhir:value/@value"/>
-                                                        </fo:block>
+                                                        <xsl:if test="fhir:system/@value = 'phone' or fhir:system/@value = 'email'">
+                                                            <fo:block font-size="10pt" font-weight="bold">
+                                                                <xsl:value-of select="fhir:value/@value"/>
+                                                            </fo:block>
+                                                        </xsl:if>
                                                     </xsl:for-each>
                                                 </fo:table-cell>
                                                 <fo:table-cell>
@@ -237,7 +239,9 @@
                                     </xsl:for-each>]}
                                 </xsl:attribute>
                                 <barcode:datamatrix>
-                                    <barcode:module-width>1.2mm</barcode:module-width>
+                                    <barcode:module-width>0.5mm</barcode:module-width>
+                                    <barcode:min-symbol-size>90</barcode:min-symbol-size>
+                                    <barcode:max-symbol-size>100</barcode:max-symbol-size>
                                 </barcode:datamatrix>
                             </barcode:barcode>
                         </fo:instream-foreign-object>
@@ -315,11 +319,18 @@
                                                 <xsl:value-of
                                                         select="fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:dosageInstruction/fhir:text/@value"/>
                                             </fo:block>
-                                            <fo:block>
-                                                PZN:
-                                                <xsl:value-of
-                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:coding/fhir:code/@value"/>
-                                            </fo:block>
+                                            <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:coding/fhir:code/@value != 'freitext'">
+                                                <fo:block>
+                                                    <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:coding/fhir:code/@value != 'freitext' or fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:substitution/fhir:allowedBoolean/@value = 'false'">
+                                                        PZN:
+                                                        <xsl:value-of
+                                                            select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:coding/fhir:code/@value"/>
+                                                    </xsl:if>
+                                                    <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:substitution/fhir:allowedBoolean/@value = 'false'">
+                                                        Kein Austausch
+                                                    </xsl:if>
+                                                </fo:block>
+                                            </xsl:if>
                                         </fo:block>
                                     </fo:table-cell>
                                 </fo:table-row>

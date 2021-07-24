@@ -50,9 +50,7 @@ public class GenerateKBVCertificationBundlesServiceTest {
 
     @Test
     public void testPF01() throws IOException, InvalidCanonicalizerException, XMLParserException, CanonicalizationException, ERezeptWorkflowException {
-        
         Bundle bundle = service.PF01();
-        
         boolean generateSignature = true;
         boolean generatePdf = true;
         processBundle("PF01", generateSignature, generatePdf, bundle);
@@ -149,7 +147,13 @@ public class GenerateKBVCertificationBundlesServiceTest {
             // prescriptionBundleValidator.validateResource(bundle, true);
         }
 
-        createPdf("PF08", bundles);
+        List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowables = new ArrayList<>();
+        bundleWithAccessCodeOrThrowables.add(new BundleWithAccessCodeOrThrowable(bundles.get(0), "c573b8da4a6ce5d3fe15adda16f9474ad2a25746e892f959fada4477019eebe5"));
+        bundleWithAccessCodeOrThrowables.add(new BundleWithAccessCodeOrThrowable(bundles.get(1), "bbeaae841cb813f6a8c4b9ed0a49eb91ee6b0fc83adea1f60d8cd3db8250b60e"));
+        bundleWithAccessCodeOrThrowables.add(new BundleWithAccessCodeOrThrowable(bundles.get(2), "f89cdbdc332eaea5bbd0ab9a2d801e579fec0ce1a2856793110bd0be8c214dfe"));
+        ByteArrayOutputStream byteArrayOutputStream = documentService.generateERezeptPdf(bundleWithAccessCodeOrThrowables);
+
+        Files.write(Paths.get("src/test/resources/kbv-zip/Dokumentation/PF08.pdf"), byteArrayOutputStream.toByteArray());
     }
 
     @Test
