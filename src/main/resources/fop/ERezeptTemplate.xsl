@@ -237,7 +237,7 @@
                                     </xsl:for-each>]}
                                 </xsl:attribute>
                                 <barcode:datamatrix>
-                                    <barcode:module-width>0.6mm</barcode:module-width>
+                                    <barcode:module-width>1.2mm</barcode:module-width>
                                 </barcode:datamatrix>
                             </barcode:barcode>
                         </fo:instream-foreign-object>
@@ -281,6 +281,19 @@
                                     </fo:table-cell>
                                     <fo:table-cell>
                                         <fo:block margin-top="3mm">
+                                            <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:extension[@url='https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription']/fhir:extension[@url='Kennzeichen']/fhir:valueBoolean/@value = 'true'">
+                                                <fo:block>
+                                                    Teil <xsl:value-of
+                                                            select="fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:extension[@url='https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription']/fhir:extension[@url='Nummerierung']/fhir:valueRatio/fhir:numerator/fhir:value/@value" />
+                                                    von
+                                                    <xsl:value-of
+                                                            select="fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:extension[@url='https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription']/fhir:extension[@url='Nummerierung']/fhir:valueRatio/fhir:denominator/fhir:value/@value" />
+                                                    ab
+                                                    <xsl:call-template name="formatDate">
+                                                        <xsl:with-param name="date" select="fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:extension[@url='https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription']/fhir:extension[@url='Zeitraum']/fhir:valuePeriod/fhir:start/@value"/>
+                                                    </xsl:call-template>
+                                                </fo:block>
+                                            </xsl:if>
                                             <fo:block font-weight="bold">
                                                 <xsl:value-of
                                                         select="fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:dispenseRequest/fhir:quantity/fhir:value/@value"/>
@@ -294,7 +307,7 @@
                                                             select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:amount/fhir:numerator/fhir:unit/@value"/>
                                                     <xsl:text> / </xsl:text>
                                                     <xsl:value-of
-                                                            select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:amount/fhir:numerator/fhir:value/@value"/>
+                                                            select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:amount/fhir:denominator/fhir:value/@value"/>
                                                     <xsl:text> St</xsl:text>
                                                 </fo:block>
                                             </xsl:if>

@@ -41,3 +41,6 @@ nb-configuration.xml
 #Windows installer generated archive
 /launcher/windows-installer/
 /launcher/target/
+
+# Test generated file
+user.properties

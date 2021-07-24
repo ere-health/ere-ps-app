@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="ISO-8859-15"?>
+<VSD:UC_PersoenlicheVersichertendatenXML CDM_VERSION="5.2.0" xmlns:VSD="http://ws.gematik.de/fa/vsdm/vsd/v5.2">
+	<VSD:Versicherter>
+		<VSD:Versicherten_ID>M310119802</VSD:Versicherten_ID>
+		<VSD:Person>
+			<VSD:Geburtsdatum>20100131</VSD:Geburtsdatum>
+			<VSD:Vorname>Ingrid</VSD:Vorname>
+			<VSD:Nachname>Schimmelpfennig-Hammerschmidt Federmannssohn</VSD:Nachname>
+			<VSD:Geschlecht>W</VSD:Geschlecht>
+			<VSD:Vorsatzwort>von und zu der</VSD:Vorsatzwort>
+			<VSD:Namenszusatz>Erbprinzessin</VSD:Namenszusatz>
+			<VSD:Titel>Dr.</VSD:Titel>
+			<VSD:PostfachAdresse>
+				<VSD:Postleitzahl>10117</VSD:Postleitzahl>
+				<VSD:Ort>Berlin</VSD:Ort>
+				<VSD:Postfach>120264</VSD:Postfach>
+				<VSD:Land>
+					<VSD:Wohnsitzlaendercode>D</VSD:Wohnsitzlaendercode>
+				</VSD:Land>
+			</VSD:PostfachAdresse>
+			<VSD:StrassenAdresse>
+				<VSD:Postleitzahl>60437</VSD:Postleitzahl>
+				<VSD:Ort>Bad Homburg</VSD:Ort>
+				<VSD:Land>
+					<VSD:Wohnsitzlaendercode>D</VSD:Wohnsitzlaendercode>
+				</VSD:Land>
+				<VSD:Strasse>Anneliese- und Georg-von-Groscurth-Plaetzchen</VSD:Strasse>
+				<VSD:Hausnummer>149-C</VSD:Hausnummer>
+				<VSD:Anschriftenzusatz>5. OG - Hinterhof</VSD:Anschriftenzusatz>
+			</VSD:StrassenAdresse>
+		</VSD:Person>
+	</VSD:Versicherter>
+</VSD:UC_PersoenlicheVersichertendatenXML>

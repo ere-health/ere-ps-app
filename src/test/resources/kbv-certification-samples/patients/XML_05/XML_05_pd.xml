@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-15"?>
+<VSD:UC_PersoenlicheVersichertendatenXML CDM_VERSION="5.2.0" xmlns:VSD="http://ws.gematik.de/fa/vsdm/vsd/v5.2"> 
+	<VSD:Versicherter>
+		<VSD:Versicherten_ID>A120778335</VSD:Versicherten_ID>
+		<VSD:Person>
+			<VSD:Geburtsdatum>19780712</VSD:Geburtsdatum>
+			<VSD:Vorname>Brigitte</VSD:Vorname>
+			<VSD:Nachname>Althaus</VSD:Nachname>
+			<VSD:Geschlecht>W</VSD:Geschlecht>
+			<VSD:StrassenAdresse>
+				<VSD:Postleitzahl>10117</VSD:Postleitzahl>
+				<VSD:Ort>Berlin</VSD:Ort>
+				<VSD:Land>
+					<VSD:Wohnsitzlaendercode>D</VSD:Wohnsitzlaendercode>
+				</VSD:Land>
+				<VSD:Strasse>Potsdamer Platz</VSD:Strasse>
+				<VSD:Hausnummer>19</VSD:Hausnummer>
+			</VSD:StrassenAdresse>
+		</VSD:Person>
+	</VSD:Versicherter>
+</VSD:UC_PersoenlicheVersichertendatenXML>

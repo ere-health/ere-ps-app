@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ISO-8859-15"?>
+<VSD:UC_GeschuetzteVersichertendatenXML CDM_VERSION="5.2.0" xmlns:VSD="http://ws.gematik.de/fa/vsdm/vsd/v5.2">
+	<VSD:Zuzahlungsstatus>
+		<VSD:Status>0</VSD:Status>
+	</VSD:Zuzahlungsstatus>
+	<VSD:BesonderePersonengruppe>6</VSD:BesonderePersonengruppe>
+	<VSD:DMP_Kennzeichnung>4</VSD:DMP_Kennzeichnung>
+	<VSD:Selektivvertraege>
+		<VSD:Aerztlich>9</VSD:Aerztlich>
+		<VSD:Zahnaerztlich>9</VSD:Zahnaerztlich>
+	</VSD:Selektivvertraege>
+</VSD:UC_GeschuetzteVersichertendatenXML>

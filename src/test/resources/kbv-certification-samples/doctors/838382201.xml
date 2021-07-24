@@ -1,0 +1,122 @@
+<Bundle xmlns="http://hl7.org/fhir">
+	<!-- Doctor 838382201 -->
+	<id value="c72a098b-6f2d-4b8b-b15c-594ea81ad284" />
+	<type value="document" />
+	<timestamp value="2020-07-22T08:30:00Z"/>	
+    <entry>
+        <fullUrl value="http://pvs.praxis-topp-gluecklich.local/fhir/Practitioner/e00c7c0c-c040-4024-8457-4a63cbe1c14a" />
+        <resource>
+            <Practitioner xmlns="http://hl7.org/fhir">
+                <id value="e00c7c0c-c040-4024-8457-4a63cbe1c14a" />
+                <meta>
+                    <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner|1.0.3" />
+                </meta>
+                <identifier>
+                    <type>
+                        <coding>
+                            <system value="http://terminology.hl7.org/CodeSystem/v2-0203" />
+                            <code value="LANR" />
+                        </coding>
+                    </type>	
+                    <system value="https://fhir.kbv.de/NamingSystem/KBV_NS_Base_ANR" />
+                    <value value="838382201" />
+                </identifier>
+                <name>
+                    <use value="official" />
+                    <family value="More">
+                        <extension url="http://hl7.org/fhir/StructureDefinition/humanname-own-name">
+                            <valueString value="More" />
+                        </extension>
+                    </family>
+                    <given value="Annie" />
+                    <prefix value="Dr.">
+                        <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier">
+                            <valueCode value="AC" />
+                        </extension>
+                    </prefix>
+                </name>
+                <qualification>
+                    <code>
+                        <coding>
+                            <system value="https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_Qualification_Type" />
+                            <code value="00" />
+                        </coding>
+                    </code>
+                </qualification>
+                <qualification>
+                    <code>
+                        <text value="Fachärztin für Allgemeinmedizin" />
+                    </code>
+                </qualification>
+            </Practitioner>
+        </resource>
+    </entry>
+    <entry>
+        <fullUrl value="http://pvs.praxis-topp-gluecklich.local/fhir/Organization/fdb746bc-5e5f-46a7-bd0a-0a09b51918f8" />
+        <resource>
+            <Organization xmlns="http://hl7.org/fhir">
+                <id value="fdb746bc-5e5f-46a7-bd0a-0a09b51918f8" />
+                <meta>
+                    <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Organization|1.0.3" />
+                </meta>
+                <identifier>
+                    <type>
+                        <coding>
+                            <system value="http://terminology.hl7.org/CodeSystem/v2-0203" />
+                            <code value="BSNR" />
+                        </coding>
+                    </type>	
+                    <system value="https://fhir.kbv.de/NamingSystem/KBV_NS_Base_BSNR" />
+                    <value value="241234601" />
+                </identifier>
+                <name value="Praxis Annie More" />
+                <telecom>
+                    <system value="phone" />
+                    <value value="0211 / 1111111" />
+                </telecom>
+                <telecom>
+                    <system value="fax" />
+                    <value value="0211 / 2222222" />
+                </telecom>
+                <telecom>
+                    <system value="email" />
+                    <value value="AM@Testpraxis.de" />
+                </telecom>
+                <address>
+                    <type value="both" />
+                    <line value="Musterstr. 1">
+                        <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber">
+                            <valueString value="1" />
+                        </extension>
+                        <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName">
+                            <valueString value="Musterstr." />
+                        </extension>
+                    </line>
+                    <city value="Düsseldorf" />
+                    <postalCode value="40474" />
+                    <country value="D" />
+                </address>
+            </Organization>
+        </resource>
+    </entry>
+    <entry>
+        <fullUrl value="http://pvs.praxis-topp-gluecklich.local/fhir/PractitionerRole/9a4090f8-8c5a-11ea-bc55-0242ac13000" />
+        <resource>
+            <PractitionerRole xmlns="http://hl7.org/fhir">
+                <id value="9a4090f8-8c5a-11ea-bc55-0242ac13000" />
+                <meta>
+                    <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_PractitionerRole|1.0.3" />
+                </meta>
+                <practitioner>
+                    <reference value="Practitioner/e00c7c0c-c040-4024-8457-4a63cbe1c14a" />
+                </practitioner>
+                <organization>
+                    <identifier>
+                        <system value="http://fhir.de/NamingSystem/asv/teamnummer" />
+                        <value value="001234566" />
+                    </identifier>
+                </organization>
+            </PractitionerRole>
+        </resource>
+    </entry>
+</Bundle>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="ISO-8859-15"?>
+<VSD:UC_AllgemeineVersicherungsdatenXML CDM_VERSION="5.2.0" xmlns:VSD="http://ws.gematik.de/fa/vsdm/vsd/v5.2"> 
+	<VSD:Versicherter>
+		<VSD:Versicherungsschutz>
+			<VSD:Beginn>20120401</VSD:Beginn>
+			<VSD:Ende>20400401</VSD:Ende>
+			<VSD:Kostentraeger>
+				<VSD:Kostentraegerkennung>104201158</VSD:Kostentraegerkennung>
+				<VSD:Kostentraegerlaendercode>D</VSD:Kostentraegerlaendercode>
+				<VSD:Name>IKK Nordrhein RD D�sseldorf und Neuss</VSD:Name>
+				<VSD:AbrechnenderKostentraeger>
+					<VSD:Kostentraegerkennung>103500693</VSD:Kostentraegerkennung>
+					<VSD:Kostentraegerlaendercode>D</VSD:Kostentraegerlaendercode>
+					<VSD:Name>IKK classic/BVG</VSD:Name>
+				</VSD:AbrechnenderKostentraeger>
+			</VSD:Kostentraeger>
+		</VSD:Versicherungsschutz>
+		<VSD:Zusatzinfos>
+			<VSD:ZusatzinfosGKV>
+				<VSD:Versichertenart>1</VSD:Versichertenart>
+				<VSD:Zusatzinfos_Abrechnung_GKV>
+					<VSD:Kostenerstattung>
+						<VSD:AerztlicheVersorgung>1</VSD:AerztlicheVersorgung>
+						<VSD:ZahnaerztlicheVersorgung>0</VSD:ZahnaerztlicheVersorgung>
+						<VSD:StationaererBereich>0</VSD:StationaererBereich>
+						<VSD:VeranlassteLeistungen>0</VSD:VeranlassteLeistungen>
+					</VSD:Kostenerstattung>
+					<VSD:WOP>83</VSD:WOP>
+				</VSD:Zusatzinfos_Abrechnung_GKV>
+			</VSD:ZusatzinfosGKV>
+		</VSD:Zusatzinfos>
+	</VSD:Versicherter>
+</VSD:UC_AllgemeineVersicherungsdatenXML>

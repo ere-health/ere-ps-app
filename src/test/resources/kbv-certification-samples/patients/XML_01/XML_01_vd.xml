@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-15"?>
+<VSD:UC_AllgemeineVersicherungsdatenXML CDM_VERSION="5.2.0" xmlns:VSD="http://ws.gematik.de/fa/vsdm/vsd/v5.2"> 
+	<VSD:Versicherter>
+		<VSD:Versicherungsschutz>
+			<VSD:Beginn>20110101</VSD:Beginn>
+			<VSD:Kostentraeger>
+				<VSD:Kostentraegerkennung>104212059</VSD:Kostentraegerkennung>
+				<VSD:Kostentraegerlaendercode>D</VSD:Kostentraegerlaendercode>
+				<VSD:Name>AOK Rheinland/Hamburg</VSD:Name>
+			</VSD:Kostentraeger>
+		</VSD:Versicherungsschutz>
+		<VSD:Zusatzinfos>
+			<VSD:ZusatzinfosGKV>
+				<VSD:Versichertenart>1</VSD:Versichertenart>
+				<VSD:Zusatzinfos_Abrechnung_GKV>
+					<VSD:WOP>38</VSD:WOP>
+				</VSD:Zusatzinfos_Abrechnung_GKV>
+			</VSD:ZusatzinfosGKV>
+		</VSD:Zusatzinfos>
+	</VSD:Versicherter>
+</VSD:UC_AllgemeineVersicherungsdatenXML>

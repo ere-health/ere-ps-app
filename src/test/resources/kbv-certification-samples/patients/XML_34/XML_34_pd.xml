@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ISO-8859-15"?>
+<VSD:UC_PersoenlicheVersichertendatenXML CDM_VERSION="5.2.0" xmlns:VSD="http://ws.gematik.de/fa/vsdm/vsd/v5.2">
+	<VSD:Versicherter>
+		<VSD:Versicherten_ID>W230574661</VSD:Versicherten_ID>
+		<VSD:Person>
+			<VSD:Geburtsdatum>19740523</VSD:Geburtsdatum>
+			<VSD:Vorname>Viktor</VSD:Vorname>
+			<VSD:Nachname>Werner</VSD:Nachname>
+			<VSD:Geschlecht>M</VSD:Geschlecht>
+			<VSD:Vorsatzwort>in't</VSD:Vorsatzwort>
+			<VSD:Namenszusatz>Frhr. Gr</VSD:Namenszusatz>
+			<VSD:StrassenAdresse>
+				<VSD:Postleitzahl>14469</VSD:Postleitzahl>
+				<VSD:Ort>Potsdam</VSD:Ort>
+				<VSD:Land>
+					<VSD:Wohnsitzlaendercode>D</VSD:Wohnsitzlaendercode>
+				</VSD:Land>
+				<VSD:Strasse>Hauptstraße</VSD:Strasse>
+				<VSD:Hausnummer>123456789</VSD:Hausnummer>
+				<VSD:Anschriftenzusatz>Hinterhof</VSD:Anschriftenzusatz>
+			</VSD:StrassenAdresse>
+		</VSD:Person>
+	</VSD:Versicherter>
+</VSD:UC_PersoenlicheVersichertendatenXML>

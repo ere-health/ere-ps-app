@@ -139,7 +139,7 @@
         <dependency>
             <groupId>health.ere</groupId>
             <artifactId>api-telematik-service</artifactId>
-            <version>OPD4</version>
+            <version>OPD4-20210722</version>
         </dependency>
         <dependency>
             <groupId>org.jboss.slf4j</groupId>

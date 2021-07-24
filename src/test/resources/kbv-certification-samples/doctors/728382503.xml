@@ -1,0 +1,60 @@
+<Bundle xmlns="http://hl7.org/fhir">
+	<!-- Doctor 838382201 -->
+	<id value="c72a098b-6f2d-4b8b-b15c-594ea81ad284" />
+	<type value="document" />
+	<timestamp value="2020-07-22T08:30:00Z"/>	
+    <entry>
+        <fullUrl value="http://pvs.praxis-topp-gluecklich.local/fhir/Practitioner/ee28aeea-5ae0-476e-9a33-e3047ee0933b" />
+        <resource>
+            <Practitioner xmlns="http://hl7.org/fhir">
+                <id value="ee28aeea-5ae0-476e-9a33-e3047ee0933b" />
+                <meta>
+                    <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner|1.0.3" />
+                </meta>
+                <identifier>
+                    <type>
+                        <coding>
+                            <system value="http://terminology.hl7.org/CodeSystem/v2-0203" />
+                            <code value="LANR" />
+                        </coding>
+                    </type>	
+                    <system value="https://fhir.kbv.de/NamingSystem/KBV_NS_Base_ANR" />
+                    <value value="728382503" />
+                </identifier>
+                <name>
+                    <use value="official" />
+                    <family value="Graf von More">
+                        <extension url="http://fhir.de/StructureDefinition/humanname-namenszusatz">
+                            <valueString value="Graf" />
+                        </extension>
+                        <extension url="http://hl7.org/fhir/StructureDefinition/humanname-own-prefix">
+                          <valueString value="von" />
+                        </extension>
+                        <extension url="http://hl7.org/fhir/StructureDefinition/humanname-own-name">
+                            <valueString value="More" />
+                        </extension>
+                    </family>
+                    <given value="Klaus" />
+                    <prefix value="Dr.">
+                        <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier">
+                            <valueCode value="AC" />
+                        </extension>
+                    </prefix>
+                </name>
+                <qualification>
+                    <code>
+                        <coding>
+                            <system value="https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_Qualification_Type" />
+                            <code value="04" />
+                        </coding>
+                    </code>
+                </qualification>
+                <qualification>
+                    <code>
+                        <text value="Arzt" />
+                    </code>
+                </qualification>
+            </Practitioner>
+        </resource>
+    </entry>
+</Bundle>

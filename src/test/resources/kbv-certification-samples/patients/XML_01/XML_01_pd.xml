@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ISO-8859-15"?>
+<VSD:UC_PersoenlicheVersichertendatenXML CDM_VERSION="5.2.0" xmlns:VSD="http://ws.gematik.de/fa/vsdm/vsd/v5.2"> 
+	<VSD:Versicherter>
+		<VSD:Versicherten_ID>S040464113</VSD:Versicherten_ID>
+		<VSD:Person>
+			<VSD:Geburtsdatum>19640404</VSD:Geburtsdatum>
+			<VSD:Vorname>Karl-Friederich</VSD:Vorname>
+			<VSD:Nachname>Schaumberg</VSD:Nachname>
+			<VSD:Geschlecht>M</VSD:Geschlecht>
+			<VSD:Vorsatzwort>von</VSD:Vorsatzwort>
+			<VSD:Namenszusatz>Graf Freiherr</VSD:Namenszusatz>
+			<VSD:Titel>Prof. Dr.</VSD:Titel>
+			<VSD:StrassenAdresse>
+				<VSD:Postleitzahl>51105</VSD:Postleitzahl>
+				<VSD:Ort>Köln</VSD:Ort>
+				<VSD:Land>
+					<VSD:Wohnsitzlaendercode>D</VSD:Wohnsitzlaendercode>
+				</VSD:Land>
+				<VSD:Strasse>Siegburger Str.</VSD:Strasse>
+				<VSD:Hausnummer>155</VSD:Hausnummer>
+			</VSD:StrassenAdresse>
+		</VSD:Person>
+	</VSD:Versicherter>
+</VSD:UC_PersoenlicheVersichertendatenXML>

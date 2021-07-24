@@ -74,7 +74,7 @@ public class ERezeptWorkflowService {
 
     private static final String EREZEPT_IDENTIFIER_SYSTEM = "https://gematik.de/fhir/NamingSystem/PrescriptionID";
     private static final Logger log = Logger.getLogger(ERezeptWorkflowService.class.getName());
-    private final FhirContext fhirContext = FhirContext.forR4();
+    private static final FhirContext fhirContext = FhirContext.forR4();
 
     static {
         org.apache.xml.security.Init.init();
@@ -84,6 +84,7 @@ public class ERezeptWorkflowService {
     AppConfig appConfig;
     @Inject
     UserConfig userConfig;
+
     @Inject
     ConnectorServicesProvider connectorServicesProvider;
     @Inject
@@ -272,16 +273,7 @@ public class ERezeptWorkflowService {
         List<SignResponse> signResponse = null;
 
         try {
-            String bundleXml = fhirContext.newXmlParser().encodeResourceToString(bundle);
-
-            log.fine(bundleXml);
-
-            Canonicalizer canon = Canonicalizer.getInstance(Canonicalizer.ALGO_ID_C14N11_OMIT_COMMENTS);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            canon.canonicalize(bundleXml.getBytes(), baos, false);
-            byte[] canonXmlBytes = baos.toByteArray();
-
-            log.fine("Canonical: " + new String(canonXmlBytes));
+            byte[] canonXmlBytes = getCanonicalXmlBytes(bundle);
 
             SignRequest signRequest = new SignRequest();
             DocumentType document = new DocumentType();
@@ -332,6 +324,7 @@ public class ERezeptWorkflowService {
                 SignResponse signResponse744 = new SignResponse();
                 signResponse744.setSignatureObject(signResponseV755.getSignatureObject());
                 signResponse744.setStatus(signResponseV755.getStatus());
+
                 return signResponse744;
                 // PTV4, could be PTV3 as well, to be refactored in a future task
             } else {
@@ -345,6 +338,22 @@ public class ERezeptWorkflowService {
         }
 
         return signResponse.get(0);
+    }
+
+    public static byte[] getCanonicalXmlBytes(Bundle bundle)
+            throws InvalidCanonicalizerException, XMLParserException, IOException, CanonicalizationException {
+        String bundleXml = fhirContext.newXmlParser().encodeResourceToString(bundle);
+
+        log.fine(bundleXml);
+
+        Canonicalizer canon = Canonicalizer.getInstance(Canonicalizer.ALGO_ID_C14N11_OMIT_COMMENTS);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        canon.canonicalize(bundleXml.getBytes(), baos, false);
+        byte[] canonXmlBytes = baos.toByteArray();
+
+        String canonicalByteString = new String(canonXmlBytes);
+        log.fine("Canonical: " + canonicalByteString);
+        return canonXmlBytes;
     }
 
     /**
@@ -405,10 +414,14 @@ public class ERezeptWorkflowService {
         log.info("Task $abort Response: " + taskString);
     }
     
-    void requestNewAccessTokenIfNecessary() {
+    public void requestNewAccessTokenIfNecessary() {
         if (StringUtils.isEmpty(bearerToken) || isExpired(bearerToken)) {
             bearerToken = bearerTokenService.requestBearerToken();
         }
+    }
+
+    public String getBearerToken() {
+        return bearerToken;
     }
     
     boolean isExpired(String bearerToken2) {

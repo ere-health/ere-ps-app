@@ -114,24 +114,60 @@ public class Websocket {
         ereLog.info("Websocket opened");
     }
 
-    void sendAllKBVExamples() {
+    void sendAllKBVExamples(String folder) {
         sessions.forEach(session -> {
+            if(folder.equals("../src/test/resources/kbv-zip")) {
+                Bundle bundle = ctx.newXmlParser().parseResource(Bundle.class, folder+"/PF01.xml");
+                bundle.setId(UUID.randomUUID().toString());
+                onFhirBundle(new BundlesEvent(Collections.singletonList(bundle)));
 
-            try (Stream<Path> paths = Files.walk(Paths.get("../src/test/resources/simplifier_erezept"))) {
-                paths
-                        .filter(Files::isRegularFile)
-                        .forEach(f -> {
-                            try (InputStream inputStream = new FileInputStream(f.toFile())) {
-                                String xml = new String(inputStream.readAllBytes(), "UTF-8").replaceAll("<!--.*-->", "");
-                                Bundle bundle = ctx.newXmlParser().parseResource(Bundle.class, xml);
-                                bundle.setId(UUID.randomUUID().toString());
-                                onFhirBundle(new BundlesEvent(Collections.singletonList(bundle)));
-                            } catch (IOException ex) {
-                                ereLog.warn("Could read all files", ex);
-                            }
-                        });
-            } catch (IOException ex) {
-                ereLog.warn("Could read all files", ex);
+                bundle = ctx.newXmlParser().parseResource(Bundle.class, folder+"/PF02.xml");
+                bundle.setId(UUID.randomUUID().toString());
+                onFhirBundle(new BundlesEvent(Collections.singletonList(bundle)));
+
+                Bundle bundle03 = ctx.newXmlParser().parseResource(Bundle.class, folder+"/PF03.xml");
+                bundle03.setId(UUID.randomUUID().toString());
+
+                Bundle bundle04 = ctx.newXmlParser().parseResource(Bundle.class, folder+"/PF04.xml");
+                bundle04.setId(UUID.randomUUID().toString());
+
+                Bundle bundle05 = ctx.newXmlParser().parseResource(Bundle.class, folder+"/PF05.xml");
+                bundle05.setId(UUID.randomUUID().toString());
+
+                onFhirBundle(new BundlesEvent(Arrays.asList(bundle03, bundle04, bundle05)));
+
+                bundle = ctx.newXmlParser().parseResource(Bundle.class, folder+"/PF07.xml");
+                bundle.setId(UUID.randomUUID().toString());
+                onFhirBundle(new BundlesEvent(Collections.singletonList(bundle)));
+
+                Bundle bundle08_1 = ctx.newXmlParser().parseResource(Bundle.class, folder+"/PF08_1.xml");
+                bundle08_1.setId(UUID.randomUUID().toString());
+
+                Bundle bundle08_2 = ctx.newXmlParser().parseResource(Bundle.class, folder+"/PF08_2.xml");
+                bundle08_2.setId(UUID.randomUUID().toString());
+
+                Bundle bundle08_3 = ctx.newXmlParser().parseResource(Bundle.class, folder+"/PF08_3.xml");
+                bundle08_3.setId(UUID.randomUUID().toString());
+
+                onFhirBundle(new BundlesEvent(Arrays.asList(bundle08_1, bundle08_2, bundle08_3)));
+
+            } else {
+                try (Stream<Path> paths = Files.walk(Paths.get(folder))) {
+                    paths
+                            .filter(Files::isRegularFile)
+                            .forEach(f -> {
+                                try (InputStream inputStream = new FileInputStream(f.toFile())) {
+                                    String xml = new String(inputStream.readAllBytes(), "UTF-8").replaceAll("<!--.*-->", "");
+                                    Bundle bundle = ctx.newXmlParser().parseResource(Bundle.class, xml);
+                                    bundle.setId(UUID.randomUUID().toString());
+                                    onFhirBundle(new BundlesEvent(Collections.singletonList(bundle)));
+                                } catch (IOException ex) {
+                                    ereLog.warn("Could read all files", ex);
+                                }
+                            });
+                } catch (IOException ex) {
+                    ereLog.warn("Could read all files", ex);
+                }
             }
         });
     }
@@ -209,7 +245,7 @@ public class Websocket {
                             }
                         }));
             } else if ("AllKBVExamples".equals(object.getString("type"))) {
-                sendAllKBVExamples();
+                sendAllKBVExamples(object.getString("folder", "../src/test/resources/simplifier_erezept"));
             }
         }
     }
