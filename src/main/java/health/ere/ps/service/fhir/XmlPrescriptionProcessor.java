@@ -100,6 +100,13 @@ public class XmlPrescriptionProcessor {
 
         // Error while decoding XML: Missing Field (id=value, path=/Bundle/entry/resource/Patient/identifier)!
         Patient patient = getTypeFromBundle(Patient.class, bundle);
+
+        // Remove first name from family name
+        try {
+            patient.getName().get(0).setFamily(patient.getName().get(0).getFamily().replace(patient.getName().get(0).getGiven().get(0).getValue()+" ", ""));
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
         // Next issue WARNING - Bundle.entry[1].resource.ofType(MedicationRequest).subject - URN reference ist nicht lokal innerhalb des Bundles contained urn:uuid:91c0f8d8-8af1-467f-8d09-0c8a406b0127
         medicationRequest.getSubject().setReference("Patient/"+patient.getIdElement().getIdPart());
 

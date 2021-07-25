@@ -348,7 +348,7 @@ public class ERezeptWorkflowService {
 
         Canonicalizer canon = Canonicalizer.getInstance(Canonicalizer.ALGO_ID_C14N11_OMIT_COMMENTS);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        canon.canonicalize(bundleXml.getBytes(), baos, false);
+        canon.canonicalize(bundleXml.getBytes("UTF-8"), baos, false);
         byte[] canonXmlBytes = baos.toByteArray();
 
         String canonicalByteString = new String(canonXmlBytes);
