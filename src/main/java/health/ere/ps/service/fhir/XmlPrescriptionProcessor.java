@@ -1,15 +1,32 @@
 package health.ere.ps.service.fhir;
 
-import ca.uhn.fhir.context.FhirContext;
-import org.hl7.fhir.r4.model.*;
-import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
-import org.hl7.fhir.r4.model.Practitioner.PractitionerQualificationComponent;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
+import org.hl7.fhir.r4.model.CodeType;
+import org.hl7.fhir.r4.model.CodeableConcept;
+import org.hl7.fhir.r4.model.Coding;
+import org.hl7.fhir.r4.model.Composition;
+import org.hl7.fhir.r4.model.Coverage;
+import org.hl7.fhir.r4.model.Extension;
+import org.hl7.fhir.r4.model.Medication;
+import org.hl7.fhir.r4.model.MedicationRequest;
+import org.hl7.fhir.r4.model.Patient;
+import org.hl7.fhir.r4.model.Practitioner;
+import org.hl7.fhir.r4.model.Practitioner.PractitionerQualificationComponent;
+import org.hl7.fhir.r4.model.Quantity;
+
+import ca.uhn.fhir.context.FhirContext;
 
 public class XmlPrescriptionProcessor {
     // Get <Bundle> tag including content
@@ -39,7 +56,7 @@ public class XmlPrescriptionProcessor {
         fixFullUrls(bundle);
         fixRefencesInComposition(bundle);
 
-        // INFO:  Next issue ERROR - Bundle.entry[1].resource.ofType(MedicationRequest).dispenseRequest - MedicationRequest.dispenseRequest.quantity: minimum required = 1, but only found 0 (from https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.0.1)
+        // Next issue ERROR - Bundle.entry[1].resource.ofType(MedicationRequest).dispenseRequest - MedicationRequest.dispenseRequest.quantity: minimum required = 1, but only found 0 (from https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.0.1)
 
         MedicationRequest medicationRequest = getTypeFromBundle(MedicationRequest.class, bundle);
 
@@ -51,19 +68,26 @@ public class XmlPrescriptionProcessor {
             medicationRequest.getDispenseRequest().setQuantity(quantity);
         }
 
-        // INFO:  Next issue ERROR - Bundle.entry[2].resource.ofType(Medication) - -erp-NormgroesseOderMenge: 'Packungsgröße oder Normgröße müssen mindestens angegeben sein' Rule 'Packungsgröße oder Normgröße müssen mindestens angegeben sein' Failed
+        // Next issue ERROR - Bundle.entry[2].resource.ofType(Medication) - -erp-NormgroesseOderMenge: 'Packungsgröße oder Normgröße müssen mindestens angegeben sein' Rule 'Packungsgröße oder Normgröße müssen mindestens angegeben sein' Failed
 
         Medication medication = getTypeFromBundle(Medication.class, bundle);
+
+        // Next issue WARNING - Bundle.entry[1].resource.ofType(MedicationRequest).medication.ofType(Reference) - URN reference ist nicht lokal innerhalb des Bundles contained urn:uuid:79804138-e125-4a76-87e7-5ebad33d4a70
+        medicationRequest.getMedicationReference().setReference("Medication/"+medication.getIdElement().getIdPart());
+        
 
         if (medication.getExtensionByUrl("http://fhir.de/StructureDefinition/normgroesse") == null) {
             Extension normgroesse = new Extension("http://fhir.de/StructureDefinition/normgroesse", new CodeType("N1"));
             medication.addExtension(normgroesse);
         }
 
-        // INFO:  Next issue ERROR - Bundle.entry[4].resource.ofType(Practitioner) - Practitioner.qualification: minimum required = 2, but only found 1 (from https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner|1.0.3)
-        // INFO:  Next issue ERROR - Bundle.entry[4].resource.ofType(Practitioner) - Practitioner.qualification:Berufsbezeichnung: minimum required = 1, but only found 0 (from https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner|1.0.3)
+        // Next issue ERROR - Bundle.entry[4].resource.ofType(Practitioner) - Practitioner.qualification: minimum required = 2, but only found 1 (from https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner|1.0.3)
+        // Next issue ERROR - Bundle.entry[4].resource.ofType(Practitioner) - Practitioner.qualification:Berufsbezeichnung: minimum required = 1, but only found 0 (from https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner|1.0.3)
 
         Practitioner practitioner = getTypeFromBundle(Practitioner.class, bundle);
+
+        // Next issue WARNING - Bundle.entry[1].resource.ofType(MedicationRequest).requester - URN reference ist nicht lokal innerhalb des Bundles contained urn:uuid:7d8c6815-896d-45f7-a264-007bfe54623e
+        medicationRequest.getRequester().setReference("Practitioner/"+practitioner.getIdElement().getIdPart());
 
         if (practitioner.getQualification().size() == 1) {
             PractitionerQualificationComponent qualification = new PractitionerQualificationComponent();
@@ -76,10 +100,16 @@ public class XmlPrescriptionProcessor {
 
         // Error while decoding XML: Missing Field (id=value, path=/Bundle/entry/resource/Patient/identifier)!
         Patient patient = getTypeFromBundle(Patient.class, bundle);
+        // Next issue WARNING - Bundle.entry[1].resource.ofType(MedicationRequest).subject - URN reference ist nicht lokal innerhalb des Bundles contained urn:uuid:91c0f8d8-8af1-467f-8d09-0c8a406b0127
+        medicationRequest.getSubject().setReference("Patient/"+patient.getIdElement().getIdPart());
 
         if (patient.getIdentifier().size() > 0 && !patient.getIdentifier().get(0).hasValue()) {
             patient.getIdentifier().get(0).setValue("X999999999");
         }
+
+        // Next issue WARNING - Bundle.entry[6].resource.ofType(Coverage).beneficiary - URN reference ist nicht lokal innerhalb des Bundles contained urn:uuid:91c0f8d8-8af1-467f-8d09-0c8a406b0127
+        Coverage coverage = getTypeFromBundle(Coverage.class, bundle);
+        coverage.getBeneficiary().setReference("Patient/"+patient.getIdElement().getIdPart());
 
 
         // addComposition(bundle);
@@ -95,6 +125,7 @@ public class XmlPrescriptionProcessor {
         String practitionerId = getIdFor(bundle, "Practitioner");
         String organizationId = getIdFor(bundle, "Organization");
         String medicationRequestId = getIdFor(bundle, "MedicationRequest");
+        // String medicationId = getIdFor(bundle, "Medication");
         String coverageId = getIdFor(bundle, "Coverage");
 
         Composition composition = (Composition) bundle.getEntry().stream().findFirst().get().getResource();
