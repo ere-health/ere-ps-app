@@ -23,6 +23,7 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
+import java.security.cert.X509Certificate;
 import javax.xml.stream.XMLStreamException;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -36,15 +37,27 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.DataFormatException;
 import ca.uhn.fhir.parser.IParser;
 import de.gematik.ws.conn.signatureservice.v7.SignResponse;
+import health.ere.ps.config.AppConfig;
+import health.ere.ps.exception.connector.ConnectorCardCertificateReadException;
+import health.ere.ps.exception.connector.ConnectorCardsException;
 import health.ere.ps.exception.gematik.ERezeptWorkflowException;
+import health.ere.ps.exception.idp.IdpClientException;
+import health.ere.ps.exception.idp.IdpException;
+import health.ere.ps.exception.idp.IdpJoseException;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
+import health.ere.ps.model.idp.client.IdpTokenResult;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
+import health.ere.ps.profile.RUTestProfile;
 import health.ere.ps.profile.TitusTestProfile;
+import health.ere.ps.service.connector.cards.ConnectorCardsService;
+import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
 import health.ere.ps.service.extractor.SVGExtractor;
 import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
 import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilder;
 import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilderTest;
+import health.ere.ps.service.idp.client.IdpClient;
+import health.ere.ps.service.idp.client.IdpHttpClientService;
 import health.ere.ps.service.muster16.Muster16FormDataExtractorService;
 import health.ere.ps.service.muster16.parser.Muster16SvgExtractorParser;
 import health.ere.ps.service.pdf.DocumentService;
@@ -52,15 +65,28 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 
 @QuarkusTest
-@TestProfile(TitusTestProfile.class)
+@TestProfile(RUTestProfile.class)
 public class ERezeptWorkflowServiceTest {
 
     private static final Logger log = Logger.getLogger(ERezeptWorkflowServiceTest.class.getName());
     private final IParser iParser = FhirContext.forR4().newXmlParser();
-    private final String testBearerToken = "eyJhbGciOiJCUDI1NlIxIiwidHlwIjoiYXQrSldUIiwia2lkIjoicHVrX2lkcF9zaWcifQ.eyJzdWIiOiJNU1lXUGYxVlJfaXdlNzFGQVBMVzJJY0YwemNlQTVqa0x2V1piWFlmSms0IiwicHJvZmVzc2lvbk9JRCI6IjEuMi4yNzYuMC43Ni40LjUwIiwib3JnYW5pemF0aW9uTmFtZSI6IjIwMjExMDEyMiBOT1QtVkFMSUQiLCJpZE51bW1lciI6IjEtMi1BUlpULVdhbHRyYXV0RHJvbWJ1c2NoMDEiLCJhbXIiOlsibWZhIiwic2MiLCJwaW4iXSwiaXNzIjoiaHR0cHM6Ly9pZHAuZXJlemVwdC1pbnN0YW56MS50aXR1cy50aS1kaWVuc3RlLmRlIiwiZ2l2ZW5fbmFtZSI6IldhbHRyYXV0IiwiY2xpZW50X2lkIjoiZ2VtYXRpa1Rlc3RQcyIsImFjciI6ImdlbWF0aWstZWhlYWx0aC1sb2EtaGlnaCIsImF1ZCI6Imh0dHBzOi8vZXJwLXRlc3QuemVudHJhbC5lcnAuc3BsaXRkbnMudGktZGllbnN0ZS5kZS8iLCJhenAiOiJnZW1hdGlrVGVzdFBzIiwic2NvcGUiOiJvcGVuaWQgZS1yZXplcHQiLCJhdXRoX3RpbWUiOjE2MjU1MjA2ODMsImV4cCI6MTYyNTUyMDk4MywiZmFtaWx5X25hbWUiOiJEcm9tYnVzY2giLCJpYXQiOjE2MjU1MjA2ODMsImp0aSI6ImI4MmMyMzgxYjQ1MTFjZGEifQ.K4qiZS6oSEe5izDiaIN-rBjcXzJM_y6HYUOpIEUKK-9evxEXco8BB4RJhfkagQJKwCgi11pctShMOs5seN1mOw";
+    private String testBearerToken = "eyJhbGciOiJCUDI1NlIxIiwia2lkIjoicHVrX2lkcF9zaWciLCJ0eXAiOiJhdCtKV1QifQ.eyJhdXRoX3RpbWUiOjE2MjY4ODEzNDgsInNjb3BlIjoib3BlbmlkIGUtcmV6ZXB0IiwiY2xpZW50X2lkIjoiR0VNSW5jZW5lcmVTdWQxUEVyVVIiLCJnaXZlbl9uYW1lIjpudWxsLCJmYW1pbHlfbmFtZSI6bnVsbCwib3JnYW5pemF0aW9uTmFtZSI6bnVsbCwicHJvZmVzc2lvbk9JRCI6IjEuMi4yNzYuMC43Ni40LjUzIiwiaWROdW1tZXIiOiI1LVNNQy1CLVRlc3RrYXJ0ZS04ODMxMTAwMDAxMTgwMDEiLCJhenAiOiJHRU1JbmNlbmVyZVN1ZDFQRXJVUiIsImFjciI6ImdlbWF0aWstZWhlYWx0aC1sb2EtaGlnaCIsImFtciI6WyJtZmEiLCJzYyIsInBpbiJdLCJhdWQiOiJodHRwczovL2VycC1yZWYuemVudHJhbC5lcnAuc3BsaXRkbnMudGktZGllbnN0ZS5kZS8iLCJzdWIiOiJkZmFkNzJhZGUxY2NjMGNlYzYwZjkwODE2MDMyMmVhOGE5NTUyNGY5OGQ5MmUxNmIxZWZmZWMzNzczMDcyZTFlIiwiaXNzIjoiaHR0cHM6Ly9pZHAtcmVmLnplbnRyYWwuaWRwLnNwbGl0ZG5zLnRpLWRpZW5zdGUuZGUiLCJpYXQiOjE2MjY4ODEzNTAsImV4cCI6MTYyNjg4MTY1MCwianRpIjoiNDUzOTEwNGMtYzE2ZS00ZTEwLTk4MDMtMjAzYmRjZWZjNzc5In0.doZy8_7eYCIJhiVoQWNorImqUkf79Dc_KV7YuYq_ii-QcsaAoV3ZMAnzOuTLgeOH4IxYWjRmNSujC5_FqRaMhA";
 
     @Inject
     ERezeptWorkflowService eRezeptWorkflowService;
+
+    
+    @Inject
+    AppConfig appConfig;
+    @Inject
+    IdpClient idpClient;
+    @Inject
+    CardCertificateReaderService cardCertificateReaderService;
+    @Inject
+    ConnectorCardsService connectorCardsService;
+
+    String discoveryDocumentUrl;
+
 
     @BeforeEach
     void init() {
@@ -200,28 +226,49 @@ public class ERezeptWorkflowServiceTest {
     }
 
     @Test
-    @Disabled
-    void testCreateERezeptMassCreate() throws IOException {
+    // @Disabled
+    void testCreateERezeptMassCreate() throws IOException, ConnectorCardsException, IdpClientException, IdpException, IdpJoseException, ConnectorCardCertificateReadException {
+
+        discoveryDocumentUrl = appConfig.getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
+
+        idpClient.init(appConfig.getIdpClientId(), appConfig.getIdpAuthRequestRedirectURL(), discoveryDocumentUrl, true);
+        idpClient.initializeClient();
+
+        String cardHandle = connectorCardsService.getConnectorCardHandle(
+                ConnectorCardsService.CardHandleType.SMC_B);
+
+        X509Certificate x509Certificate = cardCertificateReaderService.retrieveSmcbCardCertificate(cardHandle);
+
+        IdpTokenResult idpTokenResult = idpClient.login(x509Certificate);
+
+        log.info("Access Token: " + idpTokenResult.getAccessToken().getRawString());
+
+        testBearerToken = idpTokenResult.getAccessToken().getRawString();
+
         int i = 0;
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(ClassLoader.getSystemResource("/simplifier_erezept/demos/").toURI()), "*.{xml}")) {
+        DocumentService documentService = new DocumentService();
+                documentService.init();
+                
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get("src/test/resources/simplifier_erezept/"), "*.{xml}")) {
             for (Path entry : stream) {
                 Bundle bundle = iParser.parseResource(Bundle.class, new FileInputStream(entry.toFile()));
                 BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
-                DocumentService documentService = new DocumentService();
-                documentService.init();
                 ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
-                String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmX")
+                String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
                         .withZone(ZoneOffset.UTC)
                         .format(Instant.now());
                 Files.write(Paths.get("target/E-Rezept-" + thisMoment + ".pdf"), a.toByteArray());
+                log.info("Time: "+thisMoment);
                 i++;
                 if (i == 2) {
-                    break;
+                    // break;
                 }
             }
-        } catch (DirectoryIteratorException | ERezeptWorkflowException | URISyntaxException ex) {
+        } catch (DirectoryIteratorException | ERezeptWorkflowException ex) {
             // I/O error encounted during the iteration, the cause is an IOException
-            // throw ex.getCause();
+            log.info("Exception: "+ex);
+                
+            ex.printStackTrace();
         }
     }
 
