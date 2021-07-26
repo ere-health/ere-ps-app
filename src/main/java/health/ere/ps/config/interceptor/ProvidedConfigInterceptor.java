@@ -31,6 +31,7 @@ public class ProvidedConfigInterceptor {
             secrectsManagerService.updateSSLContext();
             ConnectorServicesProvider provider = (ConnectorServicesProvider) invocationContext.getTarget();
             provider.initializeServices();
+            
         }
         return invocationContext.proceed();
     }

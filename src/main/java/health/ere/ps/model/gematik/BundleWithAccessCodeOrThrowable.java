@@ -7,6 +7,9 @@ public class BundleWithAccessCodeOrThrowable {
     private String accessCode;
     private Throwable throwable;
 
+    public BundleWithAccessCodeOrThrowable() {
+    }
+
     public BundleWithAccessCodeOrThrowable(Bundle bundle, String accessCode) {
         this.bundle = bundle;
         this.accessCode = accessCode;

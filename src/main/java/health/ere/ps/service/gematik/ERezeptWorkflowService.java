@@ -5,11 +5,11 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -163,17 +163,55 @@ public class ERezeptWorkflowService {
      */
     public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(String bearerToken, List<Bundle> bundles, boolean comfortSignature) {
         List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodes = new ArrayList<>();
-        try {
-            for (Bundle bundle : bundles) {
-                try {
-                    bundleWithAccessCodes.add(createERezeptOnPrescriptionServer(bearerToken, bundle));
-                } catch (Throwable t) {
-                    bundleWithAccessCodes.add(new BundleWithAccessCodeOrThrowable(t));
-                }
+        List<Task> tasks = new ArrayList<>();
+        for (Bundle bundle : bundles) {
+            // Example: src/test/resources/gematik/Task-4711.xml
+            try {
+                Task task = createERezeptTask(bearerToken);
+                tasks.add(task);
+                bundleWithAccessCodes.add(new BundleWithAccessCodeOrThrowable());
+            } catch (Throwable t) {
+                bundleWithAccessCodes.add(new BundleWithAccessCodeOrThrowable(t));
+                tasks.add(null);
             }
-        } catch (Throwable t) {
-            bundleWithAccessCodes.add(new BundleWithAccessCodeOrThrowable(t));
         }
+        int i = 0;
+        for (Task task : tasks) {
+            // Example:
+            // src/test/resources/gematik/Bundle-4fe2013d-ae94-441a-a1b1-78236ae65680.xml
+            if(task != null) {
+                try {
+                    BundleWithAccessCodeOrThrowable bundleWithAccessCode = updateBundleWithTask(task, bundles.get(i));
+                    bundleWithAccessCodes.get(i).setBundle(bundleWithAccessCode.getBundle());
+                    bundleWithAccessCodes.get(i).setAccessCode(bundleWithAccessCode.getAccessCode());
+                } catch(Throwable t) {
+                    bundleWithAccessCodes.get(i).setThrowable(t);
+                }
+            } else {
+                bundleWithAccessCodes.get(i).setThrowable(new ERezeptWorkflowException("Task is null please check log for errors."));
+            }
+            i++;
+        }
+        try {
+            List<SignResponse> signedDocuments = signBundleWithIdentifiers(bundles, false);
+            i = 0;
+            for(SignResponse signedDocument : signedDocuments) {
+                BundleWithAccessCodeOrThrowable bundleWithAccessCode = bundleWithAccessCodes.get(i);
+                try {
+                    Task task = tasks.get(i);
+                    if(task != null) {
+                        updateERezeptTask(bearerToken, task, bundleWithAccessCode.getAccessCode(),
+                            signedDocument.getSignatureObject().getBase64Signature().getValue());
+                    }
+                } catch(Throwable t) {
+                    bundleWithAccessCode.setThrowable(t);
+                }
+                i++;
+            }
+        } catch(Throwable t) {
+            bundleWithAccessCodes.stream().forEach(bundleWithAccessCode -> bundleWithAccessCode.setThrowable(t));
+        }
+
         return bundleWithAccessCodes;
     }
 
@@ -232,9 +270,10 @@ public class ERezeptWorkflowService {
             // OperationOutcome operationOutcome =
             // fhirContext.newXmlParser().parseResource(OperationOutcome.class, new
             // StringReader(taskString));
+            response.close();
             throw new RuntimeException(taskString);
         }
-
+        response.close();
         log.info("Task $activate Response: " + taskString);
     }
 
@@ -260,6 +299,11 @@ public class ERezeptWorkflowService {
         return signBundleWithIdentifiers(bundle, false);
     }
 
+
+    public SignResponse signBundleWithIdentifiers(Bundle bundle, boolean wait10secondsAfterJobNumber)
+            throws ERezeptWorkflowException {
+        return signBundleWithIdentifiers(Arrays.asList(bundle), wait10secondsAfterJobNumber).get(0);
+    }
     /**
      * This function signs the bundle with the signatureService.signDocument from
      * the connector.
@@ -267,29 +311,39 @@ public class ERezeptWorkflowService {
      * @return
      * @throws ERezeptWorkflowException
      */
-    public SignResponse signBundleWithIdentifiers(Bundle bundle, boolean wait10secondsAfterJobNumber)
+    public List<SignResponse> signBundleWithIdentifiers(List<Bundle> bundles, boolean wait10secondsAfterJobNumber)
             throws ERezeptWorkflowException {
 
         List<SignResponse> signResponse = null;
 
         try {
-            byte[] canonXmlBytes = getCanonicalXmlBytes(bundle);
-
-            SignRequest signRequest = new SignRequest();
-            DocumentType document = new DocumentType();
-            document.setShortText("E-Rezept");
-            Base64Data base64Data = new Base64Data();
-            base64Data.setMimeType("text/plain; charset=utf-8");
-            base64Data.setValue(canonXmlBytes);
-            document.setBase64Data(base64Data);
             OptionalInputs optionalInputs = new OptionalInputs();
             optionalInputs.setSignatureType("urn:ietf:rfc:5652");
             optionalInputs.setIncludeEContent(true);
-            signRequest.setOptionalInputs(optionalInputs);
-            signRequest.setRequestID(UUID.randomUUID().toString());
-            signRequest.setDocument(document);
-            signRequest.setIncludeRevocationInfo(true);
-            List<SignRequest> signRequests = Arrays.asList(signRequest);
+
+            List<SignRequest> signRequests = bundles.stream().map(bundle -> {
+                byte[] canonXmlBytes;
+                try {
+                    canonXmlBytes = getCanonicalXmlBytes(bundle);
+                } catch (InvalidCanonicalizerException | XMLParserException | CanonicalizationException
+                        | IOException e) {
+                    log.log(Level.SEVERE, "Could not get canonical XML", e);
+                    exceptionEvent.fireAsync(e);
+                    return null;
+                }
+                SignRequest signRequest = new SignRequest();
+                DocumentType document = new DocumentType();
+                document.setShortText("E-Rezept");
+                Base64Data base64Data = new Base64Data();
+                base64Data.setMimeType("text/plain; charset=utf-8");
+                base64Data.setValue(canonXmlBytes);
+                document.setBase64Data(base64Data);
+                signRequest.setOptionalInputs(optionalInputs);
+                signRequest.setRequestID(UUID.randomUUID().toString());
+                signRequest.setDocument(document);
+                signRequest.setIncludeRevocationInfo(true);
+                return signRequest;
+            }).collect(Collectors.toList());
 
             if (wait10secondsAfterJobNumber) {
                 // Wait 10 seconds to start titus test case
@@ -304,40 +358,44 @@ public class ERezeptWorkflowService {
             String signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
                     ConnectorCardsService.CardHandleType.HBA);
             if ("PTV4+".equals(appConfig.getConnectorVersion())) {
-                de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest signRequestsV755 = new de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest();
-                de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest.OptionalInputs optionalInputsC755 = new de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest.OptionalInputs();
-                optionalInputsC755.setSignatureType(optionalInputs.getSignatureType());
-                optionalInputsC755.setIncludeEContent(optionalInputs.isIncludeEContent());
-                signRequestsV755.setOptionalInputs(optionalInputsC755);
-                signRequestsV755.setRequestID(UUID.randomUUID().toString());
-                de.gematik.ws.conn.signatureservice.v7_5_5.DocumentType documentV755 = new de.gematik.ws.conn.signatureservice.v7_5_5.DocumentType();
-                documentV755.setBase64Data(document.getBase64Data());
-                documentV755.setShortText(document.getShortText());
-                signRequestsV755.setDocument(documentV755);
-                signRequestsV755.setIncludeRevocationInfo(signRequest.isIncludeRevocationInfo());
+                List<de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest> signRequestsV755 = signRequests.stream().map(signRequest -> {
+                    de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest signRequestV755 = new de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest();
+                    de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest.OptionalInputs optionalInputsC755 = new de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest.OptionalInputs();
+                    optionalInputsC755.setSignatureType(optionalInputs.getSignatureType());
+                    optionalInputsC755.setIncludeEContent(optionalInputs.isIncludeEContent());
+                    signRequestV755.setOptionalInputs(optionalInputsC755);
+                    signRequestV755.setRequestID(UUID.randomUUID().toString());
+                    de.gematik.ws.conn.signatureservice.v7_5_5.DocumentType documentV755 = new de.gematik.ws.conn.signatureservice.v7_5_5.DocumentType();
+                    documentV755.setBase64Data(signRequest.getDocument().getBase64Data());
+                    documentV755.setShortText(signRequest.getDocument().getShortText());
+                    signRequestV755.setDocument(documentV755);
+                    signRequestV755.setIncludeRevocationInfo(signRequest.isIncludeRevocationInfo());
+                    return signRequestV755;
+                }).collect(Collectors.toList());
 
                 List<de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse> signResponsesV755 = connectorServicesProvider.getSignatureServicePortTypeV755().signDocument(signatureServiceCardHandle,
                         appConfig.getConnectorCrypt(), connectorServicesProvider.getContextType(), userConfig.getTvMode(),
-                        connectorServicesProvider.getSignatureServicePortTypeV755().getJobNumber(connectorServicesProvider.getContextType()), Collections.singletonList(signRequestsV755));
+                        connectorServicesProvider.getSignatureServicePortTypeV755().getJobNumber(connectorServicesProvider.getContextType()), signRequestsV755);
 
-                de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse signResponseV755 = signResponsesV755.get(0);
-                SignResponse signResponse744 = new SignResponse();
-                signResponse744.setSignatureObject(signResponseV755.getSignatureObject());
-                signResponse744.setStatus(signResponseV755.getStatus());
+                List<SignResponse> signResponses744 = signResponsesV755.stream().map(signResponseV755 -> {
+                    SignResponse signResponse744 = new SignResponse();
+                    signResponse744.setSignatureObject(signResponseV755.getSignatureObject());
+                    signResponse744.setStatus(signResponseV755.getStatus());
+                    return signResponse744;
+                }).collect(Collectors.toList());
 
-                return signResponse744;
+                return signResponses744;
                 // PTV4, could be PTV3 as well, to be refactored in a future task
             } else {
                 signResponse = connectorServicesProvider.getSignatureServicePortType().signDocument(signatureServiceCardHandle,
                         connectorServicesProvider.getContextType(), userConfig.getTvMode(),
                         connectorServicesProvider.getSignatureServicePortType().getJobNumber(connectorServicesProvider.getContextType()), signRequests);
             }
-        } catch (ConnectorCardsException | InvalidCanonicalizerException | XMLParserException |
-                IOException | CanonicalizationException | FaultMessage e) {
+        } catch (ConnectorCardsException | FaultMessage e) {
             throw new ERezeptWorkflowException("Exception signing bundles with identifiers.", e);
         }
 
-        return signResponse.get(0);
+        return signResponse;
     }
 
     public static byte[] getCanonicalXmlBytes(Bundle bundle)
@@ -387,9 +445,10 @@ public class ERezeptWorkflowService {
             // OperationOutcome operationOutcome =
             // fhirContext.newXmlParser().parseResource(OperationOutcome.class, new
             // StringReader(taskString));
+            response.close();
             throw new RuntimeException(taskString);
         }
-
+        response.close();
         log.info("Task Response: " + taskString);
         return fhirContext.newXmlParser().parseResource(Task.class, new StringReader(taskString));
     }
@@ -408,8 +467,10 @@ public class ERezeptWorkflowService {
         // if it is not successful and it was found
         if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL
         && response.getStatus() != Response.Status.NOT_FOUND.getStatusCode()) {
+            response.close();
             throw new RuntimeException(taskString);
         }
+        response.close();
         
         log.info("Task $abort Response: " + taskString);
     }

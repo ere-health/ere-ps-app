@@ -1,10 +1,13 @@
 package health.ere.ps.service.connector.provider;
 
+import java.io.IOException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.ws.BindingProvider;
 
 import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureService;
@@ -28,7 +31,7 @@ import health.ere.ps.service.connector.endpoint.SSLUtilities;
 
 @ApplicationScoped
 public class ConnectorServicesProvider {
-    private final Logger log = Logger.getLogger(getClass().getName());
+    private final static Logger log = Logger.getLogger(ConnectorServicesProvider.class.getName());
 
     @Inject
     UserConfig userConfig;
@@ -51,6 +54,11 @@ public class ConnectorServicesProvider {
     }
 
     public void initializeServices() {
+        try {
+            endpointDiscoveryService.obtainConfiguration();
+        } catch (IOException | ParserConfigurationException e) {
+            log.log(Level.SEVERE, "Could not obtainConfiguration", e);
+        }
         initializeCardServicePortType();
         initializeCertificateService();
         initializeEventServicePortType();

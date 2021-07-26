@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.client.ClientBuilder;
@@ -57,9 +56,7 @@ public class EndpointDiscoveryService {
     private String eventServiceEndpointAddress;
     private String cardServiceEndpointAddress;
 
-
-    @PostConstruct
-    void obtainConfiguration() throws IOException, ParserConfigurationException {
+    public void obtainConfiguration() throws IOException, ParserConfigurationException {
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
         clientBuilder.sslContext(secretsManagerService.getSslContext());
 
@@ -68,7 +65,6 @@ public class EndpointDiscoveryService {
             // This line is currently not working
             clientBuilder = clientBuilder.hostnameVerifier(new SSLUtilities.FakeHostnameVerifier());
         }
-
     
 
         Builder builder = clientBuilder.build()
@@ -129,7 +125,7 @@ public class EndpointDiscoveryService {
                         break;
                     }
                     case "SignatureService": {
-                        signatureServiceEndpointAddress = getEndpoint(node, "PTV4+".equals(appConfig.getConnectorVersion()) ? "7.5.4" : null);
+                        signatureServiceEndpointAddress = getEndpoint(node, "PTV4+".equals(appConfig.getConnectorVersion()) ? "7.5" : null);
                     }
                 }
             }
@@ -230,7 +226,7 @@ public class EndpointDiscoveryService {
             Node versionNode = versionNodes.item(i);
 
             // if we have a specified version search in the list until we find it
-            if(version != null && versionNode.hasAttributes() && !version.equals(versionNode.getAttributes().getNamedItem("Version").getTextContent())) {
+            if(version != null && versionNode.hasAttributes() && !versionNode.getAttributes().getNamedItem("Version").getTextContent().startsWith(version)) {
                 continue;
             }
 

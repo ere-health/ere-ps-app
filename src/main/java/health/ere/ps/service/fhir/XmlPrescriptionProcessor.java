@@ -27,6 +27,7 @@ import org.hl7.fhir.r4.model.Practitioner.PractitionerQualificationComponent;
 import org.hl7.fhir.r4.model.Quantity;
 
 import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
 
 public class XmlPrescriptionProcessor {
     // Get <Bundle> tag including content
@@ -59,6 +60,7 @@ public class XmlPrescriptionProcessor {
         // Next issue ERROR - Bundle.entry[1].resource.ofType(MedicationRequest).dispenseRequest - MedicationRequest.dispenseRequest.quantity: minimum required = 1, but only found 0 (from https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.0.1)
 
         MedicationRequest medicationRequest = getTypeFromBundle(MedicationRequest.class, bundle);
+        medicationRequest.getAuthoredOnElement().setPrecision(TemporalPrecisionEnum.DAY);
 
         if (medicationRequest.getDispenseRequest().getQuantity().getValue() == null) {
             Quantity quantity = new Quantity();
