@@ -4,18 +4,24 @@ import java.security.cert.X509Certificate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
 import health.ere.ps.config.AppConfig;
+import health.ere.ps.exception.idp.IdpClientException;
+import health.ere.ps.exception.idp.IdpException;
+import health.ere.ps.exception.idp.IdpJoseException;
 import health.ere.ps.model.idp.client.IdpTokenResult;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
 import health.ere.ps.service.idp.client.IdpClient;
 import health.ere.ps.service.idp.client.IdpHttpClientService;
+import io.quarkus.runtime.Startup;
 
 @ApplicationScoped
+@Startup
 public class BearerTokenService {
     private static final Logger log = Logger.getLogger(BearerTokenService.class.getName());
 
@@ -31,11 +37,20 @@ public class BearerTokenService {
     Event<Exception> exceptionEvent;
 
 
+    @PostConstruct
+    public void init() {
+        String discoveryDocumentUrl = appConfig.getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
+        idpClient.init(appConfig.getIdpClientId(), appConfig.getIdpAuthRequestRedirectURL(), discoveryDocumentUrl, true);
+        try {
+            idpClient.initializeClient();
+        } catch (IdpClientException | IdpException | IdpJoseException e) {
+            log.log(Level.WARNING, "Idp init did not work", e);
+        }
+    }
+
     public String requestBearerToken() {
         try {
-            String discoveryDocumentUrl = appConfig.getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
-            idpClient.init(appConfig.getIdpClientId(), appConfig.getIdpAuthRequestRedirectURL(), discoveryDocumentUrl, true);
-            idpClient.initializeClient();
+            
 
             String cardHandle = connectorCardsService.getConnectorCardHandle(
                     ConnectorCardsService.CardHandleType.SMC_B);
@@ -48,7 +63,7 @@ public class BearerTokenService {
         } catch (Exception e) {
             log.log(Level.WARNING, "Idp login did not work, couldn't request bearer token", e);
             exceptionEvent.fireAsync(e);
+            throw new RuntimeException(e);
         }
-        return "";
     }
 }
