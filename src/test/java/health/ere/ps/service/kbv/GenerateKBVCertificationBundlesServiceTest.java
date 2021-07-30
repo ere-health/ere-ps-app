@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -48,7 +49,10 @@ public class GenerateKBVCertificationBundlesServiceTest {
 
     IParser iParser = FhirContext.forR4().newXmlParser().setPrettyPrint(true);
 
+    static boolean useTitus = false;
+
     static boolean generateSignatureAndPdf = true;
+    static boolean validateResources = false;
 
     @Test
     public void testPF01() throws IOException, InvalidCanonicalizerException, XMLParserException, CanonicalizationException, ERezeptWorkflowException {
@@ -66,7 +70,9 @@ public class GenerateKBVCertificationBundlesServiceTest {
         byte[] canonicalBytes = ERezeptWorkflowService.getCanonicalXmlBytes(bundle);
         Files.write(Paths.get("src/test/resources/kbv-zip/"+testCase+".xml"), canonicalBytes);
         if(generateSignatureAndPdf){
-            prescriptionBundleValidator.validateResource(bundle, true);
+            if(validateResources) {
+                prescriptionBundleValidator.validateResource(bundle, true);
+            }
             if(generateSignature) {
                 SignResponse signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundle);
                 Files.write(Paths.get("src/test/resources/kbv-zip/"+testCase+".p7s"), signResponse.getSignatureObject().getBase64Signature().getValue());
@@ -81,8 +87,13 @@ public class GenerateKBVCertificationBundlesServiceTest {
 
     private void createPdf(String testCase, List<Bundle> list) throws IOException {
         if(generateSignatureAndPdf){
-            eRezeptWorkflowService.requestNewAccessTokenIfNecessary();
-            List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowables = eRezeptWorkflowService.createMultipleERezeptsOnPrescriptionServer(eRezeptWorkflowService.getBearerToken(), list);
+            List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowables = new ArrayList<>();
+            if(useTitus) {
+                eRezeptWorkflowService.requestNewAccessTokenIfNecessary();
+                bundleWithAccessCodeOrThrowables = eRezeptWorkflowService.createMultipleERezeptsOnPrescriptionServer(eRezeptWorkflowService.getBearerToken(), list);
+            } else {
+                bundleWithAccessCodeOrThrowables = list.stream().map(bundle -> new BundleWithAccessCodeOrThrowable(bundle, "8279c66a752f64608387273209975457d806d0f66eeb8424f2e696de75b9acf5")).collect(Collectors.toList());
+            }   
 
             ByteArrayOutputStream byteArrayOutputStream = documentService.generateERezeptPdf(bundleWithAccessCodeOrThrowables);
 
@@ -104,8 +115,7 @@ public class GenerateKBVCertificationBundlesServiceTest {
     public void testPF03_PF04_PF05_PF06() throws IOException, InvalidCanonicalizerException, XMLParserException, CanonicalizationException, ERezeptWorkflowException {
         List<Bundle> list = new ArrayList<>();
         Bundle bundle = service.PF03();
-        list.add(bundle);
-        
+          
         boolean generateSignature = true;
         boolean generatePdf = false;
         processBundle("PF03", generateSignature, generatePdf, bundle);

@@ -398,10 +398,11 @@ public class GenerateKBVCertificationBundlesService {
         medication.addExtension(medicationVaccine);
 
         String normgroesseString= "N1";
-        Pattern p = Pattern.compile(" (N\\d)");
+        Pattern p = Pattern.compile(".* (N\\d).*");
         Matcher m = p.matcher(name);
         if(m.matches()) {
             normgroesseString = m.group(1);
+            name = name.replace(" "+normgroesseString, "");
         }
 
         Extension normgroesse = new Extension("http://fhir.de/StructureDefinition/normgroesse", new CodeType(normgroesseString));
@@ -409,8 +410,21 @@ public class GenerateKBVCertificationBundlesService {
 
         medication.getCode().addCoding().setSystem("http://fhir.de/CodeSystem/ifa/pzn").setCode(pzn);
         medication.getCode().setText(name);
+        // PF01 & PF02 11536100 & 11126514
+        // PF03 03716124
+        // PF07 01016144
+        String darreichungsform = "FTA";
+        if(pzn.equals("00102999")) {
+            darreichungsform = "ISU";
+        // PF08
+        } else if(pzn.equals("04562798")) {
+            darreichungsform = "TAB";
+        // PF09
+        } else if(pzn.equals("01672693")) {
+            darreichungsform = "SUE";
+        }
 
-        Coding formCoding = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM", "FLE", "");
+        Coding formCoding = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM", darreichungsform, "");
         medication.setForm(new CodeableConcept().addCoding(formCoding));
 
         return medication;
@@ -723,20 +737,14 @@ public class GenerateKBVCertificationBundlesService {
                     strassenAdresse.getHausnummer());
         if(strassenAdresse.getAnschriftenzusatz() != null) {
             patient.getAddress().get(0).addLine(strassenAdresse.getAnschriftenzusatz());
+            StringType line = patient.getAddress().get(0).getLine().get(1);
+            line.addExtension(new Extension("http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-additionalLocator", new StringType(strassenAdresse.getAnschriftenzusatz())));
         }
 
         StringType line = patient.getAddress().get(0).getLine().get(0);
         line.addExtension("http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName", new StringType(strassenAdresse.getStrasse()));
         line.addExtension("http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber", new StringType(strassenAdresse.getHausnummer()));
         return patient;
-    }
-
-    private Composition createComposition(String medicationRequestId, String patientId, String practitionerId, String organizationId, String coverageId) {
-        return createComposition(medicationRequestId, patientId, practitionerId, organizationId, coverageId, null);
-    }
-
-    private Composition createComposition(String medicationRequestId, String patientId, String practitionerId, String organizationId, String coverageId, String attesterId) {
-        return createComposition(medicationRequestId, patientId, practitionerId, organizationId, coverageId, attesterId, null);
     }
 
     private Composition createComposition(String medicationRequestId, String patientId, String practitionerId, String organizationId, String coverageId, String attesterId, String asvAusuebungRoleId) {
@@ -769,7 +777,7 @@ public class GenerateKBVCertificationBundlesService {
                 .setType("Device")
                 .getIdentifier()
                 .setSystem("https://fhir.kbv.de/NamingSystem/KBV_NS_FOR_Pruefnummer")
-                .setValue("123456789");
+                .setValue("Y/400/1904/36/112");
 
         composition.setTitle("elektronische Arzneimittelverordnung");
 

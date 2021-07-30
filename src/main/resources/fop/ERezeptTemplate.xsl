@@ -15,7 +15,7 @@
 
     <xsl:template match="fhir:root">
         <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format"
-                 font-family="Courier, Arial" font-size="10pt" text-align="left"
+                 font-family="Courier, Arial" font-size="12pt" text-align="left"
                  line-height="normal" font-selection-strategy="character-by-character"
                  line-height-shift-adjustment="disregard-shifts" writing-mode="lr-tb"
                  language="DE">
@@ -107,22 +107,22 @@
                                         <fo:table-column/>
                                         <fo:table-header>
                                             <fo:table-row>
-                                                <fo:table-cell>
-                                                    <fo:block font-size="6pt" font-weight="bold" margin-left="1mm"
+                                                <fo:table-cell width="100mm">
+                                                    <fo:block font-size="6pt" margin-left="1mm"
                                                               font-family="Arial">für
                                                     </fo:block>
                                                 </fo:table-cell>
                                                 <fo:table-cell>
-                                                    <fo:block font-size="6pt" font-weight="bold" margin-left="40mm"
-                                                              font-family="Arial">geboren am
+                                                    <fo:block font-size="6pt"
+                                                              font-family="Arial" margin-left="5mm">geboren am
                                                     </fo:block>
                                                 </fo:table-cell>
                                             </fo:table-row>
                                         </fo:table-header>
                                         <fo:table-body>
                                             <fo:table-row>
-                                                <fo:table-cell width="60mm">
-                                                    <fo:block margin-left="1mm" font-size="10pt" font-weight="bold">
+                                                <fo:table-cell width="100mm">
+                                                    <fo:block margin-left="1mm" font-size="12pt">
                                                         <xsl:value-of
                                                                 select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Patient/fhir:name/fhir:prefix/@value"/>
                                                         <xsl:text>  </xsl:text>
@@ -134,10 +134,9 @@
                                                     </fo:block>
                                                 </fo:table-cell>
                                                 <fo:table-cell>
-                                                    <fo:block margin-left="40mm" font-weight="bold">
+                                                    <fo:block margin-left="5mm">
                                                         <xsl:call-template name="formatDate">
-                                                            <xsl:with-param name="date" select="
-                                                    fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Patient/fhir:birthDate/@value"/>
+                                                            <xsl:with-param name="date" select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Patient/fhir:birthDate/@value"/>
                                                         </xsl:call-template>
                                                     </fo:block>
                                                 </fo:table-cell>
@@ -160,13 +159,13 @@
                                         <fo:table-header>
                                             <fo:table-row>
                                                 <fo:table-cell>
-                                                    <fo:block font-size="6pt" font-weight="bold" margin-left="1mm"
+                                                    <fo:block font-size="6pt" margin-left="1mm"
                                                               font-family="Arial">
                                                         ausgestellt von
                                                     </fo:block>
                                                 </fo:table-cell>
                                                 <fo:table-cell>
-                                                    <fo:block font-size="6pt" font-weight="bold" margin-left="10mm"
+                                                    <fo:block font-size="6pt" margin-left="5mm"
                                                               font-family="Arial">
                                                         ausgestellt am
                                                     </fo:block>
@@ -175,8 +174,8 @@
                                         </fo:table-header>
                                         <fo:table-body>
                                             <fo:table-row height="20mm">
-                                                <fo:table-cell width="90mm" margin-left="1mm">
-                                                    <fo:block font-size="10pt" font-weight="bold">
+                                                <fo:table-cell width="100mm" margin-left="1mm">
+                                                    <fo:block font-size="12pt">
                                                         <xsl:value-of
                                                                 select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Practitioner/fhir:name/fhir:prefix/@value"/>
                                                         <xsl:text>  </xsl:text>
@@ -186,21 +185,21 @@
                                                         <xsl:value-of
                                                                 select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Practitioner/fhir:name/fhir:family/@value"/>
                                                     </fo:block>
-                                                    <fo:block font-size="10pt" font-weight="bold">
+                                                    <fo:block font-size="12pt">
                                                         <xsl:value-of
-                                                                select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Organization/fhir:name/@value"/>
+                                                                select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Practitioner/fhir:qualification/fhir:code/fhir:text/@value"/>
                                                     </fo:block>
                                                     <xsl:for-each
                                                             select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Organization/fhir:telecom">
                                                         <xsl:if test="fhir:system/@value = 'phone' or fhir:system/@value = 'email'">
-                                                            <fo:block font-size="10pt" font-weight="bold">
+                                                            <fo:block font-size="12pt">
                                                                 <xsl:value-of select="fhir:value/@value"/>
                                                             </fo:block>
                                                         </xsl:if>
                                                     </xsl:for-each>
                                                 </fo:table-cell>
                                                 <fo:table-cell>
-                                                    <fo:block margin-left="10mm" font-weight="bold">
+                                                    <fo:block margin-left="5mm">
                                                         <xsl:variable name="authoredOn" select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:authoredOn/@value" />
                                                         <xsl:for-each select="tokenize($authoredOn, 'T')">
                                                             <xsl:if test="position()=1">
@@ -239,7 +238,7 @@
                                     </xsl:for-each>]}
                                 </xsl:attribute>
                                 <barcode:datamatrix>
-                                    <barcode:module-width>0.5mm</barcode:module-width>
+                                    <barcode:module-width>0.52mm</barcode:module-width>
                                     <barcode:min-symbol-size>90</barcode:min-symbol-size>
                                     <barcode:max-symbol-size>100</barcode:max-symbol-size>
                                 </barcode:datamatrix>
@@ -298,12 +297,22 @@
                                                     </xsl:call-template>
                                                 </fo:block>
                                             </xsl:if>
+                                            <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:coding/fhir:code/@value = 'freitext'">
+                                                <fo:block>
+                                                Freitextverordnung
+                                                </fo:block>
+                                            </xsl:if>
                                             <fo:block font-weight="bold">
                                                 <xsl:value-of
                                                         select="fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:dispenseRequest/fhir:quantity/fhir:value/@value"/>
                                                 <xsl:text>x </xsl:text>
                                                 <xsl:value-of
                                                         select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:text/@value"/>
+                                                <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:extension[@url='http://fhir.de/StructureDefinition/normgroesse']">
+                                                    <xsl:text> / </xsl:text>
+                                                    <xsl:value-of
+                                                            select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:extension[@url='http://fhir.de/StructureDefinition/normgroesse']/fhir:valueCode/@value"/>
+                                                </xsl:if>
                                             </fo:block>
                                             <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:amount/fhir:numerator/fhir:value/@value > 0">
                                                 <fo:block font-weight="bold">
@@ -322,8 +331,7 @@
                                             <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:coding/fhir:code/@value != 'freitext'">
                                                 <fo:block>
                                                     <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:coding/fhir:code/@value != 'freitext' or fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:substitution/fhir:allowedBoolean/@value = 'false'">
-                                                        PZN:
-                                                        <xsl:value-of
+                                                        PZN:<xsl:value-of
                                                             select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:coding/fhir:code/@value"/>
                                                     </xsl:if>
                                                     <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:substitution/fhir:allowedBoolean/@value = 'false'">

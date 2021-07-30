@@ -216,7 +216,7 @@ public class XmlPrescriptionProcessor {
                 .setType("Device")
                 .getIdentifier()
                 .setSystem("https://fhir.kbv.de/NamingSystem/KBV_NS_FOR_Pruefnummer")
-                .setValue("Y/1/1807/36/112");
+                .setValue("Y/400/1904/36/112");
 
         composition.setTitle("elektronische Arzneimittelverordnung");
 
