@@ -203,7 +203,7 @@ public class GenerateKBVCertificationBundlesService {
         
                 Bundle bundle = assembleBundle(practitionerAnnie, organization, patientWerner, coverage, medication,
                         medicationRequest);
-                bundle.getIdentifier().setValue("160.123.456.789.123.5"+i);
+                generateIdentifier(bundle);
                 bundles.add(bundle);
             }
     
@@ -313,7 +313,8 @@ public class GenerateKBVCertificationBundlesService {
         bundle.setType(Bundle.BundleType.DOCUMENT);
 
         bundle.getIdentifier().setSystem("https://gematik.de/fhir/NamingSystem/PrescriptionID");
-        bundle.getIdentifier().setValue("160.123.456.789.123.58");
+
+        generateIdentifier(bundle);
         
         // Add composition resource.
         Composition compositionResource = createComposition(medicationRequest.getIdElement().getIdPart(), patient.getIdElement().getIdPart(), practitioner.getIdElement().getIdPart(), organization.getIdElement().getIdPart(), coverage.getIdElement().getIdPart(), attester != null ? attester.getIdElement().getIdPart() : null, practitionerRole != null ? practitionerRole.getIdElement().getIdPart() : null);
@@ -380,6 +381,18 @@ public class GenerateKBVCertificationBundlesService {
    
         bundle.setTimestamp(new Date());
         return bundle;
+    }
+
+    private void generateIdentifier(Bundle bundle) {
+        long part1 = Math.round(100+Math.random()*900);
+        long part2 = Math.round(100+Math.random()*900);
+        long part3 = Math.round(100+Math.random()*900);
+        long part4 = Math.round(100+Math.random()*900);
+
+        long fullNumber = 160*1000000000000l+(part1*1000000000l)+(part2*1000000l)+(part3*1000l)+part4;
+        long lastDigits = 98-(fullNumber % 97);
+
+        bundle.getIdentifier().setValue("160."+part1+"."+part2+"."+part3+"."+part4+"."+(lastDigits<10? "0" : "")+lastDigits);
     }
 
     private Medication createMedicationResource(String pzn, String name, boolean medicationVaccineFlag) {

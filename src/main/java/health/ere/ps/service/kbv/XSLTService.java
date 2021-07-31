@@ -30,7 +30,7 @@ import org.hl7.fhir.r4.model.Bundle;
 
 import ca.uhn.fhir.context.FhirContext;
 import health.ere.ps.event.HTMLBundlesEvent;
-import health.ere.ps.event.SignAndUploadBundlesEvent;
+import health.ere.ps.event.ReadyToSignBundlesEvent;
 
 @ApplicationScoped
 public class XSLTService {
@@ -114,14 +114,14 @@ public class XSLTService {
         return new String(out.toByteArray(), StandardCharsets.UTF_8);
     }
 
-    public void onSignAndUploadBundlesEvent(@ObservesAsync SignAndUploadBundlesEvent signAndUploadBundlesEvent) {
+    public void onReadyToSignBundlesEvent(@ObservesAsync ReadyToSignBundlesEvent readyToSignBundlesEvent) {
 
-        log.info(String.format("Received %d bundles to show for signature ", signAndUploadBundlesEvent.listOfListOfBundles.size()));
+        log.info(String.format("Received %d bundles to show for signature ", readyToSignBundlesEvent.listOfListOfBundles.size()));
         
         List<String> htmlBundlesList;
 
         try {
-            htmlBundlesList = signAndUploadBundlesEvent.listOfListOfBundles.stream().flatMap(l -> l.stream()).map(bundle -> {
+            htmlBundlesList = readyToSignBundlesEvent.listOfListOfBundles.stream().flatMap(l -> l.stream()).map(bundle -> {
                 try {
                     return generateHtmlForBundle(bundle);
                 } catch (Exception e) {

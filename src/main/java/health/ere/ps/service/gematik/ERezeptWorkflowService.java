@@ -58,6 +58,7 @@ import health.ere.ps.event.AbortTaskStatus;
 import health.ere.ps.event.AbortTasksEvent;
 import health.ere.ps.event.AbortTasksStatusEvent;
 import health.ere.ps.event.BundlesWithAccessCodeEvent;
+import health.ere.ps.event.ReadyToSignBundlesEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
 import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.exception.connector.ConnectorCardsException;
@@ -91,6 +92,8 @@ public class ERezeptWorkflowService {
     ConnectorCardsService connectorCardsService;
     @Inject
     Event<BundlesWithAccessCodeEvent> bundlesWithAccessCodeEvent;
+    @Inject
+    Event<ReadyToSignBundlesEvent> readyToSignBundlesEvent;
     @Inject
     Event<Exception> exceptionEvent;
     @Inject
@@ -315,6 +318,8 @@ public class ERezeptWorkflowService {
             throws ERezeptWorkflowException {
 
         List<SignResponse> signResponse = null;
+
+        readyToSignBundlesEvent.fireAsync(new ReadyToSignBundlesEvent(bundles));
 
         try {
             OptionalInputs optionalInputs = new OptionalInputs();

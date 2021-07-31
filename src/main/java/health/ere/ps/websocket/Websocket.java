@@ -56,6 +56,7 @@ import health.ere.ps.event.BundlesEvent;
 import health.ere.ps.event.ERezeptDocumentsEvent;
 import health.ere.ps.event.EreLogNotificationEvent;
 import health.ere.ps.event.HTMLBundlesEvent;
+import health.ere.ps.event.ReadyToSignBundlesEvent;
 import health.ere.ps.event.SaveSettingsEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
 import health.ere.ps.event.erixa.ErixaEvent;
@@ -75,6 +76,8 @@ import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 public class Websocket {
     @Inject
     Event<SignAndUploadBundlesEvent> signAndUploadBundlesEvent;
+    @Inject
+    Event<ReadyToSignBundlesEvent> readyToSignBundlesEvent;
     @Inject
     Event<AbortTasksEvent> abortTasksEvent;
     @Inject
@@ -253,6 +256,8 @@ public class Websocket {
                         }));
             } else if ("AllKBVExamples".equals(object.getString("type"))) {
                 sendAllKBVExamples(object.getString("folder", "../src/test/resources/simplifier_erezept"));
+            } else if("ReadyToSignBundles".equals(object.getString("type"))) {
+                readyToSignBundlesEvent.fireAsync(new ReadyToSignBundlesEvent(object));
             }
         }
     }
