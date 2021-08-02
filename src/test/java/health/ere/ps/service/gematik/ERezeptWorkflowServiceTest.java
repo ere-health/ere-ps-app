@@ -38,14 +38,11 @@ import ca.uhn.fhir.parser.DataFormatException;
 import ca.uhn.fhir.parser.IParser;
 import de.gematik.ws.conn.signatureservice.v7.SignResponse;
 import health.ere.ps.config.AppConfig;
-import health.ere.ps.exception.connector.ConnectorCardsException;
 import health.ere.ps.exception.gematik.ERezeptWorkflowException;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.model.idp.client.IdpTokenResult;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
-import health.ere.ps.profile.RUTestProfile;
 import health.ere.ps.profile.TitusTestProfile;
-import health.ere.ps.profile.RUTestProfile;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
@@ -357,6 +354,16 @@ public class ERezeptWorkflowServiceTest {
         Task task = new Task();
         BundleWithAccessCodeOrThrowable bundleWithAccessCode = eRezeptWorkflowService.updateBundleWithTask(task, bundle);
         SignResponse signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundleWithAccessCode.getBundle());
+    }
+
+    @Test
+    @Disabled
+        // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
+    void testSignBatchDocument() throws IOException, ERezeptWorkflowException {
+        Bundle bundle1 = new Bundle();
+        Bundle bundle2 = new Bundle();
+
+        eRezeptWorkflowService.signBundleWithIdentifiers(Arrays.asList(bundle1, bundle2), false);
     }
 
     @Test

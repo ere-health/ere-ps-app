@@ -317,7 +317,7 @@ public class ERezeptWorkflowService {
     public List<SignResponse> signBundleWithIdentifiers(List<Bundle> bundles, boolean wait10secondsAfterJobNumber)
             throws ERezeptWorkflowException {
 
-        List<SignResponse> signResponse = null;
+        List<SignResponse> signResponses = null;
 
         readyToSignBundlesEvent.fireAsync(new ReadyToSignBundlesEvent(bundles));
 
@@ -378,9 +378,29 @@ public class ERezeptWorkflowService {
                     return signRequestV755;
                 }).collect(Collectors.toList());
 
-                List<de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse> signResponsesV755 = connectorServicesProvider.getSignatureServicePortTypeV755().signDocument(signatureServiceCardHandle,
-                        appConfig.getConnectorCrypt(), connectorServicesProvider.getContextType(), userConfig.getTvMode(),
-                        connectorServicesProvider.getSignatureServicePortTypeV755().getJobNumber(connectorServicesProvider.getContextType()), signRequestsV755);
+                List<de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse> signResponsesV755;
+                if(appConfig.enableBatchSign()) {
+                    String jobNumber = connectorServicesProvider.getSignatureServicePortTypeV755().getJobNumber(connectorServicesProvider.getContextType());
+
+                    signResponsesV755 = connectorServicesProvider.getSignatureServicePortTypeV755().signDocument(signatureServiceCardHandle,
+                            appConfig.getConnectorCrypt(), connectorServicesProvider.getContextType(), userConfig.getTvMode(),
+                            jobNumber, signRequestsV755);
+                } else {
+                    signResponsesV755 = signRequestsV755.stream().map(signRequestV755 -> {
+                        String jobNumber;
+                        try {
+                            jobNumber = connectorServicesProvider.getSignatureServicePortTypeV755().getJobNumber(connectorServicesProvider.getContextType());
+                            
+                            List<de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse> list = connectorServicesProvider.getSignatureServicePortTypeV755().signDocument(signatureServiceCardHandle,
+                            appConfig.getConnectorCrypt(), connectorServicesProvider.getContextType(), userConfig.getTvMode(),
+                            jobNumber, Arrays.asList(signRequestV755));
+                            return list.get(0);
+                        } catch (FaultMessage e) {
+                            exceptionEvent.fireAsync(e);
+                            return null;
+                        }
+                    }).collect(Collectors.toList());
+                }
 
                 List<SignResponse> signResponses744 = signResponsesV755.stream().map(signResponseV755 -> {
                     SignResponse signResponse744 = new SignResponse();
@@ -392,15 +412,30 @@ public class ERezeptWorkflowService {
                 return signResponses744;
                 // PTV4, could be PTV3 as well, to be refactored in a future task
             } else {
-                signResponse = connectorServicesProvider.getSignatureServicePortType().signDocument(signatureServiceCardHandle,
-                        connectorServicesProvider.getContextType(), userConfig.getTvMode(),
-                        connectorServicesProvider.getSignatureServicePortType().getJobNumber(connectorServicesProvider.getContextType()), signRequests);
+                if(appConfig.enableBatchSign()) {
+                    signResponses = connectorServicesProvider.getSignatureServicePortType().signDocument(signatureServiceCardHandle,
+                            connectorServicesProvider.getContextType(), userConfig.getTvMode(),
+                            connectorServicesProvider.getSignatureServicePortType().getJobNumber(connectorServicesProvider.getContextType()), signRequests);
+                 } else {
+                    signResponses = signRequests.stream().map(signRequest-> {
+                        List<SignResponse> list;
+                        try {
+                            list = connectorServicesProvider.getSignatureServicePortType().signDocument(signatureServiceCardHandle,
+                            connectorServicesProvider.getContextType(), userConfig.getTvMode(),
+                            connectorServicesProvider.getSignatureServicePortType().getJobNumber(connectorServicesProvider.getContextType()), Arrays.asList(signRequest));
+                        } catch (FaultMessage e) {
+                            exceptionEvent.fireAsync(e);
+                            return null;
+                        }
+                        return list.get(0);
+                    }).collect(Collectors.toList());
+                 } 
             }
         } catch (ConnectorCardsException | FaultMessage e) {
             throw new ERezeptWorkflowException("Exception signing bundles with identifiers.", e);
         }
 
-        return signResponse;
+        return signResponses;
     }
 
     public static byte[] getCanonicalXmlBytes(Bundle bundle)

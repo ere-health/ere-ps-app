@@ -36,6 +36,9 @@ public class AppConfig {
     @ConfigProperty(name = "ere-workflow-service.vau.enable")
     boolean enableVau;
 
+    @ConfigProperty(name = "ere-workflow-service.batch-sign.enable")
+    boolean enableBatchSign;
+
     @ConfigProperty(name = "ere-workflow-service.user-agent")
     String userAgent;
 
@@ -82,6 +85,10 @@ public class AppConfig {
 
     public boolean vauEnabled() {
         return enableVau;
+    }
+
+    public boolean enableBatchSign() {
+        return enableBatchSign;
     }
 
     public String getUserAgent() {
