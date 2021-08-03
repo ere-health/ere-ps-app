@@ -28,6 +28,9 @@ public class UserConfigurations {
     @JsonbProperty(value="erixa.user.password", nillable=true)
     private String erixaUserPassword;
 
+    @JsonbProperty(value="erixa.api.key", nillable=true)
+    private String erixaApiKey;
+
     @JsonbProperty(value="extractor.template.profile", nillable=true)
     private String muster16TemplateProfile;
 
@@ -236,5 +239,13 @@ public class UserConfigurations {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public String getErixaApiKey() {
+        return this.erixaApiKey;
+    }
+
+    public void setErixaApiKey(String erixaApiKey) {
+        this.erixaApiKey = erixaApiKey;
     }
 }

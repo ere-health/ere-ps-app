@@ -1,18 +1,26 @@
 package health.ere.ps.service.erixa;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import health.ere.ps.config.UserConfig;
-import health.ere.ps.event.erixa.SendToPharmacyEvent;
-import health.ere.ps.model.erixa.PrescriptionTransferEntry;
-import health.ere.ps.model.erixa.api.mapping.*;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.ObservesAsync;
-import javax.inject.Inject;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.Date;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.ObservesAsync;
+import javax.inject.Inject;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import health.ere.ps.config.UserConfig;
+import health.ere.ps.event.erixa.SendToPharmacyEvent;
+import health.ere.ps.model.erixa.PrescriptionTransferEntry;
+import health.ere.ps.model.erixa.api.mapping.DeliveryType;
+import health.ere.ps.model.erixa.api.mapping.DoctorUploadToDrugstorePrescriptionModel;
+import health.ere.ps.model.erixa.api.mapping.PrescriptionColor;
+import health.ere.ps.model.erixa.api.mapping.PrescriptionData;
+import health.ere.ps.model.erixa.api.mapping.PrescriptionDoctorData;
+import health.ere.ps.model.erixa.api.mapping.Role;
+import health.ere.ps.model.erixa.api.mapping.UserDetails;
 
 @ApplicationScoped
 public class ErixaUploadService {

@@ -1,17 +1,20 @@
 package health.ere.ps.service.erixa;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import health.ere.ps.model.erixa.api.mapping.UserDetails;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.io.IOException;
-import java.util.logging.Logger;
+import health.ere.ps.model.erixa.api.mapping.UserDetails;
 
 
 @ApplicationScoped
@@ -35,23 +38,30 @@ public class ErixaAPIInterface {
         try {
             HttpResponse response = httpClient.sendGetRequest(userUserDataURL);
             return parseUserDetails(response);
-        } catch (IOException e) {
+        } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
 
     public Object uploadToDrugstore(String json) {
         try {
+            log.info("Post: "+uploadToDrugstoreURL+" "+json);
             HttpResponse response = httpClient.sendPostRequest(uploadToDrugstoreURL, json);
+            if(response.getStatusLine().getStatusCode() != 200) {
+                log.log(Level.WARNING, "Could not upload prescription to eRiXa: "+response.getStatusLine().getStatusCode()+" "+new String(response.getEntity().getContent().readAllBytes()));
+            }
             return parseDrugstoreUploadResult(response);
-        } catch (IOException e) {
+        } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
 
     Object parseDrugstoreUploadResult(HttpResponse response) {
         // TODO implement method
-        throw new UnsupportedOperationException();
+        // throw new UnsupportedOperationException();
+        return null;
     }
 
     UserDetails parseUserDetails(HttpResponse response) {
@@ -60,10 +70,8 @@ public class ErixaAPIInterface {
         try {
             content = EntityUtils.toString(entity);
             return objectMapper.readValue(content, UserDetails.class);
-        } catch (JsonProcessingException e) {
-            log.severe("Failed to parse json");
         } catch (IOException e) {
-            log.severe("Error reading content");
+            e.printStackTrace();
         }
         return null;
     }

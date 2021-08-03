@@ -96,8 +96,7 @@ public class UserConfig {
     }
 
     public String getErixaApiKey() {
-        // FIXME Erixa ApiKey does not belong here
-        throw new UnsupportedOperationException();
+        return configurations.getErixaApiKey();
     }
 
     public String getMuster16TemplateConfiguration() {
