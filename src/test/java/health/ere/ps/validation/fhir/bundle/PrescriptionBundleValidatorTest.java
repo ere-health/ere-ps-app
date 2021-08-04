@@ -1,20 +1,19 @@
 package health.ere.ps.validation.fhir.bundle;
 
-import org.hl7.fhir.r4.model.Bundle;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import javax.inject.Inject;
 
+import org.hl7.fhir.r4.model.Bundle;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.validation.ValidationResult;
 import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
-import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest

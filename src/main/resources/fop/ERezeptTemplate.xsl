@@ -229,14 +229,9 @@
                     <fo:block margin-left="2mm">
                         <fo:instream-foreign-object>
                             <barcode:barcode>
-                                <xsl:attribute name="message">
-                                    <xsl:variable name="bundles" select="fhir:bundle"/>{"urls": [<xsl:for-each select="fhir:bundle">
-                                        <xsl:variable name="qrPos" select="position()"/>
-                                        <xsl:variable name="bundlesCount" select="count($bundles)"/>"Task/<xsl:value-of
+                                <xsl:attribute name="message"><xsl:variable name="bundles" select="fhir:bundle"/>{"urls":[<xsl:for-each select="fhir:bundle"><xsl:variable name="qrPos" select="position()"/><xsl:variable name="bundlesCount" select="count($bundles)"/>"Task/<xsl:value-of
                                             select="fhir:Bundle/fhir:identifier/fhir:value/@value"/>/$accept?ac=<xsl:value-of
-                                            select="fhir:accessCode"/>"<xsl:if test="$qrPos &lt; $bundlesCount">,</xsl:if>
-                                    </xsl:for-each>]}
-                                </xsl:attribute>
+                                            select="fhir:accessCode"/>"<xsl:if test="$qrPos &lt; $bundlesCount">,</xsl:if></xsl:for-each>]}</xsl:attribute>
                                 <barcode:datamatrix>
                                     <barcode:module-width>0.52mm</barcode:module-width>
                                     <barcode:min-symbol-size>90</barcode:min-symbol-size>
@@ -266,24 +261,25 @@
                             <fo:table-column/>
                             <fo:table-body>
                                 <fo:table-row height="35mm">
-                                    <fo:table-cell width="32mm">
+                                    <fo:table-cell width="31mm">
                                         <fo:block>
                                             <fo:instream-foreign-object>
                                                 <barcode:barcode>
-                                                    <xsl:attribute name="message">
-                                                        {"urls":["Task/<xsl:value-of
+                                                    <xsl:attribute name="message">{"urls":["Task/<xsl:value-of
                                                             select="fhir:Bundle/fhir:identifier/fhir:value/@value"/>/$accept?ac=<xsl:value-of
-                                                            select="fhir:accessCode"/>"]}
-                                                    </xsl:attribute>
+                                                            select="fhir:accessCode"/>"]}</xsl:attribute>
                                                     <barcode:datamatrix>
-                                                        <barcode:module-width>0.6mm</barcode:module-width>
+                                                        <barcode:module-width>0.7mm</barcode:module-width>
                                                     </barcode:datamatrix>
                                                 </barcode:barcode>
                                             </fo:instream-foreign-object>
                                         </fo:block>
                                     </fo:table-cell>
                                     <fo:table-cell>
-                                        <fo:block margin-top="3mm">
+                                        <fo:block margin-top="3mm" margin-right="3mm">
+                                            <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:extension[@url='https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription']/fhir:extension[@url='Kennzeichen']/fhir:valueBoolean/@value = 'true' or string-length(fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:text/@value) &gt; 40 or string-length(fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:dosageInstruction/fhir:text/@value) &gt; 10">
+                                                <xsl:attribute name="font-size">10pt</xsl:attribute>
+                                            </xsl:if>
                                             <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:extension[@url='https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription']/fhir:extension[@url='Kennzeichen']/fhir:valueBoolean/@value = 'true'">
                                                 <fo:block>
                                                     Teil <xsl:value-of

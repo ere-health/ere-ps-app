@@ -15,7 +15,6 @@ import org.apache.xml.security.c14n.CanonicalizationException;
 import org.apache.xml.security.c14n.InvalidCanonicalizerException;
 import org.apache.xml.security.parser.XMLParserException;
 import org.hl7.fhir.r4.model.Bundle;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import ca.uhn.fhir.context.FhirContext;
@@ -31,7 +30,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 
 @QuarkusTest
-@Disabled
+// @Disabled
 @TestProfile(TitusTestProfile.class)
 public class GenerateKBVCertificationBundlesServiceTest {
 
@@ -178,11 +177,11 @@ public class GenerateKBVCertificationBundlesServiceTest {
     }
 
     @Test
-    @Disabled
+    // @Disabled
     public void testRegeneratePdf() throws IOException {
 
-        genPDF("PF01", "1");
-        genPDF("PF02", "2");
+        genPDF("PF01", "d78fe79c81be9541bcf7a95c8254821e3ab3e88eaa1898db9e1b78a982fc94b2");
+        genPDF("PF02", "14e5ed98461cbe0e2aa647c45b03fbbb11340dd55e8324563319a89ff93a5f30");
         
         List<Bundle> bundles = new ArrayList<>(); 
         
@@ -192,9 +191,9 @@ public class GenerateKBVCertificationBundlesServiceTest {
         
 
         List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowables = new ArrayList<>();
-        bundleWithAccessCodeOrThrowables.add(new BundleWithAccessCodeOrThrowable(bundles.get(0), "d573b8da4a6ce5d3fe15adda16f9474ad2a25746e892f959fada4477019eebe5"));
-        bundleWithAccessCodeOrThrowables.add(new BundleWithAccessCodeOrThrowable(bundles.get(1), "cbeaae841cb813f6a8c4b9ed0a49eb91ee6b0fc83adea1f60d8cd3db8250b60e"));
-        bundleWithAccessCodeOrThrowables.add(new BundleWithAccessCodeOrThrowable(bundles.get(2), "a89cdbdc332eaea5bbd0ab9a2d801e579fec0ce1a2856793110bd0be8c214dfe"));
+        bundleWithAccessCodeOrThrowables.add(new BundleWithAccessCodeOrThrowable(bundles.get(0), "9c92aaa9317950ca60149a909c502382d88067bc97aaaafeccf6d33b10b61d7f"));
+        bundleWithAccessCodeOrThrowables.add(new BundleWithAccessCodeOrThrowable(bundles.get(1), "83275b6c9512456ad8197bc4d5e8a53092dc30471ad11abf163e9fa7ae84fe42"));
+        bundleWithAccessCodeOrThrowables.add(new BundleWithAccessCodeOrThrowable(bundles.get(2), "c9784d153fbc8cecd51e05fba60535541affe6bf5f454e7081de5cbd6aee0d99"));
         ByteArrayOutputStream byteArrayOutputStream = documentService.generateERezeptPdf(bundleWithAccessCodeOrThrowables);
 
         Files.write(Paths.get("src/test/resources/kbv-zip/Dokumentation/PF06.pdf"), byteArrayOutputStream.toByteArray());
@@ -215,10 +214,10 @@ public class GenerateKBVCertificationBundlesServiceTest {
     }
 
 
-    private void genPDF(String testCase, String firstLetter) throws IOException {
+    private void genPDF(String testCase, String accessCode) throws IOException {
         Bundle bundle = iParser.parseResource(Bundle.class, getXmlString("src/test/resources/kbv-zip/"+testCase+".xml"));
         List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowables = new ArrayList<>();
-        bundleWithAccessCodeOrThrowables.add(new BundleWithAccessCodeOrThrowable(bundle, firstLetter+"c573b8da4a6ce5d3fe15adda16f9474ad2a25746e892f959fada4477019eebe5"));
+        bundleWithAccessCodeOrThrowables.add(new BundleWithAccessCodeOrThrowable(bundle, accessCode));
         ByteArrayOutputStream byteArrayOutputStream = documentService.generateERezeptPdf(bundleWithAccessCodeOrThrowables);
 
         Files.write(Paths.get("src/test/resources/kbv-zip/Dokumentation/"+testCase+".pdf"), byteArrayOutputStream.toByteArray());

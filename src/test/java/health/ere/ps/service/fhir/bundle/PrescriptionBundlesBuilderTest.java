@@ -1,14 +1,8 @@
 package health.ere.ps.service.fhir.bundle;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Coverage;
-import org.hl7.fhir.r4.model.Patient;
-import org.jboss.logging.Logger;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,6 +17,16 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.xml.stream.XMLStreamException;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Coverage;
+import org.hl7.fhir.r4.model.Patient;
+import org.jboss.logging.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.validation.ValidationResult;
@@ -34,10 +38,6 @@ import health.ere.ps.service.muster16.Muster16FormDataExtractorService;
 import health.ere.ps.service.muster16.parser.rgxer.Muster16SvgRegexParser;
 import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 import io.quarkus.test.junit.QuarkusTest;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @QuarkusTest
 public class PrescriptionBundlesBuilderTest {
@@ -149,7 +149,24 @@ public class PrescriptionBundlesBuilderTest {
         List<Bundle> fhirEPrescriptionBundles = prescriptionBundlesBuilder.createBundles();
 
         fhirEPrescriptionBundles.forEach(bundle -> {
-            bundle.setId("sample-id-from-gematik-ti-123456");
+            parser.setPrettyPrint(true);
+
+            String serialized = parser.encodeResourceToString(bundle);
+
+            logger.info(serialized);
+        });
+    }
+
+    @Test
+    public void test_Name_null() {
+        IParser parser = ctx.newXmlParser();
+
+        prescriptionBundlesBuilder.muster16PrescriptionForm.setPractitionerFirstName(null);
+        prescriptionBundlesBuilder.muster16PrescriptionForm.setPractitionerLastName(null);
+
+        List<Bundle> fhirEPrescriptionBundles = prescriptionBundlesBuilder.createBundles();
+
+        fhirEPrescriptionBundles.forEach(bundle -> {
             parser.setPrettyPrint(true);
 
             String serialized = parser.encodeResourceToString(bundle);
@@ -313,4 +330,5 @@ public class PrescriptionBundlesBuilderTest {
             assertTrue(bundleValidationResult.isSuccessful());
         }
     }
+
 }

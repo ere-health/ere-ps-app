@@ -1,6 +1,7 @@
 package health.ere.ps.service.fhir;
 
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -14,8 +15,7 @@ import health.ere.ps.config.AppConfig;
 import health.ere.ps.event.BundlesEvent;
 import health.ere.ps.event.Muster16PrescriptionFormEvent;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
-import health.ere.ps.service.fhir.bundle.EreBundle;
-import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilderV2;
+import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilder;
 import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 
 @ApplicationScoped
@@ -36,15 +36,15 @@ public class FHIRService {
     Event<Exception> exceptionEvent;
 
     public void generatePrescriptionBundle(@ObservesAsync Muster16PrescriptionFormEvent muster16PrescriptionFormEvent) {
-        Muster16PrescriptionForm muster16PrescriptionForm = muster16PrescriptionFormEvent.getMuster16PrescriptionForm();
-        PrescriptionBundlesBuilderV2 bundleBuilder = new PrescriptionBundlesBuilderV2(muster16PrescriptionForm);
+        try {
+            Muster16PrescriptionForm muster16PrescriptionForm = muster16PrescriptionFormEvent.getMuster16PrescriptionForm();
+            PrescriptionBundlesBuilder bundleBuilder = new PrescriptionBundlesBuilder(muster16PrescriptionForm);
 
-        List<Bundle> bundles = bundleBuilder.createBundles();
-        bundleEvent.fireAsync(new BundlesEvent(bundles));
-    }
-
-    private boolean isOutgoingBundleOk(EreBundle bundle) {
-        return prescriptionBundleValidator.validateResource(bundle.encodeToJson(),
-                true).isSuccessful();
+            List<Bundle> bundles = bundleBuilder.createBundles();
+            bundleEvent.fireAsync(new BundlesEvent(bundles));
+        } catch(Exception e) {
+            log.log(Level.SEVERE, "Could not create bundles", e);
+            exceptionEvent.fireAsync(e);
+        }
     }
 }

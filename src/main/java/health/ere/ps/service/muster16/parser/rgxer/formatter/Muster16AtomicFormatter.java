@@ -1,17 +1,22 @@
 package health.ere.ps.service.muster16.parser.rgxer.formatter;
 
-import health.ere.ps.service.muster16.parser.rgxer.model.Muster16Field;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import health.ere.ps.service.muster16.parser.rgxer.model.Muster16Field;
+
 
 public class Muster16AtomicFormatter {
+
+    private final static Logger log = Logger.getLogger(Muster16AtomicFormatter.class.getName());
 
     private final Pattern EXTRA_WHITE_SPACE = Pattern.compile("\\s+");
     private final Pattern NUMBERS = Pattern.compile("(\\d+)", Pattern.DOTALL);
@@ -85,42 +90,47 @@ public class Muster16AtomicFormatter {
     }
 
     String format(Muster16Field key, String value) {
-        switch (key) {
-            case INSURANCE_COMPANY:
-            case PATIENT_STREET_NUMBER:
-            case PATIENT_STREET_NAME:
-            case PATIENT_LAST_NAME:
-            case PATIENT_FIRST_NAME:
-            case PATIENT_NAME_PREFIX:
-            case INSURANCE_COMPANY_ID:
-            case PATIENT_CITY:
-            case PATIENT_ZIPCODE:
-            case PRACTITIONER_CITY:
-            case PRACTITIONER_FAX:
-            case PRACTITIONER_FIRST_NAME:
-            case PRACTITIONER_LAST_NAME:
-            case PRACTITIONER_NAME_PREFIX:
-            case PRACTITIONER_PHONE:
-            case PRACTITIONER_STREET_NAME:
-            case PRACTITIONER_STREET_NUMBER:
-            case PRACTITIONER_ZIPCODE:
-            case PATIENT_INSURANCE_ID:
-            case IS_WITH_PAYMENT:
-                return removeExtraSpaces(value);
+        try {
+            switch (key) {
+                case INSURANCE_COMPANY:
+                case PATIENT_STREET_NUMBER:
+                case PATIENT_STREET_NAME:
+                case PATIENT_LAST_NAME:
+                case PATIENT_FIRST_NAME:
+                case PATIENT_NAME_PREFIX:
+                case INSURANCE_COMPANY_ID:
+                case PATIENT_CITY:
+                case PATIENT_ZIPCODE:
+                case PRACTITIONER_CITY:
+                case PRACTITIONER_FAX:
+                case PRACTITIONER_FIRST_NAME:
+                case PRACTITIONER_LAST_NAME:
+                case PRACTITIONER_NAME_PREFIX:
+                case PRACTITIONER_PHONE:
+                case PRACTITIONER_STREET_NAME:
+                case PRACTITIONER_STREET_NUMBER:
+                case PRACTITIONER_ZIPCODE:
+                case PATIENT_INSURANCE_ID:
+                case IS_WITH_PAYMENT:
+                    return removeExtraSpaces(value);
 
-            case PATIENT_DATE_OF_BIRTH:
-            case PRESCRIPTION_DATE:
-                return cleanDate(value);
+                case PATIENT_DATE_OF_BIRTH:
+                case PRESCRIPTION_DATE:
+                    return cleanDate(value);
 
-            case CLINIC_ID:
-            case DOCTOR_ID:
-            case PATIENT_STATUS:
-                return cleanNumber(value);
+                case CLINIC_ID:
+                case DOCTOR_ID:
+                case PATIENT_STATUS:
+                    return cleanNumber(value);
 
-            case PRESCRIPTION_LIST:
-                return "";
-            default:
-                return "";
+                case PRESCRIPTION_LIST:
+                    return "";
+                default:
+                    return "";
+            }
+        } catch(Throwable t) {
+            log.log(Level.SEVERE, "Could not parese muster16 form", t);
+            return "";
         }
     }
 

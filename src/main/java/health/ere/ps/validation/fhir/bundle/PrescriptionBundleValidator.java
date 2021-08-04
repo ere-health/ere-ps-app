@@ -1,5 +1,17 @@
 package health.ere.ps.validation.fhir.bundle;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonValue;
+
 import org.hl7.fhir.common.hapi.validation.support.CachingValidationSupport;
 import org.hl7.fhir.common.hapi.validation.support.CommonCodeSystemsTerminologyService;
 import org.hl7.fhir.common.hapi.validation.support.InMemoryTerminologyServerValidationSupport;
@@ -8,11 +20,6 @@ import org.hl7.fhir.common.hapi.validation.support.ValidationSupportChain;
 import org.hl7.fhir.common.hapi.validation.validator.FhirInstanceValidator;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.jboss.logging.Logger;
-
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.context.support.DefaultProfileValidationSupport;
@@ -24,7 +31,7 @@ import health.ere.ps.validation.fhir.context.support.ErePrePopulatedValidationSu
 @ApplicationScoped
 public class PrescriptionBundleValidator {
 
-    private static final Logger logger =
+    private static final Logger log =
             Logger.getLogger(PrescriptionBundleValidator.class.getName());
     private FhirValidator validator;
 
@@ -102,8 +109,46 @@ public class PrescriptionBundleValidator {
                     validationErrorsCollectorList.add(errorReport);
                 }
 
-                logger.info(errorReport);
+                log.info(errorReport);
             }
         }
+    }
+
+    public JsonObject bundlesValidationResult(JsonObject bundlePayload) {
+        JsonObjectBuilder builder = Json.createObjectBuilder();
+        builder.add("type", "BundlesValidationResult");
+        JsonArrayBuilder payload = Json.createArrayBuilder();
+        for (JsonValue jsonValue : bundlePayload.getJsonArray("payload")) {
+            if (jsonValue instanceof JsonArray) {
+                for (JsonValue singleBundle : (JsonArray) jsonValue) {
+                    JsonObjectBuilder singleBundleResults = validateBundle(singleBundle);
+                    payload.add(singleBundleResults);
+                }
+            }
+        }
+        builder.add("payload", payload);
+        return builder.build();
+    }
+
+    public JsonObjectBuilder validateBundle(JsonValue singleBundle) {
+        log.info("Now validating incoming sign and upload bundle:\n" +
+                    singleBundle.toString());
+        JsonObjectBuilder singleBundleResults = Json.createObjectBuilder();
+        String bundleJson = singleBundle.toString();
+        List<String> errorsList = new ArrayList<>(1);
+
+        if (!validateResource(bundleJson,
+        true, errorsList).isSuccessful()) {
+            JsonArrayBuilder errorsJson = Json.createArrayBuilder();
+            errorsList.stream().forEach(s -> errorsJson.add(s));
+            singleBundleResults.add("errors", errorsJson);
+            singleBundleResults.add("valid", false);
+        } else {
+            singleBundleResults.add("valid", true);
+            log.info("Validation for the following incoming sign and " +
+            "upload bundle passed:\n" +
+            singleBundle.toString());
+        }
+        return singleBundleResults;
     }
 }
