@@ -15,6 +15,7 @@ import org.apache.xml.security.c14n.CanonicalizationException;
 import org.apache.xml.security.c14n.InvalidCanonicalizerException;
 import org.apache.xml.security.parser.XMLParserException;
 import org.hl7.fhir.r4.model.Bundle;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import ca.uhn.fhir.context.FhirContext;
@@ -30,7 +31,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 
 @QuarkusTest
-// @Disabled
+@Disabled
 @TestProfile(TitusTestProfile.class)
 public class GenerateKBVCertificationBundlesServiceTest {
 
@@ -177,7 +178,7 @@ public class GenerateKBVCertificationBundlesServiceTest {
     }
 
     @Test
-    // @Disabled
+    @Disabled
     public void testRegeneratePdf() throws IOException {
 
         genPDF("PF01", "d78fe79c81be9541bcf7a95c8254821e3ab3e88eaa1898db9e1b78a982fc94b2");
