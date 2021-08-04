@@ -13,10 +13,13 @@ import org.junit.jupiter.api.Test;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.validation.ValidationResult;
+import health.ere.ps.profile.TitusTestProfile;
 import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
 
 @QuarkusTest
+@TestProfile(TitusTestProfile.class)
 public class PrescriptionBundleValidatorTest {
 
     @Inject
