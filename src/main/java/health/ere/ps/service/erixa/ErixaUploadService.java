@@ -97,7 +97,7 @@ public class ErixaUploadService {
         data.setRole(Role.PATIENT);
         data.setFirstName(entry.getFirstName());
         data.setLastName(entry.getLastName());
-        data.setSalutation(entry.getSalutation());
+        data.setSalutation(null);// entry.getSalutation());
         data.setBirthday(parseBirthday(entry.getBirthday()));
         data.setPostcode(entry.getPostcode());
         data.setStreet(entry.getStreet());

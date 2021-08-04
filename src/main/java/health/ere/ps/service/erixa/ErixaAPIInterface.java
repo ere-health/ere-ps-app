@@ -5,6 +5,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,6 +30,9 @@ public class ErixaAPIInterface {
     @ConfigProperty(name = "erixa.api.url.upload")
     String uploadToDrugstoreURL;
 
+    @Inject
+    Event<Exception> eventException;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final Logger log = Logger.getLogger(getClass().getName());
@@ -40,6 +44,7 @@ public class ErixaAPIInterface {
             return parseUserDetails(response);
         } catch (Exception e) {
             e.printStackTrace();
+            eventException.fireAsync(e);
             return null;
         }
     }
@@ -54,6 +59,7 @@ public class ErixaAPIInterface {
             return parseDrugstoreUploadResult(response);
         } catch (Exception e) {
             e.printStackTrace();
+            eventException.fireAsync(e);
             return null;
         }
     }
@@ -72,6 +78,7 @@ public class ErixaAPIInterface {
             return objectMapper.readValue(content, UserDetails.class);
         } catch (IOException e) {
             e.printStackTrace();
+            eventException.fireAsync(e);
         }
         return null;
     }

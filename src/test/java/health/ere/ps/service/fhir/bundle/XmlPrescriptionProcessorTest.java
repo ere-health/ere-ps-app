@@ -3,13 +3,12 @@ package health.ere.ps.service.fhir.bundle;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import org.hl7.fhir.r4.model.Bundle;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
-import java.nio.file.Paths;
-import java.nio.file.Files;
 
 import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
 
