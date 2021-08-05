@@ -1,13 +1,14 @@
 package health.ere.ps.service.extractor;
 
-import health.ere.ps.config.UserConfig;
-import health.ere.ps.event.PDDocumentEvent;
-import health.ere.ps.event.SVGExtractorResultEvent;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.PDPageContentStream.AppendMode;
-import org.apache.pdfbox.text.PDFTextStripperByArea;
+import java.awt.Color;
+import java.awt.geom.Rectangle2D.Float;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -19,15 +20,16 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
-import java.awt.*;
-import java.awt.geom.Rectangle2D.Float;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.PDPageContentStream.AppendMode;
+import org.apache.pdfbox.text.PDFTextStripperByArea;
+
+import health.ere.ps.config.UserConfig;
+import health.ere.ps.event.PDDocumentEvent;
+import health.ere.ps.event.SVGExtractorResultEvent;
 
 @ApplicationScoped
 public class SVGExtractor {
@@ -39,6 +41,8 @@ public class SVGExtractor {
     Event<Exception> exceptionEvent;
     @Inject
     Event<SVGExtractorResultEvent> sVGExtractorResultEvent;
+    @Inject
+    UserConfig userConfig;
 
     private boolean debugRectangles = false;
 
@@ -66,6 +70,7 @@ public class SVGExtractor {
     }
 
     public void analyzeDocument(@ObservesAsync PDDocumentEvent pDDocumentEvent) {
+        setTemplateProfile(userConfig.getMuster16TemplateConfiguration());
         log.info("SVGExtractor.analyzeDocument");
         try {
             Map<String, String> extractResult = extract(pDDocumentEvent.getPDDocument());
@@ -150,6 +155,7 @@ public class SVGExtractor {
     }
 
     void setTemplateProfile(String name){
+        log.info("Setting SVG Extrator to configuration: "+name);
         TemplateProfile profile;
         try {
             profile = TemplateProfile.valueOf(name);
