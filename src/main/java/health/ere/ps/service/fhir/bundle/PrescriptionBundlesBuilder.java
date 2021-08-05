@@ -254,17 +254,17 @@ public class PrescriptionBundlesBuilder implements IBundlesBuilder {
         }
 
         HumanName humanName = practitioner.addName();
-        if(muster16PrescriptionForm.getPractitionerFirstName() == null) {
-                muster16PrescriptionForm.setPractitionerFirstName("");
+        if(muster16PrescriptionForm.getPractitionerFirstName() == null || "".equals(muster16PrescriptionForm.getPractitionerFirstName())) {
+                muster16PrescriptionForm.setPractitionerFirstName("Unbekannt");
         }
-        if(muster16PrescriptionForm.getPractitionerLastName() == null) {
-                muster16PrescriptionForm.setPractitionerLastName("");
+        if(muster16PrescriptionForm.getPractitionerLastName() == null || "".equals(muster16PrescriptionForm.getPractitionerLastName())) {
+                muster16PrescriptionForm.setPractitionerLastName("Unbekannt");
         }
 
         humanName
                 .setUse(NameUse.OFFICIAL)
                 .setPrefix(prefixList)
-                .addGiven(muster16PrescriptionForm.getPractitionerFirstName()+" ");
+                .addGiven(muster16PrescriptionForm.getPractitionerFirstName());
         
         StringType familyElement = humanName.getFamilyElement();
         List<String> nameParts = new ArrayList<>();
