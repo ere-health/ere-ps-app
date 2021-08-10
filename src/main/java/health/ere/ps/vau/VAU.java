@@ -3,6 +3,13 @@ package health.ere.ps.vau;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.teletrust.TeleTrusTObjectIdentifiers;
 import org.bouncycastle.asn1.x9.X9ECParameters;
+import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.cert.ocsp.BasicOCSPResp;
+import org.bouncycastle.cert.ocsp.CertificateID;
+import org.bouncycastle.cert.ocsp.OCSPResp;
+import org.bouncycastle.cert.ocsp.RevokedStatus;
+import org.bouncycastle.cert.ocsp.SingleResp;
 import org.bouncycastle.crypto.BasicAgreement;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.bouncycastle.crypto.agreement.ECDHBasicAgreement;
@@ -17,18 +24,40 @@ import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.bouncycastle.math.ec.ECPoint;
+import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder;
+
+import de.gematik.ws.conn.certificateservice.v6.VerificationResultType;
+import de.gematik.ws.conn.certificateservice.v6.VerifyCertificateResponse;
+import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateService;
+import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateServicePortType;
+import de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage;
+import de.gematik.ws.conn.connectorcommon.v5.Status;
+import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 
 import javax.xml.bind.DatatypeConverter;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.ws.Holder;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.URL;
 import java.security.*;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
+import java.security.cert.PKIXParameters;
+import java.security.cert.TrustAnchor;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.logging.Logger;
 
 public class VAU {
@@ -41,13 +70,21 @@ public class VAU {
     }
 
     private final SecureRandom secureRandom = new SecureRandom();
-    private String fachdienstUrl;
+    String fachdienstUrl;
+    CertificateServicePortType certificateService;
+    ContextType contextType;
 
     public VAU() {
     }
 
     public VAU(String fachdienstUrl) {
         this.fachdienstUrl = fachdienstUrl;
+    }
+
+    public VAU(String fachdienstUrl, ContextType contextType, CertificateServicePortType certificateService) {
+        this.fachdienstUrl = fachdienstUrl;
+        this.certificateService = certificateService;
+        this.contextType = contextType;
     }
 
     static ECDomainParameters getECDomain() {
@@ -114,10 +151,72 @@ public class VAU {
         CertificateFactory certFactory = CertificateFactory.getInstance("X.509", BouncyCastleProvider.PROVIDER_NAME);
         X509Certificate z = (X509Certificate) certFactory
                 .generateCertificate(new URL(fachdienstUrl + "/VAUCertificate").openStream());
+        if(certificateService != null) {
+            verifyCertificate(z);
+        }
         BCECPublicKey x = (BCECPublicKey) z.getPublicKey();
 
         return new KeyCoords(new BigInteger(1, x.getQ().getXCoord().getEncoded()),
                 new BigInteger(1, x.getQ().getYCoord().getEncoded()));
+    }
+
+    void verifyCertificate(X509Certificate z) {
+        Holder<Status> status = new Holder<>();
+        Holder<VerifyCertificateResponse.VerificationStatus> verificationStatus = new Holder<>();
+        Holder<VerifyCertificateResponse.RoleList> arg5 = new Holder<>();
+        try {
+            certificateService.verifyCertificate(contextType, z.getEncoded(), DatatypeFactory.newInstance().newXMLGregorianCalendar(), status, verificationStatus, arg5);
+        } catch (CertificateEncodingException | FaultMessage | DatatypeConfigurationException e) {
+            throw new IllegalStateException("Can not verify certificate from VAU", e);
+        }
+        if(verificationStatus.value.getVerificationResult() != VerificationResultType.VALID) {
+            throw new IllegalStateException("VAU certificate is not valid");
+        }
+
+        // Code based on: https://github.com/apache/nifi/blob/master/nifi-nar-bundles/nifi-framework-bundle/nifi-framework/nifi-web/nifi-web-security/src/main/java/org/apache/nifi/web/security/x509/ocsp/OcspCertificateValidator.java#L278
+        InputStream ocspResponseStream = new URL(fachdienstUrl + "/VAUCertificateOCSPResponse").openStream();
+        OCSPResp oCSPResp = new OCSPResp(ocspResponseStream);
+        final BasicOCSPResp basicOcspResponse = (BasicOCSPResp) oCSPResp.getResponseObject();
+        final X509CertificateHolder[] responderCertificates = basicOcspResponse.getCerts();
+
+        // get the responder certificate
+        X509Certificate trustedResponderCertificate = new JcaX509CertificateConverter().setProvider("BC").getCertificate(responderCertificates[0]);
+        try {
+            certificateService.verifyCertificate(contextType, trustedResponderCertificate.getEncoded(), DatatypeFactory.newInstance().newXMLGregorianCalendar(), arg3, arg4, arg5);
+        } catch (CertificateEncodingException | FaultMessage | DatatypeConfigurationException e) {
+            throw new IllegalStateException("Can not verify certificate from OCSP responder", e);
+        }
+        if(verificationStatus.value.getVerificationResult() != VerificationResultType.VALID) {
+            throw new IllegalStateException("VAU certificate is not valid");
+        }
+
+        if (trustedResponderCertificate != null) {
+            // verify the response
+            if (!basicOcspResponse.isSignatureValid(new JcaContentVerifierProviderBuilder().setProvider("BC").build(trustedResponderCertificate.getPublicKey()))) {
+                throw new IllegalStateException("OCSP responder certificate status unverified for VAU");
+            }
+        } else {
+            throw new IllegalStateException("OCSP responder certificate trustedResponderCertificate is null");
+        }
+
+        BigInteger subjectSerialNumber = z.getSerialNumber();
+        // validate the response
+        final SingleResp[] responses = basicOcspResponse.getResponses();
+        for (SingleResp singleResponse : responses) {
+            final CertificateID responseCertificateId = singleResponse.getCertID();
+            final BigInteger responseSerialNumber = responseCertificateId.getSerialNumber();
+
+            if (responseSerialNumber.equals(subjectSerialNumber)) {
+                Object certStatus = singleResponse.getCertStatus();
+
+                // interpret the certificate status
+                if (certStatus instanceof RevokedStatus) {
+                    throw new IllegalStateException("VAU certificate status is revoked");
+                } else {
+                    throw new IllegalStateException("VAU certificate status is unknown");
+                }
+            }
+        }
     }
 
     byte[] encrypt(String message) throws NoSuchAlgorithmException, IllegalStateException,
