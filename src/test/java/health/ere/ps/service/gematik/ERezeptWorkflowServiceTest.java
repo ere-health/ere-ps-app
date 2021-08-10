@@ -32,6 +32,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.DateTimeType;
 import org.hl7.fhir.r4.model.MedicationRequest;
+import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -144,7 +145,13 @@ public class ERezeptWorkflowServiceTest {
                     ((MedicationRequest)bundle.getEntry().stream().filter(e -> e.getResource() instanceof MedicationRequest).findAny().get().getResource()).setAuthoredOnElement(new DateTimeType(new Date(), TemporalPrecisionEnum.DAY));
                 } catch(NoSuchElementException ex) {
                     ex.printStackTrace();
-                } 
+                }
+                //try {
+                //    Patient patient = ((Patient)bundle.getEntry().stream().filter(e -> e.getResource() instanceof Patient).findAny().get().getResource());
+                //    patient.getIdentifier().get(0).setValue("X110490897");
+                //} catch(NoSuchElementException ex) {
+                //    ex.printStackTrace();
+                //} 
                 BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
                 ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
                 String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
