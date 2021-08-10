@@ -18,8 +18,10 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
@@ -28,12 +30,15 @@ import javax.xml.stream.XMLStreamException;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.DateTimeType;
+import org.hl7.fhir.r4.model.MedicationRequest;
 import org.hl7.fhir.r4.model.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
 import ca.uhn.fhir.parser.DataFormatException;
 import ca.uhn.fhir.parser.IParser;
 import de.gematik.ws.conn.signatureservice.v7.SignResponse;
@@ -42,7 +47,7 @@ import health.ere.ps.exception.gematik.ERezeptWorkflowException;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.model.idp.client.IdpTokenResult;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
-import health.ere.ps.profile.TitusTestProfile;
+import health.ere.ps.profile.RUTestProfile;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
@@ -134,6 +139,11 @@ public class ERezeptWorkflowServiceTest {
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get("src/test/resources/simplifier_erezept/"), "*.{xml}")) {
             for (Path entry : stream) {
                 Bundle bundle = iParser.parseResource(Bundle.class, new FileInputStream(entry.toFile()));
+                try {
+                    ((MedicationRequest)bundle.getEntry().stream().filter(e -> e.getResource() instanceof MedicationRequest).findAny().get().getResource()).setAuthoredOnElement(new DateTimeType(new Date(), TemporalPrecisionEnum.DAY));
+                } catch(NoSuchElementException ex) {
+                    ex.printStackTrace();
+                } 
                 BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
                 ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
                 String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
@@ -142,9 +152,9 @@ public class ERezeptWorkflowServiceTest {
                 Files.write(Paths.get("target/E-Rezept-" + thisMoment + ".pdf"), a.toByteArray());
                 log.info("Time: "+thisMoment);
                 i++;
-                if (i == 2) {
-                    // break;
-                }
+                //if (i == 1) {
+                //    break;
+                //}
             }
         } catch (DirectoryIteratorException | ERezeptWorkflowException ex) {
             // I/O error encounted during the iteration, the cause is an IOException
