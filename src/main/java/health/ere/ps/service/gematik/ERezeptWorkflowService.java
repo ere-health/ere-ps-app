@@ -57,7 +57,11 @@ import health.ere.ps.event.AbortTaskEntry;
 import health.ere.ps.event.AbortTaskStatus;
 import health.ere.ps.event.AbortTasksEvent;
 import health.ere.ps.event.AbortTasksStatusEvent;
+import health.ere.ps.event.ActivateComfortSignatureEvent;
 import health.ere.ps.event.BundlesWithAccessCodeEvent;
+import health.ere.ps.event.DeactivateComfortSignatureEvent;
+import health.ere.ps.event.GetSignatureModeEvent;
+import health.ere.ps.event.GetSignatureModeResponseEvent;
 import health.ere.ps.event.ReadyToSignBundlesEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
 import health.ere.ps.exception.common.security.SecretsManagerException;
@@ -100,6 +104,8 @@ public class ERezeptWorkflowService {
     BearerTokenService bearerTokenService;
     @Inject
     Event<AbortTasksStatusEvent> abortTasksStatusEvent;
+    @Inject
+    Event<GetSignatureModeResponseEvent> getSignatureModeResponseEvent;
 
     private Client client;
     //In the future it should be managed automatically by the webclient, including its renewal
@@ -438,6 +444,16 @@ public class ERezeptWorkflowService {
         return signResponses;
     }
 
+    /**
+     * Gets the canonical XML for the bundle using ALGO_ID_C14N11_OMIT_COMMENTS.
+     * 
+     * @param bundle
+     * @return
+     * @throws InvalidCanonicalizerException
+     * @throws XMLParserException
+     * @throws IOException
+     * @throws CanonicalizationException
+     */
     public static byte[] getCanonicalXmlBytes(Bundle bundle)
             throws InvalidCanonicalizerException, XMLParserException, IOException, CanonicalizationException {
         String bundleXml = fhirContext.newXmlParser().encodeResourceToString(bundle);
@@ -515,6 +531,9 @@ public class ERezeptWorkflowService {
         log.info("Task $abort Response: " + taskString);
     }
     
+    /**
+     * Requests a new bearerToken if the current one is expired
+     */
     public void requestNewAccessTokenIfNecessary() {
         if (StringUtils.isEmpty(bearerToken) || isExpired(bearerToken)) {
             bearerToken = bearerTokenService.requestBearerToken();
@@ -525,6 +544,10 @@ public class ERezeptWorkflowService {
         return bearerToken;
     }
     
+    /**
+     * Checks if the given bearer token is expired.
+     * @param bearerToken2 the bearer token to check
+     */
     boolean isExpired(String bearerToken2) {
         JwtConsumer consumer = new JwtConsumerBuilder()
             .setDisableRequireSignature()
@@ -540,6 +563,10 @@ public class ERezeptWorkflowService {
         }
     }
 
+    /**
+     * Is executed when an abortTasksEvent is received
+     * @param abortTasksEvent event that contains the task to abort
+     */
     public void onAbortTasksEvent(@ObservesAsync AbortTasksEvent abortTasksEvent) {
         requestNewAccessTokenIfNecessary();
         List<AbortTaskStatus> abortTaskStatusList = new ArrayList<>();
@@ -560,9 +587,17 @@ public class ERezeptWorkflowService {
     }
 
     /**
-     * @throws ERezeptWorkflowException
+     * Reacts to the event the ActivateComfortSignatureEvent
      */
-    public void activateComfortSignature() throws ERezeptWorkflowException {
+    public void onActivateComfortSignatureEvent(@ObservesAsync ActivateComfortSignatureEvent activateComfortSignatureEvent) {
+        activateComfortSignature();
+        onGetSignatureModeEvent(null);
+    }
+
+    /**
+     * Activate comfort signature
+     */
+    public void activateComfortSignature() {
         final Holder<Status> status = new Holder<>();
         final Holder<SignatureModeEnum> signatureMode = new Holder<>();
         String signatureServiceCardHandle = null;
@@ -573,14 +608,25 @@ public class ERezeptWorkflowService {
             connectorServicesProvider.getSignatureServicePortTypeV755().activateComfortSignature(signatureServiceCardHandle, connectorServicesProvider.getContextType(),
                     status, signatureMode);
         } catch (ConnectorCardsException | FaultMessage e) {
-            throw new ERezeptWorkflowException("Activate comfort signature exception.", e);
+            log.log(Level.WARNING, "Could not enable comfort signature", e);
+            exceptionEvent.fire(e);
         }
     }
 
     /**
-     * @throws ERezeptWorkflowException
+     * Reacts to the event the GetSignatureMode Event
      */
-    public void getSignatureMode() throws ERezeptWorkflowException {
+    public void onGetSignatureModeEvent(@ObservesAsync GetSignatureModeEvent getSignatureModeEvent) {
+        GetSignatureModeResponseEvent getSignatureModeResponseEvent = getSignatureMode();
+        if(getSignatureModeResponseEvent != null) {
+            this.getSignatureModeResponseEvent.fireAsync(getSignatureModeResponseEvent);
+        }
+    }
+
+    /**
+     *
+     */
+    public GetSignatureModeResponseEvent getSignatureMode() {
         Holder<Status> status = new Holder<>();
         Holder<ComfortSignatureStatusEnum> comfortSignatureStatus = new Holder<>();
         Holder<Integer> comfortSignatureMax = new Holder<>();
@@ -593,22 +639,34 @@ public class ERezeptWorkflowService {
                     ConnectorCardsService.CardHandleType.HBA);
             connectorServicesProvider.getSignatureServicePortTypeV755().getSignatureMode(signatureServiceCardHandle, connectorServicesProvider.getContextType(), status, comfortSignatureStatus,
                     comfortSignatureMax, comfortSignatureTimer, sessionInfo);
+            return new GetSignatureModeResponseEvent(status.value, comfortSignatureStatus.value, comfortSignatureMax.value, comfortSignatureTimer.value, sessionInfo.value);
         } catch (ConnectorCardsException | FaultMessage e) {
-            throw new ERezeptWorkflowException("Error getting signature mode.", e);
+            log.log(Level.WARNING, "Could not get signature signature", e);
+            exceptionEvent.fire(e);
+            return null;
         }
     }
 
     /**
-     * @throws ERezeptWorkflowException
+     * Reacts to the event the DeactivateComfortSignatureEvent
      */
-    public void deactivateComfortSignature() throws ERezeptWorkflowException {
+    public void onDeactivateComfortSignatureEvent(@ObservesAsync DeactivateComfortSignatureEvent deactivateComfortSignatureEvent) {
+        deactivateComfortSignature();
+        onGetSignatureModeEvent(null);
+    }
+
+    /**
+     *
+     */
+    public void deactivateComfortSignature() {
         String signatureServiceCardHandle = null;
         try {
             signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
                     ConnectorCardsService.CardHandleType.HBA);
             connectorServicesProvider.getSignatureServicePortTypeV755().deactivateComfortSignature(Arrays.asList(signatureServiceCardHandle));
         } catch (ConnectorCardsException | FaultMessage e) {
-            throw new ERezeptWorkflowException("Error deactivating comfort signature.", e);
+            log.log(Level.WARNING, "Could not deactivate comfort signature", e);
+            exceptionEvent.fire(e);
         }
     }
 

@@ -46,9 +46,13 @@ import ca.uhn.fhir.context.FhirContext;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.event.AbortTasksEvent;
 import health.ere.ps.event.AbortTasksStatusEvent;
+import health.ere.ps.event.ActivateComfortSignatureEvent;
 import health.ere.ps.event.BundlesEvent;
+import health.ere.ps.event.DeactivateComfortSignatureEvent;
 import health.ere.ps.event.ERezeptDocumentsEvent;
 import health.ere.ps.event.EreLogNotificationEvent;
+import health.ere.ps.event.GetSignatureModeEvent;
+import health.ere.ps.event.GetSignatureModeResponseEvent;
 import health.ere.ps.event.HTMLBundlesEvent;
 import health.ere.ps.event.ReadyToSignBundlesEvent;
 import health.ere.ps.event.SaveSettingsEvent;
@@ -56,6 +60,7 @@ import health.ere.ps.event.SignAndUploadBundlesEvent;
 import health.ere.ps.event.erixa.ErixaEvent;
 import health.ere.ps.jsonb.BundleAdapter;
 import health.ere.ps.jsonb.ByteAdapter;
+import health.ere.ps.jsonb.DurationAdapter;
 import health.ere.ps.jsonb.ThrowableAdapter;
 import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.model.websocket.OutgoingPayload;
@@ -78,6 +83,13 @@ public class Websocket {
     Event<ErixaEvent> erixaEvent;
     @Inject
     Event<SaveSettingsEvent> saveSettingsEvent;
+
+    @Inject
+    Event<ActivateComfortSignatureEvent> activateComfortSignatureEvent;
+    @Inject
+    Event<DeactivateComfortSignatureEvent> deactivateComfortSignatureEvent;
+    @Inject
+    Event<GetSignatureModeEvent> getSignatureModeEvent;
     
     @Inject
     PrescriptionBundleValidator prescriptionBundleValidator;
@@ -91,15 +103,13 @@ public class Websocket {
             .setProperty(JsonbConfig.FORMATTING, true)
             .withAdapters(new BundleAdapter())
             .withAdapters(new ByteAdapter())
-            .withAdapters(new ThrowableAdapter());
+            .withAdapters(new ThrowableAdapter())
+            .withAdapters(new DurationAdapter());
     Jsonb jsonbFactory = JsonbBuilder.create(customConfig);
     private static final String CHROME_X86_PATH = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
     private static final String CHROME_X64_PATH = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
     private static final EreLogger ereLog = EreLogger.getLogger(Websocket.class);
-    private static final java.util.List<EreLogger.SystemContext> bundleValidationSysLogCtxList =
-            java.util.List.of(EreLogger.SystemContext.KbvBundlesProcessing,
-                    EreLogger.SystemContext.KbvBundlesSigning,
-                    EreLogger.SystemContext.KbvBundleValidation);
+
     private final FhirContext ctx = FhirContext.forR4();
     private final Set<Session> sessions = new HashSet<>();
 
@@ -112,64 +122,62 @@ public class Websocket {
     }
 
     void sendAllKBVExamples(String folder) {
-        sessions.forEach(session -> {
-            if(folder.equals("../src/test/resources/kbv-zip")) {
-                try {
-                    Bundle bundle = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder+"/PF01.xml"));
-                    bundle.setId(UUID.randomUUID().toString());
-                    onFhirBundle(new BundlesEvent(Collections.singletonList(bundle)));
+        if(folder.equals("../src/test/resources/kbv-zip")) {
+            try {
+                Bundle bundle = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder+"/PF01.xml"));
+                bundle.setId(UUID.randomUUID().toString());
+                onFhirBundle(new BundlesEvent(Collections.singletonList(bundle)));
 
-                    bundle = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder+"/PF02.xml"));
-                    bundle.setId(UUID.randomUUID().toString());
-                    onFhirBundle(new BundlesEvent(Collections.singletonList(bundle)));
+                bundle = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder+"/PF02.xml"));
+                bundle.setId(UUID.randomUUID().toString());
+                onFhirBundle(new BundlesEvent(Collections.singletonList(bundle)));
 
-                    Bundle bundle03 = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder+"/PF03.xml"));
-                    bundle03.setId(UUID.randomUUID().toString());
+                Bundle bundle03 = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder+"/PF03.xml"));
+                bundle03.setId(UUID.randomUUID().toString());
 
-                    Bundle bundle04 = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder+"/PF04.xml"));
-                    bundle04.setId(UUID.randomUUID().toString());
+                Bundle bundle04 = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder+"/PF04.xml"));
+                bundle04.setId(UUID.randomUUID().toString());
 
-                    Bundle bundle05 = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder+"/PF05.xml"));
-                    bundle05.setId(UUID.randomUUID().toString());
+                Bundle bundle05 = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder+"/PF05.xml"));
+                bundle05.setId(UUID.randomUUID().toString());
 
-                    onFhirBundle(new BundlesEvent(Arrays.asList(bundle03, bundle04, bundle05)));
+                onFhirBundle(new BundlesEvent(Arrays.asList(bundle03, bundle04, bundle05)));
 
-                    bundle = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder+"/PF07.xml"));
-                    bundle.setId(UUID.randomUUID().toString());
-                    onFhirBundle(new BundlesEvent(Collections.singletonList(bundle)));
+                bundle = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder+"/PF07.xml"));
+                bundle.setId(UUID.randomUUID().toString());
+                onFhirBundle(new BundlesEvent(Collections.singletonList(bundle)));
 
-                    Bundle bundle08_1 = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder+"/PF08_1.xml"));
-                    bundle08_1.setId(UUID.randomUUID().toString());
+                Bundle bundle08_1 = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder+"/PF08_1.xml"));
+                bundle08_1.setId(UUID.randomUUID().toString());
 
-                    Bundle bundle08_2 = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder+"/PF08_2.xml"));
-                    bundle08_2.setId(UUID.randomUUID().toString());
+                Bundle bundle08_2 = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder+"/PF08_2.xml"));
+                bundle08_2.setId(UUID.randomUUID().toString());
 
-                    Bundle bundle08_3 = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder+"/PF08_3.xml"));
-                    bundle08_3.setId(UUID.randomUUID().toString());
+                Bundle bundle08_3 = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder+"/PF08_3.xml"));
+                bundle08_3.setId(UUID.randomUUID().toString());
 
-                    onFhirBundle(new BundlesEvent(Arrays.asList(bundle08_1, bundle08_2, bundle08_3)));
-                } catch(IOException ex) {
-                    ereLog.warn("Could read all files", ex);
-                }
-            } else {
-                try (Stream<Path> paths = Files.walk(Paths.get(folder))) {
-                    paths
-                            .filter(Files::isRegularFile)
-                            .forEach(f -> {
-                                try (InputStream inputStream = new FileInputStream(f.toFile())) {
-                                    String xml = new String(inputStream.readAllBytes(), "UTF-8").replaceAll("<!--.*-->", "");
-                                    Bundle bundle = ctx.newXmlParser().parseResource(Bundle.class, xml);
-                                    bundle.setId(UUID.randomUUID().toString());
-                                    onFhirBundle(new BundlesEvent(Collections.singletonList(bundle)));
-                                } catch (IOException ex) {
-                                    ereLog.warn("Could read all files", ex);
-                                }
-                            });
-                } catch (IOException ex) {
-                    ereLog.warn("Could read all files", ex);
-                }
+                onFhirBundle(new BundlesEvent(Arrays.asList(bundle08_1, bundle08_2, bundle08_3)));
+            } catch(IOException ex) {
+                ereLog.warn("Could read all files", ex);
             }
-        });
+        } else {
+            try (Stream<Path> paths = Files.walk(Paths.get(folder))) {
+                paths
+                        .filter(Files::isRegularFile)
+                        .forEach(f -> {
+                            try (InputStream inputStream = new FileInputStream(f.toFile())) {
+                                String xml = new String(inputStream.readAllBytes(), "UTF-8").replaceAll("<!--.*-->", "");
+                                Bundle bundle = ctx.newXmlParser().parseResource(Bundle.class, xml);
+                                bundle.setId(UUID.randomUUID().toString());
+                                onFhirBundle(new BundlesEvent(Collections.singletonList(bundle)));
+                            } catch (IOException ex) {
+                                ereLog.warn("Could read all files", ex);
+                            }
+                        });
+            } catch (IOException ex) {
+                ereLog.warn("Could read all files", ex);
+            }
+        }
     }
 
     private String getXmlString(String string) throws IOException {
@@ -235,7 +243,16 @@ public class Websocket {
             } else if ("ErixaEvent".equals(object.getString("type"))) {
                 ErixaEvent event = new ErixaEvent(object);
                 erixaEvent.fireAsync(event);
-            } else if ("RequestSettings".equals(object.getString("type"))) {
+            } else if ("DeactivateComfortSignature".equals(object.getString("type"))) {
+                DeactivateComfortSignatureEvent event = new DeactivateComfortSignatureEvent(object);
+                deactivateComfortSignatureEvent.fireAsync(event);
+            } else if ("ActivateComfortSignature".equals(object.getString("type"))) {
+                ActivateComfortSignatureEvent event = new ActivateComfortSignatureEvent(object);
+                activateComfortSignatureEvent.fireAsync(event);
+            } else if ("GetSignatureMode".equals(object.getString("type"))) {
+                GetSignatureModeEvent event = new GetSignatureModeEvent(object);
+                getSignatureModeEvent.fireAsync(event);
+            }  else if ("RequestSettings".equals(object.getString("type"))) {
                 UserConfigurations userConfigurations = userConfigurationService.getConfig();
                 String payload = jsonbFactory.toJson(userConfigurations);
                 sessions.forEach(session -> session.getAsyncRemote().sendObject(
@@ -287,6 +304,22 @@ public class Websocket {
                         ereLog.fatal("Unable to send bundlesEvent: " + result.getException());
                     }
                 }));
+    }
+
+    public void onGetSignatureModeResponseEvent(@ObservesAsync GetSignatureModeResponseEvent getSignatureModeResponseEvent) {
+        assureChromeIsOpen();
+        String abortTasksStatusString = generateJson(getSignatureModeResponseEvent);
+        sessions.forEach(session -> session.getAsyncRemote().sendObject(
+                "{\"type\": \"GetSignatureModeResponse\", \"payload\": " + abortTasksStatusString + "}",
+                result -> {
+                    if (!result.isOK()) {
+                        ereLog.fatal("Unable to send getSignatureModeResponseEvent: " + result.getException());
+                    }
+                }));
+    }
+
+    private String generateJson(GetSignatureModeResponseEvent getSignatureModeResponseEvent) {
+        return jsonbFactory.toJson(getSignatureModeResponseEvent);
     }
 
     String generateJson(AbortTasksStatusEvent abortTasksStatusEvent) {
