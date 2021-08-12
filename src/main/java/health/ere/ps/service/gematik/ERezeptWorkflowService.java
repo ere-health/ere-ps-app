@@ -41,6 +41,7 @@ import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 
 import ca.uhn.fhir.context.FhirContext;
 import de.gematik.ws.conn.connectorcommon.v5.Status;
+import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.v7.GetCards;
 import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
 import de.gematik.ws.conn.signatureservice.v7.DocumentType;
@@ -110,6 +111,8 @@ public class ERezeptWorkflowService {
     private Client client;
     //In the future it should be managed automatically by the webclient, including its renewal
     private String bearerToken;
+
+    private String userIdForComfortSignature;
 
     /**
      * Extracts the access code from a task
@@ -385,11 +388,13 @@ public class ERezeptWorkflowService {
                 }).collect(Collectors.toList());
 
                 List<de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse> signResponsesV755;
+                ContextType contextType = connectorServicesProvider.getContextType();
+                contextType.setUserId(userIdForComfortSignature);
                 if(appConfig.enableBatchSign()) {
                     String jobNumber = connectorServicesProvider.getSignatureServicePortTypeV755().getJobNumber(connectorServicesProvider.getContextType());
-
+            
                     signResponsesV755 = connectorServicesProvider.getSignatureServicePortTypeV755().signDocument(signatureServiceCardHandle,
-                            appConfig.getConnectorCrypt(), connectorServicesProvider.getContextType(), userConfig.getTvMode(),
+                            appConfig.getConnectorCrypt(),contextType, userConfig.getTvMode(),
                             jobNumber, signRequestsV755);
                 } else {
                     signResponsesV755 = signRequestsV755.stream().map(signRequestV755 -> {
@@ -398,7 +403,7 @@ public class ERezeptWorkflowService {
                             jobNumber = connectorServicesProvider.getSignatureServicePortTypeV755().getJobNumber(connectorServicesProvider.getContextType());
                             
                             List<de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse> list = connectorServicesProvider.getSignatureServicePortTypeV755().signDocument(signatureServiceCardHandle,
-                            appConfig.getConnectorCrypt(), connectorServicesProvider.getContextType(), userConfig.getTvMode(),
+                            appConfig.getConnectorCrypt(), contextType, userConfig.getTvMode(),
                             jobNumber, Arrays.asList(signRequestV755));
                             return list.get(0);
                         } catch (FaultMessage e) {
@@ -603,13 +608,16 @@ public class ERezeptWorkflowService {
         String signatureServiceCardHandle = null;
 
         try {
+            userIdForComfortSignature = UUID.randomUUID().toString();
+            ContextType contextType = connectorServicesProvider.getContextType();
+            contextType.setUserId(userIdForComfortSignature);
             signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
                     ConnectorCardsService.CardHandleType.HBA);
-            connectorServicesProvider.getSignatureServicePortTypeV755().activateComfortSignature(signatureServiceCardHandle, connectorServicesProvider.getContextType(),
+            connectorServicesProvider.getSignatureServicePortTypeV755().activateComfortSignature(signatureServiceCardHandle, contextType,
                     status, signatureMode);
         } catch (ConnectorCardsException | FaultMessage e) {
             log.log(Level.WARNING, "Could not enable comfort signature", e);
-            exceptionEvent.fire(e);
+            exceptionEvent.fireAsync(e);
         }
     }
 
@@ -637,12 +645,14 @@ public class ERezeptWorkflowService {
         try {
             signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
                     ConnectorCardsService.CardHandleType.HBA);
-            connectorServicesProvider.getSignatureServicePortTypeV755().getSignatureMode(signatureServiceCardHandle, connectorServicesProvider.getContextType(), status, comfortSignatureStatus,
+            ContextType contextType = connectorServicesProvider.getContextType();
+            contextType.setUserId(userIdForComfortSignature);
+            connectorServicesProvider.getSignatureServicePortTypeV755().getSignatureMode(signatureServiceCardHandle, contextType, status, comfortSignatureStatus,
                     comfortSignatureMax, comfortSignatureTimer, sessionInfo);
             return new GetSignatureModeResponseEvent(status.value, comfortSignatureStatus.value, comfortSignatureMax.value, comfortSignatureTimer.value, sessionInfo.value);
         } catch (ConnectorCardsException | FaultMessage e) {
             log.log(Level.WARNING, "Could not get signature signature", e);
-            exceptionEvent.fire(e);
+            exceptionEvent.fireAsync(e);
             return null;
         }
     }
@@ -663,10 +673,13 @@ public class ERezeptWorkflowService {
         try {
             signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
                     ConnectorCardsService.CardHandleType.HBA);
+            ContextType contextType = connectorServicesProvider.getContextType();
+            contextType.setUserId(userIdForComfortSignature);
+            
             connectorServicesProvider.getSignatureServicePortTypeV755().deactivateComfortSignature(Arrays.asList(signatureServiceCardHandle));
         } catch (ConnectorCardsException | FaultMessage e) {
             log.log(Level.WARNING, "Could not deactivate comfort signature", e);
-            exceptionEvent.fire(e);
+            exceptionEvent.fireAsync(e);
         }
     }
 
