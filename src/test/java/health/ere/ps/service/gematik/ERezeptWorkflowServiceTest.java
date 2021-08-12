@@ -116,6 +116,14 @@ public class ERezeptWorkflowServiceTest {
 
     @Test
     @Disabled
+    void testCreateERezeptMassCreateWithComfortSignature() throws Exception {
+        eRezeptWorkflowService.activateComfortSignature();
+        testCreateERezeptMassCreate();
+        eRezeptWorkflowService.deactivateComfortSignature();
+    }
+
+    @Test
+    @Disabled
     void testCreateERezeptMassCreate() throws Exception {
 
         discoveryDocumentUrl = appConfig.getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;

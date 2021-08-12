@@ -15,9 +15,6 @@ public class AppConfig {
     @ConfigProperty(name = "ere.workflow-service.prescription.server.url")
     String prescriptionServiceURL;
 
-    @ConfigProperty(name = "connector.version")
-    String connectorVersion;
-
     @ConfigProperty(name = "connector.verify-hostname")
     String verifyHostname;
 
@@ -57,10 +54,6 @@ public class AppConfig {
 
     public String getPrescriptionServiceURL() {
         return prescriptionServiceURL;
-    }
-
-    public String getConnectorVersion() {
-        return connectorVersion;
     }
 
     public String getVerifyHostname() {
@@ -105,9 +98,5 @@ public class AppConfig {
 
     public Optional<String> getCertAuthStoreFilePassword() {
         return certAuthStoreFilePassword;
-    }
-
-    public void setConnectorVersion(String connectorVersion) {
-        this.connectorVersion = connectorVersion;
     }
 }

@@ -125,7 +125,7 @@ public class EndpointDiscoveryService {
                         break;
                     }
                     case "SignatureService": {
-                        signatureServiceEndpointAddress = getEndpoint(node, "PTV4+".equals(appConfig.getConnectorVersion()) ? "7.5" : null);
+                        signatureServiceEndpointAddress = getEndpoint(node, "PTV4+".equals(userConfig.getConnectorVersion()) ? "7.5" : null);
                     }
                 }
             }
@@ -171,22 +171,22 @@ public class EndpointDiscoveryService {
                 versionContainingText = productName;
             } else {
                 log.warning("Could not find the version of the connector to use from connector.sds, " +
-                        "using the one from the configuration:" + appConfig.getConnectorVersion());
+                        "using the one from the configuration:" + userConfig.getConnectorVersion());
             }
 
-            if (versionContainingText.contains("PTV4+")) {
+            if (versionContainingText.contains("PTV4+") || versionContainingText.contains("PTV4Plus")) {
                 log.info("Connector version PTV4+ found in connector.sds");
-                appConfig.setConnectorVersion("PTV4+");
+                userConfig.getConfigurations().setVersion("PTV4+");
             } else if (versionContainingText.contains("PTV4")) {
                 log.info("Connector version PTV4 found in connector.sds");
-                appConfig.setConnectorVersion("PTV4");
+                userConfig.getConfigurations().setVersion("PTV4");
             } else {
                 log.warning("Could not determine the version of the connector to use from connector.sds, " +
-                        "using the one from the configuration:" + appConfig.getConnectorVersion());
+                        "using the one from the configuration:" + userConfig.getConnectorVersion());
             }
         } catch (Exception e) {
             log.warning("Could not determine the version of the connector to use from connector.sds, " +
-                    "using the one from the configuration:" + appConfig.getConnectorVersion());
+                    "using the one from the configuration:" + userConfig.getConnectorVersion());
         }
     }
 

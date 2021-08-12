@@ -39,6 +39,9 @@ public class UserConfig {
     @ConfigProperty(name = "connector.tvMode")
     String defaultTvMode;
 
+    @ConfigProperty(name = "connector.version")
+    String defaultConnectorVersion;
+
     String defaultMuster16TemplateProfile = "DENS";
 
     private UserConfigurations configurations;
@@ -93,6 +96,10 @@ public class UserConfig {
 
     public String getTvMode() {
         return getConfigOrDefault(configurations.getTvMode(), defaultTvMode);
+    }
+    
+    public String getConnectorVersion() {
+        return getConfigOrDefault(configurations.getVersion(), defaultConnectorVersion);
     }
 
     public String getErixaApiKey() {
