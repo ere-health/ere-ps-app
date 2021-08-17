@@ -64,6 +64,7 @@ public class Muster16FormDataExtractorService {
             parser.parsePractitionerNamePrefix(),
             parser.parsePractitionerPhoneNumber(),
             parser.parsePractitionerFaxNumber(),
+            parser.parsePractitionerQualification(),
             parser.parseIsWithPayment(),
             parser.parsePrescriptionList()
         );

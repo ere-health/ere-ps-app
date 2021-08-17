@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.nio.file.DirectoryIteratorException;
 import java.nio.file.DirectoryStream;
@@ -32,7 +34,6 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.DateTimeType;
 import org.hl7.fhir.r4.model.MedicationRequest;
-import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -48,7 +49,6 @@ import health.ere.ps.exception.gematik.ERezeptWorkflowException;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.model.idp.client.IdpTokenResult;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
-import health.ere.ps.profile.RUTestProfile;
 import health.ere.ps.profile.TitusTestProfile;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
@@ -161,12 +161,19 @@ public class ERezeptWorkflowServiceTest {
                 //    ex.printStackTrace();
                 //} 
                 BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
-                ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
                 String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
                         .withZone(ZoneOffset.UTC)
                         .format(Instant.now());
-                Files.write(Paths.get("target/E-Rezept-" + thisMoment + ".pdf"), a.toByteArray());
-                log.info("Time: "+thisMoment);
+                if(bundleWithAccessCodeOrThrowable.getThrowable() != null) {
+                    StringWriter sw = new StringWriter();
+                    PrintWriter pw = new PrintWriter(sw);
+                    bundleWithAccessCodeOrThrowable.getThrowable().printStackTrace(pw);
+                    Files.write(Paths.get("target/E-Rezept-" + thisMoment + ".txt"), sw.toString().getBytes());
+                } else {
+                    ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
+                    Files.write(Paths.get("target/E-Rezept-" + thisMoment + ".pdf"), a.toByteArray());
+                    log.info("Time: "+thisMoment);
+                }
                 i++;
                 //if (i == 1) {
                 //    break;

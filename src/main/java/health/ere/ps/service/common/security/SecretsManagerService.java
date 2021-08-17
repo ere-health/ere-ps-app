@@ -75,6 +75,17 @@ public class SecretsManagerService {
                 e.printStackTrace();
                 exceptionEvent.fireAsync(e);
             }
+        } else {
+            // For the connector trust all certificates
+            try {
+                sslContext = SSLContext.getInstance(SslContextType.TLS.getSslContextType());
+                sslContext.init(null, new TrustManager[]{new SSLUtilities.FakeX509TrustManager()},
+                    null);
+            } catch (NoSuchAlgorithmException | KeyManagementException e) {
+                log.severe("There was a problem when creating the SSLContext:");
+                e.printStackTrace();
+                exceptionEvent.fireAsync(e);
+            }
         }
     }
 

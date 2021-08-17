@@ -221,7 +221,7 @@ public class EndpointDiscoveryService {
             throw new IllegalArgumentException("No version tags found");
         }
         NodeList versionNodes = versionsNode.getChildNodes();
-
+        String location = "";
         for (int i = 0, n = versionNodes.getLength(); i < n; ++i) {
             Node versionNode = versionNodes.item(i);
 
@@ -237,12 +237,12 @@ public class EndpointDiscoveryService {
                 continue;
             }
 
-            String location = endpointNode.getAttributes().getNamedItem("Location").getTextContent();
+            location = endpointNode.getAttributes().getNamedItem("Location").getTextContent();
             if (location.startsWith(userConfig.getConnectorBaseURL())) {
                 return location;
             }
         }
-        throw new IllegalArgumentException("Invalid service node");
+        throw new IllegalArgumentException("Invalid service node. Maybe location: "+location+" does not start with: "+userConfig.getConnectorBaseURL());
     }
 
     private Node getNodeWithTag(Node node, String tagName) {

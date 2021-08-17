@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.DirectoryIteratorException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -36,6 +38,7 @@ import org.junit.jupiter.api.Test;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
 import ca.uhn.fhir.parser.IParser;
+import ca.uhn.fhir.validation.ValidationResult;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.exception.gematik.ERezeptWorkflowException;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
@@ -47,6 +50,7 @@ import health.ere.ps.service.connector.endpoint.SSLUtilities;
 import health.ere.ps.service.idp.client.IdpClient;
 import health.ere.ps.service.idp.client.IdpHttpClientService;
 import health.ere.ps.service.pdf.DocumentService;
+import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 
@@ -70,6 +74,8 @@ public class MassGeneratorTest {
     CardCertificateReaderService cardCertificateReaderService;
     @Inject
     ConnectorCardsService connectorCardsService;
+    @Inject
+    PrescriptionBundleValidator prescriptionBundleValidator;
 
     String discoveryDocumentUrl;
 
@@ -120,7 +126,10 @@ public class MassGeneratorTest {
         List<String> cards = Files.readAllLines(Paths.get("../secret-test-print-samples/Noventi/egk/cards.txt"));
 
         eRezeptWorkflowService.activateComfortSignature();
-        FileWriter fw = new FileWriter("target/e-rezept-report.csv");
+        String thisMomentString = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
+                                .withZone(ZoneOffset.UTC)
+                                .format(Instant.now());
+        FileWriter fw = new FileWriter("target/e-rezept-report-"+thisMomentString+".csv");
         fw.write("Id,Filename,AccessCode,Patient\n");
         for(String card : cards) {
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get("../secret-test-print-samples/Noventi/templates/"), "*.{xml}")) {
@@ -131,6 +140,7 @@ public class MassGeneratorTest {
                     fileStream.close();
                     template = replaceTemplates(template);
                     Bundle bundle = iParser.parseResource(Bundle.class, template);
+                    bundle.setId(UUID.randomUUID().toString());
                     try {
                         ((MedicationRequest)bundle.getEntry().stream().filter(e -> e.getResource() instanceof MedicationRequest).findAny().get().getResource()).setAuthoredOnElement(new DateTimeType(new Date(), TemporalPrecisionEnum.DAY));
                     } catch(NoSuchElementException ex) {
@@ -141,17 +151,31 @@ public class MassGeneratorTest {
                         patient.getIdentifier().get(0).setValue(card);
                     } catch(NoSuchElementException ex) {
                         ex.printStackTrace();
-                    } 
-                    BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
-                    ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
-                    String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
-                            .withZone(ZoneOffset.UTC)
-                            .format(Instant.now());
-                    String fileName = entry.toFile().getName().replace(".xml", "")+"-" + thisMoment + ".pdf";
-                    Files.write(Paths.get("target/"+fileName), a.toByteArray());
+                    }
+                    ValidationResult validationResult = prescriptionBundleValidator.validateResource(bundle, true);
+                    if(validationResult.isSuccessful()) {
+                        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
+                        String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
+                                .withZone(ZoneOffset.UTC)
+                                .format(Instant.now());
+                                
+                        if(bundleWithAccessCodeOrThrowable.getThrowable() != null) {
+                            StringWriter sw = new StringWriter();
+                            PrintWriter pw = new PrintWriter(sw);
+                            bundleWithAccessCodeOrThrowable.getThrowable().printStackTrace(pw);
+                            Files.write(Paths.get("target/"+entry.toFile().getName().replace(".xml", "")+" "+ thisMoment + ".txt"), sw.toString().getBytes());
+                            Files.write(Paths.get("target/"+entry.toFile().getName().replace(".xml", "")+" "+ thisMoment + ".xml"), iParser.encodeResourceToString(bundleWithAccessCodeOrThrowable.getBundle()).getBytes());
+                        } else {
+                            ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
+                            String fileName = entry.toFile().getName().replace(".xml", "")+"-" + thisMoment + ".pdf";
+                            Files.write(Paths.get("target/"+fileName), a.toByteArray());
+                            fw.write(bundleWithAccessCodeOrThrowable.getBundle().getIdentifier().getId()+","+fileName+","+bundleWithAccessCodeOrThrowable.getAccessCode()+","+card+"\n");
+                        }
 
-                    fw.write(bundleWithAccessCodeOrThrowable.getBundle().getIdentifier().getId()+","+fileName+","+bundleWithAccessCodeOrThrowable.getAccessCode()+","+card+"\n");
-                    log.info("Time: "+thisMoment);
+                        log.info("Time: "+thisMoment);
+                    } else {
+                        log.info(entry.toFile().getName()+" is not valid");
+                    }
                     i++;
                     //if (i == 1) {
                     //    break;

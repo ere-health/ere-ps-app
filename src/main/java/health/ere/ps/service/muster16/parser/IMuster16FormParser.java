@@ -42,6 +42,7 @@ public interface IMuster16FormParser {
         return isDataFieldPresentAtPosition(muster16PdfDataFields, fieldPosition)?
                 muster16PdfDataFields[fieldPosition] : defaultValue;
     }
+    String parsePractitionerQualification();
 
 
 }

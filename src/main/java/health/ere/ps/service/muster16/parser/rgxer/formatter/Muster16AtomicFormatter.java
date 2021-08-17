@@ -106,6 +106,7 @@ public class Muster16AtomicFormatter {
                 case PRACTITIONER_FIRST_NAME:
                 case PRACTITIONER_LAST_NAME:
                 case PRACTITIONER_NAME_PREFIX:
+                case PRACTITIONER_QUALIFICATION:
                 case PRACTITIONER_PHONE:
                 case PRACTITIONER_STREET_NAME:
                 case PRACTITIONER_STREET_NUMBER:
@@ -129,7 +130,7 @@ public class Muster16AtomicFormatter {
                     return "";
             }
         } catch(Throwable t) {
-            log.log(Level.SEVERE, "Could not parese muster16 form", t);
+            log.log(Level.SEVERE, "Could not parse muster16 form", t);
             return "";
         }
     }

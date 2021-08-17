@@ -206,4 +206,9 @@ public class Muster16SvgRegexParser implements IMuster16FormParser {
     public String parsePractitionerFaxNumber() {
         return getValue(PRACTITIONER_FAX);
     }
+
+    @Override
+    public String parsePractitionerQualification() {
+        return getValue(PRACTITIONER_QUALIFICATION);
+    }
 }

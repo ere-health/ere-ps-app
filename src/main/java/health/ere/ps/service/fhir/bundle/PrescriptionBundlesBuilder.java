@@ -278,9 +278,10 @@ public class PrescriptionBundlesBuilder implements IBundlesBuilder {
 
         PractitionerQualificationComponent qualification = new PractitionerQualificationComponent();
         CodeableConcept qualificationCodeableConcept = new CodeableConcept();
-        Coding hausarztCoding = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_Qualification_Type",
-                "00", null);
-        qualificationCodeableConcept.addCoding(hausarztCoding);
+        Coding practitionerQualificationCoding = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_Qualification_Type",
+                (muster16PrescriptionForm.getPractitionerQualification() == null ||
+                        muster16PrescriptionForm.getPractitionerQualification().equals("")) ? "00" : muster16PrescriptionForm.getPractitionerQualification(), null);
+        qualificationCodeableConcept.addCoding(practitionerQualificationCoding);
 
         qualification.setCode(qualificationCodeableConcept);
         practitioner.addQualification(qualification);

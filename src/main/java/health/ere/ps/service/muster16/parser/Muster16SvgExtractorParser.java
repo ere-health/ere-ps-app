@@ -287,4 +287,9 @@ public class Muster16SvgExtractorParser implements IMuster16FormParser {
     public Map<String, String> getMappedFields() {
         return mappedFields;
     }
+
+    @Override
+    public String parsePractitionerQualification() {
+        return "00";
+    }
 }

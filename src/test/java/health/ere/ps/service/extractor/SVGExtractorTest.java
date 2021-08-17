@@ -360,6 +360,16 @@ class SVGExtractorTest {
     private void logExtraction(Map<String, String> map) {
         System.out.println(map.entrySet().stream().map((e) -> "        assertEquals(\""+e.getValue().replaceAll(lineSep, "\\\\n")+"\", map.get(\""+e.getKey()+"\"));").collect(Collectors.joining(lineSep)));
     }
+
+    @Test
+    @Disabled
+    void testExtractIbu600() throws URISyntaxException, IOException, XMLStreamException {
+
+        SVGExtractor svgExtractor = new SVGExtractor(DENS_LANDSCAPE.configuration, true);
+        Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/ibu600.pdf")));
+
+        logExtraction(map);
+    }
     
 
 }

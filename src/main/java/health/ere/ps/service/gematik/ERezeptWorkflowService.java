@@ -239,6 +239,8 @@ public class ERezeptWorkflowService {
      */
     public BundleWithAccessCodeOrThrowable createERezeptOnPrescriptionServer(String bearerToken, Bundle bundle)
             throws ERezeptWorkflowException {
+        requestNewAccessTokenIfNecessary();
+        
         log.fine("Bearer Token: " + bearerToken);
 
         // Example: src/test/resources/gematik/Task-4711.xml
@@ -248,9 +250,12 @@ public class ERezeptWorkflowService {
         // src/test/resources/gematik/Bundle-4fe2013d-ae94-441a-a1b1-78236ae65680.xml
         BundleWithAccessCodeOrThrowable bundleWithAccessCode = updateBundleWithTask(task, bundle);
         SignResponse signedDocument = signBundleWithIdentifiers(bundleWithAccessCode.getBundle());
-
-        updateERezeptTask(bearerToken, task, bundleWithAccessCode.getAccessCode(),
+        try {
+            updateERezeptTask(bearerToken, task, bundleWithAccessCode.getAccessCode(),
                 signedDocument.getSignatureObject().getBase64Signature().getValue());
+        } catch(Exception e) {
+            bundleWithAccessCode.setThrowable(e);
+        }
 
         return bundleWithAccessCode;
     }
@@ -389,7 +394,9 @@ public class ERezeptWorkflowService {
 
                 List<de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse> signResponsesV755;
                 ContextType contextType = connectorServicesProvider.getContextType();
-                contextType.setUserId(userIdForComfortSignature);
+                if(userIdForComfortSignature != null) {
+                    contextType.setUserId(userIdForComfortSignature);
+                }
                 if(appConfig.enableBatchSign()) {
                     String jobNumber = connectorServicesProvider.getSignatureServicePortTypeV755().getJobNumber(connectorServicesProvider.getContextType());
             
@@ -475,13 +482,18 @@ public class ERezeptWorkflowService {
         return canonXmlBytes;
     }
 
+    public Task createERezeptTask(String bearerToken) {
+        return createERezeptTask(bearerToken, true);
+    }
+
     /**
      * This function creates an empty task based on workflow 160 (Muster 16) on the
      * prescription server.
      *
      * @return
      */
-    public Task createERezeptTask(String bearerToken) {
+    public Task createERezeptTask(String bearerToken, boolean firstTry) {
+        requestNewAccessTokenIfNecessary();
         // https://github.com/gematik/api-erp/blob/master/docs/erp_bereitstellen.adoc#e-rezept-erstellen
         // POST to https://prescriptionserver.telematik/Task/$create
 
@@ -502,6 +514,12 @@ public class ERezeptWorkflowService {
                 .post(Entity.entity(parameterString, "application/fhir+xml; charset=utf-8"));
 
         String taskString = response.readEntity(String.class);
+
+        // if this was the first try, try again, this will request a new bearer token
+        if(firstTry && response.getStatus() == 401) {
+            createERezeptTask(bearerToken, false);
+        }
+
         if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
             // OperationOutcome operationOutcome =
             // fhirContext.newXmlParser().parseResource(OperationOutcome.class, new

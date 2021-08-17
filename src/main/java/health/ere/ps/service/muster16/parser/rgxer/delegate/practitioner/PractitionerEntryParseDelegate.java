@@ -1,15 +1,29 @@
 package health.ere.ps.service.muster16.parser.rgxer.delegate.practitioner;
 
-import health.ere.ps.service.muster16.parser.rgxer.delegate.pattern.PractitionerPatterns;
-import health.ere.ps.service.muster16.parser.rgxer.model.Muster16Field;
+import static health.ere.ps.service.muster16.parser.rgxer.model.Muster16Field.PRACTITIONER_QUALIFICATION;
+import static health.ere.ps.service.muster16.parser.rgxer.model.Muster16Field.PRACTITIONER_CITY;
+import static health.ere.ps.service.muster16.parser.rgxer.model.Muster16Field.PRACTITIONER_FAX;
+import static health.ere.ps.service.muster16.parser.rgxer.model.Muster16Field.PRACTITIONER_FIRST_NAME;
+import static health.ere.ps.service.muster16.parser.rgxer.model.Muster16Field.PRACTITIONER_LAST_NAME;
+import static health.ere.ps.service.muster16.parser.rgxer.model.Muster16Field.PRACTITIONER_NAME_PREFIX;
+import static health.ere.ps.service.muster16.parser.rgxer.model.Muster16Field.PRACTITIONER_PHONE;
+import static health.ere.ps.service.muster16.parser.rgxer.model.Muster16Field.PRACTITIONER_STREET_NAME;
+import static health.ere.ps.service.muster16.parser.rgxer.model.Muster16Field.PRACTITIONER_STREET_NUMBER;
+import static health.ere.ps.service.muster16.parser.rgxer.model.Muster16Field.PRACTITIONER_ZIPCODE;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static health.ere.ps.service.muster16.parser.rgxer.model.Muster16Field.*;
+import health.ere.ps.service.muster16.parser.rgxer.delegate.pattern.PractitionerPatterns;
+import health.ere.ps.service.muster16.parser.rgxer.model.Muster16Field;
 
 public class PractitionerEntryParseDelegate {
 
@@ -32,6 +46,16 @@ public class PractitionerEntryParseDelegate {
                 .map(String::trim)
                 .collect(Collectors.toList());
 
+        if(lines.contains("Zahnärztin")) {
+            details.put(PRACTITIONER_QUALIFICATION, "01");
+            lines.remove("Zahnärztin");
+        } else if(lines.contains("Zahnarzt")) {
+            details.put(PRACTITIONER_QUALIFICATION, "01");
+            lines.remove("Zahnarzt");
+        } else {
+            details.put(PRACTITIONER_QUALIFICATION, "00");
+        }
+
         if (lines.size() >= 5) {
             matchAndExtractLine(lines, patterns.FAX_LINE).ifPresent(this::parseFaxNumber);
             matchAndExtractLine(lines, patterns.PHONE_LINE).ifPresent(this::parsePhoneNumber);
@@ -47,8 +71,8 @@ public class PractitionerEntryParseDelegate {
         String[] names = entry.split(" ");
 
         if (!(names.length == 1)) {
-            details.put(PRACTITIONER_LAST_NAME, names[names.length - 1]);
-            details.put(PRACTITIONER_FIRST_NAME, entry.substring(0, entry.lastIndexOf(" ")));
+            details.put(PRACTITIONER_LAST_NAME, names[names.length - 1].trim());
+            details.put(PRACTITIONER_FIRST_NAME, entry.substring(0, entry.lastIndexOf(" ")).trim());
         }
     }
 

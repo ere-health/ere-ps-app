@@ -28,6 +28,7 @@ public class Muster16PrescriptionForm {
     private String practitionerNamePrefix;
     private String practitionerPhone;
     private String practitionerFax;
+    private String practitionerQualification;
     private Boolean isWithPayment;
 
     private List<MedicationString> prescriptionList;
@@ -40,7 +41,7 @@ public class Muster16PrescriptionForm {
                                     String practitionerFirstName, String practitionerLastName, String practitionerStreetName,
                                     String practitionerStreetNumber, String practitionerCity, String practitionerZipCode,
                                     String practitionerNamePrefix, String practitionerPhone, String practitionerFax,
-                                    Boolean isWithPayment, List<MedicationString> prescriptionList) {
+                                    String practitionerQualification, Boolean isWithPayment, List<MedicationString> prescriptionList) {
         this.insuranceCompany = insuranceCompany;
         this.insuranceCompanyId = insuranceCompanyId;
         this.PatientNamePrefix = patientNamePrefix;
@@ -65,6 +66,7 @@ public class Muster16PrescriptionForm {
         this.practitionerNamePrefix = practitionerNamePrefix;
         this.practitionerPhone = practitionerPhone;
         this.practitionerFax = practitionerFax;
+        this.practitionerQualification = practitionerQualification;
         this.isWithPayment = isWithPayment;
         this.prescriptionList = prescriptionList;
     }
@@ -263,6 +265,14 @@ public class Muster16PrescriptionForm {
 
     public void setPractitionerFax(String practitionerFax) {
         this.practitionerFax = practitionerFax;
+    }
+
+    public String getPractitionerQualification() {
+        return this.practitionerQualification;
+    }
+
+    public void setPractitionerQualification(String practitionerQualification) {
+        this.practitionerQualification = practitionerQualification;
     }
 
     public Boolean getWithPayment() {

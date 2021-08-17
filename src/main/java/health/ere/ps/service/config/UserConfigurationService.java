@@ -62,6 +62,7 @@ public class UserConfigurationService {
         try {
             FileOutputStream outputStream = new FileOutputStream(file);
             properties.store(outputStream, "");
+            outputStream.close();
         } catch (IOException e) {
             log.severe("Could not store configurations");
         }
