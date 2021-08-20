@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.ObservesAsync;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -83,6 +84,9 @@ public class Websocket {
     Event<ErixaEvent> erixaEvent;
     @Inject
     Event<SaveSettingsEvent> saveSettingsEvent;
+
+    @Inject
+    Instance<MessageProcessor> messageProcessors;
 
     @Inject
     Event<ActivateComfortSignatureEvent> activateComfortSignatureEvent;
@@ -278,6 +282,12 @@ public class Websocket {
                 sendAllKBVExamples(object.getString("folder", "../src/test/resources/simplifier_erezept"));
             } else if("ReadyToSignBundles".equals(object.getString("type"))) {
                 readyToSignBundlesEvent.fireAsync(new ReadyToSignBundlesEvent(object));
+            } else {
+                for(MessageProcessor messageProcessor : messageProcessors ) {
+                    if(messageProcessor.canProcess(object.getString("type"))) {
+                        messageProcessor.process(object);
+                    }
+                }
             }
         }
     }

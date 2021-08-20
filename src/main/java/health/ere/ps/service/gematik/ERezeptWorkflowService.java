@@ -251,8 +251,12 @@ public class ERezeptWorkflowService {
         BundleWithAccessCodeOrThrowable bundleWithAccessCode = updateBundleWithTask(task, bundle);
         SignResponse signedDocument = signBundleWithIdentifiers(bundleWithAccessCode.getBundle());
         try {
-            updateERezeptTask(bearerToken, task, bundleWithAccessCode.getAccessCode(),
-                signedDocument.getSignatureObject().getBase64Signature().getValue());
+            if(signedDocument == null) {
+                bundleWithAccessCode.setThrowable(new RuntimeException("Could not get signed document. Please check the logs."));
+            } else {
+                updateERezeptTask(bearerToken, task, bundleWithAccessCode.getAccessCode(),
+                    signedDocument.getSignatureObject().getBase64Signature().getValue());
+            }
         } catch(Exception e) {
             bundleWithAccessCode.setThrowable(e);
         }
@@ -421,10 +425,13 @@ public class ERezeptWorkflowService {
                 }
 
                 List<SignResponse> signResponses744 = signResponsesV755.stream().map(signResponseV755 -> {
-                    SignResponse signResponse744 = new SignResponse();
-                    signResponse744.setSignatureObject(signResponseV755.getSignatureObject());
-                    signResponse744.setStatus(signResponseV755.getStatus());
-                    return signResponse744;
+                    if(signResponseV755 != null) {
+                        SignResponse signResponse744 = new SignResponse();
+                        signResponse744.setSignatureObject(signResponseV755.getSignatureObject());
+                        signResponse744.setStatus(signResponseV755.getStatus());
+                        return signResponse744;
+                    }
+                    return null;
                 }).collect(Collectors.toList());
 
                 return signResponses744;

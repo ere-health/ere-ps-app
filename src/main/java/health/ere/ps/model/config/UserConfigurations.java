@@ -67,6 +67,9 @@ public class UserConfigurations {
     @JsonbProperty(value="connector.basic-auth-password", nillable=true)
     private String basicAuthPassword;
 
+    @JsonbProperty(value="kbv.pruefnummer", nillable=true)
+    private String pruefnummer;
+
     static BeanInfo beanInfo;
 
     static {
@@ -248,4 +251,13 @@ public class UserConfigurations {
     public void setErixaApiKey(String erixaApiKey) {
         this.erixaApiKey = erixaApiKey;
     }
+
+    public String getPruefnummer() {
+        return this.pruefnummer;
+    }
+
+    public void setPruefnummer(String pruefnummer) {
+        this.pruefnummer = pruefnummer;
+    }
+
 }

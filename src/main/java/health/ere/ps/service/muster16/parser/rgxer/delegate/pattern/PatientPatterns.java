@@ -7,5 +7,5 @@ public class PatientPatterns extends Patterns {
     public final Pattern NAME_PREFIX = Pattern.compile("(Prof|Dr)\\.");
     public final Pattern FIRST_NAME_LINE = Pattern.compile("(?<prefix>(Prof|Dr)\\.)(.*)");
     public final Pattern ADDRESS_LINE = Pattern.compile("(.*)(\\d{5})(.*)");
-    public final Pattern STREET_LINE = Pattern.compile("(\\D+)(\\d+)");
+    public final Pattern STREET_LINE = Pattern.compile("(\\D+)(\\d+( ?[a-zA-Z])?)");
 }

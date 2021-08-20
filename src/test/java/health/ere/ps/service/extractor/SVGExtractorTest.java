@@ -1,8 +1,11 @@
 package health.ere.ps.service.extractor;
 
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import static health.ere.ps.service.extractor.TemplateProfile.APRAXOS;
+import static health.ere.ps.service.extractor.TemplateProfile.CGM_TURBO_MED;
+import static health.ere.ps.service.extractor.TemplateProfile.CGM_Z1;
+import static health.ere.ps.service.extractor.TemplateProfile.DENS;
+import static health.ere.ps.service.extractor.TemplateProfile.DENS_LANDSCAPE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -13,8 +16,9 @@ import java.util.stream.Collectors;
 
 import javax.xml.stream.XMLStreamException;
 
-import static health.ere.ps.service.extractor.TemplateProfile.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 class SVGExtractorTest {
 
@@ -367,6 +371,16 @@ class SVGExtractorTest {
 
         SVGExtractor svgExtractor = new SVGExtractor(DENS_LANDSCAPE.configuration, true);
         Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/ibu600.pdf")));
+
+        logExtraction(map);
+    }
+
+    @Test
+    @Disabled
+    void testExtract18082021() throws URISyntaxException, IOException, XMLStreamException {
+
+        SVGExtractor svgExtractor = new SVGExtractor(DENS_LANDSCAPE.configuration, true);
+        Map<String, String> map = svgExtractor.extract(PDDocument.load(new FileInputStream("../secret-test-print-samples/DENS-GmbH/18082021.pdf")));
 
         logExtraction(map);
     }

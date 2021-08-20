@@ -42,6 +42,9 @@ public class UserConfig {
     @ConfigProperty(name = "connector.version")
     String defaultConnectorVersion;
 
+    @ConfigProperty(name = "kbv.pruefnummer")
+    String defaultPruefnummer;
+
     String defaultMuster16TemplateProfile = "DENS";
 
     private UserConfigurations configurations;
@@ -100,6 +103,10 @@ public class UserConfig {
     
     public String getConnectorVersion() {
         return getConfigOrDefault(configurations.getVersion(), defaultConnectorVersion);
+    }
+
+    public String getPruefnummer() {
+        return getConfigOrDefault(configurations.getPruefnummer(), defaultPruefnummer);
     }
 
     public String getErixaApiKey() {

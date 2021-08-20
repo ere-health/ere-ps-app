@@ -11,7 +11,7 @@ import javax.inject.Inject;
 
 import org.hl7.fhir.r4.model.Bundle;
 
-import health.ere.ps.config.AppConfig;
+import health.ere.ps.config.UserConfig;
 import health.ere.ps.event.BundlesEvent;
 import health.ere.ps.event.Muster16PrescriptionFormEvent;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
@@ -24,7 +24,7 @@ public class FHIRService {
     private static final Logger log = Logger.getLogger(FHIRService.class.getName());
 
     @Inject
-    AppConfig appConfig;
+    UserConfig userConfig;
 
     @Inject
     PrescriptionBundleValidator prescriptionBundleValidator;
@@ -38,7 +38,7 @@ public class FHIRService {
     public void generatePrescriptionBundle(@ObservesAsync Muster16PrescriptionFormEvent muster16PrescriptionFormEvent) {
         try {
             Muster16PrescriptionForm muster16PrescriptionForm = muster16PrescriptionFormEvent.getMuster16PrescriptionForm();
-            PrescriptionBundlesBuilder bundleBuilder = new PrescriptionBundlesBuilder(muster16PrescriptionForm);
+            PrescriptionBundlesBuilder bundleBuilder = new PrescriptionBundlesBuilder(muster16PrescriptionForm, userConfig.getPruefnummer());
 
             List<Bundle> bundles = bundleBuilder.createBundles();
             bundleEvent.fireAsync(new BundlesEvent(bundles));

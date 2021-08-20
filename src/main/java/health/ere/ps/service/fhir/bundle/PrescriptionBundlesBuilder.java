@@ -48,8 +48,11 @@ public class PrescriptionBundlesBuilder implements IBundlesBuilder {
 
     private static final Logger log = Logger.getLogger(PrescriptionBundlesBuilder.class.getName());
 
-    public PrescriptionBundlesBuilder(Muster16PrescriptionForm muster16PrescriptionForm) {
+    protected String pruefnummer;
+
+    public PrescriptionBundlesBuilder(Muster16PrescriptionForm muster16PrescriptionForm, String pruefnummer) {
         this.muster16PrescriptionForm = muster16PrescriptionForm;
+        this.pruefnummer = pruefnummer;
     }
 
     protected static String getDateFormat(String date) {
@@ -521,7 +524,7 @@ public class PrescriptionBundlesBuilder implements IBundlesBuilder {
                 .setType("Device")
                 .getIdentifier()
                 .setSystem("https://fhir.kbv.de/NamingSystem/KBV_NS_FOR_Pruefnummer")
-                .setValue("123456"); //TODO: Get actual KBV issued software certificate number.
+                .setValue(pruefnummer);
 
         composition.setTitle("elektronische Arzneimittelverordnung");
 

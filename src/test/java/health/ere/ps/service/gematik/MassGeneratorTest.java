@@ -169,7 +169,7 @@ public class MassGeneratorTest {
                             ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
                             String fileName = entry.toFile().getName().replace(".xml", "")+"-" + thisMoment + ".pdf";
                             Files.write(Paths.get("target/"+fileName), a.toByteArray());
-                            fw.write(bundleWithAccessCodeOrThrowable.getBundle().getIdentifier().getId()+","+fileName+","+bundleWithAccessCodeOrThrowable.getAccessCode()+","+card+"\n");
+                            fw.write(bundleWithAccessCodeOrThrowable.getBundle().getIdentifier().getValue()+","+fileName+","+bundleWithAccessCodeOrThrowable.getAccessCode()+","+card+"\n");
                         }
 
                         log.info("Time: "+thisMoment);
