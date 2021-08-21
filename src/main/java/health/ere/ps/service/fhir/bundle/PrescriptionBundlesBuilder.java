@@ -50,6 +50,10 @@ public class PrescriptionBundlesBuilder implements IBundlesBuilder {
 
     protected String pruefnummer;
 
+    public PrescriptionBundlesBuilder(Muster16PrescriptionForm muster16PrescriptionForm) {
+        this.muster16PrescriptionForm = muster16PrescriptionForm;
+    }
+
     public PrescriptionBundlesBuilder(Muster16PrescriptionForm muster16PrescriptionForm, String pruefnummer) {
         this.muster16PrescriptionForm = muster16PrescriptionForm;
         this.pruefnummer = pruefnummer;
