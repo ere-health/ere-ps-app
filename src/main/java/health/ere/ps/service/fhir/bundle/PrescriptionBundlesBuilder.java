@@ -52,6 +52,8 @@ public class PrescriptionBundlesBuilder implements IBundlesBuilder {
 
     public PrescriptionBundlesBuilder(Muster16PrescriptionForm muster16PrescriptionForm) {
         this.muster16PrescriptionForm = muster16PrescriptionForm;
+        // if this is not provided use the Prüfnummer from Gematik
+        this.pruefnummer = "VfS_BestKonfPS_TI_79";
     }
 
     public PrescriptionBundlesBuilder(Muster16PrescriptionForm muster16PrescriptionForm, String pruefnummer) {
