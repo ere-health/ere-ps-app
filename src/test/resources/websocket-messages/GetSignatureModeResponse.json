@@ -1,0 +1,16 @@
+{
+    "type": "GetSignatureModeResponse",
+    "payload": {
+        "comfortSignatureMax": 100,
+        "comfortSignatureStatus": "ENABLED",
+        "comfortSignatureTimer": "P0Y0M0DT6H0M0.000S",
+        "sessionInfo": {
+            "countRemaining": 100,
+            "signatureMode": "COMFORT",
+            "timeRemaining": "P0Y0M0DT0H0M0.000S"
+        },
+        "status": {
+            "result": "OK"
+        }
+    }
+}

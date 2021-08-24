@@ -1,0 +1,23 @@
+{
+    "type": "SaveSettings",
+    "payload": {
+        "connector.base-url": null,
+        "connector.basic-auth-password": null,
+        "connector.basic-auth-username": null,
+        "connector.client-certificate": null,
+        "connector.client-certificate-password": null,
+        "connector.client-system-id": null,
+        "connector.mandant-id": null,
+        "connector.tvMode": null,
+        "connector.user-id": null,
+        "connector.version": null,
+        "connector.workplace-id": null,
+        "erixa.api.key": null,
+        "erixa.drugstore.email": null,
+        "erixa.hotfolder": null,
+        "erixa.user.email": null,
+        "erixa.user.password": null,
+        "extractor.template.profile": "DENS_LANDSCAPE",
+        "kbv.pruefnummer": null
+    }
+}
