@@ -74,7 +74,6 @@ public class ERezeptWorkflowServiceTest {
 
     private static final Logger log = Logger.getLogger(ERezeptWorkflowServiceTest.class.getName());
     private final IParser iParser = FhirContext.forR4().newXmlParser();
-    private String testBearerToken = "eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiY3R5IjoiTkpXVCIsImV4cCI6MTYyNzMwNzYwNX0..s1njSJ1mM3HHzHnf.PhPXwMFHLxmWWaNYNIOcTrORCHqTuVy80DsWBzNJ5sTvY5kLdF5X4453102xVf3LLCtaQXwTCV2BbBn2RYGgjXyHs7lYpiR8rGbcNhWdtMQjlnMLhcwLyLjBiPMcHZwDvLcwQp1IbeelPMSYt1agKlMJpCfJVwRCSLyEalZUlPTYFkQ7M-F2sOEyGR2YelumXws64NIl8fDdv5wGUCZObBVBqFdI4p3BNJ_66bRCQV8SntCO2PbOyNhpmTthf_aSLewmhxJylE3IEbxTwspHIuHjk5XlJrJOfIIGEaHcXYsW91xtEoKu8vai_cKMDXFOHF7KCNrsuKwFddmXLy7AUyWHpaGtIGeh9dfj2kKhz5QB4yS1dSH3zQzPt2Zttleejvw2Cc0XMarVgQ5KzRSlW6Rjx38DCZzHD6EOtOAwsMj_wfw-v0b7ikCYapn4FXAC6Vh3G0KD8371niQiFzXZ4JrXv-4fRS6_Io1IsW9glaeoXfeQl5s-WQw4O5lcitJ_VExlbFkyG2cqpZXduO0oEoO_PRAlD7K9NxHiWrqiboa0G8L-eBWajRaz2oJA3qMBZUhvZay_MJpvIH7MGTydy1MU7RsoUHL8x_GIHSH1jVIE-GD-KtBkJ8PZAC_DCmn2Rh9tUXuoCPoDhrrSaoinoaZzsVZrVVHArJ4K5ALSDandypyyDIMlJB-pg0_PeY1k1BW8DVSOGhC3EhOMOgU21wwuaNajU1sRSndl77kg6DHWnZZmvb3Ofwf0MXi0nlI4JnNGX-S6Df1s3Afgwl5Uu9BYWiTZYmwRXqSUbS9gVa37xbJzaUqM1YdGkbVrqnIl6ahY9W4akdH9iHNwtDKejmhLIb9SsuXlNsawlJU-HnLu73wsRAfmtlqsWY7zLdfjBAFwMHzGG8FSo5gpYs-9XvIFDPm6mw1fF0_MlIB8J87706jBtNTDy-3icvjlJO_3pwcf4HIAKNOqpD-K6bEOKvXzMpNWpSvDnz4LQhDA009iFgGz_Vk421eMXpf3p6LDGXJKlpwtzB0031q6ePAl9ueqEWYSM5xxsldTebizdi2RHfakfuuUD9v30Xau7F92ol_n3SnghCkIVWQdPS80t4kSBwWDK6pOxvckiPtpA_T6Yq7OROvbkZ3C81muIuvbEOn2VFVq64p82xR335lEyCpVa8kZHHRy4__AfxBQ_f1EIqpZG8JfaoXsPjsraxTM8FioGEMRWMfnJ4qmeXtwEBVyyc1xWMvAs-p6a_mLem4n54I5xeF4Uw.lc4l3XNF3xtZUVNerDW1qA";
 
     @Inject
     ERezeptWorkflowService eRezeptWorkflowService;
@@ -143,7 +142,9 @@ public class ERezeptWorkflowServiceTest {
 
         log.info("Access Token: " + idpTokenResult.getAccessToken().getRawString());
 
-        testBearerToken = idpTokenResult.getAccessToken().getRawString();
+        String testBearerToken = idpTokenResult.getAccessToken().getRawString();
+
+        eRezeptWorkflowService.setBearerToken(testBearerToken);
 
         int i = 0;
         DocumentService documentService = new DocumentService();
@@ -163,7 +164,7 @@ public class ERezeptWorkflowServiceTest {
                 //} catch(NoSuchElementException ex) {
                 //    ex.printStackTrace();
                 //} 
-                BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
+                BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(bundle);
                 String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
                         .withZone(ZoneOffset.UTC)
                         .format(Instant.now());
@@ -292,7 +293,7 @@ public class ERezeptWorkflowServiceTest {
     @Disabled
     void testCreateERezeptOnPrescriptionServer() throws IOException, ERezeptWorkflowException {
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/examples_erezept/bundle_July_2.xml"));
-        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
+        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(bundle);
         DocumentService documentService = new DocumentService();
         documentService.init();
         ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
@@ -307,7 +308,7 @@ public class ERezeptWorkflowServiceTest {
     void testCreateERezeptOnPrescriptionServerFromXMLBundle() throws IOException, ERezeptWorkflowException {
         Bundle[] bundles = XmlPrescriptionProcessor.parseFromString(Files.readString(Paths.get("/home/manuel/git/secret-test-print-samples/CGM-Turbomed/XML/Bundle1.xml")));
 
-        List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createMultipleERezeptsOnPrescriptionServer(testBearerToken, Arrays.asList(bundles));
+        List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createMultipleERezeptsOnPrescriptionServer(Arrays.asList(bundles));
         DocumentService documentService = new DocumentService();
         documentService.init();
         ByteArrayOutputStream a = documentService.generateERezeptPdf(bundleWithAccessCodeOrThrowable);
@@ -321,7 +322,7 @@ public class ERezeptWorkflowServiceTest {
     @Disabled
     void testCreateERezeptOnPrescriptionServer2() throws IOException, ERezeptWorkflowException {
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/281a985c-f25b-4aae-91a6-41ad744080b0.xml"));
-        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
+        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(bundle);
         DocumentService documentService = new DocumentService();
         documentService.init();
         ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
@@ -335,7 +336,7 @@ public class ERezeptWorkflowServiceTest {
     @Disabled
     void testCreateERezeptOnPrescriptionServerX110479894() throws IOException, ERezeptWorkflowException {
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/X110479894.xml"));
-        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
+        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(bundle);
         DocumentService documentService = new DocumentService();
         documentService.init();
         ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
@@ -351,7 +352,7 @@ public class ERezeptWorkflowServiceTest {
     void testCreateERezeptOnPrescriptionServerX110493020() throws IOException, ERezeptWorkflowException {
 
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/X110493020.xml"));
-        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
+        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(bundle);
         DocumentService documentService = new DocumentService();
         documentService.init();
         ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
@@ -367,7 +368,7 @@ public class ERezeptWorkflowServiceTest {
     void testCreateERezeptOnPrescriptionServerX110433911() throws IOException, ERezeptWorkflowException {
 
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/X110433911.xml"));
-        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
+        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(bundle);
         DocumentService documentService = new DocumentService();
         documentService.init();
         ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
@@ -382,7 +383,7 @@ public class ERezeptWorkflowServiceTest {
     void testCreateERezeptOnPrescriptionServerX110452075() throws IOException, ERezeptWorkflowException {
 
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/X110452075.xml"));
-        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
+        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(bundle);
         DocumentService documentService = new DocumentService();
         documentService.init();
         ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
@@ -401,7 +402,7 @@ public class ERezeptWorkflowServiceTest {
         bundles.forEach(bundle -> {
             log.info(iParser.encodeResourceToString(bundle));
             try {
-                eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
+                eRezeptWorkflowService.createERezeptOnPrescriptionServer(bundle);
             } catch (ERezeptWorkflowException e) {
                 e.printStackTrace();
             }
@@ -428,7 +429,7 @@ public class ERezeptWorkflowServiceTest {
             bundles.forEach(bundle -> {
                 log.info(iParser.encodeResourceToString(bundle));
                 try {
-                    eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
+                    eRezeptWorkflowService.createERezeptOnPrescriptionServer(bundle);
                 } catch (ERezeptWorkflowException e) {
                     e.printStackTrace();
                 }
@@ -440,7 +441,7 @@ public class ERezeptWorkflowServiceTest {
     @Disabled
         // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testCreateERezeptTask() throws DataFormatException, IOException {
-        Task task = eRezeptWorkflowService.createERezeptTask(testBearerToken);
+        Task task = eRezeptWorkflowService.createERezeptTask();
         Files.write(Paths.get("target/titus-eRezeptWorkflowService-createERezeptTask.xml"), iParser.encodeResourceToString(task).getBytes());
         Files.write(Paths.get("target/titus-eRezeptWorkflowService-accessToken.txt"), ERezeptWorkflowService.getAccessCode(task).getBytes());
         Files.write(Paths.get("target/titus-eRezeptWorkflowService-taskId.txt"), task.getIdElement().getIdPart().getBytes());
@@ -501,7 +502,7 @@ public class ERezeptWorkflowServiceTest {
         Task task = iParser.parseResource(Task.class, new FileInputStream("target/titus-eRezeptWorkflowService-createERezeptTask.xml"));
         byte[] signedBytes = Files.readAllBytes(Paths.get("target/titus-eRezeptWorkflowService-signBundleWithIdentifiers.dat"));
         String accessCode = new String(Files.readAllBytes(Paths.get("target/titus-eRezeptWorkflowService-accessToken.txt")));
-        eRezeptWorkflowService.updateERezeptTask(testBearerToken, task, accessCode, signedBytes);
+        eRezeptWorkflowService.updateERezeptTask(task, accessCode, signedBytes);
     }
 
     @Test
@@ -510,7 +511,7 @@ public class ERezeptWorkflowServiceTest {
     void testAbortERezeptTask() throws DataFormatException, IOException {
         String accessCode = new String(Files.readAllBytes(Paths.get("target/titus-eRezeptWorkflowService-accessToken.txt")));
         String taskId = new String(Files.readAllBytes(Paths.get("target/titus-eRezeptWorkflowService-taskId.txt")));
-        eRezeptWorkflowService.abortERezeptTask(testBearerToken, taskId, accessCode);
+        eRezeptWorkflowService.abortERezeptTask(taskId, accessCode);
     }
 
     @Test

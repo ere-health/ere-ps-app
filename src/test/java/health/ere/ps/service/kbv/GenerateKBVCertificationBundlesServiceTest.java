@@ -90,7 +90,7 @@ public class GenerateKBVCertificationBundlesServiceTest {
             List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowables = new ArrayList<>();
             if(useTitus) {
                 eRezeptWorkflowService.requestNewAccessTokenIfNecessary();
-                bundleWithAccessCodeOrThrowables = eRezeptWorkflowService.createMultipleERezeptsOnPrescriptionServer(eRezeptWorkflowService.getBearerToken(), list);
+                bundleWithAccessCodeOrThrowables = eRezeptWorkflowService.createMultipleERezeptsOnPrescriptionServer(list);
             } else {
                 bundleWithAccessCodeOrThrowables = list.stream().map(bundle -> new BundleWithAccessCodeOrThrowable(bundle, "8279c66a752f64608387273209975457d806d0f66eeb8424f2e696de75b9acf5")).collect(Collectors.toList());
             }   
