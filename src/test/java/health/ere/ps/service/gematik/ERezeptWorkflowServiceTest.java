@@ -209,8 +209,6 @@ public class ERezeptWorkflowServiceTest {
 
         log.info("Access Token: " + idpTokenResult.getAccessToken().getRawString());
 
-        testBearerToken = idpTokenResult.getAccessToken().getRawString();
-
         int i = 0;
         DocumentService documentService = new DocumentService();
                 documentService.init();
@@ -254,7 +252,7 @@ public class ERezeptWorkflowServiceTest {
                 //} catch(NoSuchElementException ex) {
                 //    ex.printStackTrace();
                 //} 
-                BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
+                BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(bundle);
                 String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
                         .withZone(ZoneOffset.UTC)
                         .format(Instant.now());
