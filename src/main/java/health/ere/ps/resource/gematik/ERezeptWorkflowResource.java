@@ -7,6 +7,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.hl7.fhir.r4.model.Bundle;
@@ -31,14 +32,14 @@ public class ERezeptWorkflowResource {
     @Path("/task")
     public Response createERezeptTask() {
         Task task = eRezeptWorkflowService.createERezeptTask();
-        return Response.ok(Entity.json(parser.encodeResourceToString(task))).build();
+        return Response.ok().entity(parser.encodeResourceToString(task)).type(MediaType.APPLICATION_JSON).build();
     }
 
     @POST
     @Path("/sign")
     public Response signBundleWithIdentifiers(String bundle) throws DataFormatException, ERezeptWorkflowException {
         SignResponse signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(parser.parseResource(Bundle.class, bundle));
-        return Response.ok(Entity.text(signResponse.getSignatureObject().getBase64Signature().getValue())).build();
+        return Response.ok().entity(Base64.getEncoder().encode(signResponse.getSignatureObject().getBase64Signature().getValue())).type(MediaType.TEXT_PLAIN).build();
     }
 
     @POST
