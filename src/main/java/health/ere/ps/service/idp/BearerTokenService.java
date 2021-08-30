@@ -10,9 +10,6 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
 import health.ere.ps.config.AppConfig;
-import health.ere.ps.exception.idp.IdpClientException;
-import health.ere.ps.exception.idp.IdpException;
-import health.ere.ps.exception.idp.IdpJoseException;
 import health.ere.ps.model.idp.client.IdpTokenResult;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
@@ -40,10 +37,10 @@ public class BearerTokenService {
     @PostConstruct
     public void init() {
         String discoveryDocumentUrl = appConfig.getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
-        idpClient.init(appConfig.getIdpClientId(), appConfig.getIdpAuthRequestRedirectURL(), discoveryDocumentUrl, true);
         try {
+            idpClient.init(appConfig.getIdpClientId(), appConfig.getIdpAuthRequestRedirectURL(), discoveryDocumentUrl, true);
             idpClient.initializeClient();
-        } catch (IdpClientException | IdpException | IdpJoseException e) {
+        } catch (Exception e) {
             log.log(Level.WARNING, "Idp init did not work", e);
         }
     }

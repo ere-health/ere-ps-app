@@ -5,6 +5,6 @@ import io.quarkus.test.junit.QuarkusTestProfile;
 public class PUTestProfile implements QuarkusTestProfile {
     @Override
     public String getConfigProfile() { 
-        return "RU";
+        return "PU";
     }
 }

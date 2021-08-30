@@ -31,8 +31,11 @@ import javax.inject.Inject;
 import javax.xml.stream.XMLStreamException;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.hl7.fhir.r4.model.BooleanType;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.DateTimeType;
+import org.hl7.fhir.r4.model.Extension;
+import org.hl7.fhir.r4.model.Medication;
 import org.hl7.fhir.r4.model.MedicationRequest;
 import org.hl7.fhir.r4.model.Task;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,7 +52,7 @@ import health.ere.ps.exception.gematik.ERezeptWorkflowException;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.model.idp.client.IdpTokenResult;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
-import health.ere.ps.profile.TitusTestProfile;
+import health.ere.ps.profile.RUTestProfile;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
@@ -66,7 +69,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 
 @QuarkusTest
-@TestProfile(TitusTestProfile.class)
+@TestProfile(RUTestProfile.class)
 public class ERezeptWorkflowServiceTest {
 
     private static final Logger log = Logger.getLogger(ERezeptWorkflowServiceTest.class.getName());
@@ -185,6 +188,98 @@ public class ERezeptWorkflowServiceTest {
                 
             ex.printStackTrace();
         }
+    }
+
+    @Test
+    @Disabled
+    void testCreateERezeptMassCreate2() throws Exception {
+
+        discoveryDocumentUrl = appConfig.getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
+
+        idpClient.init(appConfig.getIdpClientId(), appConfig.getIdpAuthRequestRedirectURL(), discoveryDocumentUrl, true);
+        idpClient.initializeClient();
+
+        String cardHandle = connectorCardsService.getConnectorCardHandle(
+                ConnectorCardsService.CardHandleType.SMC_B);
+
+        X509Certificate x509Certificate = cardCertificateReaderService.retrieveSmcbCardCertificate(cardHandle);
+
+        IdpTokenResult idpTokenResult = idpClient.login(x509Certificate);
+
+        log.info("Access Token: " + idpTokenResult.getAccessToken().getRawString());
+
+        testBearerToken = idpTokenResult.getAccessToken().getRawString();
+
+        int i = 0;
+        DocumentService documentService = new DocumentService();
+                documentService.init();
+        eRezeptWorkflowService.activateComfortSignature();
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get("src/test/resources/simplifier_erezept/"), "*.{xml}")) {
+            for (Path entry : stream) {
+                Bundle bundle = iParser.parseResource(Bundle.class, new FileInputStream(entry.toFile()));
+                
+                Medication medication = ((Medication)bundle.getEntry().stream().filter(e -> e.getResource() instanceof Medication).findAny().get().getResource());
+                // PZN, FreeText, Ingredient, Compounding
+                String medicationProfile = medication.getMeta().getProfile().get(0).getValue();
+                String type;
+                if(medicationProfile.equals("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.0.1")) {
+                    type = "PZN";
+                } else if(medicationProfile.equals("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_FreeText|1.0.1")) {
+                    type = "FreeText";
+                } else if(medicationProfile.equals("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Ingredient|1.0.1")) {
+                    type = "Ingredient";
+                } else if(medicationProfile.equals("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Compounding|1.0.1")) {
+                    type = "Compounding";
+                } else {
+                    type = "Unknown";
+                }
+
+                try {
+                    MedicationRequest medicationRequest = ((MedicationRequest)bundle.getEntry().stream().filter(e -> e.getResource() instanceof MedicationRequest).findAny().get().getResource());
+                    medicationRequest.setAuthoredOnElement(new DateTimeType(new Date(), TemporalPrecisionEnum.DAY));
+                    Extension multiplePrescription = medicationRequest.getExtensionByUrl("https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription");
+                    BooleanType multiplePrescriptionBoolean = (BooleanType)multiplePrescription.getExtensionByUrl("Kennzeichen").getValue();
+                    if(multiplePrescriptionBoolean.booleanValue()) {
+                        // do not generate multiplePrescription
+                        continue;
+                    }
+                } catch(NoSuchElementException ex) {
+                    ex.printStackTrace();
+                }
+                
+                //try {
+                //    Patient patient = ((Patient)bundle.getEntry().stream().filter(e -> e.getResource() instanceof Patient).findAny().get().getResource());
+                //    patient.getIdentifier().get(0).setValue("X110490897");
+                //} catch(NoSuchElementException ex) {
+                //    ex.printStackTrace();
+                //} 
+                BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(testBearerToken, bundle);
+                String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
+                        .withZone(ZoneOffset.UTC)
+                        .format(Instant.now());
+                if(bundleWithAccessCodeOrThrowable.getThrowable() != null) {
+                    StringWriter sw = new StringWriter();
+                    PrintWriter pw = new PrintWriter(sw);
+                    bundleWithAccessCodeOrThrowable.getThrowable().printStackTrace(pw);
+                    Files.write(Paths.get("target/E-Rezept-"+type+"-" + thisMoment + ".txt"), sw.toString().getBytes());
+                } else {
+                    ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
+                    Files.write(Paths.get("target/E-Rezept-"+type+"-"  + thisMoment + ".pdf"), a.toByteArray());
+                    log.info("Time: "+thisMoment);
+                }
+                i++;
+                //if (i == 1) {
+                //    break;
+                //}
+            }
+        } catch (DirectoryIteratorException | ERezeptWorkflowException ex) {
+            // I/O error encounted during the iteration, the cause is an IOException
+            log.info("Exception: "+ex);
+                
+            ex.printStackTrace();
+        }
+
+        eRezeptWorkflowService.deactivateComfortSignature();
     }
 
     @Test
