@@ -70,6 +70,7 @@ import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
 import health.ere.ps.service.fhir.bundle.EreBundle;
 import health.ere.ps.service.logging.EreLogger;
 import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
+import message.processor.MessageProcessor;
 
 @ServerEndpoint("/websocket")
 @ApplicationScoped
@@ -94,7 +95,7 @@ public class Websocket {
     Event<DeactivateComfortSignatureEvent> deactivateComfortSignatureEvent;
     @Inject
     Event<GetSignatureModeEvent> getSignatureModeEvent;
-    
+
     @Inject
     PrescriptionBundleValidator prescriptionBundleValidator;
     @Inject
@@ -211,7 +212,7 @@ public class Websocket {
             JsonObject object = jsonReader.readObject();
             if ("SignAndUploadBundles".equals(object.getString("type"))) {
                 JsonObject bundlesValidationResultMessage = prescriptionBundleValidator.bundlesValidationResult(object);
-                
+
                 boolean bundlesValid = true;
                 bundlesValid = bundlesValidationResultMessage.getJsonArray("payload")
                 .stream().filter(jo -> jo instanceof JsonObject)
@@ -285,7 +286,7 @@ public class Websocket {
             } else {
                 for(MessageProcessor messageProcessor : messageProcessors ) {
                     if(messageProcessor.canProcess(object.getString("type"))) {
-                        messageProcessor.process(object);
+                        messageProcessor.process(object.toString());
                     }
                 }
             }
@@ -400,7 +401,7 @@ public class Websocket {
             String localizedMessage;
             try {
                 localizedMessage = objectMapper.writeValueAsString(exception.getLocalizedMessage());
-                
+
                 String stackTrace = objectMapper.writeValueAsString(sw.toString());
                 session.getAsyncRemote()
                     .sendObject("{\"type\": \"Exception\", \"payload\": { \"class\": \""
@@ -413,7 +414,7 @@ public class Websocket {
             } catch (JsonProcessingException e) {
                 ereLog.error("Could not generate json", e);
             }
-                
+
         });
     }
 
@@ -432,10 +433,10 @@ public class Websocket {
         });
     }
 
-    
+
     public void onHTMLBundlesEvent(@ObservesAsync HTMLBundlesEvent event) {
         sessions.forEach(session -> {
-        
+
             session.getAsyncRemote()
                     .sendObject("{\"type\": \"HTMLBundles\", \"payload\": " +
                     jsonbFactory.toJson(event.getBundles()) + "}", result -> {
