@@ -41,6 +41,7 @@ import javax.websocket.server.ServerEndpoint;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import message.processor.BundleMessageProcessor;
 import org.hl7.fhir.r4.model.Bundle;
 
 import ca.uhn.fhir.context.FhirContext;
@@ -87,7 +88,7 @@ public class Websocket {
     Event<SaveSettingsEvent> saveSettingsEvent;
 
     @Inject
-    Instance<MessageProcessor> messageProcessors;
+    Instance<MessageProcessor<?>> messageProcessors;
 
     @Inject
     Event<ActivateComfortSignatureEvent> activateComfortSignatureEvent;
@@ -284,9 +285,14 @@ public class Websocket {
             } else if("ReadyToSignBundles".equals(object.getString("type"))) {
                 readyToSignBundlesEvent.fireAsync(new ReadyToSignBundlesEvent(object));
             } else {
-                for(MessageProcessor messageProcessor : messageProcessors ) {
-                    if(messageProcessor.canProcess(object.getString("type"))) {
-                        messageProcessor.process(object.toString());
+                for (MessageProcessor<?> messageProcessor : messageProcessors) {
+                    if (messageProcessor.canProcess(object.getString("type"))) {
+                        if (messageProcessor instanceof BundleMessageProcessor) {
+                            Bundle bundle = (Bundle) messageProcessor.process(object.toString());
+                            signAndUploadBundlesEvent.fireAsync(new SignAndUploadBundlesEvent(Collections.singletonList(bundle)));
+                        } else {
+                            messageProcessor.process(object.toString());
+                        }
                     }
                 }
             }
