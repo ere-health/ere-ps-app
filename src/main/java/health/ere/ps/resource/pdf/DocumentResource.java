@@ -33,7 +33,7 @@ public class DocumentResource {
     @Path("/bundles")
     public Response createAndSendPrescriptions(String bundlesString) {
 
-        JsonArray jsonArray = Json.createParser(new StringReader(bundlesString)).getArray();
+        JsonArray jsonArray = Json.createReader(new StringReader(bundlesString)).readArray();
 
         List<BundleWithAccessCodeOrThrowable> bundles = jsonArray.stream().map(jv -> {
             return convert(jv);

@@ -1,14 +1,44 @@
 package health.ere.ps.service.idp.client;
 
+import static org.jose4j.jws.AlgorithmIdentifiers.RSA_PSS_USING_SHA256;
+
+import java.security.PublicKey;
+import java.security.Security;
+import java.security.cert.X509Certificate;
+import java.util.Base64;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
+
 import com.diffplug.common.base.Errors;
 import com.diffplug.common.base.Throwing;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.jboss.logging.Logger;
+import org.jose4j.jws.JsonWebSignature;
+import org.jose4j.jwt.JwtClaims;
+import org.jose4j.lang.JoseException;
+
 import health.ere.ps.exception.idp.IdpClientException;
 import health.ere.ps.exception.idp.IdpException;
 import health.ere.ps.exception.idp.IdpJoseException;
-import health.ere.ps.model.idp.client.*;
+import health.ere.ps.model.idp.client.AuthenticationRequest;
+import health.ere.ps.model.idp.client.AuthenticationResponse;
+import health.ere.ps.model.idp.client.AuthorizationRequest;
+import health.ere.ps.model.idp.client.AuthorizationResponse;
+import health.ere.ps.model.idp.client.DiscoveryDocumentResponse;
+import health.ere.ps.model.idp.client.IdpTokenResult;
+import health.ere.ps.model.idp.client.TokenRequest;
 import health.ere.ps.model.idp.client.brainPoolExtension.BrainpoolAlgorithmSuiteIdentifiers;
 import health.ere.ps.model.idp.client.field.ClaimName;
 import health.ere.ps.model.idp.client.field.CodeChallengeMethod;
@@ -19,27 +49,6 @@ import health.ere.ps.model.idp.crypto.PkiIdentity;
 import health.ere.ps.service.connector.auth.SmcbAuthenticatorService;
 import health.ere.ps.service.idp.client.authentication.UriUtils;
 import health.ere.ps.service.idp.crypto.KeyAnalysis;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.jboss.logging.Logger;
-import org.jose4j.jws.JsonWebSignature;
-import org.jose4j.jwt.JwtClaims;
-import org.jose4j.lang.JoseException;
-
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-import java.security.PublicKey;
-import java.security.Security;
-import java.security.cert.X509Certificate;
-import java.util.Base64;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-
-import static org.jose4j.jws.AlgorithmIdentifiers.RSA_PSS_USING_SHA256;
 
 @Dependent
 public class IdpClient implements IIdpClient {
@@ -86,12 +95,6 @@ public class IdpClient implements IIdpClient {
         jsonWebSignature.setHeader("cty", "NJWT");
 
         if (KeyAnalysis.isEcKey(certificate.getPublicKey())) {
-/*
-            ProviderContext providerCtx = new ProviderContext();
-            providerCtx.getGeneralProviderContext().setKeyPairGeneratorProvider("BC");
-            providerCtx.getGeneralProviderContext().setKeyAgreementProvider("BC");
-            jsonWebSignature.setProviderContext(providerCtx);
-*/
             jsonWebSignature.setAlgorithmHeaderValue(
                     BrainpoolAlgorithmSuiteIdentifiers.BRAINPOOL256_USING_SHA256);
         } else {
@@ -208,7 +211,6 @@ public class IdpClient implements IIdpClient {
     private void assertThatIdpIdentityIsValid(final PkiIdentity idpIdentity) {
         Objects.requireNonNull(idpIdentity);
         Objects.requireNonNull(idpIdentity.getCertificate());
-        // Objects.requireNonNull(idpIdentity.getPrivateKey());
     }
 
     private void assertThatClientIsInitialized() throws IdpClientException {
