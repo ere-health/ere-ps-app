@@ -49,6 +49,14 @@ public class ERezeptWorkflowResource {
         return Response.ok().build();
     }
 
+    @POST
+    @Path("/abort")
+    public Response postUserId(AbortERezept abortERezept) {
+        eRezeptWorkflowService.abortERezeptTask(abortERezept.getTaskId(), abortERezept.getAccessCode());
+        return Response.ok().build();
+    }
+
+
     @GET
     @Path("/comfortsignature/user-id")
     public Response getUserId() {

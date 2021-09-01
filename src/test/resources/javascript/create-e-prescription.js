@@ -22,14 +22,20 @@ function postToUrl(urlString, data, accept, content) {
 
 var task, taskId, prescriptionId, accessCode, signedBase64Document;
 
+// https://github.com/gematik/api-erp/blob/master/docs/erp_bereitstellen.adoc
+
 // Create a task
 try {
-   var taskString = new java.lang.String(postToUrl("http://localhost:8080/workflow/task", "", "application/json"));
-   println(taskString);
-   task = JSON.parse(taskString);
-   taskId = task.id;
-   prescriptionId = task.identifier[0].value;
-   accessCode = task.identifier[1].value;
+    var taskString = new java.lang.String(postToUrl("http://localhost:8080/workflow/task", "", "application/json"));
+    println(taskString);
+    task = JSON.parse(taskString);
+    taskId = task.id;
+    prescriptionId = task.identifier.filter(function (o) {
+        return o.system == "https://gematik.de/fhir/NamingSystem/PrescriptionID";
+    })[0].value;
+    accessCode = task.identifier.filter(function (o) {
+        return o.system == "https://gematik.de/fhir/NamingSystem/AccessCode";
+    })[0].value;
 } catch(e) {
     println("ERROR during creating task: "+e.message);
 }
@@ -39,13 +45,14 @@ try {
     var jsonBundle = JSON.parse(new java.lang.String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get("src/test/resources/bundle-json/0428d416-149e-48a4-977c-394887b3d85c.json"))));
     jsonBundle.id = java.util.UUID.randomUUID().toString();
     jsonBundle.identifier.value = prescriptionId;
+    // TODO: show KBV xslt transformed stylesheet
     var signedBase64Document = new java.lang.String(postToUrl("http://localhost:8080/workflow/sign", JSON.stringify(jsonBundle), "text/plain"));
     println(signedBase64Document);
 } catch(e) {
     println("ERROR during signing task: "+e.message);
 }
 
-// Update the task wit hthe signed bundle
+// Update the task with the signed bundle
 try {
     var updateERezept = {
         "taskId": taskId,
@@ -67,4 +74,15 @@ try {
     java.nio.file.Files.write(java.nio.file.Paths.get("target/javascript-0428d416-149e-48a4-977c-394887b3d85c.pdf"), pdfDocument);
 } catch(e) {
     println("ERROR during producing pdf: "+e.message);
+}
+
+// Abort the task
+try {
+    var abortERezept = {
+        "taskId": taskId,
+        "accessCode": accessCode
+    };
+    postToUrl("http://localhost:8080/workflow/abort", JSON.stringify(abortERezept), "text/plain", "application/json");
+} catch(e) {
+    println("ERROR abort task: "+e.message);
 }
