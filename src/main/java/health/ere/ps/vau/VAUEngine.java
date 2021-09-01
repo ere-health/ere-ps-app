@@ -1,5 +1,21 @@
 package health.ere.ps.vau;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.cert.CertificateException;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
@@ -22,21 +38,6 @@ import org.jboss.resteasy.client.jaxrs.internal.ClientInvocation;
 import org.jboss.resteasy.client.jaxrs.internal.ClientResponse;
 import org.jboss.resteasy.client.jaxrs.internal.FinalizedClientResponse;
 
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.cert.CertificateException;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  * Engine for RestEasy inspired by the Gematik implementation of VAU:
  * https://github.com/gematik/ref-ePA-vauchannel/blob/master/vauchannel-cxf/src/main/java/de/gematik/ti/vauchannel/cxf/AESInterceptor.java
@@ -50,20 +51,11 @@ public class VAUEngine extends ApacheHttpClient43Engine {
     private static final Pattern RESPONSE_PATTERN = Pattern.compile(responsePattern, Pattern.DOTALL);
     private final String fachdienstUrl;
     String requestid;
+    String userpseudonym = "0";
     private VAU vau;
     private byte[] aeskey;
 
     public VAUEngine(String fachdienstUrl) {
-       /*super(HttpClients.custom()
-         .setKeepAliveStrategy(new ConnectionKeepAliveStrategy() {
-
-         @Override
-         public long getKeepAliveDuration(HttpResponse response, HttpContext context) {
-            return 0;
-         }
-            
-         })
-       .build());*/
         this.fachdienstUrl = fachdienstUrl;
     }
 
@@ -138,7 +130,6 @@ public class VAUEngine extends ApacheHttpClient43Engine {
         if ("GET".equals(restVerb)) {
             return new HttpGet(url);
         } else if ("POST".equals(restVerb)) {
-            String userpseudonym = "0";
             return new HttpPost(fachdienstUrl + "/VAU/" + userpseudonym);
         } else {
             final String verb = restVerb;
@@ -166,8 +157,7 @@ public class VAUEngine extends ApacheHttpClient43Engine {
             byte[] responseBytes = ((InputStream) response.getEntity()).readAllBytes();
             log.fine(VAU.byteArrayToHexString(responseBytes));
             transportedData = VAU.decryptWithKey(responseBytes, aeskey);
-            // BUG: Titus does not support userpseudonym yet
-            // userpseudonym = response.getHeaderString("userpseudonym");
+            userpseudonym = response.getHeaderString("userpseudonym");
             responseContent = new String(transportedData);
             log.fine(responseContent);
             return parseResponseFromVAU(responseContent, (ClientInvocation) inv);
