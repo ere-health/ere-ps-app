@@ -42,6 +42,7 @@ import org.hl7.fhir.r4.model.HumanName;
 import org.hl7.fhir.r4.model.HumanName.NameUse;
 import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Medication;
+import org.hl7.fhir.r4.model.Medication.MedicationIngredientComponent;
 import org.hl7.fhir.r4.model.MedicationRequest;
 import org.hl7.fhir.r4.model.MedicationRequest.MedicationRequestDispenseRequestComponent;
 import org.hl7.fhir.r4.model.MedicationRequest.MedicationRequestSubstitutionComponent;
@@ -239,6 +240,73 @@ public class GenerateKBVCertificationBundlesService {
             log.log(Level.SEVERE, "Could not generate bundles", e);
             return null;
         }
+    }
+
+    public Bundle PF10() {
+        try {
+            String doctorFileName = "src/test/resources/kbv-certification-samples/doctors/838382201.xml";
+            List<Resource> resources = getDoctor(doctorFileName);
+            Practitioner practitionerAnnie = (Practitioner)resources.get(0);
+            Organization organization = (Organization) resources.get(1);
+            
+            List<Object> list = getVersichertenDaten("XML_37");
+    
+            Patient patientIngrid = (Patient)list.get(0);
+            Coverage coverage = (Coverage)list.get(1);
+    
+            Medication medication = createMedicationIngredientResource("5682", "Ibuprofen", 600, "mg", "Tabletten", 20, "Stück");
+
+            MedicationRequest medicationRequest = createMedicationRequest(medication.getIdElement().getIdPart(), patientIngrid.getIdElement().getIdPart(), practitionerAnnie.getIdElement().getIdPart(), coverage.getIdElement().getIdPart(), "1-0-1-0", new BigDecimal(1), "", true, true, false, false, null, false, "1");
+        
+            Bundle bundle = assembleBundle(practitionerAnnie, organization, patientIngrid, coverage, medication,
+                    medicationRequest);
+    
+            return bundle;
+        } catch (Exception e) {
+            log.log(Level.SEVERE, "Could not generate bundles", e);
+            return null;
+        }
+    }
+
+    private Medication createMedicationIngredientResource(String wirkstoffnummer, String wirkstoffname, int wirkstaerke, String wirkstaerkeEinheit,
+            String darreichungsform, int packunggroesse, String packunggroesseEinheit) {
+        Medication medication = new Medication();
+
+        medication.setId(UUID.randomUUID().toString())
+                .getMeta()
+                .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Ingredient|1.0.1");
+
+
+        Coding medicationCategory = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Category", "00", null);
+        Extension medicationCategoryEx = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Category", medicationCategory);
+        medication.addExtension(medicationCategoryEx);
+
+        Extension medicationVaccine = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Vaccine", new BooleanType(false));
+        medication.addExtension(medicationVaccine);
+
+        medication.getCode().addCoding().setSystem("https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Type").setCode("wirkstoff");
+
+        medication.getForm().setText(darreichungsform);
+
+        medication.getAmount().setNumerator(new Quantity(packunggroesse));
+        medication.getAmount().getNumerator().setUnit(packunggroesseEinheit);
+        medication.getAmount().setDenominator(new Quantity(1));
+
+        MedicationIngredientComponent theIngredient = new MedicationIngredientComponent();
+
+        Coding formCoding = new Coding("http://fhir.de/CodeSystem/ask", wirkstoffnummer, "");
+        CodeableConcept item = new CodeableConcept().addCoding(formCoding).setText(wirkstoffname);
+
+        theIngredient.setItem(item);
+
+        theIngredient.getStrength().setNumerator(new Quantity(wirkstaerke));
+        theIngredient.getStrength().getNumerator().setUnit(wirkstaerkeEinheit);
+
+        theIngredient.getStrength().setDenominator(new Quantity(1));
+        medication.setIngredient(Arrays.asList(theIngredient));
+
+
+        return medication;
     }
 
     private Bundle PF01_PF02(String pzn, String medicationText, int quantity, String note) {

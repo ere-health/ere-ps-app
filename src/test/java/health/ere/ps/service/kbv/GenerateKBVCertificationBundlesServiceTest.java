@@ -178,6 +178,15 @@ public class GenerateKBVCertificationBundlesServiceTest {
     }
 
     @Test
+    public void testPF10() throws IOException, InvalidCanonicalizerException, XMLParserException, CanonicalizationException, ERezeptWorkflowException {
+        Bundle bundle = service.PF10();
+        
+        boolean generateSignature = false;
+        boolean generatePdf = true;
+        processBundle("PF10", generateSignature, generatePdf, bundle);
+    }
+
+    @Test
     @Disabled
     public void testRegeneratePdf() throws IOException {
 
