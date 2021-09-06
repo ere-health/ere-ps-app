@@ -98,10 +98,8 @@ public class ConnectorServicesProvider {
 
         BindingProvider bp = (BindingProvider) service;
         log.info(getClass().getName() + " ::eventServicePortType");
-        log.info(String.valueOf(secretsManagerService == null));
         bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
                 endpointDiscoveryService.getEventServiceEndpointAddress());
-        log.info(String.valueOf(secretsManagerService == null));
         configureBindingProvider(bp);
 
         eventServicePortType = service;

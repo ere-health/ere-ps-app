@@ -47,8 +47,6 @@ public class BearerTokenService {
 
     public String requestBearerToken() {
         try {
-            
-
             String cardHandle = connectorCardsService.getConnectorCardHandle(
                     ConnectorCardsService.CardHandleType.SMC_B);
 

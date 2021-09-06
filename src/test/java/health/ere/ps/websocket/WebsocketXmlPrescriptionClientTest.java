@@ -13,6 +13,23 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class WebsocketXmlPrescriptionClientTest {
+
+    @Test
+    @Disabled
+    public void testXmlPrescriptionSignAndUploadBundles() {
+
+        String jsonBundle;
+        try {
+            jsonBundle = new String(Files.readAllBytes(Paths.get("src/test/resources/websocket-messages/SignAndUploadBundles.json")));
+            
+            jsonBundle = jsonBundle.replaceFirst("0428d416-149e-48a4-977c-394887b3d85c", UUID.randomUUID().toString());
+
+            sendMessage(jsonBundle);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Test
     @Disabled("This test case needs unpublished data")
     public void testXmlPrescription() {

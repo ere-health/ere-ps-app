@@ -123,14 +123,25 @@
                                             <fo:table-row>
                                                 <fo:table-cell width="100mm">
                                                     <fo:block margin-left="1mm" font-size="12pt">
-                                                        <xsl:value-of
-                                                                select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Patient/fhir:name/fhir:prefix/@value"/>
-                                                        <xsl:text>  </xsl:text>
-                                                        <xsl:value-of
-                                                                select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Patient/fhir:name/fhir:given/@value"/>
-                                                        <xsl:text>  </xsl:text>
-                                                        <xsl:value-of
-                                                                select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Patient/fhir:name/fhir:family/@value"/>
+                                                        <xsl:choose>
+                                                            <xsl:when test="(string-length(fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Patient/fhir:name/fhir:given/@value) + string-length(fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Patient/fhir:name/fhir:family/@value)) &gt; 65">
+                                                                <xsl:value-of
+                                                                        select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Patient/fhir:name/fhir:given/@value"/>
+                                                                <xsl:text>  </xsl:text>
+                                                                <xsl:value-of
+                                                                        select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Patient/fhir:name/fhir:family/fhir:extension[@url='http://hl7.org/fhir/StructureDefinition/humanname-own-name']/fhir:valueString/@value"/>
+                                                            </xsl:when>
+                                                            <xsl:otherwise>
+                                                                <xsl:value-of
+                                                                        select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Patient/fhir:name/fhir:prefix/@value"/>
+                                                                <xsl:text>  </xsl:text>
+                                                                <xsl:value-of
+                                                                        select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Patient/fhir:name/fhir:given/@value"/>
+                                                                <xsl:text>  </xsl:text>
+                                                                <xsl:value-of
+                                                                        select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Patient/fhir:name/fhir:family/@value"/>
+                                                            </xsl:otherwise>
+                                                        </xsl:choose>
                                                     </fo:block>
                                                 </fo:table-cell>
                                                 <fo:table-cell>
@@ -302,34 +313,38 @@
                                                 <xsl:value-of
                                                         select="fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:dispenseRequest/fhir:quantity/fhir:value/@value"/>
                                                 <xsl:text>x </xsl:text>
-                                                <xsl:value-of
+                                                <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:meta/fhir:profile/@value = 'https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.0.1' or fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:meta/fhir:profile/@value = 'https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_FreeText|1.0.1'">
+                                                    <xsl:value-of
                                                         select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:text/@value"/>
+                                                </xsl:if>
+                                                <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:meta/fhir:profile/@value = 'https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Ingredient|1.0.1'">
+                                                    <xsl:value-of
+                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:ingredient/fhir:itemCodeableConcept/fhir:text/@value"/> / <xsl:value-of
+                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:ingredient/fhir:strength/fhir:numerator/fhir:value/@value"/> <xsl:value-of
+                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:ingredient/fhir:strength/fhir:numerator/fhir:unit/@value"/> / <xsl:value-of
+                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:form/fhir:text/@value"/> 
+                                                </xsl:if>
+
+                                                <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:amount/fhir:numerator/fhir:value/@value > 0">
+                                                    <xsl:text> / </xsl:text><xsl:value-of
+                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:amount/fhir:numerator/fhir:value/@value" />
+                                                    <xsl:text> </xsl:text><xsl:value-of
+                                                            select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:amount/fhir:numerator/fhir:unit/@value"/>
+                                                </xsl:if>
                                                 <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:extension[@url='http://fhir.de/StructureDefinition/normgroesse']">
                                                     <xsl:text> / </xsl:text>
                                                     <xsl:value-of
                                                             select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:extension[@url='http://fhir.de/StructureDefinition/normgroesse']/fhir:valueCode/@value"/>
                                                 </xsl:if>
                                             </fo:block>
-                                            <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:amount/fhir:numerator/fhir:value/@value > 0">
-                                                <fo:block font-weight="bold">
-                                                    <xsl:value-of
-                                                            select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:amount/fhir:numerator/fhir:unit/@value"/>
-                                                    <xsl:text> / </xsl:text>
-                                                    <xsl:value-of
-                                                            select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:amount/fhir:denominator/fhir:value/@value"/>
-                                                    <xsl:text> St</xsl:text>
-                                                </fo:block>
-                                            </xsl:if>
                                             <fo:block>
                                                 <xsl:value-of
                                                         select="fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:dosageInstruction/fhir:text/@value"/>
                                             </fo:block>
-                                            <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:coding/fhir:code/@value != 'freitext'">
+                                            <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:coding/fhir:code/@value != 'freitext' and fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:coding/fhir:code/@value != 'wirkstoff'">
                                                 <fo:block>
-                                                    <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:coding/fhir:code/@value != 'freitext' or fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:substitution/fhir:allowedBoolean/@value = 'false'">
-                                                        PZN:<xsl:value-of
+                                                    PZN:<xsl:value-of
                                                             select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:coding/fhir:code/@value"/>
-                                                    </xsl:if>
                                                     <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:substitution/fhir:allowedBoolean/@value = 'false'">
                                                         Kein Austausch
                                                     </xsl:if>

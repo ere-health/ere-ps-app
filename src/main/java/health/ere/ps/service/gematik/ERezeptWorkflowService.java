@@ -16,6 +16,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -294,25 +295,21 @@ public class ERezeptWorkflowService {
         ePrescriptionParameter.setResource(binary);
         parameters.addParameter(ePrescriptionParameter);
 
-        Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task")
+        try (Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task")
                 .path("/" + taskId).path("/$activate").request()
                 .header("User-Agent", appConfig.getUserAgent())
                 .header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
                 .post(Entity.entity(fhirContext.newXmlParser().encodeResourceToString(parameters),
-                        "application/fhir+xml; charset=utf-8"));
+                        "application/fhir+xml; charset=utf-8"))) {
 
-        String taskString = response.readEntity(String.class);
-        log.info("Response when trying to activate the task:" + taskString);
+            String taskString = response.readEntity(String.class);
+            log.info("Response when trying to activate the task:" + taskString);
 
-        if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
-            // OperationOutcome operationOutcome =
-            // fhirContext.newXmlParser().parseResource(OperationOutcome.class, new
-            // StringReader(taskString));
-            response.close();
-            throw new RuntimeException(taskString);
+            if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
+                throw new WebApplicationException("Error on "+appConfig.getPrescriptionServiceURL()+" "+taskString, response.getStatus());
+            }
+            log.info("Task $activate Response: " + taskString);
         }
-        response.close();
-        log.info("Task $activate Response: " + taskString);
     }
 
     /**
@@ -532,28 +529,24 @@ public class ERezeptWorkflowService {
         String parameterString = fhirContext.newXmlParser().encodeResourceToString(parameters);
         log.fine("Parameter String: " + parameterString);
 
-        Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task/$create").request()
+        try (Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task/$create").request()
                 .header("User-Agent", appConfig.getUserAgent())
                 .header("Authorization", "Bearer " + bearerToken)
-                .post(Entity.entity(parameterString, "application/fhir+xml; charset=utf-8"));
+                .post(Entity.entity(parameterString, "application/fhir+xml; charset=utf-8"))) {
 
-        String taskString = response.readEntity(String.class);
+            String taskString = response.readEntity(String.class);
 
-        // if this was the first try, try again, this will request a new bearer token
-        if(firstTry && response.getStatus() == 401) {
-            createERezeptTask(false);
+            // if this was the first try, try again, this will request a new bearer token
+            if(firstTry && response.getStatus() == 401) {
+                createERezeptTask(false);
+            }
+
+            if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
+                throw new WebApplicationException("Error on "+appConfig.getPrescriptionServiceURL()+" "+taskString, response.getStatus());
+            }
+            log.info("Task Response: " + taskString);
+            return fhirContext.newXmlParser().parseResource(Task.class, new StringReader(taskString));
         }
-
-        if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
-            // OperationOutcome operationOutcome =
-            // fhirContext.newXmlParser().parseResource(OperationOutcome.class, new
-            // StringReader(taskString));
-            response.close();
-            throw new RuntimeException(taskString);
-        }
-        response.close();
-        log.info("Task Response: " + taskString);
-        return fhirContext.newXmlParser().parseResource(Task.class, new StringReader(taskString));
     }
 
     /**
@@ -563,19 +556,18 @@ public class ERezeptWorkflowService {
      * @return
      */
     public void abortERezeptTask(String taskId, String accessCode) {
-        Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task").path("/" + taskId).path("/$abort")
-        .request().header("User-Agent", appConfig.getUserAgent()).header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
-                .post(Entity.entity("", "application/fhir+xml; charset=utf-8"));
-        String taskString = response.readEntity(String.class);
-        // if it is not successful and it was found
-        if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL
-        && response.getStatus() != Response.Status.NOT_FOUND.getStatusCode()) {
-            response.close();
-            throw new RuntimeException(taskString);
+        try (Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task").path("/" + taskId).path("/$abort")
+                .request().header("User-Agent", appConfig.getUserAgent()).header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
+                .post(Entity.entity("", "application/fhir+xml; charset=utf-8"))) {
+            String taskString = response.readEntity(String.class);
+            // if it is not successful and it was found
+            if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL
+            && response.getStatus() != Response.Status.NOT_FOUND.getStatusCode()) {
+                throw new WebApplicationException("Error on "+appConfig.getPrescriptionServiceURL()+" "+taskString, response.getStatus());
+            }
+            
+            log.info("Task $abort Response: " + taskString);
         }
-        response.close();
-        
-        log.info("Task $abort Response: " + taskString);
     }
     
     /**
