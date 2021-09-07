@@ -15,6 +15,21 @@ import org.junit.jupiter.api.Test;
 public class WebsocketXmlPrescriptionClientTest {
 
     @Test
+    public void testVOSBundle() {
+
+        String jsonBundle;
+        try {
+            jsonBundle = new String(Files.readAllBytes(Paths.get("../vos-erp-translator/src/test/resources/websocket/SignAndUploadVOSBundle.json")));
+            
+            jsonBundle = jsonBundle.replaceFirst("a152qv21-9851-701o-32vx-9q3a3c5r91tf", UUID.randomUUID().toString());
+
+            sendMessage(jsonBundle);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
     @Disabled
     public void testXmlPrescriptionSignAndUploadBundles() {
 
