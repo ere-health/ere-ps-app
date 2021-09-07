@@ -393,9 +393,9 @@
                     </plugin>
                 </plugins>
             </build>
-            <properties>
-                <quarkus.package.type>native</quarkus.package.type>
-            </properties>
+	    <properties>
+                <quarkus.package.type>uber-jar</quarkus.package.type>
+	    </properties>
         </profile>
     </profiles>
     <repositories>
