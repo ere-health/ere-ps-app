@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 public class WebsocketXmlPrescriptionClientTest {
 
     @Test
+    @Disabled
     public void testVOSBundle() {
 
         String jsonBundle;
