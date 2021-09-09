@@ -30,11 +30,20 @@ public class JavaScriptTest {
     }
 
     @Test
-    public void test() throws ScriptException, IOException {
+    public void testCreateEPrescription() throws ScriptException, IOException {
+        runScript("src/test/resources/javascript/create-e-prescription.js");
+    }
+    
+    @Test
+    public void testGeneratePrintOut() throws ScriptException, IOException {
+        runScript("src/test/resources/javascript/generate-print-out.js");
+    } 
+
+    private void runScript(String script) throws IOException, ScriptException {
         ScriptEngineManager mgr = new ScriptEngineManager();
         ScriptEngine jsEngine = mgr.getEngineByName("JavaScript");
         Bindings bindings = jsEngine.createBindings();
-        String js = new String(Files.readAllBytes(Paths.get("src/test/resources/javascript/create-e-prescription.js")));
+        String js = new String(Files.readAllBytes(Paths.get(script)));
         jsEngine.eval(utilJavaScript + js, bindings);
-    }  
+    }
 }

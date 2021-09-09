@@ -8,8 +8,13 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryIteratorException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.jar.JarEntry;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -61,9 +66,11 @@ public class DocumentService {
     public void init() {
         try {
             URI baseURI = getClass().getResource("/fop/").toURI();
-            FopFactoryBuilder fopFactoryBuilder = new FopFactoryBuilder(baseURI);
+            FopFactoryBuilder fopFactoryBuilder = new FopFactoryBuilder(baseURI, new ClasspathResolverURIAdapter());
             initConfiguration(fopFactoryBuilder);
             fopFactory = fopFactoryBuilder.build();
+            //fopFactory.getFontManager().setResourceResolver(new LoggingResolver(fopFactory.getFontManager().getResourceResolver()));
+            //log.info(fopFactory.getFontManager().getResourceResolver().toString());
         } catch (Exception ex) {
             log.severe("FOP Factory not initializable:" + ex);
             exceptionEvent.fireAsync(ex);
@@ -78,30 +85,72 @@ public class DocumentService {
             String absolutePath = physicalFile.getAbsolutePath();
             String config = Files.readString(new File(getClass().getResource("/fop/fop.xconf").toURI()).toPath())
                     .replaceAll("__WILL_BE_REPLACED_IN_DocumentService__", absolutePath);
+            log.info("Config: "+config);
             cfg = new DefaultConfigurationBuilder().build(new ByteArrayInputStream(config.getBytes()));
-            // This is needed to extract the fonts from the war
-            // It is unknown yet how quarkus behaves
-            // List<String> fonts = Arrays.asList("arial.ttf", "arialbd.ttf", "arialbi.ttf",
-            // "ariali.ttf", "ARIALN.TTF",
-            // "ARIALNB.TTF", "ARIALNBI.TTF", "ARIALNI.TTF", "ARIALUNI.TTF",
-            // "ARIALUNIB.TTF", "ariblk.ttf",
-            // "Symbola.ttf");
-            // for (String font : fonts) {
-            // uri = getClass().getResource("/fop/fonts/" + font).toURI();
-            // log.info("Font found: " + uri);
-            // }
-            // log.log(Level.INFO, "Setting fonts path to: {0}", absolutePath);
-            // Configuration fontConfig =
-            // cfg.getChildren("renderers")[0].getChildren("renderer")[0]
-            // .getChildren("fonts")[0].getChildren("directory")[0];
-            // ((DefaultConfiguration)fontConfig)
-            // .setValue(absolutePath);
-
             fopFactoryBuilder.setConfiguration(cfg);
         } catch (IllegalArgumentException | ConfigurationException | ArrayIndexOutOfBoundsException |
                 IOException | URISyntaxException e) {
-            log.severe("Could not configure FOP from file in classpath: /fonts/fop.xconf:" + e);
-            exceptionEvent.fireAsync(e);
+            if(e instanceof IllegalArgumentException) {
+                String appFolder = "quarkus-app/app";
+                String appFolderWithFop = appFolder+"/fop";
+                try {
+                    if(!new File(appFolderWithFop).exists()) {
+                        extractJarsFromFolderFopFolder(appFolder);
+                    }
+                    String config;
+                    config = Files.readString(Paths.get(appFolder+"/fop/fop.xconf"))
+                    .replaceAll("__WILL_BE_REPLACED_IN_DocumentService__", new File(appFolderWithFop+"/fonts/").getAbsolutePath());
+                    log.info("Config: "+config);
+                    cfg = new DefaultConfigurationBuilder().build(new ByteArrayInputStream(config.getBytes()));
+                    fopFactoryBuilder.setConfiguration(cfg);
+                } catch (IOException | ConfigurationException e1) {
+                    log.severe("Could not configure FOP from extracted jar: "+appFolder+"/fonts/fop.xconf:" + e);
+                    exceptionEvent.fireAsync(e);
+                }
+            } else {
+                log.severe("Could not configure FOP from file in classpath: /fonts/fop.xconf:" + e);
+                exceptionEvent.fireAsync(e);
+            }
+        }
+    }
+
+    /**
+     * https://stackoverflow.com/a/1529707/1059979
+     * @param jarFile
+     */
+    void extractJarsFromFolderFopFolder(String folderWithJars) {
+        Path dir = Paths.get(folderWithJars);
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "*.{jar}")) {
+            for (Path entry: stream) {
+
+                java.util.jar.JarFile jar;
+                jar = new java.util.jar.JarFile(entry.toFile());
+
+                log.info("Extracting "+entry.toFile().getAbsolutePath());
+            
+                java.util.Enumeration<JarEntry> enumEntries = jar.entries();
+                while (enumEntries.hasMoreElements()) {
+                    java.util.jar.JarEntry file = (java.util.jar.JarEntry) enumEntries.nextElement();
+                    if(!file.getName().startsWith("fop/")) {
+                        continue;
+                    }
+                    java.io.File f = new java.io.File(folderWithJars+"/"+file.getName());
+                    if (file.isDirectory()) { // if its a directory, create it
+                        f.mkdir();
+                        continue;
+                    }
+                    java.io.InputStream is = jar.getInputStream(file); // get the input stream
+                    java.io.FileOutputStream fos = new java.io.FileOutputStream(f);
+                    is.transferTo(fos);
+                    fos.close();
+                    is.close();
+                }
+                jar.close();
+            }
+        } catch (DirectoryIteratorException | IOException ex) {
+            // I/O error encounted during the iteration, the cause is an IOException
+            log.severe("Could not extract jar " + ex);
+            exceptionEvent.fireAsync(ex);
         }
     }
 

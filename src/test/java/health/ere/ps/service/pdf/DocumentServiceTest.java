@@ -7,13 +7,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.LogManager;
 
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
 import org.hl7.fhir.r4.model.Bundle;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -55,11 +55,15 @@ public class DocumentServiceTest {
                 DocumentServiceTest.class.getResourceAsStream("/examples_erezept/Erezept_template_4.xml")));
         testBundles.add((Bundle) ctx.newXmlParser().parseResource(
                 DocumentServiceTest.class.getResourceAsStream("/examples_erezept/Erezept_template_5.xml")));
-    }
 
-    @BeforeEach
-    public void instantiateDocumentService() {
-        documentService.init();
+        try {
+            // https://community.oracle.com/thread/1307033?start=0&tstart=0
+            LogManager.getLogManager().readConfiguration(
+                DocumentServiceTest.class
+                            .getResourceAsStream("/logging.properties"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
@@ -99,9 +103,10 @@ public class DocumentServiceTest {
     }
 
     @Test
-    @Disabled("Running the pdf generation tests takes a lot of time, run them manually")
+    // @Disabled("Running the pdf generation tests takes a lot of time, run them manually")
     public void generateERezeptPdf_generatesCorrectPdf_givenOneMedicationToDisplay() throws IOException {
         // WHEN + THEN
+        // DefaultFontConfigurator
         ByteArrayOutputStream baos = createStreamForANumberOfPdfs(1);
         Files.write(Paths.get(TARGET_PATH + "Erezept_with_one_medications.pdf"), baos.toByteArray());
     }

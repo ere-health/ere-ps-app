@@ -73,7 +73,7 @@
    id="EmbeddedFont_1"
    horiz-adv-x="2048">
    <font-face
-   font-family="Arial embedded"
+   font-family="Liberation Sans embedded"
    units-per-em="2048"
    font-weight="normal"
    font-style="normal"
@@ -316,7 +316,7 @@
    id="EmbeddedFont_2"
    horiz-adv-x="2048">
    <font-face
-   font-family="Arial embedded"
+   font-family="Liberation Sans embedded"
    units-per-em="2048"
    font-weight="bold"
    font-style="normal"
@@ -668,7 +668,7 @@
    class="TextShape"
    id="text243"><tspan
      class="TextParagraph"
-     font-family="Arial"
+     font-family="Liberation Sans"
      font-size="265px"
      font-weight="400"
      id="tspan241"><tspan
@@ -721,7 +721,7 @@
    class="TextShape"
    id="text263"><tspan
      class="TextParagraph"
-     font-family="Arial"
+     font-family="Liberation Sans"
      font-size="265px"
      font-weight="400"
      id="tspan261"><tspan
@@ -753,7 +753,7 @@
    class="TextShape"
    id="text276"><tspan
      class="TextParagraph"
-     font-family="Arial"
+     font-family="Liberation Sans"
      font-size="265px"
      font-weight="400"
      id="tspan274"><tspan
@@ -818,7 +818,7 @@
    transform="translate(9761,3679) rotate(-90) translate(-9761,-3679)"
    id="text302"><tspan
      class="TextParagraph"
-     font-family="Arial"
+     font-family="Liberation Sans"
      font-size="212px"
      font-weight="400"
      id="tspan300"><tspan
@@ -850,7 +850,7 @@
    class="TextShape"
    id="text315"><tspan
      class="TextParagraph"
-     font-family="Arial"
+     font-family="Liberation Sans"
      font-size="282px"
      font-weight="700"
      id="tspan313"><tspan
@@ -882,7 +882,7 @@
    class="TextShape"
    id="text328"><tspan
      class="TextParagraph"
-     font-family="Arial"
+     font-family="Liberation Sans"
      font-size="282px"
      font-weight="700"
      id="tspan326"><tspan
@@ -1006,7 +1006,7 @@
    class="TextShape"
    id="text371"><tspan
      class="TextParagraph"
-     font-family="Arial"
+     font-family="Liberation Sans"
      font-size="247px"
      font-weight="400"
      id="tspan369"><tspan
