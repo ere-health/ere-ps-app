@@ -258,8 +258,8 @@
 
     <xsl:template name="body">
         <fo:table table-layout="fixed" width="190mm">
-            <fo:table-column column-number="1" column-width="50%"/>
-            <fo:table-column column-number="2" column-width="50%"/>
+            <fo:table-column column-number="1" column-width="51%"/>
+            <fo:table-column column-number="2" column-width="49%"/>
             <fo:table-body>
                 <xsl:for-each select="fhir:bundle">
                     <xsl:variable name="pos" select="position()"/>
