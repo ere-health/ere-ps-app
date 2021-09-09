@@ -70,7 +70,9 @@ try {
         "accessCode": accessCode,
         "bundle": jsonBundle
     }];
-    var pdfDocument = postToUrl("http://localhost:8080/document/bundles", JSON.stringify(bundles), "application/pdf", "application/json");
+    var bundlesString = JSON.stringify(bundles);
+    println(bundlesString);
+    var pdfDocument = postToUrl("http://localhost:8080/document/bundles", bundlesString, "application/pdf", "application/json");
     java.nio.file.Files.write(java.nio.file.Paths.get("target/javascript-0428d416-149e-48a4-977c-394887b3d85c.pdf"), pdfDocument);
 } catch(e) {
     println("ERROR during producing pdf: "+e.message);

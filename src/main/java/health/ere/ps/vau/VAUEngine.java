@@ -147,6 +147,7 @@ public class VAUEngine extends ApacheHttpClient43Engine {
         Response response = super.invoke(inv);
 
         byte[] transportedData;
+        byte[] responseBytes = null;
         String responseContent;
         try {
             String contentType = response.getHeaderString("Content-Type");
@@ -154,7 +155,7 @@ public class VAUEngine extends ApacheHttpClient43Engine {
                 // A_20174
                 throw new RuntimeException("VAU response content type has to be application/octet-stream but was: " + contentType + " Content: " + (response.getEntity() != null ? new String(((InputStream) response.getEntity()).readAllBytes()) : "null"));
             }
-            byte[] responseBytes = ((InputStream) response.getEntity()).readAllBytes();
+            responseBytes = ((InputStream) response.getEntity()).readAllBytes();
             log.fine(VAU.byteArrayToHexString(responseBytes));
             transportedData = VAU.decryptWithKey(responseBytes, aeskey);
             userpseudonym = response.getHeaderString("userpseudonym");
@@ -162,6 +163,12 @@ public class VAUEngine extends ApacheHttpClient43Engine {
             log.fine(responseContent);
             return parseResponseFromVAU(responseContent, (ClientInvocation) inv);
         } catch (Exception e) {
+            if(responseBytes != null) {
+                log.info("VAU Response Bytes: "+VAU.byteArrayToHexString(responseBytes));
+            }
+            if(aeskey != null) {
+                log.info("VAU AES Key: "+VAU.byteArrayToHexString(aeskey));
+            }
             throw new RuntimeException(e);
         }
     }

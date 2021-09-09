@@ -15,7 +15,7 @@
 
     <xsl:template match="fhir:root">
         <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format"
-                 font-family="Courier, Arial" font-size="12pt" text-align="left"
+                 font-family="Courier, Liberation Sans" font-size="12pt" text-align="left"
                  line-height="normal" font-selection-strategy="character-by-character"
                  line-height-shift-adjustment="disregard-shifts" writing-mode="lr-tb"
                  language="DE">
@@ -78,7 +78,7 @@
     <xsl:template name="footer">
         <fo:block text-align="end">
             <fo:external-graphic content-height="41mm" content-width="scale-to-fit"
-                                 src="url('img/erezept-app-note.svg')"/>
+                                 src="classpath:/fop/img/erezept-app-note.svg"/>
         </fo:block>
     </xsl:template>
 
@@ -94,7 +94,7 @@
                         <fo:table-body>
                             <fo:table-row height="5mm">
                                 <fo:table-cell number-columns-spanned="2">
-                                    <fo:block font-family="Arial" font-weight="bold" font-size="12pt">
+                                    <fo:block font-family="Liberation Sans" font-weight="bold" font-size="12pt">
                                         Ausdruck zur Einlösung Ihres E-Rezeptes
                                     </fo:block>
                                 </fo:table-cell>
@@ -109,12 +109,12 @@
                                             <fo:table-row>
                                                 <fo:table-cell width="100mm">
                                                     <fo:block font-size="6pt" margin-left="1mm"
-                                                              font-family="Arial">für
+                                                              font-family="Liberation Sans">für
                                                     </fo:block>
                                                 </fo:table-cell>
                                                 <fo:table-cell>
                                                     <fo:block font-size="6pt"
-                                                              font-family="Arial" margin-left="5mm">geboren am
+                                                              font-family="Liberation Sans" margin-left="5mm">geboren am
                                                     </fo:block>
                                                 </fo:table-cell>
                                             </fo:table-row>
@@ -171,13 +171,13 @@
                                             <fo:table-row>
                                                 <fo:table-cell>
                                                     <fo:block font-size="6pt" margin-left="1mm"
-                                                              font-family="Arial">
+                                                              font-family="Liberation Sans">
                                                         ausgestellt von
                                                     </fo:block>
                                                 </fo:table-cell>
                                                 <fo:table-cell>
                                                     <fo:block font-size="6pt" margin-left="5mm"
-                                                              font-family="Arial">
+                                                              font-family="Liberation Sans">
                                                         ausgestellt am
                                                     </fo:block>
                                                 </fo:table-cell>
@@ -231,7 +231,7 @@
                 </fo:table-cell>
                 <fo:table-cell display-align="after">
                     <fo:block-container reference-orientation="90" margin-left="2mm">
-                        <fo:block font-size="6pt" font-family="Arial" font-weight="bold" wrap-option="no-wrap">
+                        <fo:block font-size="6pt" font-family="Liberation Sans" font-weight="bold" wrap-option="no-wrap">
                             Sammelcode zur Einlösung aller Verordnungen
                         </fo:block>
                     </fo:block-container>
@@ -258,8 +258,8 @@
 
     <xsl:template name="body">
         <fo:table table-layout="fixed" width="190mm">
-            <fo:table-column column-number="1" column-width="50%"/>
-            <fo:table-column column-number="2" column-width="50%"/>
+            <fo:table-column column-number="1" column-width="51%"/>
+            <fo:table-column column-number="2" column-width="49%"/>
             <fo:table-body>
                 <xsl:for-each select="fhir:bundle">
                     <xsl:variable name="pos" select="position()"/>
