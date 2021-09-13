@@ -1,6 +1,20 @@
 package health.ere.ps.vau;
 
-import health.ere.ps.vau.VAU.KeyCoords;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.security.KeyPair;
+import java.security.KeyStore;
+import java.util.logging.LogManager;
+
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.xml.bind.DatatypeConverter;
+import javax.xml.ws.BindingProvider;
+
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.bouncycastle.crypto.params.ECDomainParameters;
 import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
@@ -9,15 +23,39 @@ import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.math.ec.ECPoint;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import javax.xml.bind.DatatypeConverter;
-import java.math.BigInteger;
-import java.security.KeyPair;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateService;
+import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateServicePortType;
+import de.gematik.ws.conn.connectorcontext.v2.ContextType;
+import health.ere.ps.service.common.security.SecretsManagerService.KeyStoreType;
+import health.ere.ps.service.common.security.SecretsManagerService.SslContextType;
+import health.ere.ps.service.connector.endpoint.SSLUtilities;
+import health.ere.ps.vau.VAU.KeyCoords;
 
 public class VAUTest {
+
+
+    @BeforeEach
+    void init() {
+        try {
+            // https://community.oracle.com/thread/1307033?start=0&tstart=0
+            LogManager.getLogManager().readConfiguration(
+                VAUTest.class
+                            .getResourceAsStream("/logging.properties"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
+        System.setProperty("com.sun.xml.internal.ws.transport.http.client.HttpTransportPipe.dump", "true");
+        System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
+        System.setProperty("com.sun.xml.internal.ws.transport.http.HttpAdapter.dump", "true");
+        System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dumpTreshold", "999999");
+    }
+
     public static String Message = "Hallo Test";
     public static String CipherText = "01 754e548941e5cd073fed6d734578a484be9f0bbfa1b6fa3168ed7ffb22878f0f 9aef9bbd932a020d8828367bd080a3e72b36c41ee40c87253f9b1b0beb8371bf 257db4604af8ae0dfced37ce 86c2b491c7a8309e750b 4e6e307219863938c204dfe85502ee0a"
             .replace(" ", "").toUpperCase();
@@ -64,5 +102,42 @@ public class VAUTest {
         String ase128 = "42d731ad33d8bf6046caf42b4d25ef0f".toUpperCase();
 
         VAU.decryptWithKey(DatatypeConverter.parseHexBinary(cipherText), DatatypeConverter.parseHexBinary(ase128));
+    }
+
+    @Test
+    @Disabled
+    public void testOCSPF() throws Exception {
+        ContextType contextType = new ContextType();
+        contextType.setMandantId("Incentergy");
+        contextType.setWorkplaceId("1786_A1");
+        contextType.setClientSystemId("Incentergy");
+
+        CertificateServicePortType service = new CertificateService(getClass()
+                .getResource("/CertificateService_v6_0_1.wsdl")).getCertificateServicePort();
+
+        BindingProvider bindingProvider = (BindingProvider) service;
+        bindingProvider.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+                "https://10.0.0.98:443/ws/CertificateService");
+
+        String connectorTlsCertAuthStorePwd = "U9pRlw8SBfMExkycgNDs";
+        FileInputStream certificateInputStream = new FileInputStream("/home/manuel/Desktop/RU-Connector-Cert/incentergy_U9pRlw8SBfMExkycgNDs.p12");
+
+        SSLContext sslContext = SSLContext.getInstance(SslContextType.TLS.getSslContextType());
+
+        KeyStore ks = KeyStore.getInstance(KeyStoreType.PKCS12.getKeyStoreType());
+        ks.load(certificateInputStream, connectorTlsCertAuthStorePwd.toCharArray());
+
+        KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        kmf.init(ks, connectorTlsCertAuthStorePwd.toCharArray());
+
+        sslContext.init(kmf.getKeyManagers(), new TrustManager[]{new SSLUtilities.FakeX509TrustManager()},
+                null);
+
+        bindingProvider.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
+            sslContext.getSocketFactory());
+        bindingProvider.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier",
+                new SSLUtilities.FakeHostnameVerifier());
+        VAU vau = new VAU("https://erp-ref.zentral.erp.splitdns.ti-dienste.de", contextType, service);
+        vau.getVauPublicKeyXY();
     }
 }
