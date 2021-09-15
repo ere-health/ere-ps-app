@@ -300,10 +300,14 @@ public class ERezeptWorkflowService {
         updateERezeptTask(task.getIdElement().getIdPart(), accessCode, signedBytes);
     }
 
+    public void updateERezeptTask(String taskId, String accessCode, byte[] signedBytes) {
+        updateERezeptTask(taskId, accessCode, signedBytes, true);
+    }
+
     /**
      * This function adds the E-Rezept to the previously created task.
      */
-    public void updateERezeptTask(String taskId, String accessCode, byte[] signedBytes) {
+    public void updateERezeptTask(String taskId, String accessCode, byte[] signedBytes, boolean firstTry) {
         requestNewAccessTokenIfNecessary();
         Parameters parameters = new Parameters();
         ParametersParameterComponent ePrescriptionParameter = new ParametersParameterComponent();
@@ -325,7 +329,12 @@ public class ERezeptWorkflowService {
             log.info("Response when trying to activate the task:" + taskString);
 
             if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
-                throw new WebApplicationException("Error on "+appConfig.getPrescriptionServiceURL()+" "+taskString, response.getStatus());
+                if(firstTry) {
+                    log.warning("Was not able to $activate on first try. Status:" +response.getStatus()+" Response: " + taskString);
+                    updateERezeptTask(taskId, accessCode, signedBytes, false);
+                } else {
+                    throw new WebApplicationException("Error on "+appConfig.getPrescriptionServiceURL()+" "+taskString, response.getStatus());
+                }
             }
             log.info("Task $activate Response: " + taskString);
         }
