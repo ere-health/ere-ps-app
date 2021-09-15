@@ -19,7 +19,6 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
-import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -32,8 +31,6 @@ import javax.xml.ws.Holder;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.teletrust.TeleTrusTObjectIdentifiers;
 import org.bouncycastle.asn1.x9.X9ECParameters;
-import org.bouncycastle.cert.X509CertificateHolder;
-import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.bouncycastle.cert.ocsp.CertificateID;
 import org.bouncycastle.cert.ocsp.OCSPException;
@@ -59,8 +56,6 @@ import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.bouncycastle.math.ec.ECPoint;
-import org.bouncycastle.operator.OperatorCreationException;
-import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder;
 
 import de.gematik.ws.conn.certificateservice.v6.VerificationResultType;
 import de.gematik.ws.conn.certificateservice.v6.VerifyCertificateResponse;
@@ -68,7 +63,6 @@ import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateServicePortType;
 import de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage;
 import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
-import de.gematik.ws.tel.error.v2.Error.Trace;
 
 public class VAU {
     private static final Logger log = Logger.getLogger(VAU.class.getName());
@@ -192,44 +186,12 @@ public class VAU {
         // Code based on: https://github.com/apache/nifi/blob/master/nifi-nar-bundles/nifi-framework-bundle/nifi-framework/nifi-web/nifi-web-security/src/main/java/org/apache/nifi/web/security/x509/ocsp/OcspCertificateValidator.java#L278
         InputStream ocspResponseStream;
         BasicOCSPResp basicOcspResponse;
-        X509CertificateHolder[] responderCertificates;
         try {
             ocspResponseStream = new URL(fachdienstUrl + "/VAUCertificateOCSPResponse").openStream();
             OCSPResp oCSPResp = new OCSPResp(ocspResponseStream);
             basicOcspResponse = (BasicOCSPResp) oCSPResp.getResponseObject();
-            responderCertificates = basicOcspResponse.getCerts();
         } catch (IOException | OCSPException e2) {
             throw new IllegalArgumentException("Could not parse OCSP response", e2);
-        }
-
-        // get the responder certificate
-        X509Certificate trustedResponderCertificate;
-        try {
-            trustedResponderCertificate = new JcaX509CertificateConverter().setProvider("BC").getCertificate(responderCertificates[0]);
-        } catch (CertificateException e1) {
-            throw new IllegalStateException("VAU certificate verification failed", e1);
-        }
-        try {
-            certificateService.verifyCertificate(contextType, trustedResponderCertificate.getEncoded(), now, status, verificationStatus, arg5);
-        } catch (CertificateEncodingException | FaultMessage e) {
-            log.warning("Security problem with certificate of OCSP response: "+e.getMessage());
-            // throw new IllegalStateException("Can not verify certificate from OCSP responder", e);
-        }
-        if(verificationStatus.value.getVerificationResult() != VerificationResultType.VALID) {
-            List<Trace> trace = verificationStatus.value.getError().getTrace();
-            log.warning("Security problem with certificate of OCSP response: "+(trace.size() > 0 ? trace.get(0).getErrorText() : ""));
-            // throw new IllegalStateException("VAU certificate is not valid");
-        }
-
-        if (trustedResponderCertificate != null) {
-            // verify the response
-            try {
-                if (!basicOcspResponse.isSignatureValid(new JcaContentVerifierProviderBuilder().setProvider("BC").build(trustedResponderCertificate.getPublicKey()))) {
-                    throw new IllegalStateException("OCSP responder certificate status unverified for VAU");
-                }
-            } catch (OperatorCreationException | OCSPException e) {
-                throw new IllegalStateException("VAU certificate verification failed", e);
-            }
         }
 
         BigInteger subjectSerialNumber = z.getSerialNumber();

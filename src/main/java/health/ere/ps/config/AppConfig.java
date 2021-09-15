@@ -36,6 +36,9 @@ public class AppConfig {
     @ConfigProperty(name = "ere-workflow-service.batch-sign.enable")
     boolean enableBatchSign;
 
+    @ConfigProperty(name = "ere.workflow-service.prescription.write-signature-file")
+    boolean writeSignatureFile;
+
     @ConfigProperty(name = "ere-workflow-service.user-agent")
     String userAgent;
 
@@ -99,4 +102,17 @@ public class AppConfig {
     public Optional<String> getCertAuthStoreFilePassword() {
         return certAuthStoreFilePassword;
     }
+
+    public boolean isWriteSignatureFile() {
+        return this.writeSignatureFile;
+    }
+
+    public boolean getWriteSignatureFile() {
+        return this.writeSignatureFile;
+    }
+
+    public void setWriteSignatureFile(boolean writeSignatureFile) {
+        this.writeSignatureFile = writeSignatureFile;
+    }
+
 }
