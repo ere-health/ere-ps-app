@@ -3,8 +3,15 @@ package health.ere.ps.service.gematik;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -21,6 +28,8 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
 import javax.xml.ws.Holder;
 
 import org.apache.commons.lang3.StringUtils;
@@ -157,19 +166,29 @@ public class ERezeptWorkflowService {
     public void onSignAndUploadBundlesEvent(@ObservesAsync SignAndUploadBundlesEvent signAndUploadBundlesEvent) {
         requestNewAccessTokenIfNecessary();
 
-        log.info(String.format("Received %d bundles to sign ", signAndUploadBundlesEvent.listOfListOfBundles.size()));
+        List<List<Bundle>> listOfListOfBundles = signAndUploadBundlesEvent.listOfListOfBundles;
+        log.info(String.format("Received %d bundles to sign ", listOfListOfBundles.size()));
         log.info("Contents of list of bundles to sign are as follows:");
-        signAndUploadBundlesEvent.listOfListOfBundles.forEach(bundlesList -> {
+        listOfListOfBundles.forEach(bundlesList -> {
             log.info("Bundles list contents is:");
             bundlesList.forEach(bundle -> log.info("Bundle content: " + bundle.toString()));
         });
 
         List<List<BundleWithAccessCodeOrThrowable>> bundleWithAccessCodeOrThrowable = new ArrayList<>();
-        for (List<Bundle> bundles : signAndUploadBundlesEvent.listOfListOfBundles) {
-            log.info(String.format("Getting access codes for %d bundles.",
-                    bundles.size()));
+        List<Bundle> bundles = signAndUploadBundlesEvent.listOfListOfBundles.stream().flatMap(b -> b.stream()).collect(Collectors.toList());
+        log.info(String.format("Getting access codes for %d bundles.",
+                bundles.size()));
+
+        List<BundleWithAccessCodeOrThrowable> unflatten = createMultipleERezeptsOnPrescriptionServer(bundles);
+        Iterator<BundleWithAccessCodeOrThrowable> it = unflatten.iterator();
+        // unflatten bundles again
+        for(int i = 0;i<listOfListOfBundles.size();i++) {
+            List<BundleWithAccessCodeOrThrowable> unflattenBundles = new ArrayList<>();
+            for(int j=0;j<listOfListOfBundles.get(i).size(); j++) {
+                unflattenBundles.add(it.next());
+            }
             bundleWithAccessCodeOrThrowable
-                    .add(createMultipleERezeptsOnPrescriptionServer(bundles));
+                    .add(unflattenBundles);
         }
 
         log.info(String.format("Firing event to create prescription receipts for %d bundles.",
@@ -448,7 +467,7 @@ public class ERezeptWorkflowService {
                     return null;
                 }).collect(Collectors.toList());
 
-                return signResponses744;
+                signResponses = signResponses744;
                 // PTV4, could be PTV3 as well, to be refactored in a future task
             } else {
                 if(appConfig.enableBatchSign()) {
@@ -474,6 +493,21 @@ public class ERezeptWorkflowService {
             throw new ERezeptWorkflowException("Exception signing bundles with identifiers.", e);
         }
 
+        if(appConfig.isWriteSignatureFile()) {
+            String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
+                                .withZone(ZoneOffset.UTC)
+                                .format(Instant.now());
+            for(int i = 0; i<signResponses.size();i++) {
+                byte[] sig = signResponses.get(i).getSignatureObject().getBase64Signature().getValue();
+                try {
+                    Path path = Paths.get(thisMoment+"-"+i+".p7s");
+                    log.info("Generating "+path.toAbsolutePath().toString());
+                    Files.write(path, sig);
+                } catch (IOException e) {
+                    log.log(Level.SEVERE, "Could not generate signature files", e);
+                }
+            }
+        }
         return signResponses;
     }
 
@@ -669,6 +703,19 @@ public class ERezeptWorkflowService {
      *
      */
     public GetSignatureModeResponseEvent getSignatureMode() {
+        if(userIdForComfortSignature == null) {
+            Status status = new Status();
+            status.setResult("OK");
+            ComfortSignatureStatusEnum comfortSignatureStatus = ComfortSignatureStatusEnum.DISABLED;
+            // comfort signature not activated
+            try {
+                return new GetSignatureModeResponseEvent(status, comfortSignatureStatus, 0, DatatypeFactory.newInstance().newDuration(0l), null);
+            } catch (DatatypeConfigurationException e) {
+                log.log(Level.WARNING, "Could not generate Duration", e);
+                exceptionEvent.fireAsync(e);
+                return null;
+            }
+        }
         Holder<Status> status = new Holder<>();
         Holder<ComfortSignatureStatusEnum> comfortSignatureStatus = new Holder<>();
         Holder<Integer> comfortSignatureMax = new Holder<>();
@@ -711,6 +758,7 @@ public class ERezeptWorkflowService {
             contextType.setUserId(userIdForComfortSignature);
             
             connectorServicesProvider.getSignatureServicePortTypeV755().deactivateComfortSignature(Arrays.asList(signatureServiceCardHandle));
+            userIdForComfortSignature = null;
         } catch (ConnectorCardsException | FaultMessage e) {
             log.log(Level.WARNING, "Could not deactivate comfort signature", e);
             exceptionEvent.fireAsync(e);
