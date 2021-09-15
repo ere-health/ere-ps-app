@@ -13,8 +13,12 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.jar.JarEntry;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -41,6 +45,7 @@ import org.apache.fop.apps.MimeConstants;
 import org.apache.fop.configuration.Configuration;
 import org.apache.fop.configuration.ConfigurationException;
 import org.apache.fop.configuration.DefaultConfigurationBuilder;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import ca.uhn.fhir.context.FhirContext;
 import health.ere.ps.event.BundlesWithAccessCodeEvent;
@@ -59,6 +64,9 @@ public class DocumentService {
     Event<ERezeptDocumentsEvent> eRezeptDocumentsEvent;
     @Inject
     Event<Exception> exceptionEvent;
+
+    @ConfigProperty(name = "ere.document-service.write-pdf-file", defaultValue = "false")
+    boolean writePdfFile = false;
 
     private FopFactory fopFactory;
 
@@ -279,6 +287,20 @@ public class DocumentService {
 
         // Step 6: Start XSLT transformation and FOP processing
         transformer.transform(src, res);
+
+        if(isWritePdfFile()) {
+            String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
+                                .withZone(ZoneOffset.UTC)
+                                .format(Instant.now());
+            try {
+                Path path = Paths.get(thisMoment+".pdf");
+                log.info("Generating "+path.toAbsolutePath().toString());
+                Files.write(path, out.toByteArray());
+            } catch (IOException e) {
+                log.log(Level.SEVERE, "Could not generate signature files", e);
+            }
+        }
+
         return out;
 
     }
@@ -290,5 +312,9 @@ public class DocumentService {
      */
     void seteRezeptDocumentsEvent(Event<ERezeptDocumentsEvent> eRezeptDocumentsEvent) {
         this.eRezeptDocumentsEvent = eRezeptDocumentsEvent;
+    }
+
+    public boolean isWritePdfFile() {
+        return this.writePdfFile;
     }
 }

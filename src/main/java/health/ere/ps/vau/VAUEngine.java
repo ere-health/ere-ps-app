@@ -157,11 +157,16 @@ public class VAUEngine extends ApacheHttpClient43Engine {
             }
             responseBytes = ((InputStream) response.getEntity()).readAllBytes();
             log.fine(VAU.byteArrayToHexString(responseBytes));
-            transportedData = VAU.decryptWithKey(responseBytes, aeskey);
-            userpseudonym = response.getHeaderString("userpseudonym");
-            responseContent = new String(transportedData);
-            log.fine(responseContent);
-            return parseResponseFromVAU(responseContent, (ClientInvocation) inv);
+            if(Response.Status.Family.SUCCESSFUL == response.getStatusInfo().getFamily()) {
+                // if it is successful 
+                transportedData = VAU.decryptWithKey(responseBytes, aeskey);
+                userpseudonym = response.getHeaderString("userpseudonym");
+                responseContent = new String(transportedData);
+                log.fine(responseContent);
+                return parseResponseFromVAU(responseContent, (ClientInvocation) inv);
+            } else {
+                return response;
+            }
         } catch (Exception e) {
             if(responseBytes != null) {
                 log.info("VAU Response Bytes: "+VAU.byteArrayToHexString(responseBytes));
