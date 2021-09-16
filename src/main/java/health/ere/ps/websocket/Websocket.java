@@ -12,11 +12,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -323,10 +319,10 @@ public class Websocket {
     }
 
     public String generateJson(ERezeptDocumentsEvent eRezeptDocumentsEvent) {
-        if(removeSignatureFromMessage) {
+        if (removeSignatureFromMessage) {
             eRezeptDocumentsEvent.getERezeptWithDocuments().stream()
-                .flatMap(ezd -> ezd.getBundleWithAccessCodeOrThrowables().stream())
-                .forEach(bundleWithAccessCodeOrThrowables -> bundleWithAccessCodeOrThrowables.setSignedBundle(null));
+                    .flatMap(ezd -> ezd.getBundleWithAccessCodeOrThrowables().stream())
+                    .forEach(bundleWithAccessCodeOrThrowables -> bundleWithAccessCodeOrThrowables.setSignedBundle(null));
         }
 
         return "{\"type\": \"ERezeptWithDocuments\", \"payload\": " +
@@ -417,14 +413,9 @@ public class Websocket {
     }
 
     private String processOutgoing(String message) {
-        System.out.println("procssing message" + message.substring(0, 100));
-        for (OutgoingMessageProcessor processor : outgoingMessageProcessors) {
-            System.out.println(processor.getClass().getName());
-            if (processor.canProcess(message)) {
-                System.out.println("YEAH");
+        for (OutgoingMessageProcessor processor : outgoingMessageProcessors)
+            if (processor.canProcess(message))
                 return processor.process(message);
-            }
-        }
         return message;
     }
 
