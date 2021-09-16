@@ -12,7 +12,11 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,8 +41,7 @@ import javax.websocket.server.ServerEndpoint;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import message.processor.incoming.IncomingBundleMessageProcessor;
-import message.processor.outgoing.OutgoingMessageProcessor;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.hl7.fhir.r4.model.Bundle;
 
 import ca.uhn.fhir.context.FhirContext;
@@ -68,7 +71,9 @@ import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
 import health.ere.ps.service.fhir.bundle.EreBundle;
 import health.ere.ps.service.logging.EreLogger;
 import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
+import message.processor.incoming.IncomingBundleMessageProcessor;
 import message.processor.incoming.IncomingMessageProcessor;
+import message.processor.outgoing.OutgoingMessageProcessor;
 
 @ServerEndpoint("/websocket")
 @ApplicationScoped
@@ -103,6 +108,9 @@ public class Websocket {
     AppConfig appConfig;
     @Inject
     UserConfigurationService userConfigurationService;
+
+    @ConfigProperty(name = "ere.websocket.remove-signature-from-message", defaultValue = "true")
+    boolean removeSignatureFromMessage = true;
 
 
     JsonbConfig customConfig = new JsonbConfig()
@@ -315,6 +323,12 @@ public class Websocket {
     }
 
     public String generateJson(ERezeptDocumentsEvent eRezeptDocumentsEvent) {
+        if(removeSignatureFromMessage) {
+            eRezeptDocumentsEvent.getERezeptWithDocuments().stream()
+                .flatMap(ezd -> ezd.getBundleWithAccessCodeOrThrowables().stream())
+                .forEach(bundleWithAccessCodeOrThrowables -> bundleWithAccessCodeOrThrowables.setSignedBundle(null));
+        }
+
         return "{\"type\": \"ERezeptWithDocuments\", \"payload\": " +
                 jsonbFactory.toJson(eRezeptDocumentsEvent.getERezeptWithDocuments()) + "}";
     }

@@ -244,8 +244,10 @@ public class ERezeptWorkflowService {
                 try {
                     Task task = tasks.get(i);
                     if(task != null) {
+                        byte[] signedBundle = signedDocument.getSignatureObject().getBase64Signature().getValue();
+                        bundleWithAccessCode.setSignedBundle(signedBundle);
                         updateERezeptTask(task, bundleWithAccessCode.getAccessCode(),
-                            signedDocument.getSignatureObject().getBase64Signature().getValue());
+                            signedBundle);
                     }
                 } catch(Throwable t) {
                     bundleWithAccessCode.setThrowable(t);
@@ -286,8 +288,10 @@ public class ERezeptWorkflowService {
             if(signedDocument == null) {
                 bundleWithAccessCode.setThrowable(new RuntimeException("Could not get signed document. Please check the logs."));
             } else {
+                byte[] signedBundle = signedDocument.getSignatureObject().getBase64Signature().getValue();
+                bundleWithAccessCode.setSignedBundle(signedBundle);
                 updateERezeptTask(task, bundleWithAccessCode.getAccessCode(),
-                    signedDocument.getSignatureObject().getBase64Signature().getValue());
+                    signedBundle);
             }
         } catch(Exception e) {
             bundleWithAccessCode.setThrowable(e);
