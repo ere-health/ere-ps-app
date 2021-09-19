@@ -30,6 +30,11 @@ public class JavaScriptTest {
     }
 
     @Test
+    public void testValidateBundle() throws ScriptException, IOException {
+        runScript("src/test/resources/javascript/validate-bundle.js");
+    }
+
+    @Test
     public void testCreateEPrescription() throws ScriptException, IOException {
         runScript("src/test/resources/javascript/create-e-prescription.js");
     }
