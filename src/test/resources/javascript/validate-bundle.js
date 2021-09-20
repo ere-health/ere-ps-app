@@ -17,6 +17,8 @@ function postToUrl(urlString, data, accept, content) {
     outWriter.write(data);
     outWriter.close();
 
+    java.lang.System.out.println(conn.getResponseCode());
+
     return conn.getInputStream().readAllBytes();
 }
 
@@ -24,7 +26,7 @@ function postToUrl(urlString, data, accept, content) {
 try {
     var jsonBundle = JSON.parse(new java.lang.String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get("src/test/resources/bundle-json/0428d416-149e-48a4-977c-394887b3d85c.json"))));
     var validationResponse = new java.lang.String(postToUrl("http://localhost:8080/validate", JSON.stringify(jsonBundle), "", "application/json"));
-    println("/validate responded:", validationResponse);
+    println("/validate responded: "+validationResponse);
 } catch(e) {
     println("ERROR during bundle validation: "+e.message);
 }
