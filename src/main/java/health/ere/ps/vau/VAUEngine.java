@@ -160,7 +160,9 @@ public class VAUEngine extends ApacheHttpClient43Engine {
             if(Response.Status.Family.SUCCESSFUL == response.getStatusInfo().getFamily()) {
                 // if it is successful 
                 transportedData = VAU.decryptWithKey(responseBytes, aeskey);
-                userpseudonym = response.getHeaderString("userpseudonym");
+                if(userpseudonym != response.getHeaderString("userpseudonym")) {
+                    userpseudonym = response.getHeaderString("userpseudonym");
+                }
                 responseContent = new String(transportedData);
                 log.fine(responseContent);
                 return parseResponseFromVAU(responseContent, (ClientInvocation) inv);
