@@ -323,8 +323,8 @@ public class Websocket {
     public String generateJson(ERezeptDocumentsEvent eRezeptDocumentsEvent) {
         if (removeSignatureFromMessage) {
             eRezeptDocumentsEvent.getERezeptWithDocuments().stream()
-                    .flatMap(ezd -> ezd.getBundleWithAccessCodeOrThrowables().stream())
-                    .forEach(bundleWithAccessCodeOrThrowables -> bundleWithAccessCodeOrThrowables.setSignedBundle(null));
+                .flatMap(ezd -> ezd.getBundleWithAccessCodeOrThrowables().stream())
+                .forEach(bundleWithAccessCodeOrThrowables -> bundleWithAccessCodeOrThrowables.setSignedBundle(null));
         }
 
         return "{\"type\": \"ERezeptWithDocuments\", \"payload\": " +
