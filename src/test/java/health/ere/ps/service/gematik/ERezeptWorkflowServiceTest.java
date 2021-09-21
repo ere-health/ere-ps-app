@@ -125,7 +125,7 @@ public class ERezeptWorkflowServiceTest {
     }
 
     @Test
-    @Disabled
+    // @Disabled
     void testCreateERezeptMassCreate() throws Exception {
 
         discoveryDocumentUrl = appConfig.getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
@@ -150,7 +150,7 @@ public class ERezeptWorkflowServiceTest {
         DocumentService documentService = new DocumentService();
                 documentService.init();
                 
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get("src/test/resources/simplifier_erezept/"), "*.{xml}")) {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get("src/test/resources/pilotregion/"), "*.{xml}")) {
             for (Path entry : stream) {
                 Bundle bundle = iParser.parseResource(Bundle.class, new FileInputStream(entry.toFile()));
                 try {
@@ -192,7 +192,7 @@ public class ERezeptWorkflowServiceTest {
     }
 
     @Test
-    @Disabled
+    // @Disabled
     void testCreateERezeptMassCreate2() throws Exception {
 
         discoveryDocumentUrl = appConfig.getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
