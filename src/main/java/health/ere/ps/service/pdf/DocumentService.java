@@ -164,8 +164,6 @@ public class DocumentService {
 
 
     public void onBundlesWithAccessCodes(@ObservesAsync BundlesWithAccessCodeEvent bundlesWithAccessCodeEvent) {
-        
-        
         log.info(String.format("About to create prescription receipts for %d bundles",
                 bundlesWithAccessCodeEvent.getBundleWithAccessCodeOrThrowable().size()));
         bundlesWithAccessCodeEvent.getBundleWithAccessCodeOrThrowable().forEach(bundles -> {

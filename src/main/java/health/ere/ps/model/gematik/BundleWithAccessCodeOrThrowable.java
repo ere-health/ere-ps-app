@@ -6,6 +6,7 @@ public class BundleWithAccessCodeOrThrowable {
     private Bundle bundle;
     private String accessCode;
     private Throwable throwable;
+    private byte[] signedBundle;
 
     public BundleWithAccessCodeOrThrowable() {
     }
@@ -40,5 +41,13 @@ public class BundleWithAccessCodeOrThrowable {
 
     public String getAccessCode() {
         return accessCode;
+    }
+
+    public byte[] getSignedBundle() {
+        return this.signedBundle;
+    }
+
+    public void setSignedBundle(byte[] signedBundle) {
+        this.signedBundle = signedBundle;
     }
 }
