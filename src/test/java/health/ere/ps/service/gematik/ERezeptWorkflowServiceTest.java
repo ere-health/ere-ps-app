@@ -125,7 +125,7 @@ public class ERezeptWorkflowServiceTest {
     }
 
     @Test
-    // @Disabled
+    @Disabled
     void testCreateERezeptMassCreate() throws Exception {
 
         discoveryDocumentUrl = appConfig.getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
@@ -192,7 +192,7 @@ public class ERezeptWorkflowServiceTest {
     }
 
     @Test
-    // @Disabled
+    @Disabled
     void testCreateERezeptMassCreate2() throws Exception {
 
         discoveryDocumentUrl = appConfig.getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
