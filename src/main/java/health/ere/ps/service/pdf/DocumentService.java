@@ -91,7 +91,7 @@ public class DocumentService {
             URI uri = getClass().getResource("/fop/fonts/").toURI();
             File physicalFile = new File(uri);
             // for windows replace \ with \\
-            String absolutePath = physicalFile.getAbsolutePath().replaceAll("\\", "\\\\");
+            String absolutePath = physicalFile.getAbsolutePath().replace("\\", "\\\\");
             String config = Files.readString(new File(getClass().getResource("/fop/fop.xconf").toURI()).toPath())
                     .replaceAll("__WILL_BE_REPLACED_IN_DocumentService__", absolutePath);
             log.info("Config: "+config);
@@ -111,7 +111,7 @@ public class DocumentService {
                     }
                     String config;
                     config = Files.readString(Paths.get(appFolder+"/fop/fop.xconf"))
-                    .replaceAll("__WILL_BE_REPLACED_IN_DocumentService__", new File(appFolderWithFop+"/fonts/").getAbsolutePath().replaceAll("\\", "\\\\"));
+                    .replaceAll("__WILL_BE_REPLACED_IN_DocumentService__", new File(appFolderWithFop+"/fonts/").getAbsolutePath().replace("\\", "\\\\"));
                     log.info("Config: "+config);
                     cfg = new DefaultConfigurationBuilder().build(new ByteArrayInputStream(config.getBytes()));
                     fopFactoryBuilder.setConfiguration(cfg);
