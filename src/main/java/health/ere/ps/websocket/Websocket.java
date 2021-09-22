@@ -22,6 +22,7 @@ import javax.enterprise.event.ObservesAsync;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.json.Json;
+import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.bind.Jsonb;
@@ -34,6 +35,7 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
+import ca.uhn.fhir.parser.IParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -395,13 +397,21 @@ public class Websocket {
             if (messageProcessor.canProcess(object.toString())) {
                 if (messageProcessor instanceof IncomingBundleMessageProcessor) {
                     String response = messageProcessor.process(object.toString());
-                    Bundle bundle = FhirContext.forR4().newJsonParser().parseResource(Bundle.class, response);
-                    signAndUploadBundlesEvent.fireAsync(new SignAndUploadBundlesEvent(Collections.singletonList(bundle)));
+                    List<Bundle> bundles = handleBundlesMessage(response);
+                    signAndUploadBundlesEvent.fireAsync(new SignAndUploadBundlesEvent(bundles));
                 } else {
                     messageProcessor.process(object.toString());
                 }
             }
         }
+    }
+
+    private List<Bundle> handleBundlesMessage(String message) {
+        JsonArray bundlesJSON = Json.createReader(new StringReader(message)).readArray();
+        IParser jsonParser = ctx.newJsonParser();
+        return bundlesJSON.stream()
+                .map(jsonBundle -> jsonParser.parseResource(Bundle.class, jsonBundle.toString()))
+                .collect(Collectors.toList());
     }
 
     private void sendMessage(String message, String errorMessage) {
