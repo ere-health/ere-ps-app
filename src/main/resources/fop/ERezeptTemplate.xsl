@@ -122,9 +122,17 @@
                                         <fo:table-body>
                                             <fo:table-row>
                                                 <fo:table-cell width="100mm">
-                                                    <fo:block margin-left="1mm" font-size="12pt">
+                                                    <fo:block margin-left="1mm">
                                                         <xsl:choose>
-                                                            <xsl:when test="(string-length(fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Patient/fhir:name/fhir:given/@value) + string-length(fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Patient/fhir:name/fhir:family/@value)) &gt; 65">
+                                                            <xsl:when test="(string-length(fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Patient/fhir:name/fhir:given/@value) + string-length(fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Patient/fhir:name/fhir:family/@value)) &gt; 75">
+                                                                <xsl:attribute name="font-size">10pt</xsl:attribute>
+                                                            </xsl:when>
+                                                            <xsl:otherwise>
+                                                                <xsl:attribute name="font-size">12pt</xsl:attribute>
+                                                            </xsl:otherwise>
+                                                        </xsl:choose>
+                                                        <xsl:choose>
+                                                            <xsl:when test="(string-length(fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Patient/fhir:name/fhir:given/@value) + string-length(fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Patient/fhir:name/fhir:family/@value)) &gt; 85">
                                                                 <xsl:value-of
                                                                         select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Patient/fhir:name/fhir:given/@value"/>
                                                                 <xsl:text>  </xsl:text>
@@ -320,7 +328,7 @@
                                                 <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:meta/fhir:profile/@value = 'https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Ingredient|1.0.1'">
                                                     <xsl:value-of
                                                         select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:ingredient/fhir:itemCodeableConcept/fhir:text/@value"/> / <xsl:value-of
-                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:ingredient/fhir:strength/fhir:numerator/fhir:value/@value"/> <xsl:value-of
+                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:ingredient/fhir:strength/fhir:numerator/fhir:value/@value"/><xsl:text> </xsl:text><xsl:value-of
                                                         select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:ingredient/fhir:strength/fhir:numerator/fhir:unit/@value"/> / <xsl:value-of
                                                         select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:form/fhir:text/@value"/> 
                                                 </xsl:if>
