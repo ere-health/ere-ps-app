@@ -90,7 +90,8 @@ public class DocumentService {
         try {
             URI uri = getClass().getResource("/fop/fonts/").toURI();
             File physicalFile = new File(uri);
-            String absolutePath = physicalFile.getAbsolutePath();
+            // for windows replace \ with \\
+            String absolutePath = physicalFile.getAbsolutePath().replaceAll("\\", "\\\\");
             String config = Files.readString(new File(getClass().getResource("/fop/fop.xconf").toURI()).toPath())
                     .replaceAll("__WILL_BE_REPLACED_IN_DocumentService__", absolutePath);
             log.info("Config: "+config);
@@ -100,6 +101,9 @@ public class DocumentService {
                 IOException | URISyntaxException e) {
             if(e instanceof IllegalArgumentException) {
                 String appFolder = "quarkus-app/app";
+                if(!new File(appFolder).exists()) {
+                    appFolder = "application/quarkus-app/app";
+                }
                 String appFolderWithFop = appFolder+"/fop";
                 try {
                     if(!new File(appFolderWithFop).exists()) {
@@ -107,7 +111,7 @@ public class DocumentService {
                     }
                     String config;
                     config = Files.readString(Paths.get(appFolder+"/fop/fop.xconf"))
-                    .replaceAll("__WILL_BE_REPLACED_IN_DocumentService__", new File(appFolderWithFop+"/fonts/").getAbsolutePath());
+                    .replaceAll("__WILL_BE_REPLACED_IN_DocumentService__", new File(appFolderWithFop+"/fonts/").getAbsolutePath().replaceAll("\\", "\\\\"));
                     log.info("Config: "+config);
                     cfg = new DefaultConfigurationBuilder().build(new ByteArrayInputStream(config.getBytes()));
                     fopFactoryBuilder.setConfiguration(cfg);
