@@ -223,6 +223,11 @@ public class GenerateKBVCertificationBundlesServiceTest {
         Files.write(Paths.get("src/test/resources/kbv-zip/Dokumentation/PF08.pdf"), byteArrayOutputStream.toByteArray());
     }
 
+    @Test
+    public void testRegeneratePdfPF10() throws IOException {
+        genPDF("PF10", "c509232b3dea6d2303b00ae170a64d2faa8e004246798c154de0fa0e3fc9c9fb");
+    }
+
 
     private void genPDF(String testCase, String accessCode) throws IOException {
         Bundle bundle = iParser.parseResource(Bundle.class, getXmlString("src/test/resources/kbv-zip/"+testCase+".xml"));
