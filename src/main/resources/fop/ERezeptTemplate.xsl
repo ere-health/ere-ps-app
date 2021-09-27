@@ -7,6 +7,7 @@
                 xmlns:pdf="http://xmlgraphics.apache.org/fop/extensions/pdf"
                 xmlns:barcode="http://barcode4j.krysalis.org/ns"
                 xmlns:fox="http://xmlgraphics.apache.org/fop/extensions"
+                xmlns:fn="http://www.w3.org/2005/xpath-functions"
                 xsi:schemaLocation="http://www.w3.org/1999/XSL/Transform http://www.w3.org/2007/schema-for-xslt20.xsd http://www.w3.org/1999/XSL/Format https://svn.apache.org/repos/asf/xmlgraphics/fop/trunk/fop/src/foschema/fop.xsd">
 
     <xsl:decimal-format name="de" decimal-separator=',' grouping-separator='.'/>
@@ -194,20 +195,27 @@
                                         <fo:table-body>
                                             <fo:table-row height="20mm">
                                                 <fo:table-cell width="100mm" margin-left="1mm">
-                                                    <fo:block font-size="12pt">
-                                                        <xsl:value-of
-                                                                select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Practitioner/fhir:name/fhir:prefix/@value"/>
-                                                        <xsl:text>  </xsl:text>
-                                                        <xsl:value-of
-                                                                select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Practitioner/fhir:name/fhir:given/@value"/>
-                                                        <xsl:text>  </xsl:text>
-                                                        <xsl:value-of
-                                                                select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Practitioner/fhir:name/fhir:family/@value"/>
-                                                    </fo:block>
-                                                    <fo:block font-size="12pt">
-                                                        <xsl:value-of
-                                                                select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Practitioner/fhir:qualification/fhir:code/fhir:text/@value"/>
-                                                    </fo:block>
+                                                    <xsl:variable
+                                                            name="author"
+                                                            select="fn:tokenize(fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Composition/fhir:author/fhir:reference/@value, '/')[last()]" />
+                                                    <xsl:for-each select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Practitioner">
+                                                        <xsl:if test="$author = fhir:id/@value">
+                                                            <fo:block font-size="12pt">
+                                                                <xsl:value-of
+                                                                        select="fhir:name/fhir:prefix/@value"/>
+                                                                <xsl:text>  </xsl:text>
+                                                                <xsl:value-of
+                                                                        select="fhir:name/fhir:given/@value"/>
+                                                                <xsl:text>  </xsl:text>
+                                                                <xsl:value-of
+                                                                        select="fhir:name/fhir:family/@value"/>
+                                                            </fo:block>
+                                                            <fo:block font-size="12pt">
+                                                                <xsl:value-of
+                                                                    select="fhir:qualification/fhir:code/fhir:text/@value"/>
+                                                            </fo:block>
+                                                        </xsl:if>
+                                                    </xsl:for-each>
                                                     <xsl:for-each
                                                             select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Organization/fhir:telecom">
                                                         <xsl:if test="fhir:system/@value = 'phone' or fhir:system/@value = 'email'">
