@@ -1,11 +1,8 @@
 package health.ere.ps.service.connector.provider;
 
 import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.ws.BindingProvider;
@@ -23,22 +20,20 @@ import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV740;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServiceV740;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServiceV755;
-import health.ere.ps.config.UserConfig;
 import health.ere.ps.config.interceptor.ProvidedConfig;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.connector.endpoint.EndpointDiscoveryService;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
 
-@ApplicationScoped
-public class ConnectorServicesProvider {
-    private final static Logger log = Logger.getLogger(ConnectorServicesProvider.class.getName());
+public abstract class AbstractConnectorServicesProvider {
+    private final static Logger log = Logger.getLogger(AbstractConnectorServicesProvider.class.getName());
 
-    @Inject
-    UserConfig userConfig;
+
     @Inject
     EndpointDiscoveryService endpointDiscoveryService;
     @Inject
     SecretsManagerService secretsManagerService;
+
 
     private CardServicePortType cardServicePortType;
     private CertificateServicePortType certificateService;
@@ -47,11 +42,6 @@ public class ConnectorServicesProvider {
     private SignatureServicePortTypeV740 signatureServicePortType;
     private SignatureServicePortTypeV755 signatureServicePortTypeV755;
     private ContextType contextType;
-
-    @PostConstruct
-    void init() {
-        initializeServices();
-    }
 
     public void initializeServices() {
         try {
