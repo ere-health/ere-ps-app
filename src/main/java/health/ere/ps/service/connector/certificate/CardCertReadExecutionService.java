@@ -1,23 +1,22 @@
 package health.ere.ps.service.connector.certificate;
 
-import de.gematik.ws.conn.cardservice.wsdl.v8.CardServicePortType;
-import de.gematik.ws.conn.cardservicecommon.v2.PinResultEnum;
-import de.gematik.ws.conn.certificateservice.v6.ReadCardCertificate;
-import de.gematik.ws.conn.certificateservice.v6.ReadCardCertificateResponse;
-import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateServicePortType;
-import de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage;
-import de.gematik.ws.conn.certificateservicecommon.v2.CertRefEnum;
-import de.gematik.ws.conn.certificateservicecommon.v2.X509DataInfoListType;
-import de.gematik.ws.conn.connectorcommon.v5.Status;
-import de.gematik.ws.conn.connectorcontext.v2.ContextType;
-import health.ere.ps.exception.connector.ConnectorCardCertificateReadException;
-import health.ere.ps.service.connector.provider.ConnectorServicesProvider;
+import java.math.BigInteger;
+import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.xml.ws.Holder;
-import java.math.BigInteger;
-import java.util.logging.Logger;
+
+import de.gematik.ws.conn.cardservicecommon.v2.PinResultEnum;
+import de.gematik.ws.conn.certificateservice.v6.ReadCardCertificate;
+import de.gematik.ws.conn.certificateservice.v6.ReadCardCertificateResponse;
+import de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage;
+import de.gematik.ws.conn.certificateservicecommon.v2.CertRefEnum;
+import de.gematik.ws.conn.certificateservicecommon.v2.X509DataInfoListType;
+import de.gematik.ws.conn.connectorcommon.v5.Status;
+import health.ere.ps.config.RuntimeConfig;
+import health.ere.ps.exception.connector.ConnectorCardCertificateReadException;
+import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 
 @ApplicationScoped
 public class CardCertReadExecutionService {
@@ -28,8 +27,13 @@ public class CardCertReadExecutionService {
     }
 
     @Inject
-    ConnectorServicesProvider connectorServicesProvider;
+    MultiConnectorServicesProvider connectorServicesProvider;
 
+
+    public ReadCardCertificateResponse doReadCardCertificate(String cardHandle)
+            throws ConnectorCardCertificateReadException {
+        return doReadCardCertificate(cardHandle, null);
+    }
 
     /**
      * Reads the AUT certificate of a card.
@@ -37,7 +41,7 @@ public class CardCertReadExecutionService {
      * @param cardHandle The handle of the card whose AUT certificate is to be read.
      * @return The read AUT certificate.
      */
-    public ReadCardCertificateResponse doReadCardCertificate(String cardHandle)
+    public ReadCardCertificateResponse doReadCardCertificate(String cardHandle, RuntimeConfig runtimeConfig)
             throws ConnectorCardCertificateReadException {
 
         ReadCardCertificate.CertRefList certRefList = new ReadCardCertificate.CertRefList();
@@ -47,7 +51,7 @@ public class CardCertReadExecutionService {
         Holder<X509DataInfoListType> certHolder = new Holder<>();
 
         try {
-            connectorServicesProvider.getCertificateService().readCardCertificate(cardHandle, connectorServicesProvider.getContextType(), certRefList,
+            connectorServicesProvider.getCertificateService(runtimeConfig).readCardCertificate(cardHandle, connectorServicesProvider.getContextType(runtimeConfig), certRefList,
                     statusHolder, certHolder);
         } catch (FaultMessage faultMessage) {
             // Zugriffsbedingungen nicht erfüllt
@@ -59,7 +63,7 @@ public class CardCertReadExecutionService {
                 Holder<PinResultEnum> pinResultEnum = new Holder<>();
                 Holder<BigInteger> error = new Holder<>();
                 try {
-                    connectorServicesProvider.getCardServicePortType().verifyPin(connectorServicesProvider.getContextType(), cardHandle, "PIN.SMC", status, pinResultEnum, error);
+                    connectorServicesProvider.getCardServicePortType(runtimeConfig).verifyPin(connectorServicesProvider.getContextType(runtimeConfig), cardHandle, "PIN.SMC", status, pinResultEnum, error);
                     doReadCardCertificate(cardHandle);
                 } catch (de.gematik.ws.conn.cardservice.wsdl.v8.FaultMessage e) {
                     throw new ConnectorCardCertificateReadException("Could not get certificate", faultMessage);

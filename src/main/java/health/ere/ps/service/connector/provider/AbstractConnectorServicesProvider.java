@@ -1,6 +1,7 @@
 package health.ere.ps.service.connector.provider;
 
 import java.io.IOException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -20,6 +21,7 @@ import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV740;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServiceV740;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServiceV755;
+import health.ere.ps.config.UserConfig;
 import health.ere.ps.config.interceptor.ProvidedConfig;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.connector.endpoint.EndpointDiscoveryService;
@@ -27,8 +29,7 @@ import health.ere.ps.service.connector.endpoint.SSLUtilities;
 
 public abstract class AbstractConnectorServicesProvider {
     private final static Logger log = Logger.getLogger(AbstractConnectorServicesProvider.class.getName());
-
-
+ 
     @Inject
     EndpointDiscoveryService endpointDiscoveryService;
     @Inject
@@ -133,10 +134,10 @@ public abstract class AbstractConnectorServicesProvider {
 
     private void initializeContextType() {
         ContextType contextType = new ContextType();
-        contextType.setMandantId(userConfig.getMandantId());
-        contextType.setClientSystemId(userConfig.getClientSystemId());
-        contextType.setWorkplaceId(userConfig.getWorkplaceId());
-        contextType.setUserId(userConfig.getUserId());
+        contextType.setMandantId(getUserConfig().getMandantId());
+        contextType.setClientSystemId(getUserConfig().getClientSystemId());
+        contextType.setWorkplaceId(getUserConfig().getWorkplaceId());
+        contextType.setUserId(getUserConfig().getUserId());
 
         this.contextType = contextType;
     }
@@ -147,8 +148,8 @@ public abstract class AbstractConnectorServicesProvider {
         bindingProvider.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier",
                 new SSLUtilities.FakeHostnameVerifier());
 
-        String basicAuthUsername = userConfig.getConfigurations().getBasicAuthUsername();
-        String basicAuthPassword = userConfig.getConfigurations().getBasicAuthPassword();
+        String basicAuthUsername = getUserConfig().getConfigurations().getBasicAuthUsername();
+        String basicAuthPassword = getUserConfig().getConfigurations().getBasicAuthPassword();
 
         if(basicAuthUsername != null && !basicAuthUsername.equals("")) {
             bindingProvider.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, basicAuthUsername);
@@ -190,4 +191,6 @@ public abstract class AbstractConnectorServicesProvider {
     public ContextType getContextType() {
         return contextType;
     }
+
+    public abstract UserConfig getUserConfig();
 }

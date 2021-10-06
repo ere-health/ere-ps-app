@@ -15,7 +15,6 @@ import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV740;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
 import health.ere.ps.config.UserConfig;
-import health.ere.ps.config.interceptor.ProvidedConfig;
 
 @ApplicationScoped
 public class MultiConnectorServicesProvider {
@@ -25,48 +24,40 @@ public class MultiConnectorServicesProvider {
     DefaultConnectorServicesProvider defaultConnectorServicesProvider;
     Map<UserConfig,SingleConnectorServicesProvider> singleConnectorServicesProvider = new HashMap<>();
 
-
-    @ProvidedConfig
     public CardServicePortType getCardServicePortType(UserConfig userConfig) {
         CardServicePortType cardServicePortType = getSingleConnectorServicesProvider(userConfig).getCardServicePortType();
         return cardServicePortType;
     }
 
     private AbstractConnectorServicesProvider getSingleConnectorServicesProvider(UserConfig userConfig) {
-        return null;
+        return userConfig == null ? defaultConnectorServicesProvider : singleConnectorServicesProvider.get(userConfig);
     }
 
-    @ProvidedConfig
     public CertificateServicePortType getCertificateService(UserConfig userConfig) {
         CertificateServicePortType certificateService = getSingleConnectorServicesProvider(userConfig).getCertificateService();
         return certificateService;
     }
 
-    @ProvidedConfig
     public EventServicePortType getEventServicePortType(UserConfig userConfig) {
         EventServicePortType eventServicePortType = getSingleConnectorServicesProvider(userConfig).getEventServicePortType();
         return eventServicePortType;
     }
 
-    @ProvidedConfig
     public AuthSignatureServicePortType getAuthSignatureServicePortType(UserConfig userConfig) {
         AuthSignatureServicePortType authSignatureServicePortType = getSingleConnectorServicesProvider(userConfig).getAuthSignatureServicePortType();
         return authSignatureServicePortType;
     }
 
-    @ProvidedConfig
     public SignatureServicePortTypeV740 getSignatureServicePortType(UserConfig userConfig) {
         SignatureServicePortTypeV740 signatureServicePortType = getSingleConnectorServicesProvider(userConfig).getSignatureServicePortType();
         return signatureServicePortType;
     }
 
-    @ProvidedConfig
     public SignatureServicePortTypeV755 getSignatureServicePortTypeV755(UserConfig userConfig) {
-        SignatureServicePortTypeV755 signatureServicePortTypeV755 = getSingleConnectorServicesProvider(userConfig).getSignatureServicePortType(V755);
+        SignatureServicePortTypeV755 signatureServicePortTypeV755 = getSingleConnectorServicesProvider(userConfig).getSignatureServicePortTypeV755();
         return signatureServicePortTypeV755;
     }
 
-    @ProvidedConfig
     public ContextType getContextType(UserConfig userConfig) {
         return null;
     }

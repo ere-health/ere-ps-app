@@ -63,6 +63,7 @@ import de.gematik.ws.conn.signatureservice.v7_5_5.SessionInfo;
 import de.gematik.ws.conn.signatureservice.v7_5_5.SignatureModeEnum;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.FaultMessage;
 import health.ere.ps.config.AppConfig;
+import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.config.UserConfig;
 import health.ere.ps.event.AbortTaskEntry;
 import health.ere.ps.event.AbortTaskStatus;
@@ -80,7 +81,7 @@ import health.ere.ps.exception.connector.ConnectorCardsException;
 import health.ere.ps.exception.gematik.ERezeptWorkflowException;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
-import health.ere.ps.service.connector.provider.ConnectorServicesProvider;
+import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import health.ere.ps.service.idp.BearerTokenService;
 import health.ere.ps.vau.VAUEngine;
 import oasis.names.tc.dss._1_0.core.schema.Base64Data;
@@ -102,7 +103,7 @@ public class ERezeptWorkflowService {
     UserConfig userConfig;
 
     @Inject
-    ConnectorServicesProvider connectorServicesProvider;
+    MultiConnectorServicesProvider connectorServicesProvider;
     @Inject
     ConnectorCardsService connectorCardsService;
     @Inject
@@ -371,6 +372,11 @@ public class ERezeptWorkflowService {
             throws ERezeptWorkflowException {
         return signBundleWithIdentifiers(Arrays.asList(bundle), wait10secondsAfterJobNumber).get(0);
     }
+
+    public List<SignResponse> signBundleWithIdentifiers(List<Bundle> bundles, boolean wait10secondsAfterJobNumber)
+            throws ERezeptWorkflowException {
+        return signBundleWithIdentifiers(bundles, wait10secondsAfterJobNumber, null);
+    }
     /**
      * This function signs the bundle with the signatureService.signDocument from
      * the connector.
@@ -378,7 +384,7 @@ public class ERezeptWorkflowService {
      * @return
      * @throws ERezeptWorkflowException
      */
-    public List<SignResponse> signBundleWithIdentifiers(List<Bundle> bundles, boolean wait10secondsAfterJobNumber)
+    public List<SignResponse> signBundleWithIdentifiers(List<Bundle> bundles, boolean wait10secondsAfterJobNumber, RuntimeConfig runtimeConfig)
             throws ERezeptWorkflowException {
 
         List<SignResponse> signResponses = null;
@@ -426,7 +432,7 @@ public class ERezeptWorkflowService {
             }
             String signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
                     ConnectorCardsService.CardHandleType.HBA);
-            if ("PTV4+".equals(userConfig.getConnectorVersion())) {
+            if ("PTV4+".equals(runtimeConfig != null && runtimeConfig.getConnectorVersion() != null ? runtimeConfig.getConnectorVersion() : userConfig.getConnectorVersion())) {
                 List<de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest> signRequestsV755 = signRequests.stream().map(signRequest -> {
                     de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest signRequestV755 = new de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest();
                     de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest.OptionalInputs optionalInputsC755 = new de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest.OptionalInputs();
@@ -443,24 +449,24 @@ public class ERezeptWorkflowService {
                 }).collect(Collectors.toList());
 
                 List<de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse> signResponsesV755;
-                ContextType contextType = connectorServicesProvider.getContextType();
+                ContextType contextType = connectorServicesProvider.getContextType(runtimeConfig);
                 if(userIdForComfortSignature != null) {
                     contextType.setUserId(userIdForComfortSignature);
                 }
                 if(appConfig.enableBatchSign()) {
-                    String jobNumber = connectorServicesProvider.getSignatureServicePortTypeV755().getJobNumber(connectorServicesProvider.getContextType());
+                    String jobNumber = connectorServicesProvider.getSignatureServicePortTypeV755(runtimeConfig).getJobNumber(connectorServicesProvider.getContextType(runtimeConfig));
             
-                    signResponsesV755 = connectorServicesProvider.getSignatureServicePortTypeV755().signDocument(signatureServiceCardHandle,
-                            appConfig.getConnectorCrypt(),contextType, userConfig.getTvMode(),
+                    signResponsesV755 = connectorServicesProvider.getSignatureServicePortTypeV755(runtimeConfig).signDocument(signatureServiceCardHandle,
+                            appConfig.getConnectorCrypt(),contextType, (runtimeConfig != null && runtimeConfig.getTvMode() != null) ? runtimeConfig.getTvMode() : userConfig.getTvMode(),
                             jobNumber, signRequestsV755);
                 } else {
                     signResponsesV755 = signRequestsV755.stream().map(signRequestV755 -> {
                         String jobNumber;
                         try {
-                            jobNumber = connectorServicesProvider.getSignatureServicePortTypeV755().getJobNumber(connectorServicesProvider.getContextType());
+                            jobNumber = connectorServicesProvider.getSignatureServicePortTypeV755(runtimeConfig).getJobNumber(connectorServicesProvider.getContextType(runtimeConfig));
                             
-                            List<de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse> list = connectorServicesProvider.getSignatureServicePortTypeV755().signDocument(signatureServiceCardHandle,
-                            appConfig.getConnectorCrypt(), contextType, userConfig.getTvMode(),
+                            List<de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse> list = connectorServicesProvider.getSignatureServicePortTypeV755(runtimeConfig).signDocument(signatureServiceCardHandle,
+                            appConfig.getConnectorCrypt(), contextType, (runtimeConfig != null && runtimeConfig.getTvMode() != null) ? runtimeConfig.getTvMode() : userConfig.getTvMode(),
                             jobNumber, Arrays.asList(signRequestV755));
                             return list.get(0);
                         } catch (FaultMessage e) {
@@ -484,16 +490,16 @@ public class ERezeptWorkflowService {
                 // PTV4, could be PTV3 as well, to be refactored in a future task
             } else {
                 if(appConfig.enableBatchSign()) {
-                    signResponses = connectorServicesProvider.getSignatureServicePortType().signDocument(signatureServiceCardHandle,
-                            connectorServicesProvider.getContextType(), userConfig.getTvMode(),
-                            connectorServicesProvider.getSignatureServicePortType().getJobNumber(connectorServicesProvider.getContextType()), signRequests);
+                    signResponses = connectorServicesProvider.getSignatureServicePortType(runtimeConfig).signDocument(signatureServiceCardHandle,
+                            connectorServicesProvider.getContextType(runtimeConfig), (runtimeConfig != null && runtimeConfig.getTvMode() != null) ? runtimeConfig.getTvMode() : userConfig.getTvMode(),
+                            connectorServicesProvider.getSignatureServicePortType(runtimeConfig).getJobNumber(connectorServicesProvider.getContextType(runtimeConfig)), signRequests);
                  } else {
                     signResponses = signRequests.stream().map(signRequest-> {
                         List<SignResponse> list;
                         try {
-                            list = connectorServicesProvider.getSignatureServicePortType().signDocument(signatureServiceCardHandle,
-                            connectorServicesProvider.getContextType(), userConfig.getTvMode(),
-                            connectorServicesProvider.getSignatureServicePortType().getJobNumber(connectorServicesProvider.getContextType()), Arrays.asList(signRequest));
+                            list = connectorServicesProvider.getSignatureServicePortType(runtimeConfig).signDocument(signatureServiceCardHandle,
+                            connectorServicesProvider.getContextType(runtimeConfig), (runtimeConfig != null && runtimeConfig.getTvMode() != null) ? runtimeConfig.getTvMode() : userConfig.getTvMode(),
+                            connectorServicesProvider.getSignatureServicePortType(runtimeConfig).getJobNumber(connectorServicesProvider.getContextType(runtimeConfig)), Arrays.asList(signRequest));
                         } catch (FaultMessage e) {
                             exceptionEvent.fireAsync(e);
                             return null;
@@ -680,21 +686,25 @@ public class ERezeptWorkflowService {
         onGetSignatureModeEvent(null);
     }
 
+    public void activateComfortSignature() {
+        activateComfortSignature(null);   
+    }
+
     /**
      * Activate comfort signature
      */
-    public void activateComfortSignature() {
+    public void activateComfortSignature(RuntimeConfig runtimeConfig) {
         final Holder<Status> status = new Holder<>();
         final Holder<SignatureModeEnum> signatureMode = new Holder<>();
         String signatureServiceCardHandle = null;
 
         try {
             userIdForComfortSignature = UUID.randomUUID().toString();
-            ContextType contextType = connectorServicesProvider.getContextType();
+            ContextType contextType = connectorServicesProvider.getContextType(runtimeConfig);
             contextType.setUserId(userIdForComfortSignature);
             signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
                     ConnectorCardsService.CardHandleType.HBA);
-            connectorServicesProvider.getSignatureServicePortTypeV755().activateComfortSignature(signatureServiceCardHandle, contextType,
+            connectorServicesProvider.getSignatureServicePortTypeV755(runtimeConfig).activateComfortSignature(signatureServiceCardHandle, contextType,
                     status, signatureMode);
         } catch (ConnectorCardsException | FaultMessage e) {
             log.log(Level.WARNING, "Could not enable comfort signature", e);
@@ -712,10 +722,14 @@ public class ERezeptWorkflowService {
         }
     }
 
+    public GetSignatureModeResponseEvent getSignatureMode() {
+        return getSignatureMode(null);
+    }
+
     /**
      *
      */
-    public GetSignatureModeResponseEvent getSignatureMode() {
+    public GetSignatureModeResponseEvent getSignatureMode(RuntimeConfig runtimeConfig) {
         if(userIdForComfortSignature == null) {
             Status status = new Status();
             status.setResult("OK");
@@ -739,9 +753,9 @@ public class ERezeptWorkflowService {
         try {
             signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
                     ConnectorCardsService.CardHandleType.HBA);
-            ContextType contextType = connectorServicesProvider.getContextType();
+            ContextType contextType = connectorServicesProvider.getContextType(runtimeConfig);
             contextType.setUserId(userIdForComfortSignature);
-            connectorServicesProvider.getSignatureServicePortTypeV755().getSignatureMode(signatureServiceCardHandle, contextType, status, comfortSignatureStatus,
+            connectorServicesProvider.getSignatureServicePortTypeV755(runtimeConfig).getSignatureMode(signatureServiceCardHandle, contextType, status, comfortSignatureStatus,
                     comfortSignatureMax, comfortSignatureTimer, sessionInfo);
             return new GetSignatureModeResponseEvent(status.value, comfortSignatureStatus.value, comfortSignatureMax.value, comfortSignatureTimer.value, sessionInfo.value);
         } catch (ConnectorCardsException | FaultMessage e) {
@@ -759,18 +773,22 @@ public class ERezeptWorkflowService {
         onGetSignatureModeEvent(null);
     }
 
+    public void deactivateComfortSignature() {
+        deactivateComfortSignature(null);
+    }
+
     /**
      *
      */
-    public void deactivateComfortSignature() {
+    public void deactivateComfortSignature(RuntimeConfig runtimeConfig) {
         String signatureServiceCardHandle = null;
         try {
             signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
                     ConnectorCardsService.CardHandleType.HBA);
-            ContextType contextType = connectorServicesProvider.getContextType();
+            ContextType contextType = connectorServicesProvider.getContextType(runtimeConfig);
             contextType.setUserId(userIdForComfortSignature);
             
-            connectorServicesProvider.getSignatureServicePortTypeV755().deactivateComfortSignature(Arrays.asList(signatureServiceCardHandle));
+            connectorServicesProvider.getSignatureServicePortTypeV755(runtimeConfig).deactivateComfortSignature(Arrays.asList(signatureServiceCardHandle));
             userIdForComfortSignature = null;
         } catch (ConnectorCardsException | FaultMessage e) {
             log.log(Level.WARNING, "Could not deactivate comfort signature", e);
@@ -778,12 +796,16 @@ public class ERezeptWorkflowService {
         }
     }
 
+    public GetCardsResponse getCards()throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
+        return getCards(null);
+    }
+
     /**
      * @throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage
      */
-    public GetCardsResponse getCards() throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
+    public GetCardsResponse getCards(RuntimeConfig runtimeConfig) throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         GetCards parameter = new GetCards();
-        parameter.setContext(connectorServicesProvider.getContextType());
-        return connectorServicesProvider.getEventServicePortType().getCards(parameter);
+        parameter.setContext(connectorServicesProvider.getContextType(runtimeConfig));
+        return connectorServicesProvider.getEventServicePortType(runtimeConfig).getCards(parameter);
     }
 }
