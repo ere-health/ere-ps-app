@@ -1,6 +1,9 @@
 # ere-ps-app
 ERE Primary System Desktop Client Application for the Gematik TI
 
+## Installer
+
+Download and execute the following https://ere.health/ere-health-installer.bat on Windows 10.
 
 ### Overview
 The ere-ps-app comprises two main components. 
