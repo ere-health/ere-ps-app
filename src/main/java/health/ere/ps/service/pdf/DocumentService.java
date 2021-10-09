@@ -174,29 +174,27 @@ public class DocumentService {
             try {
                 for (int i = 0; i < bundles.size(); i += MAX_NUMBER_OF_MEDICINES_PER_PRESCRIPTIONS) {
                     log.info(String.format("Processing bundle with %d medication(s)", i));
-                    createAndSendPrescriptions(bundles
-                            .subList(i, Math.min(i + MAX_NUMBER_OF_MEDICINES_PER_PRESCRIPTIONS, bundles.size())));
+                    
+                    List<BundleWithAccessCodeOrThrowable> subList = bundles
+                        .subList(i, Math.min(i + MAX_NUMBER_OF_MEDICINES_PER_PRESCRIPTIONS, bundles.size()));
+                    
+                    ByteArrayOutputStream boas = new ByteArrayOutputStream();
+                    if(!onlyContainsThrowables(subList)) {
+                        log.info("Now creating prescription receipts");
+                        boas = generateERezeptPdf(subList);
+                    }
+                
+                    ERezeptDocument eRezeptDocument = new ERezeptDocument(subList, boas.size() > 0 ? boas.toByteArray() : null);
+                
+                    log.info("Created prescription receipts");
+                    eRezeptDocumentsEvent.fireAsync(new ERezeptDocumentsEvent(List.of(eRezeptDocument),
+                        bundlesWithAccessCodeEvent.getReplyTo(), bundlesWithAccessCodeEvent.getReplyToMessageId()));
+                    log.info("Sending prescription receipts results.");
                 }
             } catch (Exception ex) {
                 exceptionEvent.fireAsync(ex);
             }
         });
-    }
-
-    private void createAndSendPrescriptions(List<BundleWithAccessCodeOrThrowable> bundles) {
-        
-        ByteArrayOutputStream boas = new ByteArrayOutputStream();
-        if(!onlyContainsThrowables(bundles)) {
-            log.info("Now creating prescription receipts");
-            boas = generateERezeptPdf(bundles);
-        }
-
-        ERezeptDocument eRezeptDocument = new ERezeptDocument(bundles, boas.size() > 0 ? boas.toByteArray() : null);
-
-        log.info("Created prescription receipts");
-        eRezeptDocumentsEvent.fireAsync(new ERezeptDocumentsEvent(List.of(eRezeptDocument)));
-        log.info("Sending prescription receipts results.");
-
     }
 
     private boolean onlyContainsThrowables(List<BundleWithAccessCodeOrThrowable> bundles) {

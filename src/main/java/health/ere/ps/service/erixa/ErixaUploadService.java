@@ -4,14 +4,18 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import health.ere.ps.config.UserConfig;
+import health.ere.ps.event.erixa.ErixaEvent;
 import health.ere.ps.event.erixa.SendToPharmacyEvent;
 import health.ere.ps.model.erixa.PrescriptionTransferEntry;
 import health.ere.ps.model.erixa.api.mapping.DeliveryType;
@@ -31,8 +35,13 @@ public class ErixaUploadService {
     @Inject
     UserConfig userConfig;
 
+    @Inject
+    Event<Exception> exceptionEvent;
+
     private final ObjectMapper mapper;
     private final SimpleDateFormat simpleDateFormat, timestampFormat;
+
+    private static Logger log = Logger.getLogger(ErixaUploadService.class.getName());
 
 
     public ErixaUploadService() {
@@ -41,8 +50,19 @@ public class ErixaUploadService {
         timestampFormat = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'");
     }
 
+    public void generatePrescriptionBundle(@ObservesAsync ErixaEvent erixaEvent) {
+        if("SendToPharmacy".equals(erixaEvent.processType)){
+            try {
+                SendToPharmacyEvent event = new SendToPharmacyEvent(erixaEvent.payload, erixaEvent.getReplyTo(), erixaEvent.getId());
+                uploadPrescriptionToDrugstore(event);
+            } catch (IOException e) {
+                log.log(Level.WARNING, "Problem during uploading to pharmacy", e);
+                exceptionEvent.fireAsync(e);
+            }
+        }
+    }
 
-    public void uploadPrescriptionToDrugstore(@ObservesAsync SendToPharmacyEvent event) throws IOException {
+    public void uploadPrescriptionToDrugstore(SendToPharmacyEvent event) throws IOException {
         PrescriptionTransferEntry details = event.getDetails();
 
         DoctorUploadToDrugstorePrescriptionModel model = buildBody(event.getDocument(), details);

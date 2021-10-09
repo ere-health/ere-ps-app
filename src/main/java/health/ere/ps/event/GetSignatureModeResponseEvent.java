@@ -4,7 +4,7 @@ import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.signatureservice.v7_5_5.ComfortSignatureStatusEnum;
 import de.gematik.ws.conn.signatureservice.v7_5_5.SessionInfo;
 
-public class GetSignatureModeResponseEvent {
+public class GetSignatureModeResponseEvent extends AbstractEvent {
     Status status;
     ComfortSignatureStatusEnum comfortSignatureStatus;
     Integer comfortSignatureMax;

@@ -6,13 +6,14 @@ import java.util.List;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
+import javax.websocket.Session;
 
 import org.hl7.fhir.r4.model.Bundle;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 
-public class SignAndUploadBundlesEvent {
+public class SignAndUploadBundlesEvent extends AbstractEvent {
 
     public List<List<Bundle>> listOfListOfBundles = new ArrayList<>();
 
@@ -30,6 +31,12 @@ public class SignAndUploadBundlesEvent {
             }
             listOfListOfBundles.add(bundles);
         }
+    }
+
+    public SignAndUploadBundlesEvent(JsonObject jsonObject, Session replyTo, String id) {
+        this(jsonObject);
+        this.replyTo = replyTo;
+        this.id = id;
     }
 
     public SignAndUploadBundlesEvent(List<Bundle> bundles) {

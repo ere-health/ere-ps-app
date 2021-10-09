@@ -23,6 +23,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
+import javax.websocket.Session;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -179,7 +180,7 @@ public class ERezeptWorkflowService {
         log.info(String.format("Getting access codes for %d bundles.",
                 bundles.size()));
 
-        List<BundleWithAccessCodeOrThrowable> unflatten = createMultipleERezeptsOnPrescriptionServer(bundles);
+        List<BundleWithAccessCodeOrThrowable> unflatten = createMultipleERezeptsOnPrescriptionServer(bundles, signAndUploadBundlesEvent.getReplyTo(), signAndUploadBundlesEvent.getId());
         Iterator<BundleWithAccessCodeOrThrowable> it = unflatten.iterator();
         // unflatten bundles again
         for(int i = 0;i<listOfListOfBundles.size();i++) {
@@ -193,11 +194,15 @@ public class ERezeptWorkflowService {
 
         log.info(String.format("Firing event to create prescription receipts for %d bundles.",
                 bundleWithAccessCodeOrThrowable.size()));
-        bundlesWithAccessCodeEvent.fireAsync(new BundlesWithAccessCodeEvent(bundleWithAccessCodeOrThrowable));
+        bundlesWithAccessCodeEvent.fireAsync(new BundlesWithAccessCodeEvent(bundleWithAccessCodeOrThrowable, signAndUploadBundlesEvent.getReplyTo(), signAndUploadBundlesEvent.getId()));
     }
 
     public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(List<Bundle> bundles) {
-        return createMultipleERezeptsOnPrescriptionServer(bundles, false);
+        return createMultipleERezeptsOnPrescriptionServer(bundles, null, null);
+    }
+
+    public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(List<Bundle> bundles, Session replyTo, String replyToMessageId) {
+        return createMultipleERezeptsOnPrescriptionServer(bundles, false, replyTo, replyToMessageId);
     }
 
     /**
@@ -205,7 +210,7 @@ public class ERezeptWorkflowService {
      * <p>
      * When an error is thrown it create an object that contains this error.
      */
-    public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(List<Bundle> bundles, boolean comfortSignature) {
+    public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(List<Bundle> bundles, boolean comfortSignature, Session replyTo, String replyToMessageId) {
         List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodes = new ArrayList<>();
         List<Task> tasks = new ArrayList<>();
         for (Bundle bundle : bundles) {
@@ -232,12 +237,14 @@ public class ERezeptWorkflowService {
                     bundleWithAccessCodes.get(i).setThrowable(t);
                 }
             } else {
-                bundleWithAccessCodes.get(i).setThrowable(new ERezeptWorkflowException("Task is null please check log for errors."));
+                if(bundleWithAccessCodes.get(i).getThrowable() == null) {
+                    bundleWithAccessCodes.get(i).setThrowable(new ERezeptWorkflowException("Task is null please check log for errors."));
+                }
             }
             i++;
         }
         try {
-            List<SignResponse> signedDocuments = signBundleWithIdentifiers(bundles, false);
+            List<SignResponse> signedDocuments = signBundleWithIdentifiers(bundles, false, replyTo, replyToMessageId);
             i = 0;
             for(SignResponse signedDocument : signedDocuments) {
                 BundleWithAccessCodeOrThrowable bundleWithAccessCode = bundleWithAccessCodes.get(i);
@@ -261,6 +268,11 @@ public class ERezeptWorkflowService {
         return bundleWithAccessCodes;
     }
 
+    public BundleWithAccessCodeOrThrowable createERezeptOnPrescriptionServer(Bundle bundle)
+            throws ERezeptWorkflowException {
+        return createERezeptOnPrescriptionServer(bundle, null, null);
+    }
+
     /**
      * A typical muster 16 form can contain up to 3 e prescriptions This function
      * has to be called multiple times
@@ -271,7 +283,7 @@ public class ERezeptWorkflowService {
      * @return
      * @throws ERezeptWorkflowException
      */
-    public BundleWithAccessCodeOrThrowable createERezeptOnPrescriptionServer(Bundle bundle)
+    public BundleWithAccessCodeOrThrowable createERezeptOnPrescriptionServer(Bundle bundle, Session replyTo, String replyToMessageId)
             throws ERezeptWorkflowException {
         requestNewAccessTokenIfNecessary();
         
@@ -283,7 +295,7 @@ public class ERezeptWorkflowService {
         // Example:
         // src/test/resources/gematik/Bundle-4fe2013d-ae94-441a-a1b1-78236ae65680.xml
         BundleWithAccessCodeOrThrowable bundleWithAccessCode = updateBundleWithTask(task, bundle);
-        SignResponse signedDocument = signBundleWithIdentifiers(bundleWithAccessCode.getBundle());
+        SignResponse signedDocument = signBundleWithIdentifiers(bundleWithAccessCode.getBundle(), replyTo, replyToMessageId);
         try {
             if(signedDocument == null) {
                 bundleWithAccessCode.setThrowable(new RuntimeException("Could not get signed document. Please check the logs."));
@@ -363,13 +375,25 @@ public class ERezeptWorkflowService {
     }
 
     public SignResponse signBundleWithIdentifiers(Bundle bundle) throws ERezeptWorkflowException {
-        return signBundleWithIdentifiers(bundle, false);
+        return signBundleWithIdentifiers(bundle, null, null);
     }
 
+    public SignResponse signBundleWithIdentifiers(Bundle bundle, Session replyTo, String replyToMessageId) throws ERezeptWorkflowException {
+        return signBundleWithIdentifiers(bundle, false, replyTo, replyToMessageId);
+    }
 
-    public SignResponse signBundleWithIdentifiers(Bundle bundle, boolean wait10secondsAfterJobNumber)
+    public SignResponse signBundleWithIdentifiers(Bundle bundle, boolean wait10secondsAfterJobNumber) throws ERezeptWorkflowException  {
+        return signBundleWithIdentifiers(bundle, wait10secondsAfterJobNumber, null, null);
+    }
+
+    public SignResponse signBundleWithIdentifiers(Bundle bundle, boolean wait10secondsAfterJobNumber, Session replyTo, String replyToMessageId)
             throws ERezeptWorkflowException {
-        return signBundleWithIdentifiers(Arrays.asList(bundle), wait10secondsAfterJobNumber).get(0);
+        return signBundleWithIdentifiers(Arrays.asList(bundle), wait10secondsAfterJobNumber, replyTo, replyToMessageId).get(0);
+    }
+
+    public List<SignResponse> signBundleWithIdentifiers(List<Bundle> bundles, boolean wait10secondsAfterJobNumber)
+        throws ERezeptWorkflowException{
+        return signBundleWithIdentifiers(bundles, wait10secondsAfterJobNumber, null, null);
     }
     /**
      * This function signs the bundle with the signatureService.signDocument from
@@ -378,12 +402,12 @@ public class ERezeptWorkflowService {
      * @return
      * @throws ERezeptWorkflowException
      */
-    public List<SignResponse> signBundleWithIdentifiers(List<Bundle> bundles, boolean wait10secondsAfterJobNumber)
+    public List<SignResponse> signBundleWithIdentifiers(List<Bundle> bundles, boolean wait10secondsAfterJobNumber, Session replyTo, String replyToMessageId)
             throws ERezeptWorkflowException {
 
         List<SignResponse> signResponses = null;
 
-        readyToSignBundlesEvent.fireAsync(new ReadyToSignBundlesEvent(bundles));
+        readyToSignBundlesEvent.fireAsync(new ReadyToSignBundlesEvent(bundles, replyTo, replyToMessageId));
 
         try {
             OptionalInputs optionalInputs = new OptionalInputs();
@@ -669,7 +693,7 @@ public class ERezeptWorkflowService {
 
             abortTaskStatusList.add(abortTaskStatus);
         }
-        abortTasksStatusEvent.fireAsync(new AbortTasksStatusEvent(abortTaskStatusList));
+        abortTasksStatusEvent.fireAsync(new AbortTasksStatusEvent(abortTaskStatusList, abortTasksEvent.getReplyTo(), abortTasksEvent.getId()));
     }
 
     /**
@@ -677,7 +701,7 @@ public class ERezeptWorkflowService {
      */
     public void onActivateComfortSignatureEvent(@ObservesAsync ActivateComfortSignatureEvent activateComfortSignatureEvent) {
         activateComfortSignature();
-        onGetSignatureModeEvent(null);
+        onGetSignatureModeEvent(new GetSignatureModeEvent(activateComfortSignatureEvent.getReplyTo(), activateComfortSignatureEvent.getId()));
     }
 
     /**
@@ -708,6 +732,10 @@ public class ERezeptWorkflowService {
     public void onGetSignatureModeEvent(@ObservesAsync GetSignatureModeEvent getSignatureModeEvent) {
         GetSignatureModeResponseEvent getSignatureModeResponseEvent = getSignatureMode();
         if(getSignatureModeResponseEvent != null) {
+            if(getSignatureModeEvent != null) {
+                getSignatureModeResponseEvent.setReplyTo(getSignatureModeEvent.getReplyTo());
+                getSignatureModeResponseEvent.setReplyToMessageId(getSignatureModeEvent.getId());
+            }
             this.getSignatureModeResponseEvent.fireAsync(getSignatureModeResponseEvent);
         }
     }
@@ -756,7 +784,7 @@ public class ERezeptWorkflowService {
      */
     public void onDeactivateComfortSignatureEvent(@ObservesAsync DeactivateComfortSignatureEvent deactivateComfortSignatureEvent) {
         deactivateComfortSignature();
-        onGetSignatureModeEvent(null);
+        onGetSignatureModeEvent(new GetSignatureModeEvent(deactivateComfortSignatureEvent.getReplyTo(), deactivateComfortSignatureEvent.getId()));
     }
 
     /**
