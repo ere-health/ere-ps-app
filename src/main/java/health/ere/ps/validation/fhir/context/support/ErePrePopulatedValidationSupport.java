@@ -1,12 +1,5 @@
 package health.ere.ps.validation.fhir.context.support;
 
-import org.apache.commons.lang3.StringUtils;
-import org.eclipse.microprofile.config.ConfigProvider;
-import org.hl7.fhir.common.hapi.validation.support.PrePopulatedValidationSupport;
-import org.hl7.fhir.r4.model.CodeSystem;
-import org.hl7.fhir.r4.model.StructureDefinition;
-import org.hl7.fhir.r4.model.ValueSet;
-
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,6 +9,13 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.microprofile.config.ConfigProvider;
+import org.hl7.fhir.common.hapi.validation.support.PrePopulatedValidationSupport;
+import org.hl7.fhir.r4.model.CodeSystem;
+import org.hl7.fhir.r4.model.StructureDefinition;
+import org.hl7.fhir.r4.model.ValueSet;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
@@ -192,6 +192,7 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
                     addKbvProfile(bis);
                     break;
 
+                
                 case CODE_SYSTEM:
                     addKbvCodeSystem(bis);
                     break;
@@ -199,6 +200,9 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
                 case VALUE_SET:
                     addKbvValueSet(bis);
                     break;
+                default:
+                    break;
+                
             }
         }
     }

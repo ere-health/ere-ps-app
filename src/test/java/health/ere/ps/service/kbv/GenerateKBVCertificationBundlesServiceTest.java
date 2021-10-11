@@ -10,7 +10,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.xml.transform.TransformerException;
 
+import org.apache.fop.apps.FOPException;
 import org.apache.xml.security.c14n.CanonicalizationException;
 import org.apache.xml.security.c14n.InvalidCanonicalizerException;
 import org.apache.xml.security.parser.XMLParserException;
@@ -55,7 +57,7 @@ public class GenerateKBVCertificationBundlesServiceTest {
     static boolean validateResources = false;
 
     @Test
-    public void testPF01() throws IOException, InvalidCanonicalizerException, XMLParserException, CanonicalizationException, ERezeptWorkflowException {
+    public void testPF01() throws IOException, InvalidCanonicalizerException, XMLParserException, CanonicalizationException, ERezeptWorkflowException, FOPException, TransformerException {
         Bundle bundle = service.PF01();
         boolean generateSignature = true;
         boolean generatePdf = true;
@@ -66,7 +68,7 @@ public class GenerateKBVCertificationBundlesServiceTest {
     
     private void processBundle(String testCase, boolean generateSignature, boolean generatePdf, Bundle bundle)
             throws InvalidCanonicalizerException, XMLParserException, IOException, CanonicalizationException,
-            ERezeptWorkflowException {
+            ERezeptWorkflowException, FOPException, TransformerException {
         byte[] canonicalBytes = ERezeptWorkflowService.getCanonicalXmlBytes(bundle);
         Files.write(Paths.get("src/test/resources/kbv-zip/"+testCase+".xml"), canonicalBytes);
         if(generateSignatureAndPdf){
@@ -85,7 +87,7 @@ public class GenerateKBVCertificationBundlesServiceTest {
     }
 
 
-    private void createPdf(String testCase, List<Bundle> list) throws IOException {
+    private void createPdf(String testCase, List<Bundle> list) throws IOException, FOPException, TransformerException {
         if(generateSignatureAndPdf){
             List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowables = new ArrayList<>();
             if(useTitus) {
@@ -102,7 +104,7 @@ public class GenerateKBVCertificationBundlesServiceTest {
     }
 
     @Test
-    public void testPF02() throws IOException, InvalidCanonicalizerException, XMLParserException, CanonicalizationException, ERezeptWorkflowException {
+    public void testPF02() throws IOException, InvalidCanonicalizerException, XMLParserException, CanonicalizationException, ERezeptWorkflowException, FOPException, TransformerException {
         Bundle bundle = service.PF02();
         
         boolean generateSignature = false;
@@ -112,7 +114,7 @@ public class GenerateKBVCertificationBundlesServiceTest {
     }
 
     @Test
-    public void testPF03_PF04_PF05_PF06() throws IOException, InvalidCanonicalizerException, XMLParserException, CanonicalizationException, ERezeptWorkflowException {
+    public void testPF03_PF04_PF05_PF06() throws IOException, InvalidCanonicalizerException, XMLParserException, CanonicalizationException, ERezeptWorkflowException, FOPException, TransformerException {
         List<Bundle> list = new ArrayList<>();
         Bundle bundle = service.PF03();
           
@@ -139,7 +141,7 @@ public class GenerateKBVCertificationBundlesServiceTest {
     }
 
     @Test
-    public void testPF07() throws IOException, InvalidCanonicalizerException, XMLParserException, CanonicalizationException, ERezeptWorkflowException {
+    public void testPF07() throws IOException, InvalidCanonicalizerException, XMLParserException, CanonicalizationException, ERezeptWorkflowException, FOPException, TransformerException {
         Bundle bundle = service.PF07();
         
         boolean generateSignature = false;
@@ -148,7 +150,7 @@ public class GenerateKBVCertificationBundlesServiceTest {
     }
 
     @Test
-    public void testPF08() throws IOException {
+    public void testPF08() throws IOException, FOPException, TransformerException {
         GenerateKBVCertificationBundlesService service = new GenerateKBVCertificationBundlesService();
         List<Bundle> bundles = service.PF08();
         
@@ -169,7 +171,7 @@ public class GenerateKBVCertificationBundlesServiceTest {
     }
 
     @Test
-    public void testPF09() throws IOException, InvalidCanonicalizerException, XMLParserException, CanonicalizationException, ERezeptWorkflowException {
+    public void testPF09() throws IOException, InvalidCanonicalizerException, XMLParserException, CanonicalizationException, ERezeptWorkflowException, FOPException, TransformerException {
         Bundle bundle = service.PF09();
         
         boolean generateSignature = false;
@@ -178,7 +180,7 @@ public class GenerateKBVCertificationBundlesServiceTest {
     }
 
     @Test
-    public void testPF10() throws IOException, InvalidCanonicalizerException, XMLParserException, CanonicalizationException, ERezeptWorkflowException {
+    public void testPF10() throws IOException, InvalidCanonicalizerException, XMLParserException, CanonicalizationException, ERezeptWorkflowException, FOPException, TransformerException {
         Bundle bundle = service.PF10();
         
         boolean generateSignature = false;
@@ -188,7 +190,7 @@ public class GenerateKBVCertificationBundlesServiceTest {
 
     @Test
     @Disabled
-    public void testRegeneratePdf() throws IOException {
+    public void testRegeneratePdf() throws IOException, FOPException, TransformerException {
 
         genPDF("PF01", "d78fe79c81be9541bcf7a95c8254821e3ab3e88eaa1898db9e1b78a982fc94b2");
         genPDF("PF02", "14e5ed98461cbe0e2aa647c45b03fbbb11340dd55e8324563319a89ff93a5f30");
@@ -224,12 +226,12 @@ public class GenerateKBVCertificationBundlesServiceTest {
     }
 
     @Test
-    public void testRegeneratePdfPF10() throws IOException {
+    public void testRegeneratePdfPF10() throws IOException, FOPException, TransformerException {
         genPDF("PF10", "c509232b3dea6d2303b00ae170a64d2faa8e004246798c154de0fa0e3fc9c9fb");
     }
 
 
-    private void genPDF(String testCase, String accessCode) throws IOException {
+    private void genPDF(String testCase, String accessCode) throws IOException, FOPException, TransformerException {
         Bundle bundle = iParser.parseResource(Bundle.class, getXmlString("src/test/resources/kbv-zip/"+testCase+".xml"));
         List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowables = new ArrayList<>();
         bundleWithAccessCodeOrThrowables.add(new BundleWithAccessCodeOrThrowable(bundle, accessCode));

@@ -1,11 +1,12 @@
 package health.ere.ps.event;
 
-import org.hl7.fhir.r4.model.Bundle;
-
-import java.util.Arrays;
 import java.util.List;
 
-public final class BundlesEvent {
+import javax.websocket.Session;
+
+import org.hl7.fhir.r4.model.Bundle;
+
+public final class BundlesEvent extends AbstractEvent {
 
     private final List<Bundle> bundles;
 
@@ -13,7 +14,14 @@ public final class BundlesEvent {
         this.bundles = bundles;
     }
 
+    public BundlesEvent(List<Bundle> bundles, Session replyTo, String id) {
+        this(bundles);
+        this.replyTo = replyTo;
+        this.id = id;
+    }
+
     public List<Bundle> getBundles() {
         return this.bundles;
     }
+
 }

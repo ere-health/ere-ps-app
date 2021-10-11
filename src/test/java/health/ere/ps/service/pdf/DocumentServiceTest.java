@@ -1,5 +1,7 @@
 package health.ere.ps.service.pdf;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -11,7 +13,9 @@ import java.util.logging.LogManager;
 
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.xml.transform.TransformerException;
 
+import org.apache.fop.apps.FOPException;
 import org.hl7.fhir.r4.model.Bundle;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
@@ -174,6 +178,12 @@ public class DocumentServiceTest {
         for (int i = 0; i < number; i++) {
             bundles.add(new BundleWithAccessCodeOrThrowable(testBundles.get(i % 5), "MOCK_CODE" + i));
         }
-        return documentService.generateERezeptPdf(bundles);
+        try {
+            return documentService.generateERezeptPdf(bundles);
+        } catch (FOPException | IOException | TransformerException e) {
+            e.printStackTrace();
+            fail();
+            return null;
+        }
     }
 }

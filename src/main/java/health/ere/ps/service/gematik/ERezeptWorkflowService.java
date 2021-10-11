@@ -23,6 +23,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
+import javax.websocket.Session;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -83,6 +84,7 @@ import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import health.ere.ps.service.connector.provider.ConnectorServicesProvider;
 import health.ere.ps.service.idp.BearerTokenService;
 import health.ere.ps.vau.VAUEngine;
+import health.ere.ps.websocket.ExceptionWithReplyToExcetion;
 import oasis.names.tc.dss._1_0.core.schema.Base64Data;
 
 @ApplicationScoped
@@ -164,7 +166,7 @@ public class ERezeptWorkflowService {
      * necessary processing
      */
     public void onSignAndUploadBundlesEvent(@ObservesAsync SignAndUploadBundlesEvent signAndUploadBundlesEvent) {
-        requestNewAccessTokenIfNecessary();
+        requestNewAccessTokenIfNecessary(signAndUploadBundlesEvent.getReplyTo(), signAndUploadBundlesEvent.getReplyToMessageId());
 
         List<List<Bundle>> listOfListOfBundles = signAndUploadBundlesEvent.listOfListOfBundles;
         log.info(String.format("Received %d bundles to sign ", listOfListOfBundles.size()));
@@ -179,7 +181,7 @@ public class ERezeptWorkflowService {
         log.info(String.format("Getting access codes for %d bundles.",
                 bundles.size()));
 
-        List<BundleWithAccessCodeOrThrowable> unflatten = createMultipleERezeptsOnPrescriptionServer(bundles);
+        List<BundleWithAccessCodeOrThrowable> unflatten = createMultipleERezeptsOnPrescriptionServer(bundles, signAndUploadBundlesEvent.getReplyTo(), signAndUploadBundlesEvent.getId());
         Iterator<BundleWithAccessCodeOrThrowable> it = unflatten.iterator();
         // unflatten bundles again
         for(int i = 0;i<listOfListOfBundles.size();i++) {
@@ -193,11 +195,15 @@ public class ERezeptWorkflowService {
 
         log.info(String.format("Firing event to create prescription receipts for %d bundles.",
                 bundleWithAccessCodeOrThrowable.size()));
-        bundlesWithAccessCodeEvent.fireAsync(new BundlesWithAccessCodeEvent(bundleWithAccessCodeOrThrowable));
+        bundlesWithAccessCodeEvent.fireAsync(new BundlesWithAccessCodeEvent(bundleWithAccessCodeOrThrowable, signAndUploadBundlesEvent.getReplyTo(), signAndUploadBundlesEvent.getId()));
     }
 
     public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(List<Bundle> bundles) {
-        return createMultipleERezeptsOnPrescriptionServer(bundles, false);
+        return createMultipleERezeptsOnPrescriptionServer(bundles, null, null);
+    }
+
+    public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(List<Bundle> bundles, Session replyTo, String replyToMessageId) {
+        return createMultipleERezeptsOnPrescriptionServer(bundles, false, replyTo, replyToMessageId);
     }
 
     /**
@@ -205,7 +211,7 @@ public class ERezeptWorkflowService {
      * <p>
      * When an error is thrown it create an object that contains this error.
      */
-    public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(List<Bundle> bundles, boolean comfortSignature) {
+    public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(List<Bundle> bundles, boolean comfortSignature, Session replyTo, String replyToMessageId) {
         List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodes = new ArrayList<>();
         List<Task> tasks = new ArrayList<>();
         for (Bundle bundle : bundles) {
@@ -232,12 +238,14 @@ public class ERezeptWorkflowService {
                     bundleWithAccessCodes.get(i).setThrowable(t);
                 }
             } else {
-                bundleWithAccessCodes.get(i).setThrowable(new ERezeptWorkflowException("Task is null please check log for errors."));
+                if(bundleWithAccessCodes.get(i).getThrowable() == null) {
+                    bundleWithAccessCodes.get(i).setThrowable(new ERezeptWorkflowException("Task is null please check log for errors."));
+                }
             }
             i++;
         }
         try {
-            List<SignResponse> signedDocuments = signBundleWithIdentifiers(bundles, false);
+            List<SignResponse> signedDocuments = signBundleWithIdentifiers(bundles, false, replyTo, replyToMessageId);
             i = 0;
             for(SignResponse signedDocument : signedDocuments) {
                 BundleWithAccessCodeOrThrowable bundleWithAccessCode = bundleWithAccessCodes.get(i);
@@ -261,6 +269,11 @@ public class ERezeptWorkflowService {
         return bundleWithAccessCodes;
     }
 
+    public BundleWithAccessCodeOrThrowable createERezeptOnPrescriptionServer(Bundle bundle)
+            throws ERezeptWorkflowException {
+        return createERezeptOnPrescriptionServer(bundle, null, null);
+    }
+
     /**
      * A typical muster 16 form can contain up to 3 e prescriptions This function
      * has to be called multiple times
@@ -271,9 +284,9 @@ public class ERezeptWorkflowService {
      * @return
      * @throws ERezeptWorkflowException
      */
-    public BundleWithAccessCodeOrThrowable createERezeptOnPrescriptionServer(Bundle bundle)
+    public BundleWithAccessCodeOrThrowable createERezeptOnPrescriptionServer(Bundle bundle, Session replyTo, String replyToMessageId)
             throws ERezeptWorkflowException {
-        requestNewAccessTokenIfNecessary();
+        requestNewAccessTokenIfNecessary(replyTo, replyToMessageId);
         
         log.fine("Bearer Token: " + bearerToken);
 
@@ -283,15 +296,15 @@ public class ERezeptWorkflowService {
         // Example:
         // src/test/resources/gematik/Bundle-4fe2013d-ae94-441a-a1b1-78236ae65680.xml
         BundleWithAccessCodeOrThrowable bundleWithAccessCode = updateBundleWithTask(task, bundle);
-        SignResponse signedDocument = signBundleWithIdentifiers(bundleWithAccessCode.getBundle());
+        SignResponse signedDocument = signBundleWithIdentifiers(bundleWithAccessCode.getBundle(), replyTo, replyToMessageId);
         try {
             if(signedDocument == null) {
                 bundleWithAccessCode.setThrowable(new RuntimeException("Could not get signed document. Please check the logs."));
             } else {
                 byte[] signedBundle = signedDocument.getSignatureObject().getBase64Signature().getValue();
                 bundleWithAccessCode.setSignedBundle(signedBundle);
-                updateERezeptTask(task, bundleWithAccessCode.getAccessCode(),
-                    signedBundle);
+                updateERezeptTask(task.getIdElement().getIdPart(), bundleWithAccessCode.getAccessCode(),
+                    signedBundle, true, replyTo, replyToMessageId);
             }
         } catch(Exception e) {
             bundleWithAccessCode.setThrowable(e);
@@ -308,11 +321,15 @@ public class ERezeptWorkflowService {
         updateERezeptTask(taskId, accessCode, signedBytes, true);
     }
 
+    public void updateERezeptTask(String taskId, String accessCode, byte[] signedBytes, boolean firstTry) {
+        updateERezeptTask(taskId, accessCode, signedBytes, firstTry, null, null);
+    }
+
     /**
      * This function adds the E-Rezept to the previously created task.
      */
-    public void updateERezeptTask(String taskId, String accessCode, byte[] signedBytes, boolean firstTry) {
-        requestNewAccessTokenIfNecessary();
+    public void updateERezeptTask(String taskId, String accessCode, byte[] signedBytes, boolean firstTry, Session replyTo, String replyToMessageId) {
+        requestNewAccessTokenIfNecessary(replyTo, replyToMessageId);
         Parameters parameters = new Parameters();
         ParametersParameterComponent ePrescriptionParameter = new ParametersParameterComponent();
         ePrescriptionParameter.setName("ePrescription");
@@ -335,7 +352,7 @@ public class ERezeptWorkflowService {
             if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
                 if(firstTry) {
                     log.warning("Was not able to $activate on first try. Status:" +response.getStatus()+" Response: " + taskString);
-                    updateERezeptTask(taskId, accessCode, signedBytes, false);
+                    updateERezeptTask(taskId, accessCode, signedBytes, false, replyTo, replyToMessageId);
                 } else {
                     throw new WebApplicationException("Error on "+appConfig.getPrescriptionServiceURL()+" "+taskString, response.getStatus());
                 }
@@ -363,13 +380,25 @@ public class ERezeptWorkflowService {
     }
 
     public SignResponse signBundleWithIdentifiers(Bundle bundle) throws ERezeptWorkflowException {
-        return signBundleWithIdentifiers(bundle, false);
+        return signBundleWithIdentifiers(bundle, null, null);
     }
 
+    public SignResponse signBundleWithIdentifiers(Bundle bundle, Session replyTo, String replyToMessageId) throws ERezeptWorkflowException {
+        return signBundleWithIdentifiers(bundle, false, replyTo, replyToMessageId);
+    }
 
-    public SignResponse signBundleWithIdentifiers(Bundle bundle, boolean wait10secondsAfterJobNumber)
+    public SignResponse signBundleWithIdentifiers(Bundle bundle, boolean wait10secondsAfterJobNumber) throws ERezeptWorkflowException  {
+        return signBundleWithIdentifiers(bundle, wait10secondsAfterJobNumber, null, null);
+    }
+
+    public SignResponse signBundleWithIdentifiers(Bundle bundle, boolean wait10secondsAfterJobNumber, Session replyTo, String replyToMessageId)
             throws ERezeptWorkflowException {
-        return signBundleWithIdentifiers(Arrays.asList(bundle), wait10secondsAfterJobNumber).get(0);
+        return signBundleWithIdentifiers(Arrays.asList(bundle), wait10secondsAfterJobNumber, replyTo, replyToMessageId).get(0);
+    }
+
+    public List<SignResponse> signBundleWithIdentifiers(List<Bundle> bundles, boolean wait10secondsAfterJobNumber)
+        throws ERezeptWorkflowException{
+        return signBundleWithIdentifiers(bundles, wait10secondsAfterJobNumber, null, null);
     }
     /**
      * This function signs the bundle with the signatureService.signDocument from
@@ -378,12 +407,12 @@ public class ERezeptWorkflowService {
      * @return
      * @throws ERezeptWorkflowException
      */
-    public List<SignResponse> signBundleWithIdentifiers(List<Bundle> bundles, boolean wait10secondsAfterJobNumber)
+    public List<SignResponse> signBundleWithIdentifiers(List<Bundle> bundles, boolean wait10secondsAfterJobNumber, Session replyTo, String replyToMessageId)
             throws ERezeptWorkflowException {
 
         List<SignResponse> signResponses = null;
 
-        readyToSignBundlesEvent.fireAsync(new ReadyToSignBundlesEvent(bundles));
+        readyToSignBundlesEvent.fireAsync(new ReadyToSignBundlesEvent(bundles, replyTo, replyToMessageId));
 
         try {
             OptionalInputs optionalInputs = new OptionalInputs();
@@ -397,7 +426,7 @@ public class ERezeptWorkflowService {
                 } catch (InvalidCanonicalizerException | XMLParserException | CanonicalizationException
                         | IOException e) {
                     log.log(Level.SEVERE, "Could not get canonical XML", e);
-                    exceptionEvent.fireAsync(e);
+                    exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, replyTo, replyToMessageId));
                     return null;
                 }
                 SignRequest signRequest = new SignRequest();
@@ -464,7 +493,7 @@ public class ERezeptWorkflowService {
                             jobNumber, Arrays.asList(signRequestV755));
                             return list.get(0);
                         } catch (FaultMessage e) {
-                            exceptionEvent.fireAsync(e);
+                            exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, replyTo, replyToMessageId));
                             return null;
                         }
                     }).collect(Collectors.toList());
@@ -495,7 +524,7 @@ public class ERezeptWorkflowService {
                             connectorServicesProvider.getContextType(), userConfig.getTvMode(),
                             connectorServicesProvider.getSignatureServicePortType().getJobNumber(connectorServicesProvider.getContextType()), Arrays.asList(signRequest));
                         } catch (FaultMessage e) {
-                            exceptionEvent.fireAsync(e);
+                            exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, replyTo, replyToMessageId));
                             return null;
                         }
                         return list.get(0);
@@ -617,12 +646,16 @@ public class ERezeptWorkflowService {
         }
     }
     
+    public void requestNewAccessTokenIfNecessary() {
+        requestNewAccessTokenIfNecessary(null, null);
+    }
+
     /**
      * Requests a new bearerToken if the current one is expired
      */
-    public void requestNewAccessTokenIfNecessary() {
+    public void requestNewAccessTokenIfNecessary(Session replyTo, String replyToMessageId) {
         if (StringUtils.isEmpty(bearerToken) || isExpired(bearerToken)) {
-            bearerToken = bearerTokenService.requestBearerToken();
+            bearerToken = bearerTokenService.requestBearerToken(replyTo, replyToMessageId);
         }
     }
 
@@ -654,7 +687,7 @@ public class ERezeptWorkflowService {
      * @param abortTasksEvent event that contains the task to abort
      */
     public void onAbortTasksEvent(@ObservesAsync AbortTasksEvent abortTasksEvent) {
-        requestNewAccessTokenIfNecessary();
+        requestNewAccessTokenIfNecessary(abortTasksEvent.getReplyTo(), abortTasksEvent.getReplyToMessageId());
         List<AbortTaskStatus> abortTaskStatusList = new ArrayList<>();
         for (AbortTaskEntry abortTaskEntry : abortTasksEvent.getTasks()) {
             AbortTaskStatus abortTaskStatus = new AbortTaskStatus(abortTaskEntry);
@@ -669,21 +702,24 @@ public class ERezeptWorkflowService {
 
             abortTaskStatusList.add(abortTaskStatus);
         }
-        abortTasksStatusEvent.fireAsync(new AbortTasksStatusEvent(abortTaskStatusList));
+        abortTasksStatusEvent.fireAsync(new AbortTasksStatusEvent(abortTaskStatusList, abortTasksEvent.getReplyTo(), abortTasksEvent.getId()));
     }
 
     /**
      * Reacts to the event the ActivateComfortSignatureEvent
      */
     public void onActivateComfortSignatureEvent(@ObservesAsync ActivateComfortSignatureEvent activateComfortSignatureEvent) {
-        activateComfortSignature();
-        onGetSignatureModeEvent(null);
+        activateComfortSignature(activateComfortSignatureEvent.getReplyTo(), activateComfortSignatureEvent.getReplyToMessageId());
+        onGetSignatureModeEvent(new GetSignatureModeEvent(activateComfortSignatureEvent.getReplyTo(), activateComfortSignatureEvent.getId()));
     }
 
+    public void activateComfortSignature() {
+        activateComfortSignature(null, null);
+    }
     /**
      * Activate comfort signature
      */
-    public void activateComfortSignature() {
+    public void activateComfortSignature(Session replyTo, String replyToMessageId) {
         final Holder<Status> status = new Holder<>();
         final Holder<SignatureModeEnum> signatureMode = new Holder<>();
         String signatureServiceCardHandle = null;
@@ -698,7 +734,7 @@ public class ERezeptWorkflowService {
                     status, signatureMode);
         } catch (ConnectorCardsException | FaultMessage e) {
             log.log(Level.WARNING, "Could not enable comfort signature", e);
-            exceptionEvent.fireAsync(e);
+            exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, replyTo, replyToMessageId));
         }
     }
 
@@ -706,16 +742,24 @@ public class ERezeptWorkflowService {
      * Reacts to the event the GetSignatureMode Event
      */
     public void onGetSignatureModeEvent(@ObservesAsync GetSignatureModeEvent getSignatureModeEvent) {
-        GetSignatureModeResponseEvent getSignatureModeResponseEvent = getSignatureMode();
+        GetSignatureModeResponseEvent getSignatureModeResponseEvent = getSignatureMode(getSignatureModeEvent.getReplyTo(), getSignatureModeEvent.getReplyToMessageId());
         if(getSignatureModeResponseEvent != null) {
+            if(getSignatureModeEvent != null) {
+                getSignatureModeResponseEvent.setReplyTo(getSignatureModeEvent.getReplyTo());
+                getSignatureModeResponseEvent.setReplyToMessageId(getSignatureModeEvent.getId());
+            }
             this.getSignatureModeResponseEvent.fireAsync(getSignatureModeResponseEvent);
         }
+    }
+
+    public GetSignatureModeResponseEvent getSignatureMode() {
+        return getSignatureMode(null, null);
     }
 
     /**
      *
      */
-    public GetSignatureModeResponseEvent getSignatureMode() {
+    public GetSignatureModeResponseEvent getSignatureMode(Session replyTo, String replyToMessageId) {
         if(userIdForComfortSignature == null) {
             Status status = new Status();
             status.setResult("OK");
@@ -725,7 +769,7 @@ public class ERezeptWorkflowService {
                 return new GetSignatureModeResponseEvent(status, comfortSignatureStatus, 0, DatatypeFactory.newInstance().newDuration(0l), null);
             } catch (DatatypeConfigurationException e) {
                 log.log(Level.WARNING, "Could not generate Duration", e);
-                exceptionEvent.fireAsync(e);
+                exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, replyTo, replyToMessageId));
                 return null;
             }
         }
@@ -746,7 +790,7 @@ public class ERezeptWorkflowService {
             return new GetSignatureModeResponseEvent(status.value, comfortSignatureStatus.value, comfortSignatureMax.value, comfortSignatureTimer.value, sessionInfo.value);
         } catch (ConnectorCardsException | FaultMessage e) {
             log.log(Level.WARNING, "Could not get signature signature", e);
-            exceptionEvent.fireAsync(e);
+            exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, replyTo, replyToMessageId));
             return null;
         }
     }
@@ -755,14 +799,18 @@ public class ERezeptWorkflowService {
      * Reacts to the event the DeactivateComfortSignatureEvent
      */
     public void onDeactivateComfortSignatureEvent(@ObservesAsync DeactivateComfortSignatureEvent deactivateComfortSignatureEvent) {
-        deactivateComfortSignature();
-        onGetSignatureModeEvent(null);
+        deactivateComfortSignature(deactivateComfortSignatureEvent.getReplyTo(), deactivateComfortSignatureEvent.getReplyToMessageId());
+        onGetSignatureModeEvent(new GetSignatureModeEvent(deactivateComfortSignatureEvent.getReplyTo(), deactivateComfortSignatureEvent.getId()));
+    }
+
+    public void deactivateComfortSignature() {
+        deactivateComfortSignature(null, null);
     }
 
     /**
      *
      */
-    public void deactivateComfortSignature() {
+    public void deactivateComfortSignature(Session replyTo, String replyToMessageId) {
         String signatureServiceCardHandle = null;
         try {
             signatureServiceCardHandle = connectorCardsService.getConnectorCardHandle(
@@ -774,7 +822,7 @@ public class ERezeptWorkflowService {
             userIdForComfortSignature = null;
         } catch (ConnectorCardsException | FaultMessage e) {
             log.log(Level.WARNING, "Could not deactivate comfort signature", e);
-            exceptionEvent.fireAsync(e);
+            exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, replyTo, replyToMessageId));
         }
     }
 
