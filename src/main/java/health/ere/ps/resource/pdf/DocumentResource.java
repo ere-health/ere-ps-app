@@ -1,6 +1,7 @@
 package health.ere.ps.resource.pdf;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
 import java.util.Objects;
@@ -13,8 +14,11 @@ import javax.json.JsonObject;
 import javax.json.JsonValue;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import javax.xml.transform.TransformerException;
 
+import org.apache.fop.apps.FOPException;
 import org.hl7.fhir.r4.model.Bundle;
 
 import ca.uhn.fhir.context.FhirContext;
@@ -27,7 +31,8 @@ public class DocumentResource {
     @Inject
     DocumentService documentService;
 
-    IParser parser = FhirContext.forR4().newJsonParser();
+    IParser jsonParser = FhirContext.forR4().newJsonParser();
+    IParser xmlParser = FhirContext.forR4().newXmlParser();
 
     @POST
     @Path("/bundles")
@@ -39,7 +44,12 @@ public class DocumentResource {
             return convert(jv);
         }).filter(Objects::nonNull).collect(Collectors.toList());
 
-        ByteArrayOutputStream boas = documentService.generateERezeptPdf(bundles);
+        ByteArrayOutputStream boas;
+        try {
+            boas = documentService.generateERezeptPdf(bundles);
+        } catch (FOPException | IOException | TransformerException e) {
+            throw new WebApplicationException(e);
+        }
         return Response.ok().entity(boas.toByteArray()).type("application/pdf").build();
     }
 
@@ -48,7 +58,12 @@ public class DocumentResource {
         if(jv instanceof JsonObject) {
             JsonObject jo = (JsonObject) jv;
             bt.setAccessCode(jo.getString("accessCode"));
-            bt.setBundle(parser.parseResource(Bundle.class, jo.getJsonObject("bundle").toString()));
+            String mimeType = jo.getString("mimeType", "application/json");
+            if("application/xml".equals(mimeType)) {
+                bt.setBundle(xmlParser.parseResource(Bundle.class, jo.getJsonString("bundle").getString()));
+            } else {
+                bt.setBundle(jsonParser.parseResource(Bundle.class, jo.getJsonObject("bundle").toString()));
+            }
         }
         return bt;
     }

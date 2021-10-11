@@ -4,12 +4,13 @@ import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.signatureservice.v7_5_5.ComfortSignatureStatusEnum;
 import de.gematik.ws.conn.signatureservice.v7_5_5.SessionInfo;
 
-public class GetSignatureModeResponseEvent {
+public class GetSignatureModeResponseEvent extends AbstractEvent {
     Status status;
     ComfortSignatureStatusEnum comfortSignatureStatus;
     Integer comfortSignatureMax;
     javax.xml.datatype.Duration comfortSignatureTimer;
     SessionInfo sessionInfo;
+    String userId;
 
     public GetSignatureModeResponseEvent(Status status, ComfortSignatureStatusEnum comfortSignatureStatus, Integer comfortSignatureMax, javax.xml.datatype.Duration comfortSignatureTimer, SessionInfo sessionInfo) {
         this.status = status;
@@ -27,6 +28,14 @@ public class GetSignatureModeResponseEvent {
         this.status = status;
     }
 
+    public String getUserId() {
+        return this.userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+    
     public ComfortSignatureStatusEnum getComfortSignatureStatus() {
         return this.comfortSignatureStatus;
     }

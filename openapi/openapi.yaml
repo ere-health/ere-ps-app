@@ -1,0 +1,191 @@
+---
+openapi: 3.0.3
+info:
+  title: Generated API
+  version: "1.0"
+paths:
+  /config:
+    get:
+      responses:
+        "200":
+          description: OK
+    put:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserConfigurations'
+      responses:
+        "200":
+          description: OK
+  /document/bundles:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+      responses:
+        "200":
+          description: OK
+  /erixa/sync:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErixaSyncLoad'
+      responses:
+        "200":
+          description: OK
+  /ipp/{queue}:
+    post:
+      parameters:
+      - name: queue
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InputStream'
+      responses:
+        "200":
+          description: OK
+  /validate:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: OK
+  /workflow/abort:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AbortERezept'
+      responses:
+        "200":
+          description: OK
+  /workflow/comfortsignature/user-id:
+    get:
+      responses:
+        "200":
+          description: OK
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+      responses:
+        "200":
+          description: OK
+  /workflow/sign:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+      responses:
+        "200":
+          description: OK
+  /workflow/task:
+    post:
+      responses:
+        "200":
+          description: OK
+  /workflow/update:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateERezept'
+      responses:
+        "200":
+          description: OK
+  /xmlPrescription:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+      responses:
+        "200":
+          description: OK
+components:
+  schemas:
+    AbortERezept:
+      type: object
+      properties:
+        accessCode:
+          type: string
+        taskId:
+          type: string
+    ErixaSyncLoad:
+      type: object
+      properties:
+        document:
+          type: string
+        patient:
+          type: string
+    InputStream:
+      type: object
+    UpdateERezept:
+      type: object
+      properties:
+        accessCode:
+          type: string
+        signedBytes:
+          type: string
+        taskId:
+          type: string
+    UserConfigurations:
+      type: object
+      properties:
+        connector.basic-auth-password:
+          type: string
+        connector.basic-auth-username:
+          type: string
+        connector.client-certificate:
+          type: string
+        connector.client-certificate-password:
+          type: string
+        connector.client-system-id:
+          type: string
+        connector.base-url:
+          type: string
+        erixa.api.key:
+          type: string
+        erixa.drugstore.email:
+          type: string
+        erixa.hotfolder:
+          type: string
+        erixa.user.email:
+          type: string
+        erixa.user.password:
+          type: string
+        connector.mandant-id:
+          type: string
+        extractor.template.profile:
+          type: string
+        kbv.pruefnummer:
+          type: string
+        connector.tvMode:
+          type: string
+        connector.user-id:
+          type: string
+        connector.version:
+          type: string
+        connector.workplace-id:
+          type: string

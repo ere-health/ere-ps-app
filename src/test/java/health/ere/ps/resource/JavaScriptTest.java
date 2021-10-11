@@ -38,6 +38,11 @@ public class JavaScriptTest {
     public void testCreateEPrescription() throws ScriptException, IOException {
         runScript("src/test/resources/javascript/create-e-prescription.js");
     }
+
+    @Test
+    public void testCreateEPrescriptionXml() throws ScriptException, IOException {
+        runScript("src/test/resources/javascript/create-e-prescription-from-xml.js");
+    }
     
     @Test
     public void testGeneratePrintOut() throws ScriptException, IOException {

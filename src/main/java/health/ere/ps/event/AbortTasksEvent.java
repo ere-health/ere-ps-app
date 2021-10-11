@@ -6,8 +6,9 @@ import java.util.stream.Collectors;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
+import javax.websocket.Session;
 
-public class AbortTasksEvent {
+public class AbortTasksEvent extends AbstractEvent {
 
     private List<AbortTaskEntry> tasks = new ArrayList<>();
 
@@ -18,6 +19,12 @@ public class AbortTasksEvent {
     public AbortTasksEvent(JsonArray abortTaskEntries) {
         this.tasks = abortTaskEntries.stream().filter(o -> o instanceof JsonObject)
                 .map(o -> new AbortTaskEntry((JsonObject) o)).collect(Collectors.toList());
+    }
+
+    public AbortTasksEvent(JsonArray abortTaskEntries, Session replyTo, String id) {
+        this(abortTaskEntries);
+        this.replyTo = replyTo;
+        this.id = id;
     }
 
     public List<AbortTaskEntry> getTasks() {
