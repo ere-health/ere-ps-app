@@ -31,7 +31,8 @@ public class DocumentResource {
     @Inject
     DocumentService documentService;
 
-    IParser parser = FhirContext.forR4().newJsonParser();
+    IParser jsonParser = FhirContext.forR4().newJsonParser();
+    IParser xmlParser = FhirContext.forR4().newXmlParser();
 
     @POST
     @Path("/bundles")
@@ -57,7 +58,12 @@ public class DocumentResource {
         if(jv instanceof JsonObject) {
             JsonObject jo = (JsonObject) jv;
             bt.setAccessCode(jo.getString("accessCode"));
-            bt.setBundle(parser.parseResource(Bundle.class, jo.getJsonObject("bundle").toString()));
+            String mimeType = jo.getString("mimeType", "application/json");
+            if("application/xml".equals(mimeType)) {
+                bt.setBundle(xmlParser.parseResource(Bundle.class, jo.getJsonString("bundle").getString()));
+            } else {
+                bt.setBundle(jsonParser.parseResource(Bundle.class, jo.getJsonObject("bundle").toString()));
+            }
         }
         return bt;
     }

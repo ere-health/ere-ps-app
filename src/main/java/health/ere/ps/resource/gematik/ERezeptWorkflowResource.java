@@ -4,6 +4,7 @@ import java.util.Base64;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.client.Entity;
@@ -26,19 +27,25 @@ public class ERezeptWorkflowResource {
     @Inject
     ERezeptWorkflowService eRezeptWorkflowService;
 
-    IParser parser = FhirContext.forR4().newJsonParser();
+    IParser jsonParser = FhirContext.forR4().newJsonParser();
+    IParser xmlParser = FhirContext.forR4().newXmlParser();
 
     @POST
     @Path("/task")
-    public Response createERezeptTask() {
+    public Response createERezeptTask(@HeaderParam("accept") String accept) {
         Task task = eRezeptWorkflowService.createERezeptTask();
-        return Response.ok().entity(parser.encodeResourceToString(task)).type(MediaType.APPLICATION_JSON).build();
+        if("application/xml".equals(accept)) {
+            return Response.ok().entity(xmlParser.encodeResourceToString(task)).type(MediaType.APPLICATION_XML).build();
+        } else {
+            return Response.ok().entity(jsonParser.encodeResourceToString(task)).type(MediaType.APPLICATION_JSON).build();
+        }
     }
 
     @POST
     @Path("/sign")
-    public Response signBundleWithIdentifiers(String bundle) throws DataFormatException, ERezeptWorkflowException {
-        SignResponse signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(parser.parseResource(Bundle.class, bundle));
+    public Response signBundleWithIdentifiers(@HeaderParam("Content-Type") String contentType, String bundle) throws DataFormatException, ERezeptWorkflowException {
+        Bundle bundleObject = "application/xml".equals(contentType) ? xmlParser.parseResource(Bundle.class, bundle) : jsonParser.parseResource(Bundle.class, bundle);
+        SignResponse signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundleObject);
         return Response.ok().entity(Base64.getEncoder().encode(signResponse.getSignatureObject().getBase64Signature().getValue())).type(MediaType.TEXT_PLAIN).build();
     }
 
