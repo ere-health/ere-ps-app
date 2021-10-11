@@ -31,6 +31,7 @@ import org.hl7.fhir.r4.model.Bundle;
 import ca.uhn.fhir.context.FhirContext;
 import health.ere.ps.event.HTMLBundlesEvent;
 import health.ere.ps.event.ReadyToSignBundlesEvent;
+import health.ere.ps.websocket.ExceptionWithReplyToExcetion;
 
 @ApplicationScoped
 public class XSLTService {
@@ -125,13 +126,13 @@ public class XSLTService {
                 try {
                     return generateHtmlForBundle(bundle);
                 } catch (Exception e) {
-                    exceptionEvent.fireAsync(e);
+                    exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, readyToSignBundlesEvent.getReplyTo(), readyToSignBundlesEvent.getReplyToMessageId()));
                     return "";
                 }
             }).collect(Collectors.toList());
             hTMLBundlesEvent.fireAsync(new HTMLBundlesEvent(htmlBundlesList));
         } catch(Exception ex) {
-            exceptionEvent.fireAsync(ex);
+            exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(ex, readyToSignBundlesEvent.getReplyTo(), readyToSignBundlesEvent.getReplyToMessageId()));
         }
     }
 }

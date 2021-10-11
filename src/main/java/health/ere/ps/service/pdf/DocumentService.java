@@ -52,6 +52,7 @@ import health.ere.ps.event.BundlesWithAccessCodeEvent;
 import health.ere.ps.event.ERezeptDocumentsEvent;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.model.pdf.ERezeptDocument;
+import health.ere.ps.websocket.ExceptionWithReplyToExcetion;
 
 @ApplicationScoped
 public class DocumentService {
@@ -181,7 +182,13 @@ public class DocumentService {
                     ByteArrayOutputStream boas = new ByteArrayOutputStream();
                     if(!onlyContainsThrowables(subList)) {
                         log.info("Now creating prescription receipts");
-                        boas = generateERezeptPdf(subList);
+                        try {
+                            boas = generateERezeptPdf(subList);
+                        } catch (IOException | FOPException | TransformerException e) {
+                            log.severe("Could not generate ERezept PDF:" + e);
+                            exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, bundlesWithAccessCodeEvent.getReplyTo(), bundlesWithAccessCodeEvent.getReplyToMessageId()));
+                            boas = new ByteArrayOutputStream();
+                        }
                     }
                 
                     ERezeptDocument eRezeptDocument = new ERezeptDocument(subList, boas.size() > 0 ? boas.toByteArray() : null);
@@ -192,7 +199,7 @@ public class DocumentService {
                     log.info("Sending prescription receipts results.");
                 }
             } catch (Exception ex) {
-                exceptionEvent.fireAsync(ex);
+                exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(ex, bundlesWithAccessCodeEvent.getReplyTo(), bundlesWithAccessCodeEvent.getReplyToMessageId()));
             }
         });
     }
@@ -201,20 +208,13 @@ public class DocumentService {
         return bundles.size() == bundles.stream().filter(bundle -> bundle.getThrowable() != null).count();
     }
 
-    public ByteArrayOutputStream generateERezeptPdf(List<BundleWithAccessCodeOrThrowable> bundles) {
-        try {
-            if (bundles.isEmpty()) {
-                log.severe("Cannot generate prescriptions pdf for an empty bundle");
-                return new ByteArrayOutputStream();
-            }
-
-            File xml = createTemporaryXmlFileFromBundles(bundles);
-            return generatePdfInOutputStream(xml);
-        } catch (IOException | FOPException | TransformerException e) {
-            log.severe("Could not generate ERezept PDF:" + e);
-            exceptionEvent.fireAsync(e);
+    public ByteArrayOutputStream generateERezeptPdf(List<BundleWithAccessCodeOrThrowable> bundles) throws IOException, FOPException, TransformerException {
+        if (bundles.isEmpty()) {
+            log.severe("Cannot generate prescriptions pdf for an empty bundle");
             return new ByteArrayOutputStream();
         }
+        File xml = createTemporaryXmlFileFromBundles(bundles);
+        return generatePdfInOutputStream(xml);
     }
 
     private File createTemporaryXmlFileFromBundles(List<BundleWithAccessCodeOrThrowable> bundles) throws IOException {

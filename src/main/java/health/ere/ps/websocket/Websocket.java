@@ -413,6 +413,7 @@ public class Websocket {
         Set<Session> localSessions = sessions;
 
         Exception exceptionFromReplyTo = null;
+        String replyToMessageIdFromException = null; 
 
         // only send the exception to the session that provoked it
         if(exceptionParam instanceof ExceptionWithReplyToExcetion) {
@@ -421,10 +422,12 @@ public class Websocket {
             if(exceptionWithReplyToExcetion.getReplyTo() != null) {
                 localSessions.add(exceptionWithReplyToExcetion.getReplyTo());
                 exceptionFromReplyTo = exceptionWithReplyToExcetion.getException();
+                replyToMessageIdFromException = exceptionWithReplyToExcetion.getMessageId();
             }
         }
 
         final Exception exception = exceptionFromReplyTo != null ? exceptionFromReplyTo : exceptionParam;
+        final String replyToMessageId = replyToMessageIdFromException != null ? replyToMessageIdFromException : "";
 
         localSessions.forEach(session -> {
             StringWriter sw = new StringWriter();
@@ -438,7 +441,7 @@ public class Websocket {
                 String stackTrace = objectMapper.writeValueAsString(sw.toString());
                 session.getAsyncRemote()
                     .sendObject("{\"type\": \"Exception\", \"payload\": { \"class\": \""
-                            + exception.getClass().getName() + "\", \"message\": " + localizedMessage
+                            + exception.getClass().getName() + "\", \"replyToMessageId\": \""+replyToMessageId+"\", \"message\": " + localizedMessage
                             + ", \"stacktrace\": " + stackTrace + "}}", result -> {
                         if (result.getException() != null) {
                             ereLog.fatal("Unable to send message: " + result.getException());
