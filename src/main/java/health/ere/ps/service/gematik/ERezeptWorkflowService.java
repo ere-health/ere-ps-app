@@ -709,17 +709,17 @@ public class ERezeptWorkflowService {
      * Reacts to the event the ActivateComfortSignatureEvent
      */
     public void onActivateComfortSignatureEvent(@ObservesAsync ActivateComfortSignatureEvent activateComfortSignatureEvent) {
-        activateComfortSignature(activateComfortSignatureEvent.getReplyTo(), activateComfortSignatureEvent.getReplyToMessageId());
-        onGetSignatureModeEvent(new GetSignatureModeEvent(activateComfortSignatureEvent.getReplyTo(), activateComfortSignatureEvent.getId()));
+        String userId = activateComfortSignature(activateComfortSignatureEvent.getReplyTo(), activateComfortSignatureEvent.getReplyToMessageId());
+        onGetSignatureModeEvent(new GetSignatureModeEvent(activateComfortSignatureEvent.getReplyTo(), activateComfortSignatureEvent.getId()), userId);
     }
 
-    public void activateComfortSignature() {
-        activateComfortSignature(null, null);
+    public String activateComfortSignature() {
+        return activateComfortSignature(null, null);
     }
     /**
      * Activate comfort signature
      */
-    public void activateComfortSignature(Session replyTo, String replyToMessageId) {
+    public String activateComfortSignature(Session replyTo, String replyToMessageId) {
         final Holder<Status> status = new Holder<>();
         final Holder<SignatureModeEnum> signatureMode = new Holder<>();
         String signatureServiceCardHandle = null;
@@ -736,18 +736,24 @@ public class ERezeptWorkflowService {
             log.log(Level.WARNING, "Could not enable comfort signature", e);
             exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, replyTo, replyToMessageId));
         }
+        return userIdForComfortSignature;
+    }
+
+    public void onGetSignatureModeEvent(@ObservesAsync GetSignatureModeEvent getSignatureModeEvent) {
+        onGetSignatureModeEvent(getSignatureModeEvent, null);
     }
 
     /**
      * Reacts to the event the GetSignatureMode Event
      */
-    public void onGetSignatureModeEvent(@ObservesAsync GetSignatureModeEvent getSignatureModeEvent) {
+    public void onGetSignatureModeEvent(GetSignatureModeEvent getSignatureModeEvent, String userId) {
         GetSignatureModeResponseEvent getSignatureModeResponseEvent = getSignatureMode(getSignatureModeEvent.getReplyTo(), getSignatureModeEvent.getReplyToMessageId());
         if(getSignatureModeResponseEvent != null) {
             if(getSignatureModeEvent != null) {
                 getSignatureModeResponseEvent.setReplyTo(getSignatureModeEvent.getReplyTo());
                 getSignatureModeResponseEvent.setReplyToMessageId(getSignatureModeEvent.getId());
             }
+            getSignatureModeResponseEvent.setUserId(userId);
             this.getSignatureModeResponseEvent.fireAsync(getSignatureModeResponseEvent);
         }
     }
