@@ -130,7 +130,7 @@ public class XSLTService {
                     return "";
                 }
             }).collect(Collectors.toList());
-            hTMLBundlesEvent.fireAsync(new HTMLBundlesEvent(htmlBundlesList));
+            hTMLBundlesEvent.fireAsync(new HTMLBundlesEvent(htmlBundlesList, readyToSignBundlesEvent.getReplyTo(), readyToSignBundlesEvent.getReplyToMessageId()));
         } catch(Exception ex) {
             exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(ex, readyToSignBundlesEvent.getReplyTo(), readyToSignBundlesEvent.getReplyToMessageId()));
         }

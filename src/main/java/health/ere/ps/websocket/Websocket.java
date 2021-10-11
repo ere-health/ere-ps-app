@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -115,7 +116,7 @@ public class Websocket {
     private static final EreLogger ereLog = EreLogger.getLogger(Websocket.class);
 
     private final FhirContext ctx = FhirContext.forR4();
-    private final Set<Session> sessions = new HashSet<>();
+    private final static Set<Session> sessions = new CopyOnWriteArraySet<>();
 
     ObjectMapper objectMapper = new ObjectMapper();
 
@@ -130,11 +131,11 @@ public class Websocket {
             try {
                 Bundle bundle = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder+"/PF01.xml"));
                 bundle.setId(UUID.randomUUID().toString());
-                onFhirBundle(new BundlesEvent(Collections.singletonList(bundle)));
+                onFhirBundle(new BundlesEvent(Collections.singletonList(bundle), senderSession, ""));
 
                 bundle = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder+"/PF02.xml"));
                 bundle.setId(UUID.randomUUID().toString());
-                onFhirBundle(new BundlesEvent(Collections.singletonList(bundle)));
+                onFhirBundle(new BundlesEvent(Collections.singletonList(bundle), senderSession, ""));
 
                 Bundle bundle03 = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder+"/PF03.xml"));
                 bundle03.setId(UUID.randomUUID().toString());
@@ -145,11 +146,11 @@ public class Websocket {
                 Bundle bundle05 = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder+"/PF05.xml"));
                 bundle05.setId(UUID.randomUUID().toString());
 
-                onFhirBundle(new BundlesEvent(Arrays.asList(bundle03, bundle04, bundle05)));
+                onFhirBundle(new BundlesEvent(Arrays.asList(bundle03, bundle04, bundle05), senderSession, ""));
 
                 bundle = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder+"/PF07.xml"));
                 bundle.setId(UUID.randomUUID().toString());
-                onFhirBundle(new BundlesEvent(Collections.singletonList(bundle)));
+                onFhirBundle(new BundlesEvent(Collections.singletonList(bundle), senderSession, ""));
 
                 Bundle bundle08_1 = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder+"/PF08_1.xml"));
                 bundle08_1.setId(UUID.randomUUID().toString());
