@@ -1,5 +1,6 @@
 package health.ere.ps.service.connector.provider;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -10,6 +11,11 @@ public class DefaultConnectorServicesProvider extends AbstractConnectorServicesP
 
     @Inject
     UserConfig userConfig;
+
+    @PostConstruct
+    void init() {
+        initializeServices();
+    }
 
     @Override
     public UserConfig getUserConfig() {

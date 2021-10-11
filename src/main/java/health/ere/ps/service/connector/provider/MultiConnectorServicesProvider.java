@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
 import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureServicePortType;
@@ -22,6 +23,11 @@ public class MultiConnectorServicesProvider {
 
     @Inject
     DefaultConnectorServicesProvider defaultConnectorServicesProvider;
+
+    @Inject
+    Event<Exception> eventException;
+
+
     Map<UserConfig,SingleConnectorServicesProvider> singleConnectorServicesProvider = new HashMap<>();
 
     public CardServicePortType getCardServicePortType(UserConfig userConfig) {
@@ -30,7 +36,14 @@ public class MultiConnectorServicesProvider {
     }
 
     private AbstractConnectorServicesProvider getSingleConnectorServicesProvider(UserConfig userConfig) {
-        return userConfig == null ? defaultConnectorServicesProvider : singleConnectorServicesProvider.get(userConfig);
+        if(userConfig == null) {
+            return defaultConnectorServicesProvider;
+        } else {
+            if(!singleConnectorServicesProvider.containsKey(userConfig)) {
+                singleConnectorServicesProvider.put(userConfig, new SingleConnectorServicesProvider(userConfig, eventException));
+            }
+            return singleConnectorServicesProvider.get(userConfig);
+        }
     }
 
     public CertificateServicePortType getCertificateService(UserConfig userConfig) {
@@ -59,6 +72,14 @@ public class MultiConnectorServicesProvider {
     }
 
     public ContextType getContextType(UserConfig userConfig) {
-        return null;
+        if(userConfig == null) {
+            return defaultConnectorServicesProvider.getContextType();
+        }
+        ContextType contextType = new ContextType();
+        contextType.setMandantId(userConfig.getMandantId());
+        contextType.setClientSystemId(userConfig.getClientSystemId());
+        contextType.setWorkplaceId(userConfig.getWorkplaceId());
+        contextType.setUserId(userConfig.getUserId());
+        return contextType;
     }
 }

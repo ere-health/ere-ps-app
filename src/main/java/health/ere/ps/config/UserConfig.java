@@ -55,7 +55,7 @@ public class UserConfig {
     void init() {
         updateProperties();
     }
-
+    
     public UserConfig() {
     }
 

@@ -33,7 +33,7 @@ public class ERezeptWorkflowResource {
     @POST
     @Path("/task")
     public Response createERezeptTask(@HeaderParam("accept") String accept) {
-        Task task = eRezeptWorkflowService.createERezeptTask();
+        Task task = eRezeptWorkflowService.createERezeptTask(null);
         if("application/xml".equals(accept)) {
             return Response.ok().entity(xmlParser.encodeResourceToString(task)).type(MediaType.APPLICATION_XML).build();
         } else {
@@ -52,14 +52,14 @@ public class ERezeptWorkflowResource {
     @POST
     @Path("/update")
     public Response updateERezeptTask(UpdateERezept updateERezept) {
-        eRezeptWorkflowService.updateERezeptTask(updateERezept.getTaskId(), updateERezept.getAccessCode(), Base64.getDecoder().decode(updateERezept.getSignedBytes()));
+        eRezeptWorkflowService.updateERezeptTask(updateERezept.getTaskId(), updateERezept.getAccessCode(), Base64.getDecoder().decode(updateERezept.getSignedBytes()), null);
         return Response.ok().build();
     }
 
     @POST
     @Path("/abort")
     public Response postUserId(AbortERezept abortERezept) {
-        eRezeptWorkflowService.abortERezeptTask(abortERezept.getTaskId(), abortERezept.getAccessCode());
+        eRezeptWorkflowService.abortERezeptTask(null, abortERezept.getTaskId(), abortERezept.getAccessCode());
         return Response.ok().build();
     }
 

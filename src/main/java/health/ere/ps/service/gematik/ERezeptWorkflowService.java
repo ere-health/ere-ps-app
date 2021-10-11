@@ -184,7 +184,7 @@ public class ERezeptWorkflowService {
         log.info(String.format("Getting access codes for %d bundles.",
                 bundles.size()));
 
-        List<BundleWithAccessCodeOrThrowable> unflatten = createMultipleERezeptsOnPrescriptionServer(bundles, signAndUploadBundlesEvent.getReplyTo(), signAndUploadBundlesEvent.getId());
+        List<BundleWithAccessCodeOrThrowable> unflatten = createMultipleERezeptsOnPrescriptionServer(bundles, signAndUploadBundlesEvent.getRuntimeConfig(), signAndUploadBundlesEvent.getReplyTo(), signAndUploadBundlesEvent.getId());
         Iterator<BundleWithAccessCodeOrThrowable> it = unflatten.iterator();
         // unflatten bundles again
         for(int i = 0;i<listOfListOfBundles.size();i++) {
@@ -202,11 +202,11 @@ public class ERezeptWorkflowService {
     }
 
     public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(List<Bundle> bundles) {
-        return createMultipleERezeptsOnPrescriptionServer(bundles, null, null);
+        return createMultipleERezeptsOnPrescriptionServer(bundles, null, null, null);
     }
 
-    public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(List<Bundle> bundles, Session replyTo, String replyToMessageId) {
-        return createMultipleERezeptsOnPrescriptionServer(bundles, false, replyTo, replyToMessageId);
+    public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(List<Bundle> bundles, RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId) {
+        return createMultipleERezeptsOnPrescriptionServer(bundles, false, runtimeConfig, replyTo, replyToMessageId);
     }
 
     /**
@@ -214,13 +214,13 @@ public class ERezeptWorkflowService {
      * <p>
      * When an error is thrown it create an object that contains this error.
      */
-    public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(List<Bundle> bundles, boolean comfortSignature, Session replyTo, String replyToMessageId) {
+    public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(List<Bundle> bundles, boolean comfortSignature, RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId) {
         List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodes = new ArrayList<>();
         List<Task> tasks = new ArrayList<>();
         for (Bundle bundle : bundles) {
             // Example: src/test/resources/gematik/Task-4711.xml
             try {
-                Task task = createERezeptTask();
+                Task task = createERezeptTask(runtimeConfig);
                 tasks.add(task);
                 bundleWithAccessCodes.add(new BundleWithAccessCodeOrThrowable());
             } catch (Throwable t) {
@@ -248,7 +248,7 @@ public class ERezeptWorkflowService {
             i++;
         }
         try {
-            List<SignResponse> signedDocuments = signBundleWithIdentifiers(bundles, false, replyTo, replyToMessageId);
+            List<SignResponse> signedDocuments = signBundleWithIdentifiers(bundles, false, runtimeConfig, replyTo, replyToMessageId);
             i = 0;
             for(SignResponse signedDocument : signedDocuments) {
                 BundleWithAccessCodeOrThrowable bundleWithAccessCode = bundleWithAccessCodes.get(i);
@@ -258,7 +258,7 @@ public class ERezeptWorkflowService {
                         byte[] signedBundle = signedDocument.getSignatureObject().getBase64Signature().getValue();
                         bundleWithAccessCode.setSignedBundle(signedBundle);
                         updateERezeptTask(task, bundleWithAccessCode.getAccessCode(),
-                            signedBundle);
+                            signedBundle, runtimeConfig);
                     }
                 } catch(Throwable t) {
                     bundleWithAccessCode.setThrowable(t);
@@ -274,7 +274,7 @@ public class ERezeptWorkflowService {
 
     public BundleWithAccessCodeOrThrowable createERezeptOnPrescriptionServer(Bundle bundle)
             throws ERezeptWorkflowException {
-        return createERezeptOnPrescriptionServer(bundle, null, null);
+        return createERezeptOnPrescriptionServer(bundle, null, null, null);
     }
 
     /**
@@ -287,19 +287,19 @@ public class ERezeptWorkflowService {
      * @return
      * @throws ERezeptWorkflowException
      */
-    public BundleWithAccessCodeOrThrowable createERezeptOnPrescriptionServer(Bundle bundle, Session replyTo, String replyToMessageId)
+    public BundleWithAccessCodeOrThrowable createERezeptOnPrescriptionServer(Bundle bundle, RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId)
             throws ERezeptWorkflowException {
-        requestNewAccessTokenIfNecessary(replyTo, replyToMessageId);
+        requestNewAccessTokenIfNecessary(runtimeConfig, replyTo, replyToMessageId);
         
-        log.fine("Bearer Token: " + bearerToken);
+        log.fine("Bearer Token: " + bearerToken.get(runtimeConfig));
 
         // Example: src/test/resources/gematik/Task-4711.xml
-        Task task = createERezeptTask();
+        Task task = createERezeptTask(runtimeConfig);
 
         // Example:
         // src/test/resources/gematik/Bundle-4fe2013d-ae94-441a-a1b1-78236ae65680.xml
         BundleWithAccessCodeOrThrowable bundleWithAccessCode = updateBundleWithTask(task, bundle);
-        SignResponse signedDocument = signBundleWithIdentifiers(bundleWithAccessCode.getBundle(), replyTo, replyToMessageId);
+        SignResponse signedDocument = signBundleWithIdentifiers(bundleWithAccessCode.getBundle(), runtimeConfig, replyTo, replyToMessageId);
         try {
             if(signedDocument == null) {
                 bundleWithAccessCode.setThrowable(new RuntimeException("Could not get signed document. Please check the logs."));
@@ -307,7 +307,7 @@ public class ERezeptWorkflowService {
                 byte[] signedBundle = signedDocument.getSignatureObject().getBase64Signature().getValue();
                 bundleWithAccessCode.setSignedBundle(signedBundle);
                 updateERezeptTask(task.getIdElement().getIdPart(), bundleWithAccessCode.getAccessCode(),
-                    signedBundle, true, replyTo, replyToMessageId);
+                    signedBundle, true, runtimeConfig, replyTo, replyToMessageId);
             }
         } catch(Exception e) {
             bundleWithAccessCode.setThrowable(e);
@@ -316,23 +316,27 @@ public class ERezeptWorkflowService {
         return bundleWithAccessCode;
     }
 
-    public void updateERezeptTask(Task task, String accessCode, byte[] signedBytes) {
-        updateERezeptTask(task.getIdElement().getIdPart(), accessCode, signedBytes);
+    public void updateERezeptTask(Task task, String accessCode, byte[] signedBytes){
+        updateERezeptTask(task.getIdElement().getIdPart(), accessCode, signedBytes, null);
     }
 
-    public void updateERezeptTask(String taskId, String accessCode, byte[] signedBytes) {
-        updateERezeptTask(taskId, accessCode, signedBytes, true);
+    public void updateERezeptTask(Task task, String accessCode, byte[] signedBytes, RuntimeConfig runtimeConfig) {
+        updateERezeptTask(task.getIdElement().getIdPart(), accessCode, signedBytes, runtimeConfig);
     }
 
-    public void updateERezeptTask(String taskId, String accessCode, byte[] signedBytes, boolean firstTry) {
-        updateERezeptTask(taskId, accessCode, signedBytes, firstTry, null, null);
+    public void updateERezeptTask(String taskId, String accessCode, byte[] signedBytes, RuntimeConfig runtimeConfig) {
+        updateERezeptTask(taskId, accessCode, signedBytes, true, runtimeConfig);
+    }
+
+    public void updateERezeptTask(String taskId, String accessCode, byte[] signedBytes, boolean firstTry, RuntimeConfig runtimeConfig) {
+        updateERezeptTask(taskId, accessCode, signedBytes, firstTry, runtimeConfig, null, null);
     }
 
     /**
      * This function adds the E-Rezept to the previously created task.
      */
-    public void updateERezeptTask(String taskId, String accessCode, byte[] signedBytes, boolean firstTry, Session replyTo, String replyToMessageId) {
-        requestNewAccessTokenIfNecessary(replyTo, replyToMessageId);
+    public void updateERezeptTask(String taskId, String accessCode, byte[] signedBytes, boolean firstTry, RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId) {
+        requestNewAccessTokenIfNecessary(runtimeConfig, replyTo, replyToMessageId);
         Parameters parameters = new Parameters();
         ParametersParameterComponent ePrescriptionParameter = new ParametersParameterComponent();
         ePrescriptionParameter.setName("ePrescription");
@@ -345,7 +349,7 @@ public class ERezeptWorkflowService {
         try (Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task")
                 .path("/" + taskId).path("/$activate").request()
                 .header("User-Agent", appConfig.getUserAgent())
-                .header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
+                .header("Authorization", "Bearer " + bearerToken.get(runtimeConfig)).header("X-AccessCode", accessCode)
                 .post(Entity.entity(fhirContext.newXmlParser().encodeResourceToString(parameters),
                         "application/fhir+xml; charset=utf-8"))) {
 
@@ -355,7 +359,7 @@ public class ERezeptWorkflowService {
             if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
                 if(firstTry) {
                     log.warning("Was not able to $activate on first try. Status:" +response.getStatus()+" Response: " + taskString);
-                    updateERezeptTask(taskId, accessCode, signedBytes, false, replyTo, replyToMessageId);
+                    updateERezeptTask(taskId, accessCode, signedBytes, false, runtimeConfig, replyTo, replyToMessageId);
                 } else {
                     throw new WebApplicationException("Error on "+appConfig.getPrescriptionServiceURL()+" "+taskString, response.getStatus());
                 }
@@ -388,6 +392,10 @@ public class ERezeptWorkflowService {
 
     public SignResponse signBundleWithIdentifiers(Bundle bundle, RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId) throws ERezeptWorkflowException {
         return signBundleWithIdentifiers(bundle, false, runtimeConfig, replyTo, replyToMessageId);
+    }
+
+    public SignResponse signBundleWithIdentifiers(Bundle bundle, boolean wait10secondsAfterJobNumber) throws ERezeptWorkflowException {
+        return signBundleWithIdentifiers(bundle, wait10secondsAfterJobNumber, null);
     }
 
     public SignResponse signBundleWithIdentifiers(Bundle bundle, boolean wait10secondsAfterJobNumber, RuntimeConfig runtimeConfig) throws ERezeptWorkflowException  {
@@ -461,7 +469,7 @@ public class ERezeptWorkflowService {
                     log.log(Level.SEVERE, "Could not wait", e);
                 }
             }
-            String signatureServiceCardHandle = getSignatureServiceCardHandle(runtimeConfig);;
+            String signatureServiceCardHandle = getSignatureServiceCardHandle(runtimeConfig);
             if ("PTV4+".equals(runtimeConfig != null && runtimeConfig.getConnectorVersion() != null ? runtimeConfig.getConnectorVersion() : userConfig.getConnectorVersion())) {
                 List<de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest> signRequestsV755 = signRequests.stream().map(signRequest -> {
                     de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest signRequestV755 = new de.gematik.ws.conn.signatureservice.v7_5_5.SignRequest();
@@ -587,7 +595,11 @@ public class ERezeptWorkflowService {
     }
 
     public Task createERezeptTask() {
-        return createERezeptTask(true);
+        return createERezeptTask(null);
+    }
+
+    public Task createERezeptTask(RuntimeConfig runtimeConfig) {
+        return createERezeptTask(true, runtimeConfig);
     }
 
     /**
@@ -596,7 +608,7 @@ public class ERezeptWorkflowService {
      *
      * @return
      */
-    public Task createERezeptTask(boolean firstTry) {
+    public Task createERezeptTask(boolean firstTry, RuntimeConfig runtimeConfig) {
         requestNewAccessTokenIfNecessary();
         // https://github.com/gematik/api-erp/blob/master/docs/erp_bereitstellen.adoc#e-rezept-erstellen
         // POST to https://prescriptionserver.telematik/Task/$create
@@ -614,14 +626,14 @@ public class ERezeptWorkflowService {
 
         try (Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task/$create").request()
                 .header("User-Agent", appConfig.getUserAgent())
-                .header("Authorization", "Bearer " + bearerToken)
+                .header("Authorization", "Bearer " + bearerToken.get(runtimeConfig))
                 .post(Entity.entity(parameterString, "application/fhir+xml; charset=utf-8"))) {
 
             String taskString = response.readEntity(String.class);
 
             // if this was the first try, try again, this will request a new bearer token
             if(firstTry && response.getStatus() == 401) {
-                createERezeptTask(false);
+                createERezeptTask(false, runtimeConfig);
             }
 
             if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
@@ -632,15 +644,19 @@ public class ERezeptWorkflowService {
         }
     }
 
+    public void abortERezeptTask(String taskId, String accessCode) {
+        abortERezeptTask(null, taskId, accessCode);
+    }
+
     /**
      * This function creates an empty task based on workflow 160 (Muster 16) on the
      * prescription server.
      *
      * @return
      */
-    public void abortERezeptTask(String taskId, String accessCode) {
+    public void abortERezeptTask(RuntimeConfig runtimeConfig, String taskId, String accessCode) {
         try (Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task").path("/" + taskId).path("/$abort")
-                .request().header("User-Agent", appConfig.getUserAgent()).header("Authorization", "Bearer " + bearerToken).header("X-AccessCode", accessCode)
+                .request().header("User-Agent", appConfig.getUserAgent()).header("Authorization", "Bearer " + bearerToken.get(runtimeConfig)).header("X-AccessCode", accessCode)
                 .post(Entity.entity("", "application/fhir+xml; charset=utf-8"))) {
             String taskString = response.readEntity(String.class);
             // if it is not successful and it was found
@@ -658,11 +674,11 @@ public class ERezeptWorkflowService {
     }
 
     /**
-     * Requests a new bearerToken if the current one is expired
+     * Requests a new userConfig if the current one is expired
      */
     public void requestNewAccessTokenIfNecessary(RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId) {
         if (StringUtils.isEmpty(getBearerToken(runtimeConfig)) || isExpired(bearerToken.get(runtimeConfig))) {
-            bearerToken.put(runtimeConfig, bearerTokenService.requestBearerToken(replyTo, replyToMessageId));
+            bearerToken.put(runtimeConfig, bearerTokenService.requestBearerToken(runtimeConfig, replyTo, replyToMessageId));
         }
     }
 
@@ -704,7 +720,7 @@ public class ERezeptWorkflowService {
             AbortTaskStatus abortTaskStatus = new AbortTaskStatus(abortTaskEntry);
 
             try {
-                abortERezeptTask(abortTaskEntry.getId(), abortTaskEntry.getAccessCode());
+                abortERezeptTask(abortTasksEvent.getRuntimeConfig(), abortTasksEvent.getId(), abortTaskEntry.getAccessCode());
                 abortTaskStatus.setStatus(AbortTaskStatus.Status.OK);
             } catch (Throwable t) {
                 abortTaskStatus.setThrowable(t);
@@ -722,6 +738,11 @@ public class ERezeptWorkflowService {
     public void onActivateComfortSignatureEvent(@ObservesAsync ActivateComfortSignatureEvent activateComfortSignatureEvent) {
         String userId = activateComfortSignature(activateComfortSignatureEvent.getRuntimeConfig(), activateComfortSignatureEvent.getReplyTo(), activateComfortSignatureEvent.getReplyToMessageId());
         onGetSignatureModeEvent(new GetSignatureModeEvent(activateComfortSignatureEvent.getReplyTo(), activateComfortSignatureEvent.getId()), userId);
+    }
+
+
+    public String activateComfortSignature() {
+        return activateComfortSignature(null);
     }
 
     /**
@@ -754,7 +775,7 @@ public class ERezeptWorkflowService {
 
     private String getSignatureServiceCardHandle(RuntimeConfig runtimeConfig) throws ConnectorCardsException {
         String signatureServiceCardHandle;
-        signatureServiceCardHandle = runtimeConfig.getEHBAHandle() != null ? runtimeConfig.getEHBAHandle() : connectorCardsService.getConnectorCardHandle(
+        signatureServiceCardHandle = (runtimeConfig != null && runtimeConfig.getEHBAHandle() != null) ? runtimeConfig.getEHBAHandle() : connectorCardsService.getConnectorCardHandle(
                 ConnectorCardsService.CardHandleType.HBA);
         return signatureServiceCardHandle;
     }

@@ -48,8 +48,8 @@ public class SmcbAuthenticatorService {
 
     private X509Certificate x509Certificate;
 
-    public String signIdpChallenge(Pair<String, String> jwtPair) {
-        JsonWebSignatureWithExternalAuthentication jws = new JsonWebSignatureWithExternalAuthentication();
+    public String signIdpChallenge(Pair<String, String> jwtPair, RuntimeConfig runtimeConfig) {
+        JsonWebSignatureWithExternalAuthentication jws = new JsonWebSignatureWithExternalAuthentication(runtimeConfig);
         jws.setPayload(new String(Base64.getUrlDecoder().decode(jwtPair.getRight())));
 
         Optional.ofNullable(jwtPair.getLeft())
@@ -81,6 +81,12 @@ public class SmcbAuthenticatorService {
      */
     private class JsonWebSignatureWithExternalAuthentication extends JsonWebSignature {
 
+        RuntimeConfig runtimeConfig;
+
+        public JsonWebSignatureWithExternalAuthentication(RuntimeConfig runtimeConfig) {
+            this.runtimeConfig = runtimeConfig;
+        }
+
         /**
          * Compute the JWS signature.
          *
@@ -105,9 +111,12 @@ public class SmcbAuthenticatorService {
                 byte[] signatureBytes;
 
                 try {
+                    String smcbCardHandle = (this.runtimeConfig != null && this.runtimeConfig.getSMCBHandle() != null) ?
+                        this.runtimeConfig.getSMCBHandle() : connectorCardsService.getConnectorCardHandle(
+                        ConnectorCardsService.CardHandleType.SMC_B);
+
                     signatureBytes = externalAuthenticate(encodedhash,
-                            connectorCardsService.getConnectorCardHandle(
-                                    ConnectorCardsService.CardHandleType.SMC_B));
+                            smcbCardHandle);
                 } catch (ConnectorCardsException e) {
                     throw new IllegalStateException("Cannot access the SMC-B card-handle info to " +
                             "compute the json web token signature!", e);
@@ -117,7 +126,7 @@ public class SmcbAuthenticatorService {
         }
 
         public byte[] externalAuthenticate(byte[] sha265Hash, String smcbCardHandle) throws JoseException {
-            return externalAuthenticate(sha265Hash, smcbCardHandle, null);
+            return externalAuthenticate(sha265Hash, smcbCardHandle, this.runtimeConfig);
         }
 
         public byte[] externalAuthenticate(byte[] sha265Hash, String smcbCardHandle, RuntimeConfig runtimeConfig) throws JoseException {
@@ -190,6 +199,7 @@ public class SmcbAuthenticatorService {
         Holder<Status> statusHolder = new Holder<>();
         Holder<SignatureObject> signatureObjectHolder = new Holder<>();
         ExternalAuthenticateResponse response = new ExternalAuthenticateResponse();
+
         try {
             connectorServicesProvider.getAuthSignatureServicePortType(runtimeConfig).externalAuthenticate(cardHandle, contextType, optionalInputs,
                     binaryDocumentType, statusHolder, signatureObjectHolder);

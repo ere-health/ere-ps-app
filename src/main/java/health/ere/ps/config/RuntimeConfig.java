@@ -2,6 +2,9 @@ package health.ere.ps.config;
 
 import java.util.Objects;
 
+import javax.enterprise.inject.Alternative;
+
+@Alternative
 public class RuntimeConfig extends UserConfig {
     protected String eHBAHandle;
     protected String SMCBHandle;  
