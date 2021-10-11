@@ -5,6 +5,8 @@ import javax.websocket.Session;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import health.ere.ps.config.RuntimeConfig;
+
 public abstract class AbstractEvent {
     
     @JsonbTransient
@@ -18,6 +20,10 @@ public abstract class AbstractEvent {
     @JsonbTransient
     @JsonIgnore
     protected String replyToMessageId;
+
+    @JsonbTransient
+    @JsonIgnore
+    protected RuntimeConfig runtimeConfig;
 
     public String getId() {
         return this.id;
@@ -41,5 +47,13 @@ public abstract class AbstractEvent {
 
     public void setReplyToMessageId(String replyToMessageId) {
         this.replyToMessageId = replyToMessageId;
+    }
+
+    public RuntimeConfig getRuntimeConfig() {
+        return this.runtimeConfig;
+    }
+
+    public void setRuntimeConfig(RuntimeConfig runtimeConfig) {
+        this.runtimeConfig = runtimeConfig;
     }
 }
