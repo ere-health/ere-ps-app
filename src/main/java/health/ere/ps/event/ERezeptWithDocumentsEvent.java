@@ -6,14 +6,14 @@ import javax.websocket.Session;
 
 import health.ere.ps.model.pdf.ERezeptDocument;
 
-public class ERezeptDocumentsEvent extends AbstractEvent {
+public class ERezeptWithDocumentsEvent extends AbstractEvent {
     private final List<ERezeptDocument> eRezeptDocuments;
 
-    public ERezeptDocumentsEvent(List<ERezeptDocument> eRezeptDocuments) {
+    public ERezeptWithDocumentsEvent(List<ERezeptDocument> eRezeptDocuments) {
         this.eRezeptDocuments = eRezeptDocuments;
     }
 
-    public ERezeptDocumentsEvent(List<ERezeptDocument> eRezeptDocuments, Session replyTo, String replyToMessageId) {
+    public ERezeptWithDocumentsEvent(List<ERezeptDocument> eRezeptDocuments, Session replyTo, String replyToMessageId) {
         this(eRezeptDocuments);
         this.replyTo = replyTo;
         this.replyToMessageId = replyToMessageId;

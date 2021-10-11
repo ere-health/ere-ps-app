@@ -24,7 +24,7 @@ import org.mockito.Mockito;
 
 import ca.uhn.fhir.context.FhirContext;
 import health.ere.ps.event.BundlesWithAccessCodeEvent;
-import health.ere.ps.event.ERezeptDocumentsEvent;
+import health.ere.ps.event.ERezeptWithDocumentsEvent;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.profile.DevelopmentTestProfile;
 import io.quarkus.test.junit.QuarkusTest;
@@ -74,7 +74,7 @@ public class DocumentServiceTest {
     public void onBundlesWithAccessCodes_respectsLimitOfMaxNumberOfMedicationsPerPrescription() {
         // GIVEN1
         int maxNumberOfMedicationsPerPrescription = 9;
-        Event<ERezeptDocumentsEvent> mockedEvent = Mockito.mock(Event.class);
+        Event<ERezeptWithDocumentsEvent> mockedEvent = Mockito.mock(Event.class);
         documentService.seteRezeptDocumentsEvent(mockedEvent);
 
         List<BundleWithAccessCodeOrThrowable> bundles = new ArrayList<>();

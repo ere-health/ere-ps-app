@@ -51,7 +51,7 @@ import health.ere.ps.event.AbortTasksStatusEvent;
 import health.ere.ps.event.ActivateComfortSignatureEvent;
 import health.ere.ps.event.BundlesEvent;
 import health.ere.ps.event.DeactivateComfortSignatureEvent;
-import health.ere.ps.event.ERezeptDocumentsEvent;
+import health.ere.ps.event.ERezeptWithDocumentsEvent;
 import health.ere.ps.event.EreLogNotificationEvent;
 import health.ere.ps.event.GetSignatureModeEvent;
 import health.ere.ps.event.GetSignatureModeResponseEvent;
@@ -360,7 +360,7 @@ public class Websocket {
         }
     }
 
-    public void onERezeptDocuments(@ObservesAsync ERezeptDocumentsEvent eRezeptDocumentsEvent) {
+    public void onERezeptDocuments(@ObservesAsync ERezeptWithDocumentsEvent eRezeptDocumentsEvent) {
         String jsonPayload = generateJson(eRezeptDocumentsEvent);
         ereLog.info("Sending prescription receipt payload to front-end: " +
                 jsonPayload);
@@ -375,7 +375,7 @@ public class Websocket {
                 });
     }
 
-    public String generateJson(ERezeptDocumentsEvent eRezeptDocumentsEvent) {
+    public String generateJson(ERezeptWithDocumentsEvent eRezeptDocumentsEvent) {
         if(removeSignatureFromMessage) {
             eRezeptDocumentsEvent.getERezeptWithDocuments().stream()
                 .flatMap(ezd -> ezd.getBundleWithAccessCodeOrThrowables().stream())

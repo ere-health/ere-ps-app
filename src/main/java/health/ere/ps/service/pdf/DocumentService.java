@@ -49,7 +49,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import ca.uhn.fhir.context.FhirContext;
 import health.ere.ps.event.BundlesWithAccessCodeEvent;
-import health.ere.ps.event.ERezeptDocumentsEvent;
+import health.ere.ps.event.ERezeptWithDocumentsEvent;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.model.pdf.ERezeptDocument;
 import health.ere.ps.websocket.ExceptionWithReplyToExcetion;
@@ -62,7 +62,7 @@ public class DocumentService {
     private final FhirContext ctx = FhirContext.forR4();
 
     @Inject
-    Event<ERezeptDocumentsEvent> eRezeptDocumentsEvent;
+    Event<ERezeptWithDocumentsEvent> eRezeptDocumentsEvent;
     @Inject
     Event<Exception> exceptionEvent;
 
@@ -194,7 +194,7 @@ public class DocumentService {
                     ERezeptDocument eRezeptDocument = new ERezeptDocument(subList, boas.size() > 0 ? boas.toByteArray() : null);
                 
                     log.info("Created prescription receipts");
-                    eRezeptDocumentsEvent.fireAsync(new ERezeptDocumentsEvent(List.of(eRezeptDocument),
+                    eRezeptDocumentsEvent.fireAsync(new ERezeptWithDocumentsEvent(List.of(eRezeptDocument),
                         bundlesWithAccessCodeEvent.getReplyTo(), bundlesWithAccessCodeEvent.getReplyToMessageId()));
                     log.info("Sending prescription receipts results.");
                 }
@@ -310,7 +310,7 @@ public class DocumentService {
      *
      * @param eRezeptDocumentsEvent mocked Event
      */
-    void seteRezeptDocumentsEvent(Event<ERezeptDocumentsEvent> eRezeptDocumentsEvent) {
+    void seteRezeptDocumentsEvent(Event<ERezeptWithDocumentsEvent> eRezeptDocumentsEvent) {
         this.eRezeptDocumentsEvent = eRezeptDocumentsEvent;
     }
 

@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import ca.uhn.fhir.context.FhirContext;
-import health.ere.ps.event.ERezeptDocumentsEvent;
+import health.ere.ps.event.ERezeptWithDocumentsEvent;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.model.pdf.ERezeptDocument;
 
@@ -55,7 +55,7 @@ class WebsocketTest {
 				getClass().getResourceAsStream("/examples_erezept/Erezept_template_2.xml"));
     list.add(new BundleWithAccessCodeOrThrowable(bundle, "MOCK_ACCESS_CODE"));
     ERezeptDocument eRezeptDocument = new ERezeptDocument(list, Files.readAllBytes(Paths.get("src/test/resources/document-service/0428d416-149e-48a4-977c-394887b3d85c.pdf")));
-      String json = websocket.generateJson(new ERezeptDocumentsEvent(List.of(eRezeptDocument)));
+      String json = websocket.generateJson(new ERezeptWithDocumentsEvent(List.of(eRezeptDocument)));
 
     Files.writeString(Paths.get("src/test/resources/websocket-messages/ERezeptDocuments.json"), json);
   }
