@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+   <meta charset="UTF-8">
+   <script type="text/javascript">
+       const ws = new WebSocket("ws://localhost:8080/websocket");
+       function executeWhenConnectionIsOpen() {
+           // expected requests stored in folder
+           // e.g. src/test/resources/websocket-messages/RequestSettings.json
+           const request = { type: "RequestSettings" };
+           ws.send(JSON.stringify(request));
+       }
+       // callback function when connected
+       ws.onopen = function () {
+           console.log("WebSocket opened");
+           executeWhenConnectionIsOpen();
+       }
+       // callback function for handling responses
+       ws.onmessage = function (response) {
+           // dump payload on console
+           console.log(JSON.parse(response.data));
+       };
+   </script>
+</head>
+<body>
+   <p>Hallo Welt!</p>
+</body>
+</html>
