@@ -56,6 +56,9 @@ public class RuntimeConfig extends UserConfig {
     }
 
     public void updateConfigurationsWithJsonObject(JsonObject object) {
+        if(object == null) {
+            return;
+        }
         JsonObject jsonObject = object.getJsonObject("runtimeConfig");
         if(jsonObject != null) {
             this.eHBAHandle = jsonObject.getString("eHBAHandle", null);
