@@ -853,6 +853,10 @@ public class ERezeptWorkflowService {
         deactivateComfortSignature(null, null, null);
     }
 
+    public void deactivateComfortSignature(RuntimeConfig runtimeConfig) {
+        deactivateComfortSignature(runtimeConfig, null, null);
+    }
+
     /**
      *
      */

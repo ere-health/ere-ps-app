@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import javax.enterprise.inject.Alternative;
 import javax.enterprise.inject.spi.CDI;
 import javax.json.JsonObject;
+import javax.servlet.http.HttpServletRequest;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -53,6 +54,20 @@ public class RuntimeConfig extends UserConfig {
     public RuntimeConfig(JsonObject object) {
         this();
         updateConfigurationsWithJsonObject(object);
+    }
+
+    public RuntimeConfig(HttpServletRequest httpServletRequest) {
+        this();
+        updateConfigurationsWithHttpServletRequest(httpServletRequest);
+    }
+
+    public void updateConfigurationsWithHttpServletRequest(HttpServletRequest httpServletRequest) {
+        if(httpServletRequest == null) {
+            return;
+        }
+        this.eHBAHandle = httpServletRequest.getHeader("X-eHBAHandle");
+        this.SMCBHandle = httpServletRequest.getHeader("X-SMCBHandle");
+        this.updateProperties(new UserConfigurations(httpServletRequest));
     }
 
     public void updateConfigurationsWithJsonObject(JsonObject object) {
