@@ -59,6 +59,8 @@ public abstract class AbstractEvent {
     }
 
     public void parseRuntimeConfig(JsonObject object) {
-        this.runtimeConfig = new RuntimeConfig(object);
+        if(object != null && object.getJsonObject("runtimeConfig") != null) {
+            this.runtimeConfig = new RuntimeConfig(object);
+        }
     }
 }
