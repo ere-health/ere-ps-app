@@ -1,5 +1,6 @@
 package health.ere.ps.event;
 
+import javax.json.JsonObject;
 import javax.json.bind.annotation.JsonbTransient;
 import javax.websocket.Session;
 
@@ -55,5 +56,9 @@ public abstract class AbstractEvent {
 
     public void setRuntimeConfig(RuntimeConfig runtimeConfig) {
         this.runtimeConfig = runtimeConfig;
+    }
+
+    public void parseRuntimeConfig(JsonObject object) {
+        this.runtimeConfig = new RuntimeConfig(object);
     }
 }

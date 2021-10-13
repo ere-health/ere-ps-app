@@ -2,6 +2,7 @@ package health.ere.ps.config;
 
 
 import java.util.Objects;
+import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -13,12 +14,11 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import health.ere.ps.event.config.UserConfigurationsUpdateEvent;
 import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.service.config.UserConfigurationService;
-import health.ere.ps.service.logging.EreLogger;
 
 @ApplicationScoped
 public class UserConfig {
 
-    private final static EreLogger log = EreLogger.getLogger(UserConfig.class);
+    private final static Logger log = Logger.getLogger(UserConfig.class.getName());
 
     @Inject
     UserConfigurationService configurationManagementService;
@@ -123,7 +123,7 @@ public class UserConfig {
         updateProperties(event.getConfigurations());
     }
 
-    private void updateProperties(UserConfigurations configurations) {
+    public void updateProperties(UserConfigurations configurations) {
         this.configurations = configurations;
     }
 

@@ -252,7 +252,7 @@ public class Websocket {
                 Bundle[] bundles = XmlPrescriptionProcessor.parseFromString(object.getString("payload"));
                 onFhirBundle(new BundlesEvent(Arrays.asList(bundles), senderSession, messageId));
             } else if ("AbortTasks".equals(object.getString("type"))) {
-                abortTasksEvent.fireAsync(new AbortTasksEvent(object.getJsonArray("payload"), senderSession, messageId));
+                abortTasksEvent.fireAsync(new AbortTasksEvent(object, senderSession, messageId));
             } else if ("ErixaEvent".equals(object.getString("type"))) {
                 ErixaEvent event = new ErixaEvent(object, senderSession, messageId);
                 erixaEvent.fireAsync(event);
@@ -304,7 +304,7 @@ public class Websocket {
         if(bundlesEvent.getReplyTo() != null) {
             localSessions.add(bundlesEvent.getReplyTo());
         } else {
-            localSessions = this.sessions;
+            localSessions = sessions;
         }
         localSessions.forEach(session -> session.getAsyncRemote().sendObject(
                 "{\"type\": \"Bundles\", \"payload\": " + bundlesString + ", \"replyToMessageId\": \""+bundlesEvent.getReplyToMessageId()+"\"}",
