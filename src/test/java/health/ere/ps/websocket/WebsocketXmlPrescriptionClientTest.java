@@ -31,6 +31,19 @@ public class WebsocketXmlPrescriptionClientTest {
     }
 
     @Test
+    public void testGetCardsWithRuntimeConfig() {
+
+        String jsonBundle;
+        try {
+            jsonBundle = new String(Files.readAllBytes(Paths.get("src/test/resources/websocket-messages/GetCards-With-RuntimeConfig.json")));
+            
+            sendMessage(jsonBundle);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
     @Disabled("This test case needs unpublished data")
     public void testXmlPrescription() {
 

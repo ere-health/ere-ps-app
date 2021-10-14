@@ -75,6 +75,8 @@ import health.ere.ps.event.AbortTasksStatusEvent;
 import health.ere.ps.event.ActivateComfortSignatureEvent;
 import health.ere.ps.event.BundlesWithAccessCodeEvent;
 import health.ere.ps.event.DeactivateComfortSignatureEvent;
+import health.ere.ps.event.GetCardsEvent;
+import health.ere.ps.event.GetCardsResponseEvent;
 import health.ere.ps.event.GetSignatureModeEvent;
 import health.ere.ps.event.GetSignatureModeResponseEvent;
 import health.ere.ps.event.ReadyToSignBundlesEvent;
@@ -122,6 +124,8 @@ public class ERezeptWorkflowService {
     Event<AbortTasksStatusEvent> abortTasksStatusEvent;
     @Inject
     Event<GetSignatureModeResponseEvent> getSignatureModeResponseEvent;
+    @Inject
+    Event<GetCardsResponseEvent> getCardsResponseEvent;
 
     private Client client;
     //In the future it should be managed automatically by the webclient, including its renewal
@@ -873,6 +877,17 @@ public class ERezeptWorkflowService {
             log.log(Level.WARNING, "Could not deactivate comfort signature", e);
             exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, replyTo, replyToMessageId));
         }
+    }
+
+    public void onGetCardsEvent(@ObservesAsync GetCardsEvent getCardsEvent) {
+        try {
+            GetCardsResponse getCardsResponse = getCards(getCardsEvent.getRuntimeConfig());
+            getCardsResponseEvent.fireAsync(new GetCardsResponseEvent(getCardsResponse, getCardsEvent.getReplyTo(), getCardsEvent.getId()));
+        } catch (de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage e) {
+            log.log(Level.WARNING, "Could not get cards", e);
+            exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, getCardsEvent.getReplyTo(), getCardsEvent.getId()));
+        }
+
     }
 
     public GetCardsResponse getCards()throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
