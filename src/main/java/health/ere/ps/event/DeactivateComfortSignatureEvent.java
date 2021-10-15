@@ -8,6 +8,7 @@ import javax.websocket.Session;
 public class DeactivateComfortSignatureEvent extends AbstractEvent {
 
     public DeactivateComfortSignatureEvent(JsonObject jsonObject) {
+        parseRuntimeConfig(jsonObject);
     }
 
     public DeactivateComfortSignatureEvent(JsonObject jsonObject, Session replyTo, String id) {

@@ -1,11 +1,7 @@
 package health.ere.ps.service.gematik;
 
 import static health.ere.ps.service.extractor.TemplateProfile.CGM_TURBO_MED;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
@@ -31,7 +27,6 @@ import java.util.NoSuchElementException;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
@@ -48,17 +43,13 @@ import org.hl7.fhir.r4.model.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
 import ca.uhn.fhir.parser.DataFormatException;
 import ca.uhn.fhir.parser.IParser;
-import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.signatureservice.v7.SignResponse;
-import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
 import health.ere.ps.config.AppConfig;
-import health.ere.ps.event.GetSignatureModeResponseEvent;
 import health.ere.ps.exception.gematik.ERezeptWorkflowException;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.model.idp.client.IdpTokenResult;
@@ -67,7 +58,6 @@ import health.ere.ps.profile.TitusTestProfile;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
-import health.ere.ps.service.connector.provider.ConnectorServicesProvider;
 import health.ere.ps.service.extractor.SVGExtractor;
 import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
 import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilder;
@@ -148,7 +138,7 @@ public class ERezeptWorkflowServiceTest {
         String cardHandle = connectorCardsService.getConnectorCardHandle(
                 ConnectorCardsService.CardHandleType.SMC_B);
 
-        X509Certificate x509Certificate = cardCertificateReaderService.retrieveSmcbCardCertificate(cardHandle);
+        X509Certificate x509Certificate = cardCertificateReaderService.retrieveSmcbCardCertificate(cardHandle, null);
 
         IdpTokenResult idpTokenResult = idpClient.login(x509Certificate);
 
@@ -215,7 +205,7 @@ public class ERezeptWorkflowServiceTest {
         String cardHandle = connectorCardsService.getConnectorCardHandle(
                 ConnectorCardsService.CardHandleType.SMC_B);
 
-        X509Certificate x509Certificate = cardCertificateReaderService.retrieveSmcbCardCertificate(cardHandle);
+        X509Certificate x509Certificate = cardCertificateReaderService.retrieveSmcbCardCertificate(cardHandle, null);
 
         IdpTokenResult idpTokenResult = idpClient.login(x509Certificate);
 

@@ -5,13 +5,13 @@ import javax.json.JsonObject;
 import javax.websocket.Session;
 
 
-public class ActivateComfortSignatureEvent extends AbstractEvent {
+public class GetCardsEvent extends AbstractEvent {
 
-    public ActivateComfortSignatureEvent(JsonObject jsonObject) {
+    public GetCardsEvent(JsonObject jsonObject) {
         parseRuntimeConfig(jsonObject);
     }
 
-    public ActivateComfortSignatureEvent(JsonObject object, Session replyTo, String id) {
+    public GetCardsEvent(JsonObject object, Session replyTo, String id) {
         this(object);
         this.replyTo = replyTo;
         this.id = id;

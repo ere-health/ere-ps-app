@@ -18,6 +18,7 @@ public class SignAndUploadBundlesEvent extends AbstractEvent {
     public List<List<Bundle>> listOfListOfBundles = new ArrayList<>();
 
     public SignAndUploadBundlesEvent(JsonObject jsonObject) {
+        parseRuntimeConfig(jsonObject);
         for (JsonValue jsonValue : jsonObject.getJsonArray("payload")) {
             List<Bundle> bundles = new ArrayList<>();
 

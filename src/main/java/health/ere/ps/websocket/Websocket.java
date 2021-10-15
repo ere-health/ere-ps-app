@@ -53,6 +53,8 @@ import health.ere.ps.event.BundlesEvent;
 import health.ere.ps.event.DeactivateComfortSignatureEvent;
 import health.ere.ps.event.ERezeptWithDocumentsEvent;
 import health.ere.ps.event.EreLogNotificationEvent;
+import health.ere.ps.event.GetCardsEvent;
+import health.ere.ps.event.GetCardsResponseEvent;
 import health.ere.ps.event.GetSignatureModeEvent;
 import health.ere.ps.event.GetSignatureModeResponseEvent;
 import health.ere.ps.event.HTMLBundlesEvent;
@@ -92,6 +94,9 @@ public class Websocket {
     Event<DeactivateComfortSignatureEvent> deactivateComfortSignatureEvent;
     @Inject
     Event<GetSignatureModeEvent> getSignatureModeEvent;
+
+    @Inject
+    Event<GetCardsEvent> getCardsEvent;
     
     @Inject
     PrescriptionBundleValidator prescriptionBundleValidator;
@@ -252,7 +257,7 @@ public class Websocket {
                 Bundle[] bundles = XmlPrescriptionProcessor.parseFromString(object.getString("payload"));
                 onFhirBundle(new BundlesEvent(Arrays.asList(bundles), senderSession, messageId));
             } else if ("AbortTasks".equals(object.getString("type"))) {
-                abortTasksEvent.fireAsync(new AbortTasksEvent(object.getJsonArray("payload"), senderSession, messageId));
+                abortTasksEvent.fireAsync(new AbortTasksEvent(object, senderSession, messageId));
             } else if ("ErixaEvent".equals(object.getString("type"))) {
                 ErixaEvent event = new ErixaEvent(object, senderSession, messageId);
                 erixaEvent.fireAsync(event);
@@ -265,6 +270,9 @@ public class Websocket {
             } else if ("GetSignatureMode".equals(object.getString("type"))) {
                 GetSignatureModeEvent event = new GetSignatureModeEvent(object, senderSession, messageId);
                 getSignatureModeEvent.fireAsync(event);
+            } else if ("GetCards".equals(object.getString("type"))) {
+                GetCardsEvent event = new GetCardsEvent(object, senderSession, messageId);
+                getCardsEvent.fireAsync(event);
             }  else if ("RequestSettings".equals(object.getString("type"))) {
                 UserConfigurations userConfigurations = userConfigurationService.getConfig();
                 String payload = jsonbFactory.toJson(userConfigurations);
@@ -293,6 +301,7 @@ public class Websocket {
                 readyToSignBundlesEvent.fireAsync(new ReadyToSignBundlesEvent(object, senderSession, messageId));
             } 
         } catch(Exception ex) {
+            ereLog.warn("Could not process message", ex);
             onException(new ExceptionWithReplyToExcetion(ex, senderSession, messageId));
         }
     }
@@ -304,7 +313,7 @@ public class Websocket {
         if(bundlesEvent.getReplyTo() != null) {
             localSessions.add(bundlesEvent.getReplyTo());
         } else {
-            localSessions = this.sessions;
+            localSessions = sessions;
         }
         localSessions.forEach(session -> session.getAsyncRemote().sendObject(
                 "{\"type\": \"Bundles\", \"payload\": " + bundlesString + ", \"replyToMessageId\": \""+bundlesEvent.getReplyToMessageId()+"\"}",
@@ -328,6 +337,19 @@ public class Websocket {
                 });
     }
 
+    public void onGetCardsResponseEvent(@ObservesAsync GetCardsResponseEvent getCardsResponseEvent) {
+        assureChromeIsOpen();
+        String abortTasksStatusString = generateJson(getCardsResponseEvent);
+        
+        getCardsResponseEvent.getReplyTo().getAsyncRemote().sendObject(
+                "{\"type\": \"GetCardsResponse\", \"payload\": " + abortTasksStatusString + ", \"replyToMessageId\": \""+getCardsResponseEvent.getReplyToMessageId()+"\"}",
+                result -> {
+                    if (!result.isOK()) {
+                        ereLog.fatal("Unable to send bundlesEvent: " + result.getException());
+                    }
+                });
+    }
+
     public void onGetSignatureModeResponseEvent(@ObservesAsync GetSignatureModeResponseEvent getSignatureModeResponseEvent) {
         assureChromeIsOpen();
         String abortTasksStatusString = generateJson(getSignatureModeResponseEvent);
@@ -340,8 +362,12 @@ public class Websocket {
                 });
     }
 
-    private String generateJson(GetSignatureModeResponseEvent getSignatureModeResponseEvent) {
+    String generateJson(GetSignatureModeResponseEvent getSignatureModeResponseEvent) {
         return jsonbFactory.toJson(getSignatureModeResponseEvent);
+    }
+
+    String generateJson(GetCardsResponseEvent getCardsResponseEvent) {
+        return jsonbFactory.toJson(getCardsResponseEvent);
     }
 
     String generateJson(AbortTasksStatusEvent abortTasksStatusEvent) {

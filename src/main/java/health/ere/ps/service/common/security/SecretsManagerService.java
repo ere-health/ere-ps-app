@@ -89,7 +89,7 @@ public class SecretsManagerService {
         }
     }
 
-    private void setUpSSLContext(String connectorTlsCertAuthStorePwd, InputStream certificateInputStream)
+    public void setUpSSLContext(String connectorTlsCertAuthStorePwd, InputStream certificateInputStream)
             throws NoSuchAlgorithmException, KeyStoreException, IOException, CertificateException,
             UnrecoverableKeyException, KeyManagementException {
         sslContext = SSLContext.getInstance(SslContextType.TLS.getSslContextType());

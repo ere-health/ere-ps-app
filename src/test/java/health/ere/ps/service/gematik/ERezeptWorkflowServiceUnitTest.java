@@ -1,6 +1,7 @@
 package health.ere.ps.service.gematik;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -16,8 +17,7 @@ import health.ere.ps.event.ActivateComfortSignatureEvent;
 import health.ere.ps.event.GetSignatureModeResponseEvent;
 import health.ere.ps.exception.gematik.ERezeptWorkflowException;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
-import health.ere.ps.service.connector.provider.ConnectorServicesProvider;
-import health.ere.ps.service.gematik.ERezeptWorkflowService;
+import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 
 public class ERezeptWorkflowServiceUnitTest {
 
@@ -28,13 +28,13 @@ public class ERezeptWorkflowServiceUnitTest {
         ConnectorCardsService connectorCardsService = mock(ConnectorCardsService.class);
         eRezeptWorkflowServiceUnit.connectorCardsService = connectorCardsService;
 
-        ConnectorServicesProvider connectorServicesProvider = mock(ConnectorServicesProvider.class);
+        MultiConnectorServicesProvider connectorServicesProvider = mock(MultiConnectorServicesProvider.class);
         eRezeptWorkflowServiceUnit.connectorServicesProvider = connectorServicesProvider;
 
-        when(connectorServicesProvider.getContextType()).thenReturn(new ContextType());
+        when(connectorServicesProvider.getContextType(any())).thenReturn(new ContextType());
 
         SignatureServicePortTypeV755 signatureServicePortTypeV755 = mock(SignatureServicePortTypeV755.class);
-        when(connectorServicesProvider.getSignatureServicePortTypeV755()).thenReturn(signatureServicePortTypeV755);
+        when(connectorServicesProvider.getSignatureServicePortTypeV755(any())).thenReturn(signatureServicePortTypeV755);
 
         Event<GetSignatureModeResponseEvent> getSignatureModeResponseEvent = (Event<GetSignatureModeResponseEvent>) mock(Event.class);
         eRezeptWorkflowServiceUnit.getSignatureModeResponseEvent = getSignatureModeResponseEvent;
