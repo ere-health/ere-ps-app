@@ -31,7 +31,7 @@ public class WebsocketXmlPrescriptionClientTest {
     }
 
     @Test
-    // @Disabled
+    @Disabled
     public void testXmlPrescriptionSignAndUploadBundlesWithRuntimeConfig() {
 
         String jsonBundle;

@@ -31,19 +31,23 @@ public class RuntimeConfig extends UserConfig {
     }
 
     public void copyValuesFromUserConfig(UserConfig userConfig) {
-        this.defaultConnectorBaseURI = userConfig.getConnectorBaseURL();
+        try {
+            this.defaultConnectorBaseURI = userConfig.getConnectorBaseURL();
 
-        this.defaultMandantId = userConfig.getMandantId();
-        this.defaultClientSystemId = userConfig.getClientSystemId();
-        this.defaultWorkplaceId = userConfig.getWorkplaceId();
-        this.defaultUserId = userConfig.getUserId();
-        
-        this.defaultConnectorVersion = userConfig.getConnectorVersion();
-        this.defaultTvMode = userConfig.getTvMode();
+            this.defaultMandantId = userConfig.getMandantId();
+            this.defaultClientSystemId = userConfig.getClientSystemId();
+            this.defaultWorkplaceId = userConfig.getWorkplaceId();
+            this.defaultUserId = userConfig.getUserId();
+            
+            this.defaultConnectorVersion = userConfig.getConnectorVersion();
+            this.defaultTvMode = userConfig.getTvMode();
 
-        this.defaultPruefnummer = userConfig.getPruefnummer();
+            this.defaultPruefnummer = userConfig.getPruefnummer();
 
-        this.defaultMuster16TemplateProfile = userConfig.getMuster16TemplateConfiguration();
+            this.defaultMuster16TemplateProfile = userConfig.getMuster16TemplateConfiguration();
+        } catch(Exception ex) {
+            log.log(Level.SEVERE, "Was not able to copy values from user config", ex);
+        }
     }
 
     public RuntimeConfig(String eHBAHandle, String SMCBHandle) {

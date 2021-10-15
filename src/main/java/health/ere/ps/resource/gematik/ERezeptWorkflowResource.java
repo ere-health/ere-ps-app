@@ -9,6 +9,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -20,6 +21,8 @@ import org.hl7.fhir.r4.model.Task;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.DataFormatException;
 import ca.uhn.fhir.parser.IParser;
+import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
+import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
 import de.gematik.ws.conn.signatureservice.v7.SignResponse;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.exception.gematik.ERezeptWorkflowException;
@@ -63,6 +66,16 @@ public class ERezeptWorkflowResource {
         Bundle bundleObject = "application/xml".equals(contentType) ? xmlParser.parseResource(Bundle.class, bundle) : jsonParser.parseResource(Bundle.class, bundle);
         SignResponse signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundleObject, false, extractRuntimeConfigFromHeaders());
         return Response.ok().entity(Base64.getEncoder().encode(signResponse.getSignatureObject().getBase64Signature().getValue())).type(MediaType.TEXT_PLAIN).build();
+    }
+
+    @GET
+    @Path("/cards")
+    public GetCardsResponse cards() {
+        try {
+            return eRezeptWorkflowService.getCards(extractRuntimeConfigFromHeaders());
+        } catch (FaultMessage e) {
+            throw new WebApplicationException(e);
+        }
     }
 
     @POST

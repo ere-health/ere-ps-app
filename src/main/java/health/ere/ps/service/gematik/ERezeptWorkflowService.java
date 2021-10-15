@@ -613,7 +613,7 @@ public class ERezeptWorkflowService {
      * @return
      */
     public Task createERezeptTask(boolean firstTry, RuntimeConfig runtimeConfig) {
-        requestNewAccessTokenIfNecessary();
+        requestNewAccessTokenIfNecessary(runtimeConfig, null, null);
         // https://github.com/gematik/api-erp/blob/master/docs/erp_bereitstellen.adoc#e-rezept-erstellen
         // POST to https://prescriptionserver.telematik/Task/$create
 
@@ -659,6 +659,7 @@ public class ERezeptWorkflowService {
      * @return
      */
     public void abortERezeptTask(RuntimeConfig runtimeConfig, String taskId, String accessCode) {
+        requestNewAccessTokenIfNecessary(runtimeConfig, null, null);
         try (Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task").path("/" + taskId).path("/$abort")
                 .request().header("User-Agent", appConfig.getUserAgent()).header("Authorization", "Bearer " + bearerToken.get(runtimeConfig)).header("X-AccessCode", accessCode)
                 .post(Entity.entity("", "application/fhir+xml; charset=utf-8"))) {

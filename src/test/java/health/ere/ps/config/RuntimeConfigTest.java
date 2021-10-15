@@ -11,6 +11,7 @@ import javax.json.JsonObject;
 import org.junit.jupiter.api.Test;
 
 import health.ere.ps.event.AbortTasksEvent;
+import health.ere.ps.model.config.UserConfigurations;
 
 public class RuntimeConfigTest {
     @Test
@@ -33,7 +34,9 @@ public class RuntimeConfigTest {
 
     @Test
     public void testUserConfig() {
-        JsonObject messageWithRuntimeConfig = Json.createObjectBuilder().build();
+        JsonObject messageWithRuntimeConfig = Json.createObjectBuilder()
+            .add("runtimeConfig", Json.createObjectBuilder())
+        .build();
         AbortTasksEvent abortTasksEvent = new AbortTasksEvent(messageWithRuntimeConfig, null, null);
         UserConfig userConfig = new UserConfig();
         userConfig.defaultClientSystemId = "1";
@@ -43,6 +46,7 @@ public class RuntimeConfigTest {
         userConfig.defaultUserId = "5";
         userConfig.defaultWorkplaceId = "6";
         RuntimeConfig runtimeConfig = abortTasksEvent.getRuntimeConfig();
+        userConfig.updateProperties(new UserConfigurations());
         runtimeConfig.copyValuesFromUserConfig(userConfig);
         assertEquals("1", runtimeConfig.getClientSystemId());
         assertEquals("2", runtimeConfig.getConnectorBaseURL());
