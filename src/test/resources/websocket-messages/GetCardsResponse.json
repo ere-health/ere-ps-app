@@ -1,0 +1,40 @@
+{
+    "type": "GetCardsResponse",
+    "payload": {
+        "getCardsResponse": {
+            "cards": {
+                "card": [
+                    {
+                        "cardHandle": "X110491343",
+                        "cardType": "EGK",
+                        "ctId": "ps_erp_incentergy_01_EGK",
+                        "iccsn": "80270220745647831061",
+                        "insertTime": "2021-10-15T06:21:48.897Z[GMT]",
+                        "kvnr": "X110491343",
+                        "slotId": 1
+                    },
+                    {
+                        "cardHandle": "1-2-ARZT-WaltrautDrombusch01",
+                        "cardType": "SMC_B",
+                        "ctId": "ps_erp_incentergy_01_SMC-B",
+                        "iccsn": "80272118265851199377",
+                        "insertTime": "2021-10-15T06:21:48.898Z[GMT]",
+                        "slotId": 1
+                    },
+                    {
+                        "cardHandle": "1-1-ARZT-WaltrautFinkengrund01",
+                        "cardType": "HBA",
+                        "ctId": "ps_erp_incentergy_01_HBA",
+                        "iccsn": "80271130069185419028",
+                        "insertTime": "2021-10-15T06:21:48.898Z[GMT]",
+                        "slotId": 1
+                    }
+                ]
+            },
+            "status": {
+                "result": "OK"
+            }
+        }
+    },
+    "replyToMessageId": "19695506-2cbc-11ec-bb06-7fa352d17966"
+}

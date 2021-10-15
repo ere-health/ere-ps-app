@@ -31,6 +31,7 @@ public class WebsocketXmlPrescriptionClientTest {
     }
 
     @Test
+    @Disabled
     public void testGetCardsWithRuntimeConfig() {
 
         String jsonBundle;

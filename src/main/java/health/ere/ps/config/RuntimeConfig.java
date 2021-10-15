@@ -1,6 +1,5 @@
 package health.ere.ps.config;
 
-import java.lang.reflect.Field;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -9,8 +8,6 @@ import javax.enterprise.inject.Alternative;
 import javax.enterprise.inject.spi.CDI;
 import javax.json.JsonObject;
 import javax.servlet.http.HttpServletRequest;
-
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import health.ere.ps.model.config.UserConfigurations;
 
@@ -34,16 +31,19 @@ public class RuntimeConfig extends UserConfig {
     }
 
     public void copyValuesFromUserConfig(UserConfig userConfig) {
-        for(Field field : UserConfig.class.getDeclaredFields()) {
-            try {
-                ConfigProperty property = field.getAnnotation(ConfigProperty.class);
-                if(property != null) {
-                    field.set(this, field.get(userConfig));
-                }
-            } catch (Exception e) {
-                log.log(Level.SEVERE, "Could not process runtime config", e);
-            }
-        }
+        this.defaultConnectorBaseURI = userConfig.getConnectorBaseURL();
+
+        this.defaultMandantId = userConfig.getMandantId();
+        this.defaultClientSystemId = userConfig.getClientSystemId();
+        this.defaultWorkplaceId = userConfig.getWorkplaceId();
+        this.defaultUserId = userConfig.getUserId();
+        
+        this.defaultConnectorVersion = userConfig.getConnectorVersion();
+        this.defaultTvMode = userConfig.getTvMode();
+
+        this.defaultPruefnummer = userConfig.getPruefnummer();
+
+        this.defaultMuster16TemplateProfile = userConfig.getMuster16TemplateConfiguration();
     }
 
     public RuntimeConfig(String eHBAHandle, String SMCBHandle) {
