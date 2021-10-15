@@ -858,7 +858,7 @@ public class GenerateKBVCertificationBundlesService {
                 .setType("Device")
                 .getIdentifier()
                 .setSystem("https://fhir.kbv.de/NamingSystem/KBV_NS_FOR_Pruefnummer")
-                .setValue("Y/400/1904/36/112");
+                .setValue("Y/410/2109/36/451");
 
         composition.setTitle("elektronische Arzneimittelverordnung");
 
