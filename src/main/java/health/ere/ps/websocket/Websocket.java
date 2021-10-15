@@ -301,6 +301,7 @@ public class Websocket {
                 readyToSignBundlesEvent.fireAsync(new ReadyToSignBundlesEvent(object, senderSession, messageId));
             } 
         } catch(Exception ex) {
+            ereLog.warn("Could not process message", ex);
             onException(new ExceptionWithReplyToExcetion(ex, senderSession, messageId));
         }
     }
