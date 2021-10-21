@@ -84,13 +84,7 @@ public class ERezeptWorkflowResource {
     @POST
     @Path("/batch-sign")
     public Response signBundlesWithIdentifiers(@HeaderParam("Content-Type") String contentType, String bundles) throws DataFormatException, ERezeptWorkflowException {
-    List<Bundle> bundlesList = Arrays.asList(bundles.split("\\r?\\n")).stream().map((bundle) -> {
-        try {
-            return string2bundle(contentType, bundle);
-        } catch(ERezeptWorkflowException ex) {
-            throw new WebApplicationException(ex);
-        }
-    }).collect(Collectors.toList());
+        List<Bundle> bundlesList = Arrays.asList(bundles.split("\\r?\\n")).stream().map((bundle) ->  string2bundle(contentType, bundle)).collect(Collectors.toList());
         List<SignResponse> signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundlesList, false, extractRuntimeConfigFromHeaders());
         String responses = signResponse.stream().map(ERezeptWorkflowResource::signResponse2base64String).collect(Collectors.joining("\n"));
         return Response.ok().entity(responses).type(MediaType.TEXT_PLAIN).build();

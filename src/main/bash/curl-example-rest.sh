@@ -19,15 +19,18 @@ echo "Generated Codes: $PrescriptionID1 $AccessCode1 $PrescriptionID2 $AccessCod
 PF03=`cat examples/PF03.xml | perl -p -w -e s/160.524.266.448.858.41/$PrescriptionID1/`
 PF04=`cat examples/PF04.xml | perl -p -w -e s/160.328.876.617.846.18/$PrescriptionID2/`
 
+echo -e "$PF03" | curl -X POST --data-binary @- -H "Content-Type: application/xml" http://localhost:8080/kbv/transform > target/PF03.html
+echo -e "$PF04" | curl -X POST --data-binary @- -H "Content-Type: application/xml" http://localhost:8080/kbv/transform > target/PF03.html
+
 # Sign the updated bundles
-echo -e "$PF03\n$PF04" | curl -X POST --data-binary @- -H "Content-Type: application/xml" -H "Accept: text/plain" http://localhost:8080/workflow/batch-sign > target/signed-e-prescrptions.dat
+echo -e "$PF03\n$PF04" | curl -X POST --data-binary @- -H "Content-Type: application/xml" -H "Accept: text/plain" http://localhost:8080/workflow/batch-sign > target/signed-e-prescriptions.dat
 
 # Untested from here:
 
 # Post the bundles to update the given prescription
 
-signedBase64Document1 = `head -1 target/signed-e-prescrptions.dat`
-signedBase64Document2 = `head -2 target/signed-e-prescrptions.dat`
+signedBase64Document1 = `head -1 target/signed-e-prescriptions.dat`
+signedBase64Document2 = `head -2 target/signed-e-prescriptions.dat`
 
 updateERezept1=`echo "{\"taskId\": \"$PrescriptionID1\", \"accessCode\": \"$AccessCode1\",\"signedBytes\": \"$signedBase64Document1\" }"`
 updateERezept2=`echo "{\"taskId\": \"$PrescriptionID2\", \"accessCode\": \"$AccessCode2\",\"signedBytes\": \"$signedBase64Document2\" }"`

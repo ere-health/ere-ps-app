@@ -44,6 +44,16 @@ paths:
       responses:
         "200":
           description: OK
+  /kbv/transform:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+      responses:
+        "200":
+          description: OK
   /validate:
     post:
       requestBody:
