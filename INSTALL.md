@@ -20,7 +20,7 @@ git clone --recurse-submodules https://github.com/ere-health/ere-ps-app.git
 cd ere-ps-app
 mvn package
 cd linux-service
-./installer.sh
+sudo ./installer.sh
 ```
 
 This will:
