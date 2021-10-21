@@ -12,7 +12,13 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -35,7 +41,6 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import ca.uhn.fhir.parser.IParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -43,14 +48,17 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.hl7.fhir.r4.model.Bundle;
 
 import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.IParser;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.event.AbortTasksEvent;
 import health.ere.ps.event.AbortTasksStatusEvent;
 import health.ere.ps.event.ActivateComfortSignatureEvent;
 import health.ere.ps.event.BundlesEvent;
 import health.ere.ps.event.DeactivateComfortSignatureEvent;
-import health.ere.ps.event.ERezeptDocumentsEvent;
+import health.ere.ps.event.ERezeptWithDocumentsEvent;
 import health.ere.ps.event.EreLogNotificationEvent;
+import health.ere.ps.event.GetCardsEvent;
+import health.ere.ps.event.GetCardsResponseEvent;
 import health.ere.ps.event.GetSignatureModeEvent;
 import health.ere.ps.event.GetSignatureModeResponseEvent;
 import health.ere.ps.event.HTMLBundlesEvent;
@@ -101,6 +109,9 @@ public class Websocket {
     Event<GetSignatureModeEvent> getSignatureModeEvent;
 
     @Inject
+    Event<GetCardsEvent> getCardsEvent;
+    
+    @Inject
     PrescriptionBundleValidator prescriptionBundleValidator;
     @Inject
     AppConfig appConfig;
@@ -123,7 +134,7 @@ public class Websocket {
     private static final EreLogger ereLog = EreLogger.getLogger(Websocket.class);
 
     private final FhirContext ctx = FhirContext.forR4();
-    private final Set<Session> sessions = new HashSet<>();
+    private final static Set<Session> sessions = new CopyOnWriteArraySet<>();
 
     ObjectMapper objectMapper = new ObjectMapper();
 
@@ -133,16 +144,16 @@ public class Websocket {
         ereLog.info("Websocket opened");
     }
 
-    void sendAllKBVExamples(String folder) {
-        if (folder.equals("../src/test/resources/kbv-zip")) {
+    void sendAllKBVExamples(String folder, Session senderSession) {
+        if(folder.equals("../src/test/resources/kbv-zip")) {
             try {
                 Bundle bundle = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF01.xml"));
                 bundle.setId(UUID.randomUUID().toString());
-                onFhirBundle(new BundlesEvent(Collections.singletonList(bundle)));
+                onFhirBundle(new BundlesEvent(Collections.singletonList(bundle), senderSession, ""));
 
                 bundle = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF02.xml"));
                 bundle.setId(UUID.randomUUID().toString());
-                onFhirBundle(new BundlesEvent(Collections.singletonList(bundle)));
+                onFhirBundle(new BundlesEvent(Collections.singletonList(bundle), senderSession, ""));
 
                 Bundle bundle03 = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF03.xml"));
                 bundle03.setId(UUID.randomUUID().toString());
@@ -153,11 +164,11 @@ public class Websocket {
                 Bundle bundle05 = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF05.xml"));
                 bundle05.setId(UUID.randomUUID().toString());
 
-                onFhirBundle(new BundlesEvent(Arrays.asList(bundle03, bundle04, bundle05)));
+                onFhirBundle(new BundlesEvent(Arrays.asList(bundle03, bundle04, bundle05), senderSession, ""));
 
                 bundle = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF07.xml"));
                 bundle.setId(UUID.randomUUID().toString());
-                onFhirBundle(new BundlesEvent(Collections.singletonList(bundle)));
+                onFhirBundle(new BundlesEvent(Collections.singletonList(bundle), senderSession, ""));
 
                 Bundle bundle08_1 = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF08_1.xml"));
                 bundle08_1.setId(UUID.randomUUID().toString());
@@ -168,8 +179,8 @@ public class Websocket {
                 Bundle bundle08_3 = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF08_3.xml"));
                 bundle08_3.setId(UUID.randomUUID().toString());
 
-                onFhirBundle(new BundlesEvent(Arrays.asList(bundle08_1, bundle08_2, bundle08_3)));
-            } catch (IOException ex) {
+                onFhirBundle(new BundlesEvent(Arrays.asList(bundle08_1, bundle08_2, bundle08_3), senderSession, ""));
+            } catch(IOException ex) {
                 ereLog.warn("Could read all files", ex);
             }
         } else {
@@ -212,90 +223,160 @@ public class Websocket {
     }
 
     @OnMessage
-    public void onMessage(String message) {
+    public void onMessage(String message, Session senderSession) {
         ereLog.info("Message: " + message);
-
+        if(message == null) {
+            ereLog.warn("null given as message");
+            return;
+        }
+        String messageId = null;
         try (JsonReader jsonReader = Json.createReader(new StringReader(message))) {
             JsonObject object = jsonReader.readObject();
+            messageId = object.getString("id", null);
             if ("SignAndUploadBundles".equals(object.getString("type"))) {
-                JsonObject bundlesValidationResultMessage = prescriptionBundleValidator.bundlesValidationResult(object);
-
                 boolean bundlesValid = true;
-                bundlesValid = bundlesValidationResultMessage.getJsonArray("payload")
-                        .stream().filter(jo -> jo instanceof JsonObject)
+                JsonObject bundlesValidationResultMessage = null;
+                if(!object.getBoolean("ignoreValidation", false)) {
+                    bundlesValidationResultMessage = prescriptionBundleValidator.bundlesValidationResult(object);
+                    
+                    bundlesValid = bundlesValidationResultMessage.getJsonArray("payload")
+                    .stream().filter(jo -> jo instanceof JsonObject)
                         .map(jo -> ((JsonObject) jo).getBoolean("valid"))
                         .filter(b -> !b)
                         .count() == 0;
-                if (bundlesValid || object.getBoolean("ignoreValidation", false)) {
-                    SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(object);
+                }
+                if(bundlesValid) {
+                    SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(object, senderSession, messageId);
                     signAndUploadBundlesEvent.fireAsync(event);
                 } else {
-                    sendMessage(bundlesValidationResultMessage.toString(), "Unable to sent bundlesValidationResult event");
+                    senderSession.getAsyncRemote().sendObject(
+                        bundlesValidationResultMessage == null ? "{}" : bundlesValidationResultMessage.toString(),
+                        result -> {
+                            if (!result.isOK()) {
+                                ereLog.fatal("Unable to sent bundlesValidationResult event: " + result.getException());
+                            }
+                        });
                 }
             } else if ("ValidateBundles".equals(object.getString("type"))) {
                 JsonObject bundlesValidationResultMessage = prescriptionBundleValidator.bundlesValidationResult(object);
-                sendMessage(bundlesValidationResultMessage.toString(), "Unable to sent bundlesValidationResult event");
+                senderSession.getAsyncRemote().sendObject(
+                    bundlesValidationResultMessage.toString(),
+                    result -> {
+                        if (!result.isOK()) {
+                            ereLog.fatal("Unable to sent bundlesValidationResult event: " + result.getException());
+                        }
+                    });
             } else if ("XMLBundle".equals(object.getString("type"))) {
                 Bundle[] bundles = XmlPrescriptionProcessor.parseFromString(object.getString("payload"));
-                onFhirBundle(new BundlesEvent(Arrays.asList(bundles)));
+                onFhirBundle(new BundlesEvent(Arrays.asList(bundles), senderSession, messageId));
             } else if ("AbortTasks".equals(object.getString("type"))) {
-                abortTasksEvent.fireAsync(new AbortTasksEvent(object.getJsonArray("payload")));
+                abortTasksEvent.fireAsync(new AbortTasksEvent(object, senderSession, messageId));
             } else if ("ErixaEvent".equals(object.getString("type"))) {
-                ErixaEvent event = new ErixaEvent(object);
+                ErixaEvent event = new ErixaEvent(object, senderSession, messageId);
                 erixaEvent.fireAsync(event);
             } else if ("DeactivateComfortSignature".equals(object.getString("type"))) {
-                DeactivateComfortSignatureEvent event = new DeactivateComfortSignatureEvent(object);
+                DeactivateComfortSignatureEvent event = new DeactivateComfortSignatureEvent(object, senderSession, messageId);
                 deactivateComfortSignatureEvent.fireAsync(event);
             } else if ("ActivateComfortSignature".equals(object.getString("type"))) {
-                ActivateComfortSignatureEvent event = new ActivateComfortSignatureEvent(object);
+                ActivateComfortSignatureEvent event = new ActivateComfortSignatureEvent(object, senderSession, messageId);
                 activateComfortSignatureEvent.fireAsync(event);
             } else if ("GetSignatureMode".equals(object.getString("type"))) {
-                GetSignatureModeEvent event = new GetSignatureModeEvent(object);
+                GetSignatureModeEvent event = new GetSignatureModeEvent(object, senderSession, messageId);
                 getSignatureModeEvent.fireAsync(event);
-            } else if ("RequestSettings".equals(object.getString("type"))) {
+            } else if ("GetCards".equals(object.getString("type"))) {
+                GetCardsEvent event = new GetCardsEvent(object, senderSession, messageId);
+                getCardsEvent.fireAsync(event);
+            }  else if ("RequestSettings".equals(object.getString("type"))) {
                 UserConfigurations userConfigurations = userConfigurationService.getConfig();
                 String payload = jsonbFactory.toJson(userConfigurations);
-                sendMessage("{\"type\": \"Settings\", \"payload\": " + payload + "}",
-                        "Unable to sent settings event: ");
-            } else if ("SaveSettings".equals(object.getString("type"))) {
+                senderSession.getAsyncRemote().sendObject(
+                    "{\"type\": \"Settings\", \"payload\": " + payload + ", \"replyToMessageId\": \""+messageId+"\"}",
+                    result -> {
+                        if (!result.isOK()) {
+                            ereLog.fatal("Unable to sent settings event: " + result.getException());
+                        }
+                    });
+            } else if("SaveSettings".equals(object.getString("type"))) {
                 String userConfiguration = object.getJsonObject("payload").toString();
                 UserConfigurations userConfigurations = jsonbFactory.fromJson(userConfiguration, UserConfigurations.class);
                 saveSettingsEvent.fireAsync(new SaveSettingsEvent(userConfigurations));
             } else if ("Publish".equals(object.getString("type"))) {
                 sendMessage(object.getString("payload"), "Unable to publish event");
             } else if ("AllKBVExamples".equals(object.getString("type"))) {
-                sendAllKBVExamples(object.getString("folder", "../src/test/resources/simplifier_erezept"));
+                sendAllKBVExamples(object.getString("folder", "../src/test/resources/simplifier_erezept"), senderSession);
             } else if ("ReadyToSignBundles".equals(object.getString("type"))) {
                 readyToSignBundlesEvent.fireAsync(new ReadyToSignBundlesEvent(object));
             } else {
                 processIncomingMessage(object);
             }
+        } catch(Exception ex) {
+            ereLog.warn("Could not process message", ex);
+            onException(new ExceptionWithReplyToExcetion(ex, senderSession, messageId));
         }
     }
 
     public void onFhirBundle(@ObservesAsync BundlesEvent bundlesEvent) {
         assureChromeIsOpen();
         String bundlesString = generateJson(bundlesEvent);
-        sendMessage("{\"type\": \"Bundles\", \"payload\": " + bundlesString + "}",
-                "Unable to send bundlesEvent");
+        Set<Session> localSessions = new HashSet<>();
+        if(bundlesEvent.getReplyTo() != null) {
+            localSessions.add(bundlesEvent.getReplyTo());
+        } else {
+            localSessions = sessions;
+        }
+        localSessions.forEach(session -> session.getAsyncRemote().sendObject(
+                "{\"type\": \"Bundles\", \"payload\": " + bundlesString + ", \"replyToMessageId\": \""+bundlesEvent.getReplyToMessageId()+"\"}",
+                result -> {
+                    if (!result.isOK()) {
+                        ereLog.fatal("Unable to send bundlesEvent: " + result.getException());
+                    }
+                }));
     }
 
     public void onAbortTasksStatusEvent(@ObservesAsync AbortTasksStatusEvent abortTasksStatusEvent) {
         assureChromeIsOpen();
         String abortTasksStatusString = generateJson(abortTasksStatusEvent);
-        sendMessage("{\"type\": \"AbortTasksStatus\", \"payload\": " + abortTasksStatusString + "}",
-                "Unable to send bundlesEvent");
+        
+        abortTasksStatusEvent.getReplyTo().getAsyncRemote().sendObject(
+                "{\"type\": \"AbortTasksStatus\", \"payload\": " + abortTasksStatusString + ", \"replyToMessageId\": \""+abortTasksStatusEvent.getReplyToMessageId()+"\"}",
+                result -> {
+                    if (!result.isOK()) {
+                        ereLog.fatal("Unable to send bundlesEvent: " + result.getException());
+                    }
+                });
+    }
+
+    public void onGetCardsResponseEvent(@ObservesAsync GetCardsResponseEvent getCardsResponseEvent) {
+        assureChromeIsOpen();
+        String abortTasksStatusString = generateJson(getCardsResponseEvent);
+        
+        getCardsResponseEvent.getReplyTo().getAsyncRemote().sendObject(
+                "{\"type\": \"GetCardsResponse\", \"payload\": " + abortTasksStatusString + ", \"replyToMessageId\": \""+getCardsResponseEvent.getReplyToMessageId()+"\"}",
+                result -> {
+                    if (!result.isOK()) {
+                        ereLog.fatal("Unable to send bundlesEvent: " + result.getException());
+                    }
+                });
     }
 
     public void onGetSignatureModeResponseEvent(@ObservesAsync GetSignatureModeResponseEvent getSignatureModeResponseEvent) {
         assureChromeIsOpen();
         String abortTasksStatusString = generateJson(getSignatureModeResponseEvent);
-        sendMessage("{\"type\": \"GetSignatureModeResponse\", \"payload\": " + abortTasksStatusString + "}",
-                "Unable to send getSignatureModeResponseEvent");
+        getSignatureModeResponseEvent.getReplyTo().getAsyncRemote().sendObject(
+                "{\"type\": \"GetSignatureModeResponse\", \"payload\": " + abortTasksStatusString + ", \"replyToMessageId\": \""+getSignatureModeResponseEvent.getReplyToMessageId()+"\"}",
+                result -> {
+                    if (!result.isOK()) {
+                        ereLog.fatal("Unable to send getSignatureModeResponseEvent: " + result.getException());
+                    }
+                });
     }
 
-    private String generateJson(GetSignatureModeResponseEvent getSignatureModeResponseEvent) {
+    String generateJson(GetSignatureModeResponseEvent getSignatureModeResponseEvent) {
         return jsonbFactory.toJson(getSignatureModeResponseEvent);
+    }
+
+    String generateJson(GetCardsResponseEvent getCardsResponseEvent) {
+        return jsonbFactory.toJson(getCardsResponseEvent);
     }
 
     String generateJson(AbortTasksStatusEvent abortTasksStatusEvent) {
@@ -314,14 +395,23 @@ public class Websocket {
         }
     }
 
-    public void onERezeptDocuments(@ObservesAsync ERezeptDocumentsEvent eRezeptDocumentsEvent) {
+    public void onERezeptDocuments(@ObservesAsync ERezeptWithDocumentsEvent eRezeptDocumentsEvent) {
         String jsonPayload = generateJson(eRezeptDocumentsEvent);
-        ereLog.info("Sending prescription receipt payload to front-end: " + jsonPayload);
-        sendMessage(jsonPayload, "Unable to send eRezeptWithDocumentsEvent");
+        ereLog.info("Sending prescription receipt payload to front-end: " +
+                jsonPayload);
+
+        eRezeptDocumentsEvent.getReplyTo().getAsyncRemote().sendObject(
+                jsonPayload,
+                result -> {
+                    if (!result.isOK()) {
+                        ereLog.fatal("Unable to send eRezeptWithDocumentsEvent: " +
+                                result.getException());
+                    }
+                });
     }
 
-    public String generateJson(ERezeptDocumentsEvent eRezeptDocumentsEvent) {
-        if (removeSignatureFromMessage) {
+    public String generateJson(ERezeptWithDocumentsEvent eRezeptDocumentsEvent) {
+        if(removeSignatureFromMessage) {
             eRezeptDocumentsEvent.getERezeptWithDocuments().stream()
                 .flatMap(ezd -> ezd.getBundleWithAccessCodeOrThrowables().stream())
                 .forEach(bundleWithAccessCodeOrThrowables -> bundleWithAccessCodeOrThrowables.setSignedBundle(null));
@@ -354,8 +444,28 @@ public class Websocket {
         }
     }
 
-    public void onException(@ObservesAsync Exception exception) {
-        sessions.forEach(session -> {
+    public void onException(@ObservesAsync Exception exceptionParam) {
+
+        Set<Session> localSessions = sessions;
+
+        Exception exceptionFromReplyTo = null;
+        String replyToMessageIdFromException = null; 
+
+        // only send the exception to the session that provoked it
+        if(exceptionParam instanceof ExceptionWithReplyToExcetion) {
+            ExceptionWithReplyToExcetion exceptionWithReplyToExcetion = (ExceptionWithReplyToExcetion) exceptionParam;
+            localSessions = new HashSet<>();
+            if(exceptionWithReplyToExcetion.getReplyTo() != null) {
+                localSessions.add(exceptionWithReplyToExcetion.getReplyTo());
+                exceptionFromReplyTo = exceptionWithReplyToExcetion.getException();
+                replyToMessageIdFromException = exceptionWithReplyToExcetion.getMessageId();
+            }
+        }
+
+        final Exception exception = exceptionFromReplyTo != null ? exceptionFromReplyTo : exceptionParam;
+        final String replyToMessageId = replyToMessageIdFromException != null ? replyToMessageIdFromException : "";
+
+        localSessions.forEach(session -> {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
             exception.printStackTrace(pw);
@@ -366,13 +476,13 @@ public class Websocket {
 
                 String stackTrace = objectMapper.writeValueAsString(sw.toString());
                 session.getAsyncRemote()
-                        .sendObject("{\"type\": \"Exception\", \"payload\": { \"class\": \""
-                                + exception.getClass().getName() + "\", \"message\": " + localizedMessage
-                                + ", \"stacktrace\": " + stackTrace + "}}", result -> {
-                            if (result.getException() != null) {
-                                ereLog.fatal("Unable to send message: " + result.getException());
-                            }
-                        });
+                    .sendObject("{\"type\": \"Exception\", \"payload\": { \"class\": \""
+                            + exception.getClass().getName() + "\", \"replyToMessageId\": \""+replyToMessageId+"\", \"message\": " + localizedMessage
+                            + ", \"stacktrace\": " + stackTrace + "}}", result -> {
+                        if (result.getException() != null) {
+                            ereLog.fatal("Unable to send message: " + result.getException());
+                        }
+                    });
             } catch (JsonProcessingException e) {
                 ereLog.error("Could not generate json", e);
             }
@@ -381,15 +491,28 @@ public class Websocket {
     }
 
     public void onEreLogNotificationEvent(@ObservesAsync EreLogNotificationEvent event) {
-        OutgoingPayload<EreLogNotificationEvent> outgoingPayload = new OutgoingPayload<>(event);
-        outgoingPayload.setType("Notification");
-        sendMessage(outgoingPayload.toString(), "Unable to send message");
+        sessions.forEach(session -> {
+            OutgoingPayload<EreLogNotificationEvent> outgoingPayload = new OutgoingPayload<>(event);
+
+            outgoingPayload.setType("Notification");
+
+            session.getAsyncRemote()
+                    .sendObject(outgoingPayload.toString(), result -> {
+                        if (result.getException() != null) {
+                            ereLog.fatal("Unable to send message: " + result.getException());
+                        }
+                    });
+        });
     }
 
-
     public void onHTMLBundlesEvent(@ObservesAsync HTMLBundlesEvent event) {
-        sendMessage("{\"type\": \"HTMLBundles\", \"payload\": " + jsonbFactory.toJson(event.getBundles()) + "}",
-                "Unable to send message");
+        event.getReplyTo().getAsyncRemote()
+        .sendObject("{\"type\": \"HTMLBundles\", \"payload\": " +
+        jsonbFactory.toJson(event.getBundles()) + "}", result -> {
+            if (result.getException() != null) {
+                ereLog.fatal("Unable to send message: " + result.getException());
+            }
+        });
     }
 
     private void processIncomingMessage(JsonObject object) {

@@ -246,6 +246,10 @@
             <version>1.17</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-openapi</artifactId>
+        </dependency>
         <!--
             Produces: Modules com.sun.xml.bind and com.sun.istack.runtime export package com.sun.istack.localization to module fop
         <dependency>

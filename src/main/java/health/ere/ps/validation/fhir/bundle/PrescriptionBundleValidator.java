@@ -127,6 +127,11 @@ public class PrescriptionBundleValidator {
             }
         }
         builder.add("payload", payload);
+        if(bundlePayload.containsKey("id")) {
+            builder.add("replyToMessageId", bundlePayload.getString("id", null));
+        } else {
+            builder.add("replyToMessageId", "");
+        }
         return builder.build();
     }
 
