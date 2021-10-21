@@ -28,16 +28,6 @@ paths:
       responses:
         "200":
           description: OK
-  /erixa/sync:
-    post:
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ErixaSyncLoad'
-      responses:
-        "200":
-          description: OK
   /ipp/{queue}:
     post:
       parameters:
@@ -71,6 +61,35 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/AbortERezept'
+      responses:
+        "200":
+          description: OK
+  /workflow/batch-sign:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+      responses:
+        "200":
+          description: OK
+  /workflow/cards:
+    get:
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCardsResponse'
+  /workflow/comfortsignature/activate:
+    post:
+      responses:
+        "200":
+          description: OK
+  /workflow/comfortsignature/deactivate:
+    post:
       responses:
         "200":
           description: OK
@@ -132,15 +151,223 @@ components:
           type: string
         taskId:
           type: string
-    ErixaSyncLoad:
+    CardInfoType:
       type: object
       properties:
-        document:
+        cardHandle:
           type: string
-        patient:
+          xml:
+            name: CardHandle
+        cardType:
+          allOf:
+          - $ref: '#/components/schemas/CardTypeType'
+          - xml:
+              name: CardType
+        cardVersion:
+          allOf:
+          - $ref: '#/components/schemas/CardVersion'
+          - xml:
+              name: CardVersion
+        iccsn:
           type: string
+          xml:
+            name: Iccsn
+        ctId:
+          type: string
+          xml:
+            name: CtId
+        slotId:
+          type: integer
+          xml:
+            name: SlotId
+        insertTime:
+          allOf:
+          - $ref: '#/components/schemas/XMLGregorianCalendar'
+          - xml:
+              name: InsertTime
+        cardHolderName:
+          type: string
+          xml:
+            name: CardHolderName
+        kvnr:
+          type: string
+          xml:
+            name: Kvnr
+        certificateExpirationDate:
+          allOf:
+          - $ref: '#/components/schemas/XMLGregorianCalendar'
+          - xml:
+              name: CertificateExpirationDate
+    CardTypeType:
+      enum:
+      - EGK
+      - HBA
+      - HBA_Q_SIG
+      - HB_AX
+      - HSM_B
+      - KVK
+      - SMC_B
+      - SMC_KT
+      - SM_B
+      - UNKNOWN
+      - ZOD_2_0
+      type: string
+    CardVersion:
+      type: object
+      properties:
+        cosVersion:
+          allOf:
+          - $ref: '#/components/schemas/VersionInfoType'
+          - xml:
+              name: COSVersion
+        objectSystemVersion:
+          allOf:
+          - $ref: '#/components/schemas/VersionInfoType'
+          - xml:
+              name: ObjectSystemVersion
+        cardPTPersVersion:
+          allOf:
+          - $ref: '#/components/schemas/VersionInfoType'
+          - xml:
+              name: CardPTPersVersion
+        dataStructureVersion:
+          allOf:
+          - $ref: '#/components/schemas/VersionInfoType'
+          - xml:
+              name: DataStructureVersion
+        loggingVersion:
+          allOf:
+          - $ref: '#/components/schemas/VersionInfoType'
+          - xml:
+              name: LoggingVersion
+        atrVersion:
+          allOf:
+          - $ref: '#/components/schemas/VersionInfoType'
+          - xml:
+              name: ATRVersion
+        gdoVersion:
+          allOf:
+          - $ref: '#/components/schemas/VersionInfoType'
+          - xml:
+              name: GDOVersion
+        keyInfoVersion:
+          allOf:
+          - $ref: '#/components/schemas/VersionInfoType'
+          - xml:
+              name: KeyInfoVersion
+    Cards:
+      type: object
+      properties:
+        card:
+          type: array
+          items:
+            $ref: '#/components/schemas/CardInfoType'
+          xml:
+            name: Card
+    Detail:
+      type: object
+      properties:
+        value:
+          type: string
+        encoding:
+          type: string
+          xml:
+            name: Encoding
+            attribute: true
+    Error:
+      type: object
+      properties:
+        messageID:
+          type: string
+          xml:
+            name: MessageID
+        timestamp:
+          allOf:
+          - $ref: '#/components/schemas/XMLGregorianCalendar'
+          - xml:
+              name: Timestamp
+        trace:
+          type: array
+          items:
+            $ref: '#/components/schemas/Trace'
+          xml:
+            name: Trace
+    GetCardsResponse:
+      type: object
+      properties:
+        status:
+          allOf:
+          - $ref: '#/components/schemas/Status'
+          - xml:
+              name: Status
+        cards:
+          allOf:
+          - $ref: '#/components/schemas/Cards'
+          - xml:
+              name: Cards
     InputStream:
       type: object
+    QName:
+      type: object
+      properties:
+        localPart:
+          type: string
+        namespaceURI:
+          type: string
+        prefix:
+          type: string
+    Status:
+      type: object
+      properties:
+        result:
+          type: string
+          xml:
+            name: Result
+        error:
+          allOf:
+          - $ref: '#/components/schemas/Error'
+          - xml:
+              name: Error
+    Trace:
+      type: object
+      properties:
+        eventID:
+          type: string
+          xml:
+            name: EventID
+        instance:
+          type: string
+          xml:
+            name: Instance
+        logReference:
+          type: string
+          xml:
+            name: LogReference
+        compType:
+          type: string
+          xml:
+            name: CompType
+        code:
+          type: integer
+          xml:
+            name: Code
+        severity:
+          type: string
+          xml:
+            name: Severity
+        errorType:
+          type: string
+          xml:
+            name: ErrorType
+        errorText:
+          type: string
+          xml:
+            name: ErrorText
+        detail:
+          allOf:
+          - $ref: '#/components/schemas/Detail'
+          - xml:
+              name: Detail
     UpdateERezept:
       type: object
       properties:
@@ -189,3 +416,58 @@ components:
           type: string
         connector.workplace-id:
           type: string
+    VersionInfoType:
+      type: object
+      properties:
+        major:
+          format: int32
+          type: integer
+          xml:
+            name: Major
+        minor:
+          format: int32
+          type: integer
+          xml:
+            name: Minor
+        revision:
+          format: int32
+          type: integer
+          xml:
+            name: Revision
+    XMLGregorianCalendar:
+      type: object
+      properties:
+        day:
+          format: int32
+          type: integer
+        eon:
+          type: integer
+        eonAndYear:
+          type: integer
+        fractionalSecond:
+          type: number
+        hour:
+          format: int32
+          type: integer
+        millisecond:
+          format: int32
+          type: integer
+        minute:
+          format: int32
+          type: integer
+        month:
+          format: int32
+          type: integer
+        second:
+          format: int32
+          type: integer
+        timezone:
+          format: int32
+          type: integer
+        xMLSchemaType:
+          $ref: '#/components/schemas/QName'
+        year:
+          format: int32
+          type: integer
+        valid:
+          type: boolean

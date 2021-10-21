@@ -1,7 +1,10 @@
 package health.ere.ps.resource.gematik;
 
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -63,9 +66,34 @@ public class ERezeptWorkflowResource {
     @POST
     @Path("/sign")
     public Response signBundleWithIdentifiers(@HeaderParam("Content-Type") String contentType, String bundle) throws DataFormatException, ERezeptWorkflowException {
-        Bundle bundleObject = "application/xml".equals(contentType) ? xmlParser.parseResource(Bundle.class, bundle) : jsonParser.parseResource(Bundle.class, bundle);
+        Bundle bundleObject = string2bundle(contentType, bundle);
         SignResponse signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundleObject, false, extractRuntimeConfigFromHeaders());
-        return Response.ok().entity(Base64.getEncoder().encode(signResponse.getSignatureObject().getBase64Signature().getValue())).type(MediaType.TEXT_PLAIN).build();
+        String base64String = signResponse2base64String(signResponse);
+        return Response.ok().entity(base64String).type(MediaType.TEXT_PLAIN).build();
+    }
+
+    static String signResponse2base64String(SignResponse signResponse) {
+        return new String(Base64.getEncoder().encode(signResponse.getSignatureObject().getBase64Signature().getValue()));
+    }
+
+    Bundle string2bundle(String contentType, String bundle) throws ERezeptWorkflowException {
+        Bundle bundleObject = "application/xml".equals(contentType) ? xmlParser.parseResource(Bundle.class, bundle) : jsonParser.parseResource(Bundle.class, bundle);
+        return bundleObject;
+    }
+
+    @POST
+    @Path("/batch-sign")
+    public Response signBundlesWithIdentifiers(@HeaderParam("Content-Type") String contentType, String bundles) throws DataFormatException, ERezeptWorkflowException {
+    List<Bundle> bundlesList = Arrays.asList(bundles.split("\\r?\\n")).stream().map((bundle) -> {
+        try {
+            return string2bundle(contentType, bundle);
+        } catch(ERezeptWorkflowException ex) {
+            throw new WebApplicationException(ex);
+        }
+    }).collect(Collectors.toList());
+        List<SignResponse> signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundlesList, false, extractRuntimeConfigFromHeaders());
+        String responses = signResponse.stream().map(ERezeptWorkflowResource::signResponse2base64String).collect(Collectors.joining("\n"));
+        return Response.ok().entity(responses).type(MediaType.TEXT_PLAIN).build();
     }
 
     @GET
