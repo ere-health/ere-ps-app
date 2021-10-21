@@ -23,6 +23,13 @@ cd linux-service
 sudo ./installer.sh
 ```
 
+If you want to configure this application do the following:
+```
+sudo mkdir /opt/ere-health/config
+sudo cp ../src/main/resources/application.properties /opt/ere-health/config
+# by default the PU profile is active
+```
+
 This will:
  * create the folder /opt/ere-health
  * fill it with the ere-health application
