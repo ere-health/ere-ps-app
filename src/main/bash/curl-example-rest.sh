@@ -19,6 +19,7 @@ echo "Generated Codes: $PrescriptionID1 $AccessCode1 $PrescriptionID2 $AccessCod
 PF03=`cat examples/PF03.xml | perl -p -w -e s/160.524.266.448.858.41/$PrescriptionID1/`
 PF04=`cat examples/PF04.xml | perl -p -w -e s/160.328.876.617.846.18/$PrescriptionID2/`
 
+# Generate the previews required by KBV that have to be shown to the doctor for signing
 echo -e "$PF03" | curl -X POST --data-binary @- -H "Content-Type: application/xml" http://localhost:8080/kbv/transform > target/PF03.html
 echo -e "$PF04" | curl -X POST --data-binary @- -H "Content-Type: application/xml" http://localhost:8080/kbv/transform > target/PF03.html
 
