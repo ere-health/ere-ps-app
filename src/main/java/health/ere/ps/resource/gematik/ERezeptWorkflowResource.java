@@ -76,7 +76,7 @@ public class ERezeptWorkflowResource {
         return new String(Base64.getEncoder().encode(signResponse.getSignatureObject().getBase64Signature().getValue()));
     }
 
-    Bundle string2bundle(String contentType, String bundle) throws ERezeptWorkflowException {
+    Bundle string2bundle(String contentType, String bundle) {
         Bundle bundleObject = "application/xml".equals(contentType) ? xmlParser.parseResource(Bundle.class, bundle) : jsonParser.parseResource(Bundle.class, bundle);
         return bundleObject;
     }

@@ -36,6 +36,6 @@ echo -e "$updateERezept1" | curl -X POST --data-binary @- -H "Content-Type: appl
 echo -e "$updateERezept2" | curl -X POST --data-binary @- -H "Content-Type: application/json" -H "Accept: text/plain" http://localhost:8080/workflow/update
 
 # Create pdf print out
-PF03_escaped=`echo $PF03 | sed 's/"/\\"/g'`
-PF04_escaped=`echo $PF04 | sed 's/"/\\"/g'`
-echo -e "[{\"accessCode\":\"$AccessCode1\", \"bundle\": \"$PF03_escaped\"}, {\"accessCode\":\"$AccessCode2\", \"bundle\": \"$PF04_escaped\"}]" | curl -X POST --data-binary @- -H "Content-Type: application/xml" -H "Accept: application/json" http://localhost:8080/document/bundles > target/print-out.pdf
+PF03_escaped=`echo $PF03 | sed 's/"/\\\\"/g'`
+PF04_escaped=`echo $PF04 | sed 's/"/\\\\"/g'`
+echo -e "[{\"accessCode\":\"$AccessCode1\", \"mimeType\": \"application/xml\", \"bundle\": \"$PF03_escaped\"}, {\"accessCode\":\"$AccessCode2\", \"mimeType\": \"application/xml\", \"bundle\": \"$PF04_escaped\"}]" | curl -X POST --data-binary @- -H "Content-Type: application/json" -H "Accept: application/pdf" http://localhost:8080/document/bundles > target/print-out.pdf
