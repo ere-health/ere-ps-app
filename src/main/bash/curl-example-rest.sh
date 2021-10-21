@@ -25,10 +25,7 @@ echo -e "$PF04" | curl -X POST --data-binary @- -H "Content-Type: application/xm
 # Sign the updated bundles
 echo -e "$PF03\n$PF04" | curl -X POST --data-binary @- -H "Content-Type: application/xml" -H "Accept: text/plain" http://localhost:8080/workflow/batch-sign > target/signed-e-prescriptions.dat
 
-# Untested from here:
-
 # Post the bundles to update the given prescription
-
 signedBase64Document1 = `head -1 target/signed-e-prescriptions.dat`
 signedBase64Document2 = `head -2 target/signed-e-prescriptions.dat`
 
