@@ -4,9 +4,8 @@ import java.awt.Desktop;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.io.StringReader;
-import java.io.StringWriter;
+import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -41,14 +40,14 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.hl7.fhir.r4.model.Bundle;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
+import de.gematik.ws.conn.cardservice.wsdl.v8.FaultMessage;
+import de.gematik.ws.tel.error.v2.Error;
+import de.gematik.ws.tel.error.v2.Error.Trace;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.event.AbortTasksEvent;
 import health.ere.ps.event.AbortTasksStatusEvent;
@@ -135,8 +134,6 @@ public class Websocket {
 
     private final FhirContext ctx = FhirContext.forR4();
     private final static Set<Session> sessions = new CopyOnWriteArraySet<>();
-
-    ObjectMapper objectMapper = new ObjectMapper();
 
     @OnOpen
     public void onOpen(Session session) {
@@ -304,8 +301,8 @@ public class Websocket {
                 sendMessage(object.getString("payload"), "Unable to publish event");
             } else if ("AllKBVExamples".equals(object.getString("type"))) {
                 sendAllKBVExamples(object.getString("folder", "../src/test/resources/simplifier_erezept"), senderSession);
-            } else if ("ReadyToSignBundles".equals(object.getString("type"))) {
-                readyToSignBundlesEvent.fireAsync(new ReadyToSignBundlesEvent(object));
+            } else if ("SimulateException".equals(object.getString("type"))) {
+                onException(simulateException(object));
             } else {
                 processIncomingMessage(object);
             }
@@ -313,6 +310,16 @@ public class Websocket {
             ereLog.warn("Could not process message", ex);
             onException(new ExceptionWithReplyToExcetion(ex, senderSession, messageId));
         }
+    }
+
+    Exception simulateException(JsonObject object) {
+        // Zugriffsbedingungen nicht erfüllt
+        // boolean code4085
+        Error faultInfo = new Error();
+        Trace trace = new Trace();
+        trace.setCode(BigInteger.valueOf(4085));
+        faultInfo.getTrace().add(trace);
+        return new FaultMessage("Zugriffsbedingungen nicht erfüllt", faultInfo);
     }
 
     public void onFhirBundle(@ObservesAsync BundlesEvent bundlesEvent) {
@@ -466,27 +473,12 @@ public class Websocket {
         final String replyToMessageId = replyToMessageIdFromException != null ? replyToMessageIdFromException : "";
 
         localSessions.forEach(session -> {
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            exception.printStackTrace(pw);
-
-            String localizedMessage;
-            try {
-                localizedMessage = objectMapper.writeValueAsString(exception.getLocalizedMessage());
-
-                String stackTrace = objectMapper.writeValueAsString(sw.toString());
-                session.getAsyncRemote()
-                    .sendObject("{\"type\": \"Exception\", \"payload\": { \"class\": \""
-                            + exception.getClass().getName() + "\", \"replyToMessageId\": \""+replyToMessageId+"\", \"message\": " + localizedMessage
-                            + ", \"stacktrace\": " + stackTrace + "}}", result -> {
-                        if (result.getException() != null) {
-                            ereLog.fatal("Unable to send message: " + result.getException());
-                        }
-                    });
-            } catch (JsonProcessingException e) {
-                ereLog.error("Could not generate json", e);
-            }
-
+            session.getAsyncRemote()
+                .sendObject("{\"type\": \"Exception\", \"payload\": "+jsonbFactory.toJson(exception)+", \"replyToMessageId\": \""+replyToMessageId+"\"}", result -> {
+                    if (result.getException() != null) {
+                        ereLog.fatal("Unable to send message: " + result.getException());
+                    }
+                });
         });
     }
 
