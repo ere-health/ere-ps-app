@@ -210,11 +210,14 @@
                                                                 <xsl:value-of
                                                                         select="fhir:name/fhir:family/@value"/>
                                                             </fo:block>
-                                                            <fo:block font-size="12pt">
-                                                                <xsl:value-of
-                                                                    select="fhir:qualification/fhir:code/fhir:text/@value"/>
-                                                            </fo:block>
                                                         </xsl:if>
+                                                    </xsl:for-each>
+                                                    <xsl:for-each
+                                                            select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Organization">
+                                                        <fo:block font-size="12pt">
+                                                            <xsl:value-of
+                                                                select="fhir:name/@value"/>
+                                                        </fo:block>
                                                     </xsl:for-each>
                                                     <xsl:for-each
                                                             select="fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:Organization/fhir:telecom">
@@ -246,14 +249,14 @@
                     </fo:table>
                 </fo:table-cell>
                 <fo:table-cell display-align="after">
-                    <fo:block-container reference-orientation="90" margin-left="2mm">
+                    <fo:block-container reference-orientation="90" margin-left="1mm">
                         <fo:block font-size="6pt" font-family="Liberation Sans" font-weight="bold" wrap-option="no-wrap">
                             Sammelcode zur Einlösung aller Verordnungen
                         </fo:block>
                     </fo:block-container>
                 </fo:table-cell>
                 <fo:table-cell display-align="after">
-                    <fo:block margin-left="2mm">
+                    <fo:block margin-left="2.5mm">
                         <fo:instream-foreign-object>
                             <barcode:barcode>
                                 <xsl:attribute name="message"><xsl:variable name="bundles" select="fhir:bundle"/>{"urls":[<xsl:for-each select="fhir:bundle"><xsl:variable name="qrPos" select="position()"/><xsl:variable name="bundlesCount" select="count($bundles)"/>"Task/<xsl:value-of
@@ -348,7 +351,7 @@
                                                             select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:amount/fhir:numerator/fhir:unit/@value"/>
                                                 </xsl:if>
                                                 <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:extension[@url='http://fhir.de/StructureDefinition/normgroesse']">
-                                                    <xsl:text> </xsl:text>
+                                                    <xsl:text> / </xsl:text>
                                                     <xsl:value-of
                                                             select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:extension[@url='http://fhir.de/StructureDefinition/normgroesse']/fhir:valueCode/@value"/>
                                                 </xsl:if>
