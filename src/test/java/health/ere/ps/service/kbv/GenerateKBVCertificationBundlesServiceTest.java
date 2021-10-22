@@ -1,6 +1,8 @@
 package health.ere.ps.service.kbv;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -14,6 +16,7 @@ import javax.xml.transform.TransformerException;
 
 import org.apache.fop.apps.FOPException;
 import org.apache.xml.security.c14n.CanonicalizationException;
+import org.apache.xml.security.c14n.Canonicalizer;
 import org.apache.xml.security.c14n.InvalidCanonicalizerException;
 import org.apache.xml.security.parser.XMLParserException;
 import org.hl7.fhir.r4.model.Bundle;
@@ -228,6 +231,29 @@ public class GenerateKBVCertificationBundlesServiceTest {
     @Test
     public void testRegeneratePdfPF10() throws IOException, FOPException, TransformerException {
         genPDF("PF10", "c509232b3dea6d2303b00ae170a64d2faa8e004246798c154de0fa0e3fc9c9fb");
+    }
+
+    @Test
+    @Disabled
+    public void canonicalizePF() throws IOException, InvalidCanonicalizerException {
+        Canonicalizer canon = Canonicalizer.getInstance(Canonicalizer.ALGO_ID_C14N11_OMIT_COMMENTS);
+        List<File> list = Arrays.asList(new File("src/test/resources/kbv-zip/").listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase().endsWith(".xml");
+            }
+        }));
+        for(File pf : list) {
+            byte[] b = Files.readAllBytes(pf.toPath());
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            try {
+                canon.canonicalize(b, baos, false);
+                byte[] canonXmlBytes = baos.toByteArray();
+                Files.write(pf.toPath(), canonXmlBytes);
+            } catch (XMLParserException | CanonicalizationException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 

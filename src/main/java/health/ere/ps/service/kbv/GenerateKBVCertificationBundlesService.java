@@ -154,7 +154,7 @@ public class GenerateKBVCertificationBundlesService {
             Patient patientAlthaus = (Patient)list.get(0);
             Coverage coverage = (Coverage)list.get(1);
     
-            Medication medication = createMedicationResource("01016144", "Ibuprofen AbZ 800mg 50 Filmtbl. N2", false);
+            Medication medication = createMedicationResource("01016144", "Ibuprofen AbZ 800mg 50 Filmtbl. / N2", false);
            
             MedicationRequest medicationRequest = createMedicationRequest(medication.getIdElement().getIdPart(), patientAlthaus.getIdElement().getIdPart(), practitionerKlaus.getIdElement().getIdPart(), coverage.getIdElement().getIdPart(), "", new BigDecimal(1), "", false, true, true, true);
     
