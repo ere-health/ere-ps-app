@@ -58,6 +58,9 @@ paths:
     post:
       requestBody:
         content:
+          application/xml:
+            schema:
+              type: string
           application/json:
             schema:
               type: object
