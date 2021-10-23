@@ -21,19 +21,21 @@ PF04=`cat examples/PF04.xml | perl -p -w -e s/160.328.876.617.846.18/$Prescripti
 
 # Generate the previews required by KBV that have to be shown to the doctor for signing
 echo -e "$PF03" | curl -X POST --data-binary @- -H "Content-Type: application/xml" http://localhost:8080/kbv/transform > target/PF03.html
-echo -e "$PF04" | curl -X POST --data-binary @- -H "Content-Type: application/xml" http://localhost:8080/kbv/transform > target/PF03.html
+echo -e "$PF04" | curl -X POST --data-binary @- -H "Content-Type: application/xml" http://localhost:8080/kbv/transform > target/PF04.html
 
 # Sign the updated bundles
 echo -e "$PF03\n$PF04" | curl -X POST --data-binary @- -H "Content-Type: application/xml" -H "Accept: text/plain" http://localhost:8080/workflow/batch-sign > target/signed-e-prescriptions.dat
 
 # Post the bundles to update the given prescription
-signedBase64Document1 = `head -1 target/signed-e-prescriptions.dat`
-signedBase64Document2 = `head -2 target/signed-e-prescriptions.dat`
+signedBase64Document1=`head -1 target/signed-e-prescriptions.dat`
+signedBase64Document2=`head -2 target/signed-e-prescriptions.dat | tail -1`
 
 updateERezept1=`echo "{\"taskId\": \"$PrescriptionID1\", \"accessCode\": \"$AccessCode1\",\"signedBytes\": \"$signedBase64Document1\" }"`
 updateERezept2=`echo "{\"taskId\": \"$PrescriptionID2\", \"accessCode\": \"$AccessCode2\",\"signedBytes\": \"$signedBase64Document2\" }"`
 
+echo "Posting: $updateERezept1"
 echo -e "$updateERezept1" | curl -X POST --data-binary @- -H "Content-Type: application/json" -H "Accept: text/plain" http://localhost:8080/workflow/update
+echo "Posting: $updateERezept2"
 echo -e "$updateERezept2" | curl -X POST --data-binary @- -H "Content-Type: application/json" -H "Accept: text/plain" http://localhost:8080/workflow/update
 
 # Create pdf print out
