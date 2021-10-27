@@ -1,11 +1,18 @@
 package health.ere.ps.websocket;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.UUID;
+
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.json.JsonString;
+import javax.json.JsonValue;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -122,6 +129,18 @@ public class WebsocketXmlPrescriptionClientTest {
             clientEndPoint.addMessageHandler(new WebsocketClientEndpoint.MessageHandler() {
                 public void handleMessage(String message) {
                     System.out.println(message);
+                    JsonObject jsonObject = Json.createReader(new StringReader(message)).readObject();
+                    if(jsonObject.getString("type").equals("HTMLBundles")) {
+                        JsonArray ja = jsonObject.getJsonArray("payload");
+                        for(JsonValue jv : ja) {
+                            JsonString js = (JsonString) jv;
+                            try {
+                                Files.write(Paths.get("target/HTML-Bundle-"+UUID.randomUUID().toString()+".html"), js.getString().getBytes());
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
                 }
             });
 
@@ -131,7 +150,7 @@ public class WebsocketXmlPrescriptionClientTest {
            clientEndPoint.sendMessage(message);
             
 
-            Thread.sleep(1000);
+            Thread.sleep(10000);
 
         } catch (URISyntaxException ex) {
             System.err.println("URISyntaxException exception: " + ex.getMessage());
