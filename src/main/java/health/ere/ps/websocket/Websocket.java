@@ -14,7 +14,6 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -27,7 +26,6 @@ import javax.enterprise.event.ObservesAsync;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.json.Json;
-import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.bind.Jsonb;
@@ -44,7 +42,6 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.hl7.fhir.r4.model.Bundle;
 
 import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.parser.IParser;
 import de.gematik.ws.conn.cardservice.wsdl.v8.FaultMessage;
 import de.gematik.ws.tel.error.v2.Error;
 import de.gematik.ws.tel.error.v2.Error.Trace;
@@ -231,29 +228,7 @@ public class Websocket {
             JsonObject object = jsonReader.readObject();
             messageId = object.getString("id", null);
             if ("SignAndUploadBundles".equals(object.getString("type"))) {
-                boolean bundlesValid = true;
-                JsonObject bundlesValidationResultMessage = null;
-                if(!object.getBoolean("ignoreValidation", false)) {
-                    bundlesValidationResultMessage = prescriptionBundleValidator.bundlesValidationResult(object);
-                    
-                    bundlesValid = bundlesValidationResultMessage.getJsonArray("payload")
-                    .stream().filter(jo -> jo instanceof JsonObject)
-                        .map(jo -> ((JsonObject) jo).getBoolean("valid"))
-                        .filter(b -> !b)
-                        .count() == 0;
-                }
-                if(bundlesValid) {
-                    SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(object, senderSession, messageId);
-                    signAndUploadBundlesEvent.fireAsync(event);
-                } else {
-                    senderSession.getAsyncRemote().sendObject(
-                        bundlesValidationResultMessage == null ? "{}" : bundlesValidationResultMessage.toString(),
-                        result -> {
-                            if (!result.isOK()) {
-                                ereLog.fatal("Unable to sent bundlesValidationResult event: " + result.getException());
-                            }
-                        });
-                }
+                processSignAndUploadBundles(senderSession, messageId, object);
             } else if ("ValidateBundles".equals(object.getString("type"))) {
                 JsonObject bundlesValidationResultMessage = prescriptionBundleValidator.bundlesValidationResult(object);
                 senderSession.getAsyncRemote().sendObject(
@@ -309,6 +284,32 @@ public class Websocket {
         } catch(Exception ex) {
             ereLog.warn("Could not process message", ex);
             onException(new ExceptionWithReplyToExcetion(ex, senderSession, messageId));
+        }
+    }
+
+    private void processSignAndUploadBundles(Session senderSession, String messageId, JsonObject object) {
+        boolean bundlesValid = true;
+        JsonObject bundlesValidationResultMessage = null;
+        if(!object.getBoolean("ignoreValidation", false)) {
+            bundlesValidationResultMessage = prescriptionBundleValidator.bundlesValidationResult(object);
+            
+            bundlesValid = bundlesValidationResultMessage.getJsonArray("payload")
+            .stream().filter(jo -> jo instanceof JsonObject)
+                .map(jo -> ((JsonObject) jo).getBoolean("valid"))
+                .filter(b -> !b)
+                .count() == 0;
+        }
+        if(bundlesValid) {
+            SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(object, senderSession, messageId);
+            signAndUploadBundlesEvent.fireAsync(event);
+        } else {
+            senderSession.getAsyncRemote().sendObject(
+                bundlesValidationResultMessage == null ? "{}" : bundlesValidationResultMessage.toString(),
+                result -> {
+                    if (!result.isOK()) {
+                        ereLog.fatal("Unable to sent bundlesValidationResult event: " + result.getException());
+                    }
+                });
         }
     }
 
@@ -508,25 +509,20 @@ public class Websocket {
     }
 
     private void processIncomingMessage(JsonObject object) {
+        String messageId = object.getString("id");
         for (IncomingMessageProcessor messageProcessor : messageProcessors) {
             if (messageProcessor.canProcess(object.toString())) {
                 if (messageProcessor instanceof IncomingBundleMessageProcessor) {
                     String response = messageProcessor.process(object.toString());
-                    List<Bundle> bundles = handleBundlesMessage(response);
-                    signAndUploadBundlesEvent.fireAsync(new SignAndUploadBundlesEvent(bundles));
+                    processSignAndUploadBundles(senderSession, messageId, object);
+                    
+                    JsonObject bundlesJSON = Json.createReader(new StringReader(response)).readObject();
+                    signAndUploadBundlesEvent.fireAsync(new SignAndUploadBundlesEvent(bundlesJSON));
                 } else {
                     messageProcessor.process(object.toString());
                 }
             }
         }
-    }
-
-    private List<Bundle> handleBundlesMessage(String message) {
-        JsonArray bundlesJSON = Json.createReader(new StringReader(message)).readArray();
-        IParser jsonParser = ctx.newJsonParser();
-        return bundlesJSON.stream()
-                .map(jsonBundle -> jsonParser.parseResource(Bundle.class, jsonBundle.toString()))
-                .collect(Collectors.toList());
     }
 
     private void sendMessage(String message, String errorMessage) {

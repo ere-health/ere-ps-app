@@ -26,6 +26,7 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
         this.secretsManagerService = new SecretsManagerService();
         if(userConfig.getConfigurations().getClientCertificate() != null && !userConfig.getConfigurations().getClientCertificate().isEmpty()) {
             String clientCertificateString = userConfig.getConfigurations().getClientCertificate().substring(33);
+
             byte[] clientCertificateBytes = Base64.getDecoder().decode(clientCertificateString);
             try (ByteArrayInputStream certificateInputStream = new ByteArrayInputStream(clientCertificateBytes)) {
                 this.secretsManagerService.setUpSSLContext(userConfig.getConfigurations().getClientCertificatePassword(), certificateInputStream);
