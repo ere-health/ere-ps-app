@@ -279,7 +279,7 @@ public class Websocket {
             } else if ("SimulateException".equals(object.getString("type"))) {
                 onException(simulateException(object));
             } else {
-                processIncomingMessage(object);
+                processIncomingMessage(object, senderSession);
             }
         } catch(Exception ex) {
             ereLog.warn("Could not process message", ex);
@@ -508,16 +508,14 @@ public class Websocket {
         });
     }
 
-    private void processIncomingMessage(JsonObject object) {
-        String messageId = object.getString("id");
+    private void processIncomingMessage(JsonObject object, Session senderSession) {
+        String messageId = object.getString("id", "");
         for (IncomingMessageProcessor messageProcessor : messageProcessors) {
             if (messageProcessor.canProcess(object.toString())) {
                 if (messageProcessor instanceof IncomingBundleMessageProcessor) {
                     String response = messageProcessor.process(object.toString());
-                    processSignAndUploadBundles(senderSession, messageId, object);
-                    
                     JsonObject bundlesJSON = Json.createReader(new StringReader(response)).readObject();
-                    signAndUploadBundlesEvent.fireAsync(new SignAndUploadBundlesEvent(bundlesJSON));
+                    processSignAndUploadBundles(senderSession, messageId, bundlesJSON);
                 } else {
                     messageProcessor.process(object.toString());
                 }

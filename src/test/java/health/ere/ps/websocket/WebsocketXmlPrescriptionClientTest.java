@@ -27,7 +27,7 @@ public class WebsocketXmlPrescriptionClientTest {
 
         String jsonBundle;
         try {
-            jsonBundle = new String(Files.readAllBytes(Paths.get("../vos-erp-translator/src/test/resources/websocket/SignAndUploadVOSBundle.json")));
+            jsonBundle = new String(Files.readAllBytes(Paths.get("../vos-erp-translator/src/test/resources/vos_test_cases/pf01.json")));
             
             jsonBundle = jsonBundle.replaceFirst("a152qv21-9851-701o-32vx-9q3a3c5r91tf", UUID.randomUUID().toString());
 
@@ -150,7 +150,7 @@ public class WebsocketXmlPrescriptionClientTest {
            clientEndPoint.sendMessage(message);
             
 
-            Thread.sleep(10000);
+            Thread.sleep(30000);
 
         } catch (URISyntaxException ex) {
             System.err.println("URISyntaxException exception: " + ex.getMessage());
