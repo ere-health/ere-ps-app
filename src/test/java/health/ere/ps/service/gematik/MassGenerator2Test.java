@@ -112,10 +112,19 @@ public class MassGenerator2Test {
         createERezeptMassCreate("src/test/resources/manuels-egk/egk.txt", "src/test/resources/manuels-egk/insurance.txt");
     }
 
+    @Test
+    void testCreateERezeptMassCGMLauer() throws Exception {
+        createERezeptMassCreate("src/test/resources/manuels-egk/egk.txt", "../secret-test-print-samples/CGM-Lauer/insurance.txt", "../secret-test-print-samples/CGM-Lauer/templates/");
+    }
+
     void createERezeptMassCreate(String cardsString) throws Exception {
         createERezeptMassCreate(cardsString, null);
     }
+
     void createERezeptMassCreate(String cardsString, String insuranceString) throws Exception {
+        createERezeptMassCreate(cardsString, insuranceString, "../secret-test-print-samples/CIDA/templates/");
+    }
+    void createERezeptMassCreate(String cardsString, String insuranceString, String templateFolder) throws Exception {
         int i = 0;
         DocumentService documentService = new DocumentService();
                 documentService.init();
@@ -136,7 +145,7 @@ public class MassGenerator2Test {
         }
         for(String singleInsurance : insuranceList) {
             for(String card : cards) {
-                try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get("../secret-test-print-samples/CIDA/templates/"), "*")) {
+                try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(templateFolder), "*")) {
                     for (Path entry : stream) {
                         File file = entry.toFile();
                         List<File> bundleFile;
