@@ -290,7 +290,7 @@ public class ERezeptWorkflowServiceTest {
     }
 
     @Test
-    // @Disabled
+    @Disabled
     void testCreateERezeptOnPrescriptionServer() throws IOException, ERezeptWorkflowException, FOPException, TransformerException {
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/examples_erezept/bundle_July_2.xml"));
         BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(bundle);
