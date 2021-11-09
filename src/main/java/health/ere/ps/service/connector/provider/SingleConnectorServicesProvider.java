@@ -25,8 +25,11 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
         this.userConfig = userConfig;
         this.secretsManagerService = new SecretsManagerService();
         if(userConfig.getConfigurations().getClientCertificate() != null && !userConfig.getConfigurations().getClientCertificate().isEmpty()) {
+            
             String clientCertificateString = userConfig.getConfigurations().getClientCertificate().substring(33);
             byte[] clientCertificateBytes = Base64.getDecoder().decode(clientCertificateString);
+            
+            // byte[] clientCertificateBytes = getCertificateFromUrlString(SuserConfig.getConfigurations().getClientCertificate(), userConfig.getConfigurations().getClientCertificatePassword());
             try (ByteArrayInputStream certificateInputStream = new ByteArrayInputStream(clientCertificateBytes)) {
                 this.secretsManagerService.setUpSSLContext(userConfig.getConfigurations().getClientCertificatePassword(), certificateInputStream);
             } catch (NoSuchAlgorithmException | KeyStoreException | CertificateException | IOException
@@ -39,6 +42,20 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
         this.endpointDiscoveryService = new EndpointDiscoveryService(userConfig, secretsManagerService);
 
         initializeServices();
+    }
+
+    public static byte[] getCertificateFromUrlString(String url, String password) {
+        // parse URL with java.net.URL
+
+        // figure out if it is a data or a file url
+
+        // if a data url, return data as byte array
+
+        // if file url
+        // search for parameter alias
+        // read file as P12 Keystore
+        // read key with alias alias from P12 keystore
+        return null;
     }
 
     public UserConfig getUserConfig() {
