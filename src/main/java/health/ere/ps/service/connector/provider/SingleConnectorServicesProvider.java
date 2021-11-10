@@ -12,6 +12,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.Base64;
 import java.util.logging.Logger;
+import java.util.regex.PatternSyntaxException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -49,46 +50,54 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
         initializeServices();
     }
 
-    public static byte[] getCertificateFromUriString(String uri, String keystorePassword) throws URISyntaxException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
-        String keystoreBase64;
-        KeyStore store = KeyStore.getInstance("PKCS12");
+    public static byte[] getKeyFromKeyStoreUriString(String keystoreUri, String keystorePassword) throws URISyntaxException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+        KeyStore store = KeyStore.getInstance("pkcs12");
+        Certificate certificate;
+        byte[] key = null;
 
-        // parse URL with java.net.URL
-        URI uriParser = new URI(uri);
+        URI uriParser = new URI(keystoreUri);
         String scheme = uriParser.getScheme();
+
         if (scheme.equalsIgnoreCase("data")){
+            // example: "data:application/x-pkcs12;base64,MIACAQMwgAY...gtc/qoCAwGQAAAA"
             String[] schemeSpecificParts = uriParser.getSchemeSpecificPart().split(";");
             String contentType = schemeSpecificParts[0];
             if (contentType.equalsIgnoreCase("application/x-pkcs12")){
                 String[] dataParts = schemeSpecificParts[1].split(",");
                 String encodingType = dataParts[0];
                 if (encodingType.equalsIgnoreCase("base64")){
-                    keystoreBase64 = dataParts[1];
-                    try (ByteArrayInputStream keystoreInputStream = new ByteArrayInputStream(Base64.getDecoder().decode(keystoreBase64))){
-                      store.load(keystoreInputStream, keystorePassword.toCharArray());
-                    }
-                    Certificate certificate = store.getCertificate(store.aliases().nextElement());
-                    return certificate.getEncoded();
+                    String keystoreBase64 = dataParts[1];
+                    ByteArrayInputStream keystoreInputStream = new ByteArrayInputStream(Base64.getDecoder().decode(keystoreBase64));
+                    store.load(keystoreInputStream, keystorePassword.toCharArray());
+                    certificate = store.getCertificate(store.aliases().nextElement());
+                    key = certificate.getEncoded();
                 }
             }
         } else if (scheme.equalsIgnoreCase("file")) {
-            String[] schemeSpecificParts = uriParser.getSchemeSpecificPart().split("?");
-            String keystoreFile = schemeSpecificParts[0];
-            String keyAlias = schemeSpecificParts[1];
-            store.load(new FileInputStream(keystoreFile), keystorePassword.toCharArray());
-            Certificate certificate = store.getCertificate(keyAlias);
-            return certificate.getEncoded();
+            String keyAlias = null;
+            String keystoreFile = uriParser.getPath();
+            String query = uriParser.getRawQuery();
+            try {
+                String[] queryParts = query.split("=");
+                String parameterName = queryParts[0];
+                String parameterValue = queryParts[1];
+                if (parameterName.equalsIgnoreCase("alias")){
+                    // example: "src/test/resources/certs/keystore.p12?alias=key2"
+                    keyAlias = parameterValue;
+                }
+            } catch (NullPointerException|PatternSyntaxException e){
+                // example: "src/test/resources/certs/keystore.p12"
+            }
+            FileInputStream in = new FileInputStream(keystoreFile);
+            store.load(in, keystorePassword.toCharArray());
+            if (keyAlias == null){
+                certificate = store.getCertificate(store.aliases().nextElement());
+            } else {
+                certificate = store.getCertificate(keyAlias);
+            }
+            key = certificate.getEncoded();
         }
-
-        // figure out if it is a data or a file url
-
-        // if a data url, return data as byte array
-
-        // if file url
-        // search for parameter alias
-        // read file as P12 Keystore
-        // read key with alias alias from P12 keystore
-        return null;
+        return key;
     }
 
     public UserConfig getUserConfig() {
