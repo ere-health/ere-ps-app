@@ -30,14 +30,20 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
     public SingleConnectorServicesProvider(UserConfig userConfig, Event<Exception> exceptionEvent) {
         this.userConfig = userConfig;
         this.secretsManagerService = new SecretsManagerService();
-        if(userConfig.getConfigurations().getClientCertificate() != null && !userConfig.getConfigurations().getClientCertificate().isEmpty()) {
-            
-            String clientCertificateString = userConfig.getConfigurations().getClientCertificate().substring(33);
-            byte[] clientCertificateBytes = Base64.getDecoder().decode(clientCertificateString);
-            
-            // byte[] clientCertificateBytes = getKeyFromKeyStoreUriString(userConfig.getConfigurations().getClientCertificate(), userConfig.getConfigurations().getClientCertificatePassword());
+        String configKeystoreUri = userConfig.getConfigurations().getClientCertificate();
+        String configKeystorePass = userConfig.getConfigurations().getClientCertificatePassword();
+        if (configKeystoreUri != null && !configKeystoreUri.isEmpty()) {
+            byte[] clientCertificateBytes = null;
+            try {
+                clientCertificateBytes = getKeyFromKeyStoreUri(configKeystoreUri, configKeystorePass);
+            } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException
+            | URISyntaxException | IOException e) {
+                log.severe("There was a problem when unpacking key from ClientCertificateKeyStore:");
+                e.printStackTrace();
+                exceptionEvent.fireAsync(e);
+            }
             try (ByteArrayInputStream certificateInputStream = new ByteArrayInputStream(clientCertificateBytes)) {
-                this.secretsManagerService.setUpSSLContext(userConfig.getConfigurations().getClientCertificatePassword(), certificateInputStream);
+                this.secretsManagerService.setUpSSLContext(configKeystorePass, certificateInputStream);
             } catch (NoSuchAlgorithmException | KeyStoreException | CertificateException | IOException
             | UnrecoverableKeyException | KeyManagementException e) {
                 log.severe("There was a problem when creating the SSLContext:");
@@ -50,7 +56,7 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
         initializeServices();
     }
 
-    public static byte[] getKeyFromKeyStoreUriString(String keystoreUri, String keystorePassword) throws URISyntaxException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+    public static byte[] getKeyFromKeyStoreUri(String keystoreUri, String keystorePassword) throws URISyntaxException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
         KeyStore store = KeyStore.getInstance("pkcs12");
         Certificate certificate;
         byte[] key = null;
@@ -86,6 +92,7 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
                     keyAlias = parameterValue;
                 }
             } catch (NullPointerException|PatternSyntaxException e){
+                // take the first key from KeyStore, whichever it is
                 // example: "file:src/test/resources/certs/keystore.p12"
             }
             FileInputStream in = new FileInputStream(keystoreFile);
