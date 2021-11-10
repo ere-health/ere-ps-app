@@ -35,7 +35,7 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
             String clientCertificateString = userConfig.getConfigurations().getClientCertificate().substring(33);
             byte[] clientCertificateBytes = Base64.getDecoder().decode(clientCertificateString);
             
-            // byte[] clientCertificateBytes = getCertificateFromUriString(userConfig.getConfigurations().getClientCertificate(), userConfig.getConfigurations().getClientCertificatePassword());
+            // byte[] clientCertificateBytes = getKeyFromKeyStoreUriString(userConfig.getConfigurations().getClientCertificate(), userConfig.getConfigurations().getClientCertificatePassword());
             try (ByteArrayInputStream certificateInputStream = new ByteArrayInputStream(clientCertificateBytes)) {
                 this.secretsManagerService.setUpSSLContext(userConfig.getConfigurations().getClientCertificatePassword(), certificateInputStream);
             } catch (NoSuchAlgorithmException | KeyStoreException | CertificateException | IOException
@@ -82,11 +82,11 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
                 String parameterName = queryParts[0];
                 String parameterValue = queryParts[1];
                 if (parameterName.equalsIgnoreCase("alias")){
-                    // example: "src/test/resources/certs/keystore.p12?alias=key2"
+                    // example: "file:src/test/resources/certs/keystore.p12?alias=key2"
                     keyAlias = parameterValue;
                 }
             } catch (NullPointerException|PatternSyntaxException e){
-                // example: "src/test/resources/certs/keystore.p12"
+                // example: "file:src/test/resources/certs/keystore.p12"
             }
             FileInputStream in = new FileInputStream(keystoreFile);
             store.load(in, keystorePassword.toCharArray());
