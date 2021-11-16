@@ -27,7 +27,7 @@ public class WebsocketXmlPrescriptionClientTest {
 
         String jsonBundle;
         try {
-            jsonBundle = new String(Files.readAllBytes(Paths.get("../vos-erp-translator/src/test/resources/vos_test_cases/pf01.json")));
+            jsonBundle = new String(Files.readAllBytes(Paths.get("../vos-erp-translator/src/test/resources/websocket/ere.json")));
             
             jsonBundle = jsonBundle.replaceFirst("a152qv21-9851-701o-32vx-9q3a3c5r91tf", UUID.randomUUID().toString());
 

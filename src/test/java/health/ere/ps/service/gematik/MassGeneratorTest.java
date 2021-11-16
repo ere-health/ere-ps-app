@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.nio.file.DirectoryIteratorException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -49,7 +48,6 @@ import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
 import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.validation.ValidationResult;
 import health.ere.ps.config.AppConfig;
-import health.ere.ps.exception.gematik.ERezeptWorkflowException;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.profile.RUTestProfile;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
@@ -117,7 +115,7 @@ public class MassGeneratorTest {
         DocumentService documentService = new DocumentService();
                 documentService.init();
         
-        List<String> cards = Files.readAllLines(Paths.get("../secret-test-print-samples/Noventi/egk/Versicherte_20210915.txt"));
+        List<String> cards = Files.readAllLines(Paths.get("../secret-test-print-samples/Noventi/egk/Versicherte_20211115.txt"));
 
         List<Map<String,String>> versicherte = cards.stream().map(s -> {
             String[] a = s.split("\\|");
@@ -204,7 +202,13 @@ public class MassGeneratorTest {
                     //}
                     ValidationResult validationResult = prescriptionBundleValidator.validateResource(bundle, true);
                     if(validationResult.isSuccessful()) {
-                        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(bundle);
+                        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable;
+                        try {
+                            bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(bundle);
+                        } catch(Exception ex) {
+                            bundleWithAccessCodeOrThrowable = new BundleWithAccessCodeOrThrowable(ex);
+                            ex.printStackTrace();
+                        }
                         String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
                                 .withZone(ZoneOffset.UTC)
                                 .format(Instant.now());
@@ -228,12 +232,12 @@ public class MassGeneratorTest {
                         log.info(entry.toFile().getName()+" is not valid");
                     }
                     i++;
+                    if(i % 80 == 0) {
+                        eRezeptWorkflowService.deactivateComfortSignature();
+                        eRezeptWorkflowService.activateComfortSignature();
+                    }
                 }
-                if(i == 100) {
-                    eRezeptWorkflowService.deactivateComfortSignature();
-                    eRezeptWorkflowService.activateComfortSignature();
-                }
-            } catch (DirectoryIteratorException | ERezeptWorkflowException ex) {
+            } catch (Exception ex) {
                 // I/O error encounted during the iteration, the cause is an IOException
                 log.info("Exception: "+ex);
                     
