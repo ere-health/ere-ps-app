@@ -113,6 +113,11 @@ public class MassGenerator2Test {
     }
 
     @Test
+    void testCreateERezeptMassCreateManuel2() throws Exception {
+        createERezeptMassCreate("src/test/resources/manuels-egk/egk.txt");
+    }
+
+    @Test
     void testCreateERezeptMassCGMLauer() throws Exception {
         createERezeptMassCreate("src/test/resources/manuels-egk/egk.txt", "../secret-test-print-samples/CGM-Lauer/insurance.txt", "../secret-test-print-samples/CGM-Lauer/templates/");
     }
