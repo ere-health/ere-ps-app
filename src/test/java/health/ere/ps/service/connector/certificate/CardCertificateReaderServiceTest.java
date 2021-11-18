@@ -7,7 +7,6 @@ import java.util.logging.LogManager;
 
 import javax.inject.Inject;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.bouncycastle.crypto.CryptoException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +16,6 @@ import health.ere.ps.exception.connector.ConnectorCardCertificateReadException;
 import health.ere.ps.exception.connector.ConnectorCardsException;
 import health.ere.ps.profile.TitusTestProfile;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
-import health.ere.ps.service.idp.crypto.CryptoLoader;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 
@@ -49,32 +47,17 @@ class CardCertificateReaderServiceTest {
     }
 
     @Test
-    void test_Successful_ReadCardCertificate_API_Call() throws ConnectorCardCertificateReadException, ConnectorCardsException {
-        
-        String smcbHandle = connectorCardsService.getConnectorCardHandle(
-                ConnectorCardsService.CardHandleType.SMC_B);
-        
-        Assertions.assertTrue(ArrayUtils.isNotEmpty(
-                cardCertificateReaderService.readCardCertificate(smcbHandle)),
-                "Smart card certificate was retrieved");
-    }
-
-    @Test
     void test_Successful_X509Certificate_Creation_From_ReadCardCertificate_API_Call()
             throws ConnectorCardCertificateReadException, IOException, CertificateException,
             CryptoException, ConnectorCardsException {
 
-                String smcbHandle = connectorCardsService.getConnectorCardHandle(
+        String smcbHandle = connectorCardsService.getConnectorCardHandle(
                 ConnectorCardsService.CardHandleType.SMC_B);
-        
                 
-        byte[] base64_Decoded_Asn1_DER_Format_CertBytes =
-                cardCertificateReaderService.readCardCertificate(smcbHandle);
-        Assertions.assertTrue(ArrayUtils.isNotEmpty(base64_Decoded_Asn1_DER_Format_CertBytes),
+        X509Certificate x509Certificate =
+                cardCertificateReaderService.retrieveSmcbCardCertificate(smcbHandle);
+        Assertions.assertNotNull(x509Certificate,
                 "Smart card certificate was retrieved");
-
-        X509Certificate x509Certificate = CryptoLoader.getCertificateFromAsn1DERCertBytes(
-                base64_Decoded_Asn1_DER_Format_CertBytes);
 
         x509Certificate.checkValidity();
     }

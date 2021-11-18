@@ -56,16 +56,24 @@ public class EndpointDiscoveryService {
     private String eventServiceEndpointAddress;
     private String cardServiceEndpointAddress;
 
+    public EndpointDiscoveryService() {
+
+    }
+
+    public EndpointDiscoveryService(UserConfig userConfig, SecretsManagerService secretsManagerService) {
+        this.userConfig = userConfig;
+        this.secretsManagerService = secretsManagerService;
+    }
+
+
     public void obtainConfiguration() throws IOException, ParserConfigurationException {
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
         clientBuilder.sslContext(secretsManagerService.getSslContext());
 
-        if (!appConfig.getVerifyHostname().equals("true")) {
+        if (appConfig == null || !appConfig.getVerifyHostname().equals("true")) {
             // disable hostname verification
-            // This line is currently not working
             clientBuilder = clientBuilder.hostnameVerifier(new SSLUtilities.FakeHostnameVerifier());
         }
-    
 
         Builder builder = clientBuilder.build()
                 .target(userConfig.getConnectorBaseURL())

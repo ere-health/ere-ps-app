@@ -241,23 +241,8 @@ public class VAU {
         aKeyAgree.init(new ECPrivateKeyParameters(myPrivate.getD(), ecDomain));
         BigInteger sharedSecret = aKeyAgree.calculateAgreement(vauPublicKey);
         byte[] sharedSecretBytes = sharedSecret.toByteArray();
-        byte[] sharedSecretBytesCopy = new byte[32];
 
-        // sharedSecretBytes muss 32 Byte groß sein entweder vorn abschneiden oder mit 0
-        // auffüllen
-        if (sharedSecretBytes.length > 32) {
-            System.arraycopy(sharedSecretBytes, sharedSecretBytes.length - 32, sharedSecretBytesCopy, 0, 32);
-        } else if (sharedSecretBytes.length < 32) {
-            sharedSecretBytesCopy = Arrays.copyOfRange( // Source
-                    sharedSecretBytes,
-                    // The Start index
-                    0,
-                    // The end index
-                    32);
-        } else {
-            sharedSecretBytesCopy = sharedSecretBytes;
-        }
-        sharedSecretBytes = sharedSecretBytesCopy;
+        sharedSecretBytes = make32ByteLong(sharedSecretBytes);
         log.fine("SharedSecret=" + byteArrayToHexString(sharedSecretBytes) + " " + sharedSecretBytes.length);
 
         // HKDF
@@ -296,6 +281,26 @@ public class VAU {
         mem.write(outputAESCGM, 0, outputAESCGM.length);
 
         return mem.toByteArray();
+    }
+
+    public static byte[] make32ByteLong(byte[] sharedSecretBytes) {
+        byte[] sharedSecretBytesCopy = new byte[32];
+        // sharedSecretBytes muss 32 Byte groß sein entweder vorn abschneiden oder mit 0
+        // auffüllen
+        if (sharedSecretBytes.length > 32) {
+            System.arraycopy(sharedSecretBytes, sharedSecretBytes.length - 32, sharedSecretBytesCopy, 0, 32);
+        } else if (sharedSecretBytes.length < 32) {
+            sharedSecretBytesCopy = Arrays.copyOfRange( // Source
+                    sharedSecretBytes,
+                    // The Start index
+                    0,
+                    // The end index
+                    32);
+        } else {
+            sharedSecretBytesCopy = sharedSecretBytes;
+        }
+        sharedSecretBytes = sharedSecretBytesCopy;
+        return sharedSecretBytes;
     }
 
     public static class KeyCoords {

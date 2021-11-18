@@ -57,7 +57,9 @@ public class DocumentResource {
         BundleWithAccessCodeOrThrowable bt = new BundleWithAccessCodeOrThrowable();
         if(jv instanceof JsonObject) {
             JsonObject jo = (JsonObject) jv;
-            bt.setAccessCode(jo.getString("accessCode"));
+            if(jo.containsKey("accessCode")) {
+                bt.setAccessCode(jo.getString("accessCode"));
+            }
             String mimeType = jo.getString("mimeType", "application/json");
             if("application/xml".equals(mimeType)) {
                 bt.setBundle(xmlParser.parseResource(Bundle.class, jo.getJsonString("bundle").getString()));

@@ -17,12 +17,15 @@ public class AbortTasksEvent extends AbstractEvent {
     }
 
     public AbortTasksEvent(JsonArray abortTaskEntries) {
-        this.tasks = abortTaskEntries.stream().filter(o -> o instanceof JsonObject)
+        if(abortTaskEntries != null) {
+            this.tasks = abortTaskEntries.stream().filter(o -> o instanceof JsonObject)
                 .map(o -> new AbortTaskEntry((JsonObject) o)).collect(Collectors.toList());
+        }
     }
 
-    public AbortTasksEvent(JsonArray abortTaskEntries, Session replyTo, String id) {
-        this(abortTaskEntries);
+    public AbortTasksEvent(JsonObject object, Session replyTo, String id) {
+        this(object.getJsonArray("payload"));
+        parseRuntimeConfig(object);
         this.replyTo = replyTo;
         this.id = id;
     }

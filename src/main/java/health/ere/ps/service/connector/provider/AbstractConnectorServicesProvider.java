@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.ws.BindingProvider;
@@ -29,16 +27,14 @@ import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.connector.endpoint.EndpointDiscoveryService;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
 
-@ApplicationScoped
-public class ConnectorServicesProvider {
-    private final static Logger log = Logger.getLogger(ConnectorServicesProvider.class.getName());
-
-    @Inject
-    UserConfig userConfig;
+public abstract class AbstractConnectorServicesProvider {
+    private final static Logger log = Logger.getLogger(AbstractConnectorServicesProvider.class.getName());
+ 
     @Inject
     EndpointDiscoveryService endpointDiscoveryService;
     @Inject
     SecretsManagerService secretsManagerService;
+
 
     private CardServicePortType cardServicePortType;
     private CertificateServicePortType certificateService;
@@ -47,11 +43,6 @@ public class ConnectorServicesProvider {
     private SignatureServicePortTypeV740 signatureServicePortType;
     private SignatureServicePortTypeV755 signatureServicePortTypeV755;
     private ContextType contextType;
-
-    @PostConstruct
-    void init() {
-        initializeServices();
-    }
 
     public void initializeServices() {
         try {
@@ -143,10 +134,10 @@ public class ConnectorServicesProvider {
 
     private void initializeContextType() {
         ContextType contextType = new ContextType();
-        contextType.setMandantId(userConfig.getMandantId());
-        contextType.setClientSystemId(userConfig.getClientSystemId());
-        contextType.setWorkplaceId(userConfig.getWorkplaceId());
-        contextType.setUserId(userConfig.getUserId());
+        contextType.setMandantId(getUserConfig().getMandantId());
+        contextType.setClientSystemId(getUserConfig().getClientSystemId());
+        contextType.setWorkplaceId(getUserConfig().getWorkplaceId());
+        contextType.setUserId(getUserConfig().getUserId());
 
         this.contextType = contextType;
     }
@@ -157,8 +148,8 @@ public class ConnectorServicesProvider {
         bindingProvider.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier",
                 new SSLUtilities.FakeHostnameVerifier());
 
-        String basicAuthUsername = userConfig.getConfigurations().getBasicAuthUsername();
-        String basicAuthPassword = userConfig.getConfigurations().getBasicAuthPassword();
+        String basicAuthUsername = getUserConfig().getConfigurations().getBasicAuthUsername();
+        String basicAuthPassword = getUserConfig().getConfigurations().getBasicAuthPassword();
 
         if(basicAuthUsername != null && !basicAuthUsername.equals("")) {
             bindingProvider.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, basicAuthUsername);
@@ -200,4 +191,6 @@ public class ConnectorServicesProvider {
     public ContextType getContextType() {
         return contextType;
     }
+
+    public abstract UserConfig getUserConfig();
 }

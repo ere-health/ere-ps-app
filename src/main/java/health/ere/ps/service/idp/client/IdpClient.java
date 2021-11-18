@@ -29,6 +29,7 @@ import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.lang.JoseException;
 
+import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.exception.idp.IdpClientException;
 import health.ere.ps.exception.idp.IdpException;
 import health.ere.ps.exception.idp.IdpJoseException;
@@ -140,11 +141,16 @@ public class IdpClient implements IIdpClient {
                     }
                 }));
     }
+    public IdpTokenResult login(X509Certificate x509Certificate) throws IdpJoseException, IdpClientException, IdpException {
+        return login(x509Certificate, (RuntimeConfig) null);
+    }
 
-    public IdpTokenResult login(X509Certificate x509Certificate) throws IdpJoseException,
+    public IdpTokenResult login(X509Certificate x509Certificate, RuntimeConfig runtimeConfig) throws IdpJoseException,
             IdpClientException, IdpException {
         smcbAuthenticatorService.setX509Certificate(x509Certificate);
-        return login(x509Certificate, smcbAuthenticatorService::signIdpChallenge);
+        return login(x509Certificate, (pair) -> {
+            return smcbAuthenticatorService.signIdpChallenge(pair, runtimeConfig);
+        });
     }
 
     private IdpTokenResult login(final X509Certificate certificate,

@@ -1,0 +1,20 @@
+[Unit]
+Description=ere.health E-Rezept Service
+[Service]
+User=root
+# The configuration file application.properties should be here:
+
+#change this to your workspace
+WorkingDirectory=/opt/ere-health
+
+#path to executable. 
+#executable is a bash script which calls jar file
+ExecStart=/opt/ere-health/run.sh
+
+SuccessExitStatus=143
+TimeoutStopSec=10
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

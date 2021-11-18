@@ -1,19 +1,22 @@
 package health.ere.ps.service.connector.cards;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.logging.Logger;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import org.apache.commons.collections4.CollectionUtils;
+
 import de.gematik.ws.conn.cardservice.v8.CardInfoType;
 import de.gematik.ws.conn.cardservice.v8.Cards;
 import de.gematik.ws.conn.eventservice.v7.GetCards;
 import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
 import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
+import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.exception.connector.ConnectorCardsException;
-import health.ere.ps.service.connector.provider.ConnectorServicesProvider;
-import org.apache.commons.collections4.CollectionUtils;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.util.List;
-import java.util.Optional;
-import java.util.logging.Logger;
+import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 
 
 @ApplicationScoped
@@ -21,22 +24,22 @@ public class ConnectorCardsService {
     private static final Logger log = Logger.getLogger(ConnectorCardsService.class.getName());
 
     @Inject
-    ConnectorServicesProvider connectorServicesProvider;
+    MultiConnectorServicesProvider connectorServicesProvider;
 
 
-    private GetCardsResponse getConnectorCards() throws ConnectorCardsException {
+    private GetCardsResponse getConnectorCards(RuntimeConfig runtimeConfig) throws ConnectorCardsException {
         GetCards parameter = new GetCards();
-        parameter.setContext(connectorServicesProvider.getContextType());
+        parameter.setContext(connectorServicesProvider.getContextType(runtimeConfig));
 
         try {
-            return connectorServicesProvider.getEventServicePortType().getCards(parameter);
+            return connectorServicesProvider.getEventServicePortType(runtimeConfig).getCards(parameter);
         } catch (FaultMessage e) {
             throw new ConnectorCardsException("Error getting connector card handles.", e);
         }
     }
 
-    private Optional<List<CardInfoType>> getConnectorCardsInfo() throws ConnectorCardsException {
-        GetCardsResponse response = getConnectorCards();
+    private Optional<List<CardInfoType>> getConnectorCardsInfo(RuntimeConfig runtimeConfig) throws ConnectorCardsException {
+        GetCardsResponse response = getConnectorCards(runtimeConfig);
         List<CardInfoType> cardHandleTypeList = null;
 
         if (response != null) {
@@ -53,7 +56,12 @@ public class ConnectorCardsService {
 
     public String getConnectorCardHandle(CardHandleType cardHandleType)
             throws ConnectorCardsException {
-        Optional<List<CardInfoType>> cardsInfoList = getConnectorCardsInfo();
+        return getConnectorCardHandle(cardHandleType, null);
+    }
+
+    public String getConnectorCardHandle(CardHandleType cardHandleType, RuntimeConfig runtimeConfig)
+            throws ConnectorCardsException {
+        Optional<List<CardInfoType>> cardsInfoList = getConnectorCardsInfo(runtimeConfig);
         String cardHandle = null;
 
         if (cardsInfoList.isPresent()) {

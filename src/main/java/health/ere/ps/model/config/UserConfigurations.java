@@ -5,12 +5,20 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.json.JsonObject;
 import javax.json.bind.annotation.JsonbProperty;
+import javax.servlet.http.HttpServletRequest;
 
 public class UserConfigurations {
 
@@ -84,11 +92,45 @@ public class UserConfigurations {
     }
 
     public UserConfigurations(Properties properties) {
+        fillValues((s) -> properties.getProperty(s));
+    }
+
+    public UserConfigurations(JsonObject jsonObject) {
+        fillValues((s) -> {
+            try {
+                return jsonObject.getString(UserConfigurations.class.getDeclaredField(s).getAnnotation(JsonbProperty.class).value(), null);
+            } catch (NoSuchFieldException | SecurityException e) {
+                log.log(Level.SEVERE, "Could not read property", e);
+                return null;
+            }
+        });
+    }
+
+    public UserConfigurations(HttpServletRequest httpServletRequest) {
+        Enumeration<String> enumeration = httpServletRequest.getHeaderNames();
+        List<String> list = Collections.list(enumeration);
+        for(String headerName : list) {
+            if(headerName.startsWith("X-") && !"X-eHBAHandle".equals(headerName) && !"X-SMCBHandle".equals(headerName)) {
+                String propertyName = headerName.substring(2);
+                Field field;
+                try {
+                    field = UserConfigurations.class.getDeclaredField(propertyName);
+                    if(field != null) {
+                        field.set(this, httpServletRequest.getHeader(headerName));
+                    }
+                } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+                    log.log(Level.WARNING, "Could not extract values from header", e);
+                }
+            }
+        }
+    }
+
+    private void fillValues(Function<String, Object> getValue) {
         for(PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
             try {
                 Method writeMethod = pd.getWriteMethod();
                 if(writeMethod != null) {
-                    writeMethod.invoke(this, properties.getProperty(pd.getName()));
+                    writeMethod.invoke(this, getValue.apply(pd.getName()));
                 } else {
                     if(!"class".equals(pd.getName())) {
                         log.warning("No write method for: "+pd.getName());
@@ -114,6 +156,10 @@ public class UserConfigurations {
             }
         }
         return properties;
+    }
+
+    public static BeanInfo getBeanInfo() {
+        return beanInfo;
     }
 
     public String getErixaHotfolder() {
@@ -260,4 +306,8 @@ public class UserConfigurations {
         this.pruefnummer = pruefnummer;
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(erixaHotfolder, erixaDrugstoreEmail, erixaUserEmail, erixaUserPassword, erixaApiKey, muster16TemplateProfile, connectorBaseURL, mandantId, workplaceId, clientSystemId, userId, version, tvMode, clientCertificate, clientCertificatePassword, basicAuthUsername, basicAuthPassword, pruefnummer);
+    }
 }
