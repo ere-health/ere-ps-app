@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.Invocation.Builder;
@@ -74,6 +75,10 @@ public class EndpointDiscoveryService {
             // disable hostname verification
             clientBuilder = clientBuilder.hostnameVerifier(new SSLUtilities.FakeHostnameVerifier());
         }
+        if(userConfig.getConnectorBaseURL() == null) {
+            log.warning("ConnectorBaseURL is null, won't read connector.sds");
+            return;
+        }
 
         Builder builder = clientBuilder.build()
                 .target(userConfig.getConnectorBaseURL())
@@ -138,23 +143,23 @@ public class EndpointDiscoveryService {
                 }
             }
 
-        } catch (SAXException | IllegalArgumentException e) {
-            log.log(Level.SEVERE, "Could not parse connector.sds", e);
+        } catch (ProcessingException | SAXException | IllegalArgumentException e) {
+            log.log(Level.SEVERE, "Could not get or parse connector.sds", e);
         }
 
-        if (authSignatureServiceEndpointAddress == null) {
+        if (authSignatureServiceEndpointAddress == null && fallbackAuthSignatureServiceEndpointAddress != null) {
             authSignatureServiceEndpointAddress = fallbackAuthSignatureServiceEndpointAddress.orElseThrow();
         }
-        if (cardServiceEndpointAddress == null) {
+        if (cardServiceEndpointAddress == null && fallbackCardServiceEndpointAddress != null) {
             cardServiceEndpointAddress = fallbackCardServiceEndpointAddress.orElseThrow();
         }
-        if (signatureServiceEndpointAddress == null) {
+        if (signatureServiceEndpointAddress == null && fallbackSignatureServiceEndpointAddress!= null) {
             signatureServiceEndpointAddress = fallbackSignatureServiceEndpointAddress.orElseThrow();
         }
-        if (eventServiceEndpointAddress == null) {
+        if (eventServiceEndpointAddress == null && fallbackEventServiceEndpointAddress != null) {
             eventServiceEndpointAddress = fallbackEventServiceEndpointAddress.orElseThrow();
         }
-        if (certificateServiceEndpointAddress == null) {
+        if (certificateServiceEndpointAddress == null && fallbackCertificateServiceEndpointAddress != null) {
             certificateServiceEndpointAddress = fallbackCertificateServiceEndpointAddress.orElseThrow();
         }
     }

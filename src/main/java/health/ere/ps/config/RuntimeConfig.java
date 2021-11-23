@@ -30,6 +30,11 @@ public class RuntimeConfig extends UserConfig {
         }
     }
 
+    // for unit test
+    public RuntimeConfig(String defaultConnectorBaseURI) {
+        this.defaultConnectorBaseURI = defaultConnectorBaseURI;
+    }
+
     public void copyValuesFromUserConfig(UserConfig userConfig) {
         try {
             this.defaultConnectorBaseURI = userConfig.getConnectorBaseURL();

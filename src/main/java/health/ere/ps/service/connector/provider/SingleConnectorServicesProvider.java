@@ -3,20 +3,27 @@ package health.ere.ps.service.connector.provider;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
+import java.security.PrivateKey;
 import java.security.UnrecoverableKeyException;
-import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Base64;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.PatternSyntaxException;
 
 import javax.enterprise.event.Event;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.X509KeyManager;
 
 import health.ere.ps.config.UserConfig;
 import health.ere.ps.service.common.security.SecretsManagerService;
@@ -33,20 +40,12 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
         String configKeystoreUri = userConfig.getConfigurations().getClientCertificate();
         String configKeystorePass = userConfig.getConfigurations().getClientCertificatePassword();
         if (configKeystoreUri != null && !configKeystoreUri.isEmpty()) {
-            byte[] clientCertificateBytes = null;
             try {
-                clientCertificateBytes = getKeyFromKeyStoreUri(configKeystoreUri, configKeystorePass);
+                KeyManager keyManager = getKeyFromKeyStoreUri(configKeystoreUri, configKeystorePass);
+                this.secretsManagerService.setUpSSLContext(keyManager);
             } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException
-            | URISyntaxException | IOException e) {
+            | URISyntaxException | IOException | UnrecoverableKeyException | KeyManagementException e) {
                 log.severe("There was a problem when unpacking key from ClientCertificateKeyStore:");
-                e.printStackTrace();
-                exceptionEvent.fireAsync(e);
-            }
-            try (ByteArrayInputStream certificateInputStream = new ByteArrayInputStream(clientCertificateBytes)) {
-                this.secretsManagerService.setUpSSLContext(configKeystorePass, certificateInputStream);
-            } catch (NoSuchAlgorithmException | KeyStoreException | CertificateException | IOException
-            | UnrecoverableKeyException | KeyManagementException e) {
-                log.severe("There was a problem when creating the SSLContext:");
                 e.printStackTrace();
                 exceptionEvent.fireAsync(e);
             }
@@ -56,10 +55,12 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
         initializeServices();
     }
 
-    public static byte[] getKeyFromKeyStoreUri(String keystoreUri, String keystorePassword) throws URISyntaxException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+    public static KeyManager getKeyFromKeyStoreUri(String keystoreUri, String keystorePassword) throws URISyntaxException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+        if(keystorePassword== null) {
+            keystorePassword = "";
+        }
+        String keyAlias = null;
         KeyStore store = KeyStore.getInstance("pkcs12");
-        Certificate certificate;
-        byte[] key = null;
 
         URI uriParser = new URI(keystoreUri);
         String scheme = uriParser.getScheme();
@@ -75,12 +76,9 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
                     String keystoreBase64 = dataParts[1];
                     ByteArrayInputStream keystoreInputStream = new ByteArrayInputStream(Base64.getDecoder().decode(keystoreBase64));
                     store.load(keystoreInputStream, keystorePassword.toCharArray());
-                    certificate = store.getCertificate(store.aliases().nextElement());
-                    key = certificate.getEncoded();
                 }
             }
         } else if (scheme.equalsIgnoreCase("file")) {
-            String keyAlias = null;
             String keystoreFile = uriParser.getPath();
             String query = uriParser.getRawQuery();
             try {
@@ -97,14 +95,53 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
             }
             FileInputStream in = new FileInputStream(keystoreFile);
             store.load(in, keystorePassword.toCharArray());
-            if (keyAlias == null){
-                certificate = store.getCertificate(store.aliases().nextElement());
-            } else {
-                certificate = store.getCertificate(keyAlias);
-            }
-            key = certificate.getEncoded();
         }
-        return key;
+
+        KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        try {
+            kmf.init(store, keystorePassword.toCharArray());
+            final X509KeyManager origKm = (X509KeyManager)kmf.getKeyManagers()[0];
+            if(keyAlias == null) {
+                return origKm;
+            } else {
+                final String finalKeyAlias = keyAlias;
+                return new X509KeyManager() {
+                    
+                    @Override
+                    public String chooseClientAlias(String[] arg0, Principal[] arg1, Socket arg2) {
+                        return finalKeyAlias;
+                    }
+
+                    @Override
+                    public String chooseServerAlias(String arg0, Principal[] arg1, Socket arg2) {
+                        return origKm.chooseServerAlias(arg0, arg1, arg2);
+                    }
+
+                    @Override
+                    public X509Certificate[] getCertificateChain(String alias) {
+                        return origKm.getCertificateChain(alias);
+                    }
+
+                    @Override
+                    public String[] getClientAliases(String arg0, Principal[] arg1) {
+                        return origKm.getClientAliases(arg0, arg1);
+                    }
+
+                    @Override
+                    public PrivateKey getPrivateKey(String alias) {
+                        return origKm.getPrivateKey(alias);
+                    }
+
+                    @Override
+                    public String[] getServerAliases(String arg0, Principal[] arg1) {
+                        return origKm.getServerAliases(arg0, arg1);
+                    }
+                };
+            }
+        } catch (UnrecoverableKeyException e) {
+            log.log(Level.WARNING, "Could not create KeyManager", e);
+            return null;
+        }
     }
 
     public UserConfig getUserConfig() {

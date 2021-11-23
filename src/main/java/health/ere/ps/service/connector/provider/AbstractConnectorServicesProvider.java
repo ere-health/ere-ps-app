@@ -5,6 +5,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
+import javax.net.ssl.SSLContext;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.ws.BindingProvider;
 
@@ -45,18 +46,22 @@ public abstract class AbstractConnectorServicesProvider {
     private ContextType contextType;
 
     public void initializeServices() {
-        try {
-            endpointDiscoveryService.obtainConfiguration();
-        } catch (IOException | ParserConfigurationException e) {
-            log.log(Level.SEVERE, "Could not obtainConfiguration", e);
+        if(endpointDiscoveryService != null) {
+            try {
+                endpointDiscoveryService.obtainConfiguration();
+            } catch (IOException | ParserConfigurationException e) {
+                log.log(Level.SEVERE, "Could not obtainConfiguration", e);
+            }
+            initializeCardServicePortType();
+            initializeCertificateService();
+            initializeEventServicePortType();
+            initializeAuthSignatureServicePortType();
+            initializeSignatureServicePortType();
+            initializeSignatureServicePortTypeV755();
+            initializeContextType();
+        } else {
+            log.warning("endpointDiscoveryService is null");
         }
-        initializeCardServicePortType();
-        initializeCertificateService();
-        initializeEventServicePortType();
-        initializeAuthSignatureServicePortType();
-        initializeSignatureServicePortType();
-        initializeSignatureServicePortTypeV755();
-        initializeContextType();
     }
 
     private void initializeCardServicePortType() {
@@ -64,8 +69,12 @@ public abstract class AbstractConnectorServicesProvider {
                 .getCardServicePort();
 
         BindingProvider bp = (BindingProvider) cardService;
-        bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
-                endpointDiscoveryService.getCardServiceEndpointAddress());
+        if(endpointDiscoveryService.getCardServiceEndpointAddress() != null) {
+            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+                    endpointDiscoveryService.getCardServiceEndpointAddress());
+        } else {
+            log.warning("CardServiceEndpointAddress is null");
+        }
         configureBindingProvider(bp);
 
         cardServicePortType = cardService;
@@ -76,8 +85,12 @@ public abstract class AbstractConnectorServicesProvider {
                 .getResource("/CertificateService_v6_0_1.wsdl")).getCertificateServicePort();
 
         BindingProvider bp = (BindingProvider) service;
-        bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+        if(endpointDiscoveryService.getCertificateServiceEndpointAddress() != null) {
+            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
                 endpointDiscoveryService.getCertificateServiceEndpointAddress());
+        } else {
+            log.warning("CertificateServiceEndpointAddress is null");
+        }
         configureBindingProvider(bp);
 
         this.certificateService = service;
@@ -88,9 +101,12 @@ public abstract class AbstractConnectorServicesProvider {
                 .getEventServicePort();
 
         BindingProvider bp = (BindingProvider) service;
-        log.info(getClass().getName() + " ::eventServicePortType");
-        bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
-                endpointDiscoveryService.getEventServiceEndpointAddress());
+        if(endpointDiscoveryService.getEventServiceEndpointAddress() != null) {
+            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+                    endpointDiscoveryService.getEventServiceEndpointAddress());
+        } else {
+            log.warning("EventServiceEndpointAddress is null");
+        }
         configureBindingProvider(bp);
 
         eventServicePortType = service;
@@ -100,9 +116,12 @@ public abstract class AbstractConnectorServicesProvider {
         AuthSignatureServicePortType service = new AuthSignatureService(getClass().getResource(
                 "/AuthSignatureService_v7_4_1.wsdl")).getAuthSignatureServicePort();
         BindingProvider bp = (BindingProvider) service;
-
-        bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
-                endpointDiscoveryService.getAuthSignatureServiceEndpointAddress());
+        if(endpointDiscoveryService.getAuthSignatureServiceEndpointAddress() != null) {
+            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+                    endpointDiscoveryService.getAuthSignatureServiceEndpointAddress());
+        } else {
+            log.warning("AuthSignatureServiceEndpointAddress is null");
+        }
         configureBindingProvider(bp);
 
         authSignatureServicePortType = service;
@@ -113,8 +132,12 @@ public abstract class AbstractConnectorServicesProvider {
                 .getResource("/SignatureService.wsdl")).getSignatureServicePortV740();
 
         BindingProvider bp = (BindingProvider) service;
-        bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+        if(endpointDiscoveryService.getSignatureServiceEndpointAddress() != null) {
+            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
                 endpointDiscoveryService.getSignatureServiceEndpointAddress());
+        } else {
+            log.warning("SignatureServiceEndpointAddress is null");
+        }
         configureBindingProvider(bp);
 
         signatureServicePortType = service;
@@ -125,8 +148,12 @@ public abstract class AbstractConnectorServicesProvider {
                 .getResource("/SignatureService_V7_5_5.wsdl")).getSignatureServicePortTypeV755();
 
         BindingProvider bp = (BindingProvider) service;
-        bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+        if(endpointDiscoveryService.getSignatureServiceEndpointAddress() != null) {
+            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
                 endpointDiscoveryService.getSignatureServiceEndpointAddress());
+        } else {
+            log.warning("SignatureServiceEndpointAddress for V755 is null");
+        }
         configureBindingProvider(bp);
 
         signatureServicePortTypeV755 = service;
@@ -143,8 +170,11 @@ public abstract class AbstractConnectorServicesProvider {
     }
 
     private void configureBindingProvider(BindingProvider bindingProvider) {
-        bindingProvider.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
-                secretsManagerService.getSslContext().getSocketFactory());
+        SSLContext sslContext = secretsManagerService.getSslContext();
+        if(sslContext != null) {
+            bindingProvider.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
+                    sslContext.getSocketFactory());
+        }
         bindingProvider.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier",
                 new SSLUtilities.FakeHostnameVerifier());
 

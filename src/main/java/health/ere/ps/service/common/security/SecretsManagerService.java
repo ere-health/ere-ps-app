@@ -21,6 +21,7 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -101,6 +102,15 @@ public class SecretsManagerService {
         kmf.init(ks, connectorTlsCertAuthStorePwd.toCharArray());
 
         sslContext.init(kmf.getKeyManagers(), new TrustManager[]{new SSLUtilities.FakeX509TrustManager()},
+                null);
+    }
+
+    public void setUpSSLContext(KeyManager km)
+            throws NoSuchAlgorithmException, KeyStoreException, IOException, CertificateException,
+            UnrecoverableKeyException, KeyManagementException {
+        sslContext = SSLContext.getInstance(SslContextType.TLS.getSslContextType());
+
+        sslContext.init(new KeyManager[] { km }, new TrustManager[]{new SSLUtilities.FakeX509TrustManager()},
                 null);
     }
 

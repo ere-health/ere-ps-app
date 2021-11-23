@@ -60,63 +60,63 @@ public class UserConfig {
     }
 
     public UserConfigurations getConfigurations() {
-        return configurations;
+        return configurations == null ? new UserConfigurations() : configurations;
     }
 
     public String getErixaHotfolder() {
-        return configurations.getErixaHotfolder();
+        return getConfigurations().getErixaHotfolder();
     }
 
     public String getErixaReceiverEmail() {
-        return configurations.getErixaDrugstoreEmail();
+        return getConfigurations().getErixaDrugstoreEmail();
     }
 
     public String getErixaUserEmail() {
-        return configurations.getErixaUserEmail();
+        return getConfigurations().getErixaUserEmail();
     }
 
     public String getErixaUserPassword() {
-        return configurations.getErixaUserPassword();
+        return getConfigurations().getErixaUserPassword();
     }
 
     public String getConnectorBaseURL() {
-        return getConfigOrDefault(configurations.getConnectorBaseURL(), defaultConnectorBaseURI);
+        return getConfigOrDefault(getConfigurations().getConnectorBaseURL(), defaultConnectorBaseURI);
     }
 
     public String getMandantId() {
-        return getConfigOrDefault(configurations.getMandantId(), defaultMandantId);
+        return getConfigOrDefault(getConfigurations().getMandantId(), defaultMandantId);
     }
 
     public String getWorkplaceId() {
-        return getConfigOrDefault(configurations.getWorkplaceId(), defaultWorkplaceId);
+        return getConfigOrDefault(getConfigurations().getWorkplaceId(), defaultWorkplaceId);
     }
 
     public String getClientSystemId() {
-        return getConfigOrDefault(configurations.getClientSystemId(), defaultClientSystemId);
+        return getConfigOrDefault(getConfigurations().getClientSystemId(), defaultClientSystemId);
     }
 
     public String getUserId() {
-        return getConfigOrDefault(configurations.getUserId(), defaultUserId);
+        return getConfigOrDefault(getConfigurations().getUserId(), defaultUserId);
     }
 
     public String getTvMode() {
-        return getConfigOrDefault(configurations.getTvMode(), defaultTvMode);
+        return getConfigOrDefault(getConfigurations().getTvMode(), defaultTvMode);
     }
     
     public String getConnectorVersion() {
-        return getConfigOrDefault(configurations.getVersion(), defaultConnectorVersion);
+        return getConfigOrDefault(getConfigurations().getVersion(), defaultConnectorVersion);
     }
 
     public String getPruefnummer() {
-        return getConfigOrDefault(configurations.getPruefnummer(), defaultPruefnummer);
+        return getConfigOrDefault(getConfigurations().getPruefnummer(), defaultPruefnummer);
     }
 
     public String getErixaApiKey() {
-        return configurations.getErixaApiKey();
+        return getConfigurations().getErixaApiKey();
     }
 
     public String getMuster16TemplateConfiguration() {
-        return getConfigOrDefault(configurations.getMuster16TemplateProfile(), defaultMuster16TemplateProfile);
+        return getConfigOrDefault(getConfigurations().getMuster16TemplateProfile(), defaultMuster16TemplateProfile);
     }
 
     public void handleUpdateProperties(@ObservesAsync UserConfigurationsUpdateEvent event) {
