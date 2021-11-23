@@ -27,6 +27,7 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
         if(userConfig.getConfigurations().getClientCertificate() != null && !userConfig.getConfigurations().getClientCertificate().isEmpty()) {
             
             String clientCertificateString = userConfig.getConfigurations().getClientCertificate().substring(33);
+
             byte[] clientCertificateBytes = Base64.getDecoder().decode(clientCertificateString);
             
             // byte[] clientCertificateBytes = getCertificateFromUrlString(SuserConfig.getConfigurations().getClientCertificate(), userConfig.getConfigurations().getClientCertificatePassword());

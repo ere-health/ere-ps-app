@@ -144,7 +144,18 @@ public class VAUEngine extends ApacheHttpClient43Engine {
 
     @Override
     public Response invoke(Invocation inv) {
-        Response response = super.invoke(inv);
+        Response response = null;
+        do {
+            int errors = 0;
+            try {
+                response = super.invoke(inv);
+            } catch(Exception ex) {
+                errors++;
+                if(errors > 2) {
+                    throw ex;
+                }
+            }
+        } while(response == null);
 
         byte[] transportedData;
         byte[] responseBytes = null;

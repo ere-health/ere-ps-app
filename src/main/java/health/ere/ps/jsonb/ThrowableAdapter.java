@@ -20,7 +20,7 @@ public class ThrowableAdapter implements JsonbAdapter<Throwable, JsonObject> {
 
         return Json.createObjectBuilder()
         .add("class", e.getClass().getName())
-        .add("message", e.getMessage())
+        .add("message", e.getMessage() != null ? e.getMessage() : "null")
         .add("errorCode", extractErrorCode(e))
         .add("stacktrace", sw.toString())
         .build();

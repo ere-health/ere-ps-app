@@ -110,12 +110,12 @@
                                             <fo:table-row>
                                                 <fo:table-cell width="100mm">
                                                     <fo:block font-size="6pt" margin-left="1mm"
-                                                              font-family="Liberation Sans">für
+                                                              font-family="Liberation Sans" font-weight="bold">für
                                                     </fo:block>
                                                 </fo:table-cell>
                                                 <fo:table-cell>
                                                     <fo:block font-size="6pt"
-                                                              font-family="Liberation Sans" margin-left="5mm">geboren am
+                                                              font-family="Liberation Sans" margin-left="5mm" font-weight="bold">geboren am
                                                     </fo:block>
                                                 </fo:table-cell>
                                             </fo:table-row>
@@ -180,13 +180,13 @@
                                             <fo:table-row>
                                                 <fo:table-cell>
                                                     <fo:block font-size="6pt" margin-left="1mm"
-                                                              font-family="Liberation Sans">
+                                                              font-family="Liberation Sans" font-weight="bold">
                                                         ausgestellt von
                                                     </fo:block>
                                                 </fo:table-cell>
                                                 <fo:table-cell>
                                                     <fo:block font-size="6pt" margin-left="5mm"
-                                                              font-family="Liberation Sans">
+                                                              font-family="Liberation Sans" font-weight="bold">
                                                         ausgestellt am
                                                     </fo:block>
                                                 </fo:table-cell>

@@ -112,15 +112,39 @@ public class MassGenerator2Test {
         createERezeptMassCreate("src/test/resources/manuels-egk/egk.txt", "src/test/resources/manuels-egk/insurance.txt");
     }
 
+    @Test
+    void testCreateERezeptMassCreateManuel2() throws Exception {
+        createERezeptMassCreate("src/test/resources/manuels-egk/egk.txt");
+    }
+
+    @Test
+    void testCreateERezeptMassCGMLauer() throws Exception {
+        createERezeptMassCreate("src/test/resources/manuels-egk/egk.txt", "../secret-test-print-samples/CGM-Lauer/insurance.txt", "../secret-test-print-samples/CGM-Lauer/templates/");
+    }
+
+    @Test
+    void testCreateERezeptMassGematik() throws Exception {
+        createERezeptMassCreate(null, null, "../secret-test-print-samples/gematik/");
+    }
+
+    @Test
+    void testCreateERezeptMassKonnektathonAOK_NO() throws Exception {
+        createERezeptMassCreate(null, null, "../secret-test-print-samples/Konnektathon/");
+    }
+
     void createERezeptMassCreate(String cardsString) throws Exception {
         createERezeptMassCreate(cardsString, null);
     }
+
     void createERezeptMassCreate(String cardsString, String insuranceString) throws Exception {
+        createERezeptMassCreate(cardsString, insuranceString, "../secret-test-print-samples/CIDA/templates/");
+    }
+    void createERezeptMassCreate(String cardsString, String insuranceString, String templateFolder) throws Exception {
         int i = 0;
         DocumentService documentService = new DocumentService();
                 documentService.init();
         
-        List<String> cards = Files.readAllLines(Paths.get(cardsString));
+        List<String> cards = cardsString != null ? Files.readAllLines(Paths.get(cardsString)) : Arrays.asList(new String[] {null});
 
 
         eRezeptWorkflowService.activateComfortSignature();
@@ -131,12 +155,12 @@ public class MassGenerator2Test {
         fw.write("Id,Filename,AccessCode,Patient,Insurance\n");
 
         List<String> insuranceList = Arrays.asList("Default");
-        if(insuranceList != null) {
+        if(insuranceString != null) {
             insuranceList = Files.readAllLines(Paths.get(insuranceString));
         }
         for(String singleInsurance : insuranceList) {
             for(String card : cards) {
-                try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get("../secret-test-print-samples/CIDA/templates/"), "*")) {
+                try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(templateFolder), "*")) {
                     for (Path entry : stream) {
                         File file = entry.toFile();
                         List<File> bundleFile;
@@ -158,8 +182,10 @@ public class MassGenerator2Test {
                                 ex.printStackTrace();
                             }
                             try {
-                                Patient patient = ((Patient)bundle.getEntry().stream().filter(e -> e.getResource() instanceof Patient).findAny().get().getResource());
-                                patient.getIdentifier().get(0).setValue(card);
+                                if(card != null) {
+                                    Patient patient = ((Patient)bundle.getEntry().stream().filter(e -> e.getResource() instanceof Patient).findAny().get().getResource());
+                                    patient.getIdentifier().get(0).setValue(card);
+                                }
                             } catch(Exception ex) {
                                 ex.printStackTrace();
                             }
@@ -215,10 +241,10 @@ public class MassGenerator2Test {
                         log.info("Time: "+thisMoment);
                         
                         i++;
-                    }
-                    if(i == 100) {
-                        eRezeptWorkflowService.deactivateComfortSignature();
-                        eRezeptWorkflowService.activateComfortSignature();
+                        if(i % 80 == 0) {
+                            eRezeptWorkflowService.deactivateComfortSignature();
+                            eRezeptWorkflowService.activateComfortSignature();
+                        }
                     }
                 } catch (Exception ex) {
                     // I/O error encounted during the iteration, the cause is an IOException
