@@ -1,14 +1,20 @@
 package health.ere.ps.service.connector.provider;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.KeyManagementException;
+import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.Base64;
 import java.util.logging.Logger;
+import java.util.regex.PatternSyntaxException;
 
 import javax.enterprise.event.Event;
 
@@ -24,15 +30,20 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
     public SingleConnectorServicesProvider(UserConfig userConfig, Event<Exception> exceptionEvent) {
         this.userConfig = userConfig;
         this.secretsManagerService = new SecretsManagerService();
-        if(userConfig.getConfigurations().getClientCertificate() != null && !userConfig.getConfigurations().getClientCertificate().isEmpty()) {
-            
-            String clientCertificateString = userConfig.getConfigurations().getClientCertificate().substring(33);
-
-            byte[] clientCertificateBytes = Base64.getDecoder().decode(clientCertificateString);
-            
-            // byte[] clientCertificateBytes = getCertificateFromUrlString(SuserConfig.getConfigurations().getClientCertificate(), userConfig.getConfigurations().getClientCertificatePassword());
+        String configKeystoreUri = userConfig.getConfigurations().getClientCertificate();
+        String configKeystorePass = userConfig.getConfigurations().getClientCertificatePassword();
+        if (configKeystoreUri != null && !configKeystoreUri.isEmpty()) {
+            byte[] clientCertificateBytes = null;
+            try {
+                clientCertificateBytes = getKeyFromKeyStoreUri(configKeystoreUri, configKeystorePass);
+            } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException
+            | URISyntaxException | IOException e) {
+                log.severe("There was a problem when unpacking key from ClientCertificateKeyStore:");
+                e.printStackTrace();
+                exceptionEvent.fireAsync(e);
+            }
             try (ByteArrayInputStream certificateInputStream = new ByteArrayInputStream(clientCertificateBytes)) {
-                this.secretsManagerService.setUpSSLContext(userConfig.getConfigurations().getClientCertificatePassword(), certificateInputStream);
+                this.secretsManagerService.setUpSSLContext(configKeystorePass, certificateInputStream);
             } catch (NoSuchAlgorithmException | KeyStoreException | CertificateException | IOException
             | UnrecoverableKeyException | KeyManagementException e) {
                 log.severe("There was a problem when creating the SSLContext:");
@@ -45,18 +56,55 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
         initializeServices();
     }
 
-    public static byte[] getCertificateFromUrlString(String url, String password) {
-        // parse URL with java.net.URL
+    public static byte[] getKeyFromKeyStoreUri(String keystoreUri, String keystorePassword) throws URISyntaxException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+        KeyStore store = KeyStore.getInstance("pkcs12");
+        Certificate certificate;
+        byte[] key = null;
 
-        // figure out if it is a data or a file url
+        URI uriParser = new URI(keystoreUri);
+        String scheme = uriParser.getScheme();
 
-        // if a data url, return data as byte array
-
-        // if file url
-        // search for parameter alias
-        // read file as P12 Keystore
-        // read key with alias alias from P12 keystore
-        return null;
+        if (scheme.equalsIgnoreCase("data")){
+            // example: "data:application/x-pkcs12;base64,MIACAQMwgAY...gtc/qoCAwGQAAAA"
+            String[] schemeSpecificParts = uriParser.getSchemeSpecificPart().split(";");
+            String contentType = schemeSpecificParts[0];
+            if (contentType.equalsIgnoreCase("application/x-pkcs12")){
+                String[] dataParts = schemeSpecificParts[1].split(",");
+                String encodingType = dataParts[0];
+                if (encodingType.equalsIgnoreCase("base64")){
+                    String keystoreBase64 = dataParts[1];
+                    ByteArrayInputStream keystoreInputStream = new ByteArrayInputStream(Base64.getDecoder().decode(keystoreBase64));
+                    store.load(keystoreInputStream, keystorePassword.toCharArray());
+                    certificate = store.getCertificate(store.aliases().nextElement());
+                    key = certificate.getEncoded();
+                }
+            }
+        } else if (scheme.equalsIgnoreCase("file")) {
+            String keyAlias = null;
+            String keystoreFile = uriParser.getPath();
+            String query = uriParser.getRawQuery();
+            try {
+                String[] queryParts = query.split("=");
+                String parameterName = queryParts[0];
+                String parameterValue = queryParts[1];
+                if (parameterName.equalsIgnoreCase("alias")){
+                    // example: "file:src/test/resources/certs/keystore.p12?alias=key2"
+                    keyAlias = parameterValue;
+                }
+            } catch (NullPointerException|PatternSyntaxException e){
+                // take the first key from KeyStore, whichever it is
+                // example: "file:src/test/resources/certs/keystore.p12"
+            }
+            FileInputStream in = new FileInputStream(keystoreFile);
+            store.load(in, keystorePassword.toCharArray());
+            if (keyAlias == null){
+                certificate = store.getCertificate(store.aliases().nextElement());
+            } else {
+                certificate = store.getCertificate(keyAlias);
+            }
+            key = certificate.getEncoded();
+        }
+        return key;
     }
 
     public UserConfig getUserConfig() {
