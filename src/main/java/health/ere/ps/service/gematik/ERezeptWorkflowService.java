@@ -420,6 +420,12 @@ public class ERezeptWorkflowService {
             throws ERezeptWorkflowException {
         return signBundleWithIdentifiers(bundles, wait10secondsAfterJobNumber, runtimeConfig, null, null);
     }
+
+
+    public List<SignResponse> signBundleWithIdentifiers(List<Bundle> bundles, boolean wait10secondsAfterJobNumber, RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId)
+            throws ERezeptWorkflowException {
+        return signBundleWithIdentifiers(bundles, wait10secondsAfterJobNumber, runtimeConfig, replyTo, replyToMessageId, true);
+    }
     /**
      * This function signs the bundle with the signatureService.signDocument from
      * the connector.
@@ -427,7 +433,7 @@ public class ERezeptWorkflowService {
      * @return
      * @throws ERezeptWorkflowException
      */
-    public List<SignResponse> signBundleWithIdentifiers(List<Bundle> bundles, boolean wait10secondsAfterJobNumber, RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId)
+    public List<SignResponse> signBundleWithIdentifiers(List<Bundle> bundles, boolean wait10secondsAfterJobNumber, RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId, boolean firstTry)
             throws ERezeptWorkflowException {
 
         List<SignResponse> signResponses = null;
@@ -551,7 +557,12 @@ public class ERezeptWorkflowService {
                  } 
             }
         } catch (ConnectorCardsException | FaultMessage e) {
-            throw new ERezeptWorkflowException("Exception signing bundles with identifiers.", e);
+            if(firstTry) {
+                log.log(Level.WARNING, "Exception signing bundles with identifiers on first try.", e);
+                return signBundleWithIdentifiers(bundles, wait10secondsAfterJobNumber, runtimeConfig, replyTo, replyToMessageId, false);
+            } else {
+                throw new ERezeptWorkflowException("Exception signing bundles with identifiers.", e);
+            }
         }
 
         if(appConfig.isWriteSignatureFile()) {
@@ -637,7 +648,8 @@ public class ERezeptWorkflowService {
 
             // if this was the first try, try again, this will request a new bearer token
             if(firstTry && response.getStatus() == 401) {
-                createERezeptTask(false, runtimeConfig);
+                log.warning("401 when trying to create e prescription. Retrying.");
+                return createERezeptTask(false, runtimeConfig);
             }
 
             if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
@@ -683,6 +695,7 @@ public class ERezeptWorkflowService {
      */
     public void requestNewAccessTokenIfNecessary(RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId) {
         if (StringUtils.isEmpty(getBearerToken(runtimeConfig)) || isExpired(bearerToken.get(runtimeConfig))) {
+            log.info("Request new bearer token.");
             bearerToken.put(runtimeConfig, bearerTokenService.requestBearerToken(runtimeConfig, replyTo, replyToMessageId));
         }
     }

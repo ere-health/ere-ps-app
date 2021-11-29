@@ -12,6 +12,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -23,9 +24,12 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import javax.inject.Inject;
 
+import org.gradle.internal.impldep.com.google.common.collect.Lists;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Coverage;
 import org.hl7.fhir.r4.model.DateTimeType;
@@ -116,7 +120,10 @@ public class MassGenerator2Test {
     void testCreateERezeptMassCreateManuel2() throws Exception {
         createERezeptMassCreate("src/test/resources/manuels-egk/egk.txt");
     }
-
+    @Test
+    void testCreateERezeptMassCreateManuel3() throws Exception {
+        createERezeptMassCreateBatch("src/test/resources/manuels-egk/egk.txt", null, "../secret-test-print-samples/CIDA/templates/", true);
+    }
     @Test
     void testCreateERezeptMassCGMLauer() throws Exception {
         createERezeptMassCreate("src/test/resources/manuels-egk/egk.txt", "../secret-test-print-samples/CGM-Lauer/insurance.txt", "../secret-test-print-samples/CGM-Lauer/templates/");
@@ -124,7 +131,26 @@ public class MassGenerator2Test {
 
     @Test
     void testCreateERezeptMassGematik() throws Exception {
-        createERezeptMassCreate(null, null, "../secret-test-print-samples/gematik/");
+        createERezeptMassCreateBatch(null, null, "../secret-test-print-samples/gematik/", true);
+    }
+
+    @Test
+    void testParsing() throws Exception {
+
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get("../secret-test-print-samples/gematik/"), "*")) {
+            for (Path entry : stream) {
+                InputStream fileStream = new FileInputStream(entry.toFile());
+                String template = new String(fileStream.readAllBytes());
+                fileStream.close();
+                try {
+                    Bundle bundle = iParser.parseResource(Bundle.class, template);
+                } catch(Exception ex) {
+                    log.info("File: "+entry.toFile().getAbsolutePath()+" could not be parsed.");
+                    ex.printStackTrace();
+                }
+                
+            }
+        }
     }
 
     @Test
@@ -139,7 +165,18 @@ public class MassGenerator2Test {
     void createERezeptMassCreate(String cardsString, String insuranceString) throws Exception {
         createERezeptMassCreate(cardsString, insuranceString, "../secret-test-print-samples/CIDA/templates/");
     }
-    void createERezeptMassCreate(String cardsString, String insuranceString, String templateFolder) throws Exception {
+
+    void createERezeptMassCreate(String cardsString, String insuranceString, String templateFolder) throws Exception  {
+        createERezeptMassCreate(cardsString, insuranceString, templateFolder, false);
+    }
+
+    void createERezeptMassCreate(String cardsString, String insuranceString, String templateFolder, boolean move) throws Exception {
+        if(move) {
+            File processed = new File(templateFolder+"/processed");
+            if(!processed.exists()) {
+                processed.mkdir();
+            }
+        }
         int i = 0;
         DocumentService documentService = new DocumentService();
                 documentService.init();
@@ -166,14 +203,20 @@ public class MassGenerator2Test {
                         List<File> bundleFile;
                         if(!file.isDirectory()) {
                             bundleFile = Arrays.asList(file);
-                        } else {
+                        } else if(!file.getName().equals("processed")) {
                             bundleFile = Arrays.asList(file.listFiles());
+                        } else {
+                            continue;
                         }
                         List<Bundle> bundles = new ArrayList<>();
                         for(File myFile : bundleFile) {
                             InputStream fileStream = new FileInputStream(myFile);
                             String template = new String(fileStream.readAllBytes());
                             fileStream.close();
+                            if(move) {
+                                Files.move(myFile.toPath(), Paths.get(templateFolder+"/processed/"+myFile.getName()), StandardCopyOption.REPLACE_EXISTING);
+                            }
+                            
                             Bundle bundle = iParser.parseResource(Bundle.class, template);
                             bundle.setId(UUID.randomUUID().toString());
                             try {
@@ -241,7 +284,135 @@ public class MassGenerator2Test {
                         log.info("Time: "+thisMoment);
                         
                         i++;
-                        if(i % 80 == 0) {
+                        if((i % 90) == 0) {
+                            eRezeptWorkflowService.deactivateComfortSignature();
+                            eRezeptWorkflowService.activateComfortSignature();
+                        }
+                    }
+                } catch (Exception ex) {
+                    // I/O error encounted during the iteration, the cause is an IOException
+                    log.info("Exception: "+ex);
+                        
+                    ex.printStackTrace();
+                }
+                // break;
+            }
+        }
+        eRezeptWorkflowService.deactivateComfortSignature();
+        fw.close();
+    }
+
+    void createERezeptMassCreateBatch(String cardsString, String insuranceString, String templateFolder, boolean move) throws Exception {
+        if(move) {
+            File processed = new File(templateFolder+"/processed");
+            if(!processed.exists()) {
+                processed.mkdir();
+            }
+        }
+        int i = 0;
+        DocumentService documentService = new DocumentService();
+                documentService.init();
+        
+        List<String> cards = cardsString != null ? Files.readAllLines(Paths.get(cardsString)) : Arrays.asList(new String[] {null});
+
+
+        eRezeptWorkflowService.activateComfortSignature();
+        String thisMomentString = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
+                                .withZone(ZoneOffset.UTC)
+                                .format(Instant.now());
+        FileWriter fw = new FileWriter("target/e-rezept-report-"+thisMomentString+".csv");
+        fw.write("Id,Filename,AccessCode,Patient,Insurance\n");
+
+        List<String> insuranceList = Arrays.asList("Default");
+        if(insuranceString != null) {
+            insuranceList = Files.readAllLines(Paths.get(insuranceString));
+        }
+        for(String singleInsurance : insuranceList) {
+            for(String card : cards) {
+                try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(templateFolder), "*.xml")) {
+
+                    List<Path> listPath = StreamSupport.stream(stream.spliterator(), false).collect(Collectors.toList());
+
+                    for (List<Path> entry : Lists.partition(listPath, 30)) {
+                        List<File> bundleFile = entry.stream().map(s -> s.toFile()).collect(Collectors.toList());
+                        List<Bundle> bundles = new ArrayList<>();
+                        for(File myFile : bundleFile) {
+                            InputStream fileStream = new FileInputStream(myFile);
+                            String template = new String(fileStream.readAllBytes());
+                            fileStream.close();
+                            if(move) {
+                                Files.move(myFile.toPath(), Paths.get(templateFolder+"/processed/"+myFile.getName()), StandardCopyOption.REPLACE_EXISTING);
+                            }
+                            
+                            Bundle bundle = iParser.parseResource(Bundle.class, template);
+                            bundle.setId(UUID.randomUUID().toString());
+                            try {
+                                ((MedicationRequest)bundle.getEntry().stream().filter(e -> e.getResource() instanceof MedicationRequest).findAny().get().getResource()).setAuthoredOnElement(new DateTimeType(new Date(), TemporalPrecisionEnum.DAY));
+                            } catch(NoSuchElementException ex) {
+                                ex.printStackTrace();
+                            }
+                            try {
+                                if(card != null) {
+                                    Patient patient = ((Patient)bundle.getEntry().stream().filter(e -> e.getResource() instanceof Patient).findAny().get().getResource());
+                                    patient.getIdentifier().get(0).setValue(card);
+                                }
+                            } catch(Exception ex) {
+                                ex.printStackTrace();
+                            }
+                            if(!singleInsurance.equals("Default")) {
+                                Coverage coverage = ((Coverage)bundle.getEntry().stream().filter(e -> e.getResource() instanceof Coverage).findAny().get().getResource());
+                                ((Reference)coverage.getPayor().get(0)).getIdentifier().setValue(singleInsurance);
+                            }
+                            ValidationResult validationResult = prescriptionBundleValidator.validateResource(bundle, true);
+                            if(validationResult.isSuccessful()) {
+                                bundles.add(bundle);
+                            } else {
+                                log.info(myFile.getName()+" is not valid");
+                            }
+                        }
+                        // System.out.println(iParser.encodeResourceToString(bundle));
+                        //if(2 == 1+1) {
+                        //    if(bundles.size() == 0) {
+                        //        continue;
+                        //    }
+                        //    Files.write(Paths.get("target/"+entry.toFile().getName().replace(".xml", "")+"-Single-Test.xml"), iParser.encodeResourceToString(bundles.get(0)).getBytes());
+                        //    if(true) {
+                        //        break;
+                        //    }
+                        //
+                        //}
+                    
+                        List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowables = eRezeptWorkflowService.createMultipleERezeptsOnPrescriptionServer(bundles);
+                        String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
+                                .withZone(ZoneOffset.UTC)
+                                .format(Instant.now());
+                        
+                        int z = 0;
+                        for(BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable : bundleWithAccessCodeOrThrowables) {
+                            File fileEntry = listPath.get(z).toFile();
+                            if(bundleWithAccessCodeOrThrowable.getThrowable() != null) {
+                                StringWriter sw = new StringWriter();
+                                PrintWriter pw = new PrintWriter(sw);
+                                bundleWithAccessCodeOrThrowable.getThrowable().printStackTrace(pw);
+                                Files.write(Paths.get("target/"+fileEntry.getName().replace(".xml", "")+"-"+card+"-"+ thisMoment + ".txt"), sw.toString().getBytes());
+                                if(bundleWithAccessCodeOrThrowable.getBundle() != null) {
+                                    Files.write(Paths.get("target/"+fileEntry.getName().replace(".xml", "")+"-"+card+"-"+ thisMoment + ".xml"), iParser.encodeResourceToString(bundleWithAccessCodeOrThrowable.getBundle()).getBytes());
+                                }
+                                fw.flush();
+                            } else {
+                                ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
+                                String fileName = fileEntry.getName().replace(".xml", "")+"-"+card+"-" + thisMoment + ".pdf";
+                                Files.write(Paths.get("target/"+fileName), a.toByteArray());
+                                fw.write(bundleWithAccessCodeOrThrowable.getBundle().getIdentifier().getValue()+","+fileName+","+bundleWithAccessCodeOrThrowable.getAccessCode()+","+card+","+singleInsurance+"\n");
+                                fw.flush();
+                            }
+                            z++;
+                        }
+
+                        log.info("Time: "+thisMoment);
+                        
+                        i++;
+                        if((i % 3) == 0) {
                             eRezeptWorkflowService.deactivateComfortSignature();
                             eRezeptWorkflowService.activateComfortSignature();
                         }

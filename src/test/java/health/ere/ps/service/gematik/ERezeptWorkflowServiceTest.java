@@ -520,4 +520,12 @@ public class ERezeptWorkflowServiceTest {
     void testDeactivateComfortSignature() throws ERezeptWorkflowException {
         eRezeptWorkflowService.deactivateComfortSignature();
     }
+
+    @Test
+        // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
+    void testToggleComfortSignature() throws ERezeptWorkflowException {
+        eRezeptWorkflowService.activateComfortSignature();
+        eRezeptWorkflowService.getSignatureMode();
+        eRezeptWorkflowService.deactivateComfortSignature();
+    }
 }

@@ -12,7 +12,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.ws.rs.client.Invocation;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
@@ -31,6 +30,7 @@ import org.apache.http.impl.io.DefaultHttpResponseParserFactory;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.io.SessionInputBufferImpl;
 import org.bouncycastle.crypto.InvalidCipherTextException;
+import org.jboss.logmanager.Level;
 import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient43Engine;
 import org.jboss.resteasy.client.jaxrs.i18n.LogMessages;
 import org.jboss.resteasy.client.jaxrs.i18n.Messages;
@@ -85,7 +85,8 @@ public class VAUEngine extends ApacheHttpClient43Engine {
 
         String authorization = (String) newHeaders.getFirst("Authorization");
         String accessCode = (String) newHeaders.getFirst("X-AccessCode");
-        String contentType = ((MediaType) newHeaders.getFirst("Content-Type")).toString();
+        String contentType = (newHeaders.getFirst("Content-Type") != null) ? newHeaders.getFirst("Content-Type").toString() : "application/octet-stream";
+
         newHeaders.putSingle("X-erp-user", "l"); //Leistungserbringer
         newHeaders.putSingle("X-erp-resource", "Task");
         newHeaders.putSingle("Content-Type", "application/octet-stream");
@@ -151,6 +152,7 @@ public class VAUEngine extends ApacheHttpClient43Engine {
                 response = super.invoke(inv);
             } catch(Exception ex) {
                 errors++;
+                log.log(Level.WARNING, "Exception during request, retrying", ex);
                 if(errors > 2) {
                     throw ex;
                 }
