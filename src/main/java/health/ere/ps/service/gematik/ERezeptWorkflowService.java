@@ -696,7 +696,8 @@ public class ERezeptWorkflowService {
     public void requestNewAccessTokenIfNecessary(RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId) {
         if (StringUtils.isEmpty(getBearerToken(runtimeConfig)) || isExpired(bearerToken.get(runtimeConfig))) {
             log.info("Request new bearer token.");
-            bearerToken.put(runtimeConfig, bearerTokenService.requestBearerToken(runtimeConfig, replyTo, replyToMessageId));
+            String bearerTokenString = bearerTokenService.requestBearerToken(runtimeConfig, replyTo, replyToMessageId);
+            bearerToken.put(runtimeConfig, bearerTokenString);
         }
     }
 

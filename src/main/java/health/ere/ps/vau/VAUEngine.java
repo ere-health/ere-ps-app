@@ -30,7 +30,6 @@ import org.apache.http.impl.io.DefaultHttpResponseParserFactory;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.io.SessionInputBufferImpl;
 import org.bouncycastle.crypto.InvalidCipherTextException;
-import org.jboss.logmanager.Level;
 import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient43Engine;
 import org.jboss.resteasy.client.jaxrs.i18n.LogMessages;
 import org.jboss.resteasy.client.jaxrs.i18n.Messages;
@@ -84,6 +83,11 @@ public class VAUEngine extends ApacheHttpClient43Engine {
         }
 
         String authorization = (String) newHeaders.getFirst("Authorization");
+
+        if(authorization == null) {
+            throw new IllegalStateException("Authorization header token must be given");
+        }
+
         String accessCode = (String) newHeaders.getFirst("X-AccessCode");
         String contentType = (newHeaders.getFirst("Content-Type") != null) ? newHeaders.getFirst("Content-Type").toString() : "application/octet-stream";
 
@@ -146,18 +150,7 @@ public class VAUEngine extends ApacheHttpClient43Engine {
     @Override
     public Response invoke(Invocation inv) {
         Response response = null;
-        do {
-            int errors = 0;
-            try {
-                response = super.invoke(inv);
-            } catch(Exception ex) {
-                errors++;
-                log.log(Level.WARNING, "Exception during request, retrying", ex);
-                if(errors > 2) {
-                    throw ex;
-                }
-            }
-        } while(response == null);
+        response = super.invoke(inv);
 
         byte[] transportedData;
         byte[] responseBytes = null;
