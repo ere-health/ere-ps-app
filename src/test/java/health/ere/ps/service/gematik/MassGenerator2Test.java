@@ -46,7 +46,7 @@ import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.validation.ValidationResult;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
-import health.ere.ps.profile.RUTestProfile;
+import health.ere.ps.profile.TitusTestProfile;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
@@ -58,7 +58,7 @@ import io.quarkus.test.junit.TestProfile;
 
 @QuarkusTest
 @Disabled
-@TestProfile(RUTestProfile.class)
+@TestProfile(TitusTestProfile.class)
 public class MassGenerator2Test {
 
     private static Logger log = Logger.getLogger(MassGenerator2Test.class.getName());
@@ -132,6 +132,11 @@ public class MassGenerator2Test {
     @Test
     void testCreateERezeptMassGematik() throws Exception {
         createERezeptMassCreateBatch(null, null, "../secret-test-print-samples/gematik/", true);
+    }
+
+    @Test
+    void testCreateERezeptMassGematik2() throws Exception {
+        createERezeptMassCreateBatch(null, null, "../secret-test-print-samples/gematik2/", true);
     }
 
     @Test
@@ -412,7 +417,7 @@ public class MassGenerator2Test {
                         log.info("Time: "+thisMoment);
                         
                         i++;
-                        if((i % 3) == 0) {
+                        if((i % 8) == 0) {
                             eRezeptWorkflowService.deactivateComfortSignature();
                             eRezeptWorkflowService.activateComfortSignature();
                         }

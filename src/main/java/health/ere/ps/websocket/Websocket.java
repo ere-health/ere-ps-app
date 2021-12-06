@@ -50,6 +50,8 @@ import health.ere.ps.event.AbortTasksEvent;
 import health.ere.ps.event.AbortTasksStatusEvent;
 import health.ere.ps.event.ActivateComfortSignatureEvent;
 import health.ere.ps.event.BundlesEvent;
+import health.ere.ps.event.ChangePinEvent;
+import health.ere.ps.event.ChangePinResponseEvent;
 import health.ere.ps.event.DeactivateComfortSignatureEvent;
 import health.ere.ps.event.ERezeptWithDocumentsEvent;
 import health.ere.ps.event.EreLogNotificationEvent;
@@ -106,6 +108,9 @@ public class Websocket {
 
     @Inject
     Event<GetCardsEvent> getCardsEvent;
+
+    @Inject
+    Event<ChangePinEvent> changePinEvent;
     
     @Inject
     PrescriptionBundleValidator prescriptionBundleValidator;
@@ -258,6 +263,9 @@ public class Websocket {
             } else if ("GetCards".equals(object.getString("type"))) {
                 GetCardsEvent event = new GetCardsEvent(object, senderSession, messageId);
                 getCardsEvent.fireAsync(event);
+            } else if ("ChangePin".equals(object.getString("type"))) {
+                ChangePinEvent event = new ChangePinEvent(object, senderSession, messageId);
+                changePinEvent.fireAsync(event);
             }  else if ("RequestSettings".equals(object.getString("type"))) {
                 UserConfigurations userConfigurations = userConfigurationService.getConfig();
                 String payload = jsonbFactory.toJson(userConfigurations);
@@ -362,7 +370,7 @@ public class Websocket {
                 "{\"type\": \"GetCardsResponse\", \"payload\": " + abortTasksStatusString + ", \"replyToMessageId\": \""+getCardsResponseEvent.getReplyToMessageId()+"\"}",
                 result -> {
                     if (!result.isOK()) {
-                        ereLog.fatal("Unable to send bundlesEvent: " + result.getException());
+                        ereLog.fatal("Unable to get cards response: " + result.getException());
                     }
                 });
     }
@@ -379,6 +387,18 @@ public class Websocket {
                 });
     }
 
+    public void onChangePinResponseEvent(@ObservesAsync ChangePinResponseEvent changePinResponseEvent) {
+        assureChromeIsOpen();
+        String changePinResponseString = generateJson(changePinResponseEvent);
+        changePinResponseEvent.getReplyTo().getAsyncRemote().sendObject(
+                "{\"type\": \"ChangePinResponse\", \"payload\": " + changePinResponseString + ", \"replyToMessageId\": \""+changePinResponseEvent.getReplyToMessageId()+"\"}",
+                result -> {
+                    if (!result.isOK()) {
+                        ereLog.fatal("Unable to send changePinResponseEvent: " + result.getException());
+                    }
+                });
+    }
+
     String generateJson(GetSignatureModeResponseEvent getSignatureModeResponseEvent) {
         return jsonbFactory.toJson(getSignatureModeResponseEvent);
     }
@@ -389,6 +409,10 @@ public class Websocket {
 
     String generateJson(AbortTasksStatusEvent abortTasksStatusEvent) {
         return jsonbFactory.toJson(abortTasksStatusEvent.getTasks());
+    }
+
+    String generateJson(ChangePinResponseEvent changePinResponseEvent) {
+        return jsonbFactory.toJson(changePinResponseEvent.getChangePinResponse());
     }
 
     void assureChromeIsOpen() {

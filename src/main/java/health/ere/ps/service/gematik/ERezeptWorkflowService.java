@@ -902,7 +902,6 @@ public class ERezeptWorkflowService {
             log.log(Level.WARNING, "Could not get cards", e);
             exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, getCardsEvent.getReplyTo(), getCardsEvent.getId()));
         }
-
     }
 
     public GetCardsResponse getCards()throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
