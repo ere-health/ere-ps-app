@@ -450,7 +450,7 @@ public class Websocket {
         }
 
         return "{\"type\": \"ERezeptWithDocuments\", \"payload\": " +
-                jsonbFactory.toJson(eRezeptDocumentsEvent.getERezeptWithDocuments()) + "}";
+                jsonbFactory.toJson(eRezeptDocumentsEvent.getERezeptWithDocuments()) + ", \"replyToMessageId\": \""+eRezeptDocumentsEvent.getReplyToMessageId()+"\"}";
     }
 
     String generateJson(BundlesEvent bundlesEvent) {
@@ -525,7 +525,7 @@ public class Websocket {
     public void onHTMLBundlesEvent(@ObservesAsync HTMLBundlesEvent event) {
         event.getReplyTo().getAsyncRemote()
         .sendObject("{\"type\": \"HTMLBundles\", \"payload\": " +
-        jsonbFactory.toJson(event.getBundles()) + "}", result -> {
+        jsonbFactory.toJson(event.getBundles()) + ", \"replyToMessageId\": \""+event.getReplyToMessageId()+"\"}", result -> {
             if (result.getException() != null) {
                 ereLog.fatal("Unable to send message: " + result.getException());
             }
