@@ -209,6 +209,10 @@ public class ERezeptWorkflowService {
         return createMultipleERezeptsOnPrescriptionServer(bundles, null, null, null);
     }
 
+    public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(List<Bundle> bundles, RuntimeConfig runtimeConfig) {
+        return createMultipleERezeptsOnPrescriptionServer(bundles, false, runtimeConfig, null, null);
+    }
+
     public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(List<Bundle> bundles, RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId) {
         return createMultipleERezeptsOnPrescriptionServer(bundles, false, runtimeConfig, replyTo, replyToMessageId);
     }
@@ -653,7 +657,7 @@ public class ERezeptWorkflowService {
             }
 
             if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
-                throw new WebApplicationException("Error on "+appConfig.getPrescriptionServiceURL()+" "+taskString, response.getStatus());
+                throw new WebApplicationException("Error on "+appConfig.getPrescriptionServiceURL()+" "+taskString+" Status: "+response.getStatus(), response.getStatus());
             }
             log.info("Task Response: " + taskString);
             return fhirContext.newXmlParser().parseResource(Task.class, new StringReader(taskString));
@@ -794,8 +798,8 @@ public class ERezeptWorkflowService {
 
     private String getSignatureServiceCardHandle(RuntimeConfig runtimeConfig) throws ConnectorCardsException {
         String signatureServiceCardHandle;
-        signatureServiceCardHandle = (runtimeConfig != null && runtimeConfig.getEHBAHandle() != null) ? runtimeConfig.getEHBAHandle() : connectorCardsService.getConnectorCardHandle(
-                ConnectorCardsService.CardHandleType.HBA);
+        signatureServiceCardHandle = (runtimeConfig != null && runtimeConfig.getEHBAHandle() != null) ? runtimeConfig.getEHBAHandle() : connectorCardsService.getConnectorCardHandle( 
+                ConnectorCardsService.CardHandleType.HBA, runtimeConfig);
         return signatureServiceCardHandle;
     }
 

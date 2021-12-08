@@ -44,9 +44,12 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
 import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.validation.ValidationResult;
+import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
 import health.ere.ps.config.AppConfig;
+import health.ere.ps.config.RuntimeConfig;
+import health.ere.ps.config.UserConfig;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
-import health.ere.ps.profile.TitusTestProfile;
+import health.ere.ps.profile.RUTestProfile;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
@@ -58,7 +61,7 @@ import io.quarkus.test.junit.TestProfile;
 
 @QuarkusTest
 @Disabled
-@TestProfile(TitusTestProfile.class)
+@TestProfile(RUTestProfile.class)
 public class MassGenerator2Test {
 
     private static Logger log = Logger.getLogger(MassGenerator2Test.class.getName());
@@ -74,6 +77,8 @@ public class MassGenerator2Test {
 
     @Inject
     AppConfig appConfig;
+    @Inject
+    UserConfig userConfig;
     @Inject
     IdpClient idpClient;
     @Inject
@@ -188,8 +193,9 @@ public class MassGenerator2Test {
         
         List<String> cards = cardsString != null ? Files.readAllLines(Paths.get(cardsString)) : Arrays.asList(new String[] {null});
 
+        RuntimeConfig runtimeConfig = getRuntimeConfig();
 
-        eRezeptWorkflowService.activateComfortSignature();
+        eRezeptWorkflowService.activateComfortSignature(runtimeConfig);
         String thisMomentString = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
                                 .withZone(ZoneOffset.UTC)
                                 .format(Instant.now());
@@ -260,7 +266,7 @@ public class MassGenerator2Test {
                         //
                         //}
                     
-                        List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowables = eRezeptWorkflowService.createMultipleERezeptsOnPrescriptionServer(bundles);
+                        List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowables = eRezeptWorkflowService.createMultipleERezeptsOnPrescriptionServer(bundles, runtimeConfig);
                         String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
                                 .withZone(ZoneOffset.UTC)
                                 .format(Instant.now());
@@ -290,8 +296,8 @@ public class MassGenerator2Test {
                         
                         i++;
                         if((i % 90) == 0) {
-                            eRezeptWorkflowService.deactivateComfortSignature();
-                            eRezeptWorkflowService.activateComfortSignature();
+                            eRezeptWorkflowService.deactivateComfortSignature(runtimeConfig);
+                            eRezeptWorkflowService.activateComfortSignature(runtimeConfig);
                         }
                     }
                 } catch (Exception ex) {
@@ -303,8 +309,18 @@ public class MassGenerator2Test {
                 // break;
             }
         }
-        eRezeptWorkflowService.deactivateComfortSignature();
+        eRezeptWorkflowService.deactivateComfortSignature(runtimeConfig);
         fw.close();
+    }
+
+    private RuntimeConfig getRuntimeConfig() throws FaultMessage {
+        String cardHandleVincenzkrankenhaus = eRezeptWorkflowService.getCards().getCards()
+            .getCard().stream().filter(ch -> "VincenzkrankenhausTEST-ONLY".equals(ch.getCardHolderName())).findFirst().get().getCardHandle();
+        
+        RuntimeConfig runtimeConfig = new RuntimeConfig();
+        runtimeConfig.copyValuesFromUserConfig(userConfig);
+        runtimeConfig.setSMCBHandle(cardHandleVincenzkrankenhaus);
+        return runtimeConfig;
     }
 
     void createERezeptMassCreateBatch(String cardsString, String insuranceString, String templateFolder, boolean move) throws Exception {
@@ -320,8 +336,9 @@ public class MassGenerator2Test {
         
         List<String> cards = cardsString != null ? Files.readAllLines(Paths.get(cardsString)) : Arrays.asList(new String[] {null});
 
+        RuntimeConfig runtimeConfig = getRuntimeConfig();
 
-        eRezeptWorkflowService.activateComfortSignature();
+        eRezeptWorkflowService.activateComfortSignature(runtimeConfig);
         String thisMomentString = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
                                 .withZone(ZoneOffset.UTC)
                                 .format(Instant.now());
@@ -387,7 +404,7 @@ public class MassGenerator2Test {
                         //
                         //}
                     
-                        List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowables = eRezeptWorkflowService.createMultipleERezeptsOnPrescriptionServer(bundles);
+                        List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowables = eRezeptWorkflowService.createMultipleERezeptsOnPrescriptionServer(bundles, runtimeConfig);
                         String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
                                 .withZone(ZoneOffset.UTC)
                                 .format(Instant.now());
@@ -418,8 +435,8 @@ public class MassGenerator2Test {
                         
                         i++;
                         if((i % 8) == 0) {
-                            eRezeptWorkflowService.deactivateComfortSignature();
-                            eRezeptWorkflowService.activateComfortSignature();
+                            eRezeptWorkflowService.deactivateComfortSignature(runtimeConfig);
+                            eRezeptWorkflowService.activateComfortSignature(runtimeConfig);
                         }
                     }
                 } catch (Exception ex) {
@@ -431,7 +448,7 @@ public class MassGenerator2Test {
                 // break;
             }
         }
-        eRezeptWorkflowService.deactivateComfortSignature();
+        eRezeptWorkflowService.deactivateComfortSignature(runtimeConfig);
         fw.close();
     }
 

@@ -37,7 +37,7 @@ public class SecretsManagerService {
     private static final Logger log = Logger.getLogger(SecretsManagerService.class.getName());
 
     @Inject
-    AppConfig appConfig;
+    public AppConfig appConfig;
 
     @Inject
     UserConfigurationService userConfigurationService;
@@ -65,17 +65,7 @@ public class SecretsManagerService {
                 exceptionEvent.fireAsync(e);
             }
         } else if (appConfig.getCertAuthStoreFile().isPresent() && appConfig.getCertAuthStoreFilePassword().isPresent()) {
-            String connectorTlsCertAuthStoreFile = appConfig.getCertAuthStoreFile().get();
-            String connectorTlsCertAuthStorePwd = appConfig.getCertAuthStoreFilePassword().get();
-
-            try (FileInputStream certificateInputStream = new FileInputStream(connectorTlsCertAuthStoreFile)) {
-                setUpSSLContext(connectorTlsCertAuthStorePwd, certificateInputStream);
-            } catch (NoSuchAlgorithmException | KeyStoreException | CertificateException | IOException
-                    | UnrecoverableKeyException | KeyManagementException e) {
-                log.severe("There was a problem when creating the SSLContext:");
-                e.printStackTrace();
-                exceptionEvent.fireAsync(e);
-            }
+            initFromAppConfig();
         } else {
             // For the connector trust all certificates
             try {
@@ -87,6 +77,20 @@ public class SecretsManagerService {
                 e.printStackTrace();
                 exceptionEvent.fireAsync(e);
             }
+        }
+    }
+
+    public void initFromAppConfig() {
+        String connectorTlsCertAuthStoreFile = appConfig.getCertAuthStoreFile().get();
+        String connectorTlsCertAuthStorePwd = appConfig.getCertAuthStoreFilePassword().get();
+
+        try (FileInputStream certificateInputStream = new FileInputStream(connectorTlsCertAuthStoreFile)) {
+            setUpSSLContext(connectorTlsCertAuthStorePwd, certificateInputStream);
+        } catch (NoSuchAlgorithmException | KeyStoreException | CertificateException | IOException
+                | UnrecoverableKeyException | KeyManagementException e) {
+            log.severe("There was a problem when creating the SSLContext:");
+            e.printStackTrace();
+            exceptionEvent.fireAsync(e);
         }
     }
 

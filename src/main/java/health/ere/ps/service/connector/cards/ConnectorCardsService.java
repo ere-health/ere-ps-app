@@ -3,6 +3,7 @@ package health.ere.ps.service.connector.cards;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -82,19 +83,29 @@ public class ConnectorCardsService {
 
     public String getConnectorCardHandle(CardHandleType cardHandleType, RuntimeConfig runtimeConfig)
             throws ConnectorCardsException {
+        return getConnectorCardHandle(ch ->
+                            ch.getCardType().value().equalsIgnoreCase(
+                                    cardHandleType.getCardHandleType()), runtimeConfig);
+    }
+
+    public String getConnectorCardHandle(String cardHolderName, RuntimeConfig runtimeConfig)
+            throws ConnectorCardsException {
+        return getConnectorCardHandle(ch ->
+            cardHolderName.equals(ch.getCardHolderName()), runtimeConfig);
+    }
+
+    public String  getConnectorCardHandle(Predicate<? super CardInfoType> filter, RuntimeConfig runtimeConfig)
+            throws ConnectorCardsException {
         Optional<List<CardInfoType>> cardsInfoList = getConnectorCardsInfo(runtimeConfig);
         String cardHandle = null;
 
         if (cardsInfoList.isPresent()) {
             Optional<CardInfoType> cardHndl =
-                    cardsInfoList.get().stream().filter(ch ->
-                            ch.getCardType().value().equalsIgnoreCase(
-                                    cardHandleType.getCardHandleType())).findFirst();
+                    cardsInfoList.get().stream().filter(filter).findFirst();
             if (cardHndl.isPresent()) {
                 cardHandle = cardHndl.get().getCardHandle();
             } else {
-                throw new ConnectorCardsException(String.format("No card handle found for card " +
-                        "handle type %s", cardHandleType.getCardHandleType()));
+                throw new ConnectorCardsException(String.format("No card handle found for card."));
             }
         }
 

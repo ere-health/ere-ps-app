@@ -16,8 +16,8 @@ public class RuntimeConfig extends UserConfig {
 
     private static Logger log = Logger.getLogger(RuntimeConfig.class.getName());
     
-    protected String eHBAHandle;
-    protected String SMCBHandle;  
+    protected String eHBAHandle = null;
+    protected String SMCBHandle = null;
 
     
     public RuntimeConfig() {
@@ -50,6 +50,7 @@ public class RuntimeConfig extends UserConfig {
             this.defaultPruefnummer = userConfig.getPruefnummer();
 
             this.defaultMuster16TemplateProfile = userConfig.getMuster16TemplateConfiguration();
+            this.updateProperties(userConfig.getConfigurations());
         } catch(Exception ex) {
             log.log(Level.SEVERE, "Was not able to copy values from user config", ex);
         }
@@ -109,7 +110,7 @@ public class RuntimeConfig extends UserConfig {
 
     @Override
     public int hashCode() {
-        return Objects.hash(eHBAHandle, SMCBHandle, this.getConfigurations());
+        return Objects.hash(eHBAHandle, SMCBHandle, this.getConfigurations(), super.hashCode());
     }
 
 }

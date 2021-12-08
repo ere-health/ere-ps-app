@@ -21,10 +21,12 @@ import java.util.logging.Logger;
 import java.util.regex.PatternSyntaxException;
 
 import javax.enterprise.event.Event;
+import javax.enterprise.inject.spi.CDI;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.X509KeyManager;
 
+import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.UserConfig;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.connector.endpoint.EndpointDiscoveryService;
@@ -37,8 +39,11 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
     public SingleConnectorServicesProvider(UserConfig userConfig, Event<Exception> exceptionEvent) {
         this.userConfig = userConfig;
         this.secretsManagerService = new SecretsManagerService();
+        
+        // Try to read SSL Certificates from the userConfig (this can also be the runtime config)
         String configKeystoreUri = userConfig.getConfigurations().getClientCertificate();
         String configKeystorePass = userConfig.getConfigurations().getClientCertificatePassword();
+        
         if (configKeystoreUri != null && !configKeystoreUri.isEmpty()) {
             try {
                 KeyManager keyManager = getKeyFromKeyStoreUri(configKeystoreUri, configKeystorePass);
@@ -49,8 +54,22 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
                 e.printStackTrace();
                 exceptionEvent.fireAsync(e);
             }
+        // if non is given try to load the certificates from the AppConfig
+        } else {
+            try {
+                AppConfig appConfig = CDI.current().select( AppConfig.class ).get();
+                if (appConfig.getCertAuthStoreFile().isPresent() && appConfig.getCertAuthStoreFilePassword().isPresent()) {
+                    this.secretsManagerService.appConfig = appConfig;
+                    this.secretsManagerService.initFromAppConfig();
+                }
+            } catch(Exception e) {
+                log.severe("There was a problem when using default certificate");
+                        e.printStackTrace();
+                        exceptionEvent.fireAsync(e);
+            }
         }
-        this.endpointDiscoveryService = new EndpointDiscoveryService(userConfig, secretsManagerService);
+        
+        this.endpointDiscoveryService = new EndpointDiscoveryService(userConfig, this.secretsManagerService);
 
         initializeServices();
     }
