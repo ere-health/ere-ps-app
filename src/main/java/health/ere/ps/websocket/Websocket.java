@@ -122,6 +122,8 @@ public class Websocket {
     @ConfigProperty(name = "ere.websocket.remove-signature-from-message", defaultValue = "true")
     boolean removeSignatureFromMessage = true;
 
+    @ConfigProperty(name = "ere.websocket.erezeptdocuments.reply-to-all", defaultValue = "false")
+    boolean erezeptdocumentsReplyToAll = false;
 
     JsonbConfig customConfig = new JsonbConfig()
             .setProperty(JsonbConfig.FORMATTING, true)
@@ -432,7 +434,15 @@ public class Websocket {
         ereLog.info("Sending prescription receipt payload to front-end: " +
                 jsonPayload);
 
-        eRezeptDocumentsEvent.getReplyTo().getAsyncRemote().sendObject(
+                Set<Session> localSessions = new HashSet<>();
+        if(eRezeptDocumentsEvent.getReplyTo() != null && !erezeptdocumentsReplyToAll) {
+            localSessions.add(eRezeptDocumentsEvent.getReplyTo());
+        } else {
+            localSessions = sessions;
+        }
+        localSessions.forEach(session -> {
+
+            session.getAsyncRemote().sendObject(
                 jsonPayload,
                 result -> {
                     if (!result.isOK()) {
@@ -440,6 +450,7 @@ public class Websocket {
                                 result.getException());
                     }
                 });
+        });
     }
 
     public String generateJson(ERezeptWithDocumentsEvent eRezeptDocumentsEvent) {
