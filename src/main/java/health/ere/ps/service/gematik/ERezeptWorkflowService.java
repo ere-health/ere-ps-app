@@ -739,7 +739,7 @@ public class ERezeptWorkflowService {
             AbortTaskStatus abortTaskStatus = new AbortTaskStatus(abortTaskEntry);
 
             try {
-                abortERezeptTask(abortTasksEvent.getRuntimeConfig(), abortTasksEvent.getId(), abortTaskEntry.getAccessCode());
+                abortERezeptTask(abortTasksEvent.getRuntimeConfig(), abortTaskEntry.getId(), abortTaskEntry.getAccessCode());
                 abortTaskStatus.setStatus(AbortTaskStatus.Status.OK);
             } catch (Throwable t) {
                 abortTaskStatus.setThrowable(t);
