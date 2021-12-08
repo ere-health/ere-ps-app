@@ -65,7 +65,9 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
             } catch(Exception e) {
                 log.severe("There was a problem when using default certificate");
                         e.printStackTrace();
-                        exceptionEvent.fireAsync(e);
+                        if(exceptionEvent != null) {
+                            exceptionEvent.fireAsync(e);
+                        }
             }
         }
         
