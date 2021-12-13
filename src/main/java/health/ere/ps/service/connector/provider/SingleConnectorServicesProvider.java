@@ -61,6 +61,9 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
                 if (appConfig.getCertAuthStoreFile().isPresent() && appConfig.getCertAuthStoreFilePassword().isPresent()) {
                     this.secretsManagerService.appConfig = appConfig;
                     this.secretsManagerService.initFromAppConfig();
+                } else {
+                    this.secretsManagerService.appConfig = appConfig;
+                    this.secretsManagerService.acceptAllCertificates();
                 }
             } catch(Exception e) {
                 log.severe("There was a problem when using default certificate");
