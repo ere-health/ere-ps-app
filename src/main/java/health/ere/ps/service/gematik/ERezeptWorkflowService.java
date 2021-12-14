@@ -920,4 +920,22 @@ public class ERezeptWorkflowService {
         parameter.setContext(connectorServicesProvider.getContextType(runtimeConfig));
         return connectorServicesProvider.getEventServicePortType(runtimeConfig).getCards(parameter);
     }
+
+    /**
+     * Checks if ERezeptService is reachable
+     */
+    public boolean isERezeptServiceReachable(String parameterBearerToken) {
+        try (Response response = client.target(appConfig.getPrescriptionServiceURL()).request()
+                .header("User-Agent", appConfig.getUserAgent())
+                .header("Authorization", "Bearer " + parameterBearerToken)
+                .get()) {
+            if (response.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch(Exception ex) {
+            return false;
+        }
+    }
 }

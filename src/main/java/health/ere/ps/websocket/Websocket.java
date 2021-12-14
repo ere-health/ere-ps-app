@@ -61,8 +61,10 @@ import health.ere.ps.event.GetSignatureModeEvent;
 import health.ere.ps.event.GetSignatureModeResponseEvent;
 import health.ere.ps.event.HTMLBundlesEvent;
 import health.ere.ps.event.ReadyToSignBundlesEvent;
+import health.ere.ps.event.RequestStatusEvent;
 import health.ere.ps.event.SaveSettingsEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
+import health.ere.ps.event.StatusResponseEvent;
 import health.ere.ps.event.erixa.ErixaEvent;
 import health.ere.ps.jsonb.BundleAdapter;
 import health.ere.ps.jsonb.ByteAdapter;
@@ -111,6 +113,9 @@ public class Websocket {
 
     @Inject
     Event<ChangePinEvent> changePinEvent;
+
+    @Inject
+    Event<RequestStatusEvent> requestStatusEvent;
     
     @Inject
     PrescriptionBundleValidator prescriptionBundleValidator;
@@ -282,6 +287,8 @@ public class Websocket {
                 String userConfiguration = object.getJsonObject("payload").toString();
                 UserConfigurations userConfigurations = jsonbFactory.fromJson(userConfiguration, UserConfigurations.class);
                 saveSettingsEvent.fireAsync(new SaveSettingsEvent(userConfigurations));
+            } else if("RequestStatus".equals(object.getString("type"))) {
+                requestStatusEvent.fireAsync(new RequestStatusEvent());
             } else if ("Publish".equals(object.getString("type"))) {
                 sendMessage(object.getString("payload"), "Unable to publish event");
             } else if ("AllKBVExamples".equals(object.getString("type"))) {
@@ -401,6 +408,18 @@ public class Websocket {
                 });
     }
 
+    public void onStatusResponseEvent(@ObservesAsync StatusResponseEvent statusResponseEvent) {
+        assureChromeIsOpen();
+        String statusResponseString = generateJson(statusResponseEvent);
+        statusResponseEvent.getReplyTo().getAsyncRemote().sendObject(
+                "{\"type\": \"StatusResponse\", \"payload\": " + statusResponseString + ", \"replyToMessageId\": \""+statusResponseEvent.getReplyToMessageId()+"\"}",
+                result -> {
+                    if (!result.isOK()) {
+                        ereLog.fatal("Unable to send statusResponseEvent: " + result.getException());
+                    }
+                });
+    }
+
     String generateJson(GetSignatureModeResponseEvent getSignatureModeResponseEvent) {
         return jsonbFactory.toJson(getSignatureModeResponseEvent);
     }
@@ -415,6 +434,10 @@ public class Websocket {
 
     String generateJson(ChangePinResponseEvent changePinResponseEvent) {
         return jsonbFactory.toJson(changePinResponseEvent.getChangePinResponse());
+    }
+
+    String generateJson(StatusResponseEvent statusResponseEvent) {
+        return jsonbFactory.toJson(statusResponseEvent.getStatus());
     }
 
     void assureChromeIsOpen() {

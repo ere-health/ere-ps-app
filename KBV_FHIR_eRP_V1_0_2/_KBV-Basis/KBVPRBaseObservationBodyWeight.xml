@@ -1,0 +1,428 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <url value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Observation_Body_Weight" />
+  <version value="1.1.3" />
+  <name value="KBV_PR_Base_Observation_Body_Weight" />
+  <status value="active" />
+  <fhirVersion value="4.0.1" />
+  <mapping>
+    <identity value="workflow" />
+    <uri value="http://hl7.org/fhir/workflow" />
+    <name value="Workflow Pattern" />
+  </mapping>
+  <mapping>
+    <identity value="sct-concept" />
+    <uri value="http://snomed.info/conceptdomain" />
+    <name value="SNOMED CT Concept Domain Binding" />
+  </mapping>
+  <mapping>
+    <identity value="v2" />
+    <uri value="http://hl7.org/v2" />
+    <name value="HL7 v2 Mapping" />
+  </mapping>
+  <mapping>
+    <identity value="rim" />
+    <uri value="http://hl7.org/v3" />
+    <name value="RIM Mapping" />
+  </mapping>
+  <mapping>
+    <identity value="w5" />
+    <uri value="http://hl7.org/fhir/fivews" />
+    <name value="FiveWs Pattern Mapping" />
+  </mapping>
+  <mapping>
+    <identity value="sct-attr" />
+    <uri value="http://snomed.org/attributebinding" />
+    <name value="SNOMED CT Attribute Binding" />
+  </mapping>
+  <kind value="resource" />
+  <abstract value="false" />
+  <type value="Observation" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Observation" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Observation">
+      <path value="Observation" />
+      <constraint>
+        <key value="weight-1" />
+        <severity value="error" />
+        <human value="When Observation.vlaue[x] is not present, Observation.dataAbsentReason SHALL be present" />
+        <expression value="value.empty() implies dataAbsentReason.empty()" />
+        <source value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_BodyWeight_Max" />
+      </constraint>
+    </element>
+    <element id="Observation.status">
+      <path value="Observation.status" />
+      <fixedCode value="final" />
+    </element>
+    <element id="Observation.code.coding">
+      <path value="Observation.code.coding" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="system" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="2" />
+    </element>
+    <element id="Observation.code.coding:codeSnomed">
+      <path value="Observation.code.coding" />
+      <sliceName value="codeSnomed" />
+      <min value="1" />
+      <max value="1" />
+      <binding>
+        <strength value="required" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_Body_Weight_Snomed" />
+      </binding>
+    </element>
+    <element id="Observation.code.coding:codeSnomed.system">
+      <path value="Observation.code.coding.system" />
+      <min value="1" />
+      <fixedUri value="http://snomed.info/sct" />
+    </element>
+    <element id="Observation.code.coding:codeSnomed.version">
+      <path value="Observation.code.coding.version" />
+      <min value="1" />
+    </element>
+    <element id="Observation.code.coding:codeSnomed.code">
+      <path value="Observation.code.coding.code" />
+      <min value="1" />
+    </element>
+    <element id="Observation.code.coding:codeSnomed.display">
+      <path value="Observation.code.coding.display" />
+      <min value="1" />
+    </element>
+    <element id="Observation.code.coding:codeSnomed.display.extension">
+      <path value="Observation.code.coding.display.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="Observation.code.coding:codeSnomed.display.extension:anzeigenameCodeSnomed">
+      <path value="Observation.code.coding.display.extension" />
+      <sliceName value="anzeigenameCodeSnomed" />
+      <min value="1" />
+      <max value="1" />
+      <type>
+        <code value="Extension" />
+        <profile value="https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Terminology_German" />
+      </type>
+    </element>
+    <element id="Observation.code.coding:codeSnomed.display.extension:anzeigenameCodeSnomed.extension">
+      <path value="Observation.code.coding.display.extension.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="Observation.code.coding:codeSnomed.display.extension:anzeigenameCodeSnomed.extension:content">
+      <path value="Observation.code.coding.display.extension.extension" />
+      <sliceName value="content" />
+    </element>
+    <element id="Observation.code.coding:codeSnomed.display.extension:anzeigenameCodeSnomed.extension:content.value[x]:valueString">
+      <path value="Observation.code.coding.display.extension.extension.value[x]" />
+      <sliceName value="valueString" />
+      <definition value="In diesem Attribut sollen die entsprechende deutsche Bezeichnung des Loinc oder Snomed-Codes aus der Conceptmap eingetragen werden, also in diesem Fall den Displaynamen des Targetsystems aus https://fhir.kbv.de/ConceptMap/KBV_CM_Base_Body_Weight_Snomed_German|1.1.3" />
+    </element>
+    <element id="Observation.code.coding:codeLoinc">
+      <path value="Observation.code.coding" />
+      <sliceName value="codeLoinc" />
+      <min value="1" />
+      <max value="1" />
+      <binding>
+        <strength value="required" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_Body_Weight_Loinc" />
+      </binding>
+    </element>
+    <element id="Observation.code.coding:codeLoinc.system">
+      <path value="Observation.code.coding.system" />
+      <min value="1" />
+      <fixedUri value="http://loinc.org" />
+    </element>
+    <element id="Observation.code.coding:codeLoinc.version">
+      <path value="Observation.code.coding.version" />
+      <min value="1" />
+    </element>
+    <element id="Observation.code.coding:codeLoinc.code">
+      <path value="Observation.code.coding.code" />
+      <min value="1" />
+    </element>
+    <element id="Observation.code.coding:codeLoinc.display">
+      <path value="Observation.code.coding.display" />
+      <min value="1" />
+    </element>
+    <element id="Observation.code.coding:codeLoinc.display.extension">
+      <path value="Observation.code.coding.display.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="Observation.code.coding:codeLoinc.display.extension:anzeigenameCodeLoinc">
+      <path value="Observation.code.coding.display.extension" />
+      <sliceName value="anzeigenameCodeLoinc" />
+      <min value="1" />
+      <max value="1" />
+      <type>
+        <code value="Extension" />
+        <profile value="https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Terminology_German" />
+      </type>
+    </element>
+    <element id="Observation.code.coding:codeLoinc.display.extension:anzeigenameCodeLoinc.extension">
+      <path value="Observation.code.coding.display.extension.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="Observation.code.coding:codeLoinc.display.extension:anzeigenameCodeLoinc.extension:content">
+      <path value="Observation.code.coding.display.extension.extension" />
+      <sliceName value="content" />
+    </element>
+    <element id="Observation.code.coding:codeLoinc.display.extension:anzeigenameCodeLoinc.extension:content.value[x]:valueString">
+      <path value="Observation.code.coding.display.extension.extension.valueString" />
+      <sliceName value="valueString" />
+      <definition value="In diesem Attribut sollen die entsprechende deutsche Bezeichnung des Loinc oder Snomed-Codes aus der Conceptmap eingetragen werden, also in diesem Fall den Displaynamen des Targetsystems aus https://fhir.kbv.de/ConceptMap/KBV_CM_Base_Body_Weight_Loinc_German|1.1.3" />
+    </element>
+    <element id="Observation.subject">
+      <path value="Observation.subject" />
+      <min value="1" />
+      <type>
+        <code value="Reference" />
+        <targetProfile value="http://hl7.org/fhir/StructureDefinition/Group" />
+        <targetProfile value="http://hl7.org/fhir/StructureDefinition/Device" />
+        <targetProfile value="http://hl7.org/fhir/StructureDefinition/Location" />
+        <targetProfile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Patient|1.1.3" />
+      </type>
+    </element>
+    <element id="Observation.focus">
+      <path value="Observation.focus" />
+      <max value="0" />
+    </element>
+    <element id="Observation.effective[x]">
+      <path value="Observation.effective[x]" />
+      <slicing>
+        <discriminator>
+          <type value="type" />
+          <path value="$this" />
+        </discriminator>
+        <rules value="closed" />
+      </slicing>
+      <type>
+        <code value="dateTime" />
+      </type>
+    </element>
+    <element id="Observation.effective[x]:effectiveDateTime">
+      <path value="Observation.effective[x]" />
+      <sliceName value="effectiveDateTime" />
+      <type>
+        <code value="dateTime" />
+      </type>
+    </element>
+    <element id="Observation.performer">
+      <path value="Observation.performer" />
+      <type>
+        <code value="Reference" />
+        <targetProfile value="http://hl7.org/fhir/StructureDefinition/PractitionerRole" />
+        <targetProfile value="http://hl7.org/fhir/StructureDefinition/CareTeam" />
+        <targetProfile value="http://hl7.org/fhir/StructureDefinition/RelatedPerson" />
+        <targetProfile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Practitioner|1.1.3" />
+        <targetProfile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Organization|1.1.3" />
+        <targetProfile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Patient|1.1.3" />
+      </type>
+    </element>
+    <element id="Observation.value[x]">
+      <path value="Observation.value[x]" />
+      <slicing>
+        <discriminator>
+          <type value="type" />
+          <path value="$this" />
+        </discriminator>
+        <rules value="closed" />
+      </slicing>
+      <type>
+        <code value="Quantity" />
+      </type>
+    </element>
+    <element id="Observation.value[x]:valueQuantity">
+      <path value="Observation.value[x]" />
+      <sliceName value="valueQuantity" />
+      <type>
+        <code value="Quantity" />
+      </type>
+    </element>
+    <element id="Observation.value[x]:valueQuantity.value">
+      <path value="Observation.value[x].value" />
+      <min value="1" />
+    </element>
+    <element id="Observation.value[x]:valueQuantity.unit">
+      <path value="Observation.value[x].unit" />
+      <min value="1" />
+      <binding>
+        <strength value="required" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_BodyWeight_Unit" />
+      </binding>
+    </element>
+    <element id="Observation.value[x]:valueQuantity.system">
+      <path value="Observation.value[x].system" />
+      <min value="1" />
+      <fixedUri value="http://unitsofmeasure.org" />
+    </element>
+    <element id="Observation.value[x]:valueQuantity.code">
+      <path value="Observation.value[x].code" />
+      <min value="1" />
+      <binding>
+        <strength value="required" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_BodyWeight_Unit" />
+      </binding>
+    </element>
+    <element id="Observation.bodySite.coding">
+      <path value="Observation.bodySite.coding" />
+      <min value="1" />
+      <max value="1" />
+    </element>
+    <element id="Observation.bodySite.coding.system">
+      <path value="Observation.bodySite.coding.system" />
+      <min value="1" />
+      <fixedUri value="http://snomed.info/sct" />
+    </element>
+    <element id="Observation.bodySite.coding.version">
+      <path value="Observation.bodySite.coding.version" />
+      <min value="1" />
+      <fixedString value="http://snomed.info/sct/900000000000207008/version/20200731" />
+    </element>
+    <element id="Observation.bodySite.coding.code">
+      <path value="Observation.bodySite.coding.code" />
+      <min value="1" />
+      <fixedCode value="38266002" />
+    </element>
+    <element id="Observation.bodySite.coding.display">
+      <path value="Observation.bodySite.coding.display" />
+      <min value="1" />
+    </element>
+    <element id="Observation.bodySite.coding.display.extension">
+      <path value="Observation.bodySite.coding.display.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="Observation.bodySite.coding.display.extension:anzeigenameCodeSnomed">
+      <path value="Observation.bodySite.coding.display.extension" />
+      <sliceName value="anzeigenameCodeSnomed" />
+      <min value="1" />
+      <max value="1" />
+      <type>
+        <code value="Extension" />
+        <profile value="https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Terminology_German" />
+      </type>
+    </element>
+    <element id="Observation.bodySite.coding.display.extension:anzeigenameCodeSnomed.extension">
+      <path value="Observation.bodySite.coding.display.extension.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="Observation.bodySite.coding.display.extension:anzeigenameCodeSnomed.extension:content">
+      <path value="Observation.bodySite.coding.display.extension.extension" />
+      <sliceName value="content" />
+    </element>
+    <element id="Observation.bodySite.coding.display.extension:anzeigenameCodeSnomed.extension:content.value[x]:valueString">
+      <path value="Observation.bodySite.coding.display.extension.extension.value[x]" />
+      <sliceName value="valueString" />
+      <fixedString value="Gesamtkörper" />
+    </element>
+    <element id="Observation.method.coding">
+      <path value="Observation.method.coding" />
+      <min value="1" />
+      <max value="1" />
+      <binding>
+        <strength value="required" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_Body_Weight_Method_Snomed" />
+      </binding>
+    </element>
+    <element id="Observation.method.coding.system">
+      <path value="Observation.method.coding.system" />
+      <min value="1" />
+    </element>
+    <element id="Observation.method.coding.version">
+      <path value="Observation.method.coding.version" />
+      <min value="1" />
+    </element>
+    <element id="Observation.method.coding.code">
+      <path value="Observation.method.coding.code" />
+      <min value="1" />
+    </element>
+    <element id="Observation.method.coding.display">
+      <path value="Observation.method.coding.display" />
+      <min value="1" />
+    </element>
+    <element id="Observation.method.coding.display.extension">
+      <path value="Observation.method.coding.display.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="Observation.method.coding.display.extension:anzeigenameMethodSnomed">
+      <path value="Observation.method.coding.display.extension" />
+      <sliceName value="anzeigenameMethodSnomed" />
+      <min value="1" />
+      <max value="1" />
+      <type>
+        <code value="Extension" />
+        <profile value="https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Terminology_German" />
+      </type>
+    </element>
+    <element id="Observation.method.coding.display.extension:anzeigenameMethodSnomed.extension">
+      <path value="Observation.method.coding.display.extension.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="Observation.method.coding.display.extension:anzeigenameMethodSnomed.extension:content">
+      <path value="Observation.method.coding.display.extension.extension" />
+      <sliceName value="content" />
+    </element>
+    <element id="Observation.method.coding.display.extension:anzeigenameMethodSnomed.extension:content.value[x]:valueString">
+      <path value="Observation.method.coding.display.extension.extension.value[x]" />
+      <sliceName value="valueString" />
+      <definition value="In diesem Attribut sollen die entsprechende deutsche Bezeichnung des Loinc oder Snomed-Codes aus der Conceptmap eingetragen werden, also in diesem Fall den Displaynamen des Targetsystems aus https://fhir.kbv.de/ConceptMap/KBV_CM_Base_Body_Weight_Method_Snomed_German|1.1.3" />
+    </element>
+    <element id="Observation.specimen">
+      <path value="Observation.specimen" />
+      <max value="0" />
+    </element>
+    <element id="Observation.component">
+      <path value="Observation.component" />
+      <max value="0" />
+    </element>
+  </differential>
+</StructureDefinition>

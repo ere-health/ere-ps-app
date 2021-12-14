@@ -1,0 +1,30 @@
+{
+  "resourceType": "ValueSet",
+  "url": "http://fhir.de/ValueSet/iso/bundeslaender",
+  "version": "0.9.13",
+  "name": "ISO31662DE",
+  "title": "ISO-3166-2:de-Laendercodes",
+  "status": "draft",
+  "experimental": true,
+  "date": "2020-12-08",
+  "publisher": "HL7 Deutschland e.V. (Technisches Komitee FHIR)",
+  "contact": [
+    {
+      "telecom": [
+        {
+          "system": "url",
+          "value": "http://hl7.de/technische-komitees/fhir/"
+        }
+      ]
+    }
+  ],
+  "description": "Enthaelt die ISO-3166-2:DE Codes für die deutschen Bundeslaender.",
+  "copyright": "HL7 Deutschland e.V.",
+  "compose": {
+    "include": [
+      {
+        "system": "urn:iso:std:iso:3166-2:de"
+      }
+    ]
+  }
+}

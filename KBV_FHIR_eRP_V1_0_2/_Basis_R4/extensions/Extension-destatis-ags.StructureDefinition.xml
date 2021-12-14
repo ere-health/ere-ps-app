@@ -1,0 +1,58 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="ags" />
+  <url value="http://fhir.de/StructureDefinition/destatis/ags" />
+  <version value="0.9.13" />
+  <name value="ExtensionDestatisAgs" />
+  <status value="draft" />
+  <description value="Extension für die Abbildung des Amtlichen Gemeindeschlüssels&#xD;&#xA;https://de.wikipedia.org/wiki/Amtlicher_Gemeindeschlüssel" />
+  <fhirVersion value="4.0.1" />
+  <mapping>
+    <identity value="rim" />
+    <uri value="http://hl7.org/v3" />
+    <name value="RIM Mapping" />
+  </mapping>
+  <kind value="complex-type" />
+  <abstract value="false" />
+  <context>
+    <type value="element" />
+    <expression value="Address.city" />
+  </context>
+  <type value="Extension" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Extension" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Extension.url">
+      <path value="Extension.url" />
+      <fixedUri value="http://fhir.de/StructureDefinition/destatis/ags" />
+    </element>
+    <element id="Extension.value[x]">
+      <path value="Extension.value[x]" />
+      <min value="1" />
+      <type>
+        <code value="Coding" />
+      </type>
+      <example>
+        <label value="AGS Hildesheim" />
+        <valueCoding>
+          <system value="http://fhir.de/NamingSystem/destatis/ags" />
+          <code value="03254021" />
+        </valueCoding>
+      </example>
+    </element>
+    <element id="Extension.value[x].system">
+      <path value="Extension.value[x].system" />
+      <min value="1" />
+      <fixedUri value="http://fhir.de/NamingSystem/destatis/ags" />
+    </element>
+    <element id="Extension.value[x].code">
+      <path value="Extension.value[x].code" />
+      <min value="1" />
+      <constraint>
+        <key value="ags-extension-1" />
+        <severity value="error" />
+        <human value="Der Amtliche Gemeindeschlüssel ist nummerisch und begrenzt auf acht Stellen" />
+        <expression value="$this.matches('[0-9]{8}')" />
+      </constraint>
+    </element>
+  </differential>
+</StructureDefinition>

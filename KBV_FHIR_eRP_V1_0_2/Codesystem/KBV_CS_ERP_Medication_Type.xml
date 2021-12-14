@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<CodeSystem xmlns="http://hl7.org/fhir" xmlns:ns2="http://www.w3.org/1999/xhtml">
+    <url value="https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Type"/>
+    <version value="1.0.2" />
+    <name value="KBV_CS_ERP_Medication_Type"/>
+    <status value="active"/>
+	<date value="2021-08-31" />
+	<publisher value="Kassenärztliche Bundesvereinigung" />
+    <contact>
+        <telecom>
+            <system value="url"/>
+            <value value="http://www.kbv.de"/>
+        </telecom>
+    </contact>
+    <description value="Klassifizierung von Medikamenten soweit keine PZN-Verordnung erfolgt."/>
+    <copyright value="Kassenärztliche Bundesvereinigung"/>
+    <caseSensitive value="true"/>
+    <content value="complete"/>
+    <concept>
+        <code value="wirkstoff"/>
+        <display value="Wirkstoff"/>
+    </concept>
+    <concept>
+        <code value="freitext"/>
+        <display value="Freitext"/>
+    </concept>
+    <concept>
+        <code value="rezeptur"/>
+        <display value="Rezeptur"/>
+    </concept>
+</CodeSystem>

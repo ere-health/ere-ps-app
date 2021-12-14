@@ -1,0 +1,40 @@
+<NamingSystem xmlns="http://hl7.org/fhir">
+  <id value="namingSystem-asv-teamnummer" />
+  <meta>
+    <profile value="http://fhir.de/StructureDefinition/namingsystem-de-basis" />
+  </meta>
+  <name value="AsvTeamnummer" />
+  <status value="draft" />
+  <kind value="identifier" />
+  <date value="2018-06-06" />
+  <publisher value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+  <contact>
+    <telecom>
+      <system value="other" />
+      <value value="http://hl7.de/technische-komitees/fhir/" />
+    </telecom>
+  </contact>
+  <responsible value="Kassenärztliche Bundesvereinigung (KBV)" />
+  <type>
+    <coding>
+      <system value="http://terminology.hl7.org/CodeSystem/v2-0203" />
+      <code value="PRN" />
+    </coding>
+  </type>
+  <description value="Die ASV-Teamnummer ist ein bundesweit eindeutiges  Identifikationsmerkmal für Teams in der ambulanten spezialärztlichen Versorgung (ASV). Vergeben wird sie im Zuge der Erteilung der ASV-Berechtigung." />
+  <usage value="Die ASV-Teamnummer umfasst neun Ziffern und ist wie eine Betriebsstättennummer  (BSNR) aufgebaut. Die neun Stellen der ASV-Teamnummer setzen sich wie folgt zusammen:  Die ersten beiden Stellen „00“ kennzeichnen die ASV. Die dritte bis achte Stelle  ist eine fortlaufende Nummer, die eine eindeutige Zuordnung des ASV-Teams  ermöglicht. Die neunte Stelle ist eine Prüfziffer. [Q: KBV]. Vgl. auch https://www.asv-servicestelle.de/" />
+  <!-- Stand 06.06.2018: es existiert noch keine OID
+	<uniqueId>
+		<type value="oid"/>
+		<value value="1.2.276.0.XXX.XXX:XXX.XXX"/>
+	</uniqueId>
+	-->
+  <uniqueId>
+    <type value="uri" />
+    <value value="http://fhir.de/NamingSystem/asv/teamnummer" />
+    <preferred value="true" />
+    <period>
+      <start value="2018-06-06" />
+    </period>
+  </uniqueId>
+</NamingSystem>
