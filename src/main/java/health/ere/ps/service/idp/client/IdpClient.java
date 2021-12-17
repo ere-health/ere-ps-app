@@ -72,16 +72,18 @@ public class IdpClient implements IIdpClient {
     private String redirectUrl;
     private String discoveryDocumentUrl;
     private boolean shouldVerifyState;
+    private boolean verifyHostname;
     private DiscoveryDocumentResponse discoveryDocumentResponse;
 
     public IdpClient() {
     }
 
-    public void init(String clientId, String redirectUrl, String discoveryDocumentUrl, boolean shouldVerifyState) {
+    public void init(String clientId, String redirectUrl, String discoveryDocumentUrl, boolean shouldVerifyState, boolean verifyHostname) {
         this.clientId = clientId;
         this.redirectUrl = redirectUrl;
         this.discoveryDocumentUrl = discoveryDocumentUrl;
         this.shouldVerifyState = shouldVerifyState;
+        this.verifyHostname = verifyHostname;
     }
 
     private String signServerChallenge(final String challengeToSign, final X509Certificate certificate,
@@ -176,7 +178,7 @@ public class IdpClient implements IIdpClient {
                                 .state(state)
                                 .scopes(scopes)
                                 .nonce(nonce)
-                                .build());
+                                .build(), verifyHostname);
 
         IdpJwe idpJwe = new IdpJwe(signServerChallenge(
                 authorizationResponse.getAuthenticationChallenge().getChallenge().getRawString(),
@@ -191,7 +193,7 @@ public class IdpClient implements IIdpClient {
                                 .authenticationEndpointUrl(
                                         discoveryDocumentResponse.getAuthorizationEndpoint())
                                 .signedChallenge(idpJwe)
-                                .build());
+                                .build(), verifyHostname);
         if (shouldVerifyState) {
             final String stringInTokenUrl = UriUtils
                     .extractParameterValue(authenticationResponse.getLocation(), "state");
@@ -211,7 +213,7 @@ public class IdpClient implements IIdpClient {
                 .redirectUrl(redirectUrl)
                 .codeVerifier(codeVerifier)
                 .idpEnc(discoveryDocumentResponse.getIdpEnc())
-                .build());
+                .build(), verifyHostname);
     }
 
     private void assertThatIdpIdentityIsValid(final PkiIdentity idpIdentity) {
@@ -231,9 +233,9 @@ public class IdpClient implements IIdpClient {
     }
 
     @Override
-    public IIdpClient initializeClient() throws IdpClientException, IdpException, IdpJoseException {
+    public IIdpClient initializeClient(boolean verifyHostname, boolean replaceUrlsInDiscoveryDocument) throws IdpClientException, IdpException, IdpJoseException {
         logger.info("Initializing using url: " + discoveryDocumentUrl);
-        discoveryDocumentResponse = authenticatorClient.retrieveDiscoveryDocument(discoveryDocumentUrl);
+        discoveryDocumentResponse = authenticatorClient.retrieveDiscoveryDocument(discoveryDocumentUrl, verifyHostname, replaceUrlsInDiscoveryDocument);
         return this;
     }
 }

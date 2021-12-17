@@ -1,30 +1,32 @@
 package health.ere.ps.service.idp.client;
 
-import health.ere.ps.config.AppConfig;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.jboss.logging.Logger;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.jboss.logging.Logger;
+import org.junit.jupiter.api.Test;
+
+import health.ere.ps.config.AppConfig;
+import health.ere.ps.exception.idp.IdpClientException;
 import health.ere.ps.exception.idp.IdpException;
 import health.ere.ps.exception.idp.IdpJoseException;
 import health.ere.ps.model.idp.client.AuthorizationRequest;
 import health.ere.ps.model.idp.client.AuthorizationResponse;
 import health.ere.ps.model.idp.client.DiscoveryDocumentResponse;
-import health.ere.ps.exception.idp.IdpClientException;
 import health.ere.ps.model.idp.client.field.CodeChallengeMethod;
 import health.ere.ps.model.idp.client.field.IdpScope;
 import health.ere.ps.model.idp.client.token.JsonWebToken;
+import health.ere.ps.profile.TitusTestProfile;
 import io.quarkus.test.junit.QuarkusTest;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import io.quarkus.test.junit.TestProfile;
 
 @QuarkusTest
+@TestProfile(TitusTestProfile.class)
 class AuthenticatorClientTest {
 
     @Inject
@@ -36,9 +38,6 @@ class AuthenticatorClientTest {
     @Inject
     AppConfig appConfig;
 
-    @ConfigProperty(name = "idp.auth.request.redirect.url")
-    String idpAuthRequestRedirectUrl;
-
     @Test
     void test_Successful_Authorization_Request() throws IdpClientException, IdpException {
         AuthenticatorClient authenticatorClient = new AuthenticatorClient();
@@ -46,7 +45,7 @@ class AuthenticatorClientTest {
         AuthorizationResponse authorizationResponse =
                 authenticatorClient.doAuthorizationRequest(AuthorizationRequest.builder()
                 .clientId(appConfig.getIdpClientId())
-                .link(appConfig.getIdpAuthRequestURL())
+                .link(appConfig.getIdpBaseURL().replace("auth/realms/idp", "sign_response"))
                 .codeChallenge(ClientUtilities.generateCodeChallenge(
                         ClientUtilities.generateCodeVerifier()))
                 .codeChallengeMethod(CodeChallengeMethod.S256)
@@ -54,7 +53,7 @@ class AuthenticatorClientTest {
                 .state(RandomStringUtils.randomAlphanumeric(20))
                 .scopes(java.util.Set.of(IdpScope.OPENID, IdpScope.EREZEPT))
                 .nonce(RandomStringUtils.randomAlphanumeric(20))
-                .build());
+                .build(), true);
 
         assertNotNull(authorizationResponse.getAuthenticationChallenge(),
                 "Auth Challenge Present");
@@ -91,7 +90,7 @@ class AuthenticatorClientTest {
             throws IdpClientException {
         IdpHttpClientService idpHttpClientService =
                 authenticatorClient.getIdpHttpClientInstanceByUrl(
-                        appConfig.getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI);
+                        appConfig.getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI, true);
 
         try (Response response = idpHttpClientService.doGenericGetRequest()) {
             String jsonString = response.readEntity(String.class);
@@ -111,7 +110,7 @@ class AuthenticatorClientTest {
             throws IdpClientException, IdpException, IdpJoseException {
         DiscoveryDocumentResponse discoveryDocumentResponse =
                 authenticatorClient.retrieveDiscoveryDocument(
-                        appConfig.getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI);
+                        appConfig.getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI, true, false);
 
         assertNotNull(discoveryDocumentResponse, "Discovery Document Present");
         assertNotNull(discoveryDocumentResponse.getIdpSig(), "Idp Signature Cert Present");

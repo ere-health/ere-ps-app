@@ -51,7 +51,7 @@ public class MockIdpClientTest {
                 .clientId(CLIENT_ID_E_REZEPT_APP)
                 .build();
 
-        mockIdpClient.initializeClient();
+        mockIdpClient.initializeClient(true, false);
     }
 
     @Test
@@ -77,7 +77,7 @@ public class MockIdpClientTest {
                 .produceTokensWithInvalidSignature(true)
                 .clientId(CLIENT_ID_E_REZEPT_APP)
                 .build()
-                .initializeClient()
+                .initializeClient(true, false)
                 .login(rsaClientIdentity);
 
         assertThrows(IdpJwtSignatureInvalidException.class, () -> authToken.getAccessToken()
@@ -104,7 +104,7 @@ public class MockIdpClientTest {
                 .produceOnlyExpiredTokens(true)
                 .clientId(CLIENT_ID_E_REZEPT_APP)
                 .build()
-                .initializeClient()
+                .initializeClient(true, false)
                 .login(rsaClientIdentity);
 
         assertThrows(IdpJwtExpiredException.class, () -> authToken.getAccessToken().verify(
@@ -140,7 +140,7 @@ public class MockIdpClientTest {
                 .uriIdpServer(URI_IDP_SERVER)
                 .clientId(CLIENT_ID_E_REZEPT_APP)
                 .build();
-        mockIdpClient.initializeClient();
+        mockIdpClient.initializeClient(true, false);
 
         assertTrue(mockIdpClient.login(rsaClientIdentity)
                 .getAccessToken()

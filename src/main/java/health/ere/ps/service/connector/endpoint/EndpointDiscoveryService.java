@@ -23,6 +23,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import health.ere.ps.config.AppConfig;
+import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.config.UserConfig;
 import health.ere.ps.service.common.security.SecretsManagerService;
 
@@ -251,7 +252,9 @@ public class EndpointDiscoveryService {
             }
 
             location = endpointNode.getAttributes().getNamedItem("Location").getTextContent();
-            if (location.startsWith(userConfig.getConnectorBaseURL())) {
+            if(userConfig instanceof RuntimeConfig && ((RuntimeConfig) userConfig).getConnectorBaseURL() != null) {
+            	return location.replaceAll("https?://[^/]*", ((RuntimeConfig) userConfig).getConnectorBaseURL());
+            } else if (location.startsWith(userConfig.getConnectorBaseURL())) {
                 return location;
             }
         }

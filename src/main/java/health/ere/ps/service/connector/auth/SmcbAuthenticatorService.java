@@ -113,7 +113,7 @@ public class SmcbAuthenticatorService {
                 try {
                     String smcbCardHandle = (this.runtimeConfig != null && this.runtimeConfig.getSMCBHandle() != null) ?
                         this.runtimeConfig.getSMCBHandle() : connectorCardsService.getConnectorCardHandle(
-                        ConnectorCardsService.CardHandleType.SMC_B);
+                        ConnectorCardsService.CardHandleType.SMC_B, this.runtimeConfig);
 
                     signatureBytes = externalAuthenticate(encodedhash,
                             smcbCardHandle);

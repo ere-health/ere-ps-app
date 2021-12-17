@@ -13,6 +13,7 @@ import health.ere.ps.model.idp.client.field.IdpScope;
 import health.ere.ps.model.idp.client.token.IdpJwe;
 import health.ere.ps.model.idp.client.token.JsonWebToken;
 import health.ere.ps.model.idp.client.token.TokenClaimExtraction;
+import health.ere.ps.service.connector.endpoint.SSLUtilities;
 import health.ere.ps.service.idp.client.authentication.UriUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -41,6 +42,8 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static health.ere.ps.model.idp.client.field.ClaimName.*;
@@ -49,20 +52,22 @@ import static health.ere.ps.service.idp.crypto.CryptoLoader.getCertificateFromPe
 
 @ApplicationScoped
 public class AuthenticatorClient {
+	
+	private static Logger log = Logger.getLogger(AuthenticatorClient.class.getName());
 
     public AuthenticatorClient() {
 
     }
 
     public AuthorizationResponse doAuthorizationRequest(
-            AuthorizationRequest authorizationRequest)
+            AuthorizationRequest authorizationRequest, boolean verifyHostname)
             throws IdpClientException, IdpException {
         final String scope = authorizationRequest.getScopes().stream()
                 .map(IdpScope::getJwtValue)
                 .collect(Collectors.joining(" "));
 
         IdpHttpClientService idpHttpClientService =
-                getIdpHttpClientInstanceByUrl(authorizationRequest.getLink());
+                getIdpHttpClientInstanceByUrl(authorizationRequest.getLink(), verifyHostname);
 
         JsonObject jsonObject;
 
@@ -100,10 +105,10 @@ public class AuthenticatorClient {
     }
 
     public health.ere.ps.model.idp.client.AuthenticationResponse performAuthentication(
-            final AuthenticationRequest authenticationRequest) throws IdpClientException, IdpException {
+            final AuthenticationRequest authenticationRequest, boolean verifyHostname) throws IdpClientException, IdpException {
 
         IdpHttpClientService idpHttpClientService =
-                getIdpHttpClientInstanceByUrl(authenticationRequest.getAuthenticationEndpointUrl());
+                getIdpHttpClientInstanceByUrl(authenticationRequest.getAuthenticationEndpointUrl(), verifyHostname);
 
         String location;
         try (Response response = idpHttpClientService.doAuthenticationRequest(
@@ -150,7 +155,7 @@ public class AuthenticatorClient {
             final AuthenticationRequest authenticationRequest)
             throws IdpException, IdpClientException {
         IdpHttpClientService idpHttpClientService =
-                getIdpHttpClientInstanceByUrl(authenticationRequest.getAuthenticationEndpointUrl());
+                getIdpHttpClientInstanceByUrl(authenticationRequest.getAuthenticationEndpointUrl(), true);
 
         String location;
 
@@ -179,14 +184,14 @@ public class AuthenticatorClient {
     }
 
     public IdpTokenResult retrieveAccessToken(
-            final TokenRequest tokenRequest) throws IdpClientException, IdpException {
+            final TokenRequest tokenRequest, boolean verifyHostname) throws IdpClientException, IdpException {
         final byte[] tokenKeyBytes = RandomStringUtils.randomAlphanumeric(256 / 8).getBytes();
         final SecretKey tokenKey = new SecretKeySpec(tokenKeyBytes, "AES");
         final IdpJwe keyVerifierToken = buildKeyVerifierToken(tokenKeyBytes, tokenRequest.getCodeVerifier(),
                 tokenRequest.getIdpEnc());
 
         IdpHttpClientService idpHttpClientService =
-                getIdpHttpClientInstanceByUrl(tokenRequest.getTokenUrl());
+                getIdpHttpClientInstanceByUrl(tokenRequest.getTokenUrl(), verifyHostname);
 
         JsonObject jsonObject;
 
@@ -237,9 +242,9 @@ public class AuthenticatorClient {
         return IdpJwe.createWithPayloadAndEncryptWithKey(claims.toJson(), idpEnc, "JSON");
     }
 
-    public DiscoveryDocumentResponse retrieveDiscoveryDocument(final String discoveryDocumentUrl)
+    public DiscoveryDocumentResponse retrieveDiscoveryDocument(final String discoveryDocumentUrl, boolean verifyHostname, boolean replaceUrlsInDiscoveryDocument)
             throws IdpClientException, IdpException, IdpJoseException {
-        IdpHttpClientService idpHttpClientService = getIdpHttpClientInstanceByUrl(discoveryDocumentUrl);
+        IdpHttpClientService idpHttpClientService = getIdpHttpClientInstanceByUrl(discoveryDocumentUrl, verifyHostname);
 
         Map<String, Object> discoveryClaims;
 
@@ -250,19 +255,50 @@ public class AuthenticatorClient {
                     .extractClaimsFromJwtBody(response.readEntity(String.class));
         }
 
-        return DiscoveryDocumentResponse.builder()
-                .authorizationEndpoint(discoveryClaims.get("authorization_endpoint").toString())
-                .tokenEndpoint(discoveryClaims.get("token_endpoint").toString())
-                .idpSig(retrieveServerCertFromLocation(discoveryClaims.get("uri_puk_idp_sig").toString()))
-                .idpEnc(retrieveServerPuKFromLocation(discoveryClaims.get("uri_puk_idp_enc").toString()))
+        String authorization_endpoint = discoveryClaims.get("authorization_endpoint").toString();
+        String token_endpoint = discoveryClaims.get("token_endpoint").toString();
+        String uri_puk_idp_sig = discoveryClaims.get("uri_puk_idp_sig").toString();
+        String uri_puk_idp_enc = discoveryClaims.get("uri_puk_idp_enc").toString();
+        
+        try {
+	        URL url = new URL(discoveryDocumentUrl);
+	        
+	        String hostAndPort = getHostAndPort(url);
+	        if(replaceUrlsInDiscoveryDocument) {
+	        	URL authorization_endpoint_url = new URL(authorization_endpoint);
+	        	authorization_endpoint = authorization_endpoint.replaceAll(getHostAndPort(authorization_endpoint_url), hostAndPort);
+	        	
+	        	URL token_endpoint_url = new URL(token_endpoint);
+	        	token_endpoint = token_endpoint.replaceAll(getHostAndPort(token_endpoint_url), hostAndPort);
+	        	
+	        	URL uri_puk_idp_sig_url = new URL(uri_puk_idp_sig);
+	        	uri_puk_idp_sig = uri_puk_idp_sig.replaceAll(getHostAndPort(uri_puk_idp_sig_url), hostAndPort);
+	        	
+	        	URL uri_puk_idp_enc_url = new URL(uri_puk_idp_enc);
+	        	uri_puk_idp_enc = uri_puk_idp_enc.replaceAll(getHostAndPort(uri_puk_idp_enc_url), hostAndPort);
+	        	
+	        }
+	        
+        } catch(MalformedURLException ex) {
+        	log.log(Level.WARNING, "Not a real url: "+discoveryDocumentUrl, ex);
+        }
+		return DiscoveryDocumentResponse.builder()
+                .authorizationEndpoint(authorization_endpoint)
+                .tokenEndpoint(token_endpoint)
+                .idpSig(retrieveServerCertFromLocation(uri_puk_idp_sig, verifyHostname))
+                .idpEnc(retrieveServerPuKFromLocation(uri_puk_idp_enc, verifyHostname))
                 .build();
     }
 
-    protected X509Certificate retrieveServerCertFromLocation(final String url)
+	private static String getHostAndPort(URL url) {
+		return url.getHost()+((url.getPort() != -1) ? ":"+url.getPort() : "");
+	}
+
+    protected X509Certificate retrieveServerCertFromLocation(final String url, boolean verifyHostname)
             throws IdpException, IdpClientException {
         //TODO: Add connection retry strategy for failed connection attempts. E.g. exponential
         // backoff for retries.
-        IdpHttpClientService idpHttpClientService = getIdpHttpClientInstanceByUrl(url);
+        IdpHttpClientService idpHttpClientService = getIdpHttpClientInstanceByUrl(url, verifyHostname);
 
         String jsonString;
 
@@ -285,10 +321,10 @@ public class AuthenticatorClient {
         return getCertificateFromPem(Base64.getDecoder().decode(verificationCertificate));
     }
 
-    protected PublicKey retrieveServerPuKFromLocation(final String url)
+    protected PublicKey retrieveServerPuKFromLocation(final String url, boolean verifyHostname)
             throws IdpClientException, IdpException {
 
-        IdpHttpClientService idpHttpClientService = getIdpHttpClientInstanceByUrl(url);
+        IdpHttpClientService idpHttpClientService = getIdpHttpClientInstanceByUrl(url, verifyHostname);
 
         String jsonString;
 
@@ -320,13 +356,17 @@ public class AuthenticatorClient {
         }
     }
 
-    public IdpHttpClientService getIdpHttpClientInstanceByUrl(String url)
+    public IdpHttpClientService getIdpHttpClientInstanceByUrl(String url, boolean verifyHostname)
             throws IdpClientException {
         IdpHttpClientService idpHttpClientService;
 
         try {
-            idpHttpClientService = RestClientBuilder.newBuilder()
-                    .baseUrl(new URL(url))
+            RestClientBuilder restClientBuilder = RestClientBuilder.newBuilder()
+                    .baseUrl(new URL(url));
+            if(!verifyHostname) {
+            	restClientBuilder.hostnameVerifier(new SSLUtilities.FakeHostnameVerifier());
+            }
+			idpHttpClientService = restClientBuilder
                     .build(IdpHttpClientService.class);
         } catch (MalformedURLException e) {
             throw new IdpClientException("Bad URL: " + url, e);

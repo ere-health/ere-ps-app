@@ -19,6 +19,12 @@ public class RuntimeConfig extends UserConfig {
     protected String eHBAHandle = null;
     protected String SMCBHandle = null;
 
+    protected String idpBaseURL = null;
+    protected String idpAuthRequestRedirectURL = null;
+    protected String idpClientId = null;
+
+    protected String prescriptionServerURL = null;
+
     
     public RuntimeConfig() {
         this.updateProperties(new UserConfigurations());
@@ -77,6 +83,10 @@ public class RuntimeConfig extends UserConfig {
         }
         this.eHBAHandle = httpServletRequest.getHeader("X-eHBAHandle");
         this.SMCBHandle = httpServletRequest.getHeader("X-SMCBHandle");
+        this.idpBaseURL = httpServletRequest.getHeader("X-idpBaseURL");
+        this.idpClientId = httpServletRequest.getHeader("X-idpClientId");
+        this.idpAuthRequestRedirectURL = httpServletRequest.getHeader("X-idpAuthRequestRedirectURL");
+        this.prescriptionServerURL = httpServletRequest.getHeader("X-prescriptionServerURL");
         this.updateProperties(new UserConfigurations(httpServletRequest));
     }
 
@@ -88,6 +98,10 @@ public class RuntimeConfig extends UserConfig {
         if(jsonObject != null) {
             this.eHBAHandle = jsonObject.getString("eHBAHandle", null);
             this.SMCBHandle = jsonObject.getString("SMCBHandle", null);
+            this.idpBaseURL = jsonObject.getString("idp.base.url", null);
+            this.idpClientId = jsonObject.getString("idp.client.id", null);
+            this.idpAuthRequestRedirectURL = jsonObject.getString("idp.auth.request.redirect.url", null);
+            this.prescriptionServerURL = jsonObject.getString("ere.workflow-service.prescription.server.url", null);
             this.updateProperties(new UserConfigurations(jsonObject));
         }
     }
@@ -108,9 +122,41 @@ public class RuntimeConfig extends UserConfig {
         this.SMCBHandle = SMCBHandle;
     }
 
+    public String getIdpBaseURL() {
+        return this.idpBaseURL;
+    }
+
+    public void setIdpBaseURL(String idpBaseURL) {
+        this.idpBaseURL = idpBaseURL;
+    }
+
+    public String getIdpAuthRequestRedirectURL() {
+        return this.idpAuthRequestRedirectURL;
+    }
+
+    public void setIdpAuthRequestRedirectURL(String idpAuthRequestRedirectURL) {
+        this.idpAuthRequestRedirectURL = idpAuthRequestRedirectURL;
+    }
+
+    public String getIdpClientId() {
+        return this.idpClientId;
+    }
+
+    public void setIdpClientId(String idpClientId) {
+        this.idpClientId = idpClientId;
+    }
+
+    public String getPrescriptionServerURL() {
+        return this.prescriptionServerURL;
+    }
+
+    public void setPrescriptionServerURL(String prescriptionServerURL) {
+        this.prescriptionServerURL = prescriptionServerURL;
+    }
+
     @Override
     public int hashCode() {
-        return Objects.hash(eHBAHandle, SMCBHandle, this.getConfigurations(), super.hashCode());
+        return Objects.hash(eHBAHandle, SMCBHandle, idpBaseURL, idpAuthRequestRedirectURL, idpClientId, prescriptionServerURL, this.getConfigurations(), super.hashCode());
     }
 
 }

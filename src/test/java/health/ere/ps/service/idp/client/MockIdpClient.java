@@ -153,7 +153,7 @@ public class MockIdpClient implements IIdpClient {
     }
 
     @Override
-    public IIdpClient initializeClient() throws IdpCryptoException {
+    public IIdpClient initializeClient(boolean verifyHostname, boolean replaceUrlsInDiscoveryDocument) throws IdpCryptoException {
         getServerIdentity().setKeyId(Optional.of("puk_idp_sig"));
         getServerIdentity().setUse(Optional.of("sig"));
         setJwtProcessor(new IdpJwtProcessor(getServerIdentity()));

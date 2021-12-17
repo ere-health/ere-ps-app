@@ -24,9 +24,6 @@ public class AppConfig {
     @ConfigProperty(name = "idp.auth.request.redirect.url")
     String idpAuthRequestRedirectURL;
 
-    @ConfigProperty(name = "idp.auth.request.url")
-    String idpAuthRequestURL;
-
     @ConfigProperty(name = "idp.base.url")
     String idpBaseURL;
 
@@ -69,10 +66,6 @@ public class AppConfig {
 
     public String getIdpAuthRequestRedirectURL() {
         return idpAuthRequestRedirectURL;
-    }
-
-    public String getIdpAuthRequestURL() {
-        return idpAuthRequestURL;
     }
 
     public String getIdpBaseURL() {

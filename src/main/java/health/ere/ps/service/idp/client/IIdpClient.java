@@ -11,5 +11,5 @@ public interface IIdpClient {
 
     IdpTokenResult login(PkiIdentity idpIdentity) throws IdpException, IdpClientException, IdpJoseException, IdpCryptoException;
 
-    IIdpClient initializeClient() throws IdpClientException, IdpException, IdpCryptoException, IdpJoseException;
+    IIdpClient initializeClient(boolean verifyHostname, boolean replaceUrlsInDiscoveryDocument) throws IdpClientException, IdpException, IdpCryptoException, IdpJoseException;
 }

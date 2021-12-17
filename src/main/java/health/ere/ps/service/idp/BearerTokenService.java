@@ -1,13 +1,15 @@
 package health.ere.ps.service.idp;
 
 import java.security.cert.X509Certificate;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.websocket.Session;
 
 import health.ere.ps.config.AppConfig;
@@ -28,7 +30,7 @@ public class BearerTokenService {
     @Inject
     AppConfig appConfig;
     @Inject
-    IdpClient idpClient;
+    Provider<IdpClient> providerIdpClient;
     @Inject
     CardCertificateReaderService cardCertificateReaderService;
     @Inject
@@ -36,16 +38,50 @@ public class BearerTokenService {
     @Inject
     Event<Exception> exceptionEvent;
 
+    Map<RuntimeConfig, IdpClient> idpClientForRuntimeConfig = new HashMap<>();
 
-    @PostConstruct
-    public void init() {
-        String discoveryDocumentUrl = appConfig.getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
-        try {
-            idpClient.init(appConfig.getIdpClientId(), appConfig.getIdpAuthRequestRedirectURL(), discoveryDocumentUrl, true);
-            idpClient.initializeClient();
-        } catch (Exception e) {
-            log.log(Level.WARNING, "Idp init did not work", e);
-        }
+    
+    public IdpClient getIdpClient(RuntimeConfig runtimeConfig) {
+
+    	if(idpClientForRuntimeConfig.containsKey(runtimeConfig)) {
+    		return idpClientForRuntimeConfig.get(runtimeConfig);
+    	} else {
+	        String idpBaseUrl = appConfig.getIdpBaseURL();
+	        String idpAuthRequestRedirectURL = appConfig.getIdpAuthRequestRedirectURL();
+	        String idpClientId = appConfig.getIdpClientId();
+	        
+	        boolean verifyHostname = true;
+	        boolean replaceUrlsInDiscoveryDocument = false;
+	
+	        if(runtimeConfig != null && runtimeConfig.getIdpBaseURL() != null) {
+	            idpBaseUrl = runtimeConfig.getIdpBaseURL();
+	            log.fine("Setting idp base url to: "+runtimeConfig.getIdpBaseURL());
+	            verifyHostname = false;
+	            replaceUrlsInDiscoveryDocument = true;
+	        }
+	
+	        if(runtimeConfig != null && runtimeConfig.getIdpAuthRequestRedirectURL() != null) {
+	            idpAuthRequestRedirectURL = runtimeConfig.getIdpAuthRequestRedirectURL();
+	            log.fine("Setting idp auth request redirect url to: "+runtimeConfig.getIdpAuthRequestRedirectURL());
+	        }
+	
+	        if(runtimeConfig != null && runtimeConfig.getIdpClientId() != null) {
+	            idpClientId = runtimeConfig.getIdpClientId();
+	            log.fine("Setting idp client id to: "+runtimeConfig.getIdpClientId());
+	        }
+	
+	        String discoveryDocumentUrl = idpBaseUrl + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
+	        try {
+	        	IdpClient idpClient = providerIdpClient.get();
+	            idpClient.init(idpClientId, idpAuthRequestRedirectURL, discoveryDocumentUrl, true, verifyHostname);
+	            idpClient.initializeClient(verifyHostname, replaceUrlsInDiscoveryDocument);
+	            idpClientForRuntimeConfig.put(runtimeConfig, idpClient);
+	            return idpClient;
+	        } catch (Exception e) {
+	            log.log(Level.WARNING, "Idp init did not work", e);
+	            return null;
+	        }
+    	}
     }
 
     public String requestBearerToken() {
@@ -53,9 +89,13 @@ public class BearerTokenService {
     }
 
     public String requestBearerToken(RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId) {
+        IdpClient idpClient = getIdpClient(runtimeConfig);
+        if(idpClient == null) {
+        	throw new RuntimeException("Could not retrieve idpClient.");
+        }
         try {
             String cardHandle = (runtimeConfig!= null && runtimeConfig.getSMCBHandle() != null) ?  runtimeConfig.getSMCBHandle(): connectorCardsService.getConnectorCardHandle(
-                    ConnectorCardsService.CardHandleType.SMC_B);
+                    ConnectorCardsService.CardHandleType.SMC_B, runtimeConfig);
 
             X509Certificate x509Certificate =
                     cardCertificateReaderService.retrieveSmcbCardCertificate(cardHandle, runtimeConfig);
