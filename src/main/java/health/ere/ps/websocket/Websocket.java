@@ -147,6 +147,7 @@ public class Websocket {
     @OnOpen
     public void onOpen(Session session) {
         sessions.add(session);
+        // session.getAsyncRemote().sendText("{\"type\":\"StatusResponse\", \"payload\": {\"connectorReachable\":true}}");
         ereLog.info("Websocket opened");
     }
 
@@ -280,7 +281,7 @@ public class Websocket {
                     "{\"type\": \"Settings\", \"payload\": " + payload + ", \"replyToMessageId\": \""+messageId+"\"}",
                     result -> {
                         if (!result.isOK()) {
-                            ereLog.fatal("Unable to sent settings event: " + result.getException());
+                            ereLog.fatal("Unable to send settings event: " + result.getException());
                         }
                     });
             } else if("SaveSettings".equals(object.getString("type"))) {
@@ -288,7 +289,7 @@ public class Websocket {
                 UserConfigurations userConfigurations = jsonbFactory.fromJson(userConfiguration, UserConfigurations.class);
                 saveSettingsEvent.fireAsync(new SaveSettingsEvent(userConfigurations));
             } else if("RequestStatus".equals(object.getString("type"))) {
-                requestStatusEvent.fireAsync(new RequestStatusEvent());
+                requestStatusEvent.fireAsync(new RequestStatusEvent(object, senderSession, messageId));
             } else if ("Publish".equals(object.getString("type"))) {
                 sendMessage(object.getString("payload"), "Unable to publish event");
             } else if ("AllKBVExamples".equals(object.getString("type"))) {
@@ -415,7 +416,7 @@ public class Websocket {
                 "{\"type\": \"StatusResponse\", \"payload\": " + statusResponseString + ", \"replyToMessageId\": \""+statusResponseEvent.getReplyToMessageId()+"\"}",
                 result -> {
                     if (!result.isOK()) {
-                        ereLog.fatal("Unable to send statusResponseEvent: " + result.getException());
+                        ereLog.fatal("Unable to send StatusResponseEvent: " + result.getException());
                     }
                 });
     }
