@@ -531,7 +531,7 @@ public class ERezeptWorkflowServiceTest {
     }
     
     @Test
-    // @Disabled
+    @Disabled
     void testCreateERezeptWithPrescriptionBuilderOnPrescriptionServerRuntimeConfigTitus() throws ParseException {
     	// Titus: ssh -R 1501:kon-instanz2.titus.ti-dienste.de:443 -R 1502:idp.erezept-instanz1.titus.ti-dienste.de:443 -R 1503:fd.erezept-instanz1.titus.ti-dienste.de:443 manuel@localhost
     	
@@ -557,7 +557,7 @@ public class ERezeptWorkflowServiceTest {
     }
     
     @Test
-    // @Disabled
+    @Disabled
     void testCreateERezeptWithPrescriptionBuilderOnPrescriptionServerRuntimeConfigRU() throws ParseException {
     	// RU: ssh -R 1501:10.0.0.98:443 -R 1502:idp-ref.zentral.idp.splitdns.ti-dienste.de:443 -R 1503:erp-ref.zentral.erp.splitdns.ti-dienste.de:443 manuel@localhost
     	
