@@ -147,7 +147,6 @@ public class Websocket {
     @OnOpen
     public void onOpen(Session session) {
         sessions.add(session);
-        // session.getAsyncRemote().sendText("{\"type\":\"StatusResponse\", \"payload\": {\"connectorReachable\":true}}");
         ereLog.info("Websocket opened");
     }
 
@@ -325,7 +324,7 @@ public class Websocket {
                 bundlesValidationResultMessage == null ? "{}" : bundlesValidationResultMessage.toString(),
                 result -> {
                     if (!result.isOK()) {
-                        ereLog.fatal("Unable to sent bundlesValidationResult event: " + result.getException());
+                        ereLog.fatal("Unable to send bundlesValidationResult event: " + result.getException());
                     }
                 });
         }
