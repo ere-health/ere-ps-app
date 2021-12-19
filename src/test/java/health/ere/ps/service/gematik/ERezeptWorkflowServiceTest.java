@@ -533,7 +533,7 @@ public class ERezeptWorkflowServiceTest {
     @Test
     @Disabled
     void testCreateERezeptWithPrescriptionBuilderOnPrescriptionServerRuntimeConfigTitus() throws ParseException {
-    	// Titus: ssh -R 1501:kon-instanz2.titus.ti-dienste.de:443 -R 1502:idp.erezept-instanz1.titus.ti-dienste.de:443 -R 1503:fd.erezept-instanz1.titus.ti-dienste.de:443 manuel@localhost
+    	// Titus: ssh -R 127.0.0.1:1501:kon-instanz2.titus.ti-dienste.de:443 -R 127.0.0.1:1502:idp.erezept-instanz1.titus.ti-dienste.de:443 -R 127.0.0.1:1503:fd.erezept-instanz1.titus.ti-dienste.de:443 manuel@localhost
     	
     	RuntimeConfig runtimeConfig = new RuntimeConfig();
     	runtimeConfig.getConfigurations().setConnectorBaseURL("https://localhost:1501");
@@ -557,10 +557,8 @@ public class ERezeptWorkflowServiceTest {
     }
     
     @Test
-    @Disabled
     void testCreateERezeptWithPrescriptionBuilderOnPrescriptionServerRuntimeConfigRU() throws ParseException {
-    	// RU: ssh -R 1501:10.0.0.98:443 -R 1502:idp-ref.zentral.idp.splitdns.ti-dienste.de:443 -R 1503:erp-ref.zentral.erp.splitdns.ti-dienste.de:443 manuel@localhost
-    	
+    	// RU: ssh -p 1049 -o StrictHostKeyChecking=no -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -R 127.0.0.1:1501:10.0.0.98:443 -R 127.0.0.1:1502:idp-ref.zentral.idp.splitdns.ti-dienste.de:443 -R 127.0.0.1:1503:erp-ref.zentral.erp.splitdns.ti-dienste.de:443 manuel@localhost
     	RuntimeConfig runtimeConfig = new RuntimeConfig();
     	runtimeConfig.getConfigurations().setConnectorBaseURL("https://localhost:1501");
     	runtimeConfig.getConfigurations().setMandantId("Incentergy");

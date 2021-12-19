@@ -43,6 +43,8 @@ import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.xml.security.c14n.CanonicalizationException;
 import org.apache.xml.security.c14n.Canonicalizer;
@@ -172,21 +174,8 @@ public class ERezeptWorkflowService {
 	        if (appConfig.vauEnabled()) {
 	            try {
 	                String prescriptionServiceURL = getPrescriptionServiceURL(runtimeConfig);
-					VAUEngine httpEngine = new VAUEngine(prescriptionServiceURL);
+					VAUEngine httpEngine = (runtimeConfig.getPrescriptionServerURL() != null) ?  new VAUEngine(prescriptionServiceURL, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER) :  new VAUEngine(prescriptionServiceURL);
 					((ResteasyClientBuilderImpl) clientBuilder).httpEngine(httpEngine);
-					if(runtimeConfig.getPrescriptionServerURL() != null) {
-						SSLContext sslContext = SSLContext.getDefault();
-						HostnameVerifier allowAll = new HostnameVerifier() {
-						    @Override
-						    public boolean verify(String hostName, SSLSession session) {
-						        return true;
-						    }
-						};
-						Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
-						    .register("https", new SSLConnectionSocketFactory(sslContext, allowAll))
-						    .build();
-						PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
-					}
 	            } catch (Exception ex) {
 	                log.log(Level.SEVERE, "Could not enable VAU", ex);
 	                exceptionEvent.fireAsync(ex);
