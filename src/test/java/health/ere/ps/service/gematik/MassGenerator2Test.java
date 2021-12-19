@@ -60,7 +60,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 
 @QuarkusTest
-// @Disabled
+@Disabled
 @TestProfile(RUTestProfile.class)
 public class MassGenerator2Test {
 

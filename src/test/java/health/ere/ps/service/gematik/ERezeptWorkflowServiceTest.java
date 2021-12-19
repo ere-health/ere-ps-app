@@ -48,6 +48,7 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
 import ca.uhn.fhir.parser.DataFormatException;
 import ca.uhn.fhir.parser.IParser;
+import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
 import de.gematik.ws.conn.signatureservice.v7.SignResponse;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.RuntimeConfig;
@@ -557,7 +558,8 @@ public class ERezeptWorkflowServiceTest {
     }
     
     @Test
-    void testCreateERezeptWithPrescriptionBuilderOnPrescriptionServerRuntimeConfigRU() throws ParseException {
+    @Disabled
+    void testCreateERezeptWithPrescriptionBuilderOnPrescriptionServerRuntimeConfigRU() throws ParseException, FaultMessage {
     	// RU: ssh -p 1049 -o StrictHostKeyChecking=no -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -R 127.0.0.1:1501:10.0.0.98:443 -R 127.0.0.1:1502:idp-ref.zentral.idp.splitdns.ti-dienste.de:443 -R 127.0.0.1:1503:erp-ref.zentral.erp.splitdns.ti-dienste.de:443 manuel@localhost
     	RuntimeConfig runtimeConfig = new RuntimeConfig();
     	runtimeConfig.getConfigurations().setConnectorBaseURL("https://localhost:1501");
@@ -568,6 +570,10 @@ public class ERezeptWorkflowServiceTest {
     	runtimeConfig.getConfigurations().setClientCertificate("file:///home/manuel/Desktop/RU-Connector-Cert/incentergy_U9pRlw8SBfMExkycgNDs.p12");
     	runtimeConfig.getConfigurations().setClientCertificatePassword("U9pRlw8SBfMExkycgNDs");
     	
+    	String cardHandleVincenzkrankenhaus = eRezeptWorkflowService.getCards(runtimeConfig).getCards()
+                .getCard().stream().filter(ch -> "VincenzkrankenhausTEST-ONLY".equals(ch.getCardHolderName())).findFirst().get().getCardHandle();
+            
+    	runtimeConfig.setSMCBHandle(cardHandleVincenzkrankenhaus);
     	runtimeConfig.setIdpBaseURL("https://localhost:1502");
     	runtimeConfig.setPrescriptionServerURL("https://localhost:1503");
     	
