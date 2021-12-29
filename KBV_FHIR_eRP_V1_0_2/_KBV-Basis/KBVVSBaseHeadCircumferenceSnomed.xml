@@ -1,0 +1,26 @@
+<ValueSet xmlns="http://hl7.org/fhir">
+  <url value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_Head_Circumference_Snomed" />
+  <version value="1.1.3" />
+  <name value="KBV_VS_Base_Head_Circumference_Snomed" />
+  <title value="KBV_VS_Base_Head_Circumference_Snomed" />
+  <status value="active" />
+  <experimental value="false" />
+  <publisher value="Kassenärztliche Bundesvereinigung (KBV)" />
+  <description value="Snomedcodes für den Kopfumfang" />
+  <immutable value="false" />
+  <copyright value="This artefact includes content from SNOMED Clinical Terms® (SNOMED CT®) which is copyright of the International Health Terminology Standards Development Organisation (IHTSDO). Implementers of these artefacts must have the appropriate SNOMED CT Affiliate license - for more information contact http://www.snomed.org/snomed-ct/getsnomed-ct or info@snomed.org." />
+  <compose>
+    <include>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20200731" />
+      <concept>
+        <code value="363812007" />
+        <display value="Head circumference (observable entity)" />
+      </concept>
+      <concept>
+        <code value="169876006" />
+        <display value="Birth head circumference (observable entity)" />
+      </concept>
+    </include>
+  </compose>
+</ValueSet>

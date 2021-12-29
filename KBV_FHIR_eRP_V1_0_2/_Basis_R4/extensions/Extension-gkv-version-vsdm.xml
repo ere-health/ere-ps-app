@@ -1,0 +1,50 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="version-vsdm" />
+  <url value="http://fhir.de/StructureDefinition/gkv/version-vsdm" />
+  <version value="0.9.13" />
+  <name value="ExtensionGkvVersionVsdm" />
+  <title value="Extension zur Erfassung der Version des CDM-Datensatzes auf der eGK" />
+  <status value="draft" />
+  <date value="2019-12-10" />
+  <publisher value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+  <contact>
+    <telecom>
+      <system value="url" />
+      <value value="http://hl7.de/technische-komitees/fhir/" />
+    </telecom>
+  </contact>
+  <description value="Extension zur Erfassung der Version des CDM-Datensatzes auf der eGK" />
+  <fhirVersion value="4.0.1" />
+  <kind value="complex-type" />
+  <abstract value="false" />
+  <context>
+    <type value="element" />
+    <expression value="Coverage" />
+  </context>
+  <type value="Extension" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Extension" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Extension">
+      <path value="Extension" />
+      <short value="eGK Version (z.B.  5.2.0)" />
+      <definition value="Extension zur Erfassung der Version des VSDM-Datensatzes auf der eGK" />
+    </element>
+    <element id="Extension.url">
+      <path value="Extension.url" />
+      <fixedUri value="http://fhir.de/StructureDefinition/gkv/version-vsdm" />
+    </element>
+    <element id="Extension.value[x]">
+      <path value="Extension.value[x]" />
+      <type>
+        <code value="string" />
+      </type>
+      <constraint>
+        <key value="gkv-1" />
+        <severity value="warning" />
+        <human value="Die Versionsnummer muss dem Schema [0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3} entsprechen (z.B. &quot;5.2.1&quot;)!" />
+        <expression value="matches('[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}')" />
+      </constraint>
+    </element>
+  </differential>
+</StructureDefinition>

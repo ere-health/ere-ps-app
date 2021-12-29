@@ -1,22 +1,22 @@
 <Bundle xmlns="http://hl7.org/fhir">
-   <id value="e7f9cb47-b85e-4212-9ad4-f9148de381fd"/>
+   <id value="3953afe1-e3d6-4f99-bbff-a82eaf9bfd6f"/>
    <meta>
-      <lastUpdated value="2021-09-09T10:55:24.397+02:00"/>
-      <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle|1.0.1"/>
+      <lastUpdated value="2021-12-29T18:28:50.110+01:00"/>
+      <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle|1.0.2"/>
    </meta>
    <identifier>
       <system value="https://gematik.de/fhir/NamingSystem/PrescriptionID"/>
-      <value value="160.847.902.877.324.97"/>
+      <value value="160.806.784.445.909.77"/>
    </identifier>
    <type value="document"/>
-   <timestamp value="2021-09-09T10:55:24.398+02:00"/>
+   <timestamp value="2021-12-29T18:28:50.110+01:00"/>
    <entry>
-      <fullUrl value="http://pvs.praxis.local/fhir/Composition/6903de4b-22f4-4cff-806f-d134b781403d"/>
+      <fullUrl value="http://pvs.praxis.local/fhir/Composition/0b1cb556-6b5e-431a-b218-a23c4b4ef932"/>
       <resource>
          <Composition xmlns="http://hl7.org/fhir">
-            <id value="6903de4b-22f4-4cff-806f-d134b781403d"/>
+            <id value="0b1cb556-6b5e-431a-b218-a23c4b4ef932"/>
             <meta>
-               <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Composition|1.0.1"/>
+               <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Composition|1.0.2"/>
             </meta>
             <extension url="https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Legal_basis">
                <valueCoding>
@@ -32,9 +32,9 @@
                </coding>
             </type>
             <subject>
-               <reference value="Patient/69f13af9-5f51-491f-95b6-d016ccb98f41"/>
+               <reference value="Patient/69c2ceb2-a321-4ff0-bbe4-fcc429782d43"/>
             </subject>
-            <date value="2021-09-09T10:55:24+02:00"/>
+            <date value="2021-12-29T18:28:50+01:00"/>
             <author>
                <reference value="Practitioner/e00c7c0c-c040-4024-8457-4a63cbe1c14a"/>
                <type value="Practitioner"/>
@@ -58,7 +58,7 @@
                   </coding>
                </code>
                <entry>
-                  <reference value="MedicationRequest/ba2b64fe-90a4-43c0-a42b-36a13817aec6"/>
+                  <reference value="MedicationRequest/022ed86f-df09-4299-8cba-5b772e33d5c8"/>
                </entry>
             </section>
             <section>
@@ -69,17 +69,17 @@
                   </coding>
                </code>
                <entry>
-                  <reference value="Coverage/595c56c4-9256-403b-a43a-107c5e3710bd"/>
+                  <reference value="Coverage/42ef234d-db16-48aa-91fe-2bfc542f6460"/>
                </entry>
             </section>
          </Composition>
       </resource>
    </entry>
    <entry>
-      <fullUrl value="http://pvs.praxis.local/fhir/Patient/69f13af9-5f51-491f-95b6-d016ccb98f41"/>
+      <fullUrl value="http://pvs.praxis.local/fhir/Patient/69c2ceb2-a321-4ff0-bbe4-fcc429782d43"/>
       <resource>
          <Patient xmlns="http://hl7.org/fhir">
-            <id value="69f13af9-5f51-491f-95b6-d016ccb98f41"/>
+            <id value="69c2ceb2-a321-4ff0-bbe4-fcc429782d43"/>
             <meta>
                <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.0.3"/>
             </meta>
@@ -132,12 +132,12 @@
       </resource>
    </entry>
    <entry>
-      <fullUrl value="http://pvs.praxis.local/fhir/Medication/8098babf-2c61-4a70-8060-fc7d42e01dae"/>
+      <fullUrl value="http://pvs.praxis.local/fhir/Medication/6e20241e-2950-4128-8d87-2edb7be9b432"/>
       <resource>
          <Medication xmlns="http://hl7.org/fhir">
-            <id value="8098babf-2c61-4a70-8060-fc7d42e01dae"/>
+            <id value="6e20241e-2950-4128-8d87-2edb7be9b432"/>
             <meta>
-               <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.0.1"/>
+               <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.0.2"/>
             </meta>
             <extension url="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Category">
                <valueCoding>
@@ -168,12 +168,12 @@
       </resource>
    </entry>
    <entry>
-      <fullUrl value="http://pvs.praxis.local/fhir/MedicationRequest/ba2b64fe-90a4-43c0-a42b-36a13817aec6"/>
+      <fullUrl value="http://pvs.praxis.local/fhir/MedicationRequest/022ed86f-df09-4299-8cba-5b772e33d5c8"/>
       <resource>
          <MedicationRequest xmlns="http://hl7.org/fhir">
-            <id value="ba2b64fe-90a4-43c0-a42b-36a13817aec6"/>
+            <id value="022ed86f-df09-4299-8cba-5b772e33d5c8"/>
             <meta>
-               <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.0.1"/>
+               <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.0.2"/>
             </meta>
             <extension url="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_StatusCoPayment">
                <valueCoding>
@@ -203,25 +203,25 @@
                </extension>
                <extension url="Zeitraum">
                   <valuePeriod>
-                     <start value="2021-09-09"/>
-                     <end value="2021-12-08"/>
+                     <start value="2021-12-29"/>
+                     <end value="2022-03-29"/>
                   </valuePeriod>
                </extension>
             </extension>
             <status value="active"/>
             <intent value="order"/>
             <medicationReference>
-               <reference value="Medication/8098babf-2c61-4a70-8060-fc7d42e01dae"/>
+               <reference value="Medication/6e20241e-2950-4128-8d87-2edb7be9b432"/>
             </medicationReference>
             <subject>
-               <reference value="Patient/69f13af9-5f51-491f-95b6-d016ccb98f41"/>
+               <reference value="Patient/69c2ceb2-a321-4ff0-bbe4-fcc429782d43"/>
             </subject>
-            <authoredOn value="2021-09-09"/>
+            <authoredOn value="2021-12-29"/>
             <requester>
                <reference value="Practitioner/e00c7c0c-c040-4024-8457-4a63cbe1c14a"/>
             </requester>
             <insurance>
-               <reference value="Coverage/595c56c4-9256-403b-a43a-107c5e3710bd"/>
+               <reference value="Coverage/42ef234d-db16-48aa-91fe-2bfc542f6460"/>
             </insurance>
             <dosageInstruction>
                <extension url="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_DosageFlag">
@@ -338,10 +338,10 @@
       </resource>
    </entry>
    <entry>
-      <fullUrl value="http://pvs.praxis.local/fhir/Coverage/595c56c4-9256-403b-a43a-107c5e3710bd"/>
+      <fullUrl value="http://pvs.praxis.local/fhir/Coverage/42ef234d-db16-48aa-91fe-2bfc542f6460"/>
       <resource>
          <Coverage xmlns="http://hl7.org/fhir">
-            <id value="595c56c4-9256-403b-a43a-107c5e3710bd"/>
+            <id value="42ef234d-db16-48aa-91fe-2bfc542f6460"/>
             <meta>
                <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Coverage|1.0.3"/>
             </meta>
@@ -377,7 +377,7 @@
                </coding>
             </type>
             <beneficiary>
-               <reference value="Patient/69f13af9-5f51-491f-95b6-d016ccb98f41"/>
+               <reference value="Patient/69c2ceb2-a321-4ff0-bbe4-fcc429782d43"/>
             </beneficiary>
             <period>
                <end value="2040-04-01"/>

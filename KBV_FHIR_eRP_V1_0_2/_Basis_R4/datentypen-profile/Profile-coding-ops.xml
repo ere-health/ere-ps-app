@@ -1,0 +1,46 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="CodingOPS" />
+  <url value="http://fhir.de/StructureDefinition/CodingOPS" />
+  <version value="0.9.13" />
+  <name value="CodingOPS" />
+  <title value="Coding-Profil für OPS" />
+  <status value="draft" />
+  <date value="2020-07-05" />
+  <publisher value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+  <contact>
+    <name value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+    <telecom>
+      <system value="url" />
+    </telecom>
+  </contact>
+  <description value="Abbildung der Mindestanforderungen eines OPS Prozedurencodes" />
+  <fhirVersion value="4.0.1" />
+  <kind value="complex-type" />
+  <abstract value="false" />
+  <type value="Coding" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Coding" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Coding.system">
+      <path value="Coding.system" />
+      <short value="Canonische CodeSystem URL für OPS" />
+      <min value="1" />
+      <fixedUri value="http://fhir.de/CodeSystem/dimdi/ops" />
+    </element>
+    <element id="Coding.version">
+      <path value="Coding.version" />
+      <short value="Die Jahresversion des OPS Kataloges. Angegeben wird immer die vierstellige Jahreszahl (z.B. &quot;2017&quot;)" />
+      <definition value="Bie Verwendung von OPS ist die Angabe der Version zwingend erforderlich.&#xD;&#xA;Hierdurch wird der Tatsache Rechnung getragen, dass jede der jährlich neu erscheinenden Fassung von OPS ein neues Codesystem darstellt." />
+      <min value="1" />
+    </element>
+    <element id="Coding.code">
+      <path value="Coding.code" />
+      <short value="Der OPS-Code" />
+      <min value="1" />
+      <example>
+        <label value="Einfacher OPS-Code" />
+        <valueCode value="5-470" />
+      </example>
+    </element>
+  </differential>
+</StructureDefinition>

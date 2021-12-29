@@ -345,9 +345,9 @@
 					<tasks>
 						<echo>Copying Server certificate</echo>
 						<copy file="src/main/resources/META-INF/resources/server.keystore" tofile="${basedir}/target/quarkus-app/server.keystore"/>
-						<echo>Copying KBV_FHIR_eRP_V1</echo>
-						<copy todir="${basedir}/target/quarkus-app/KBV_FHIR_eRP_V1">
-							<fileset dir="KBV_FHIR_eRP_V1"/>
+						<echo>Copying KBV_FHIR_eRP_V1_0_2</echo>
+						<copy todir="${basedir}/target/quarkus-app/KBV_FHIR_eRP_V1_0_2">
+							<fileset dir="KBV_FHIR_eRP_V1_0_2"/>
 						</copy>
 					</tasks>
 				</configuration>

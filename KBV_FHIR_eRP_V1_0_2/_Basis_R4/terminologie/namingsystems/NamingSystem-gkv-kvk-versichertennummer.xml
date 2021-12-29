@@ -1,0 +1,33 @@
+<NamingSystem xmlns="http://hl7.org/fhir">
+  <id value="namingSystem-gkv-kvk-versichertennummer" />
+  <meta>
+    <profile value="http://fhir.de/StructureDefinition/namingsystem-de-basis" />
+  </meta>
+  <name value="GkvKvkVersichertennummer" />
+  <status value="draft" />
+  <kind value="identifier" />
+  <date value="2018-06-07" />
+  <publisher value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+  <contact>
+    <telecom>
+      <system value="other" />
+      <value value="http://hl7.de/technische-komitees/fhir/" />
+    </telecom>
+  </contact>
+  <type>
+    <coding>
+      <system value="http://fhir.de/CodeSystem/identifier-type-de-basis" />
+      <code value="GKV" />
+    </coding>
+  </type>
+  <description value="Die Nummer der bis 2014 verwendeten Krankenversicherungskarte (KVK)" />
+  <usage value="Dieses NamingSystem existiert aus Gründen der Rückwärtskompatibilität. Es soll verwendet werden, wenn ein Use Case die Übermittlung der Versichertennummer von der KVK benötigt." />
+  <uniqueId>
+    <type value="uri" />
+    <value value="http://fhir.de/NamingSystem/gkv/kvk-versichertennummer" />
+    <preferred value="true" />
+    <period>
+      <start value="2018-06-07" />
+    </period>
+  </uniqueId>
+</NamingSystem>

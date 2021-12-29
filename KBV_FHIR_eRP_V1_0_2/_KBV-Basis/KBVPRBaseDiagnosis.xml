@@ -1,0 +1,430 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <url value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Diagnosis" />
+  <version value="1.1.3" />
+  <name value="KBV_PR_Base_Diagnosis" />
+  <status value="active" />
+  <fhirVersion value="4.0.1" />
+  <mapping>
+    <identity value="workflow" />
+    <uri value="http://hl7.org/fhir/workflow" />
+    <name value="Workflow Pattern" />
+  </mapping>
+  <mapping>
+    <identity value="sct-concept" />
+    <uri value="http://snomed.info/conceptdomain" />
+    <name value="SNOMED CT Concept Domain Binding" />
+  </mapping>
+  <mapping>
+    <identity value="v2" />
+    <uri value="http://hl7.org/v2" />
+    <name value="HL7 v2 Mapping" />
+  </mapping>
+  <mapping>
+    <identity value="rim" />
+    <uri value="http://hl7.org/v3" />
+    <name value="RIM Mapping" />
+  </mapping>
+  <mapping>
+    <identity value="w5" />
+    <uri value="http://hl7.org/fhir/fivews" />
+    <name value="FiveWs Pattern Mapping" />
+  </mapping>
+  <mapping>
+    <identity value="sct-attr" />
+    <uri value="http://snomed.org/attributebinding" />
+    <name value="SNOMED CT Attribute Binding" />
+  </mapping>
+  <kind value="resource" />
+  <abstract value="false" />
+  <type value="Condition" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Condition" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Condition">
+      <path value="Condition" />
+      <constraint>
+        <key value="Rec1" />
+        <severity value="warning" />
+        <human value="Das Dokumentationsdatum soll mindestens mit MM.JJJJ angegeben werden." />
+        <expression value="recordedDate.exists() implies recordedDate.toString().length()&gt;=7" />
+        <source value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Diagnosis" />
+      </constraint>
+    </element>
+    <element id="Condition.clinicalStatus">
+      <path value="Condition.clinicalStatus" />
+      <definition value="Beschreibt den klinischen Status im Sinne der Aktivität einer Erkrankung." />
+    </element>
+    <element id="Condition.severity.coding">
+      <path value="Condition.severity.coding" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="system" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="Condition.severity.coding:snomed-ct">
+      <path value="Condition.severity.coding" />
+      <sliceName value="snomed-ct" />
+      <max value="1" />
+      <binding>
+        <strength value="preferred" />
+        <valueSet value="http://hl7.org/fhir/ValueSet/condition-severity" />
+      </binding>
+    </element>
+    <element id="Condition.severity.coding:snomed-ct.system">
+      <path value="Condition.severity.coding.system" />
+      <min value="1" />
+      <fixedUri value="http://snomed.info/sct" />
+    </element>
+    <element id="Condition.severity.coding:snomed-ct.version">
+      <path value="Condition.severity.coding.version" />
+      <min value="1" />
+    </element>
+    <element id="Condition.severity.coding:snomed-ct.code">
+      <path value="Condition.severity.coding.code" />
+      <min value="1" />
+    </element>
+    <element id="Condition.severity.coding:snomed-ct.display">
+      <path value="Condition.severity.coding.display" />
+      <min value="1" />
+    </element>
+    <element id="Condition.severity.coding:snomed-ct.display.extension">
+      <path value="Condition.severity.coding.display.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="Condition.severity.coding:snomed-ct.display.extension:anzeigenameCode">
+      <path value="Condition.severity.coding.display.extension" />
+      <sliceName value="anzeigenameCode" />
+      <type>
+        <code value="Extension" />
+        <profile value="https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Terminology_German" />
+      </type>
+    </element>
+    <element id="Condition.severity.coding:snomed-ct.display.extension:anzeigenameCode.extension">
+      <path value="Condition.severity.coding.display.extension.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="Condition.severity.coding:snomed-ct.display.extension:anzeigenameCode.extension:content">
+      <path value="Condition.severity.coding.display.extension.extension" />
+      <sliceName value="content" />
+    </element>
+    <element id="Condition.severity.coding:snomed-ct.display.extension:anzeigenameCode.extension:content.value[x]:valueString">
+      <path value="Condition.severity.coding.display.extension.extension.value[x]" />
+      <sliceName value="valueString" />
+      <definition value="In diesem Attribut sollen die entsprechende deutsche Bezeichnung des Loinc oder Snomed-Codes aus der Conceptmap eingetragen werden. Die entsprechende ConceptMap ist vom ableitetenden Profil anzugeben. Empfohlen wird KBV_CM_Base_Diagnosis_Severity_German" />
+    </element>
+    <element id="Condition.code">
+      <path value="Condition.code" />
+      <definition value="In diesem Element wird der Diagnosecode aufgeführt. Dieser kann aus verschiedenen Codiersystem stammen. Jede Diagnose muss mindestens einen Diagnosecode besitzen. Hierbei können die vorgeschlagenen Codiersysteme (ICD, Alpha-ID, SNOMED, ORPHANET) verwendet werden." />
+      <min value="1" />
+    </element>
+    <element id="Condition.code.coding">
+      <path value="Condition.code.coding" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="system" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="1" />
+    </element>
+    <element id="Condition.code.coding:ICD-10-GM">
+      <path value="Condition.code.coding" />
+      <sliceName value="ICD-10-GM" />
+      <max value="1" />
+      <type>
+        <code value="Coding" />
+        <profile value="http://fhir.de/StructureDefinition/CodingICD10GM|0.9.13" />
+      </type>
+    </element>
+    <element id="Condition.code.coding:ICD-10-GM.extension">
+      <path value="Condition.code.coding.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="Condition.code.coding:ICD-10-GM.extension:Primaercode">
+      <path value="Condition.code.coding.extension" />
+      <sliceName value="Primaercode" />
+      <max value="1" />
+      <type>
+        <code value="Extension" />
+        <profile value="http://fhir.de/StructureDefinition/icd-10-gm-primaercode|0.9.13" />
+      </type>
+    </element>
+    <element id="Condition.code.coding:ICD-10-GM.extension:Manifestationscode">
+      <path value="Condition.code.coding.extension" />
+      <sliceName value="Manifestationscode" />
+      <type>
+        <code value="Extension" />
+        <profile value="http://fhir.de/StructureDefinition/icd-10-gm-manifestationscode|0.9.13" />
+      </type>
+    </element>
+    <element id="Condition.code.coding:ICD-10-GM.extension:AusrufezeichenCode">
+      <path value="Condition.code.coding.extension" />
+      <sliceName value="AusrufezeichenCode" />
+      <type>
+        <code value="Extension" />
+        <profile value="http://fhir.de/StructureDefinition/icd-10-gm-ausrufezeichen|0.9.13" />
+      </type>
+    </element>
+    <element id="Condition.code.coding:ICD-10-GM.extension:Diagnosesicherheit">
+      <path value="Condition.code.coding.extension" />
+      <sliceName value="Diagnosesicherheit" />
+      <max value="1" />
+      <type>
+        <code value="Extension" />
+        <profile value="http://fhir.de/StructureDefinition/icd-10-gm-diagnosesicherheit|0.9.13" />
+      </type>
+    </element>
+    <element id="Condition.code.coding:ICD-10-GM.extension:Seitenlokalisation">
+      <path value="Condition.code.coding.extension" />
+      <sliceName value="Seitenlokalisation" />
+      <max value="1" />
+      <type>
+        <code value="Extension" />
+        <profile value="http://fhir.de/StructureDefinition/seitenlokalisation|0.9.13" />
+      </type>
+    </element>
+    <element id="Condition.code.coding:alpha-id">
+      <path value="Condition.code.coding" />
+      <sliceName value="alpha-id" />
+      <max value="1" />
+    </element>
+    <element id="Condition.code.coding:alpha-id.system">
+      <path value="Condition.code.coding.system" />
+      <min value="1" />
+      <fixedUri value="http://fhir.de/CodeSystem/dimdi/alpha-id" />
+    </element>
+    <element id="Condition.code.coding:alpha-id.version">
+      <path value="Condition.code.coding.version" />
+      <min value="1" />
+    </element>
+    <element id="Condition.code.coding:alpha-id.code">
+      <path value="Condition.code.coding.code" />
+      <min value="1" />
+    </element>
+    <element id="Condition.code.coding:snomed-ct">
+      <path value="Condition.code.coding" />
+      <sliceName value="snomed-ct" />
+      <max value="1" />
+      <binding>
+        <strength value="required" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_Diagnose_Snomed_CT" />
+      </binding>
+    </element>
+    <element id="Condition.code.coding:snomed-ct.system">
+      <path value="Condition.code.coding.system" />
+      <min value="1" />
+      <fixedUri value="http://snomed.info/sct" />
+    </element>
+    <element id="Condition.code.coding:snomed-ct.version">
+      <path value="Condition.code.coding.version" />
+      <min value="1" />
+    </element>
+    <element id="Condition.code.coding:snomed-ct.code">
+      <path value="Condition.code.coding.code" />
+      <min value="1" />
+    </element>
+    <element id="Condition.code.coding:snomed-ct.display">
+      <path value="Condition.code.coding.display" />
+      <min value="1" />
+    </element>
+    <element id="Condition.code.coding:snomed-ct.display.extension">
+      <path value="Condition.code.coding.display.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="Condition.code.coding:snomed-ct.display.extension:anzeigenameCode">
+      <path value="Condition.code.coding.display.extension" />
+      <sliceName value="anzeigenameCode" />
+      <max value="1" />
+      <type>
+        <code value="Extension" />
+        <profile value="https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Terminology_German" />
+      </type>
+    </element>
+    <element id="Condition.code.coding:snomed-ct.display.extension:anzeigenameCode.extension">
+      <path value="Condition.code.coding.display.extension.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="Condition.code.coding:snomed-ct.display.extension:anzeigenameCode.extension:content">
+      <path value="Condition.code.coding.display.extension.extension" />
+      <sliceName value="content" />
+    </element>
+    <element id="Condition.code.coding:snomed-ct.display.extension:anzeigenameCode.extension:content.value[x]:valueString">
+      <path value="Condition.code.coding.display.extension.extension.value[x]" />
+      <sliceName value="valueString" />
+      <definition value="In diesem Attribut sollen die entsprechende deutsche Bezeichnung des Loinc oder Snomed-Codes aus der Conceptmap eingetragen werden. Die entsprechende ConceptMap ist vom ableitetenden Profil anzugeben." />
+    </element>
+    <element id="Condition.code.coding:orphanet">
+      <path value="Condition.code.coding" />
+      <sliceName value="orphanet" />
+      <max value="1" />
+    </element>
+    <element id="Condition.code.coding:orphanet.system">
+      <path value="Condition.code.coding.system" />
+      <min value="1" />
+      <fixedUri value="http://www.orpha.net" />
+    </element>
+    <element id="Condition.code.coding:orphanet.version">
+      <path value="Condition.code.coding.version" />
+      <min value="1" />
+    </element>
+    <element id="Condition.code.coding:orphanet.code">
+      <path value="Condition.code.coding.code" />
+      <min value="1" />
+    </element>
+    <element id="Condition.code.text">
+      <path value="Condition.code.text" />
+      <short value="Diagnoseerläuterung" />
+      <definition value="Dieses Element ermöglicht die Angabe von näheren Ausführungen oder zusätzlichen Anmerkungen zu einer Diagnose in Form von Freitext." />
+    </element>
+    <element id="Condition.bodySite">
+      <path value="Condition.bodySite" />
+      <definition value="Über die Körperstelle kann angegeben werden, in welchem Bereich des Körpers eine Krankheit diagnostiziert wurde (topographische Information)." />
+    </element>
+    <element id="Condition.bodySite.coding">
+      <path value="Condition.bodySite.coding" />
+      <slicing>
+        <discriminator>
+          <type value="pattern" />
+          <path value="system" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="1" />
+    </element>
+    <element id="Condition.bodySite.coding:snomed-ct">
+      <path value="Condition.bodySite.coding" />
+      <sliceName value="snomed-ct" />
+      <min value="1" />
+      <max value="1" />
+      <binding>
+        <strength value="example" />
+        <description value="Codes describing anatomical locations. May include laterality." />
+        <valueSet value="http://hl7.org/fhir/ValueSet/body-site" />
+      </binding>
+    </element>
+    <element id="Condition.bodySite.coding:snomed-ct.system">
+      <path value="Condition.bodySite.coding.system" />
+      <min value="1" />
+      <patternUri value="http://snomed.info/sct" />
+    </element>
+    <element id="Condition.bodySite.coding:snomed-ct.version">
+      <path value="Condition.bodySite.coding.version" />
+      <min value="1" />
+    </element>
+    <element id="Condition.bodySite.coding:snomed-ct.code">
+      <path value="Condition.bodySite.coding.code" />
+      <min value="1" />
+    </element>
+    <element id="Condition.onset[x]">
+      <path value="Condition.onset[x]" />
+      <slicing>
+        <discriminator>
+          <type value="type" />
+          <path value="$this" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <type>
+        <code value="Period" />
+      </type>
+    </element>
+    <element id="Condition.onset[x]:onsetPeriod">
+      <path value="Condition.onset[x]" />
+      <sliceName value="onsetPeriod" />
+      <type>
+        <code value="Period" />
+      </type>
+    </element>
+    <element id="Condition.onset[x]:onsetPeriod.start.extension">
+      <path value="Condition.onset[x].start.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="Condition.onset[x]:onsetPeriod.start.extension:lebensphase-von">
+      <path value="Condition.onset[x].start.extension" />
+      <sliceName value="lebensphase-von" />
+      <max value="1" />
+      <type>
+        <code value="Extension" />
+        <profile value="https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Stage_Life" />
+      </type>
+    </element>
+    <element id="Condition.onset[x]:onsetPeriod.end.extension">
+      <path value="Condition.onset[x].end.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="Condition.onset[x]:onsetPeriod.end.extension:lebensphase-bis">
+      <path value="Condition.onset[x].end.extension" />
+      <sliceName value="lebensphase-bis" />
+      <max value="1" />
+      <type>
+        <code value="Extension" />
+        <profile value="https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Stage_Life" />
+      </type>
+    </element>
+    <element id="Condition.onset[x]:onsetDateTime">
+      <path value="Condition.onset[x]" />
+      <sliceName value="onsetDateTime" />
+      <short value="Feststellungsdatum" />
+      <definition value="Zeitpunkt, an dem die Diagnose bzw. die Erkrankung z.B. durch eine ärztlich tätige Person festgestellt wurde." />
+      <type>
+        <code value="dateTime" />
+      </type>
+    </element>
+    <element id="Condition.recordedDate">
+      <path value="Condition.recordedDate" />
+      <short value="DOKUMENTATIONSDATUM" />
+      <definition value="Zeitpunkt, an dem eine Krankheit z. B. durch eine ärztlich tätige Person in diesem Eintrag dokumentiert wurde. Hinweis: Wenn zwischen Feststellung der Diagnose und Dokumentationsdatum nicht unterschieden werden muss, ist das Datum der Feststellung der Diagnose (Diagnosedatum) anzugeben." />
+    </element>
+    <element id="Condition.note">
+      <path value="Condition.note" />
+      <short value="FREITEXTBESCHREIBUNG" />
+      <definition value="Diagnose im Klartext. Im Bereich der medizinischen Dokumentation sollte die Textbeschreibung obligatorisch sein.  Bei der sekundären Übernahme einer kodierten Diagnose aus der Primärdokumentation kann eine Freitextbeschreibung fehlen." />
+    </element>
+  </differential>
+</StructureDefinition>

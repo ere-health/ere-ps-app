@@ -1,0 +1,18 @@
+<NamingSystem xmlns="http://hl7.org/fhir">
+  <name value="KBV_NS_Base_EBM" />
+  <status value="active" />
+  <kind value="identifier" />
+  <date value="2020-07-15" />
+  <publisher value="Kassenärztliche Bundesvereinigung (KBV)" />
+  <contact>
+    <telecom>
+      <system value="url" />
+      <value value="http://www.kbv.de" />
+    </telecom>
+  </contact>
+  <description value="Der Einheitliche Bewertungsmaßstab ist die verbindliche Abrechnungsgrundlage für alle Vertragsärzte. Er wird von der Kassenärztlichen Bundesvereinigung und dem GKV-Spitzenverband im Bewertungsausschuss der Ärzte auf Bundesebene vereinbart. Er bestimmt den Inhalt der gegenüber den gesetzlichen Krankenkassen abrechnungsfähigen Leistungen und ihr wertmäßiges, in Punkten ausgedrücktes Verhältnis zueinander. Der Aufbau einer EBM Nummer kann wie folgt beschrieben werden: nnnnn, nnnnn[G-alpha] n:= 0|1|..|9 G-alpha=A|B|..|Z" />
+  <uniqueId>
+    <type value="uri" />
+    <value value="https://fhir.kbv.de/NamingSystem/KBV_NS_Base_EBM" />
+  </uniqueId>
+</NamingSystem>

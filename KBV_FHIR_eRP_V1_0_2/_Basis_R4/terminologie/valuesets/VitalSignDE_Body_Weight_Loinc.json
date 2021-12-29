@@ -1,0 +1,29 @@
+{
+  "resourceType": "ValueSet",
+  "url": "http://fhir.de/ValueSet/VitalSignDE_Body_Weight_Loinc",
+  "version": "0.9.13",
+  "name": "VitalSignDE_Body_Weight_Loinc",
+  "title": "VitalSignDE_Body_Weight_Loinc",
+  "status": "active",
+  "experimental": false,
+  "publisher": "Technisches Komitee FHIR HL7 Deutschland e.V.",
+  "description": "VitalSignDE_Body_Weight_Loinc",
+  "immutable": false,
+  "compose": {
+    "include": [
+      {
+        "system": "http://loinc.org",
+        "concept": [
+          {
+            "code": "29463-7",
+            "display": "Body weight"
+          },
+          {
+            "code": "8339-4",
+            "display": "Birth weight Measured"
+          }
+        ]
+      }
+    ]
+  }
+}
