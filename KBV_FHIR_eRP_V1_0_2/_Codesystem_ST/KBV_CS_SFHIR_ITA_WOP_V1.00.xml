@@ -1,0 +1,126 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<CodeSystem xmlns="http://hl7.org/fhir" xmlns:ns2="http://www.w3.org/1999/xhtml">
+    <url value="https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_ITA_WOP"/>
+    <identifier>
+        <system value="urn:ietf:rfc:3986"/>
+        <value value="urn:oid:1.2.276.0.76.3.1.1.5.2.56"/>
+    </identifier>
+    <version value="1.00"/>
+    <name value="KBV_CS_SFHIR_ITA_WOP"/>
+    <status value="active"/>
+    <date value="2021-01-01"/>
+    <publisher value="Kassenärztliche Bundesvereinigung"/>
+    <contact>
+        <telecom>
+            <system value="url"/>
+            <value value="http://www.kbv.de"/>
+        </telecom>
+    </contact>
+    <copyright value="Kassenärztliche Bundesvereinigung"/>
+    <caseSensitive value="true"/>
+    <content value="complete"/>
+    <concept>
+        <code value="00"/>
+        <display value="Dummy bei eGK"/>
+    </concept>
+    <concept>
+        <code value="01"/>
+        <display value="Schleswig-Holstein"/>
+    </concept>
+    <concept>
+        <code value="02"/>
+        <display value="Hamburg"/>
+    </concept>
+    <concept>
+        <code value="03"/>
+        <display value="Bremen"/>
+    </concept>
+    <concept>
+        <code value="17"/>
+        <display value="Niedersachsen"/>
+    </concept>
+    <concept>
+        <code value="20"/>
+        <display value="Westfalen-Lippe"/>
+    </concept>
+    <concept>
+        <code value="38"/>
+        <display value="Nordrhein"/>
+    </concept>
+    <concept>
+        <code value="46"/>
+        <display value="Hessen"/>
+    </concept>
+    <concept>
+        <code value="47"/>
+        <display value="Koblenz"/>
+    </concept>
+    <concept>
+        <code value="48"/>
+        <display value="Rheinhessen"/>
+    </concept>
+    <concept>
+        <code value="49"/>
+        <display value="Pfalz"/>
+    </concept>
+    <concept>
+        <code value="50"/>
+        <display value="Trier"/>
+    </concept>
+    <concept>
+        <code value="51"/>
+        <display value="Rheinland-Pfalz"/>
+    </concept>
+    <concept>
+        <code value="52"/>
+        <display value="Baden-Württemberg"/>
+    </concept>
+    <concept>
+        <code value="55"/>
+        <display value="Nordbaden"/>
+    </concept>
+    <concept>
+        <code value="60"/>
+        <display value="Südbaden"/>
+    </concept>
+    <concept>
+        <code value="61"/>
+        <display value="Nordwürttemberg"/>
+    </concept>
+    <concept>
+        <code value="62"/>
+        <display value="Südwürttemberg"/>
+    </concept>
+    <concept>
+        <code value="71"/>
+        <display value="Bayern"/>
+    </concept>
+    <concept>
+        <code value="72"/>
+        <display value="Berlin"/>
+    </concept>
+    <concept>
+        <code value="73"/>
+        <display value="Saarland"/>
+    </concept>
+    <concept>
+        <code value="78"/>
+        <display value="Mecklenburg-Vorpommern"/>
+    </concept>
+    <concept>
+        <code value="83"/>
+        <display value="Brandenburg"/>
+    </concept>
+    <concept>
+        <code value="88"/>
+        <display value="Sachsen-Anhalt"/>
+    </concept>
+    <concept>
+        <code value="93"/>
+        <display value="Thüringen"/>
+    </concept>
+    <concept>
+        <code value="98"/>
+        <display value="Sachsen"/>
+    </concept>
+</CodeSystem>

@@ -1,0 +1,94 @@
+<ValueSet xmlns="http://hl7.org/fhir">
+  <id value="valueset-VersicherungsartDeBasis" />
+  <meta>
+    <profile value="http://hl7.org/fhir/StructureDefinition/shareablevalueset" />
+  </meta>
+  <url value="http://fhir.de/ValueSet/versicherungsart-de-basis" />
+  <version value="0.9.13" />
+  <name value="VersicherungsartDeBasis" />
+  <status value="draft" />
+  <experimental value="true" />
+  <date value="2017-09-15" />
+  <publisher value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+  <contact>
+    <telecom>
+      <system value="other" />
+      <value value="http://hl7.de/technische-komitees/fhir/" />
+    </telecom>
+  </contact>
+  <description value="ValueSet für die in Deutschland üblichen Versicherungsarten" />
+  <copyright value="HL7 Deutschland e.V." />
+  <compose>
+    <include>
+      <system value="http://fhir.de/CodeSystem/versicherungsart-de-basis" />
+    </include>
+    <include>
+      <system value="https://fhir.kbv.de/ValueSet/KBV_VS_FOR_Payor_type" />
+    </include>
+    <include>
+      <system value="http://terminology.hl7.org/CodeSystem/v3-NullFlavor" />
+      <concept>
+        <code value="UNK" />
+      </concept>
+    </include>
+  </compose>
+  <expansion>
+    <identifier value="urn:uuid:25fd023d-1403-4c86-b788-d0454a7340ae" />
+    <timestamp value="2020-04-18T17:33:00+02:00" />
+    <total value="10" />
+    <parameter>
+      <name value="version" />
+      <valueUri value="http://fhir.de/CodeSystem/versicherungsart-de-basis|0.1" />
+    </parameter>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/versicherungsart-de-basis" />
+      <code value="GKV" />
+      <display value="gesetzliche Krankenversicherung" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/versicherungsart-de-basis" />
+      <code value="PKV" />
+      <display value="private Krankenversicherung" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/versicherungsart-de-basis" />
+      <code value="BG" />
+      <display value="Berufsgenossenschaft" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/versicherungsart-de-basis" />
+      <code value="SEL" />
+      <display value="Selbstzahler" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/versicherungsart-de-basis" />
+      <code value="SOZ" />
+      <display value="Sozialamt" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/versicherungsart-de-basis" />
+      <code value="GPV" />
+      <display value="gesetzliche Pflegeversicherung" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/versicherungsart-de-basis" />
+      <code value="PPV" />
+      <display value="private Pflegeversicherung" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/versicherungsart-de-basis" />
+      <code value="BEI" />
+      <display value="Beihilfe" />
+    </contains>
+    <contains>
+      <system value="https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_Payor_Type_KBV" />
+      <code value="SKT" />
+      <display value="Sonstige Kostenträger" />
+    </contains>
+    <contains>
+      <system value="http://terminology.hl7.org/CodeSystem/v3-NullFlavor" />
+      <code value="UNK" />
+      <display value="Unbekannt" />
+    </contains>
+  </expansion>
+</ValueSet>

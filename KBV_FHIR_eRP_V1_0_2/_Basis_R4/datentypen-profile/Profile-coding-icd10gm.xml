@@ -1,0 +1,51 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="CodingICD10GM" />
+  <url value="http://fhir.de/StructureDefinition/CodingICD10GM" />
+  <version value="0.9.13" />
+  <name value="CodingICD10GM" />
+  <title value="Coding-Profil für ICD-10-GM" />
+  <status value="draft" />
+  <date value="2020-07-05" />
+  <publisher value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+  <contact>
+    <name value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+    <telecom>
+      <system value="url" />
+    </telecom>
+  </contact>
+  <description value="Abbildung der Mindestanforderungen eines ICD 10 GM (German Modification) Diagnosecodes" />
+  <fhirVersion value="4.0.1" />
+  <kind value="complex-type" />
+  <abstract value="false" />
+  <type value="Coding" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Coding" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Coding.system">
+      <path value="Coding.system" />
+      <short value="Canonische CodeSystem URL für ICD-10-GM" />
+      <min value="1" />
+      <fixedUri value="http://fhir.de/CodeSystem/dimdi/icd-10-gm" />
+    </element>
+    <element id="Coding.version">
+      <path value="Coding.version" />
+      <short value="Die Jahresversion von ICD-10-GM. Angegeben wird immer die vierstellige Jahreszahl (z.B. &quot;2017&quot;)" />
+      <definition value="Bie Verwendung von ICD-10-GM ist die Angabe der Version zwingend erforderlich.&#xD;&#xA;Hierdurch wird der Tatsache Rechnung getragen, dass jede der jährlich neu erscheinenden Fassung von ICD-10-GM ein neues Codesystem darstellt." />
+      <min value="1" />
+    </element>
+    <element id="Coding.code">
+      <path value="Coding.code" />
+      <short value="Der (ggf. postkoordinierte) ICD-10-Code" />
+      <definition value="Der ICD 10 Code ist vollständig anzugeben, ggf. in postkoordinierter Form" />
+      <min value="1" />
+      <example>
+        <label value="Postkoordinierter Kreuz-Stern-Code" />
+        <valueCode value="A12.3+ B45.6*" />
+      </example>
+      <example>
+        <label value="Einfacher ICD-Code" />
+        <valueCode value="F17.4" />
+      </example>
+    </element>
+  </differential>
+</StructureDefinition>

@@ -1,0 +1,42 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="coding-alpha-id-se" />
+  <url value="http://fhir.de/StructureDefinition/CodingAlphaIDSE" />
+  <version value="0.9.13" />
+  <name value="CodingAlphaIDSE" />
+  <title value="Coding-Profil für Alpha-ID-SE" />
+  <status value="draft" />
+  <date value="2020-07-05" />
+  <publisher value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+  <contact>
+    <name value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+    <telecom>
+      <system value="url" />
+    </telecom>
+  </contact>
+  <description value="Abbildung der Mindestanforderungen eines Alpha-ID-SE-Codes" />
+  <fhirVersion value="4.0.1" />
+  <kind value="complex-type" />
+  <abstract value="false" />
+  <type value="Coding" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Coding" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Coding.system">
+      <path value="Coding.system" />
+      <short value="Canonische CodeSystem URL für Alpha-ID-SE" />
+      <min value="1" />
+      <fixedUri value="http://fhir.de/CodeSystem/dimdi/alpha-id-se" />
+    </element>
+    <element id="Coding.version">
+      <path value="Coding.version" />
+      <short value="Die Jahresversion von Alpha-ID-SE. Angegeben wird immer die vierstellige Jahreszahl (z.B. &quot;2017&quot;)" />
+      <definition value="Bie Verwendung von Alpha-ID-SE ist die Angabe der Version zwingend erforderlich.&#xD;&#xA;Hierdurch wird der Tatsache Rechnung getragen, dass jede der jährlich neu erscheinenden Fassung von Alpha-ID-SE ein neues Codesystem darstellt." />
+      <min value="1" />
+    </element>
+    <element id="Coding.code">
+      <path value="Coding.code" />
+      <short value="Der Alpha-ID-SE-Code" />
+      <min value="1" />
+    </element>
+  </differential>
+</StructureDefinition>

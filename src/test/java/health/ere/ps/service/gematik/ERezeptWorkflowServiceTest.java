@@ -223,13 +223,13 @@ public class ERezeptWorkflowServiceTest {
                 // PZN, FreeText, Ingredient, Compounding
                 String medicationProfile = medication.getMeta().getProfile().get(0).getValue();
                 String type;
-                if(medicationProfile.equals("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.0.1")) {
+                if(medicationProfile.equals("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.0.2")) {
                     type = "PZN";
-                } else if(medicationProfile.equals("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_FreeText|1.0.1")) {
+                } else if(medicationProfile.equals("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_FreeText|1.0.2")) {
                     type = "FreeText";
-                } else if(medicationProfile.equals("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Ingredient|1.0.1")) {
+                } else if(medicationProfile.equals("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Ingredient|1.0.2")) {
                     type = "Ingredient";
-                } else if(medicationProfile.equals("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Compounding|1.0.1")) {
+                } else if(medicationProfile.equals("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Compounding|1.0.2")) {
                     type = "Compounding";
                 } else {
                     type = "Unknown";

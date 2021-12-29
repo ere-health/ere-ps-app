@@ -57,7 +57,7 @@ public class XmlPrescriptionProcessor {
         fixFullUrls(bundle);
         fixRefencesInComposition(bundle);
 
-        // Next issue ERROR - Bundle.entry[1].resource.ofType(MedicationRequest).dispenseRequest - MedicationRequest.dispenseRequest.quantity: minimum required = 1, but only found 0 (from https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.0.1)
+        // Next issue ERROR - Bundle.entry[1].resource.ofType(MedicationRequest).dispenseRequest - MedicationRequest.dispenseRequest.quantity: minimum required = 1, but only found 0 (from https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.0.2)
 
         MedicationRequest medicationRequest = getTypeFromBundle(MedicationRequest.class, bundle);
         medicationRequest.getAuthoredOnElement().setPrecision(TemporalPrecisionEnum.DAY);
@@ -192,7 +192,7 @@ public class XmlPrescriptionProcessor {
         composition.setId(UUID.randomUUID().toString());
 
         composition.getMeta().addProfile(
-                "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Composition|1.0.1");
+                "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Composition|1.0.2");
 
         Coding valueCoding = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_STATUSKENNZEICHEN", "04", null);
         Extension legalBasis = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Legal_basis", valueCoding);

@@ -1,0 +1,23 @@
+<ConceptMap xmlns="http://hl7.org/fhir">
+  <url value="https://fhir.kbv.de/ConceptMap/KBV_CM_Base_Body_Weight_Snomed_German" />
+  <version value="1.1.3" />
+  <name value="KBV_CM_Base_Body_Weight_Snomed_German" />
+  <status value="active" />
+  <experimental value="false" />
+  <publisher value="Kassenärztliche Bundesvereinigung (KBV)" />
+  <description value="Diese Conceptmap verknüpft die Codes des Körpergewichts mit deutschen Bezeichnungen" />
+  <copyright value="This artefact includes content from SNOMED Clinical Terms® (SNOMED CT®) which is copyright of the International Health Terminology Standards Development Organisation (IHTSDO). Implementers of these artefacts must have the appropriate SNOMED CT Affiliate license - for more information contact http://www.snomed.org/snomed-ct/getsnomed-ct or info@snomed.org." />
+  <group>
+    <source value="http://snomed.info/sct" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Body_Weight_Snomed_German" />
+    <element>
+      <code value="27113001" />
+      <display value="Body weight (observable entity)" />
+      <target>
+        <code value="Koerpergewicht" />
+        <display value="Körpergewicht" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+</ConceptMap>

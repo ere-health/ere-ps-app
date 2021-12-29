@@ -1,0 +1,44 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="icd-10-gm-haupt-kreuz" />
+  <url value="http://fhir.de/StructureDefinition/icd-10-gm-primaercode" />
+  <version value="0.9.13" />
+  <name value="ExtensionICD10GMPrimaercode" />
+  <title value="Der Primärcode (einschließlich: Kreuz-Code), insbesondere bei postkoordinierten ICD-10-GM-Codes (Kreuz-Stern-Notation, Ausrufezeichen-Notation)." />
+  <status value="draft" />
+  <publisher value="HL7 Deutschland e.V. (Technisches Komitee FHIR)" />
+  <contact>
+    <telecom>
+      <system value="url" />
+      <value value="http://hl7.de/technische-komitees/fhir/" />
+    </telecom>
+  </contact>
+  <description value="Der Primärcode (einschließlich: Kreuz-Code), insbesondere bei postkoordinierten ICD-10-GM-Codes (Kreuz-Stern-Notation, Ausrufezeichen-Notation).&#xD;&#xA;An dieser Stelle ohne '+'-Symbol" />
+  <fhirVersion value="4.0.1" />
+  <kind value="complex-type" />
+  <abstract value="false" />
+  <context>
+    <type value="element" />
+    <expression value="CodeableConcept.coding" />
+  </context>
+  <context>
+    <type value="element" />
+    <expression value="Coding" />
+  </context>
+  <type value="Extension" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Extension" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Extension.url">
+      <path value="Extension.url" />
+      <fixedUri value="http://fhir.de/StructureDefinition/icd-10-gm-primaercode" />
+    </element>
+    <element id="Extension.value[x]">
+      <path value="Extension.value[x]" />
+      <min value="1" />
+      <type>
+        <code value="Coding" />
+        <profile value="http://fhir.de/StructureDefinition/CodingICD10GM" />
+      </type>
+    </element>
+  </differential>
+</StructureDefinition>
