@@ -1,19 +1,25 @@
 package health.ere.ps.event;
 
+import java.io.Serializable;
+
 import javax.websocket.Session;
 
-import health.ere.ps.model.status.Status;
-
 public class StatusResponseEvent extends AbstractEvent {
-    private Status status;
+    private String type = "StatusResponse";
+    private Serializable payload;
 
-    public StatusResponseEvent(Status status, Session replyTo, String id){
-        this.status = status;
+    public StatusResponseEvent(Serializable status, Session replyTo, String id){
+        this.payload = status;
         this.replyTo = replyTo;
         this.replyToMessageId = id;
     }
-    public Status getStatus() {
-        return this.status;
+
+    public String getType() {
+        return this.type;
+    }
+
+    public Serializable getPayload() {
+        return this.payload;
     }
 
 }

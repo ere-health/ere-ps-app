@@ -72,6 +72,7 @@ import health.ere.ps.jsonb.DurationAdapter;
 import health.ere.ps.jsonb.ThrowableAdapter;
 import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.model.websocket.OutgoingPayload;
+import health.ere.ps.model.websocket.OutgoingResponse;
 import health.ere.ps.service.config.UserConfigurationService;
 import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
 import health.ere.ps.service.fhir.bundle.EreBundle;
@@ -410,11 +411,12 @@ public class Websocket {
 
     public void onStatusResponseEvent(@ObservesAsync StatusResponseEvent statusResponseEvent) {
         assureChromeIsOpen();
-        Response response = new Response("StatusResponse",
-                                        statusResponseEvent.getStatus(),
-                                        statusResponseEvent.getReplyToMessageId());
+        String response = OutgoingResponse.buildJSON(jsonbFactory,
+                                                    statusResponseEvent.getType(),
+                                                    statusResponseEvent.getPayload(),
+                                                    statusResponseEvent.getReplyToMessageId());
         statusResponseEvent.getReplyTo().getAsyncRemote().sendObject(
-                jsonbFactory.toJson(response),
+                response,
                 result -> {
                     if (!result.isOK()) {
                         ereLog.fatal("Unable to send StatusResponseEvent: " + result.getException());
