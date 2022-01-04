@@ -410,9 +410,11 @@ public class Websocket {
 
     public void onStatusResponseEvent(@ObservesAsync StatusResponseEvent statusResponseEvent) {
         assureChromeIsOpen();
-        String statusResponseString = generateJson(statusResponseEvent);
+        Response response = new Response("StatusResponse",
+                                        statusResponseEvent.getStatus(),
+                                        statusResponseEvent.getReplyToMessageId());
         statusResponseEvent.getReplyTo().getAsyncRemote().sendObject(
-                "{\"type\": \"StatusResponse\", \"payload\": " + statusResponseString + ", \"replyToMessageId\": \""+statusResponseEvent.getReplyToMessageId()+"\"}",
+                jsonbFactory.toJson(response),
                 result -> {
                     if (!result.isOK()) {
                         ereLog.fatal("Unable to send StatusResponseEvent: " + result.getException());
@@ -434,10 +436,6 @@ public class Websocket {
 
     String generateJson(ChangePinResponseEvent changePinResponseEvent) {
         return jsonbFactory.toJson(changePinResponseEvent.getChangePinResponse());
-    }
-
-    String generateJson(StatusResponseEvent statusResponseEvent) {
-        return jsonbFactory.toJson(statusResponseEvent.getStatus());
     }
 
     void assureChromeIsOpen() {

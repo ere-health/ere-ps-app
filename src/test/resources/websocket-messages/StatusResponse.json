@@ -2,6 +2,6 @@
     "type": "StatusResponse",
     "payload": {
         "connectorReachable": false,
-        "informationConnectorReachable": null
+        "connectorInformation": null
     }
 }
