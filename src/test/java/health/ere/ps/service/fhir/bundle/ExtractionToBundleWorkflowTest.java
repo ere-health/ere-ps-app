@@ -1,30 +1,34 @@
 package health.ere.ps.service.fhir.bundle;
 
-import health.ere.ps.model.muster16.Muster16PrescriptionForm;
-import health.ere.ps.service.extractor.SVGExtractor;
-import health.ere.ps.service.muster16.Muster16FormDataExtractorService;
-import health.ere.ps.service.muster16.parser.rgxer.Muster16SvgRegexParser;
-import io.quarkus.test.junit.QuarkusTest;
+import static health.ere.ps.service.extractor.TemplateProfile.CGM_TURBO_MED;
+import static health.ere.ps.service.extractor.TemplateProfile.DENS;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
+import javax.xml.stream.XMLStreamException;
+
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.hl7.fhir.r4.model.Base;
 import org.hl7.fhir.r4.model.Bundle;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import javax.xml.stream.XMLStreamException;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-
-import static health.ere.ps.service.extractor.TemplateProfile.CGM_TURBO_MED;
-import static health.ere.ps.service.extractor.TemplateProfile.DENS;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import health.ere.ps.model.muster16.Muster16PrescriptionForm;
+import health.ere.ps.profile.TitusTestProfile;
+import health.ere.ps.service.extractor.SVGExtractor;
+import health.ere.ps.service.muster16.Muster16FormDataExtractorService;
+import health.ere.ps.service.muster16.parser.rgxer.Muster16SvgRegexParser;
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
 
 @QuarkusTest
+@TestProfile(TitusTestProfile.class)
 public class ExtractionToBundleWorkflowTest {
 
     private static final Logger log = Logger.getLogger(ExtractionToBundleWorkflowTest.class.getName());

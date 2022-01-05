@@ -251,7 +251,11 @@ public class Websocket {
                     });
             } else if ("XMLBundle".equals(object.getString("type"))) {
                 Bundle[] bundles = XmlPrescriptionProcessor.parseFromString(object.getString("payload"));
-                onFhirBundle(new BundlesEvent(Arrays.asList(bundles), senderSession, messageId));
+                if(appConfig.getXmlBundleDirectProcess()) {
+                    SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(bundles, senderSession, messageId);
+                    signAndUploadBundlesEvent.fireAsync(event);   
+                }
+                onFhirBundle(new BundlesEvent(Arrays.asList(bundles), null, messageId));
             } else if ("AbortTasks".equals(object.getString("type"))) {
                 abortTasksEvent.fireAsync(new AbortTasksEvent(object, senderSession, messageId));
             } else if ("ErixaEvent".equals(object.getString("type"))) {

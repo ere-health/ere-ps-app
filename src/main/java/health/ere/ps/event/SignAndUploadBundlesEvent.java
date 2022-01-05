@@ -1,6 +1,7 @@
 package health.ere.ps.event;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.json.JsonArray;
@@ -42,5 +43,11 @@ public class SignAndUploadBundlesEvent extends AbstractEvent {
 
     public SignAndUploadBundlesEvent(List<Bundle> bundles) {
         listOfListOfBundles.add(bundles);
+    }
+
+    public SignAndUploadBundlesEvent(Bundle[] bundles, Session senderSession, String id) {
+        this.replyTo = senderSession;
+        this.id = id;
+        listOfListOfBundles.add(Arrays.asList(bundles));
     }
 }

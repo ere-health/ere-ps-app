@@ -1,7 +1,5 @@
 package health.ere.ps.service.logging;
 
-import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -11,9 +9,14 @@ import java.nio.file.Path;
 import java.util.Date;
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+
+import health.ere.ps.profile.TitusTestProfile;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
 
 @QuarkusTest
+@TestProfile(TitusTestProfile.class)
 class EreLoggerTest {
 
     private static final EreLogger logger = EreLogger.getLogger(EreLoggerTest.class);
