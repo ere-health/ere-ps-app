@@ -12,11 +12,15 @@ import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.config.UserConfig;
 import health.ere.ps.event.RequestStatusEvent;
 import health.ere.ps.event.StatusResponseEvent;
+import health.ere.ps.exception.idp.IdpClientException;
+import health.ere.ps.exception.idp.IdpException;
+import health.ere.ps.exception.idp.IdpJoseException;
 import health.ere.ps.model.status.Status;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import health.ere.ps.service.gematik.ERezeptWorkflowService;
 import health.ere.ps.service.idp.BearerTokenService;
+import health.ere.ps.service.idp.client.IdpClient;
 
 @ApplicationScoped
 public class StatusService {
@@ -37,10 +41,22 @@ public class StatusService {
     BearerTokenService bearerTokenService;
 
     @Inject
+    IdpClient idpClient;
+        
+    @Inject
     ERezeptWorkflowService eRezeptWorkflowService;
 
     @Inject
     Event<StatusResponseEvent> statusResponseEvent;
+
+
+    public void onRequestStatus(@ObservesAsync RequestStatusEvent requestStatusEvent) {
+        Status  status  = getStatus(requestStatusEvent.getRuntimeConfig());
+        Session session = requestStatusEvent.getReplyTo();
+        String  id      = requestStatusEvent.getId();
+        // create status response event with the data
+        statusResponseEvent.fireAsync(new StatusResponseEvent(status, session, id));
+    }
 
     public Status getStatus(RuntimeConfig runtimeConfig) {
         Status status = new Status();
@@ -48,6 +64,7 @@ public class StatusService {
         String clientCertificate = userConfig.getConfigurations().getClientCertificate();
         String clientCertificatePassword = userConfig.getConfigurations().getClientCertificatePassword();
 
+        // ConnectorReachable
         try {
             GetCards parameter = new GetCards();
             parameter.setContext(connectorServicesProvider.getContextType(runtimeConfig));
@@ -61,21 +78,30 @@ public class StatusService {
                                                 +basicAuthUsername+":"+basicAuthPassword+", "+
                                                 secretsManagerService.getSslContext());
         }
+        // IdpReachable
+        try {
+            idpClient.initializeClient();
+            status.setIdpReachable(true, "");
+        } catch (IdpClientException | IdpException | IdpJoseException e) {
+            status.setIdpReachable(false, "");
+        }
 
-        // Call Bearer Service and check if it returns an access Code
-        // bearerTokenService.requestBearerToken(runtimeConfig);
+        // IdpaccesstokenObtainable
+        String bearerToken = bearerTokenService.requestBearerToken(runtimeConfig);
+        if (bearerToken != null && bearerToken.length() > 0 )
+            status.setIdpaccesstokenObtainable(true, bearerToken.substring(0, 10)+"...");
+        else
+            status.setIdpaccesstokenObtainable(false,"");
 
         // Call ERezeptServiceWorkflow isERezeptServiceReachable
 
-        return status;
-    }
+        // SmcbAvailable
+        // CautReadable
+        // EhbaAvailable
+        // ComfortsignatureAvailable
+        // FachdienstReachable
 
-    public void onRequestStatus(@ObservesAsync RequestStatusEvent requestStatusEvent) {
-        Status  status  = getStatus(requestStatusEvent.getRuntimeConfig());
-        Session session = requestStatusEvent.getReplyTo();
-        String  id      = requestStatusEvent.getId();
-        // create status response event with the data
-        statusResponseEvent.fireAsync(new StatusResponseEvent(status, session, id));
+        return status;
     }
     
 }

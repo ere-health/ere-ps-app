@@ -7,6 +7,8 @@ public class Status implements Serializable{
     private String connectorInformation;
     private boolean idpReachable;
     private String idpInformation;
+    private boolean idpaccesstokenObtainable;
+    private String idpaccesstokenInformation;
     private boolean smcbAvailable;
     private String smcbInformation;
     private boolean cautReadable;
@@ -15,8 +17,6 @@ public class Status implements Serializable{
     private String ehbaInformation;
     private boolean comfortsignatureAvailable;
     private String comfortsignatureInformation;
-    private boolean idpaccesstokenObtainable;
-    private String idpaccesstokenInformation;
     private boolean fachdienstReachable;
     private String fachdienstInformation;
 
@@ -79,6 +79,14 @@ public class Status implements Serializable{
         return this.idpInformation;
     }
 
+    public boolean isIdpaccesstokenObtainable() {
+        return this.idpaccesstokenObtainable;
+    }
+
+    public String getIdpaccesstokenInformation() {
+        return this.idpaccesstokenInformation;
+    }
+
     public boolean getSmcbAvailable() {
         return this.smcbAvailable;
     }
@@ -129,14 +137,6 @@ public class Status implements Serializable{
 
     public boolean getIdpaccesstokenObtainable() {
         return this.idpaccesstokenObtainable;
-    }
-
-    public boolean isIdpaccesstokenObtainable() {
-        return this.idpaccesstokenObtainable;
-    }
-
-    public String getIdpaccesstokenInformation() {
-        return this.idpaccesstokenInformation;
     }
 
     public boolean getFachdienstReachable() {
