@@ -924,8 +924,8 @@ public class ERezeptWorkflowService {
     /**
      * Checks if ERezeptService is reachable
      */
-    public boolean isERezeptServiceReachable(String parameterBearerToken) {
-        try (Response response = client.target(appConfig.getPrescriptionServiceURL()).request()
+    public boolean isERezeptServiceReachable(RuntimeConfig runtimeConfig, String parameterBearerToken) {
+        try (Response response = client.target(runtimeConfig.getPrescriptionServerURL() != null ? runtimeConfig.getPrescriptionServerURL() : appConfig.getPrescriptionServiceURL()).request()
                 .header("User-Agent", appConfig.getUserAgent())
                 .header("Authorization", "Bearer " + parameterBearerToken)
                 .get()) {

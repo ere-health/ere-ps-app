@@ -72,17 +72,19 @@ import health.ere.ps.jsonb.DurationAdapter;
 import health.ere.ps.jsonb.ThrowableAdapter;
 import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.model.websocket.OutgoingPayload;
-import health.ere.ps.model.websocket.OutgoingResponse;
 import health.ere.ps.service.config.UserConfigurationService;
 import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
 import health.ere.ps.service.fhir.bundle.EreBundle;
 import health.ere.ps.service.logging.EreLogger;
 import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
+import health.ere.ps.websocket.encoder.StatusResponseEventEncoder;
 import message.processor.incoming.IncomingBundleMessageProcessor;
 import message.processor.incoming.IncomingMessageProcessor;
 import message.processor.outgoing.OutgoingMessageProcessor;
 
-@ServerEndpoint("/websocket")
+@ServerEndpoint(
+    value="/websocket",
+    encoders={StatusResponseEventEncoder.class})
 @ApplicationScoped
 public class Websocket {
     @Inject
@@ -131,13 +133,13 @@ public class Websocket {
     @ConfigProperty(name = "ere.websocket.erezeptdocuments.reply-to-all", defaultValue = "false")
     boolean erezeptdocumentsReplyToAll = false;
 
-    JsonbConfig customConfig = new JsonbConfig()
+    static JsonbConfig customConfig = new JsonbConfig()
             .setProperty(JsonbConfig.FORMATTING, true)
             .withAdapters(new BundleAdapter())
             .withAdapters(new ByteAdapter())
             .withAdapters(new ThrowableAdapter())
             .withAdapters(new DurationAdapter());
-    Jsonb jsonbFactory = JsonbBuilder.create(customConfig);
+    public static Jsonb jsonbFactory = JsonbBuilder.create(customConfig);
     private static final String CHROME_X86_PATH = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
     private static final String CHROME_X64_PATH = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
     private static final EreLogger ereLog = EreLogger.getLogger(Websocket.class);
@@ -411,12 +413,7 @@ public class Websocket {
 
     public void onStatusResponseEvent(@ObservesAsync StatusResponseEvent statusResponseEvent) {
         assureChromeIsOpen();
-        String response = OutgoingResponse.buildJSON(jsonbFactory,
-                                                    statusResponseEvent.getType(),
-                                                    statusResponseEvent.getPayload(),
-                                                    statusResponseEvent.getReplyToMessageId());
-        statusResponseEvent.getReplyTo().getAsyncRemote().sendObject(
-                response,
+        statusResponseEvent.getReplyTo().getAsyncRemote().sendObject(statusResponseEvent,
                 result -> {
                     if (!result.isOK()) {
                         ereLog.fatal("Unable to send StatusResponseEvent: " + result.getException());

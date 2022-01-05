@@ -1,7 +1,8 @@
 package health.ere.ps.model.websocket;
 
 import java.io.Serializable;
-import javax.json.bind.Jsonb;
+
+import health.ere.ps.websocket.Websocket;
 
 public class OutgoingResponse {
     private String type;
@@ -26,7 +27,7 @@ public class OutgoingResponse {
         return this.replyToMessageId;
     }
 
-    public static String buildJSON(Jsonb jsonbFactory, String type, Serializable payload, String replyToMessageId){
-        return jsonbFactory.toJson(new OutgoingResponse(type,payload,replyToMessageId));
+    public static String buildJSON(String type, Serializable payload, String replyToMessageId){
+        return Websocket.jsonbFactory.toJson(new OutgoingResponse(type,payload,replyToMessageId));
     }
 }

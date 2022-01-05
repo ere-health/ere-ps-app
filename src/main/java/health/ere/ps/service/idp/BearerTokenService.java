@@ -48,6 +48,10 @@ public class BearerTokenService {
         }
     }
 
+    public IdpClient getIdpClient(RuntimeConfig runtimeConfig) {
+        return idpClient;
+    }
+
     public String requestBearerToken() {
         return requestBearerToken(null);
     }
