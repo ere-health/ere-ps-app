@@ -77,14 +77,14 @@ import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
 import health.ere.ps.service.fhir.bundle.EreBundle;
 import health.ere.ps.service.logging.EreLogger;
 import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
-import health.ere.ps.websocket.encoder.StatusResponseEventEncoder;
+import health.ere.ps.websocket.encoder.ResponseEventEncoder;
 import message.processor.incoming.IncomingBundleMessageProcessor;
 import message.processor.incoming.IncomingMessageProcessor;
 import message.processor.outgoing.OutgoingMessageProcessor;
 
 @ServerEndpoint(
     value="/websocket",
-    encoders={StatusResponseEventEncoder.class})
+    encoders={ResponseEventEncoder.class})
 @ApplicationScoped
 public class Websocket {
     @Inject

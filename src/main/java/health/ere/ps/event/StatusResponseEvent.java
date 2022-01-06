@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import javax.websocket.Session;
 
-public class StatusResponseEvent extends AbstractEvent {
+public class StatusResponseEvent extends AbstractEvent implements ReplyableEvent {
     private String type = "StatusResponse";
     private Serializable payload;
 
