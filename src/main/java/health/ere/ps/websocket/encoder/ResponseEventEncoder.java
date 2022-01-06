@@ -30,26 +30,14 @@ public class ResponseEventEncoder implements Encoder.Text<ReplyableEvent> {
     }
 
     public class Response {
-        private String type;
-        private Serializable payload;
-        private String replyToMessageId;
+        public String       type;
+        public Serializable payload;
+        public String       replyToMessageId;
         
         public Response(String type, Serializable payload, String replyToMessageId){
-            this.type = type;
-            this.payload = payload;
+            this.type             = type;
+            this.payload          = payload;
             this.replyToMessageId = replyToMessageId;
-        }
-    
-        public String getType(){
-            return this.type;
-        }
-    
-        public Serializable getPayload(){
-            return this.payload;
-        }
-    
-        public String getReplyToMessageId(){
-            return this.replyToMessageId;
         }
     }
 }
