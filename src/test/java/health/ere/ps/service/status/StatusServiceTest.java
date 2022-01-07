@@ -1,5 +1,8 @@
 package health.ere.ps.service.status;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.util.logging.LogManager;
 
@@ -40,6 +43,29 @@ public class StatusServiceTest {
     @Test
     public void test() {
         Status status = statusService.getStatus(null);
-        
+
+        assertTrue(status.getConnectorReachable());
+        assertEquals("https://kon-instanz2.titus.ti-dienste.de", status.getConnectorInformation());
+    
+        assertTrue(status.getIdpReachable());
+        assertEquals("https://idp.erezept-instanz1.titus.ti-dienste.de/auth/realms/idp/.well-known/openid-configuration", status.getIdpInformation());
+    
+        assertTrue(status.getIdpaccesstokenObtainable());
+        assertEquals(914, status.getIdpaccesstokenInformation().length());
+
+        assertTrue(status.getSmcbAvailable());
+        assertEquals("Card Handle: 1-2-ARZT-WaltrautDrombusch01", status.getSmcbInformation());
+
+        assertTrue(status.getCautReadable());
+        assertEquals("", status.getCautInformation());
+
+        assertTrue(status.getEhbaAvailable());    
+        assertEquals("Card Handle: 1-1-ARZT-WaltrautFinkengrund01", status.getEhbaInformation());
+
+        assertTrue(!status.getComfortsignatureAvailable());
+        assertEquals("", status.getComfortsignatureInformation());
+  
+        assertTrue(status.getFachdienstReachable());
+        assertEquals("", status.getFachdienstInformation());
     }
 }

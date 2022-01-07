@@ -19,6 +19,7 @@ import health.ere.ps.exception.connector.ConnectorCardsException;
 import health.ere.ps.exception.idp.IdpClientException;
 import health.ere.ps.exception.idp.IdpException;
 import health.ere.ps.exception.idp.IdpJoseException;
+import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.model.status.Status;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
@@ -27,7 +28,6 @@ import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import health.ere.ps.service.gematik.ERezeptWorkflowService;
 import health.ere.ps.service.idp.BearerTokenService;
-import health.ere.ps.service.idp.client.IdpClient;
 import health.ere.ps.websocket.ExceptionWithReplyToExcetion;
 
 @ApplicationScoped
@@ -82,8 +82,13 @@ public class StatusService {
     public Status getStatus(RuntimeConfig runtimeConfig) {
         Status status = new Status();
         String connectorBaseURL = userConfig.getConnectorBaseURL();
-        String clientCertificate = userConfig.getConfigurations().getClientCertificate();
-        String clientCertificatePassword = userConfig.getConfigurations().getClientCertificatePassword();
+
+        boolean runtimeConfigurationsIsNotNull = (runtimeConfig != null && runtimeConfig.getConfigurations() != null);
+        UserConfigurations configurations = runtimeConfigurationsIsNotNull ? runtimeConfig.getConfigurations() : userConfig.getConfigurations();
+        String basicAuthUsername = configurations.getBasicAuthUsername();
+        String basicAuthPassword = configurations.getBasicAuthPassword();
+        String clientCertificate = configurations.getClientCertificate();
+        String clientCertificatePassword = configurations.getClientCertificatePassword();
 
         // ConnectorReachable
         try {
@@ -92,15 +97,14 @@ public class StatusService {
             connectorServicesProvider.getEventServicePortType(runtimeConfig).getCards(parameter);
             status.setConnectorReachable(true, connectorBaseURL);
         } catch(Exception ex) {
-            String basicAuthUsername = userConfig.getConfigurations().getBasicAuthUsername();
-            String basicAuthPassword = userConfig.getConfigurations().getBasicAuthPassword();
             status.setConnectorReachable(false, connectorBaseURL+", "
                                                 +clientCertificate+":"+clientCertificatePassword+", "
                                                 +basicAuthUsername+":"+basicAuthPassword+", "+
                                                 secretsManagerService.getSslContext());
         }
-        String discoveryUrl = "Not given";
+
         // IdpReachable
+        String discoveryUrl = "Not given";
         try {
             bearerTokenService.getIdpClient(runtimeConfig).initializeClient();
             discoveryUrl = bearerTokenService.getIdpClient(runtimeConfig).getDiscoveryDocumentUrl();
@@ -112,11 +116,9 @@ public class StatusService {
         // IdpaccesstokenObtainable
         String bearerToken = bearerTokenService.requestBearerToken(runtimeConfig);
         if (bearerToken != null && bearerToken.length() > 0 )
-            status.setIdpaccesstokenObtainable(true, bearerToken.substring(0, 10)+"...");
+            status.setIdpaccesstokenObtainable(true, "Bearer Token: "+bearerToken);
         else
             status.setIdpaccesstokenObtainable(false,"");
-
-        // Call ERezeptServiceWorkflow isERezeptServiceReachable
 
         // SmcbAvailable
         String smcbHandle = null;
@@ -146,11 +148,10 @@ public class StatusService {
         // ComfortsignatureAvailable
         // Connector is PTV4+
         // check if basic auth or ssl certificate is enabled
-        if ("PTV4+".equals(runtimeConfig != null && runtimeConfig.getConnectorVersion() != null ? runtimeConfig.getConnectorVersion() : userConfig.getConnectorVersion()) &&
-            ((runtimeConfig != null && runtimeConfig.getConfigurations() != null && runtimeConfig.getConfigurations().getBasicAuthUsername() != null)
-            || (runtimeConfig != null && runtimeConfig.getConfigurations() != null && runtimeConfig.getConfigurations().getClientCertificate() != null)
-            || userConfig.getConfigurations().getBasicAuthUsername() != null || userConfig.getConfigurations().getClientCertificate() != null)) {
-                status.setComfortsignatureAvailable(true, "");
+        String connectorVersion = runtimeConfig != null ? runtimeConfig.getConnectorVersion() : null;
+        connectorVersion = connectorVersion == null ? userConfig.getConnectorVersion() : null;
+        if ("PTV4+".equals(connectorVersion) && (basicAuthUsername != null || clientCertificate != null)) {
+            status.setComfortsignatureAvailable(true, "");
         } else {
             status.setComfortsignatureAvailable(false, "");
         }

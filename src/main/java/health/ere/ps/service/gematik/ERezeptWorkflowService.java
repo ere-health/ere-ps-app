@@ -31,6 +31,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.MediaType;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.ws.Holder;
@@ -925,17 +926,24 @@ public class ERezeptWorkflowService {
      * Checks if ERezeptService is reachable
      */
     public boolean isERezeptServiceReachable(RuntimeConfig runtimeConfig, String parameterBearerToken) {
-        try (Response response = client.target(runtimeConfig.getPrescriptionServerURL() != null ? runtimeConfig.getPrescriptionServerURL() : appConfig.getPrescriptionServiceURL()).request()
-                .header("User-Agent", appConfig.getUserAgent())
-                .header("Authorization", "Bearer " + parameterBearerToken)
-                .get()) {
+        String prescriptionServiceURL = (runtimeConfig != null && runtimeConfig.getPrescriptionServerURL() != null) ? runtimeConfig.getPrescriptionServerURL() : appConfig.getPrescriptionServiceURL();
+        if (prescriptionServiceURL==null) return false;
+        try (Response response = client
+                                 .target(prescriptionServiceURL)
+                                 .request()
+                                 .header("User-Agent", appConfig.getUserAgent())
+                                 .header("Authorization", "Bearer " + parameterBearerToken)
+                                 .get()) {
             if (response.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
                 return true;
             } else {
                 return false;
             }
-        } catch(Exception ex) {
-            return false;
+        } catch(RuntimeException ex) {
+            if (ex.getMessage().substring(0, 40).equals("java.lang.RuntimeException: VAU response"))
+                return true;
+            else
+                return false;
         }
     }
 }

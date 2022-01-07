@@ -61,12 +61,10 @@ public class Status implements Serializable{
     }
 
     // the following GET-ers are needed in JsonbBuilder...toJson
-    // in Websocket.onStatusResponseEvent(...)
-    // to create JSON string from a Status object
+    // in Websocket to create a JSON string from this object
     public boolean getConnectorReachable() {
         return this.connectorReachable;
     }
-
     public String getConnectorInformation() {
         return this.connectorInformation;
     }
@@ -74,15 +72,14 @@ public class Status implements Serializable{
     public boolean getIdpReachable() {
         return this.idpReachable;
     }
-
     public String getIdpInformation() {
         return this.idpInformation;
     }
 
-    public boolean isIdpaccesstokenObtainable() {
+
+    public boolean getIdpaccesstokenObtainable() {
         return this.idpaccesstokenObtainable;
     }
-
     public String getIdpaccesstokenInformation() {
         return this.idpaccesstokenInformation;
     }
@@ -90,11 +87,6 @@ public class Status implements Serializable{
     public boolean getSmcbAvailable() {
         return this.smcbAvailable;
     }
-
-    public boolean isSmcbAvailable() {
-        return this.smcbAvailable;
-    }
-
     public String getSmcbInformation() {
         return this.smcbInformation;
     }
@@ -102,11 +94,6 @@ public class Status implements Serializable{
     public boolean getCautReadable() {
         return this.cautReadable;
     }
-
-    public boolean isCautReadable() {
-        return this.cautReadable;
-    }
-
     public String getCautInformation() {
         return this.cautInformation;
     }
@@ -114,11 +101,6 @@ public class Status implements Serializable{
     public boolean getEhbaAvailable() {
         return this.ehbaAvailable;
     }
-
-    public boolean isEhbaAvailable() {
-        return this.ehbaAvailable;
-    }
-
     public String getEhbaInformation() {
         return this.ehbaInformation;
     }
@@ -126,27 +108,13 @@ public class Status implements Serializable{
     public boolean getComfortsignatureAvailable() {
         return this.comfortsignatureAvailable;
     }
-
-    public boolean isComfortsignatureAvailable() {
-        return this.comfortsignatureAvailable;
-    }
-
     public String getComfortsignatureInformation() {
         return this.comfortsignatureInformation;
-    }
-
-    public boolean getIdpaccesstokenObtainable() {
-        return this.idpaccesstokenObtainable;
     }
 
     public boolean getFachdienstReachable() {
         return this.fachdienstReachable;
     }
-
-    public boolean isFachdienstReachable() {
-        return this.fachdienstReachable;
-    }
-
     public String getFachdienstInformation() {
         return this.fachdienstInformation;
     }
