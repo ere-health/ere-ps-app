@@ -930,20 +930,19 @@ public class ERezeptWorkflowService {
         if (prescriptionServiceURL==null) return false;
         try (Response response = client
                                  .target(prescriptionServiceURL)
+                                 .path("/")
                                  .request()
                                  .header("User-Agent", appConfig.getUserAgent())
                                  .header("Authorization", "Bearer " + parameterBearerToken)
-                                 .get()) {
+                                 .post(Entity.entity("", MediaType.APPLICATION_JSON))
+            ) {
             if (response.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
                 return true;
             } else {
                 return false;
             }
-        } catch(RuntimeException ex) {
-            if (ex.getMessage().substring(0, 40).equals("java.lang.RuntimeException: VAU response"))
-                return true;
-            else
-                return false;
+        } catch(Exception ex) {
+            return false;
         }
     }
 }
