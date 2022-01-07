@@ -33,8 +33,10 @@ import org.gradle.internal.impldep.com.google.common.collect.Lists;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Coverage;
 import org.hl7.fhir.r4.model.DateTimeType;
+import org.hl7.fhir.r4.model.Medication;
 import org.hl7.fhir.r4.model.MedicationRequest;
 import org.hl7.fhir.r4.model.Patient;
+import org.hl7.fhir.r4.model.Practitioner;
 import org.hl7.fhir.r4.model.Reference;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -343,7 +345,7 @@ public class MassGenerator2Test {
                                 .withZone(ZoneOffset.UTC)
                                 .format(Instant.now());
         FileWriter fw = new FileWriter("target/e-rezept-report-"+thisMomentString+".csv");
-        fw.write("Id,Filename,AccessCode,Patient,Insurance\n");
+        fw.write("Id,Filename,AccessCode,Patient,Insurance,PZN,Medication,IKNR,Krankenkasse,Qualfication\n");
 
         List<String> insuranceList = Arrays.asList("Default");
         if(insuranceString != null) {
@@ -425,7 +427,51 @@ public class MassGenerator2Test {
                                 ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
                                 String fileName = fileEntry.getName().replace(".xml", "")+"-"+card+"-" + thisMoment + ".pdf";
                                 Files.write(Paths.get("target/"+fileName), a.toByteArray());
-                                fw.write(bundleWithAccessCodeOrThrowable.getBundle().getIdentifier().getValue()+","+fileName+","+bundleWithAccessCodeOrThrowable.getAccessCode()+","+card+","+singleInsurance+"\n");
+                                Bundle bundle = bundleWithAccessCodeOrThrowable.getBundle();
+                                MedicationRequest medicationRequest = null;
+                                try {
+                                    medicationRequest = ((MedicationRequest)bundle.getEntry().stream().filter(e -> e.getResource() instanceof MedicationRequest).findAny().get().getResource());
+                                } catch(NoSuchElementException ex) {
+                                    ex.printStackTrace();
+                                }
+                                Medication medication = null;
+                                try {
+                                    medication = ((Medication)bundle.getEntry().stream().filter(e -> e.getResource() instanceof Medication).findAny().get().getResource());
+                                } catch(NoSuchElementException ex) {
+                                    ex.printStackTrace();
+                                }
+                                Patient patient = null;
+                                try {
+                                    patient = ((Patient)bundle.getEntry().stream().filter(e -> e.getResource() instanceof Patient).findAny().get().getResource());
+                                } catch(Exception ex) {
+                                    ex.printStackTrace();
+                                }
+                                String qualification = "";
+                                Practitioner practitioner = null;
+                                try {
+                                    practitioner = ((Practitioner)bundle.getEntry().stream().filter(e -> e.getResource() instanceof Practitioner).findAny().get().getResource());
+                                    qualification = practitioner.getQualification().get(0).getCode().getCoding().get(0).getCode();
+                                    if(Math.random() > 0.7) {
+                                        qualification = "01";
+                                        practitioner.getQualification().get(0).getCode().getCoding().get(0).setCode("01");
+                                    }
+                                } catch(Exception ex) {
+                                    ex.printStackTrace();
+                                }
+
+                                Coverage coverage = null;
+                                try {
+                                    coverage = ((Coverage)bundle.getEntry().stream().filter(e -> e.getResource() instanceof Coverage).findAny().get().getResource());
+                                } catch(Exception ex) {
+                                    ex.printStackTrace();
+                                }
+                                
+                                fw.write(bundle.getIdentifier().getValue()+","+fileName+","+bundleWithAccessCodeOrThrowable.getAccessCode()+","+card+","
+                                +singleInsurance+","+medication.getCode().getCoding().get(0).getCode()+","+
+                                medication.getCode().getText()+","+
+                                coverage.getPayor().get(0).getIdentifier().getValue()+","+
+                                coverage.getPayor().get(0).getDisplay()+","+
+                                qualification+"\n");
                                 fw.flush();
                             }
                             z++;
