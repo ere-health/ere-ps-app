@@ -62,7 +62,7 @@ public class StatusServiceTest {
         assertTrue(status.getEhbaAvailable());    
         assertEquals("Card Handle: 1-1-ARZT-WaltrautFinkengrund01", status.getEhbaInformation());
 
-        assertTrue(!status.getComfortsignatureAvailable());
+        assertTrue(status.getComfortsignatureAvailable());
         assertEquals("", status.getComfortsignatureInformation());
   
         assertTrue(status.getFachdienstReachable());
