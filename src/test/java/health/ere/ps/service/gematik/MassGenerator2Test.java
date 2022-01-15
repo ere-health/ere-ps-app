@@ -336,7 +336,7 @@ public class MassGenerator2Test {
         DocumentService documentService = new DocumentService();
                 documentService.init();
         
-        List<String> cards = cardsString != null ? Files.readAllLines(Paths.get(cardsString)) : Arrays.asList(new String[] {null});
+        List<String> cards = cardsString != null ? Files.readAllLines(Paths.get(cardsString)) : Arrays.asList(new String[] {"X110470337"});
 
         RuntimeConfig runtimeConfig = getRuntimeConfig();
 

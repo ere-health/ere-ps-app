@@ -151,7 +151,7 @@ public class MassGeneratorTest {
 
                 for (Path entry : stream) {
                     InputStream fileStream = new FileInputStream(entry.toFile());
-                    String template = new String(fileStream.readAllBytes(), "ISO-8859-1");
+                    String template = new String(fileStream.readAllBytes(), "UTF-8");
                     fileStream.close();
                     template = replaceTemplates(template);
                     Bundle bundle = iParser.parseResource(Bundle.class, template);
