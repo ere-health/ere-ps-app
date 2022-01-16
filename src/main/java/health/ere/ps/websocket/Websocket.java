@@ -60,6 +60,7 @@ import health.ere.ps.event.GetCardsResponseEvent;
 import health.ere.ps.event.GetSignatureModeEvent;
 import health.ere.ps.event.GetSignatureModeResponseEvent;
 import health.ere.ps.event.HTMLBundlesEvent;
+import health.ere.ps.event.PrefillBundleEvent;
 import health.ere.ps.event.ReadyToSignBundlesEvent;
 import health.ere.ps.event.SaveSettingsEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
@@ -112,6 +113,9 @@ public class Websocket {
 
     @Inject
     Event<ChangePinEvent> changePinEvent;
+
+    @Inject
+    Event<PrefillBundleEvent> prefillBundleEvent;
     
     @Inject
     Event<VerifyPinEvent> verifyPinEvent;
@@ -276,10 +280,12 @@ public class Websocket {
             } else if ("ChangePin".equals(object.getString("type"))) {
                 ChangePinEvent event = new ChangePinEvent(object, senderSession, messageId);
                 changePinEvent.fireAsync(event);
-
             } else if ("VerifyPin".equals(object.getString("type"))) {
                 VerifyPinEvent event = new VerifyPinEvent(object, senderSession, messageId);
                 verifyPinEvent.fireAsync(event);
+            } else if ("PrefillBundle".equals(object.getString("type"))) {
+                PrefillBundleEvent event = new PrefillBundleEvent(object, senderSession, messageId);
+                prefillBundleEvent.fireAsync(event);
             }  else if ("RequestSettings".equals(object.getString("type"))) {
                 UserConfigurations userConfigurations = userConfigurationService.getConfig();
                 String payload = jsonbFactory.toJson(userConfigurations);
