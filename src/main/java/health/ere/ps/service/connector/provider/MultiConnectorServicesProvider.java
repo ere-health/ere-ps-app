@@ -15,6 +15,7 @@ import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV740;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
+import de.gematik.ws.conn.vsds.vsdservice.v5.VSDServicePortType;
 import health.ere.ps.config.UserConfig;
 
 @ApplicationScoped
@@ -35,7 +36,7 @@ public class MultiConnectorServicesProvider {
         return cardServicePortType;
     }
 
-    private AbstractConnectorServicesProvider getSingleConnectorServicesProvider(UserConfig userConfig) {
+    public AbstractConnectorServicesProvider getSingleConnectorServicesProvider(UserConfig userConfig) {
         if(userConfig == null) {
             return defaultConnectorServicesProvider;
         } else {
@@ -46,7 +47,7 @@ public class MultiConnectorServicesProvider {
         }
     }
 
-    public CertificateServicePortType getCertificateService(UserConfig userConfig) {
+    public CertificateServicePortType getCertificateServicePortType(UserConfig userConfig) {
         CertificateServicePortType certificateService = getSingleConnectorServicesProvider(userConfig).getCertificateService();
         return certificateService;
     }
@@ -71,6 +72,11 @@ public class MultiConnectorServicesProvider {
         return signatureServicePortTypeV755;
     }
 
+    public VSDServicePortType getVSDServicePortType(UserConfig userConfig) {
+        VSDServicePortType vsdServicePortType = getSingleConnectorServicesProvider(userConfig).getVSDServicePortType();
+        return vsdServicePortType;
+    }
+
     public ContextType getContextType(UserConfig userConfig) {
         if(userConfig == null) {
             return defaultConnectorServicesProvider.getContextType();
@@ -81,5 +87,9 @@ public class MultiConnectorServicesProvider {
         contextType.setWorkplaceId(userConfig.getWorkplaceId());
         contextType.setUserId(userConfig.getUserId());
         return contextType;
+    }
+
+    public void clearAll() {
+        singleConnectorServicesProvider = new HashMap<>();
     }
 }

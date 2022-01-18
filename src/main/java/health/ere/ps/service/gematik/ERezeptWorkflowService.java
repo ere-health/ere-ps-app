@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -34,6 +35,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.MediaType;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.ws.Holder;
@@ -956,5 +958,31 @@ public class ERezeptWorkflowService {
         GetCards parameter = new GetCards();
         parameter.setContext(connectorServicesProvider.getContextType(runtimeConfig));
         return connectorServicesProvider.getEventServicePortType(runtimeConfig).getCards(parameter);
+    }
+
+    /**
+     * Checks if ERezeptService is reachable
+     */
+    public boolean isERezeptServiceReachable(RuntimeConfig runtimeConfig, String parameterBearerToken) {
+        String prescriptionServiceURL = (runtimeConfig != null && runtimeConfig.getPrescriptionServerURL() != null) ? runtimeConfig.getPrescriptionServerURL() : appConfig.getPrescriptionServiceURL();
+        if (prescriptionServiceURL==null) return false;
+        // use a http client that does not use a VAU implementation
+        Client testClient = ClientBuilder.newBuilder()
+            .readTimeout(3, TimeUnit.SECONDS).connectTimeout(3, TimeUnit.SECONDS).build();
+        try (Response response = testClient
+                                 .target(prescriptionServiceURL)
+                                 .request()
+                                 .header("User-Agent", appConfig.getUserAgent())
+                                 .header("Authorization", "Bearer " + parameterBearerToken)
+                                 .get()
+            ) {
+            if (response.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch(Exception ex) {
+            return false;
+        }
     }
 }

@@ -56,7 +56,7 @@ import health.ere.ps.exception.gematik.ERezeptWorkflowException;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.model.idp.client.IdpTokenResult;
 import health.ere.ps.model.muster16.Muster16PrescriptionForm;
-import health.ere.ps.profile.RUTestProfile;
+import health.ere.ps.profile.TitusTestProfile;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
@@ -64,6 +64,7 @@ import health.ere.ps.service.extractor.SVGExtractor;
 import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
 import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilder;
 import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilderTest;
+import health.ere.ps.service.idp.BearerTokenService;
 import health.ere.ps.service.idp.client.IdpClient;
 import health.ere.ps.service.idp.client.IdpHttpClientService;
 import health.ere.ps.service.muster16.Muster16FormDataExtractorService;
@@ -73,7 +74,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 
 @QuarkusTest
-@TestProfile(RUTestProfile.class)
+@TestProfile(TitusTestProfile.class)
 public class ERezeptWorkflowServiceTest {
 
     private static final Logger log = Logger.getLogger(ERezeptWorkflowServiceTest.class.getName());
@@ -86,6 +87,8 @@ public class ERezeptWorkflowServiceTest {
     AppConfig appConfig;
     @Inject
     IdpClient idpClient;
+    @Inject
+    BearerTokenService bearerTokenService;
     @Inject
     CardCertificateReaderService cardCertificateReaderService;
     @Inject
@@ -588,5 +591,12 @@ public class ERezeptWorkflowServiceTest {
                 e.printStackTrace();
             }
         });
+    }
+
+    @Test
+        // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
+    void testIsERezeptServiceReachable() throws ERezeptWorkflowException {
+        String parameterBearerToken = bearerTokenService.requestBearerToken();
+        assertTrue(eRezeptWorkflowService.isERezeptServiceReachable(null, parameterBearerToken));
     }
 }

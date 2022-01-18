@@ -238,4 +238,8 @@ public class IdpClient implements IIdpClient {
         discoveryDocumentResponse = authenticatorClient.retrieveDiscoveryDocument(discoveryDocumentUrl, verifyHostname, replaceUrlsInDiscoveryDocument);
         return this;
     }
+
+    public String getDiscoveryDocumentUrl() {
+        return discoveryDocumentUrl;
+    }
 }

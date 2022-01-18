@@ -22,6 +22,8 @@ import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV740;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServiceV740;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServiceV755;
+import de.gematik.ws.conn.vsds.vsdservice.v5.VSDService;
+import de.gematik.ws.conn.vsds.vsdservice.v5.VSDServicePortType;
 import health.ere.ps.config.UserConfig;
 import health.ere.ps.config.interceptor.ProvidedConfig;
 import health.ere.ps.service.common.security.SecretsManagerService;
@@ -37,6 +39,7 @@ public abstract class AbstractConnectorServicesProvider {
     SecretsManagerService secretsManagerService;
 
 
+    private VSDServicePortType vSDServicePortType;
     private CardServicePortType cardServicePortType;
     private CertificateServicePortType certificateService;
     private EventServicePortType eventServicePortType;
@@ -46,22 +49,54 @@ public abstract class AbstractConnectorServicesProvider {
     private ContextType contextType;
 
     public void initializeServices() {
+        initializeServices(false);
+    }
+
+    public void initializeServices(boolean throwEndpointException) {
         if(endpointDiscoveryService != null) {
             try {
-                endpointDiscoveryService.obtainConfiguration();
-            } catch (IOException | ParserConfigurationException e) {
-                log.log(Level.SEVERE, "Could not obtainConfiguration", e);
+                endpointDiscoveryService.obtainConfiguration(throwEndpointException);
+                initializeVSDServicePortType();
+                initializeCardServicePortType();
+                initializeCertificateService();
+                initializeEventServicePortType();
+                initializeAuthSignatureServicePortType();
+                initializeSignatureServicePortType();
+                initializeSignatureServicePortTypeV755();
+            } catch (Exception e) {
+                vSDServicePortType = null;
+                cardServicePortType = null;
+                certificateService = null;
+                eventServicePortType = null;
+                authSignatureServicePortType = null;
+                signatureServicePortType = null;
+                signatureServicePortTypeV755 = null;
+                if(throwEndpointException) {
+                    throw new RuntimeException(e);
+                } else {
+                    log.log(Level.SEVERE, "Could not obtainConfiguration", e);
+                }
             }
-            initializeCardServicePortType();
-            initializeCertificateService();
-            initializeEventServicePortType();
-            initializeAuthSignatureServicePortType();
-            initializeSignatureServicePortType();
-            initializeSignatureServicePortTypeV755();
             initializeContextType();
         } else {
             log.warning("endpointDiscoveryService is null");
         }
+    }
+    
+    private void initializeVSDServicePortType() {
+        VSDServicePortType vsdService = new VSDService(getClass().getResource("/vsds/VSDService.wsdl"))
+                .getVSDServicePort();
+
+        BindingProvider bp = (BindingProvider) vsdService;
+        if(endpointDiscoveryService.getVSDServiceEndpointAddress() != null) {
+            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+                    endpointDiscoveryService.getVSDServiceEndpointAddress());
+        } else {
+            log.warning("VSDServiceEndpointAddress is null");
+        }
+        configureBindingProvider(bp);
+
+        vSDServicePortType = vsdService;
     }
 
     private void initializeCardServicePortType() {
@@ -215,6 +250,11 @@ public abstract class AbstractConnectorServicesProvider {
     @ProvidedConfig
     public SignatureServicePortTypeV755 getSignatureServicePortTypeV755() {
         return signatureServicePortTypeV755;
+    }
+
+    @ProvidedConfig
+    public VSDServicePortType getVSDServicePortType() {
+        return vSDServicePortType;
     }
 
     @ProvidedConfig

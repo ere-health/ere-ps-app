@@ -1,0 +1,7 @@
+{
+    "type": "StatusResponse",
+    "payload": {
+        "connectorReachable": false,
+        "connectorInformation": null
+    }
+}

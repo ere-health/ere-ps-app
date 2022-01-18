@@ -60,9 +60,12 @@ import health.ere.ps.event.GetCardsResponseEvent;
 import health.ere.ps.event.GetSignatureModeEvent;
 import health.ere.ps.event.GetSignatureModeResponseEvent;
 import health.ere.ps.event.HTMLBundlesEvent;
+import health.ere.ps.event.PrefillBundleEvent;
 import health.ere.ps.event.ReadyToSignBundlesEvent;
+import health.ere.ps.event.RequestStatusEvent;
 import health.ere.ps.event.SaveSettingsEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
+import health.ere.ps.event.StatusResponseEvent;
 import health.ere.ps.event.VerifyPinEvent;
 import health.ere.ps.event.erixa.ErixaEvent;
 import health.ere.ps.jsonb.BundleAdapter;
@@ -76,11 +79,14 @@ import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
 import health.ere.ps.service.fhir.bundle.EreBundle;
 import health.ere.ps.service.logging.EreLogger;
 import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
+import health.ere.ps.websocket.encoder.ResponseEventEncoder;
 import message.processor.incoming.IncomingBundleMessageProcessor;
 import message.processor.incoming.IncomingMessageProcessor;
 import message.processor.outgoing.OutgoingMessageProcessor;
 
-@ServerEndpoint("/websocket")
+@ServerEndpoint(
+    value="/websocket",
+    encoders={ResponseEventEncoder.class})
 @ApplicationScoped
 public class Websocket {
     @Inject
@@ -112,6 +118,12 @@ public class Websocket {
 
     @Inject
     Event<ChangePinEvent> changePinEvent;
+
+    @Inject
+    Event<RequestStatusEvent> requestStatusEvent;
+
+    @Inject
+    Event<PrefillBundleEvent> prefillBundleEvent;
     
     @Inject
     Event<VerifyPinEvent> verifyPinEvent;
@@ -129,13 +141,13 @@ public class Websocket {
     @ConfigProperty(name = "ere.websocket.erezeptdocuments.reply-to-all", defaultValue = "false")
     boolean erezeptdocumentsReplyToAll = false;
 
-    JsonbConfig customConfig = new JsonbConfig()
+    static JsonbConfig customConfig = new JsonbConfig()
             .setProperty(JsonbConfig.FORMATTING, true)
             .withAdapters(new BundleAdapter())
             .withAdapters(new ByteAdapter())
             .withAdapters(new ThrowableAdapter())
             .withAdapters(new DurationAdapter());
-    Jsonb jsonbFactory = JsonbBuilder.create(customConfig);
+    public static Jsonb jsonbFactory = JsonbBuilder.create(customConfig);
     private static final String CHROME_X86_PATH = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
     private static final String CHROME_X64_PATH = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
     private static final EreLogger ereLog = EreLogger.getLogger(Websocket.class);
@@ -251,7 +263,11 @@ public class Websocket {
                     });
             } else if ("XMLBundle".equals(object.getString("type"))) {
                 Bundle[] bundles = XmlPrescriptionProcessor.parseFromString(object.getString("payload"));
-                onFhirBundle(new BundlesEvent(Arrays.asList(bundles), senderSession, messageId));
+                if(appConfig.getXmlBundleDirectProcess()) {
+                    SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(bundles, senderSession, messageId);
+                    signAndUploadBundlesEvent.fireAsync(event);   
+                }
+                onFhirBundle(new BundlesEvent(Arrays.asList(bundles), null, messageId));
             } else if ("AbortTasks".equals(object.getString("type"))) {
                 abortTasksEvent.fireAsync(new AbortTasksEvent(object, senderSession, messageId));
             } else if ("ErixaEvent".equals(object.getString("type"))) {
@@ -272,10 +288,12 @@ public class Websocket {
             } else if ("ChangePin".equals(object.getString("type"))) {
                 ChangePinEvent event = new ChangePinEvent(object, senderSession, messageId);
                 changePinEvent.fireAsync(event);
-
             } else if ("VerifyPin".equals(object.getString("type"))) {
                 VerifyPinEvent event = new VerifyPinEvent(object, senderSession, messageId);
                 verifyPinEvent.fireAsync(event);
+            } else if ("PrefillBundle".equals(object.getString("type"))) {
+                PrefillBundleEvent event = new PrefillBundleEvent(object, senderSession, messageId);
+                prefillBundleEvent.fireAsync(event);
             }  else if ("RequestSettings".equals(object.getString("type"))) {
                 UserConfigurations userConfigurations = userConfigurationService.getConfig();
                 String payload = jsonbFactory.toJson(userConfigurations);
@@ -283,13 +301,15 @@ public class Websocket {
                     "{\"type\": \"Settings\", \"payload\": " + payload + ", \"replyToMessageId\": \""+messageId+"\"}",
                     result -> {
                         if (!result.isOK()) {
-                            ereLog.fatal("Unable to sent settings event: " + result.getException());
+                            ereLog.fatal("Unable to send settings event: " + result.getException());
                         }
                     });
             } else if("SaveSettings".equals(object.getString("type"))) {
                 String userConfiguration = object.getJsonObject("payload").toString();
                 UserConfigurations userConfigurations = jsonbFactory.fromJson(userConfiguration, UserConfigurations.class);
                 saveSettingsEvent.fireAsync(new SaveSettingsEvent(userConfigurations));
+            } else if("RequestStatus".equals(object.getString("type"))) {
+                requestStatusEvent.fireAsync(new RequestStatusEvent(object, senderSession, messageId));
             } else if ("Publish".equals(object.getString("type"))) {
                 sendMessage(object.getString("payload"), "Unable to publish event");
             } else if ("AllKBVExamples".equals(object.getString("type"))) {
@@ -325,7 +345,7 @@ public class Websocket {
                 bundlesValidationResultMessage == null ? "{}" : bundlesValidationResultMessage.toString(),
                 result -> {
                     if (!result.isOK()) {
-                        ereLog.fatal("Unable to sent bundlesValidationResult event: " + result.getException());
+                        ereLog.fatal("Unable to send bundlesValidationResult event: " + result.getException());
                     }
                 });
         }
@@ -405,6 +425,16 @@ public class Websocket {
                 result -> {
                     if (!result.isOK()) {
                         ereLog.fatal("Unable to send changePinResponseEvent: " + result.getException());
+                    }
+                });
+    }
+
+    public void onStatusResponseEvent(@ObservesAsync StatusResponseEvent statusResponseEvent) {
+        assureChromeIsOpen();
+        statusResponseEvent.getReplyTo().getAsyncRemote().sendObject(statusResponseEvent,
+                result -> {
+                    if (!result.isOK()) {
+                        ereLog.fatal("Unable to send StatusResponseEvent: " + result.getException());
                     }
                 });
     }

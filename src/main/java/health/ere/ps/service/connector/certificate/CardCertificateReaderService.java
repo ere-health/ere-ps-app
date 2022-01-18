@@ -96,7 +96,7 @@ public class CardCertificateReaderService {
         Holder<X509DataInfoListType> certHolder = new Holder<>();
 
         try {
-            connectorServicesProvider.getCertificateService(runtimeConfig).readCardCertificate(cardHandle, connectorServicesProvider.getContextType(runtimeConfig), certRefList,
+            connectorServicesProvider.getCertificateServicePortType(runtimeConfig).readCardCertificate(cardHandle, connectorServicesProvider.getContextType(runtimeConfig), certRefList,
                     statusHolder, certHolder);
         } catch (FaultMessage faultMessage) {
             // Zugriffsbedingungen nicht erfüllt

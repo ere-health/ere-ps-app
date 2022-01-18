@@ -1,11 +1,5 @@
 package health.ere.ps.service.muster16.parser;
 
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.text.PDFTextStripper;
-import org.jboss.logging.Logger;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,9 +7,18 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
+import org.jboss.logging.Logger;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+import health.ere.ps.profile.TitusTestProfile;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
 
 @QuarkusTest
+@TestProfile(TitusTestProfile.class)
 class Muster16FormDataParserTest {
 
     @Inject

@@ -138,7 +138,7 @@
         <dependency>
             <groupId>health.ere</groupId>
             <artifactId>api-telematik-service</artifactId>
-            <version>OPD4-20210722</version>
+            <version>OPD4-20220115</version>
         </dependency>
         <dependency>
             <groupId>health.ere</groupId>

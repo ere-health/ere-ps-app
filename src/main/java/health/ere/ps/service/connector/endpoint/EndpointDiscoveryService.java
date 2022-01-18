@@ -44,6 +44,8 @@ public class EndpointDiscoveryService {
     Optional<String> fallbackEventServiceEndpointAddress;
     @ConfigProperty(name = "card-service.endpoint.address")
     Optional<String> fallbackCardServiceEndpointAddress;
+    @ConfigProperty(name = "vsd-service.endpoint.address")
+    Optional<String> fallbackVSDServiceEndpointAddress;
 
     @Inject
     AppConfig appConfig;
@@ -52,6 +54,7 @@ public class EndpointDiscoveryService {
     @Inject
     SecretsManagerService secretsManagerService;
 
+    private String vsdServiceEndpointAddress;
     private String authSignatureServiceEndpointAddress;
     private String signatureServiceEndpointAddress;
     private String certificateServiceEndpointAddress;
@@ -69,6 +72,10 @@ public class EndpointDiscoveryService {
 
 
     public void obtainConfiguration() throws IOException, ParserConfigurationException {
+        obtainConfiguration(false);
+    }
+
+    public void obtainConfiguration(boolean throwEndpointException) throws IOException, ParserConfigurationException {
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
         clientBuilder.sslContext(secretsManagerService.getSslContext());
 
@@ -141,11 +148,18 @@ public class EndpointDiscoveryService {
                     case "SignatureService": {
                         signatureServiceEndpointAddress = getEndpoint(node, "PTV4+".equals(userConfig.getConnectorVersion()) ? "7.5" : null);
                     }
+                    case "VSDService": {
+                    	vsdServiceEndpointAddress = getEndpoint(node);
+                    }
                 }
             }
 
         } catch (ProcessingException | SAXException | IllegalArgumentException e) {
-            log.log(Level.SEVERE, "Could not get or parse connector.sds", e);
+            if(throwEndpointException) {
+                throw new RuntimeException(e);
+            } else {
+                log.log(Level.SEVERE, "Could not get or parse connector.sds", e);
+            }
         }
 
         if (authSignatureServiceEndpointAddress == null && fallbackAuthSignatureServiceEndpointAddress != null) {
@@ -162,6 +176,9 @@ public class EndpointDiscoveryService {
         }
         if (certificateServiceEndpointAddress == null && fallbackCertificateServiceEndpointAddress != null) {
             certificateServiceEndpointAddress = fallbackCertificateServiceEndpointAddress.orElseThrow();
+        }
+        if (vsdServiceEndpointAddress == null && fallbackVSDServiceEndpointAddress != null) {
+        	vsdServiceEndpointAddress = fallbackVSDServiceEndpointAddress.orElseThrow();
         }
     }
 
@@ -274,4 +291,8 @@ public class EndpointDiscoveryService {
         }
         return null;
     }
+
+	public String getVSDServiceEndpointAddress() {
+		return vsdServiceEndpointAddress;
+	}
 }
