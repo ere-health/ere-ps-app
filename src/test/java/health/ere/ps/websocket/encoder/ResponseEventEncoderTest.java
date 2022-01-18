@@ -2,6 +2,8 @@ package health.ere.ps.websocket.encoder;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.Serializable;
+
 import javax.websocket.EncodeException;
 
 import org.junit.jupiter.api.Test;
@@ -13,8 +15,8 @@ public class ResponseEventEncoderTest {
 
     @Test
     public void testEncode() {
-
-        ReplyableEvent statusResponseEvent = new StatusResponseEvent("TestPayload", null, "ReplyToID");
+        ResponsePayload payload = new ResponsePayload();
+        ReplyableEvent statusResponseEvent = new StatusResponseEvent(payload, null, "ReplyToID");
         ResponseEventEncoder responseEventEncoder = new ResponseEventEncoder();
 
         String response;
@@ -24,8 +26,15 @@ public class ResponseEventEncoderTest {
             response = e.getMessage();
         }
         
-        assertEquals("{\"payload\":\"TestPayload\",\"replyToMessageId\":\"ReplyToID\",\"type\":\"StatusResponse\"}", 
+        assertEquals("{\"payload\":{\"attribute\":\"TestPayload\"},\"replyToMessageId\":\"ReplyToID\",\"type\":\"StatusResponse\"}", 
                      response.replaceAll("\\s+",""));
+    }
+
+    public class ResponsePayload implements Serializable{
+        String attribute = "TestPayload";
+        public String getAttribute(){
+            return this.attribute;
+        }
     }
     
 }

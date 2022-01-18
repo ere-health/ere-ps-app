@@ -159,9 +159,6 @@ public class StatusService {
         // FachdienstReachable
         status.setFachdienstReachable(eRezeptWorkflowService.isERezeptServiceReachable(runtimeConfig, bearerToken), "");
 
-        // Do some exception handling and show the exception on the frontend
-
-
         return status;
     }
     
