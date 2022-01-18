@@ -133,7 +133,7 @@ public class VAUEngine extends ApacheHttpClient43Engine {
     @Override
     protected HttpRequestBase createHttpMethod(String url, String restVerb) {
         if ("GET".equals(restVerb)) {
-            return new HttpGet(url);
+            return new HttpPost(fachdienstUrl + "/VAU/" + userpseudonym);
         } else if ("POST".equals(restVerb)) {
             return new HttpPost(fachdienstUrl + "/VAU/" + userpseudonym);
         } else {

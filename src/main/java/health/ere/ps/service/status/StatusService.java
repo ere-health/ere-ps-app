@@ -1,5 +1,6 @@
 package health.ere.ps.service.status;
 
+import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -90,8 +91,20 @@ public class StatusService {
         String clientCertificate = configurations.getClientCertificate();
         String clientCertificatePassword = configurations.getClientCertificatePassword();
 
+        try {
+            if(clientCertificate == null && new File(appConfig.getCertAuthStoreFile().get()).exists()) {
+                clientCertificate = appConfig.getCertAuthStoreFile().get();
+            }
+            if(clientCertificatePassword == null) {
+                clientCertificatePassword = appConfig.getCertAuthStoreFilePassword().get();
+            }
+        } catch(Exception ex) {
+            log.info("Did not find client certificate in app config.");
+        }
+
         // ConnectorReachable
         try {
+            connectorServicesProvider.getSingleConnectorServicesProvider(runtimeConfig).initializeServices(true);
             GetCards parameter = new GetCards();
             parameter.setContext(connectorServicesProvider.getContextType(runtimeConfig));
             connectorServicesProvider.getEventServicePortType(runtimeConfig).getCards(parameter);
@@ -109,23 +122,28 @@ public class StatusService {
             bearerTokenService.getIdpClient(runtimeConfig).initializeClient();
             discoveryUrl = bearerTokenService.getIdpClient(runtimeConfig).getDiscoveryDocumentUrl();
             status.setIdpReachable(true, discoveryUrl);
-        } catch (IdpClientException | IdpException | IdpJoseException e) {
+        } catch (Exception e) {
             status.setIdpReachable(false, discoveryUrl+" Exception: "+e.getMessage());
         }
 
-        // IdpaccesstokenObtainable
-        String bearerToken = bearerTokenService.requestBearerToken(runtimeConfig);
-        if (bearerToken != null && bearerToken.length() > 0 )
-            status.setIdpaccesstokenObtainable(true, "Bearer Token: "+bearerToken);
-        else
-            status.setIdpaccesstokenObtainable(false,"");
+        String bearerToken = "";
+        try {
+            // IdpaccesstokenObtainable
+            bearerToken = bearerTokenService.requestBearerToken(runtimeConfig);
+            if (bearerToken != null && bearerToken.length() > 0 )
+                status.setIdpaccesstokenObtainable(true, "Bearer Token: "+bearerToken, bearerToken);
+            else
+                status.setIdpaccesstokenObtainable(false,"");
+        } catch(Exception e) {
+            status.setIdpReachable(false, discoveryUrl+" Exception: "+e.getMessage());
+        }
 
         // SmcbAvailable
         String smcbHandle = null;
         try {
             smcbHandle = connectorCardsService.getConnectorCardHandle(CardHandleType.SMC_B, runtimeConfig);
             status.setSmcbAvailable(true, "Card Handle: "+smcbHandle);
-        } catch (ConnectorCardsException e) {
+        } catch (Exception e) {
             status.setSmcbAvailable(false, "Exception: "+e.getMessage()+" Cause: "+(e.getCause() != null ? e.getCause().getMessage() : ""));
         }
 
@@ -142,7 +160,7 @@ public class StatusService {
         try {
             ehbaHandle = connectorCardsService.getConnectorCardHandle(CardHandleType.HBA, runtimeConfig);
             status.setEhbaAvailable(true, "Card Handle: "+ehbaHandle);
-        } catch (ConnectorCardsException e) {
+        } catch (Exception e) {
             status.setEhbaAvailable(false, "Exception: "+e.getMessage()+" Cause: "+(e.getCause() != null ? e.getCause().getMessage() : ""));
         }
         // ComfortsignatureAvailable

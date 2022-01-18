@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -933,13 +934,15 @@ public class ERezeptWorkflowService {
     public boolean isERezeptServiceReachable(RuntimeConfig runtimeConfig, String parameterBearerToken) {
         String prescriptionServiceURL = (runtimeConfig != null && runtimeConfig.getPrescriptionServerURL() != null) ? runtimeConfig.getPrescriptionServerURL() : appConfig.getPrescriptionServiceURL();
         if (prescriptionServiceURL==null) return false;
-        try (Response response = client
+        // use a http client that does not use a VAU implementation
+        Client testClient = ClientBuilder.newBuilder()
+            .readTimeout(3, TimeUnit.SECONDS).connectTimeout(3, TimeUnit.SECONDS).build();
+        try (Response response = testClient
                                  .target(prescriptionServiceURL)
-                                 .path("/")
                                  .request()
                                  .header("User-Agent", appConfig.getUserAgent())
                                  .header("Authorization", "Bearer " + parameterBearerToken)
-                                 .post(Entity.entity("", MediaType.APPLICATION_JSON))
+                                 .get()
             ) {
             if (response.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
                 return true;

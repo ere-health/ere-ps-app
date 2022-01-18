@@ -71,6 +71,10 @@ public class EndpointDiscoveryService {
 
 
     public void obtainConfiguration() throws IOException, ParserConfigurationException {
+        obtainConfiguration(false);
+    }
+
+    public void obtainConfiguration(boolean throwEndpointException) throws IOException, ParserConfigurationException {
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
         clientBuilder.sslContext(secretsManagerService.getSslContext());
 
@@ -150,7 +154,11 @@ public class EndpointDiscoveryService {
             }
 
         } catch (ProcessingException | SAXException | IllegalArgumentException e) {
-            log.log(Level.SEVERE, "Could not get or parse connector.sds", e);
+            if(throwEndpointException) {
+                throw new RuntimeException(e);
+            } else {
+                log.log(Level.SEVERE, "Could not get or parse connector.sds", e);
+            }
         }
 
         if (authSignatureServiceEndpointAddress == null && fallbackAuthSignatureServiceEndpointAddress != null) {

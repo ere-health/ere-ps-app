@@ -7,6 +7,7 @@ public class Status implements Serializable{
     private String connectorInformation;
     private boolean idpReachable;
     private String idpInformation;
+    private String bearerToken;
     private boolean idpaccesstokenObtainable;
     private String idpaccesstokenInformation;
     private boolean smcbAvailable;
@@ -51,8 +52,13 @@ public class Status implements Serializable{
     }
 
     public void setIdpaccesstokenObtainable(boolean isOK, String statusDescription) {
+        this.setIdpaccesstokenObtainable(isOK, statusDescription, null);
+    }
+
+    public void setIdpaccesstokenObtainable(boolean isOK, String statusDescription, String bearerToken) {
         this.idpaccesstokenObtainable = isOK;
         this.idpaccesstokenInformation = statusDescription;
+        this.bearerToken = bearerToken;
     }
 
     public void setFachdienstReachable(boolean isOK, String statusDescription) {
@@ -117,6 +123,9 @@ public class Status implements Serializable{
     }
     public String getFachdienstInformation() {
         return this.fachdienstInformation;
+    }
+    public String getBearerToken() {
+        return this.bearerToken;
     }
 
 }

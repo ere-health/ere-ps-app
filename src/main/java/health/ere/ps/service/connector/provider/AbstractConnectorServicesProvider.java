@@ -49,19 +49,34 @@ public abstract class AbstractConnectorServicesProvider {
     private ContextType contextType;
 
     public void initializeServices() {
+        initializeServices(false);
+    }
+
+    public void initializeServices(boolean throwEndpointException) {
         if(endpointDiscoveryService != null) {
             try {
-                endpointDiscoveryService.obtainConfiguration();
-            } catch (IOException | ParserConfigurationException e) {
-                log.log(Level.SEVERE, "Could not obtainConfiguration", e);
+                endpointDiscoveryService.obtainConfiguration(throwEndpointException);
+                initializeVSDServicePortType();
+                initializeCardServicePortType();
+                initializeCertificateService();
+                initializeEventServicePortType();
+                initializeAuthSignatureServicePortType();
+                initializeSignatureServicePortType();
+                initializeSignatureServicePortTypeV755();
+            } catch (Exception e) {
+                vSDServicePortType = null;
+                cardServicePortType = null;
+                certificateService = null;
+                eventServicePortType = null;
+                authSignatureServicePortType = null;
+                signatureServicePortType = null;
+                signatureServicePortTypeV755 = null;
+                if(throwEndpointException) {
+                    throw new RuntimeException(e);
+                } else {
+                    log.log(Level.SEVERE, "Could not obtainConfiguration", e);
+                }
             }
-            initializeVSDServicePortType();
-            initializeCardServicePortType();
-            initializeCertificateService();
-            initializeEventServicePortType();
-            initializeAuthSignatureServicePortType();
-            initializeSignatureServicePortType();
-            initializeSignatureServicePortTypeV755();
             initializeContextType();
         } else {
             log.warning("endpointDiscoveryService is null");

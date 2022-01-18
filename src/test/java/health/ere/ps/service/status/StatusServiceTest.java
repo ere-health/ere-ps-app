@@ -2,12 +2,16 @@ package health.ere.ps.service.status;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.util.logging.LogManager;
 
 import javax.inject.Inject;
 
+import org.jose4j.jwt.consumer.InvalidJwtException;
+import org.jose4j.jwt.consumer.JwtConsumer;
+import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -51,7 +55,18 @@ public class StatusServiceTest {
         assertEquals("https://idp.erezept-instanz1.titus.ti-dienste.de/auth/realms/idp/.well-known/openid-configuration", status.getIdpInformation());
     
         assertTrue(status.getIdpaccesstokenObtainable());
-        assertEquals(914, status.getIdpaccesstokenInformation().length());
+
+        JwtConsumer consumer = new JwtConsumerBuilder()
+            .setDisableRequireSignature()
+            .setSkipSignatureVerification()
+            .setSkipDefaultAudienceValidation()
+            .setRequireExpirationTime()
+            .build();
+        try {
+            consumer.process(status.getBearerToken());
+        } catch (InvalidJwtException e) {
+            fail();
+        }
 
         assertTrue(status.getSmcbAvailable());
         assertEquals("Card Handle: 1-2-ARZT-WaltrautDrombusch01", status.getSmcbInformation());

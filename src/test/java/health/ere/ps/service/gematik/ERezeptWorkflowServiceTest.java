@@ -62,6 +62,7 @@ import health.ere.ps.service.extractor.SVGExtractor;
 import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
 import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilder;
 import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilderTest;
+import health.ere.ps.service.idp.BearerTokenService;
 import health.ere.ps.service.idp.client.IdpClient;
 import health.ere.ps.service.idp.client.IdpHttpClientService;
 import health.ere.ps.service.muster16.Muster16FormDataExtractorService;
@@ -84,6 +85,8 @@ public class ERezeptWorkflowServiceTest {
     AppConfig appConfig;
     @Inject
     IdpClient idpClient;
+    @Inject
+    BearerTokenService bearerTokenService;
     @Inject
     CardCertificateReaderService cardCertificateReaderService;
     @Inject
@@ -527,5 +530,12 @@ public class ERezeptWorkflowServiceTest {
         eRezeptWorkflowService.activateComfortSignature();
         eRezeptWorkflowService.getSignatureMode();
         eRezeptWorkflowService.deactivateComfortSignature();
+    }
+
+    @Test
+        // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
+    void testIsERezeptServiceReachable() throws ERezeptWorkflowException {
+        String parameterBearerToken = bearerTokenService.requestBearerToken();
+        assertTrue(eRezeptWorkflowService.isERezeptServiceReachable(null, parameterBearerToken));
     }
 }

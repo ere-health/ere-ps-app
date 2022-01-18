@@ -36,7 +36,7 @@ public class MultiConnectorServicesProvider {
         return cardServicePortType;
     }
 
-    private AbstractConnectorServicesProvider getSingleConnectorServicesProvider(UserConfig userConfig) {
+    public AbstractConnectorServicesProvider getSingleConnectorServicesProvider(UserConfig userConfig) {
         if(userConfig == null) {
             return defaultConnectorServicesProvider;
         } else {
@@ -87,5 +87,9 @@ public class MultiConnectorServicesProvider {
         contextType.setWorkplaceId(userConfig.getWorkplaceId());
         contextType.setUserId(userConfig.getUserId());
         return contextType;
+    }
+
+    public void clearAll() {
+        singleConnectorServicesProvider = new HashMap<>();
     }
 }
