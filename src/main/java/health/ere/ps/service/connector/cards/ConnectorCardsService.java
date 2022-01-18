@@ -26,6 +26,8 @@ import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.config.UserConfig;
 import health.ere.ps.event.ChangePinEvent;
 import health.ere.ps.event.ChangePinResponseEvent;
+import health.ere.ps.event.VerifyPinEvent;
+import health.ere.ps.exception.connector.ConnectorCardCertificateReadException;
 import health.ere.ps.exception.connector.ConnectorCardsException;
 import health.ere.ps.model.gematik.ChangePinResponse;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
@@ -122,6 +124,15 @@ public class ConnectorCardsService {
             exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, changePinEvent.getReplyTo(), changePinEvent.getId()));
         }
     }
+    
+    public void onVerifyPinEvent(@ObservesAsync VerifyPinEvent verifyPinEvent) {
+        try {
+            verifyPin(verifyPinEvent.getCardHandle(), verifyPinEvent.getRuntimeConfig());
+        } catch (Exception e) {
+            log.log(Level.WARNING, "Could not verify pin for card", e);
+            exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, verifyPinEvent.getReplyTo(), verifyPinEvent.getId()));
+        }
+    }
 
     /** 
      * @throws de.gematik.ws.conn.cardservice.wsdl.v8.FaultMessage
@@ -132,6 +143,13 @@ public class ConnectorCardsService {
         Holder<BigInteger> holder3 = new Holder<>();
         connectorServicesProvider.getCardServicePortType(runtimeConfig).changePin(connectorServicesProvider.getContextType(runtimeConfig), cardHandle, pinType, holder1, holder2, holder3);
         return new ChangePinResponse(holder1.value, holder2.value, holder3.value);
+    }
+    
+    public void verifyPin(String cardHandle, RuntimeConfig runtimeConfig) throws de.gematik.ws.conn.cardservice.wsdl.v8.FaultMessage {
+    	Holder<Status> status = new Holder<>();
+        Holder<PinResultEnum> pinResultEnum = new Holder<>();
+        Holder<BigInteger> error = new Holder<>();
+        connectorServicesProvider.getCardServicePortType(runtimeConfig).verifyPin(connectorServicesProvider.getContextType(runtimeConfig), cardHandle, "PIN.SMC", status, pinResultEnum, error);
     }
 
     public enum CardHandleType {

@@ -285,6 +285,11 @@ public class ERezeptWorkflowService {
             throws ERezeptWorkflowException {
         return createERezeptOnPrescriptionServer(bundle, null, null, null);
     }
+    
+    public BundleWithAccessCodeOrThrowable createERezeptOnPrescriptionServer(Bundle bundle, RuntimeConfig runtimeConfig)
+            throws ERezeptWorkflowException {
+        return createERezeptOnPrescriptionServer(bundle, runtimeConfig, null, null);
+    }
 
     /**
      * A typical muster 16 form can contain up to 3 e prescriptions This function

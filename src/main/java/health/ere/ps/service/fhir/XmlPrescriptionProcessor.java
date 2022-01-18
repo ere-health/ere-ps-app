@@ -19,6 +19,7 @@ import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Composition;
 import org.hl7.fhir.r4.model.Coverage;
 import org.hl7.fhir.r4.model.Extension;
+import org.hl7.fhir.r4.model.HumanName;
 import org.hl7.fhir.r4.model.Medication;
 import org.hl7.fhir.r4.model.MedicationRequest;
 import org.hl7.fhir.r4.model.Patient;
@@ -53,11 +54,14 @@ public class XmlPrescriptionProcessor {
     }
 
     public static Bundle createFixedBundleFromString(String bundleXml) {
+
+        bundleXml = bundleXml.replaceAll("\\|1.0.1", "|1.0.2");
+
         Bundle bundle = fhirContext.newXmlParser().parseResource(Bundle.class, bundleXml);
         fixFullUrls(bundle);
         fixRefencesInComposition(bundle);
 
-        // Next issue ERROR - Bundle.entry[1].resource.ofType(MedicationRequest).dispenseRequest - MedicationRequest.dispenseRequest.quantity: minimum required = 1, but only found 0 (from https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.0.1)
+        // Next issue ERROR - Bundle.entry[1].resource.ofType(MedicationRequest).dispenseRequest - MedicationRequest.dispenseRequest.quantity: minimum required = 1, but only found 0 (from https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.0.2)
 
         MedicationRequest medicationRequest = getTypeFromBundle(MedicationRequest.class, bundle);
         medicationRequest.getAuthoredOnElement().setPrecision(TemporalPrecisionEnum.DAY);
@@ -77,6 +81,8 @@ public class XmlPrescriptionProcessor {
         // Next issue WARNING - Bundle.entry[1].resource.ofType(MedicationRequest).medication.ofType(Reference) - URN reference ist nicht lokal innerhalb des Bundles contained urn:uuid:79804138-e125-4a76-87e7-5ebad33d4a70
         medicationRequest.getMedicationReference().setReference("Medication/"+medication.getIdElement().getIdPart());
         
+        // Delete validity period
+        medicationRequest.getDispenseRequest().setValidityPeriod(null);
 
         if (medication.getExtensionByUrl("http://fhir.de/StructureDefinition/normgroesse") == null) {
             Extension normgroesse = new Extension("http://fhir.de/StructureDefinition/normgroesse", new CodeType("N1"));
@@ -87,6 +93,11 @@ public class XmlPrescriptionProcessor {
         // Next issue ERROR - Bundle.entry[4].resource.ofType(Practitioner) - Practitioner.qualification:Berufsbezeichnung: minimum required = 1, but only found 0 (from https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner|1.0.3)
 
         Practitioner practitioner = getTypeFromBundle(Practitioner.class, bundle);
+
+        if(practitioner.getName().size() > 0) {
+            HumanName humanName = practitioner.getName().get(0);
+            humanName.getFamilyElement().setValueAsString(humanName.getFamilyElement().getExtensionString("http://hl7.org/fhir/StructureDefinition/humanname-own-name"));
+        }
 
         // Next issue WARNING - Bundle.entry[1].resource.ofType(MedicationRequest).requester - URN reference ist nicht lokal innerhalb des Bundles contained urn:uuid:7d8c6815-896d-45f7-a264-007bfe54623e
         medicationRequest.getRequester().setReference("Practitioner/"+practitioner.getIdElement().getIdPart());
@@ -192,7 +203,7 @@ public class XmlPrescriptionProcessor {
         composition.setId(UUID.randomUUID().toString());
 
         composition.getMeta().addProfile(
-                "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Composition|1.0.1");
+                "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Composition|1.0.2");
 
         Coding valueCoding = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_STATUSKENNZEICHEN", "04", null);
         Extension legalBasis = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Legal_basis", valueCoding);

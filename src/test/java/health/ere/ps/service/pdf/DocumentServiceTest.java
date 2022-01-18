@@ -26,12 +26,12 @@ import ca.uhn.fhir.context.FhirContext;
 import health.ere.ps.event.BundlesWithAccessCodeEvent;
 import health.ere.ps.event.ERezeptWithDocumentsEvent;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
-import health.ere.ps.profile.DevelopmentTestProfile;
+import health.ere.ps.profile.TitusTestProfile;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 
 @QuarkusTest
-@TestProfile(DevelopmentTestProfile.class)
+@TestProfile(TitusTestProfile.class)
 public class DocumentServiceTest {
 
     private final static List<Bundle> testBundles = new ArrayList<>();

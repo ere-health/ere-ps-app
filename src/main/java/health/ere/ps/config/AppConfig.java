@@ -45,6 +45,9 @@ public class AppConfig {
     @ConfigProperty(name = "connector.crypt")
     String connectorCrypt;
 
+    @ConfigProperty(name = "ere.websocket.xml-bundle.direct-process")
+    boolean xmlBundleDirectProcess;
+
     @ConfigProperty(name = "connector.cert.auth.store.file")
     Optional<String> certAuthStoreFile;
 
@@ -110,9 +113,9 @@ public class AppConfig {
     public boolean getWriteSignatureFile() {
         return this.writeSignatureFile;
     }
-
-    public void setWriteSignatureFile(boolean writeSignatureFile) {
-        this.writeSignatureFile = writeSignatureFile;
+    
+    public boolean getXmlBundleDirectProcess() {
+        return this.xmlBundleDirectProcess;
     }
 
 }

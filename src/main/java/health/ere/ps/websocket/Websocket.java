@@ -60,11 +60,13 @@ import health.ere.ps.event.GetCardsResponseEvent;
 import health.ere.ps.event.GetSignatureModeEvent;
 import health.ere.ps.event.GetSignatureModeResponseEvent;
 import health.ere.ps.event.HTMLBundlesEvent;
+import health.ere.ps.event.PrefillBundleEvent;
 import health.ere.ps.event.ReadyToSignBundlesEvent;
 import health.ere.ps.event.RequestStatusEvent;
 import health.ere.ps.event.SaveSettingsEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
 import health.ere.ps.event.StatusResponseEvent;
+import health.ere.ps.event.VerifyPinEvent;
 import health.ere.ps.event.erixa.ErixaEvent;
 import health.ere.ps.jsonb.BundleAdapter;
 import health.ere.ps.jsonb.ByteAdapter;
@@ -119,6 +121,12 @@ public class Websocket {
 
     @Inject
     Event<RequestStatusEvent> requestStatusEvent;
+
+    @Inject
+    Event<PrefillBundleEvent> prefillBundleEvent;
+    
+    @Inject
+    Event<VerifyPinEvent> verifyPinEvent;
     
     @Inject
     PrescriptionBundleValidator prescriptionBundleValidator;
@@ -255,7 +263,11 @@ public class Websocket {
                     });
             } else if ("XMLBundle".equals(object.getString("type"))) {
                 Bundle[] bundles = XmlPrescriptionProcessor.parseFromString(object.getString("payload"));
-                onFhirBundle(new BundlesEvent(Arrays.asList(bundles), senderSession, messageId));
+                if(appConfig.getXmlBundleDirectProcess()) {
+                    SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(bundles, senderSession, messageId);
+                    signAndUploadBundlesEvent.fireAsync(event);   
+                }
+                onFhirBundle(new BundlesEvent(Arrays.asList(bundles), null, messageId));
             } else if ("AbortTasks".equals(object.getString("type"))) {
                 abortTasksEvent.fireAsync(new AbortTasksEvent(object, senderSession, messageId));
             } else if ("ErixaEvent".equals(object.getString("type"))) {
@@ -276,6 +288,12 @@ public class Websocket {
             } else if ("ChangePin".equals(object.getString("type"))) {
                 ChangePinEvent event = new ChangePinEvent(object, senderSession, messageId);
                 changePinEvent.fireAsync(event);
+            } else if ("VerifyPin".equals(object.getString("type"))) {
+                VerifyPinEvent event = new VerifyPinEvent(object, senderSession, messageId);
+                verifyPinEvent.fireAsync(event);
+            } else if ("PrefillBundle".equals(object.getString("type"))) {
+                PrefillBundleEvent event = new PrefillBundleEvent(object, senderSession, messageId);
+                prefillBundleEvent.fireAsync(event);
             }  else if ("RequestSettings".equals(object.getString("type"))) {
                 UserConfigurations userConfigurations = userConfigurationService.getConfig();
                 String payload = jsonbFactory.toJson(userConfigurations);

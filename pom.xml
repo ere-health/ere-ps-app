@@ -21,7 +21,7 @@
         <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
         <hapi.version>5.4.2</hapi.version>
     </properties>
-    <!-- 2021-12-14 Add a random line to update maven cache in github actions -->
+    <!-- 2021-12-20 Add a random line to update maven cache in github actions -->
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -139,7 +139,7 @@
         <dependency>
             <groupId>health.ere</groupId>
             <artifactId>api-telematik-service</artifactId>
-            <version>OPD4-20210722</version>
+            <version>OPD4-20220115</version>
         </dependency>
         <dependency>
             <groupId>health.ere</groupId>
@@ -329,9 +329,9 @@
 					<tasks>
 						<echo>Copying Server certificate</echo>
 						<copy file="src/main/resources/META-INF/resources/server.keystore" tofile="${basedir}/target/quarkus-app/server.keystore"/>
-						<echo>Copying KBV_FHIR_eRP_V1</echo>
-						<copy todir="${basedir}/target/quarkus-app/KBV_FHIR_eRP_V1">
-							<fileset dir="KBV_FHIR_eRP_V1"/>
+						<echo>Copying KBV_FHIR_eRP_V1_0_2</echo>
+						<copy todir="${basedir}/target/quarkus-app/KBV_FHIR_eRP_V1_0_2">
+							<fileset dir="KBV_FHIR_eRP_V1_0_2"/>
 						</copy>
 					</tasks>
 				</configuration>

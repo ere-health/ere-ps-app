@@ -47,7 +47,10 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
 import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.validation.ValidationResult;
+import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
 import health.ere.ps.config.AppConfig;
+import health.ere.ps.config.RuntimeConfig;
+import health.ere.ps.config.UserConfig;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.profile.RUTestProfile;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
@@ -77,6 +80,8 @@ public class MassGeneratorTest {
 
     @Inject
     AppConfig appConfig;
+    @Inject
+    UserConfig userConfig;
     @Inject
     IdpClient idpClient;
     @Inject
@@ -114,8 +119,10 @@ public class MassGeneratorTest {
         int i = 0;
         DocumentService documentService = new DocumentService();
                 documentService.init();
+                
+        RuntimeConfig runtimeConfig = getRuntimeConfig();
         
-        List<String> cards = Files.readAllLines(Paths.get("../secret-test-print-samples/Noventi/egk/Versicherte_20211115.txt"));
+        List<String> cards = Files.readAllLines(Paths.get("../secret-test-print-samples/Noventi/egk/Versicherte_20211213.txt"));
 
         List<Map<String,String>> versicherte = cards.stream().map(s -> {
             String[] a = s.split("\\|");
@@ -133,7 +140,7 @@ public class MassGeneratorTest {
         }).collect(Collectors.toList());
 
 
-        eRezeptWorkflowService.activateComfortSignature();
+        eRezeptWorkflowService.activateComfortSignature(runtimeConfig);
         String thisMomentString = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
                                 .withZone(ZoneOffset.UTC)
                                 .format(Instant.now());
@@ -144,7 +151,7 @@ public class MassGeneratorTest {
 
                 for (Path entry : stream) {
                     InputStream fileStream = new FileInputStream(entry.toFile());
-                    String template = new String(fileStream.readAllBytes());
+                    String template = new String(fileStream.readAllBytes(), "UTF-8");
                     fileStream.close();
                     template = replaceTemplates(template);
                     Bundle bundle = iParser.parseResource(Bundle.class, template);
@@ -154,47 +161,59 @@ public class MassGeneratorTest {
                     } catch(NoSuchElementException ex) {
                         ex.printStackTrace();
                     }
-                    try {
-                        Patient patient = ((Patient)bundle.getEntry().stream().filter(e -> e.getResource() instanceof Patient).findAny().get().getResource());
+                    if(entry.toFile().getName().equals("eRezept_REZ_3.xml")) {
+                    	Patient patient = ((Patient)bundle.getEntry().stream().filter(e -> e.getResource() instanceof Patient).findAny().get().getResource());
                         patient.getIdentifier().get(0).setValue(card.get("nummer"));
-                        patient.getName().get(0).getGiven().get(0).setValue(card.get("given"));
+                        
                         StringType family = patient.getName().get(0).getFamilyElement();
-                        family.setValue(card.get("family"));
-                        family.getExtensionByUrl("http://hl7.org/fhir/StructureDefinition/humanname-own-name").setValue(new StringType(card.get("family")));
-
-                        if(!"".equals(card.get("prefix"))) {
-                            List<StringType> prefixList = new ArrayList<StringType>();
-                            StringType prefix = new StringType(card.get("prefix"));
-                            Extension extension = new Extension("http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier", new CodeType("AC"));
-                            prefix.addExtension(extension);
-                            prefixList.add(prefix);
-                            patient.getName().get(0).setPrefix(prefixList);
-                        }
-
-                        Address address = patient.getAddress().get(0);
-                        address.setCity(card.get("city"));
-                        address.setPostalCode(card.get("postalCode"));
-                        StringType line = address.getLine().get(0);
-                        line.setValue(card.get("streetName")+" "+card.get("houseNumber"));
-                        Extension streetName = line.getExtensionByUrl("http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName");
-                        if(streetName == null) {
-                            streetName = new Extension("http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName");
-                            line.addExtension(streetName);
-                        }
-                        streetName.setValue(new StringType(card.get("streetName")));
-                        Extension houseNumber = line.getExtensionByUrl("http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber");
-                        if(houseNumber == null) {
-                            houseNumber = new Extension("http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber");
-                            line.addExtension(houseNumber);
+                        if(family.getValueAsString().length() > 40) {                        	
+                        	family.setValue(family.getValueAsString().substring(0, 40));
+                        	family.getExtensionByUrl("http://hl7.org/fhir/StructureDefinition/humanname-own-name").setValue(new StringType(family.getValueAsString().substring(0, 40)));
                         }
                         
-                        houseNumber.setValue(new StringType(card.get("houseNumber")));
-
-                        patient.setBirthDate(new SimpleDateFormat("dd.MM.yyyy", Locale.GERMANY)
-                                .parse(card.get("birthdate")));
-                    
-                    } catch(Exception ex) {
-                        ex.printStackTrace();
+                    } else {
+	                    try {
+	                        Patient patient = ((Patient)bundle.getEntry().stream().filter(e -> e.getResource() instanceof Patient).findAny().get().getResource());
+	                        patient.getIdentifier().get(0).setValue(card.get("nummer"));
+	                        patient.getName().get(0).getGiven().get(0).setValue(card.get("given"));
+	                        StringType family = patient.getName().get(0).getFamilyElement();
+	                        family.setValue(card.get("family"));
+	                        family.getExtensionByUrl("http://hl7.org/fhir/StructureDefinition/humanname-own-name").setValue(new StringType(card.get("family")));
+	
+	                        if(!"".equals(card.get("prefix"))) {
+	                            List<StringType> prefixList = new ArrayList<StringType>();
+	                            StringType prefix = new StringType(card.get("prefix"));
+	                            Extension extension = new Extension("http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier", new CodeType("AC"));
+	                            prefix.addExtension(extension);
+	                            prefixList.add(prefix);
+	                            patient.getName().get(0).setPrefix(prefixList);
+	                        }
+	
+	                        Address address = patient.getAddress().get(0);
+	                        address.setCity(card.get("city"));
+	                        address.setPostalCode(card.get("postalCode"));
+	                        StringType line = address.getLine().get(0);
+	                        line.setValue(card.get("streetName")+" "+card.get("houseNumber"));
+	                        Extension streetName = line.getExtensionByUrl("http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName");
+	                        if(streetName == null) {
+	                            streetName = new Extension("http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName");
+	                            line.addExtension(streetName);
+	                        }
+	                        streetName.setValue(new StringType(card.get("streetName")));
+	                        Extension houseNumber = line.getExtensionByUrl("http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber");
+	                        if(houseNumber == null) {
+	                            houseNumber = new Extension("http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber");
+	                            line.addExtension(houseNumber);
+	                        }
+	                        
+	                        houseNumber.setValue(new StringType(card.get("houseNumber")));
+	
+	                        patient.setBirthDate(new SimpleDateFormat("dd.MM.yyyy", Locale.GERMANY)
+	                                .parse(card.get("birthdate")));
+	                    
+	                    } catch(Exception ex) {
+	                        ex.printStackTrace();
+	                    }
                     }
                     // System.out.println(iParser.encodeResourceToString(bundle));
                     //if(2 == 1+1) {
@@ -204,7 +223,7 @@ public class MassGeneratorTest {
                     if(validationResult.isSuccessful()) {
                         BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable;
                         try {
-                            bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(bundle);
+                            bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(bundle, runtimeConfig);
                         } catch(Exception ex) {
                             bundleWithAccessCodeOrThrowable = new BundleWithAccessCodeOrThrowable(ex);
                             ex.printStackTrace();
@@ -233,8 +252,8 @@ public class MassGeneratorTest {
                     }
                     i++;
                     if(i % 80 == 0) {
-                        eRezeptWorkflowService.deactivateComfortSignature();
-                        eRezeptWorkflowService.activateComfortSignature();
+                        eRezeptWorkflowService.deactivateComfortSignature(runtimeConfig);
+                        eRezeptWorkflowService.activateComfortSignature(runtimeConfig);
                     }
                 }
             } catch (Exception ex) {
@@ -245,7 +264,7 @@ public class MassGeneratorTest {
             }
             // break;
         }
-        eRezeptWorkflowService.deactivateComfortSignature();
+        eRezeptWorkflowService.deactivateComfortSignature(runtimeConfig);
         fw.close();
     }
 
@@ -266,6 +285,16 @@ public class MassGeneratorTest {
         xml = xml.replaceAll("\\{\\{epres-id\\}\\}", "160.000.000.000.00");
         xml = xml.replaceAll("\\{\\{technical-id\\}\\}", UUID.randomUUID().toString());
         return xml;
+    }
+    
+    private RuntimeConfig getRuntimeConfig() throws FaultMessage {
+        String cardHandleVincenzkrankenhaus = eRezeptWorkflowService.getCards().getCards()
+            .getCard().stream().filter(ch -> "VincenzkrankenhausTEST-ONLY".equals(ch.getCardHolderName())).findFirst().get().getCardHandle();
+        
+        RuntimeConfig runtimeConfig = new RuntimeConfig();
+        runtimeConfig.copyValuesFromUserConfig(userConfig);
+        runtimeConfig.setSMCBHandle(cardHandleVincenzkrankenhaus);
+        return runtimeConfig;
     }
 
 }

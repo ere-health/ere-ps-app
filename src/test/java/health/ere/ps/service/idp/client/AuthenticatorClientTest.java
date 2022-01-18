@@ -1,30 +1,33 @@
 package health.ere.ps.service.idp.client;
 
-import health.ere.ps.config.AppConfig;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import javax.inject.Inject;
+import javax.ws.rs.core.Response;
+
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 import org.junit.jupiter.api.Test;
 
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
-
+import health.ere.ps.config.AppConfig;
+import health.ere.ps.exception.idp.IdpClientException;
 import health.ere.ps.exception.idp.IdpException;
 import health.ere.ps.exception.idp.IdpJoseException;
 import health.ere.ps.model.idp.client.AuthorizationRequest;
 import health.ere.ps.model.idp.client.AuthorizationResponse;
 import health.ere.ps.model.idp.client.DiscoveryDocumentResponse;
-import health.ere.ps.exception.idp.IdpClientException;
 import health.ere.ps.model.idp.client.field.CodeChallengeMethod;
 import health.ere.ps.model.idp.client.field.IdpScope;
 import health.ere.ps.model.idp.client.token.JsonWebToken;
+import health.ere.ps.profile.TitusTestProfile;
 import io.quarkus.test.junit.QuarkusTest;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import io.quarkus.test.junit.TestProfile;
 
 @QuarkusTest
+@TestProfile(TitusTestProfile.class)
 class AuthenticatorClientTest {
 
     @Inject

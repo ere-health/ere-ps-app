@@ -1,16 +1,21 @@
 package health.ere.ps.service.fs;
 
-import health.ere.ps.config.AppConfig;
-import io.quarkus.test.junit.QuarkusTest;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import javax.inject.Inject;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import javax.inject.Inject;
+
+import org.junit.jupiter.api.Test;
+
+import health.ere.ps.config.AppConfig;
+import health.ere.ps.profile.TitusTestProfile;
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
 
 @QuarkusTest
+@TestProfile(TitusTestProfile.class)
 class DirectoryWatcherTest {
 
     @Inject
