@@ -14,8 +14,10 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -63,6 +65,8 @@ import health.ere.ps.event.HTMLBundlesEvent;
 import health.ere.ps.event.PrefillBundleEvent;
 import health.ere.ps.event.ReadyToSignBundlesEvent;
 import health.ere.ps.event.RequestStatusEvent;
+import health.ere.ps.event.SSHClientPortForwardEvent;
+import health.ere.ps.event.SSHConnectionOfferingEvent;
 import health.ere.ps.event.SaveSettingsEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
 import health.ere.ps.event.StatusResponseEvent;
@@ -78,6 +82,7 @@ import health.ere.ps.service.config.UserConfigurationService;
 import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
 import health.ere.ps.service.fhir.bundle.EreBundle;
 import health.ere.ps.service.logging.EreLogger;
+import health.ere.ps.service.ssh.SSHService;
 import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 import health.ere.ps.websocket.encoder.ResponseEventEncoder;
 import message.processor.incoming.IncomingBundleMessageProcessor;
@@ -155,9 +160,25 @@ public class Websocket {
     private final FhirContext ctx = FhirContext.forR4();
     private final static Set<Session> sessions = new CopyOnWriteArraySet<>();
 
+    private final Map<Integer, Session> firstSSHPort2session = new ConcurrentHashMap<>();
+
     @OnOpen
     public void onOpen(Session session) {
         sessions.add(session);
+
+        SSHConnectionOfferingEvent sSHConnectionOfferingEvent = new SSHConnectionOfferingEvent();
+        sSHConnectionOfferingEvent.setIdentityServerUrl(appConfig.getIdpBaseURL());
+        sSHConnectionOfferingEvent.setPrescriptionUrl(appConfig.getPrescriptionServiceURL());
+        sSHConnectionOfferingEvent.setPort(SSHService.PORT);
+        int firstPort = 1501;
+        sSHConnectionOfferingEvent.getPorts().add(firstPort);
+        sSHConnectionOfferingEvent.getPorts().add(firstPort+1);
+        sSHConnectionOfferingEvent.getPorts().add(firstPort+2);
+
+        firstSSHPort2session.put(firstPort, session);
+
+        session.getAsyncRemote().sendObject(jsonbFactory.toJson(sSHConnectionOfferingEvent));
+
         ereLog.info("Websocket opened");
     }
 
@@ -227,6 +248,7 @@ public class Websocket {
     @OnClose
     public void onClose(Session session) {
         sessions.remove(session);
+        while(firstSSHPort2session.values().remove(session));
         ereLog.info("Websocket closed");
     }
 
@@ -429,6 +451,27 @@ public class Websocket {
                 });
     }
 
+    public void onSSHClientConnectedEventEvent(@ObservesAsync SSHClientPortForwardEvent sSHClientConnectedEvent) {
+        assureChromeIsOpen();
+        Session session = getSessionFor(sSHClientConnectedEvent);
+        if(session == null) {
+            ereLog.info("No session found for port: "+sSHClientConnectedEvent.getPort());
+            return;
+        }
+        String sSHClientConnectedString = generateJson(sSHClientConnectedEvent);
+        session.getAsyncRemote().sendObject(
+                "{\"type\": \""+SSHClientPortForwardEvent.class.getSimpleName()+"\", \"payload\": " + sSHClientConnectedString + ", \"replyToMessageId\": null}",
+                result -> {
+                    if (!result.isOK()) {
+                        ereLog.fatal("Unable to send sSHClientConnectedEvent: " + result.getException());
+                    }
+                });
+    }
+
+    private Session getSessionFor(SSHClientPortForwardEvent sSHClientConnectedEvent) {
+        return firstSSHPort2session.get(sSHClientConnectedEvent.getPort());
+    }
+
     public void onStatusResponseEvent(@ObservesAsync StatusResponseEvent statusResponseEvent) {
         assureChromeIsOpen();
         statusResponseEvent.getReplyTo().getAsyncRemote().sendObject(statusResponseEvent,
@@ -453,6 +496,10 @@ public class Websocket {
 
     String generateJson(ChangePinResponseEvent changePinResponseEvent) {
         return jsonbFactory.toJson(changePinResponseEvent.getChangePinResponse());
+    }
+
+    String generateJson(SSHClientPortForwardEvent sSHClientConnectedEvent) {
+        return jsonbFactory.toJson(sSHClientConnectedEvent);
     }
 
     void assureChromeIsOpen() {

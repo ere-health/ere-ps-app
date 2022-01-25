@@ -8,15 +8,20 @@ import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
 
 import org.apache.sshd.common.forward.DefaultForwarderFactory;
+import org.apache.sshd.common.session.Session;
 import org.apache.sshd.common.session.SessionHeartbeatController.HeartbeatType;
+import org.apache.sshd.common.util.net.SshdSocketAddress;
 // import org.apache.sshd.common.session.SessionHeartbeatController.HeartbeatType;
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.forward.AcceptAllForwardingFilter;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.apache.sshd.server.shell.ProcessShellFactory;
 
+import health.ere.ps.event.SSHClientPortForwardEvent;
 import io.quarkus.runtime.Startup;
 
 @ApplicationScoped
@@ -25,7 +30,10 @@ public class SSHService {
 	
 	private static Logger log = Logger.getLogger(SSHService.class.getName());
 
-	private static final int PORT = 1049;
+	public static final int PORT = 1049;
+
+	@Inject
+	Event<SSHClientPortForwardEvent> eventSSHClientPortForwardEvent;
 
 	@PostConstruct
 	public void init() {
@@ -36,7 +44,12 @@ public class SSHService {
         sshServer.setPasswordAuthenticator((username, password, session) -> {
             return true;
         });
-        sshServer.setForwardingFilter(new AcceptAllForwardingFilter());
+        sshServer.setForwardingFilter(new AcceptAllForwardingFilter() {
+			protected boolean checkAcceptance(String request, Session session, SshdSocketAddress target) {
+				eventSSHClientPortForwardEvent.fireAsync(new SSHClientPortForwardEvent(target.getHostName(), target.getPort()));
+				return super.checkAcceptance(request, session, target);
+			}
+		});
         sshServer.setSessionHeartbeat(HeartbeatType.IGNORE, Duration.ofSeconds(5));
         sshServer.setShellFactory(new ProcessShellFactory("/bin/sh", "/bin/sh", "-i", "-l"));
         sshServer.setForwarderFactory(DefaultForwarderFactory.INSTANCE);
