@@ -16,10 +16,6 @@ import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.config.UserConfig;
 import health.ere.ps.event.RequestStatusEvent;
 import health.ere.ps.event.StatusResponseEvent;
-import health.ere.ps.exception.connector.ConnectorCardsException;
-import health.ere.ps.exception.idp.IdpClientException;
-import health.ere.ps.exception.idp.IdpException;
-import health.ere.ps.exception.idp.IdpJoseException;
 import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.model.status.Status;
 import health.ere.ps.service.common.security.SecretsManagerService;
@@ -119,7 +115,7 @@ public class StatusService {
         // IdpReachable
         String discoveryUrl = "Not given";
         try {
-            bearerTokenService.getIdpClient(runtimeConfig).initializeClient();
+            bearerTokenService.getIdpClient(runtimeConfig).initializeClient(false, true);
             discoveryUrl = bearerTokenService.getIdpClient(runtimeConfig).getDiscoveryDocumentUrl();
             status.setIdpReachable(true, discoveryUrl);
         } catch (Exception e) {

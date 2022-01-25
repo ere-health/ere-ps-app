@@ -162,7 +162,7 @@ public class Websocket {
     }
 
     void sendAllKBVExamples(String folder, Session senderSession) {
-        if(folder.equals("../src/test/resources/kbv-zip")) {
+        if(folder.equals("src/test/resources/kbv-zip")) {
             try {
                 Bundle bundle = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF01.xml"));
                 bundle.setId(UUID.randomUUID().toString());
@@ -313,7 +313,7 @@ public class Websocket {
             } else if ("Publish".equals(object.getString("type"))) {
                 sendMessage(object.getString("payload"), "Unable to publish event");
             } else if ("AllKBVExamples".equals(object.getString("type"))) {
-                sendAllKBVExamples(object.getString("folder", "../src/test/resources/simplifier_erezept"), senderSession);
+                sendAllKBVExamples(object.getString("folder", "src/test/resources/simplifier_erezept"), senderSession);
             } else if ("SimulateException".equals(object.getString("type"))) {
                 onException(simulateException(object));
             } else {
