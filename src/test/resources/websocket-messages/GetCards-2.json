@@ -1,0 +1,145 @@
+{"type": "GetCardsResponse", "payload": 
+{
+    "getCardsResponse": {
+        "cards": {
+            "card": [
+                {
+                    "cardHandle": "SMC-B-6508",
+                    "cardHolderName": "Bad ApothekeTEST-ONLY",
+                    "cardType": "SMC_B",
+                    "cardVersion": {
+                        "ATRVersion": {
+                            "major": 2,
+                            "minor": 0,
+                            "revision": 0
+                        },
+                        "COSVersion": {
+                            "major": 4,
+                            "minor": 3,
+                            "revision": 0
+                        },
+                        "GDOVersion": {
+                            "major": 1,
+                            "minor": 0,
+                            "revision": 0
+                        },
+                        "objectSystemVersion": {
+                            "major": 4,
+                            "minor": 6,
+                            "revision": 0
+                        }
+                    },
+                    "certificateExpirationDate": "2024-12-11T00:00:00Z[GMT]",
+                    "ctId": "0ec37c1b-524b-4548-95e5-e628798dc955",
+                    "iccsn": "80276883110000116352",
+                    "insertTime": "2022-01-26T16:12:43.569Z[GMT]",
+                    "slotId": 1
+                },
+                {
+                    "cardHandle": "HBA-6417",
+                    "cardHolderName": "Mãrianne OldenburgTEST-ONLY",
+                    "cardType": "HBA",
+                    "cardVersion": {
+                        "ATRVersion": {
+                            "major": 2,
+                            "minor": 0,
+                            "revision": 0
+                        },
+                        "COSVersion": {
+                            "major": 4,
+                            "minor": 3,
+                            "revision": 0
+                        },
+                        "GDOVersion": {
+                            "major": 1,
+                            "minor": 0,
+                            "revision": 0
+                        },
+                        "objectSystemVersion": {
+                            "major": 4,
+                            "minor": 7,
+                            "revision": 0
+                        }
+                    },
+                    "certificateExpirationDate": "2024-12-11T00:00:00Z[GMT]",
+                    "ctId": "0ec37c1b-524b-4548-95e5-e628798dc955",
+                    "iccsn": "80276883110000121337",
+                    "insertTime": "2022-01-25T20:58:27.339Z[GMT]",
+                    "slotId": 2
+                },
+                {
+                    "cardHandle": "SMC-KT-6385",
+                    "cardHolderName": "80276883110000112958",
+                    "cardType": "SMC_KT",
+                    "cardVersion": {
+                        "ATRVersion": {
+                            "major": 2,
+                            "minor": 0,
+                            "revision": 0
+                        },
+                        "COSVersion": {
+                            "major": 4,
+                            "minor": 3,
+                            "revision": 0
+                        },
+                        "GDOVersion": {
+                            "major": 1,
+                            "minor": 0,
+                            "revision": 0
+                        },
+                        "keyInfoVersion": {
+                            "major": 2,
+                            "minor": 0,
+                            "revision": 0
+                        },
+                        "objectSystemVersion": {
+                            "major": 4,
+                            "minor": 4,
+                            "revision": 1
+                        }
+                    },
+                    "certificateExpirationDate": "2024-12-11T00:00:00Z[GMT]",
+                    "ctId": "0ec37c1b-524b-4548-95e5-e628798dc955",
+                    "iccsn": "80276883110000112958",
+                    "insertTime": "2022-01-25T14:16:54.26Z[GMT]",
+                    "slotId": 3
+                },
+                {
+                    "cardHandle": "SMC-B-6386",
+                    "cardHolderName": "VincenzkrankenhausTEST-ONLY",
+                    "cardType": "SMC_B",
+                    "cardVersion": {
+                        "ATRVersion": {
+                            "major": 2,
+                            "minor": 0,
+                            "revision": 0
+                        },
+                        "COSVersion": {
+                            "major": 4,
+                            "minor": 3,
+                            "revision": 0
+                        },
+                        "GDOVersion": {
+                            "major": 1,
+                            "minor": 0,
+                            "revision": 0
+                        },
+                        "objectSystemVersion": {
+                            "major": 4,
+                            "minor": 6,
+                            "revision": 0
+                        }
+                    },
+                    "certificateExpirationDate": "2024-12-11T00:00:00Z[GMT]",
+                    "ctId": "0ec37c1b-524b-4548-95e5-e628798dc955",
+                    "iccsn": "80276883110000118001",
+                    "insertTime": "2022-01-25T14:16:54.881Z[GMT]",
+                    "slotId": 4
+                }
+            ]
+        },
+        "status": {
+            "result": "OK"
+        }
+    }
+}, "replyToMessageId": "2ab37f72-8fed-4226-848e-f92947fdfa42"}
