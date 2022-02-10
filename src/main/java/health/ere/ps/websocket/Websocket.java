@@ -313,7 +313,7 @@ public class Websocket {
             } else if ("Publish".equals(object.getString("type"))) {
                 sendMessage(object.getString("payload"), "Unable to publish event");
             } else if ("AllKBVExamples".equals(object.getString("type"))) {
-                sendAllKBVExamples(object.getString("folder", "../src/test/resources/simplifier_erezept"), senderSession);
+                sendAllKBVExamples(object.getString("folder", "../src/test/resources/examples-kbv-fhir-erp-v1-0-2"), senderSession);
             } else if ("SimulateException".equals(object.getString("type"))) {
                 onException(simulateException(object));
             } else {
