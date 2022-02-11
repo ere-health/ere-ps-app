@@ -9,7 +9,7 @@ WorkingDirectory=/opt/ere-health
 
 #path to executable. 
 #executable is a bash script which calls jar file
-ExecStart=/opt/ere-health/run.sh
+ExecStart=/usr/bin/java -Dquarkus.profile=PU -jar quarkus-run.jar
 
 SuccessExitStatus=143
 TimeoutStopSec=10
