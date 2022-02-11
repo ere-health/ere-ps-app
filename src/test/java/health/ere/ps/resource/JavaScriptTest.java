@@ -11,9 +11,10 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-// @Disabled
+@Disabled
 public class JavaScriptTest {
 
     public static String utilJavaScript = "var print = function (s) { java.lang.System.out.print(s); }; var println = function (s) { java.lang.System.out.println(s); };";
