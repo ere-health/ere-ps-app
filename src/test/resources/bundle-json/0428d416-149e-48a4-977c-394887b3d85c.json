@@ -4,7 +4,7 @@
     "meta": {
         "lastUpdated": "2021-04-06T08:30:00Z",
         "profile": [
-            "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle|1.0.1"
+            "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle|1.0.2"
         ]
     },
     "identifier": {
@@ -21,7 +21,7 @@
                 "id": "a054c2f3-0123-4d33-a0b3-bedec2f7d1ea",
                 "meta": {
                     "profile": [
-                        "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Composition|1.0.1"
+                        "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Composition|1.0.2"
                     ]
                 },
                 "extension": [
@@ -104,7 +104,7 @@
                 "id": "06dc1594-509a-4f4c-ada7-dfd477a02d86",
                 "meta": {
                     "profile": [
-                        "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.0.1"
+                        "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.0.2"
                     ]
                 },
                 "extension": [
@@ -180,7 +180,7 @@
                 "id": "f568397d-7ba2-46ac-904b-02caec933b42",
                 "meta": {
                     "profile": [
-                        "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.0.1"
+                        "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.0.2"
                     ]
                 },
                 "extension": [
