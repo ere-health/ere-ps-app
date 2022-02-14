@@ -36,7 +36,7 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.ws.Holder;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.xml.security.c14n.CanonicalizationException;
 import org.apache.xml.security.c14n.Canonicalizer;
 import org.apache.xml.security.c14n.InvalidCanonicalizerException;
@@ -162,7 +162,7 @@ public class ERezeptWorkflowService {
 	        if (appConfig.vauEnabled()) {
 	            try {
 	                String prescriptionServiceURL = getPrescriptionServiceURL(runtimeConfig);
-					VAUEngine httpEngine = (runtimeConfig != null && runtimeConfig.getPrescriptionServerURL() != null) ?  new VAUEngine(prescriptionServiceURL, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER) :  new VAUEngine(prescriptionServiceURL);
+					VAUEngine httpEngine = (runtimeConfig != null && runtimeConfig.getPrescriptionServerURL() != null) ?  new VAUEngine(prescriptionServiceURL, NoopHostnameVerifier.INSTANCE) :  new VAUEngine(prescriptionServiceURL);
 					((ResteasyClientBuilderImpl) clientBuilder).httpEngine(httpEngine);
 	            } catch (Exception ex) {
 	                log.log(Level.SEVERE, "Could not enable VAU", ex);

@@ -22,12 +22,14 @@ import java.util.GregorianCalendar;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
+import javax.net.ssl.HttpsURLConnection;
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.ws.Holder;
 
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.teletrust.TeleTrusTObjectIdentifiers;
 import org.bouncycastle.asn1.x9.X9ECParameters;
@@ -153,8 +155,13 @@ public class VAU {
 
     KeyCoords getVauPublicKeyXY() throws CertificateException, IOException, NoSuchProviderException {
         CertificateFactory certFactory = CertificateFactory.getInstance("X.509", BouncyCastleProvider.PROVIDER_NAME);
+        
+        URL url = new URL(fachdienstUrl + "/VAUCertificate");
+        HttpsURLConnection urlConnection = (HttpsURLConnection)url.openConnection();
+        urlConnection.setHostnameVerifier(NoopHostnameVerifier.INSTANCE);
+        
         X509Certificate z = (X509Certificate) certFactory
-                .generateCertificate(new URL(fachdienstUrl + "/VAUCertificate").openStream());
+                .generateCertificate(urlConnection.getInputStream());
         if(certificateService != null) {
             verifyCertificate(z);
         }

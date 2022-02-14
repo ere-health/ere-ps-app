@@ -84,6 +84,7 @@ import health.ere.ps.service.fhir.bundle.EreBundle;
 import health.ere.ps.service.logging.EreLogger;
 import health.ere.ps.service.ssh.SSHService;
 import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
+import health.ere.ps.websocket.encoder.Response;
 import health.ere.ps.websocket.encoder.ResponseEventEncoder;
 import message.processor.incoming.IncomingBundleMessageProcessor;
 import message.processor.incoming.IncomingMessageProcessor;
@@ -167,8 +168,10 @@ public class Websocket {
         sessions.add(session);
 
         SSHConnectionOfferingEvent sSHConnectionOfferingEvent = new SSHConnectionOfferingEvent();
-        sSHConnectionOfferingEvent.setIdentityServerUrl(appConfig.getIdpBaseURL());
-        sSHConnectionOfferingEvent.setPrescriptionUrl(appConfig.getPrescriptionServiceURL());
+        sSHConnectionOfferingEvent.setIdpBaseURL(appConfig.getIdpBaseURL());
+        sSHConnectionOfferingEvent.setIdpAuthRequestRedirectURL(appConfig.getIdpAuthRequestRedirectURL());
+        sSHConnectionOfferingEvent.setIdpClientId(appConfig.getIdpClientId());
+        sSHConnectionOfferingEvent.setPrescriptionServiceURL(appConfig.getPrescriptionServiceURL());
         sSHConnectionOfferingEvent.setPort(SSHService.PORT);
         int firstPort = 1501;
         sSHConnectionOfferingEvent.getPorts().add(firstPort);
@@ -177,7 +180,7 @@ public class Websocket {
 
         firstSSHPort2session.put(firstPort, session);
 
-        session.getAsyncRemote().sendObject(jsonbFactory.toJson(sSHConnectionOfferingEvent));
+        session.getAsyncRemote().sendObject(jsonbFactory.toJson(new Response(sSHConnectionOfferingEvent)));
 
         ereLog.info("Websocket opened");
     }

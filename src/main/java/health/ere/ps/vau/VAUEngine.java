@@ -7,7 +7,6 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -15,35 +14,26 @@ import java.util.regex.Pattern;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocket;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
-import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.EntityBuilder;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.config.MessageConstraints;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.conn.ssl.X509HostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.io.DefaultHttpResponseParserFactory;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.io.SessionInputBufferImpl;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient43Engine;
 import org.jboss.resteasy.client.jaxrs.i18n.LogMessages;
@@ -73,52 +63,31 @@ public class VAUEngine extends ApacheHttpClient43Engine {
     	this.fachdienstUrl = fachdienstUrl;
     }
     
-    public VAUEngine(String fachdienstUrl, X509HostnameVerifier hostnameVerifier) {
+    public VAUEngine(String fachdienstUrl, HostnameVerifier hostnameVerifier) {
         super(createDefaultHttpClient(hostnameVerifier));
     	this.fachdienstUrl = fachdienstUrl;
     }
     
-    protected static HttpClient createDefaultHttpClient(X509HostnameVerifier hostnameVerifier)
+    protected static HttpClient createDefaultHttpClient(HostnameVerifier hostnameVerifier)
     {
        final HttpClientBuilder builder = HttpClientBuilder.create();
-       RequestConfig.Builder requestBuilder = RequestConfig.custom();
-       builder.disableContentCompression();
-       builder.setHostnameVerifier(hostnameVerifier);
-       builder.setDefaultRequestConfig(requestBuilder.build());
-       return builder.build();
+       //RequestConfig.Builder requestBuilder = RequestConfig.custom();
+       //builder.disableContentCompression();
+       SSLConnectionSocketFactory sslConnectionSocketFactory = getSSLSocketFactory(hostnameVerifier);
+       builder.setSSLSocketFactory(sslConnectionSocketFactory);
+       //builder.setDefaultRequestConfig(requestBuilder.build());
+       HttpClient httpClient = builder.build();
+       return httpClient;
     }
 
-	@Override
-    @SuppressWarnings("deprecation")
-    public void setHostnameVerifier(HostnameVerifier hostnameVerifier) {
-		SSLSocketFactory factory;
+    private static SSLConnectionSocketFactory getSSLSocketFactory(HostnameVerifier hostnameVerifier) {
+        SSLConnectionSocketFactory factory = null;
 		try {
-			factory = new SSLSocketFactory(SSLContext.getDefault());
-			factory.setHostnameVerifier(new X509HostnameVerifier() {
-	
-				@Override
-				public boolean verify(String arg0, SSLSession arg1) {
-					return hostnameVerifier.verify(arg0, arg1);
-				}
-	
-				@Override
-				public void verify(String host, SSLSocket ssl) throws IOException {
-				}
-	
-				@Override
-				public void verify(String host, X509Certificate cert) throws SSLException {
-				}
-	
-				@Override
-				public void verify(String host, String[] cns, String[] subjectAlts) throws SSLException {
-				}
-				
-			});
-	    	this.getHttpClient().getConnectionManager().getSchemeRegistry().register(new Scheme("https", 443, factory));
+			factory = new SSLConnectionSocketFactory(SSLContext.getDefault(), hostnameVerifier);
 		} catch (NoSuchAlgorithmException e) {
 			log.log(Level.SEVERE, "Could not get SSL Context", e);
 		}
-    	super.setHostnameVerifier(hostnameVerifier);
+        return factory;
     }
 
     /**

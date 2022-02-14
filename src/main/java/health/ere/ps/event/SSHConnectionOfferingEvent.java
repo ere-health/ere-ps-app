@@ -1,14 +1,18 @@
 package health.ere.ps.event;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SSHConnectionOfferingEvent {
+public class SSHConnectionOfferingEvent implements Serializable {
 
     private Integer port;
     private String host;
-    private String prescriptionUrl;
-    private String identityServerUrl;
+    private String prescriptionServiceURL;
+    private String idpBaseURL;
+    private String idpAuthRequestRedirectURL;
+    private String idpClientId;
+
     private List<Integer> ports = new ArrayList<>();
 
     public Integer getPort() {
@@ -27,21 +31,15 @@ public class SSHConnectionOfferingEvent {
         this.host = host;
     }
 
-    public String getPrescriptionUrl() {
-        return this.prescriptionUrl;
+    public String getPrescriptionServiceURL() {
+        return this.prescriptionServiceURL;
     }
 
-    public void setPrescriptionUrl(String prescriptionUrl) {
-        this.prescriptionUrl = prescriptionUrl;
+    public void setPrescriptionServiceURL(String prescriptionServiceURL) {
+        this.prescriptionServiceURL = prescriptionServiceURL;
     }
 
-    public String getIdentityServerUrl() {
-        return this.identityServerUrl;
-    }
 
-    public void setIdentityServerUrl(String identityServerUrl) {
-        this.identityServerUrl = identityServerUrl;
-    }
 
     public List<Integer> getPorts() {
         return this.ports;
@@ -49,6 +47,30 @@ public class SSHConnectionOfferingEvent {
 
     public void setPorts(List<Integer> ports) {
         this.ports = ports;
+    }
+
+    public String getIdpBaseURL() {
+        return this.idpBaseURL;
+    }
+
+    public void setIdpBaseURL(String idpBaseURL) {
+        this.idpBaseURL = idpBaseURL;
+    }
+
+    public String getIdpAuthRequestRedirectURL() {
+        return this.idpAuthRequestRedirectURL;
+    }
+
+    public void setIdpAuthRequestRedirectURL(String idpAuthRequestRedirectURL) {
+        this.idpAuthRequestRedirectURL = idpAuthRequestRedirectURL;
+    }
+
+    public String getIdpClientId() {
+        return this.idpClientId;
+    }
+
+    public void setIdpClientId(String idpClientId) {
+        this.idpClientId = idpClientId;
     }
     
 }
