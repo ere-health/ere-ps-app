@@ -261,28 +261,6 @@
     </dependencies>
     <build>
 	    <plugins>
-		    <plugin>
-			    <artifactId>maven-resources-plugin</artifactId>
-			    <version>3.2.0</version>
-			    <executions>
-				    <execution>
-					    <id>copy-resource-one</id>
-					    <phase>generate-sources</phase>
-					    <goals>
-						    <goal>copy-resources</goal>
-					    </goals>
-					    <configuration>
-						    <outputDirectory>${basedir}/target/</outputDirectory>
-						    <resources>
-							    <resource>
-								    <filtering>false</filtering>
-								    <directory>application</directory>
-							    </resource>
-						    </resources>
-					    </configuration>
-				    </execution>
-			    </executions>
-		    </plugin>
             <plugin>
                 <groupId>io.quarkus</groupId>
                 <artifactId>quarkus-maven-plugin</artifactId>
