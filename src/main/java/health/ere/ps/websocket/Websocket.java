@@ -47,7 +47,6 @@ import ca.uhn.fhir.context.FhirContext;
 import de.gematik.ws.conn.cardservice.wsdl.v8.FaultMessage;
 import de.gematik.ws.tel.error.v2.Error;
 import de.gematik.ws.tel.error.v2.Error.Trace;
-import health.ere.ps.config.AppConfig;
 import health.ere.ps.event.AbortTasksEvent;
 import health.ere.ps.event.AbortTasksStatusEvent;
 import health.ere.ps.event.ActivateComfortSignatureEvent;
@@ -62,6 +61,7 @@ import health.ere.ps.event.GetCardsResponseEvent;
 import health.ere.ps.event.GetSignatureModeEvent;
 import health.ere.ps.event.GetSignatureModeResponseEvent;
 import health.ere.ps.event.HTMLBundlesEvent;
+import health.ere.ps.event.NewWebsocketEvent;
 import health.ere.ps.event.PrefillBundleEvent;
 import health.ere.ps.event.ReadyToSignBundlesEvent;
 import health.ere.ps.event.RequestStatusEvent;
@@ -82,7 +82,6 @@ import health.ere.ps.service.config.UserConfigurationService;
 import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
 import health.ere.ps.service.fhir.bundle.EreBundle;
 import health.ere.ps.service.logging.EreLogger;
-import health.ere.ps.service.ssh.SSHService;
 import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 import health.ere.ps.websocket.encoder.Response;
 import health.ere.ps.websocket.encoder.ResponseEventEncoder;
@@ -133,11 +132,13 @@ public class Websocket {
     
     @Inject
     Event<VerifyPinEvent> verifyPinEvent;
+
+    @Inject
+    Event<NewWebsocketEvent> newWebsocketEvent;
     
     @Inject
     PrescriptionBundleValidator prescriptionBundleValidator;
-    @Inject
-    AppConfig appConfig;
+
     @Inject
     UserConfigurationService userConfigurationService;
 
@@ -146,6 +147,9 @@ public class Websocket {
 
     @ConfigProperty(name = "ere.websocket.erezeptdocuments.reply-to-all", defaultValue = "false")
     boolean erezeptdocumentsReplyToAll = false;
+
+    @ConfigProperty(name = "ere.websocket.xml-bundle.direct-process", defaultValue = "false")
+    boolean xmlBundleDirectProcess = false;
 
     static JsonbConfig customConfig = new JsonbConfig()
             .setProperty(JsonbConfig.FORMATTING, true)
@@ -167,24 +171,15 @@ public class Websocket {
     public void onOpen(Session session) {
         sessions.add(session);
 
-        SSHConnectionOfferingEvent sSHConnectionOfferingEvent = new SSHConnectionOfferingEvent();
-        sSHConnectionOfferingEvent.setIdpBaseURL(appConfig.getIdpBaseURL());
-        sSHConnectionOfferingEvent.setIdpAuthRequestRedirectURL(appConfig.getIdpAuthRequestRedirectURL());
-        sSHConnectionOfferingEvent.setIdpClientId(appConfig.getIdpClientId());
-        sSHConnectionOfferingEvent.setPrescriptionServiceURL(appConfig.getPrescriptionServiceURL());
-        sSHConnectionOfferingEvent.setPort(SSHService.PORT);
-        int firstPort = 1501;
-        sSHConnectionOfferingEvent.getPorts().add(firstPort);
-        sSHConnectionOfferingEvent.getPorts().add(firstPort+1);
-        sSHConnectionOfferingEvent.getPorts().add(firstPort+2);
-
-        firstSSHPort2session.put(firstPort, session);
-
-        session.getAsyncRemote().sendObject(jsonbFactory.toJson(new Response(sSHConnectionOfferingEvent)));
+        newWebsocketEvent.fireAsync(new NewWebsocketEvent(session));
 
         ereLog.info("Websocket opened");
     }
 
+    public void onSSHConnectionOfferingEvent(@ObservesAsync SSHConnectionOfferingEvent sSHConnectionOfferingEvent) {
+        sSHConnectionOfferingEvent.getSession().getAsyncRemote().sendObject(jsonbFactory.toJson(new Response(sSHConnectionOfferingEvent)));
+    }
+    
     void sendAllKBVExamples(String folder, Session senderSession) {
         if(folder.equals("src/test/resources/kbv-zip")) {
             try {
@@ -288,7 +283,7 @@ public class Websocket {
                     });
             } else if ("XMLBundle".equals(object.getString("type"))) {
                 Bundle[] bundles = XmlPrescriptionProcessor.parseFromString(object.getString("payload"));
-                if(appConfig.getXmlBundleDirectProcess()) {
+                if(xmlBundleDirectProcess) {
                     SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(bundles, senderSession, messageId);
                     signAndUploadBundlesEvent.fireAsync(event);   
                 }

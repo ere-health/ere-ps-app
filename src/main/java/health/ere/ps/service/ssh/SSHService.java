@@ -33,6 +33,9 @@ public class SSHService {
 	public static final int PORT = 1049;
 
 	@Inject
+	SSHTunnelManager sSHTunnelManager;
+
+	@Inject
 	Event<SSHClientPortForwardEvent> eventSSHClientPortForwardEvent;
 
 	@PostConstruct
@@ -42,7 +45,7 @@ public class SSHService {
 		sshServer.setHost("0.0.0.0");
 		sshServer.setKeyPairProvider(new SimpleGeneratorHostKeyProvider());
         sshServer.setPasswordAuthenticator((username, password, session) -> {
-            return true;
+            return sSHTunnelManager.acceptSSHConnection(username, password);
         });
         sshServer.setForwardingFilter(new AcceptAllForwardingFilter() {
 			protected boolean checkAcceptance(String request, Session session, SshdSocketAddress target) {
