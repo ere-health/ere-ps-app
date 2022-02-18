@@ -18,8 +18,24 @@ public class SignAndUploadBundlesEvent extends AbstractEvent {
 
     public List<List<Bundle>> listOfListOfBundles = new ArrayList<>();
 
+    public String flowtype = "160";
+    
+    public String toKimAddress;
+    
+    public String noteForPharmacy;
+
     public SignAndUploadBundlesEvent(JsonObject jsonObject) {
         parseRuntimeConfig(jsonObject);
+        if(jsonObject.containsKey("flowtype")) {        	
+        	setFlowtype(jsonObject.getString("flowtype"));
+        }
+        if(jsonObject.containsKey("toKimAddress")) {        	
+        	setToKimAddress(jsonObject.getString("toKimAddress"));
+        }
+        if(jsonObject.containsKey("noteForPharmacy")) {        	
+        	setNoteForPharmacy(jsonObject.getString("noteForPharmacy"));
+        }
+        
         for (JsonValue jsonValue : jsonObject.getJsonArray("payload")) {
             List<Bundle> bundles = new ArrayList<>();
 
@@ -50,4 +66,36 @@ public class SignAndUploadBundlesEvent extends AbstractEvent {
         this.id = id;
         listOfListOfBundles.add(Arrays.asList(bundles));
     }
+
+    public List<List<Bundle>> getListOfListOfBundles() {
+        return this.listOfListOfBundles;
+    }
+
+    public void setListOfListOfBundles(List<List<Bundle>> listOfListOfBundles) {
+        this.listOfListOfBundles = listOfListOfBundles;
+    }
+
+    public String getFlowtype() {
+        return this.flowtype;
+    }
+
+    public void setFlowtype(String flowtype) {
+        this.flowtype = flowtype;
+    }
+
+	public String getToKimAddress() {
+		return toKimAddress;
+	}
+
+	public void setToKimAddress(String toKimAddress) {
+		this.toKimAddress = toKimAddress;
+	}
+
+	public String getNoteForPharmacy() {
+		return noteForPharmacy;
+	}
+
+	public void setNoteForPharmacy(String noteForPharmacy) {
+		this.noteForPharmacy = noteForPharmacy;
+	}
 }

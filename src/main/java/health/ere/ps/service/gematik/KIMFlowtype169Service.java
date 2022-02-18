@@ -1,6 +1,11 @@
 package health.ere.ps.service.gematik;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -15,6 +20,16 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import javax.naming.Context;
+import javax.naming.NamingEnumeration;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+import javax.naming.ldap.Control;
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
+import javax.naming.ldap.PagedResultsControl;
 
 public class KIMFlowtype169Service {
 
@@ -65,5 +80,48 @@ public class KIMFlowtype169Service {
 	    } catch (Exception e) {
 	      log.log(Level.WARNING, "Error during sending E-Prescription", e);
 	    }
+    }
+
+    public List<Map<String,Object>> search(String connectorIp, String searchDisplayName) {
+    	List<Map<String,Object>> list = new ArrayList<>();
+    	if(searchDisplayName == null || searchDisplayName.length() < 3) {
+    		return list;
+    	}
+    	try {
+            Hashtable<String, String> env = new Hashtable<>();
+            env.put(Context.SECURITY_PROTOCOL, "ssl");
+            env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+            env.put(Context.PROVIDER_URL, "ldaps://"+connectorIp+":636/");
+            env.put(Context.SECURITY_AUTHENTICATION, "none");
+            env.put("java.naming.ldap.factory.socket", "health.ere.ps.service.common.security.SSLSocketFactory");
+
+            LdapContext ctx = new InitialLdapContext(env, null);
+            ctx.setRequestControls(null);
+            NamingEnumeration<?> namingEnum = ctx.search("dc=data,dc=vzd", "(&(professionOID=1.2.276.0.76.4.54)(|(displayName=*"+searchDisplayName+"*)(rfc822mailbox=*"+searchDisplayName+"*)))", getSimpleSearchControls());
+            while (namingEnum.hasMore ()) {
+                SearchResult result = (SearchResult) namingEnum.next();
+                Attributes attrs = result.getAttributes();
+                Map<String, Object> map = new HashMap<>();
+                NamingEnumeration<? extends Attribute> enumeration = attrs.getAll();
+                while(enumeration.hasMore()) {
+                	Attribute attribute = enumeration.next();
+                	map.put(attribute.getID(), attribute.get());
+                }
+                list.add(map);
+            } 
+            namingEnum.close();
+            ctx.close();
+        } catch (Exception e) {
+            log.log(Level.WARNING, "Could not search LDAP", e);
+            throw new RuntimeException(e);
+        }
+    	return list;
+    }
+    
+    private SearchControls getSimpleSearchControls() {
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        searchControls.setTimeLimit(30000);
+        return searchControls;
     }
 }
