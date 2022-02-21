@@ -10,6 +10,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.enterprise.event.ObservesAsync;
 import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.Multipart;
@@ -26,16 +27,19 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import javax.naming.ldap.Control;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
-import javax.naming.ldap.PagedResultsControl;
+
+import org.hl7.fhir.r4.model.Bundle;
+
+import health.ere.ps.event.BundlesWithAccessCodeEvent;
+import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 
 public class KIMFlowtype169Service {
 
     private static Logger log = Logger.getLogger(KIMFlowtype169Service.class.getName());
 
-    public void sendERezeptToKIMAddress(String fromKimAddress, String toKimAddress, String smtpHostServer, String smtpUser, String smtpPassword, String eRezeptToken) {
+    public void sendERezeptToKIMAddress(String fromKimAddress, String toKimAddress, String noteToPharmacy, String smtpHostServer, String smtpUser, String smtpPassword, String eRezeptToken) {
         try {
             Properties props = System.getProperties();
 
@@ -60,7 +64,7 @@ public class KIMFlowtype169Service {
 
 
             MimeBodyPart textPart = new MimeBodyPart();
-            textPart.setText("Sehr geehrte Apotheke,\nim Anhang erhalten Sie den E-Rezept Token für das entsprechende Medikament.\nSchönen Gruß\n", "utf-8");
+            textPart.setText(noteToPharmacy, "utf-8");
 
             MimeBodyPart erezeptTokenPart = new MimeBodyPart();
             erezeptTokenPart.setText(eRezeptToken, "utf8");
@@ -123,5 +127,24 @@ public class KIMFlowtype169Service {
         searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
         searchControls.setTimeLimit(30000);
         return searchControls;
+    }
+
+    public void onBundlesWithAccessCodeEvent(@ObservesAsync BundlesWithAccessCodeEvent bundlesWithAccessCodeEvent) {
+        if("169".equals(bundlesWithAccessCodeEvent.getFlowtype())) {
+            Map<String,String> kimConfigMap = new HashMap<>();
+            for(List<BundleWithAccessCodeOrThrowable> list : bundlesWithAccessCodeEvent.getBundleWithAccessCodeOrThrowable()) {
+                for(BundleWithAccessCodeOrThrowable bundle : list) {
+                    sendERezeptToKIMAddress(kimConfigMap.get("fromKimAddress"), bundlesWithAccessCodeEvent.getToKimAddress(), bundlesWithAccessCodeEvent.getNoteForPharmacy(), kimConfigMap.get("smtpHostServer"), getSmtpUser(kimConfigMap), kimConfigMap.get("smtpPassword"), getERezeptToken(bundle.getBundle(), bundle.getAccessCode()));
+                }
+            }
+        }
+    }
+
+    private String getERezeptToken(Bundle bundle, String accessCode) {
+        return "Task/"+bundle.getIdentifier().getValue()+"/$accept?ac="+accessCode;
+    }
+
+    private String getSmtpUser(Map<String, String> kimConfigMap) {
+        return kimConfigMap.get("fromKimAddress")+"#"+kimConfigMap.get("smtpFdServer")+"#"+kimConfigMap.get("mandant-id")+"#"+kimConfigMap.get("client-system-id")+"#"+kimConfigMap.get("workplace-id");
     }
 }

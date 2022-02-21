@@ -2,10 +2,14 @@ package health.ere.ps.event;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
+import javax.json.JsonString;
 import javax.json.JsonValue;
 import javax.websocket.Session;
 
@@ -24,6 +28,9 @@ public class SignAndUploadBundlesEvent extends AbstractEvent {
     
     public String noteForPharmacy;
 
+    public Map<String,String> kimConfigMap = new HashMap<>();
+
+
     public SignAndUploadBundlesEvent(JsonObject jsonObject) {
         parseRuntimeConfig(jsonObject);
         if(jsonObject.containsKey("flowtype")) {        	
@@ -34,6 +41,12 @@ public class SignAndUploadBundlesEvent extends AbstractEvent {
         }
         if(jsonObject.containsKey("noteForPharmacy")) {        	
         	setNoteForPharmacy(jsonObject.getString("noteForPharmacy"));
+        }
+        if(jsonObject.containsKey("kimConfig")) {
+            JsonObject kimConfig = jsonObject.getJsonObject("kimConfig");
+            for(Entry<String,JsonValue> entry : kimConfig.entrySet()) {
+                kimConfigMap.put(entry.getKey(), ((JsonString)entry.getValue()).getString());
+            }
         }
         
         for (JsonValue jsonValue : jsonObject.getJsonArray("payload")) {
@@ -98,4 +111,12 @@ public class SignAndUploadBundlesEvent extends AbstractEvent {
 	public void setNoteForPharmacy(String noteForPharmacy) {
 		this.noteForPharmacy = noteForPharmacy;
 	}
+
+    public Map<String,String> getKimConfigMap() {
+        return this.kimConfigMap;
+    }
+
+    public void setKimConfigMap(Map<String,String> kimConfigMap) {
+        this.kimConfigMap = kimConfigMap;
+    }
 }
