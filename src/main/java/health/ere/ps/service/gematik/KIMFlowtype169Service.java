@@ -41,7 +41,7 @@ public class KIMFlowtype169Service {
 
     public void sendERezeptToKIMAddress(String fromKimAddress, String toKimAddress, String noteToPharmacy, String smtpHostServer, String smtpUser, String smtpPassword, String eRezeptToken) {
         try {
-            Properties props = System.getProperties();
+            Properties props = new Properties();
 
             props.put("mail.smtp.host", smtpHostServer);
             props.put("mail.smtp.auth", true);
@@ -131,10 +131,10 @@ public class KIMFlowtype169Service {
 
     public void onBundlesWithAccessCodeEvent(@ObservesAsync BundlesWithAccessCodeEvent bundlesWithAccessCodeEvent) {
         if("169".equals(bundlesWithAccessCodeEvent.getFlowtype())) {
-            Map<String,String> kimConfigMap = new HashMap<>();
+            Map<String,String> kimConfigMap = bundlesWithAccessCodeEvent.getKimConfigMap();
             for(List<BundleWithAccessCodeOrThrowable> list : bundlesWithAccessCodeEvent.getBundleWithAccessCodeOrThrowable()) {
                 for(BundleWithAccessCodeOrThrowable bundle : list) {
-                    sendERezeptToKIMAddress(kimConfigMap.get("fromKimAddress"), bundlesWithAccessCodeEvent.getToKimAddress(), bundlesWithAccessCodeEvent.getNoteForPharmacy(), kimConfigMap.get("smtpHostServer"), getSmtpUser(kimConfigMap), kimConfigMap.get("smtpPassword"), getERezeptToken(bundle.getBundle(), bundle.getAccessCode()));
+                    sendERezeptToKIMAddress(kimConfigMap.get("fromKimAddress"), bundlesWithAccessCodeEvent.getToKimAddress(), bundlesWithAccessCodeEvent.getNoteToPharmacy(), kimConfigMap.get("smtpHostServer"), getSmtpUser(kimConfigMap), kimConfigMap.get("smtpPassword"), getERezeptToken(bundle.getBundle(), bundle.getAccessCode()));
                 }
             }
         }

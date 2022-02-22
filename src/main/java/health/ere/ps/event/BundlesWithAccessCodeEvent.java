@@ -13,7 +13,7 @@ public class BundlesWithAccessCodeEvent extends AbstractEvent {
 
     private String flowtype = "160";
     private String toKimAddress;
-    private String noteForPharmacy;
+    private String noteToPharmacy;
     private Map<String,String> kimConfigMap = new HashMap<>();
 
     public BundlesWithAccessCodeEvent(List<List<BundleWithAccessCodeOrThrowable>> bundleWithAccessCodeOrThrowable) {
@@ -47,12 +47,12 @@ public class BundlesWithAccessCodeEvent extends AbstractEvent {
         this.toKimAddress = toKimAddress;
     }
 
-    public String getNoteForPharmacy() {
-        return this.noteForPharmacy;
+    public String getNoteToPharmacy() {
+        return this.noteToPharmacy;
     }
 
-    public void setNoteForPharmacy(String noteForPharmacy) {
-        this.noteForPharmacy = noteForPharmacy;
+    public void setNoteToPharmacy(String noteToPharmacy) {
+        this.noteToPharmacy = noteToPharmacy;
     }
 
     public Map<String,String> getKimConfigMap() {

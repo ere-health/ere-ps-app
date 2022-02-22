@@ -208,7 +208,7 @@ public class ERezeptWorkflowService {
             bundleWithAccessCode.setFlowtype(signAndUploadBundlesEvent.getFlowtype());
             bundleWithAccessCode.setToKimAddress(signAndUploadBundlesEvent.getToKimAddress());
             bundleWithAccessCode.setKimConfigMap(signAndUploadBundlesEvent.getKimConfigMap());
-            bundleWithAccessCode.setNoteForPharmacy(signAndUploadBundlesEvent.getNoteForPharmacy());
+            bundleWithAccessCode.setNoteToPharmacy(signAndUploadBundlesEvent.getNoteToPharmacy());
         }
         bundlesWithAccessCodeEvent.fireAsync(bundleWithAccessCode);
     }

@@ -26,7 +26,7 @@ public class SignAndUploadBundlesEvent extends AbstractEvent {
     
     public String toKimAddress;
     
-    public String noteForPharmacy;
+    public String noteToPharmacy;
 
     public Map<String,String> kimConfigMap = new HashMap<>();
 
@@ -39,8 +39,8 @@ public class SignAndUploadBundlesEvent extends AbstractEvent {
         if(jsonObject.containsKey("toKimAddress")) {        	
         	setToKimAddress(jsonObject.getString("toKimAddress"));
         }
-        if(jsonObject.containsKey("noteForPharmacy")) {        	
-        	setNoteForPharmacy(jsonObject.getString("noteForPharmacy"));
+        if(jsonObject.containsKey("noteToPharmacy")) {        	
+        	setNoteToPharmacy(jsonObject.getString("noteToPharmacy"));
         }
         if(jsonObject.containsKey("kimConfig")) {
             JsonObject kimConfig = jsonObject.getJsonObject("kimConfig");
@@ -104,12 +104,12 @@ public class SignAndUploadBundlesEvent extends AbstractEvent {
 		this.toKimAddress = toKimAddress;
 	}
 
-	public String getNoteForPharmacy() {
-		return noteForPharmacy;
+	public String getNoteToPharmacy() {
+		return noteToPharmacy;
 	}
 
-	public void setNoteForPharmacy(String noteForPharmacy) {
-		this.noteForPharmacy = noteForPharmacy;
+	public void setNoteToPharmacy(String noteToPharmacy) {
+		this.noteToPharmacy = noteToPharmacy;
 	}
 
     public Map<String,String> getKimConfigMap() {
