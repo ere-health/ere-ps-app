@@ -11,7 +11,6 @@ import java.security.cert.CertificateException;
 import java.util.List;
 import java.util.Map;
 
-import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -38,7 +37,7 @@ public class KIMFlowtype169ServiceTest {
       String eRezeptToken = "Task/4711/$accept?ac=777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea";
 
       KIMFlowtype169Service kIMFlowtype169Service = new KIMFlowtype169Service();
-      kIMFlowtype169Service.sendERezeptToKIMAddress(fromKimAddress, toKimAddress, smtpHostServer, smtpUser, smtpPassword, eRezeptToken);
+      kIMFlowtype169Service.sendERezeptToKIMAddress(fromKimAddress, toKimAddress, "Hallo Apotheke", smtpHostServer, smtpUser, smtpPassword, eRezeptToken);
     }
 
     @Test
