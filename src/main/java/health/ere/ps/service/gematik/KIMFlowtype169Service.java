@@ -10,7 +10,11 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.enterprise.event.ObservesAsync;
+import javax.inject.Inject;
 import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.Multipart;
@@ -23,6 +27,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
+import javax.naming.SizeLimitExceededException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
@@ -32,12 +37,33 @@ import javax.naming.ldap.LdapContext;
 
 import org.hl7.fhir.r4.model.Bundle;
 
+import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.event.BundlesWithAccessCodeEvent;
+import health.ere.ps.event.VZDSearchEvent;
+import health.ere.ps.event.VZDSearchResultEvent;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
+import health.ere.ps.service.common.security.SSLSocketFactory;
+import health.ere.ps.service.common.security.SecretsManagerService;
+import health.ere.ps.websocket.ExceptionWithReplyToExcetion;
 
+@ApplicationScoped
 public class KIMFlowtype169Service {
 
     private static Logger log = Logger.getLogger(KIMFlowtype169Service.class.getName());
+
+    @Inject
+    SecretsManagerService secretsManagerService;
+
+    @Inject
+    Event<VZDSearchResultEvent> vZDSearchResultEvent;
+
+    @Inject
+    Event<Exception> exceptionEvent;
+
+    @PostConstruct
+    public void disableEndpointIdentification() {
+        System.setProperty("com.sun.jndi.ldap.object.disableEndpointIdentification", "true");
+    }
 
     public void sendERezeptToKIMAddress(String fromKimAddress, String toKimAddress, String noteToPharmacy, String smtpHostServer, String smtpUser, String smtpPassword, String eRezeptToken) {
         try {
@@ -86,7 +112,7 @@ public class KIMFlowtype169Service {
 	    }
     }
 
-    public List<Map<String,Object>> search(String connectorIp, String searchDisplayName) {
+    public List<Map<String,Object>> search(RuntimeConfig runtimeConfig, String searchDisplayName) {
     	List<Map<String,Object>> list = new ArrayList<>();
     	if(searchDisplayName == null || searchDisplayName.length() < 3) {
     		return list;
@@ -95,8 +121,13 @@ public class KIMFlowtype169Service {
             Hashtable<String, String> env = new Hashtable<>();
             env.put(Context.SECURITY_PROTOCOL, "ssl");
             env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-            env.put(Context.PROVIDER_URL, "ldaps://"+connectorIp+":636/");
+            env.put(Context.PROVIDER_URL, "ldaps://"+runtimeConfig.getConnectorAddress()+":636/");
             env.put(Context.SECURITY_AUTHENTICATION, "none");
+
+            if(secretsManagerService != null && runtimeConfig != null && runtimeConfig.getConfigurations() != null) {
+                SSLSocketFactory.delegate = secretsManagerService.createSSLContext(runtimeConfig.getConfigurations()).getSocketFactory();
+            }
+
             env.put("java.naming.ldap.factory.socket", "health.ere.ps.service.common.security.SSLSocketFactory");
 
             LdapContext ctx = new InitialLdapContext(env, null);
@@ -116,8 +147,16 @@ public class KIMFlowtype169Service {
             namingEnum.close();
             ctx.close();
         } catch (Exception e) {
-            log.log(Level.WARNING, "Could not search LDAP", e);
-            throw new RuntimeException(e);
+            if(e instanceof SizeLimitExceededException) {
+                log.info("Received more than expected LDAP entries. "+e.getMessage());
+            } else {
+                log.log(Level.WARNING, "Could not search LDAP", e);
+                throw new RuntimeException(e);
+            }
+        } finally {
+            if(secretsManagerService != null) {
+                SSLSocketFactory.delegate = null;
+            }
         }
     	return list;
     }
@@ -130,13 +169,29 @@ public class KIMFlowtype169Service {
     }
 
     public void onBundlesWithAccessCodeEvent(@ObservesAsync BundlesWithAccessCodeEvent bundlesWithAccessCodeEvent) {
-        if("169".equals(bundlesWithAccessCodeEvent.getFlowtype())) {
-            Map<String,String> kimConfigMap = bundlesWithAccessCodeEvent.getKimConfigMap();
-            for(List<BundleWithAccessCodeOrThrowable> list : bundlesWithAccessCodeEvent.getBundleWithAccessCodeOrThrowable()) {
-                for(BundleWithAccessCodeOrThrowable bundle : list) {
-                    sendERezeptToKIMAddress(kimConfigMap.get("fromKimAddress"), bundlesWithAccessCodeEvent.getToKimAddress(), bundlesWithAccessCodeEvent.getNoteToPharmacy(), kimConfigMap.get("smtpHostServer"), getSmtpUser(kimConfigMap), kimConfigMap.get("smtpPassword"), getERezeptToken(bundle.getBundle(), bundle.getAccessCode()));
+        try {
+            if("169".equals(bundlesWithAccessCodeEvent.getFlowtype())) {
+                Map<String,String> kimConfigMap = bundlesWithAccessCodeEvent.getKimConfigMap();
+                for(List<BundleWithAccessCodeOrThrowable> list : bundlesWithAccessCodeEvent.getBundleWithAccessCodeOrThrowable()) {
+                    for(BundleWithAccessCodeOrThrowable bundle : list) {
+                        sendERezeptToKIMAddress(kimConfigMap.get("fromKimAddress"), bundlesWithAccessCodeEvent.getToKimAddress(), bundlesWithAccessCodeEvent.getNoteToPharmacy(), kimConfigMap.get("smtpHostServer"), getSmtpUser(kimConfigMap), kimConfigMap.get("smtpPassword"), getERezeptToken(bundle.getBundle(), bundle.getAccessCode()));
+                    }
                 }
             }
+        } catch (Exception e) {
+            log.log(Level.WARNING, "Could not send kim E-Mail", e);
+            exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, bundlesWithAccessCodeEvent.getReplyTo(), bundlesWithAccessCodeEvent.getId()));
+        }
+    }
+
+    public void onVZDSearchEvent(@ObservesAsync VZDSearchEvent vZDSearchEvent) {
+        try {
+            List<Map<String,Object>> results = search(vZDSearchEvent.getRuntimeConfig(), vZDSearchEvent.getSearch());
+            VZDSearchResultEvent searchResultEvent = new VZDSearchResultEvent(results, vZDSearchEvent.getReplyTo(), vZDSearchEvent.getId());
+            vZDSearchResultEvent.fireAsync(searchResultEvent);
+        } catch (Exception e) {
+            log.log(Level.WARNING, "Could not search VZD", e);
+            exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, vZDSearchEvent.getReplyTo(), vZDSearchEvent.getId()));
         }
     }
 

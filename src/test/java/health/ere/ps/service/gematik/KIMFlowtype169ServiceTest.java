@@ -1,6 +1,7 @@
 package health.ere.ps.service.gematik;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
@@ -19,6 +20,8 @@ import javax.net.ssl.TrustManager;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import health.ere.ps.config.RuntimeConfig;
+import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.service.common.security.SSLSocketFactory;
 import health.ere.ps.service.common.security.SecretsManagerService.KeyStoreType;
 import health.ere.ps.service.common.security.SecretsManagerService.SslContextType;
@@ -41,9 +44,21 @@ public class KIMFlowtype169ServiceTest {
     }
 
     @Test
-    public void testSearch() throws NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException, UnrecoverableKeyException, KeyManagementException {
+    public void testSearchSee() throws NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException, UnrecoverableKeyException, KeyManagementException {
 
-      System.setProperty("com.sun.jndi.ldap.object.disableEndpointIdentification", "true");
+      String searchDisplayName = "See";
+      search(searchDisplayName);
+    }
+
+    @Test
+    public void testSearchTest() throws NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException, UnrecoverableKeyException, KeyManagementException {
+
+      String searchDisplayName = "test";
+      search(searchDisplayName);
+    }
+
+    private void search(String searchDisplayName) throws FileNotFoundException, NoSuchAlgorithmException,
+        KeyStoreException, IOException, CertificateException, UnrecoverableKeyException, KeyManagementException {
       String connectorTlsCertAuthStorePwd = "N4rouwibGRhne2Fa";
       FileInputStream certificateInputStream = new FileInputStream("/home/manuel/Desktop/RU-Connector-Cert/no_ec_incentergy.p12");
 
@@ -61,7 +76,12 @@ public class KIMFlowtype169ServiceTest {
       SSLSocketFactory.delegate = sslContext.getSocketFactory();
 
       KIMFlowtype169Service kIMFlowtype169Service = new KIMFlowtype169Service();
-      List<Map<String,Object>> list = kIMFlowtype169Service.search("10.0.0.98", "See");
+      kIMFlowtype169Service.disableEndpointIdentification();
+      RuntimeConfig runtimeConfig = new RuntimeConfig();
+      UserConfigurations configurations = new UserConfigurations();
+      configurations.setConnectorBaseURL("https://10.0.0.98:443/");
+      runtimeConfig.updateProperties(configurations);
+      List<Map<String,Object>> list = kIMFlowtype169Service.search(runtimeConfig, searchDisplayName);
       System.out.println(JsonbBuilder.create().toJson(list));
     }
 }

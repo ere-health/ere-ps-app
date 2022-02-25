@@ -1,5 +1,7 @@
 package health.ere.ps.config;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -157,6 +159,14 @@ public class RuntimeConfig extends UserConfig {
     @Override
     public int hashCode() {
         return Objects.hash(eHBAHandle, SMCBHandle, idpBaseURL, idpAuthRequestRedirectURL, idpClientId, prescriptionServerURL, this.getConfigurations(), super.hashCode());
+    }
+
+    public String getConnectorAddress() {
+        try {
+            return new URL(getConnectorBaseURL()).getHost();
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
