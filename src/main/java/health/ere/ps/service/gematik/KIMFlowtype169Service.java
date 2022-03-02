@@ -106,7 +106,7 @@ public class KIMFlowtype169Service {
             log.info("Message is ready");
             Transport.send(msg);  
 
-            log.info("EMail Sent Successfully!!");
+            log.info("E-Mail sent successfully to: "+toKimAddress);
 	    } catch (Exception e) {
 	      log.log(Level.WARNING, "Error during sending E-Prescription", e);
 	    }
