@@ -28,6 +28,7 @@ import javax.net.ssl.TrustManager;
 
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.exception.common.security.SecretsManagerException;
+import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.service.config.UserConfigurationService;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
 
@@ -53,21 +54,29 @@ public class SecretsManagerService {
 
     @PostConstruct
     void createSSLContext() {
-        if(userConfigurationService.getConfig().getClientCertificate() != null && !userConfigurationService.getConfig().getClientCertificate().isEmpty()) {
-            String clientCertificateString = userConfigurationService.getConfig().getClientCertificate().substring(33);
-            byte[] clientCertificateBytes = Base64.getDecoder().decode(clientCertificateString);
-            try (ByteArrayInputStream certificateInputStream = new ByteArrayInputStream(clientCertificateBytes)) {
-                setUpSSLContext(userConfigurationService.getConfig().getClientCertificatePassword(), certificateInputStream);
-            } catch (NoSuchAlgorithmException | KeyStoreException | CertificateException | IOException
-                    | UnrecoverableKeyException | KeyManagementException e) {
-                log.severe("There was a problem when creating the SSLContext:");
-                e.printStackTrace();
-                exceptionEvent.fireAsync(e);
-            }
+
+        UserConfigurations userConfigurations = userConfigurationService.getConfig();
+
+        if(userConfigurations.getClientCertificate() != null && !userConfigurations.getClientCertificate().isEmpty()) {
+            sslContext = createSSLContext(userConfigurations);
         } else if (appConfig.getCertAuthStoreFile().isPresent() && appConfig.getCertAuthStoreFilePassword().isPresent()) {
             initFromAppConfig();
         } else {
             acceptAllCertificates();
+        }
+    }
+
+    public SSLContext createSSLContext(UserConfigurations userConfigurations) {
+        String clientCertificateString = userConfigurations.getClientCertificate().substring(33);
+        byte[] clientCertificateBytes = Base64.getDecoder().decode(clientCertificateString);
+        try (ByteArrayInputStream certificateInputStream = new ByteArrayInputStream(clientCertificateBytes)) {
+            return createSSLContext(userConfigurations.getClientCertificatePassword(), certificateInputStream);
+        } catch (NoSuchAlgorithmException | KeyStoreException | CertificateException | IOException
+                | UnrecoverableKeyException | KeyManagementException e) {
+            log.severe("There was a problem when creating the SSLContext:");
+            e.printStackTrace();
+            exceptionEvent.fireAsync(e);
+            return null;
         }
     }
 
@@ -89,7 +98,7 @@ public class SecretsManagerService {
         String connectorTlsCertAuthStorePwd = appConfig.getCertAuthStoreFilePassword().get();
 
         try (FileInputStream certificateInputStream = new FileInputStream(connectorTlsCertAuthStoreFile)) {
-            setUpSSLContext(connectorTlsCertAuthStorePwd, certificateInputStream);
+            sslContext = createSSLContext(connectorTlsCertAuthStorePwd, certificateInputStream);
         } catch (NoSuchAlgorithmException | KeyStoreException | CertificateException | IOException
                 | UnrecoverableKeyException | KeyManagementException e) {
             log.severe("There was a problem when creating the SSLContext:");
@@ -98,10 +107,10 @@ public class SecretsManagerService {
         }
     }
 
-    public void setUpSSLContext(String connectorTlsCertAuthStorePwd, InputStream certificateInputStream)
+    public SSLContext createSSLContext(String connectorTlsCertAuthStorePwd, InputStream certificateInputStream)
             throws NoSuchAlgorithmException, KeyStoreException, IOException, CertificateException,
             UnrecoverableKeyException, KeyManagementException {
-        sslContext = SSLContext.getInstance(SslContextType.TLS.getSslContextType());
+        SSLContext sslContext = SSLContext.getInstance(SslContextType.TLS.getSslContextType());
 
         KeyStore ks = KeyStore.getInstance(KeyStoreType.PKCS12.getKeyStoreType());
         ks.load(certificateInputStream, connectorTlsCertAuthStorePwd.toCharArray());
@@ -111,6 +120,7 @@ public class SecretsManagerService {
 
         sslContext.init(kmf.getKeyManagers(), new TrustManager[]{new SSLUtilities.FakeX509TrustManager()},
                 null);
+        return sslContext;
     }
 
     public void setUpSSLContext(KeyManager km)
