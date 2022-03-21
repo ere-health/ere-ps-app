@@ -66,6 +66,8 @@ import health.ere.ps.event.RequestStatusEvent;
 import health.ere.ps.event.SaveSettingsEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
 import health.ere.ps.event.StatusResponseEvent;
+import health.ere.ps.event.VZDSearchEvent;
+import health.ere.ps.event.VZDSearchResultEvent;
 import health.ere.ps.event.VerifyPinEvent;
 import health.ere.ps.event.erixa.ErixaEvent;
 import health.ere.ps.jsonb.BundleAdapter;
@@ -127,6 +129,9 @@ public class Websocket {
     
     @Inject
     Event<VerifyPinEvent> verifyPinEvent;
+
+    @Inject
+    Event<VZDSearchEvent> vZDSearchEvent;
     
     @Inject
     PrescriptionBundleValidator prescriptionBundleValidator;
@@ -294,6 +299,9 @@ public class Websocket {
             } else if ("PrefillBundle".equals(object.getString("type"))) {
                 PrefillBundleEvent event = new PrefillBundleEvent(object, senderSession, messageId);
                 prefillBundleEvent.fireAsync(event);
+            } else if("VZDSearch".equals(object.getString("type"))) {
+                VZDSearchEvent event = new VZDSearchEvent(object, senderSession, messageId);
+                vZDSearchEvent.fireAsync(event);
             }  else if ("RequestSettings".equals(object.getString("type"))) {
                 UserConfigurations userConfigurations = userConfigurationService.getConfig();
                 String payload = jsonbFactory.toJson(userConfigurations);
@@ -435,6 +443,16 @@ public class Websocket {
                 result -> {
                     if (!result.isOK()) {
                         ereLog.fatal("Unable to send StatusResponseEvent: " + result.getException());
+                    }
+                });
+    }
+
+    public void onVZDSearchResultEvent(@ObservesAsync VZDSearchResultEvent vZDSearchResultEvent) {
+        assureChromeIsOpen();
+        vZDSearchResultEvent.getReplyTo().getAsyncRemote().sendObject(vZDSearchResultEvent,
+                result -> {
+                    if (!result.isOK()) {
+                        ereLog.fatal("Unable to send VZDSearchResultEvent: " + result.getException());
                     }
                 });
     }

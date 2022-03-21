@@ -32,7 +32,6 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.MediaType;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.ws.Holder;
@@ -190,7 +189,7 @@ public class ERezeptWorkflowService {
         log.info(String.format("Getting access codes for %d bundles.",
                 bundles.size()));
 
-        List<BundleWithAccessCodeOrThrowable> unflatten = createMultipleERezeptsOnPrescriptionServer(bundles, signAndUploadBundlesEvent.getRuntimeConfig(), signAndUploadBundlesEvent.getReplyTo(), signAndUploadBundlesEvent.getId());
+        List<BundleWithAccessCodeOrThrowable> unflatten = createMultipleERezeptsOnPrescriptionServer(bundles, signAndUploadBundlesEvent.getFlowtype(), signAndUploadBundlesEvent.getRuntimeConfig(), signAndUploadBundlesEvent.getReplyTo(), signAndUploadBundlesEvent.getId());
         Iterator<BundleWithAccessCodeOrThrowable> it = unflatten.iterator();
         // unflatten bundles again
         for(int i = 0;i<listOfListOfBundles.size();i++) {
@@ -204,19 +203,23 @@ public class ERezeptWorkflowService {
 
         log.info(String.format("Firing event to create prescription receipts for %d bundles.",
                 bundleWithAccessCodeOrThrowable.size()));
-        bundlesWithAccessCodeEvent.fireAsync(new BundlesWithAccessCodeEvent(bundleWithAccessCodeOrThrowable, signAndUploadBundlesEvent.getReplyTo(), signAndUploadBundlesEvent.getId()));
+        BundlesWithAccessCodeEvent bundleWithAccessCode = new BundlesWithAccessCodeEvent(bundleWithAccessCodeOrThrowable, signAndUploadBundlesEvent.getReplyTo(), signAndUploadBundlesEvent.getId());
+        if("169".equals(signAndUploadBundlesEvent.getFlowtype())) {
+            bundleWithAccessCode.setFlowtype(signAndUploadBundlesEvent.getFlowtype());
+            bundleWithAccessCode.setToKimAddress(signAndUploadBundlesEvent.getToKimAddress());
+            bundleWithAccessCode.setKimConfigMap(signAndUploadBundlesEvent.getKimConfigMap());
+            bundleWithAccessCode.setNoteToPharmacy(signAndUploadBundlesEvent.getNoteToPharmacy());
+        }
+        bundlesWithAccessCodeEvent.fireAsync(bundleWithAccessCode);
     }
+
 
     public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(List<Bundle> bundles) {
         return createMultipleERezeptsOnPrescriptionServer(bundles, null, null, null);
     }
 
     public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(List<Bundle> bundles, RuntimeConfig runtimeConfig) {
-        return createMultipleERezeptsOnPrescriptionServer(bundles, false, runtimeConfig, null, null);
-    }
-
-    public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(List<Bundle> bundles, RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId) {
-        return createMultipleERezeptsOnPrescriptionServer(bundles, false, runtimeConfig, replyTo, replyToMessageId);
+        return createMultipleERezeptsOnPrescriptionServer(bundles, runtimeConfig, null, null);
     }
 
     /**
@@ -224,13 +227,18 @@ public class ERezeptWorkflowService {
      * <p>
      * When an error is thrown it create an object that contains this error.
      */
-    public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(List<Bundle> bundles, boolean comfortSignature, RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId) {
+    public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(List<Bundle> bundles, RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId) {
+        return createMultipleERezeptsOnPrescriptionServer(bundles, "160", runtimeConfig, replyTo, replyToMessageId);
+    }
+
+    public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(List<Bundle> bundles,
+        String flowtype, RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId) {
         List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodes = new ArrayList<>();
         List<Task> tasks = new ArrayList<>();
         for (Bundle bundle : bundles) {
             // Example: src/test/resources/gematik/Task-4711.xml
             try {
-                Task task = createERezeptTask(runtimeConfig);
+                Task task = createERezeptTask(true, runtimeConfig, flowtype);
                 tasks.add(task);
                 bundleWithAccessCodes.add(new BundleWithAccessCodeOrThrowable());
             } catch (Throwable t) {
@@ -390,8 +398,7 @@ public class ERezeptWorkflowService {
      * @param bundle
      */
     public BundleWithAccessCodeOrThrowable updateBundleWithTask(Task task, Bundle bundle) {
-        String prescriptionID = task.getIdentifier().stream()
-                .filter(id -> id.getSystem().equals(EREZEPT_IDENTIFIER_SYSTEM)).findFirst().orElse(new Identifier()).getValue();
+        String prescriptionID = getPrescriptionId(task);
         Identifier identifier = new Identifier();
         identifier.setSystem(EREZEPT_IDENTIFIER_SYSTEM);
         identifier.setValue(prescriptionID);
@@ -399,6 +406,12 @@ public class ERezeptWorkflowService {
 
         String accessCode = ERezeptWorkflowService.getAccessCode(task);
         return new BundleWithAccessCodeOrThrowable(bundle, accessCode);
+    }
+
+    public static String getPrescriptionId(Task task) {
+        String prescriptionID = task.getIdentifier().stream()
+                .filter(id -> id.getSystem().equals(EREZEPT_IDENTIFIER_SYSTEM)).findFirst().orElse(new Identifier()).getValue();
+        return prescriptionID;
     }
 
     public SignResponse signBundleWithIdentifiers(Bundle bundle) throws ERezeptWorkflowException {
@@ -635,6 +648,16 @@ public class ERezeptWorkflowService {
      * @return
      */
     public Task createERezeptTask(boolean firstTry, RuntimeConfig runtimeConfig) {
+        return createERezeptTask(firstTry, runtimeConfig, "160");
+    }
+
+    /**
+     * This function creates an empty task based on workflow 160 (Muster 16) on the
+     * prescription server.
+     *
+     * @return
+     */
+    public Task createERezeptTask(boolean firstTry, RuntimeConfig runtimeConfig, String flowtype) {
         requestNewAccessTokenIfNecessary(runtimeConfig, null, null);
         // https://github.com/gematik/api-erp/blob/master/docs/erp_bereitstellen.adoc#e-rezept-erstellen
         // POST to https://prescriptionserver.telematik/Task/$create
@@ -644,7 +667,7 @@ public class ERezeptWorkflowService {
         workflowTypeParameter.setName("workflowType");
         Coding valueCoding = (Coding) workflowTypeParameter.addChild("valueCoding");
         valueCoding.setSystem("https://gematik.de/fhir/CodeSystem/Flowtype");
-        valueCoding.setCode("160");
+        valueCoding.setCode(flowtype);
         parameters.addParameter(workflowTypeParameter);
 
         String parameterString = fhirContext.newXmlParser().encodeResourceToString(parameters);
@@ -660,7 +683,7 @@ public class ERezeptWorkflowService {
             // if this was the first try, try again, this will request a new bearer token
             if(firstTry && response.getStatus() == 401) {
                 log.warning("401 when trying to create e prescription. Retrying.");
-                return createERezeptTask(false, runtimeConfig);
+                return createERezeptTask(false, runtimeConfig, flowtype);
             }
 
             if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
