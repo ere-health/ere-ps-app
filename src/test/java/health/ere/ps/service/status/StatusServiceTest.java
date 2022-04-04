@@ -49,10 +49,10 @@ public class StatusServiceTest {
         Status status = statusService.getStatus(null);
 
         assertTrue(status.getConnectorReachable());
-        assertEquals("https://kon-instanz2.titus.ti-dienste.de", status.getConnectorInformation());
+        assertEquals("https://kon-instanz2.titus.gematik.solutions", status.getConnectorInformation());
     
         assertTrue(status.getIdpReachable());
-        assertEquals("https://idp.erezept-instanz1.titus.ti-dienste.de/auth/realms/idp/.well-known/openid-configuration", status.getIdpInformation());
+        assertEquals("https://idp.erezept-instanz1.titus.gematik.solutions/auth/realms/idp/.well-known/openid-configuration", status.getIdpInformation());
     
         assertTrue(status.getIdpaccesstokenObtainable());
 

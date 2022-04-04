@@ -113,7 +113,7 @@ public class IdpClientTest {
         RuntimeConfig runtimeConfig = new RuntimeConfig();
         runtimeConfig.setEHBAHandle("1-1-ARZT-WaltrautFinkengrund01");
         runtimeConfig.setSMCBHandle("1-2-ARZT-WaltrautDrombusch01");
-        runtimeConfig.getConfigurations().setConnectorBaseURL("https://kon-instanz2.titus.ti-dienste.de");
+        runtimeConfig.getConfigurations().setConnectorBaseURL("https://kon-instanz2.titus.gematik.solutions");
         runtimeConfig.getConfigurations().setVersion("PTV4+");
         runtimeConfig.getConfigurations().setMandantId("ps_erp_incentergy_01");
         runtimeConfig.getConfigurations().setWorkplaceId("CATS");
