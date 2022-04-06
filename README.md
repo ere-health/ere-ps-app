@@ -65,7 +65,10 @@ below from the ere-ps-app directory:
      
   2. Download and install the latest version of Apache Maven (https://maven.apache.org/). 
     
-  3. The latest Chrome Browser (https://www.google.com/chrome/).
+  3. The latest Chrome, Firefox or Edge Browser
+  (https://www.google.com/intl/en/chrome,
+  https://www.mozilla.org/en-US/firefox/new,
+  https://www.microsoft.com/en-us/edge).
  
     
 * #### Running the Application (Development Mode)
@@ -94,12 +97,11 @@ below from the ere-ps-app directory:
       2021-06-08 15:45:41,760 INFO  [io.quarkus] (Quarkus Main Thread) Profile dev activated. Live Coding activated.
       2021-06-08 15:45:41,761 INFO  [io.quarkus] (Quarkus Main Thread) Installed features: [cdi, rest-client, resteasy, resteasy-jsonb, scheduler, servlet, websockets]
   ```
-  You can access the front-end UI of the application by making reference to the following URL in a 
-  Chrome browser only!
+  You can access the front-end UI of the application by making reference to the following URL
   
   > http://localhost:8080/frontend/app/src/index.html
   
-  > ***Very Important! The front-end UI can only be accessed in the Chrome browser.***
+
   
 #### Verify Correct Reference to the Latest Front-End UI Version
 
