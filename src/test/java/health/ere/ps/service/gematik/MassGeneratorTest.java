@@ -122,7 +122,7 @@ public class MassGeneratorTest {
                 
         RuntimeConfig runtimeConfig = getRuntimeConfig();
         
-        List<String> cards = Files.readAllLines(Paths.get("../secret-test-print-samples/Noventi/egk/Versicherte_20211213.txt"));
+        List<String> cards = Files.readAllLines(Paths.get("../secret-test-print-samples/Noventi/egk/Versicherte_20220214.csv"));
 
         List<Map<String,String>> versicherte = cards.stream().map(s -> {
             String[] a = s.split("\\|");
@@ -251,7 +251,7 @@ public class MassGeneratorTest {
                         log.info(entry.toFile().getName()+" is not valid");
                     }
                     i++;
-                    if(i % 80 == 0) {
+                    if(i % 200 == 0) {
                         eRezeptWorkflowService.deactivateComfortSignature(runtimeConfig);
                         eRezeptWorkflowService.activateComfortSignature(runtimeConfig);
                     }
