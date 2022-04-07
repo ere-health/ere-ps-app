@@ -192,21 +192,23 @@ public class MassGeneratorTest {
 	                        Address address = patient.getAddress().get(0);
 	                        address.setCity(card.get("city"));
 	                        address.setPostalCode(card.get("postalCode"));
-	                        StringType line = address.getLine().get(0);
-	                        line.setValue(card.get("streetName")+" "+card.get("houseNumber"));
-	                        Extension streetName = line.getExtensionByUrl("http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName");
-	                        if(streetName == null) {
-	                            streetName = new Extension("http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName");
-	                            line.addExtension(streetName);
-	                        }
-	                        streetName.setValue(new StringType(card.get("streetName")));
-	                        Extension houseNumber = line.getExtensionByUrl("http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber");
-	                        if(houseNumber == null) {
-	                            houseNumber = new Extension("http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber");
-	                            line.addExtension(houseNumber);
-	                        }
-	                        
-	                        houseNumber.setValue(new StringType(card.get("houseNumber")));
+                            if(address.getLine().get(0).getExtensionByUrl("http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-postBox") == null) {
+                                StringType line = address.getLine().get(0);
+                                line.setValue(card.get("streetName")+" "+card.get("houseNumber"));
+                                Extension streetName = line.getExtensionByUrl("http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName");
+                                if(streetName == null) {
+                                    streetName = new Extension("http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName");
+                                    line.addExtension(streetName);
+                                }
+                                streetName.setValue(new StringType(card.get("streetName")));
+                                Extension houseNumber = line.getExtensionByUrl("http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber");
+                                if(houseNumber == null) {
+                                    houseNumber = new Extension("http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber");
+                                    line.addExtension(houseNumber);
+                                }
+                                
+                                houseNumber.setValue(new StringType(card.get("houseNumber")));
+                            }
 	
 	                        patient.setBirthDate(new SimpleDateFormat("dd.MM.yyyy", Locale.GERMANY)
 	                                .parse(card.get("birthdate")));
