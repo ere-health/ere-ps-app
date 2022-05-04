@@ -10,6 +10,7 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import health.ere.ps.config.AppConfig;
@@ -43,6 +44,7 @@ class AuthenticatorClientTest {
     String idpAuthRequestRedirectUrl;
 
     @Test
+    @Tag("titus")
     void test_Successful_Authorization_Request() throws IdpClientException, IdpException {
         AuthenticatorClient authenticatorClient = new AuthenticatorClient();
 

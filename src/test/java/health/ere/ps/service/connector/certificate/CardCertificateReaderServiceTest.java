@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import org.bouncycastle.crypto.CryptoException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import health.ere.ps.exception.connector.ConnectorCardCertificateReadException;
@@ -47,6 +48,7 @@ class CardCertificateReaderServiceTest {
     }
 
     @Test
+    @Tag("titus")
     void test_Successful_X509Certificate_Creation_From_ReadCardCertificate_API_Call()
             throws ConnectorCardCertificateReadException, IOException, CertificateException,
             CryptoException, ConnectorCardsException {

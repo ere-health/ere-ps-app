@@ -42,6 +42,7 @@ import org.hl7.fhir.r4.model.MedicationRequest;
 import org.hl7.fhir.r4.model.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import ca.uhn.fhir.context.FhirContext;
@@ -116,6 +117,7 @@ public class ERezeptWorkflowServiceTest {
     }
 
     @Test
+    @Tag("titus")
         // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testGetCards() throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         eRezeptWorkflowService.getCards();
@@ -525,6 +527,7 @@ public class ERezeptWorkflowServiceTest {
     }
 
     @Test
+    @Tag("titus")
         // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testToggleComfortSignature() throws ERezeptWorkflowException {
         eRezeptWorkflowService.activateComfortSignature();
@@ -533,6 +536,7 @@ public class ERezeptWorkflowServiceTest {
     }
 
     @Test
+    @Tag("titus")
         // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testIsERezeptServiceReachable() throws ERezeptWorkflowException {
         String parameterBearerToken = bearerTokenService.requestBearerToken();

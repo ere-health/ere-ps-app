@@ -12,6 +12,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import health.ere.ps.config.AppConfig;
@@ -79,6 +80,7 @@ public class IdpClientTest {
     }
 
     @Test
+    @Tag("titus")
     public void test_Successful_Idp_Login_With_Connector_Smcb() throws IdpJoseException,
             IdpClientException, IdpException, ConnectorCardCertificateReadException, ConnectorCardsException {
 
@@ -102,6 +104,7 @@ public class IdpClientTest {
     }
 
     @Test
+    @Tag("titus")
     public void test_With_RuntimeConfig() throws IdpJoseException,
             IdpClientException, IdpException, ConnectorCardCertificateReadException, ConnectorCardsException {
 

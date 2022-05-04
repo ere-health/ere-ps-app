@@ -13,6 +13,7 @@ import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.jose4j.jwt.consumer.JwtConsumer;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import health.ere.ps.model.status.Status;
@@ -45,6 +46,7 @@ public class StatusServiceTest {
     }
 
     @Test
+    @Tag("titus")
     public void test() {
         Status status = statusService.getStatus(null);
 
@@ -52,7 +54,7 @@ public class StatusServiceTest {
         assertEquals("https://kon-instanz2.titus.gematik.solutions", status.getConnectorInformation());
     
         assertTrue(status.getIdpReachable());
-        assertEquals("https://idp.erezept-instanz1.titus.gematik.solutions/auth/realms/idp/.well-known/openid-configuration", status.getIdpInformation());
+        assertEquals("https://idp.erezept-instanz1.titus.gematik.solutions/.well-known/openid-configuration", status.getIdpInformation());
     
         assertTrue(status.getIdpaccesstokenObtainable());
 
