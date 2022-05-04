@@ -328,6 +328,11 @@
                                                 Freitextverordnung
                                                 </fo:block>
                                             </xsl:if>
+                                            <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:coding/fhir:code/@value = 'rezeptur'">
+                                                <fo:block>
+                                                Rezeptur
+                                                </fo:block>
+                                            </xsl:if>
                                             <fo:block font-weight="bold">
                                                 <xsl:value-of
                                                         select="fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:dispenseRequest/fhir:quantity/fhir:value/@value"/>
@@ -342,6 +347,14 @@
                                                         select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:ingredient/fhir:strength/fhir:numerator/fhir:value/@value"/><xsl:text> </xsl:text><xsl:value-of
                                                         select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:ingredient/fhir:strength/fhir:numerator/fhir:unit/@value"/> / <xsl:value-of
                                                         select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:form/fhir:text/@value"/> 
+                                                </xsl:if>
+                                                <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:meta/fhir:profile/@value = 'https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Compounding|1.0.2'">
+                                                    <xsl:value-of
+                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:text/@value"/>
+                                                    <xsl:value-of
+                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:numerator/fhir:value/@value"/><xsl:text> </xsl:text><xsl:value-of
+                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:numerator/fhir:unit/@value"/> <xsl:value-of
+                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:form/fhir:text/@value"/>
                                                 </xsl:if>
 
                                                 <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:amount/fhir:numerator/fhir:value/@value > 0">
@@ -360,7 +373,7 @@
                                                 <xsl:value-of
                                                         select="fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:dosageInstruction/fhir:text/@value"/>
                                             </fo:block>
-                                            <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:coding/fhir:code/@value != 'freitext' and fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:coding/fhir:code/@value != 'wirkstoff'">
+                                            <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:coding/fhir:code/@value != 'freitext' and fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:coding/fhir:code/@value != 'wirkstoff' and fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:coding/fhir:code/@value != 'rezeptur'">
                                                 <fo:block>
                                                     PZN:<xsl:value-of
                                                             select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:coding/fhir:code/@value"/>
