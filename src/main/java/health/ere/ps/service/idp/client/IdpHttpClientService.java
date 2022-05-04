@@ -1,8 +1,5 @@
 package health.ere.ps.service.idp.client;
 
-import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
-import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
-
 import javax.enterprise.context.Dependent;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -13,6 +10,9 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
+import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 @Dependent
 @RegisterRestClient

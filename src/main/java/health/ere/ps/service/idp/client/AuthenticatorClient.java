@@ -1,32 +1,11 @@
 package health.ere.ps.service.idp.client;
 
-import com.diffplug.common.base.Errors;
-import com.diffplug.common.base.Throwing;
-import health.ere.ps.exception.idp.IdpClientException;
-import health.ere.ps.exception.idp.IdpException;
-import health.ere.ps.exception.idp.IdpJoseException;
-import health.ere.ps.model.idp.client.*;
-import health.ere.ps.model.idp.client.authentication.AuthenticationChallenge;
-import health.ere.ps.model.idp.client.brainPoolExtension.BrainpoolCurves;
-import health.ere.ps.model.idp.client.data.UserConsent;
-import health.ere.ps.model.idp.client.field.IdpScope;
-import health.ere.ps.model.idp.client.token.IdpJwe;
-import health.ere.ps.model.idp.client.token.JsonWebToken;
-import health.ere.ps.model.idp.client.token.TokenClaimExtraction;
-import health.ere.ps.service.idp.client.authentication.UriUtils;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.eclipse.microprofile.rest.client.RestClientBuilder;
-import org.jose4j.jwt.JwtClaims;
+import static health.ere.ps.model.idp.client.field.ClaimName.CODE_VERIFIER;
+import static health.ere.ps.model.idp.client.field.ClaimName.TOKEN_KEY;
+import static health.ere.ps.model.idp.client.field.ClaimName.X509_CERTIFICATE_CHAIN;
+import static health.ere.ps.service.idp.client.authentication.UriUtils.extractParameterValue;
+import static health.ere.ps.service.idp.crypto.CryptoLoader.getCertificateFromPem;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import javax.enterprise.context.ApplicationScoped;
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-import javax.json.JsonString;
-import javax.ws.rs.core.Response;
 import java.io.StringReader;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
@@ -43,9 +22,41 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static health.ere.ps.model.idp.client.field.ClaimName.*;
-import static health.ere.ps.service.idp.client.authentication.UriUtils.extractParameterValue;
-import static health.ere.ps.service.idp.crypto.CryptoLoader.getCertificateFromPem;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import javax.enterprise.context.ApplicationScoped;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
+import javax.json.JsonString;
+import javax.ws.rs.core.Response;
+
+import com.diffplug.common.base.Errors;
+import com.diffplug.common.base.Throwing;
+
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.microprofile.rest.client.RestClientBuilder;
+import org.jose4j.jwt.JwtClaims;
+
+import health.ere.ps.exception.idp.IdpClientException;
+import health.ere.ps.exception.idp.IdpException;
+import health.ere.ps.exception.idp.IdpJoseException;
+import health.ere.ps.model.idp.client.AuthenticationRequest;
+import health.ere.ps.model.idp.client.AuthenticationResponse;
+import health.ere.ps.model.idp.client.AuthorizationRequest;
+import health.ere.ps.model.idp.client.AuthorizationResponse;
+import health.ere.ps.model.idp.client.DiscoveryDocumentResponse;
+import health.ere.ps.model.idp.client.IdpTokenResult;
+import health.ere.ps.model.idp.client.TokenRequest;
+import health.ere.ps.model.idp.client.authentication.AuthenticationChallenge;
+import health.ere.ps.model.idp.client.brainPoolExtension.BrainpoolCurves;
+import health.ere.ps.model.idp.client.data.UserConsent;
+import health.ere.ps.model.idp.client.field.IdpScope;
+import health.ere.ps.model.idp.client.token.IdpJwe;
+import health.ere.ps.model.idp.client.token.JsonWebToken;
+import health.ere.ps.model.idp.client.token.TokenClaimExtraction;
+import health.ere.ps.service.idp.client.authentication.UriUtils;
 
 @ApplicationScoped
 public class AuthenticatorClient {
