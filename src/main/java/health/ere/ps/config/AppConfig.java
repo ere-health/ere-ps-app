@@ -36,6 +36,9 @@ public class AppConfig {
     @ConfigProperty(name = "ere-workflow-service.batch-sign.enable")
     boolean enableBatchSign;
 
+    @ConfigProperty(name = "ere-workflow-service.includeRevocationInfo.enable", defaultValue = "true")
+    boolean includeRevocationInfo;
+
     @ConfigProperty(name = "ere.workflow-service.prescription.write-signature-file")
     boolean writeSignatureFile;
 
@@ -88,6 +91,10 @@ public class AppConfig {
 
     public boolean enableBatchSign() {
         return enableBatchSign;
+    }
+
+    public boolean includeRevocationInfoEnabled() {
+        return includeRevocationInfo;
     }
 
     public String getUserAgent() {

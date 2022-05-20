@@ -45,6 +45,24 @@ public class WebsocketIntegrationTest {
         }
     }
 
+    @Test
+    public void testWebsocket_VerifyPin() throws Exception {
+        try (Session session = ContainerProvider.getWebSocketContainer().connectToServer(Client.class, uri)) {
+            Assertions.assertEquals("CONNECT", MESSAGES.poll(10, TimeUnit.SECONDS));
+            // Send a message to indicate that we are ready,
+            // as the message handler may not be registered immediately after this callback.
+            String signAndUploadBundles;
+            try {
+                signAndUploadBundles = new String(
+                        getClass().getResourceAsStream("/websocket-messages/SignAndUploadBundles.json").readAllBytes());
+                session.getAsyncRemote().sendText(signAndUploadBundles);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            // Assertions.assertEquals(">> stu: hello world", MESSAGES.poll(10, TimeUnit.SECONDS));
+        }
+    }
+
     @ClientEndpoint
     public static class Client {
 

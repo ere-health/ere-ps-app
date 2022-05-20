@@ -57,6 +57,8 @@ import health.ere.ps.event.ERezeptWithDocumentsEvent;
 import health.ere.ps.event.EreLogNotificationEvent;
 import health.ere.ps.event.GetCardsEvent;
 import health.ere.ps.event.GetCardsResponseEvent;
+import health.ere.ps.event.GetPinStatusEvent;
+import health.ere.ps.event.GetPinStatusResponseEvent;
 import health.ere.ps.event.GetSignatureModeEvent;
 import health.ere.ps.event.GetSignatureModeResponseEvent;
 import health.ere.ps.event.HTMLBundlesEvent;
@@ -66,9 +68,12 @@ import health.ere.ps.event.RequestStatusEvent;
 import health.ere.ps.event.SaveSettingsEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
 import health.ere.ps.event.StatusResponseEvent;
+import health.ere.ps.event.UnblockPinEvent;
+import health.ere.ps.event.UnblockPinResponseEvent;
 import health.ere.ps.event.VZDSearchEvent;
 import health.ere.ps.event.VZDSearchResultEvent;
 import health.ere.ps.event.VerifyPinEvent;
+import health.ere.ps.event.VerifyPinResponseEvent;
 import health.ere.ps.event.erixa.ErixaEvent;
 import health.ere.ps.jsonb.BundleAdapter;
 import health.ere.ps.jsonb.ByteAdapter;
@@ -129,6 +134,12 @@ public class Websocket {
     
     @Inject
     Event<VerifyPinEvent> verifyPinEvent;
+
+    @Inject
+    Event<UnblockPinEvent> unblockPinEvent;
+
+    @Inject
+    Event<GetPinStatusEvent> getPinStatusEvent;
 
     @Inject
     Event<VZDSearchEvent> vZDSearchEvent;
@@ -296,6 +307,12 @@ public class Websocket {
             } else if ("VerifyPin".equals(object.getString("type"))) {
                 VerifyPinEvent event = new VerifyPinEvent(object, senderSession, messageId);
                 verifyPinEvent.fireAsync(event);
+            } else if ("UnblockPin".equals(object.getString("type"))) {
+                UnblockPinEvent event = new UnblockPinEvent(object, senderSession, messageId);
+                unblockPinEvent.fireAsync(event);
+            } else if ("GetPinStatus".equals(object.getString("type"))) {
+                GetPinStatusEvent event = new GetPinStatusEvent(object, senderSession, messageId);
+                getPinStatusEvent.fireAsync(event);
             } else if ("PrefillBundle".equals(object.getString("type"))) {
                 PrefillBundleEvent event = new PrefillBundleEvent(object, senderSession, messageId);
                 prefillBundleEvent.fireAsync(event);
@@ -457,6 +474,36 @@ public class Websocket {
                 });
     }
 
+    public void onVerifyPinResponseEvent(@ObservesAsync VerifyPinResponseEvent verifyPinResponseEvent) {
+        assureChromeIsOpen();
+        verifyPinResponseEvent.getReplyTo().getAsyncRemote().sendObject(verifyPinResponseEvent,
+                result -> {
+                    if (!result.isOK()) {
+                        ereLog.fatal("Unable to send VerifyPinResponseEvent: " + result.getException());
+                    }
+                });
+    }
+
+    public void onUnblockPinResponseEvent(@ObservesAsync UnblockPinResponseEvent unblockPinResponseEvent) {
+        assureChromeIsOpen();
+        unblockPinResponseEvent.getReplyTo().getAsyncRemote().sendObject(unblockPinResponseEvent,
+                result -> {
+                    if (!result.isOK()) {
+                        ereLog.fatal("Unable to send UnblockPinResponseEvent: " + result.getException());
+                    }
+                });
+    }
+
+    public void onGetPinStatusResponseEvent(@ObservesAsync GetPinStatusResponseEvent getPinStatusResponseEvent) {
+        assureChromeIsOpen();
+        getPinStatusResponseEvent.getReplyTo().getAsyncRemote().sendObject(getPinStatusResponseEvent,
+                result -> {
+                    if (!result.isOK()) {
+                        ereLog.fatal("Unable to send GetPinStatusResponseEvent: " + result.getException());
+                    }
+                });
+    }
+
     String generateJson(GetSignatureModeResponseEvent getSignatureModeResponseEvent) {
         return jsonbFactory.toJson(getSignatureModeResponseEvent);
     }
@@ -471,6 +518,18 @@ public class Websocket {
 
     String generateJson(ChangePinResponseEvent changePinResponseEvent) {
         return jsonbFactory.toJson(changePinResponseEvent.getChangePinResponse());
+    }
+
+    String generateJson(VerifyPinResponseEvent verifyPinResponseEvent) {
+        return jsonbFactory.toJson(verifyPinResponseEvent.getVerifyPinResponse());
+    }
+
+    String generateJson(UnblockPinResponseEvent unblockPinResponseEvent) {
+        return jsonbFactory.toJson(unblockPinResponseEvent.getUnblockPinResponse());
+    }
+
+    String generateJson(GetPinStatusResponseEvent getPinStatusResponseEvent) {
+        return jsonbFactory.toJson(getPinStatusResponseEvent.getGetPinStatusResponse());
     }
 
     void assureChromeIsOpen() {

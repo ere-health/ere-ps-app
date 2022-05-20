@@ -1,0 +1,7 @@
+{
+    "type": "VerifyPin",
+    "payload": {
+        "cardHandle": "SMC-B-303"
+    },
+    "id": "7716aa4a-00e0-47d3-a600-c3b8fd61071b"
+}

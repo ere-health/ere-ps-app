@@ -489,7 +489,7 @@ public class ERezeptWorkflowService {
                 signRequest.setOptionalInputs(optionalInputs);
                 signRequest.setRequestID(UUID.randomUUID().toString());
                 signRequest.setDocument(document);
-                signRequest.setIncludeRevocationInfo(true);
+                signRequest.setIncludeRevocationInfo(appConfig.includeRevocationInfoEnabled());
                 return signRequest;
             }).collect(Collectors.toList());
 
