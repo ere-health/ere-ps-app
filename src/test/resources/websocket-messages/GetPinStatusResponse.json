@@ -1,0 +1,10 @@
+
+{
+    "payload": {
+        "pinStatusEnum": "VERIFIED",
+        "status": {
+            "result": "OK"
+        }
+    },
+    "type": "GetPinStatusResponse"
+}

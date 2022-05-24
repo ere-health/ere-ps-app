@@ -30,3 +30,22 @@ The following messages are currently supported:
  * GetSignatureMode - Get the status of the current comfort signature session
    * Response
     * GetSignatureModeResponse contains details how long the session will be valid and how many signs are left
+ * VerifyPin - Elevates the security status e.g. of a SMC-B so it can be used for signing
+ * ChangePin - Changes a PIN of a card
+ * UnblockPin - Unblocks a PIN
+ * GetPinStatus - Get the status of a PIN
+
+pinType:
+Gibt an, für welche PIN der Karte die Blockierung
+aufgehoben werden soll.
+Erlaubte Belegung von PinTyp in Abhängigkeit der
+durch Cardhandle referenzierten Karte:
+- eGK G1+: PIN.CH
+- eGK G2: PIN.CH, MRPIN.NFD,
+MRPIN.NFD_READ,
+ MRPIN.DPE, MRPIN.GDD, MRPIN.OSE,
+MRPIN.AMTS,
+ PIN.AMTS_REP
+ - zusätzlich eGK G2.0: MRPIN.DPE_READ
+- HBAx: PIN.CH, PIN.QES
+- SM-B: PIN.SMC

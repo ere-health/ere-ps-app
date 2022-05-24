@@ -1,12 +1,13 @@
 package health.ere.ps.event;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 import javax.websocket.Session;
 
 import health.ere.ps.model.gematik.VerifyPinResponse;
 
-public class VerifyPinResponseEvent extends AbstractEvent {
+public class VerifyPinResponseEvent extends AbstractEvent implements ReplyableEvent {
     
     private VerifyPinResponse verifyPinResponse;
 
@@ -53,6 +54,16 @@ public class VerifyPinResponseEvent extends AbstractEvent {
         return "{" +
             " verifyPinResponse='" + getVerifyPinResponse() + "'" +
             "}";
+    }
+
+    @Override
+    public Serializable getPayload() {
+        return (Serializable) verifyPinResponse;
+    }
+
+    @Override
+    public String getType() {
+        return "VerifyPinResponse";
     }
 
     

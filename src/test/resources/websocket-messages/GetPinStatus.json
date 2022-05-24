@@ -1,0 +1,7 @@
+{
+    "type": "GetPinStatus",
+    "payload": {
+        "cardHandle": "SMC-B-46",
+        "pinType": "PIN.SMC"
+    }
+}

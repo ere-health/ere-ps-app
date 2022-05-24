@@ -1,12 +1,13 @@
 package health.ere.ps.event;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 import javax.websocket.Session;
 
 import health.ere.ps.model.gematik.UnblockPinResponse;
 
-public class UnblockPinResponseEvent extends AbstractEvent {
+public class UnblockPinResponseEvent extends AbstractEvent implements ReplyableEvent {
     
     private UnblockPinResponse unblockPinResponse;
 
@@ -53,6 +54,16 @@ public class UnblockPinResponseEvent extends AbstractEvent {
         return "{" +
             " unblockPinResponse='" + getUnblockPinResponse() + "'" +
             "}";
+    }
+
+    @Override
+    public Serializable getPayload() {
+        return (Serializable) unblockPinResponse;
+    }
+
+    @Override
+    public String getType() {
+        return "UnblockPinResponse";
     }
 
     

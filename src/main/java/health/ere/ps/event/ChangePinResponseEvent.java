@@ -1,10 +1,12 @@
 package health.ere.ps.event;
 
+import java.io.Serializable;
+
 import javax.websocket.Session;
 
 import health.ere.ps.model.gematik.ChangePinResponse;
 
-public class ChangePinResponseEvent extends AbstractEvent {
+public class ChangePinResponseEvent extends AbstractEvent implements ReplyableEvent {
     private ChangePinResponse changePinResponse;
 
     public ChangePinResponseEvent() {
@@ -38,6 +40,16 @@ public class ChangePinResponseEvent extends AbstractEvent {
         return "{" +
             " changePinResponse='" + getChangePinResponse() + "'" +
             "}";
+    }
+
+    @Override
+    public String getType() {
+        return "ChangePinResponse";
+    }
+
+    @Override
+    public Serializable getPayload() {
+        return (Serializable) changePinResponse;
     }
     
 }

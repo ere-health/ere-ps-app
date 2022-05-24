@@ -1,0 +1,11 @@
+
+{
+    "payload": {
+        "pinResultEnum": "OK",
+        "status": {
+            "result": "OK"
+        }
+    },
+    "replyToMessageId": "42f7f455-0811-4db1-8def-5966f6e5130a",
+    "type": "VerifyPinResponse"
+}

@@ -1,11 +1,12 @@
 package health.ere.ps.model.gematik;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 
 import de.gematik.ws.conn.cardservicecommon.v2.PinResultEnum;
 import de.gematik.ws.conn.connectorcommon.v5.Status;
 
-public class ChangePinResponse {
+public class ChangePinResponse implements Serializable {
     private Status status;
     private PinResultEnum pinResultEnum;
     private BigInteger leftTries;

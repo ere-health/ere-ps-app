@@ -1,0 +1,8 @@
+{
+    "type": "UnblockPin",
+    "payload": {
+        "cardHandle": "SMC-B-46",
+        "pinType": "PIN.SMC",
+        "setNewPin": false
+    }
+}

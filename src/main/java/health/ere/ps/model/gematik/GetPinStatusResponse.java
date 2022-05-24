@@ -1,11 +1,12 @@
 package health.ere.ps.model.gematik;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 
 import de.gematik.ws.conn.cardservice.v8.PinStatusEnum;
 import de.gematik.ws.conn.connectorcommon.v5.Status;
 
-public class GetPinStatusResponse {
+public class GetPinStatusResponse implements Serializable {
 
     Status status;
     PinStatusEnum pinResultEnum;
