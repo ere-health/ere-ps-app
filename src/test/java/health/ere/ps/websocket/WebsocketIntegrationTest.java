@@ -21,6 +21,7 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import health.ere.ps.profile.RUTestProfile;
@@ -28,7 +29,7 @@ import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 
-// @Disabled
+@Disabled
 @QuarkusTest
 @TestProfile(RUTestProfile.class)
 public class WebsocketIntegrationTest {
