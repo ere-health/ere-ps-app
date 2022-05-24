@@ -1,0 +1,23 @@
+{"type": "ChangePinResponse", "payload": 
+    {
+        "pinResultEnum": "ERROR",
+        "status": {
+            "error": {
+                "messageID": "8856a859-9a32-f576-f019-b8f90e324277",
+                "timestamp": "2022-05-24T15:47:00.275Z[GMT]",
+                "trace": [
+                    {
+                        "code": 4049,
+                        "compType": "Konnektor",
+                        "errorText": "Abbruch durch den Benutzer",
+                        "errorType": "Technical",
+                        "eventID": "ab9a18df-3944-7404-08e1-2ee3ab7343d2",
+                        "instance": "Konnektor-Lokal",
+                        "logReference": "",
+                        "severity": "Error"
+                    }
+                ]
+            },
+            "result": "Warning"
+        }
+    }, "replyToMessageId": "9bed3579-03bf-4794-95ec-5c94dbeb2c6b"}

@@ -1,0 +1,8 @@
+{
+    "type": "ChangePin",
+    "payload": {
+        "cardHandle": "HBA-44",
+        "pinType": "PIN.QES"
+    },
+    "id": "9bed3579-03bf-4794-95ec-5c94dbeb2c6b"
+}

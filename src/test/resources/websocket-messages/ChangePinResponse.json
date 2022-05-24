@@ -1,0 +1,7 @@
+{"type": "ChangePinResponse", "payload": 
+    {
+        "pinResultEnum": "OK",
+        "status": {
+            "result": "OK"
+        }
+    }, "replyToMessageId": "febf7f23-e863-41f4-ac4d-51b486758081"}
