@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -60,6 +62,8 @@ public class KIMFlowtype169Service {
     @Inject
     Event<Exception> exceptionEvent;
 
+    Pattern HOST_WITH_PORT = Pattern.compile("^(.*):([0-9]+)$");
+
     @PostConstruct
     public void disableEndpointIdentification() {
         System.setProperty("com.sun.jndi.ldap.object.disableEndpointIdentification", "true");
@@ -68,8 +72,13 @@ public class KIMFlowtype169Service {
     public void sendERezeptToKIMAddress(String fromKimAddress, String toKimAddress, String noteToPharmacy, String smtpHostServer, String smtpUser, String smtpPassword, String eRezeptToken) {
         try {
             Properties props = new Properties();
-
-            props.put("mail.smtp.host", smtpHostServer);
+            Matcher m = HOST_WITH_PORT.matcher(smtpHostServer);
+            if(m.matches()) {
+                props.put("mail.smtp.host", m.group(1));
+                props.put("mail.smtp.port", m.group(2));
+            } else {
+                props.put("mail.smtp.host", smtpHostServer);
+            }
             props.put("mail.smtp.auth", true);
 
             Session session = Session.getInstance(props, new Authenticator() {
