@@ -967,7 +967,7 @@ public class ERezeptWorkflowService {
                                  .header("Authorization", "Bearer " + parameterBearerToken)
                                  .get()
             ) {
-            if (response.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
+            if (response.getStatus() == Response.Status.OK.getStatusCode()) {
                 return true;
             } else {
                 return false;
