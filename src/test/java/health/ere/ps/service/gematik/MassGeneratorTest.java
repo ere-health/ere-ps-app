@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -121,6 +122,8 @@ public class MassGeneratorTest {
                 documentService.init();
                 
         RuntimeConfig runtimeConfig = getRuntimeConfig();
+
+        Map<Path, Bundle> bundles = new LinkedHashMap<>();
         
         List<String> cards = Files.readAllLines(Paths.get("../secret-test-print-samples/Noventi/egk/Versicherte_20220214.csv"));
 
@@ -140,7 +143,7 @@ public class MassGeneratorTest {
         }).collect(Collectors.toList());
 
 
-        eRezeptWorkflowService.activateComfortSignature(runtimeConfig);
+        // eRezeptWorkflowService.activateComfortSignature(runtimeConfig);
         String thisMomentString = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
                                 .withZone(ZoneOffset.UTC)
                                 .format(Instant.now());
@@ -223,39 +226,50 @@ public class MassGeneratorTest {
                     //}
                     ValidationResult validationResult = prescriptionBundleValidator.validateResource(bundle, true);
                     if(validationResult.isSuccessful()) {
-                        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable;
-                        try {
-                            bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(bundle, runtimeConfig);
-                        } catch(Exception ex) {
-                            bundleWithAccessCodeOrThrowable = new BundleWithAccessCodeOrThrowable(ex);
-                            ex.printStackTrace();
-                        }
-                        String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
-                                .withZone(ZoneOffset.UTC)
-                                .format(Instant.now());
-                                
-                        if(bundleWithAccessCodeOrThrowable.getThrowable() != null) {
-                            StringWriter sw = new StringWriter();
-                            PrintWriter pw = new PrintWriter(sw);
-                            bundleWithAccessCodeOrThrowable.getThrowable().printStackTrace(pw);
-                            Files.write(Paths.get("target/"+entry.toFile().getName().replace(".xml", "")+"-"+card.get("nummer")+"-"+ thisMoment + ".txt"), sw.toString().getBytes());
-                            Files.write(Paths.get("target/"+entry.toFile().getName().replace(".xml", "")+"-"+card.get("nummer")+"-"+ thisMoment + ".xml"), iParser.encodeResourceToString(bundleWithAccessCodeOrThrowable.getBundle()).getBytes());
-                        } else {
-                            ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
-                            String fileName = entry.toFile().getName().replace(".xml", "")+"-"+card.get("nummer")+"-" + thisMoment + ".pdf";
-                            Files.write(Paths.get("target/"+fileName), a.toByteArray());
-                            fw.write(bundleWithAccessCodeOrThrowable.getBundle().getIdentifier().getValue()+","+fileName+","+bundleWithAccessCodeOrThrowable.getAccessCode()+","+card.get("nummer")+"\n");
-                            fw.flush();
-                        }
+                        List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowables;
+                        bundles.put(entry, bundle);
+                        if(bundles.size() == 30) {
 
-                        log.info("Time: "+thisMoment);
+                            try {
+                                bundleWithAccessCodeOrThrowables = eRezeptWorkflowService.createMultipleERezeptsOnPrescriptionServer(new ArrayList<Bundle>(bundles.values()), runtimeConfig);
+                                
+                            } catch(Exception ex) {
+                                bundleWithAccessCodeOrThrowables = Arrays.asList(new BundleWithAccessCodeOrThrowable(ex));
+                                ex.printStackTrace();
+                            }
+                            int z = 0;
+                            for(BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable : bundleWithAccessCodeOrThrowables) {
+                                entry = new ArrayList<Path>(bundles.keySet()).get(z);
+                                z++;
+                                String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
+                                        .withZone(ZoneOffset.UTC)
+                                        .format(Instant.now());
+                                        
+                                if(bundleWithAccessCodeOrThrowable.getThrowable() != null) {
+                                    StringWriter sw = new StringWriter();
+                                    PrintWriter pw = new PrintWriter(sw);
+                                    bundleWithAccessCodeOrThrowable.getThrowable().printStackTrace(pw);
+                                    Files.write(Paths.get("target/"+entry.toFile().getName().replace(".xml", "")+"-"+card.get("nummer")+"-"+ thisMoment + ".txt"), sw.toString().getBytes());
+                                    Files.write(Paths.get("target/"+entry.toFile().getName().replace(".xml", "")+"-"+card.get("nummer")+"-"+ thisMoment + ".xml"), iParser.encodeResourceToString(bundleWithAccessCodeOrThrowable.getBundle()).getBytes());
+                                } else {
+                                    ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
+                                    String fileName = entry.toFile().getName().replace(".xml", "")+"-"+card.get("nummer")+"-" + thisMoment + ".pdf";
+                                    Files.write(Paths.get("target/"+fileName), a.toByteArray());
+                                    fw.write(bundleWithAccessCodeOrThrowable.getBundle().getIdentifier().getValue()+","+fileName+","+bundleWithAccessCodeOrThrowable.getAccessCode()+","+card.get("nummer")+"\n");
+                                    fw.flush();
+                                }
+        
+                                log.info("Time: "+thisMoment);
+                            }
+                            bundles.clear();
+                        }
                     } else {
                         log.info(entry.toFile().getName()+" is not valid");
                     }
                     i++;
                     if(i % 200 == 0) {
-                        eRezeptWorkflowService.deactivateComfortSignature(runtimeConfig);
-                        eRezeptWorkflowService.activateComfortSignature(runtimeConfig);
+                        // RezeptWorkflowService.deactivateComfortSignature(runtimeConfig);
+                        // eRezeptWorkflowService.activateComfortSignature(runtimeConfig);
                     }
                 }
             } catch (Exception ex) {
@@ -266,7 +280,7 @@ public class MassGeneratorTest {
             }
             // break;
         }
-        eRezeptWorkflowService.deactivateComfortSignature(runtimeConfig);
+        // eRezeptWorkflowService.deactivateComfortSignature(runtimeConfig);
         fw.close();
     }
 

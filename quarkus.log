@@ -1,0 +1,75 @@
+2022-06-09 10:35:45,565 manuel-xps-13-9305 quarkus-run.jar[925754] INFO  [ca.uhn.fhi.uti.VersionUtil] (main) HAPI FHIR version 5.4.2 - Rev 4f855ebed9
+2022-06-09 10:35:45,567 manuel-xps-13-9305 quarkus-run.jar[925754] INFO  [ca.uhn.fhi.con.FhirContext] (main) Creating new FHIR context for FHIR version [R4]
+2022-06-09 10:35:45,850 manuel-xps-13-9305 quarkus-run.jar[925754] INFO  [ca.uhn.fhi.con.FhirContext] (main) Creating new FHIR context for FHIR version [R4]
+2022-06-09 10:35:46,253 manuel-xps-13-9305 quarkus-run.jar[925754] INFO  [io.und.websockets] (main) UT026003: Adding annotated server endpoint class health.ere.ps.websocket.Websocket for path /websocket
+2022-06-09 10:35:46,318 manuel-xps-13-9305 quarkus-run.jar[925754] INFO  [hea.ere.ps.ser.fs.DirectoryWatcher] (main) Watching directory: watch-pdf
+2022-06-09 10:35:46,330 manuel-xps-13-9305 quarkus-run.jar[925754] INFO  [hea.ere.ps.ser.idp.cli.IdpClient] (main) Initializing using url: https://idp-ref.zentral.idp.splitdns.ti-dienste.de//.well-known/openid-configuration
+2022-06-09 10:35:47,792 manuel-xps-13-9305 quarkus-run.jar[925754] INFO  [hea.ere.ps.val.fhi.bun.PrescriptionBundleValidator] (main) Starting validator
+2022-06-09 10:35:47,793 manuel-xps-13-9305 quarkus-run.jar[925754] INFO  [ca.uhn.fhi.con.FhirContext] (main) Creating new FHIR context for FHIR version [R4]
+2022-06-09 10:35:47,804 manuel-xps-13-9305 quarkus-run.jar[925754] INFO  [ca.uhn.fhi.con.FhirContext] (main) Creating new FHIR context for FHIR version [R4]
+2022-06-09 10:35:47,818 manuel-xps-13-9305 quarkus-run.jar[925754] INFO  [hea.ere.ps.val.fhi.con.sup.ErePrePopulatedValidationSupport] (main) [KBV Validator,KBV Validator Configuration <--> ?] <==> Loading KBV Validator configuration
+2022-06-09 10:35:47,819 manuel-xps-13-9305 quarkus-run.jar[925754] FATAL [hea.ere.ps.val.fhi.con.sup.ErePrePopulatedValidationSupport] (main) [KBV Validator,KBV Validator Configuration <--> Cannot initialise KBV Validator] <==> Error occurred while configuring validator: java.nio.file.NoSuchFileException: /home/manuel/git/ere-ps-app/../KBV_FHIR_eRP_V1_0_2
+	at java.base/sun.nio.fs.UnixException.translateToIOException(UnixException.java:92)
+	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:111)
+	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:116)
+	at java.base/sun.nio.fs.UnixFileAttributeViews$Basic.readAttributes(UnixFileAttributeViews.java:55)
+	at java.base/sun.nio.fs.UnixFileSystemProvider.readAttributes(UnixFileSystemProvider.java:149)
+	at java.base/sun.nio.fs.LinuxFileSystemProvider.readAttributes(LinuxFileSystemProvider.java:99)
+	at java.base/java.nio.file.Files.readAttributes(Files.java:1764)
+	at java.base/java.nio.file.FileTreeWalker.getAttributes(FileTreeWalker.java:219)
+	at java.base/java.nio.file.FileTreeWalker.visit(FileTreeWalker.java:276)
+	at java.base/java.nio.file.FileTreeWalker.walk(FileTreeWalker.java:322)
+	at java.base/java.nio.file.Files.walkFileTree(Files.java:2717)
+	at java.base/java.nio.file.Files.walkFileTree(Files.java:2797)
+	at health.ere.ps.validation.fhir.context.support.ErePrePopulatedValidationSupport.initKbvValidatorConfiguration(ErePrePopulatedValidationSupport.java:144)
+	at health.ere.ps.validation.fhir.context.support.ErePrePopulatedValidationSupport.<init>(ErePrePopulatedValidationSupport.java:41)
+	at health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator.init(PrescriptionBundleValidator.java:52)
+	at health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator_Bean.create(PrescriptionBundleValidator_Bean.zig:144)
+	at health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator_Bean.create(PrescriptionBundleValidator_Bean.zig:160)
+	at io.quarkus.arc.impl.AbstractSharedContext.createInstanceHandle(AbstractSharedContext.java:96)
+	at io.quarkus.arc.impl.AbstractSharedContext.access$000(AbstractSharedContext.java:14)
+	at io.quarkus.arc.impl.AbstractSharedContext$1.get(AbstractSharedContext.java:29)
+	at io.quarkus.arc.impl.AbstractSharedContext$1.get(AbstractSharedContext.java:26)
+	at io.quarkus.arc.impl.LazyValue.get(LazyValue.java:26)
+	at io.quarkus.arc.impl.ComputingCache.computeIfAbsent(ComputingCache.java:69)
+	at io.quarkus.arc.impl.AbstractSharedContext.get(AbstractSharedContext.java:26)
+	at io.quarkus.arc.impl.ClientProxies.getApplicationScopedDelegate(ClientProxies.java:17)
+	at health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator_ClientProxy.arc$delegate(PrescriptionBundleValidator_ClientProxy.zig:67)
+	at health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator_ClientProxy.arc_contextualInstance(PrescriptionBundleValidator_ClientProxy.zig:82)
+	at health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator_Observer_Synthetic_d70cd75bf32ab6598217b9a64a8473d65e248c05.notify(PrescriptionBundleValidator_Observer_Synthetic_d70cd75bf32ab6598217b9a64a8473d65e248c05.zig:94)
+	at io.quarkus.arc.impl.EventImpl$Notifier.notifyObservers(EventImpl.java:283)
+	at io.quarkus.arc.impl.EventImpl$Notifier.notify(EventImpl.java:268)
+	at io.quarkus.arc.impl.EventImpl.fire(EventImpl.java:70)
+	at io.quarkus.arc.runtime.ArcRecorder.fireLifecycleEvent(ArcRecorder.java:128)
+	at io.quarkus.arc.runtime.ArcRecorder.handleLifecycleEvents(ArcRecorder.java:97)
+	at io.quarkus.deployment.steps.LifecycleEventsBuildStep$startupEvent1144526294.deploy_0(LifecycleEventsBuildStep$startupEvent1144526294.zig:87)
+	at io.quarkus.deployment.steps.LifecycleEventsBuildStep$startupEvent1144526294.deploy(LifecycleEventsBuildStep$startupEvent1144526294.zig:40)
+	at io.quarkus.runner.ApplicationImpl.doStart(ApplicationImpl.zig:620)
+	at io.quarkus.runtime.Application.start(Application.java:90)
+	at io.quarkus.runtime.ApplicationLifecycleManager.run(ApplicationLifecycleManager.java:100)
+	at io.quarkus.runtime.Quarkus.run(Quarkus.java:66)
+	at io.quarkus.runtime.Quarkus.run(Quarkus.java:42)
+	at io.quarkus.runtime.Quarkus.run(Quarkus.java:119)
+	at io.quarkus.runner.GeneratedMain.main(GeneratedMain.zig:29)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+	at io.quarkus.bootstrap.runner.QuarkusEntryPoint.doRun(QuarkusEntryPoint.java:48)
+	at io.quarkus.bootstrap.runner.QuarkusEntryPoint.main(QuarkusEntryPoint.java:25)
+
+2022-06-09 10:35:47,825 manuel-xps-13-9305 quarkus-run.jar[925754] INFO  [ca.uhn.fhi.con.FhirContext] (executor-thread-1) Creating new FHIR context for FHIR version [R4]
+2022-06-09 10:35:47,850 manuel-xps-13-9305 quarkus-run.jar[925754] INFO  [ca.uhn.fhi.val.FhirValidator] (main) Ph-schematron library not found on classpath, will not attempt to perform schematron validation
+2022-06-09 10:35:47,856 manuel-xps-13-9305 quarkus-run.jar[925754] INFO  [ca.uhn.fhi.con.FhirContext] (main) Creating new FHIR context for FHIR version [R5]
+2022-06-09 10:35:47,902 manuel-xps-13-9305 quarkus-run.jar[925754] INFO  [ca.uhn.fhi.con.sup.DefaultProfileValidationSupport] (main) Loading structure definitions from classpath: /org/hl7/fhir/r4/model/profile/profiles-resources.xml
+2022-06-09 10:35:47,915 manuel-xps-13-9305 quarkus-run.jar[925754] WARN  [org.jbo.res.cli.jax.i18n] (Finalizer) RESTEASY004687: Closing a class org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient43Engine instance for you. Please close clients yourself.
+2022-06-09 10:35:47,918 manuel-xps-13-9305 quarkus-run.jar[925754] WARN  [org.jbo.res.cli.jax.i18n] (Finalizer) RESTEASY004687: Closing a class org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient43Engine instance for you. Please close clients yourself.
+2022-06-09 10:35:47,919 manuel-xps-13-9305 quarkus-run.jar[925754] WARN  [org.jbo.res.cli.jax.i18n] (Finalizer) RESTEASY004687: Closing a class org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient43Engine instance for you. Please close clients yourself.
+2022-06-09 10:35:47,937 manuel-xps-13-9305 quarkus-run.jar[925754] INFO  [ca.uhn.fhi.uti.XmlUtil] (main) FHIR XML procesing will use StAX implementation 'Woodstox' version '6.1.1'
+2022-06-09 10:35:48,942 manuel-xps-13-9305 quarkus-run.jar[925754] INFO  [ca.uhn.fhi.con.sup.DefaultProfileValidationSupport] (main) Loading structure definitions from classpath: /org/hl7/fhir/r4/model/profile/profiles-types.xml
+2022-06-09 10:35:48,994 manuel-xps-13-9305 quarkus-run.jar[925754] INFO  [ca.uhn.fhi.con.sup.DefaultProfileValidationSupport] (main) Loading structure definitions from classpath: /org/hl7/fhir/r4/model/profile/profiles-others.xml
+2022-06-09 10:35:49,120 manuel-xps-13-9305 quarkus-run.jar[925754] INFO  [ca.uhn.fhi.con.sup.DefaultProfileValidationSupport] (main) Loading structure definitions from classpath: /org/hl7/fhir/r4/model/extension/extension-definitions.xml
+2022-06-09 10:35:49,828 manuel-xps-13-9305 quarkus-run.jar[925754] INFO  [io.quarkus] (main) ere-ps-app 1.0.0-SNAPSHOT on JVM (powered by Quarkus 1.13.7.Final) started in 4.598s. Listening on: http://0.0.0.0:8080 and https://0.0.0.0:8443
+2022-06-09 10:35:49,828 manuel-xps-13-9305 quarkus-run.jar[925754] INFO  [io.quarkus] (main) Profile RU activated. 
+2022-06-09 10:35:49,828 manuel-xps-13-9305 quarkus-run.jar[925754] INFO  [io.quarkus] (main) Installed features: [cdi, rest-client, resteasy, resteasy-jsonb, scheduler, servlet, smallrye-openapi, websockets]
+2022-06-09 10:35:54,220 manuel-xps-13-9305 quarkus-run.jar[925754] INFO  [io.quarkus] (Shutdown thread) ere-ps-app stopped in 0.038s
