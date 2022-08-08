@@ -143,7 +143,7 @@ public class MassGeneratorTest {
         }).collect(Collectors.toList());
 
 
-        // eRezeptWorkflowService.activateComfortSignature(runtimeConfig);
+        eRezeptWorkflowService.activateComfortSignature(runtimeConfig);
         String thisMomentString = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
                                 .withZone(ZoneOffset.UTC)
                                 .format(Instant.now());
@@ -268,8 +268,8 @@ public class MassGeneratorTest {
                     }
                     i++;
                     if(i % 200 == 0) {
-                        // RezeptWorkflowService.deactivateComfortSignature(runtimeConfig);
-                        // eRezeptWorkflowService.activateComfortSignature(runtimeConfig);
+                        eRezeptWorkflowService.deactivateComfortSignature(runtimeConfig);
+                        eRezeptWorkflowService.activateComfortSignature(runtimeConfig);
                     }
                 }
             } catch (Exception ex) {
@@ -280,7 +280,7 @@ public class MassGeneratorTest {
             }
             // break;
         }
-        // eRezeptWorkflowService.deactivateComfortSignature(runtimeConfig);
+        eRezeptWorkflowService.deactivateComfortSignature(runtimeConfig);
         fw.close();
     }
 
