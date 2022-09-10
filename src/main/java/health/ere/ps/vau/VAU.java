@@ -271,10 +271,12 @@ public class VAU {
 
         ByteArrayOutputStream mem = new ByteArrayOutputStream();
         mem.write(0x01); // Version
-        mem.write(myPublic.getQ().getXCoord().getEncoded(), 0, myPublic.getQ().getXCoord().getEncoded().length); // XKoordinate
+        byte[] xCoord = make32ByteLong(myPublic.getQ().getXCoord().getEncoded());
+        mem.write(xCoord, 0, xCoord.length); // XKoordinate
         // VAU
         // Zert
-        mem.write(myPublic.getQ().getYCoord().getEncoded(), 0, myPublic.getQ().getYCoord().getEncoded().length); // YKoordinate
+        byte[] yCoord = make32ByteLong(myPublic.getQ().getYCoord().getEncoded());
+        mem.write(yCoord, 0, yCoord.length); // XKoordinate
         // VAU
         // Zert
         mem.write(iv, 0, iv.length);

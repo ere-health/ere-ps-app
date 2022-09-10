@@ -133,7 +133,7 @@ public class MassGenerator2Test {
     }
     @Test
     void testCreateERezeptMassCreateCIDA() throws Exception {
-        createERezeptMassCreateBatch("../secret-test-print-samples/CIDA/egk/cards.txt", null, "../secret-test-print-samples/CIDA/templates/", true);
+        createERezeptMassCreate("../secret-test-print-samples/CIDA/egk/cards.txt", null, "../secret-test-print-samples/CIDA/CIDA-5/", true);
     }
     @Test
     void testCreateERezeptMassCGMLauer() throws Exception {
@@ -340,7 +340,7 @@ public class MassGenerator2Test {
         DocumentService documentService = new DocumentService();
                 documentService.init();
         
-        List<String> cards = cardsString != null ? Files.readAllLines(Paths.get(cardsString)) : Arrays.asList(new String[] {"X110478118"});
+        List<String> cards = cardsString != null ? Files.readAllLines(Paths.get(cardsString)) : Arrays.asList(new String[] {"X110486750"});
 
         RuntimeConfig runtimeConfig = getRuntimeConfig();
 
