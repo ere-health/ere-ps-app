@@ -14,15 +14,15 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.xml.ws.Holder;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwx.CompactSerializer;
 import org.jose4j.lang.JoseException;
 import org.jose4j.lang.StringUtil;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import de.gematik.ws.conn.authsignatureservice.wsdl.v7.FaultMessage;
 import de.gematik.ws.conn.cardservicecommon.v2.PinResultEnum;
@@ -113,7 +113,7 @@ public class SmcbAuthenticatorService {
                 try {
                     String smcbCardHandle = (this.runtimeConfig != null && this.runtimeConfig.getSMCBHandle() != null) ?
                         this.runtimeConfig.getSMCBHandle() : connectorCardsService.getConnectorCardHandle(
-                        ConnectorCardsService.CardHandleType.SMC_B);
+                        ConnectorCardsService.CardHandleType.SMC_B, runtimeConfig);
 
                     signatureBytes = externalAuthenticate(encodedhash,
                             smcbCardHandle);

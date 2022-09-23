@@ -63,7 +63,7 @@ public class BearerTokenService {
     public String requestBearerToken(RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId) {
         try {
             String cardHandle = (runtimeConfig!= null && runtimeConfig.getSMCBHandle() != null) ?  runtimeConfig.getSMCBHandle(): connectorCardsService.getConnectorCardHandle(
-                    ConnectorCardsService.CardHandleType.SMC_B);
+                    ConnectorCardsService.CardHandleType.SMC_B, runtimeConfig);
 
             X509Certificate x509Certificate =
                     cardCertificateReaderService.retrieveSmcbCardCertificate(cardHandle, runtimeConfig);
