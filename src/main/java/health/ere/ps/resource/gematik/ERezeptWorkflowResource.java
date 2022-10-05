@@ -109,9 +109,9 @@ public class ERezeptWorkflowResource {
 
     @POST
     @Path("/abort")
-    public Response postUserId(AbortERezept abortERezept) {
+    public Response abortERezeptTask(AbortERezept abortERezept) {
         eRezeptWorkflowService.abortERezeptTask(extractRuntimeConfigFromHeaders(), abortERezept.getTaskId(), abortERezept.getAccessCode());
-        return Response.ok().build();
+        return Response.noContent().build();
     }
 
     @POST
