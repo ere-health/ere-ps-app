@@ -174,7 +174,7 @@ public class ERezeptWorkflowService {
      * necessary processing
      */
     public void onSignAndUploadBundlesEvent(@ObservesAsync SignAndUploadBundlesEvent signAndUploadBundlesEvent) {
-        requestNewAccessTokenIfNecessary(signAndUploadBundlesEvent.getRuntimeConfig(), signAndUploadBundlesEvent.getReplyTo(), signAndUploadBundlesEvent.getReplyToMessageId());
+        requestNewAccessTokenIfNecessary(signAndUploadBundlesEvent.getRuntimeConfig(), signAndUploadBundlesEvent.getReplyTo(), signAndUploadBundlesEvent.getId());
 
         List<List<Bundle>> listOfListOfBundles = signAndUploadBundlesEvent.listOfListOfBundles;
         log.info(String.format("Received %d bundles to sign ", listOfListOfBundles.size()));
@@ -767,7 +767,7 @@ public class ERezeptWorkflowService {
      * @param abortTasksEvent event that contains the task to abort
      */
     public void onAbortTasksEvent(@ObservesAsync AbortTasksEvent abortTasksEvent) {
-        requestNewAccessTokenIfNecessary(abortTasksEvent.getRuntimeConfig(), abortTasksEvent.getReplyTo(), abortTasksEvent.getReplyToMessageId());
+        requestNewAccessTokenIfNecessary(abortTasksEvent.getRuntimeConfig(), abortTasksEvent.getReplyTo(), abortTasksEvent.getId());
         List<AbortTaskStatus> abortTaskStatusList = new ArrayList<>();
         for (AbortTaskEntry abortTaskEntry : abortTasksEvent.getTasks()) {
             AbortTaskStatus abortTaskStatus = new AbortTaskStatus(abortTaskEntry);
@@ -789,7 +789,7 @@ public class ERezeptWorkflowService {
      * Reacts to the event the ActivateComfortSignatureEvent
      */
     public void onActivateComfortSignatureEvent(@ObservesAsync ActivateComfortSignatureEvent activateComfortSignatureEvent) {
-        String userId = activateComfortSignature(activateComfortSignatureEvent.getRuntimeConfig(), activateComfortSignatureEvent.getReplyTo(), activateComfortSignatureEvent.getReplyToMessageId());
+        String userId = activateComfortSignature(activateComfortSignatureEvent.getRuntimeConfig(), activateComfortSignatureEvent.getReplyTo(), activateComfortSignatureEvent.getId());
         onGetSignatureModeEvent(new GetSignatureModeEvent(activateComfortSignatureEvent.getReplyTo(), activateComfortSignatureEvent.getId()), userId);
     }
 
@@ -841,7 +841,7 @@ public class ERezeptWorkflowService {
      * Reacts to the event the GetSignatureMode Event
      */
     public void onGetSignatureModeEvent(GetSignatureModeEvent getSignatureModeEvent, String userId) {
-        GetSignatureModeResponseEvent getSignatureModeResponseEvent = getSignatureMode(getSignatureModeEvent.getRuntimeConfig(), getSignatureModeEvent.getReplyTo(), getSignatureModeEvent.getReplyToMessageId());
+        GetSignatureModeResponseEvent getSignatureModeResponseEvent = getSignatureMode(getSignatureModeEvent.getRuntimeConfig(), getSignatureModeEvent.getReplyTo(), getSignatureModeEvent.getId());
         if(getSignatureModeResponseEvent != null) {
             if(getSignatureModeEvent != null) {
                 getSignatureModeResponseEvent.setReplyTo(getSignatureModeEvent.getReplyTo());
@@ -898,7 +898,7 @@ public class ERezeptWorkflowService {
      * Reacts to the event the DeactivateComfortSignatureEvent
      */
     public void onDeactivateComfortSignatureEvent(@ObservesAsync DeactivateComfortSignatureEvent deactivateComfortSignatureEvent) {
-        deactivateComfortSignature(deactivateComfortSignatureEvent.getRuntimeConfig(), deactivateComfortSignatureEvent.getReplyTo(), deactivateComfortSignatureEvent.getReplyToMessageId());
+        deactivateComfortSignature(deactivateComfortSignatureEvent.getRuntimeConfig(), deactivateComfortSignatureEvent.getReplyTo(), deactivateComfortSignatureEvent.getId());
         onGetSignatureModeEvent(new GetSignatureModeEvent(deactivateComfortSignatureEvent.getReplyTo(), deactivateComfortSignatureEvent.getId()));
     }
 
