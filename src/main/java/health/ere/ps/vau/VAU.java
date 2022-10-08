@@ -17,7 +17,6 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 import java.util.logging.Logger;
@@ -292,12 +291,7 @@ public class VAU {
         if (sharedSecretBytes.length > 32) {
             System.arraycopy(sharedSecretBytes, sharedSecretBytes.length - 32, sharedSecretBytesCopy, 0, 32);
         } else if (sharedSecretBytes.length < 32) {
-            sharedSecretBytesCopy = Arrays.copyOfRange( // Source
-                    sharedSecretBytes,
-                    // The Start index
-                    0,
-                    // The end index
-                    32);
+            System.arraycopy(sharedSecretBytes, 0, sharedSecretBytesCopy, 32-sharedSecretBytes.length, sharedSecretBytes.length);
         } else {
             sharedSecretBytesCopy = sharedSecretBytes;
         }

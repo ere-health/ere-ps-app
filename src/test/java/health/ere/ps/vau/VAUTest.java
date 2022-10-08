@@ -1,5 +1,6 @@
 package health.ere.ps.vau;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.FileInputStream;
@@ -166,5 +167,52 @@ public class VAUTest {
                 new SSLUtilities.FakeHostnameVerifier());
         VAU vau = new VAU("https://erp-ref.zentral.erp.splitdns.ti-dienste.de", contextType, service);
         vau.getVauPublicKeyXY();
+    }
+
+    @Test
+    public void make32ByteLong() {
+        assertArrayEquals(new byte[] {
+            0,0,0,0,0,
+            0,0,0,0,0,
+            0,0,0,0,0,
+            0,0,0,0,0,
+            0,0,0,0,0,
+            0,0,0,0,0,
+            0, 1},
+        VAU.make32ByteLong(new byte[] {
+            0,0,0,0,0,
+            0,0,0,0,0,
+            0,0,0,0,0,
+            0,0,0,0,0,
+            0,0,0,0,0,
+            0,0,0,0,0,
+            0, 1}));
+        
+        assertArrayEquals(new byte[] {
+            0,0,0,0,0,
+            0,0,0,0,0,
+            0,0,0,0,0,
+            0,0,0,0,0,
+            0,0,0,0,0,
+            0,0,0,0,0,
+            0, 1}, VAU.make32ByteLong(new byte[] {1}));
+
+        assertArrayEquals(new byte[] {
+            0,0,0,0,0,
+            0,0,0,0,0,
+            0,0,0,0,0,
+            0,0,0,0,0,
+            0,0,0,0,0,
+            0,0,0,0,0,
+            0, 1},
+        VAU.make32ByteLong(new byte[] {
+            1,2,3,4,5,
+            0,0,0,0,0,
+            0,0,0,0,0,
+            0,0,0,0,0,
+            0,0,0,0,0,
+            0,0,0,0,0,
+            0,0,0,0,0,
+            0, 1}));
     }
 }
