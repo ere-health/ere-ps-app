@@ -1,6 +1,5 @@
 package health.ere.ps.service.config;
 
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -16,6 +15,7 @@ import javax.inject.Inject;
 import health.ere.ps.event.SaveSettingsEvent;
 import health.ere.ps.event.config.UserConfigurationsUpdateEvent;
 import health.ere.ps.model.config.UserConfigurations;
+import io.vertx.core.json.Json;
 
 @ApplicationScoped
 public class UserConfigurationService {
@@ -27,7 +27,7 @@ public class UserConfigurationService {
 
     private String getConfigFilePath() {
         // TODO configure proper file path
-        return "user.properties";
+        return "src/main/resources/user.properties";
     }
 
     public Properties getProperties() {
@@ -84,6 +84,11 @@ public class UserConfigurationService {
 
     public UserConfigurations getConfig() {
         Properties properties = getProperties();
+
+        System.out.println("'properties'");
+
+        System.out.println(Json.encode(properties));
+
         UserConfigurations config = new UserConfigurations(properties);
         return config;
     }

@@ -41,7 +41,6 @@ public class DocumentServiceTest {
     @Inject
     DocumentService documentService;
 
-
     @BeforeAll
     public static void prepareTestDirectoryAndBundles() throws IOException {
         if (!Path.of(TARGET_PATH).toFile().exists()) {
@@ -63,7 +62,7 @@ public class DocumentServiceTest {
         try {
             // https://community.oracle.com/thread/1307033?start=0&tstart=0
             LogManager.getLogManager().readConfiguration(
-                DocumentServiceTest.class
+                    DocumentServiceTest.class
                             .getResourceAsStream("/logging.properties"));
         } catch (IOException e) {
             e.printStackTrace();
@@ -107,7 +106,8 @@ public class DocumentServiceTest {
     }
 
     @Test
-    // @Disabled("Running the pdf generation tests takes a lot of time, run them manually")
+    // @Disabled("Running the pdf generation tests takes a lot of time, run them
+    // manually")
     public void generateERezeptPdf_generatesCorrectPdf_givenOneMedicationToDisplay() throws IOException {
         // WHEN + THEN
         // DefaultFontConfigurator
@@ -155,10 +155,10 @@ public class DocumentServiceTest {
         Files.write(Paths.get(TARGET_PATH + "Erezept_with_six_medications.pdf"), baos.toByteArray());
     }
 
-
     @Test
     @Disabled("Running the pdf generation tests takes a lot of time, run them manually")
-    public void generateERezeptPdf_generatesCorrectPdfWithThreePages_givenEightMedicationsToDisplay() throws IOException {
+    public void generateERezeptPdf_generatesCorrectPdfWithThreePages_givenEightMedicationsToDisplay()
+            throws IOException {
         // WHEN + THEN
         ByteArrayOutputStream baos = createStreamForANumberOfPdfs(8);
         Files.write(Paths.get(TARGET_PATH + "Erezept_with_eight_medications.pdf"), baos.toByteArray());
@@ -166,12 +166,12 @@ public class DocumentServiceTest {
 
     @Test
     @Disabled("Running the pdf generation tests takes a lot of time, run them manually")
-    public void generateERezeptPdf_generatesCorrectPdfWithThreePages_givenNineMedicationsToDisplay() throws IOException {
+    public void generateERezeptPdf_generatesCorrectPdfWithThreePages_givenNineMedicationsToDisplay()
+            throws IOException {
         // WHEN + THEN
         ByteArrayOutputStream generatedPdfsStream = createStreamForANumberOfPdfs(9);
         Files.write(Paths.get(TARGET_PATH + "Erezept_with_nine_medications.pdf"), generatedPdfsStream.toByteArray());
     }
-
 
     private ByteArrayOutputStream createStreamForANumberOfPdfs(int number) {
         List<BundleWithAccessCodeOrThrowable> bundles = new ArrayList<>();

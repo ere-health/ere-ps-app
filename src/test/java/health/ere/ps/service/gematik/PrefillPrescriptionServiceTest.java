@@ -1,5 +1,7 @@
 package health.ere.ps.service.gematik;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import java.io.IOException;
 import java.security.cert.CertificateEncodingException;
 import java.util.logging.LogManager;
@@ -27,21 +29,21 @@ import io.quarkus.test.junit.TestProfile;
 @TestProfile(RUTestProfile.class)
 class PrefillPrescriptionServiceTest {
 
-	@Inject
-	UserConfig userConfig;
-	
-	@Inject
-	PrefillPrescriptionService prefillPrescriptionService;
-	
-	IParser iParser = FhirContext.forR4().newXmlParser();
-	
-	@BeforeAll
+    @Inject
+    UserConfig userConfig;
+
+    @Inject
+    PrefillPrescriptionService prefillPrescriptionService;
+
+    IParser iParser = FhirContext.forR4().newXmlParser();
+
+    @BeforeAll
     public static void init() {
 
         try {
             // https://community.oracle.com/thread/1307033?start=0&tstart=0
             LogManager.getLogManager().readConfiguration(
-            		PrefillPrescriptionServiceTest.class
+                    PrefillPrescriptionServiceTest.class
                             .getResourceAsStream("/logging.properties"));
         } catch (IOException e) {
             e.printStackTrace();
@@ -53,12 +55,15 @@ class PrefillPrescriptionServiceTest {
         System.setProperty("com.sun.xml.internal.ws.transport.http.HttpAdapter.dump", "true");
         System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dumpTreshold", "999999");
     }
-	
-	@Test
-	void testGet() throws FaultMessage, de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage, JAXBException, de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage, CryptoException, IOException, InvalidNameException, CertificateEncodingException {
-		Bundle bundle = prefillPrescriptionService.get(null);
-		iParser.setPrettyPrint(true);
-		System.out.println(iParser.encodeResourceToString(bundle));
-	}
+
+    @Test
+    void testGet() throws FaultMessage, de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage, JAXBException,
+            de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage, CryptoException, IOException,
+            InvalidNameException, CertificateEncodingException {
+
+        Bundle bundle = prefillPrescriptionService.get(null);
+        iParser.setPrettyPrint(true);
+        System.out.println(iParser.encodeResourceToString(bundle));
+    }
 
 }
