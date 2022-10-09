@@ -27,7 +27,7 @@ public class UserConfigurationService {
 
     private String getConfigFilePath() {
         // TODO configure proper file path
-        return "src/main/resources/user.properties";
+        return "src/test/resources/user.properties";
     }
 
     public Properties getProperties() {
