@@ -49,14 +49,15 @@ public class ErixaAPIInterface {
         }
     }
 
-    public Object uploadToDrugstore(String json) {
+    public HttpResponse uploadToDrugstore(String json) {
         try {
             log.info("Post: "+uploadToDrugstoreURL+" "+json);
             HttpResponse response = httpClient.sendPostRequest(uploadToDrugstoreURL, json);
             if(response.getStatusLine().getStatusCode() != 200) {
                 log.log(Level.WARNING, "Could not upload prescription to eRiXa: "+response.getStatusLine().getStatusCode()+" "+new String(response.getEntity().getContent().readAllBytes()));
             }
-            return parseDrugstoreUploadResult(response);
+            return response;
+          //  return parseDrugstoreUploadResult(response);
         } catch (Exception e) {
             e.printStackTrace();
             eventException.fireAsync(e);

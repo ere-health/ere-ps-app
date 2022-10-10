@@ -12,6 +12,8 @@ import javax.enterprise.event.Event;
 import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
 
+import org.apache.http.HttpResponse;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import health.ere.ps.config.UserConfig;
@@ -51,24 +53,26 @@ public class ErixaUploadService {
         timestampFormat = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'");
     }
 
-    public void generatePrescriptionBundle(@ObservesAsync ErixaEvent erixaEvent) {
+    public HttpResponse generatePrescriptionBundle(@ObservesAsync ErixaEvent erixaEvent) {
         if("SendToPharmacy".equals(erixaEvent.processType)){
             try {
                 SendToPharmacyEvent event = new SendToPharmacyEvent(erixaEvent.payload, erixaEvent.getReplyTo(), erixaEvent.getId());
-                uploadPrescriptionToDrugstore(event);
+               return uploadPrescriptionToDrugstore(event);
             } catch (IOException e) {
                 log.log(Level.WARNING, "Problem during uploading to pharmacy", e);
                 exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, erixaEvent.getReplyTo(), erixaEvent.getReplyToMessageId()));
             }
+         
         }
+        return null;
     }
 
-    public void uploadPrescriptionToDrugstore(SendToPharmacyEvent event) throws IOException {
+    public HttpResponse uploadPrescriptionToDrugstore(SendToPharmacyEvent event) throws IOException {
         PrescriptionTransferEntry details = event.getDetails();
 
         DoctorUploadToDrugstorePrescriptionModel model = buildBody(event.getDocument(), details);
         String json = mapper.writeValueAsString(model);
-        apiInterface.uploadToDrugstore(json);
+        return apiInterface.uploadToDrugstore(json);
     }
 
     private DoctorUploadToDrugstorePrescriptionModel buildBody(String document, PrescriptionTransferEntry details) {
@@ -83,7 +87,7 @@ public class ErixaUploadService {
 
     private void interpolateDocumentDetails(DoctorUploadToDrugstorePrescriptionModel model, PrescriptionTransferEntry details, String document) {
         model.setBase64File(document);
-        model.setFileType("PDF");
+         model.setFileType("PDF");
         model.setFileName(getFileName(details));
         model.setFileSize(getFileSize(document));
     }
