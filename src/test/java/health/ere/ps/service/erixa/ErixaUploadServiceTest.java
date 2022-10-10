@@ -68,7 +68,7 @@ public class ErixaUploadServiceTest {
 				.add("payload", payloadObj).build();
 
 		ErixaEvent eEvent = new ErixaEvent(erixaObject);
-		HttpResponse response = service.generatePrescriptionBungidle(eEvent);
+		HttpResponse response = service.generatePrescriptionBundle(eEvent);
 		System.out.println(response);
 
 	}
