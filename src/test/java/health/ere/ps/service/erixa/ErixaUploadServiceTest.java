@@ -6,7 +6,6 @@ import java.nio.file.Paths;
 
 import javax.inject.Inject;
 import javax.json.Json;
-import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 
 import org.apache.http.HttpResponse;
@@ -15,7 +14,6 @@ import org.junit.jupiter.api.Test;
 
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.event.erixa.ErixaEvent;
-import health.ere.ps.event.erixa.SendToPharmacyEvent;
 import health.ere.ps.exception.idp.IdpClientException;
 import health.ere.ps.exception.idp.IdpException;
 import health.ere.ps.exception.idp.IdpJoseException;
@@ -73,9 +71,6 @@ public class ErixaUploadServiceTest {
 
 	}
 
-	private JsonObject buildJsonObject(String key, String value) {
-		return Json.createObjectBuilder().add(key, value).build();
-
-	}
+	
 
 }
