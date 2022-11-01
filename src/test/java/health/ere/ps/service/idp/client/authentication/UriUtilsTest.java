@@ -10,7 +10,7 @@ import health.ere.ps.exception.idp.IdpException;
 
 public class UriUtilsTest {
   @Test
-  public void myTest() throws IdpException  {
+  public void ParseDifferentURIParameters() throws IdpException  {
       final String testUriString = "https://www.google.com?hello=Pablo&bye=2";
 
       final Map<String, String> getValues = UriUtils.extractParameterMap(testUriString) ;
