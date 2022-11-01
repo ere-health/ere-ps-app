@@ -1,6 +1,5 @@
 package health.ere.ps.service.idp.client.authentication;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Map;
@@ -21,7 +20,5 @@ public class UriUtilsTest {
       assertEquals("Pablo", getValues.get("hello"), 
         "System should correctly parse the first parameter");
 
-
-      assertTrue(true);
   }
 }
