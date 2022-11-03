@@ -6,6 +6,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.UUID;
 
 import javax.json.Json;
@@ -14,10 +15,10 @@ import javax.json.JsonObject;
 import javax.json.JsonString;
 import javax.json.JsonValue;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class WebsocketXmlPrescriptionClientTest {
 
@@ -30,6 +31,25 @@ public class WebsocketXmlPrescriptionClientTest {
             jsonBundle = new String(Files.readAllBytes(Paths.get("../vos-erp-translator/src/test/resources/websocket/ere.json")));
             
             jsonBundle = jsonBundle.replaceFirst("a152qv21-9851-701o-32vx-9q3a3c5r91tf", UUID.randomUUID().toString());
+            jsonBundle = jsonBundle.replaceAll("2021-09-23T13:27:58\\+02:00", Instant.now().toString());
+            
+
+            sendMessage(jsonBundle);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    @Disabled
+    public void testVOSBundleWithError() {
+
+        String jsonBundle;
+        try {
+            jsonBundle = new String(Files.readAllBytes(Paths.get("../vos-erp-translator/src/test/resources/websocket/bundle-with-validation-error.json")));
+            
+            jsonBundle = jsonBundle.replaceFirst("2c62cdee-d58a-4001-9bc9-isudhfg78345", UUID.randomUUID().toString());
+            jsonBundle = jsonBundle.replaceAll("2022-10-27T02:00:00\\+02:00", Instant.now().toString());
 
             sendMessage(jsonBundle);
         } catch (IOException e) {

@@ -20,7 +20,6 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.entity.EntityBuilder;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.config.MessageConstraints;
@@ -166,7 +165,7 @@ public class VAUEngine extends ApacheHttpClient43Engine {
             if(Response.Status.Family.SUCCESSFUL == response.getStatusInfo().getFamily()) {
                 // if it is successful 
                 transportedData = VAU.decryptWithKey(responseBytes, aeskey);
-                if(userpseudonym != response.getHeaderString("userpseudonym")) {
+                if(!userpseudonym.equals(response.getHeaderString("userpseudonym")) && response.getHeaderString("userpseudonym") != null) {
                     userpseudonym = response.getHeaderString("userpseudonym");
                 }
                 responseContent = new String(transportedData);
