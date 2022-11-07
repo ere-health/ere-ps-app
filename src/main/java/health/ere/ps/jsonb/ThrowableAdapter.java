@@ -11,6 +11,7 @@ import javax.json.bind.adapter.JsonbAdapter;
 
 public class ThrowableAdapter implements JsonbAdapter<Throwable, JsonObject> {
 
+
     @Override
     public JsonObject adaptToJson(Throwable e) {
 

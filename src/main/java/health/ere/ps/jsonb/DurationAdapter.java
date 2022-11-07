@@ -8,6 +8,7 @@ import javax.xml.datatype.Duration;
 
 public class DurationAdapter implements JsonbAdapter<Duration, JsonString> {
 
+
     @Override
     public JsonString adaptToJson(Duration obj) throws Exception {
         return Json.createValue(obj.toString());

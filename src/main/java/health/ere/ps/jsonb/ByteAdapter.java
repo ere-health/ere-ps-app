@@ -8,6 +8,7 @@ import java.util.Base64;
 
 public class ByteAdapter implements JsonbAdapter<byte[], JsonObject> {
 
+
     @Override
     public JsonObject adaptToJson(byte[] bytes) {
         return Json.createObjectBuilder().add("content", Base64.getEncoder().encodeToString(bytes)).build();

@@ -11,6 +11,7 @@ import java.io.StringReader;
 
 public class BundleAdapter implements JsonbAdapter<Bundle, JsonObject> {
 
+
     IParser iParser = FhirContext.forR4().newJsonParser();
     
     @Override
