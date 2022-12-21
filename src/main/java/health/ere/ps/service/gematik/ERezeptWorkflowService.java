@@ -710,9 +710,8 @@ public class ERezeptWorkflowService {
                 .request().header("User-Agent", appConfig.getUserAgent()).header("Authorization", "Bearer " + bearerToken.get(runtimeConfig)).header("X-AccessCode", accessCode)
                 .post(Entity.entity("", "application/fhir+xml; charset=utf-8"))) {
             String taskString = response.readEntity(String.class);
-            // if it is not successful and it was found
-            if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL
-            && response.getStatus() != Response.Status.NOT_FOUND.getStatusCode()) {
+            // if it is not successful
+            if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
                 throw new WebApplicationException("Error on "+appConfig.getPrescriptionServiceURL()+" "+taskString, response.getStatus());
             }
             
