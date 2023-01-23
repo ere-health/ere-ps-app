@@ -1,0 +1,107 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="KBV-PR-Base-Datatype-Name" />
+  <url value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Datatype_Name" />
+  <version value="1.3.0" />
+  <name value="KBV_PR_Base_Datatype_Name" />
+  <status value="active" />
+  <fhirVersion value="4.0.1" />
+  <mapping>
+    <identity value="KVDT" />
+    <name value="KVDT Mapping" />
+  </mapping>
+  <mapping>
+    <identity value="BDT" />
+    <name value="BDT Mapping" />
+  </mapping>
+  <kind value="complex-type" />
+  <abstract value="false" />
+  <type value="HumanName" />
+  <baseDefinition value="http://fhir.de/StructureDefinition/humanname-de-basis|1.3.2" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="HumanName">
+      <path value="HumanName" />
+      <definition value="Dieses Element beschreibt diverse Namensbestandteile einer Person." />
+    </element>
+    <element id="HumanName.use">
+      <path value="HumanName.use" />
+      <min value="1" />
+      <patternCode value="official" />
+    </element>
+    <element id="HumanName.text">
+      <path value="HumanName.text" />
+      <short value="Vollständiger Name" />
+      <definition value="Vollständiger Name mit Vornamen und allen Vorsatzwörtern und Namenszusätzen. Der vollständige Name soll alle Namensteile in ihrer korrekten Reihenfolge abbilden." />
+    </element>
+    <element id="HumanName.family">
+      <path value="HumanName.family" />
+      <min value="1" />
+    </element>
+    <element id="HumanName.family.extension">
+      <path value="HumanName.family.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="0" />
+    </element>
+    <element id="HumanName.family.extension:namenszusatz">
+      <path value="HumanName.family.extension" />
+      <sliceName value="namenszusatz" />
+      <min value="0" />
+    </element>
+    <element id="HumanName.family.extension:nachname">
+      <path value="HumanName.family.extension" />
+      <sliceName value="nachname" />
+      <min value="0" />
+    </element>
+    <element id="HumanName.family.extension:vorsatzwort">
+      <path value="HumanName.family.extension" />
+      <sliceName value="vorsatzwort" />
+      <min value="0" />
+    </element>
+    <element id="HumanName.given">
+      <path value="HumanName.given" />
+      <max value="1" />
+    </element>
+    <element id="HumanName.prefix.extension">
+      <path value="HumanName.prefix.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="1" />
+    </element>
+    <element id="HumanName.prefix.extension:prefix-qualifier">
+      <path value="HumanName.prefix.extension" />
+      <sliceName value="prefix-qualifier" />
+      <min value="1" />
+      <max value="1" />
+    </element>
+    <element id="HumanName.prefix.extension:prefix-qualifier.value[x]">
+      <path value="HumanName.prefix.extension.value[x]" />
+      <slicing>
+        <discriminator>
+          <type value="type" />
+          <path value="$this" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="HumanName.prefix.extension:prefix-qualifier.value[x]:valueCode">
+      <path value="HumanName.prefix.extension.value[x]" />
+      <sliceName value="valueCode" />
+      <fixedCode value="AC" />
+    </element>
+    <element id="HumanName.suffix">
+      <path value="HumanName.suffix" />
+      <max value="1" />
+    </element>
+  </differential>
+</StructureDefinition>

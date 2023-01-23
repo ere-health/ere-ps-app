@@ -1,0 +1,29 @@
+<NamingSystem xmlns="http://hl7.org/fhir">
+  <id value="KBV-NS-FOR-Pruefnummer" />
+  <meta>
+    <profile value="http://fhir.de/StructureDefinition/namingsystem-de-basis" />
+  </meta>
+  <name value="Pruefnummer" />
+  <status value="active" />
+  <kind value="identifier" />
+  <date value="2022-09-30" />
+  <publisher value="Kassenaerztliche Bundesvereinigung" />
+  <contact>
+    <telecom>
+      <system value="url" />
+      <value value="http://www.kbv.de" />
+    </telecom>
+  </contact>
+    <type>
+	<coding>
+      <system value="http://terminology.hl7.org/CodeSystem/v2-0203" />
+      <code value="LN" />
+    </coding>
+  </type>
+  <description value="Die Prüfnummer des Systems" />
+  <uniqueId>
+    <type value="uri" />
+    <value value="https://fhir.kbv.de/NamingSystem/KBV_NS_FOR_Pruefnummer" />
+    <preferred value="true" />
+  </uniqueId>
+</NamingSystem>

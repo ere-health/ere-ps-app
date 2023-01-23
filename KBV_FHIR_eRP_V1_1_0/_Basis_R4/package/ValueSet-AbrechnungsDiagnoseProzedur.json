@@ -1,0 +1,43 @@
+{
+  "resourceType": "ValueSet",
+  "status": "draft",
+  "name": "AbrechnungsDiagnoseProzedur",
+  "id": "AbrechnungsDiagnoseProzedur",
+  "version": "1.3.2",
+  "url": "http://fhir.de/ValueSet/AbrechnungsDiagnoseProzedur",
+  "experimental": false,
+  "date": "2022-02-17",
+  "publisher": "HL7 Deutschland e.V. (Technisches Komitee FHIR)",
+  "contact": [
+    {
+      "telecom": [
+        {
+          "system": "other",
+          "value": "http://hl7.de/technische-komitees/fhir/"
+        }
+      ]
+    }
+  ],
+  "copyright": "HL7 Deutschland e.V.",
+  "compose": {
+    "include": [
+      {
+        "system": "http://fhir.de/CodeSystem/KontaktDiagnoseProzedur",
+        "concept": [
+          {
+            "code": "principle-DRG",
+            "display": "Principle-DRG"
+          },
+          {
+            "code": "secondary-DRG",
+            "display": "Secondary-DRG"
+          },
+          {
+            "code": "hospital-main-diagnosis",
+            "display": "Krankenhaus Hauptdiagnose"
+          }
+        ]
+      }
+    ]
+  }
+}

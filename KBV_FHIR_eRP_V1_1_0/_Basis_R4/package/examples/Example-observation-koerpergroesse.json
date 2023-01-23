@@ -1,0 +1,46 @@
+{
+	"resourceType": "Observation",
+	"id": "Example-observation-koerpergroesse",
+	"meta": {
+		"profile": [
+			"http://fhir.de/StructureDefinition/observation-de-vitalsign-koerpergroesse",
+			"http://hl7.org/fhir/StructureDefinition/bodyheight"
+		]
+	},
+	"status": "final",
+	"category": [
+		{
+			"coding": [
+				{
+					"system": "http://terminology.hl7.org/CodeSystem/observation-category",
+					"code": "vital-signs"
+				}
+			]
+		}
+	],
+	"code": {
+		"coding": [
+			{
+				"system": "http://loinc.org",
+				"code": "8302-2",
+				"display": "Body height"
+			},
+			{
+				"system": "http://snomed.info/sct",
+				"code": "50373000",
+				"display": "Body height measure"
+			}
+		],
+		"text": "Körpergröße"
+	},
+	"subject": {
+		"reference": "Patient/example"
+	},
+	"effectiveDateTime": "2020-10-11",
+	"valueQuantity": {
+		"value": 174,
+		"unit": "centimeter",
+		"system": "http://unitsofmeasure.org",
+		"code": "cm"
+	}
+}

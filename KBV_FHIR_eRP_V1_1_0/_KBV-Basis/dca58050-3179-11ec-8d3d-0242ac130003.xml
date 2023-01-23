@@ -1,0 +1,65 @@
+<Device xmlns="http://hl7.org/fhir">
+  <id value="dca58050-3179-11ec-8d3d-0242ac130003" />
+  <meta>
+    <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Device|1.3.0" />
+  </meta>
+  <extension url="https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Responsible_Person_Organization|1.3.0">
+    <valueReference>
+      <reference value="urn:uuid:cf042e44-086a-4d51-9c77-172f9a972e3b" />
+    </valueReference>
+  </extension>
+  <identifier>
+    <type>
+      <coding>
+        <system value="http://terminology.hl7.org/CodeSystem/v2-0203" />
+        <version value="2.9" />
+        <code value="RI" />
+        <display value="Resource identifier" />
+      </coding>
+    </type>
+    <system value="urn:ietf:rfc:3986" />
+    <value value="urn:uuid:dca57f7e-3179-11ec-8d3d-0242ac130003" />
+  </identifier>
+  <definition>
+    <reference value="urn:uuid:7d261218-8678-11eb-8dcd-0242ac130003" />
+  </definition>
+  <status value="active" />
+  <statusReason>
+    <coding>
+      <system value="http://terminology.hl7.org/CodeSystem/device-status-reason" />
+      <version value="4.0.1" />
+      <code value="online" />
+      <display value="Online" />
+    </coding>
+  </statusReason>
+  <manufactureDate value="2020-01-01" />
+  <expirationDate value="2020-01-01" />
+  <lotNumber value="35132156" />
+  <serialNumber value="66516846546" />
+  <deviceName>
+    <name value="Implantat" />
+    <type value="model-name" />
+  </deviceName>
+  <type>
+    <coding>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="40388003" />
+      <display value="Implant, device (physical object)" />
+    </coding>
+  </type>
+  <version>
+    <type>
+      <coding>
+        <system value="http://terminology.hl7.org/CodeSystem/v2-0203" />
+        <version value="2.9" />
+        <code value="RI" />
+        <display value="Resource identifier" />
+      </coding>
+    </type>
+    <value value="1.2" />
+  </version>
+  <patient>
+    <reference value="urn:uuid:7d261218-8678-11eb-8dcd-0242ac130003" />
+  </patient>
+</Device>

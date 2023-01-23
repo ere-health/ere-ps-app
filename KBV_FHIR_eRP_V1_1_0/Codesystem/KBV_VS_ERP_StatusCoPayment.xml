@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ValueSet xmlns="http://hl7.org/fhir">
+    <id value="KBV-VS-ERP-StatusCoPayment"/>
+    <url value="https://fhir.kbv.de/ValueSet/KBV_VS_ERP_StatusCoPayment"/>
+    <version value="1.1.0" />
+    <name value="KBV_VS_ERP_StatusCoPayment"/>
+    <status value="active"/>
+	<date value="2022-09-30"/>
+	<publisher value="Kassenärztliche Bundesvereinigung"/>
+	<description value="ValueSet f&#252;r den Zuzahlungsstatus einer Verordnung"/>
+    <compose>
+		<include>
+            <system value="https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_StatusCoPayment"/>		
+        </include>
+    </compose>
+</ValueSet>
+

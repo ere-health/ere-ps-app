@@ -1,0 +1,46 @@
+{
+	"resourceType": "Observation",
+	"id": "Example-observation-herzfrequenz",
+	"meta": {
+		"profile": [
+			"http://fhir.de/StructureDefinition/observation-de-vitalsign-herzfrequenz",
+			"http://hl7.org/fhir/StructureDefinition/heartrate"
+		]
+	},
+	"status": "final",
+	"category": [
+		{
+			"coding": [
+				{
+					"system": "http://terminology.hl7.org/CodeSystem/observation-category",
+					"code": "vital-signs"
+				}
+			]
+		}
+	],
+	"code": {
+		"coding": [
+			{
+				"system": "http://loinc.org",
+				"code": "8867-4",
+				"display": "Heart rate"
+			},
+			{
+				"system": "http://snomed.info/sct",
+				"code": "364075005",
+				"display": "Heart rate (observable entity)"
+			}
+		],
+		"text": "Herzfrequenz"
+	},
+	"subject": {
+		"reference": "Patient/example"
+	},
+	"effectiveDateTime": "2020-10-11",
+	"valueQuantity": {
+		"value": 63,
+		"unit": "per minute",
+		"system": "http://unitsofmeasure.org",
+		"code": "/min"
+	}
+}

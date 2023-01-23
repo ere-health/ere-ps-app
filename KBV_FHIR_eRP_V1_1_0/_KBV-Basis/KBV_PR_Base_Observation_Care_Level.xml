@@ -1,0 +1,74 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="KBV-PR-Base-Observation-Care-Level" />
+  <url value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Observation_Care_Level" />
+  <version value="1.3.0" />
+  <name value="KBV_PR_Base_Observation_Care_Level" />
+  <title value="KBV_PR_Base_Observation_Care_Level" />
+  <status value="active" />
+  <publisher value="Kassenärtzliche Bundesvereinigung (KBV)" />
+  <copyright value="Im folgenden Profil können Codes aus den Codesystemen Snomed, Loinc oder Ucum enthalten sein, die dem folgenden Urheberrecht unterliegen: This material includes SNOMED Clinical Terms® SNOMED CT® which is used by permission of SNOMED International. All rights reserved. SNOMED CT®, was originally created by The College of American Pathologists. SNOMED and SNOMED CT are registered trademarks of SNOMED International. Implementers of these artefacts must have the appropriate SNOMED CT Affiliate license. This material contains content from Loinc http://loinc.org. Loinc is copyright © 1995-2020, Regenstrief Institute, Inc. and the Logical Observation Identifiers Names and Codes Loinc Committee and is available at no cost under the license at http://loinc.org/license. Loinc® is a registered United States trademark of Regenstrief Institute, Inc. This product includes all or a portion of the UCUM table, UCUM codes, and UCUM definitions or is derived from it, subject to a license from Regenstrief Institute, Inc. and The UCUM Organization. Your use of the UCUM table, UCUM codes, UCUM definitions also is subject to this license, a copy of which is available at ​http://unitsofmeasure.org. The current complete UCUM table, UCUM Specification are available for download at ​http://unitsofmeasure.org. The UCUM table and UCUM codes are copyright © 1995-2009, Regenstrief Institute, Inc. and the Unified Codes for Units of Measures UCUM Organization. All rights reserved. THE UCUM TABLE IN ALL FORMATS, UCUM DEFINITIONS, AND SPECIFICATION ARE PROVIDED &quot;AS IS.&quot; ANY EXPRESS OR IMPLIED WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE." />
+  <fhirVersion value="4.0.1" />
+  <kind value="resource" />
+  <abstract value="false" />
+  <type value="Observation" />
+  <baseDefinition value="http://fhir.de/StructureDefinition/observation-de-pflegegrad|1.3.2" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Observation">
+      <path value="Observation" />
+      <definition value="Hier wird der Pflegegrad einer Person nach Paragraph 15 Sozialgesetzbuch XI dokumentiert.&#xD;&#xA;&#xD;&#xA;1. Punktbereich 0: keine Beeinträchtigungen der Selbständigkeit oder der Fähigkeiten,&#xD;&#xA;2. Punktbereich 1: geringe Beeinträchtigungen der Selbständigkeit oder der Fähigkeiten,&#xD;&#xA;3. Punktbereich 2: erhebliche Beeinträchtigungen der Selbständigkeit oder der Fähigkeiten,&#xD;&#xA;4. Punktbereich 3: schwere Beeinträchtigungen der Selbständigkeit oder der Fähigkeiten und&#xD;&#xA;5. Punktbereich 4: schwerste Beeinträchtigungen der Selbständigkeit oder der Fähigkeiten." />
+      <constraint>
+        <key value="care-lvl-de-1" />
+        <severity value="error" />
+        <human value="Es dürfen maximal zwei OPS-Codes für den Pflegegrad angegeben werden." />
+        <expression value="($this.value as CodeableConcept).coding.where(system ='http://fhir.de/CodeSystem/bfarm/ops').count() &lt;=2" />
+        <source value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Observation_Care_Level" />
+      </constraint>
+    </element>
+    <element id="Observation.code">
+      <path value="Observation.code" />
+      <definition value="Dieses Element stellt das Konzept Pflegegrad als Code dar." />
+    </element>
+    <element id="Observation.effective[x]">
+      <path value="Observation.effective[x]" />
+      <slicing>
+        <discriminator>
+          <type value="type" />
+          <path value="$this" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="Observation.effective[x]:effectivePeriod">
+      <path value="Observation.effective[x]" />
+      <sliceName value="effectivePeriod" />
+      <definition value="Dieses Element beschreibt den Zeitraum in dem der Pflegegrad gültig ist." />
+      <type>
+        <code value="Period" />
+      </type>
+    </element>
+    <element id="Observation.value[x]">
+      <path value="Observation.value[x]" />
+      <slicing>
+        <discriminator>
+          <type value="type" />
+          <path value="$this" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="Observation.value[x]:valueCodeableConcept">
+      <path value="Observation.value[x]" />
+      <sliceName value="valueCodeableConcept" />
+      <min value="1" />
+      <type>
+        <code value="CodeableConcept" />
+      </type>
+    </element>
+    <element id="Observation.value[x]:valueCodeableConcept.coding">
+      <path value="Observation.value[x].coding" />
+      <min value="1" />
+      <max value="2" />
+    </element>
+  </differential>
+</StructureDefinition>

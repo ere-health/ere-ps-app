@@ -1,0 +1,62 @@
+<Procedure xmlns="http://hl7.org/fhir">
+  <id value="b1fe6295-02ab-4ae1-bb73-851d3eed6c2e" />
+  <meta>
+    <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Procedure|1.3.0" />
+  </meta>
+  <extension url="http://fhir.de/StructureDefinition/ProzedurDokumentationsdatum">
+    <valueDateTime value="2023" />
+  </extension>
+  <status value="completed" />
+  <category>
+    <coding>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="387713003" />
+      <display value="Surgical procedure (procedure)" />
+    </coding>
+  </category>
+  <code>
+    <coding>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="10002003" />
+      <display value="Resection of stomach fundus (procedure)" />
+    </coding>
+    <coding>
+      <system value="http://fhir.de/CodeSystem/bfarm/ops" />
+      <version value="2020" />
+      <code value="5-470" />
+      <display value="Appendektomie" />
+    </coding>
+  </code>
+  <subject>
+    <identifier>
+      <type>
+        <coding>
+          <system value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_identifier_type" />
+          <code value="kvk" />
+        </coding>
+      </type>
+      <system value="http://fhir.de/NamingSystem/gkv/kvk-versichertennummer" />
+      <value value="F123456784" />
+    </identifier>
+  </subject>
+  <!--<performedDateTime value="2020-04-23" />
+ 	<performedPeriod>
+		<start value="2022"/>
+		<end value="2023"/>
+	</performedPeriod>-->
+  <performedAge>
+    <extension url="https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Stage_Life">
+      <valueCodeableConcept>
+        <coding>
+          <system value="http://snomed.info/sct" />
+          <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+          <code value="271872005" />
+          <display value="Old age (qualifier value)" />
+        </coding>
+      </valueCodeableConcept>
+    </extension>
+  </performedAge>
+  <!--  <performedString value="Alt"/> -->
+</Procedure>

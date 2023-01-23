@@ -1,0 +1,5641 @@
+<ConceptMap xmlns="http://hl7.org/fhir">
+  <id value="KBV-CM-Base-Terminology-Complete-German" />
+  <url value="https://fhir.kbv.de/ConceptMap/KBV_CM_Base_Terminology_Complete_German" />
+  <version value="1.3.0" />
+  <name value="KBV_CM_Base_Terminology_Complete_German" />
+  <title value="KBV_CM_Base_Terminology_Complete_German" />
+  <status value="active" />
+  <experimental value="false" />
+  <publisher value="Kassenärztliche Bundesvereinigung (KBV)" />
+  <contact>
+    <telecom>
+      <system value="url" />
+      <value value="http://www.kbv.de" />
+    </telecom>
+  </contact>
+  <description value="Diese Conceptmap verknüpft die Codes für KBV_CM_Base_Terminology_Complete_German mit deutschen Bezeichnungen." />
+  <copyright value="Im folgenden Profil können Codes aus den Codesystemen Snomed, Loinc oder Ucum enthalten sein, die dem folgenden Urheberrecht unterliegen: This material includes SNOMED Clinical Terms® (SNOMED CT®) which is used by permission of SNOMED International. All rights reserved. SNOMED CT®, was originally created by The College of American Pathologists. SNOMED and SNOMED CT are registered trademarks of SNOMED International. Implementers of these artefacts must have the appropriate SNOMED CT Affiliate license. This material contains content from LOINC (http://loinc.org). LOINC is copyright © 1995-2020, Regenstrief Institute, Inc. and the Logical Observation Identifiers Names and Codes (LOINC) Committee and is available at no cost under the license at http://loinc.org/license. LOINC® is a registered United States trademark of Regenstrief Institute, Inc. This product includes all or a portion of the UCUM table, UCUM codes, and UCUM definitions or is derived from it, subject to a license from Regenstrief Institute, Inc. and The UCUM Organization. Your use of the UCUM table, UCUM codes, UCUM definitions also is subject to this license, a copy of which is available at ​http://unitsofmeasure.org. The current complete UCUM table, UCUM Specification are available for download at http://unitsofmeasure.org. The UCUM table and UCUM codes are copyright © 1995-2009, Regenstrief Institute, Inc. and the Unified Codes for Units of Measures (UCUM) Organization. All rights reserved. THE UCUM TABLE (IN ALL FORMATS), UCUM DEFINITIONS, AND SPECIFICATION ARE PROVIDED &quot;AS IS.&quot; ANY EXPRESS OR IMPLIED WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE." />
+  <group>
+    <source value="http://hl7.org/fhir/administrative-gender" />
+    <sourceVersion value="4.0.1" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_AdministrativeGender_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="female" />
+      <display value="Female" />
+      <target>
+        <code value="weiblich" />
+        <display value="weiblich" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="male" />
+      <display value="Male" />
+      <target>
+        <code value="maennlich" />
+        <display value="männlich" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="unknown" />
+      <display value="Unknown" />
+      <target>
+        <code value="unbekannt" />
+        <display value="unbekannt" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://hl7.org/fhir/allergy-intolerance-category" />
+    <sourceVersion value="4.0.1" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_AllergyIntoleranceCategory_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="biologic" />
+      <display value="Biologic" />
+      <target>
+        <code value="BiologischsynthetisierteSubstanz" />
+        <display value="Biologisch synthetisierte Substanz" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="environment" />
+      <display value="Environment" />
+      <target>
+        <code value="UmweltChemikalie" />
+        <display value="Umwelt/Chemikalie" />
+        <equivalence value="narrower" />
+        <comment value="TBD" />
+      </target>
+    </element>
+    <element>
+      <code value="food" />
+      <display value="Food" />
+      <target>
+        <code value="Lebensmittel" />
+        <display value="Lebensmittel" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="medication" />
+      <display value="Medication" />
+      <target>
+        <code value="Medikation" />
+        <display value="Medikation" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical" />
+    <sourceVersion value="4.0.1" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_AllergyIntoleranceClinicalStatusCodes_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="active" />
+      <display value="Active" />
+      <target>
+        <code value="aktiv" />
+        <display value="aktiv" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="inactive" />
+      <display value="Inactive" />
+      <target>
+        <code value="inaktiv" />
+        <display value="inaktiv" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="resolved" />
+      <display value="Resolved" />
+      <target>
+        <code value="behoben" />
+        <display value="behoben" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://hl7.org/fhir/allergy-intolerance-criticality" />
+    <sourceVersion value="4.0.1" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_AllergyIntoleranceCriticality_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="high" />
+      <display value="High Risk" />
+      <target>
+        <code value="HohesRisiko" />
+        <display value="Hohes Risiko" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="low" />
+      <display value="Low Risk" />
+      <target>
+        <code value="NiedrigesRisiko" />
+        <display value="Niedriges Risiko" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="unable-to-assess" />
+      <display value="Unable to Assess Risk" />
+      <target>
+        <code value="Risikonichteinzuschaetzbar" />
+        <display value="Risiko nicht einzuschätzbar" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://hl7.org/fhir/reaction-event-severity" />
+    <sourceVersion value="4.0.1" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_AllergyIntoleranceSeverity_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="mild" />
+      <display value="Mild" />
+      <target>
+        <code value="leicht" />
+        <display value="leicht" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="moderate" />
+      <display value="Moderate" />
+      <target>
+        <code value="mittelschwer" />
+        <display value="mittelschwer" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="severe" />
+      <display value="Severe" />
+      <target>
+        <code value="schwer" />
+        <display value="schwer" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://hl7.org/fhir/allergy-intolerance-type" />
+    <sourceVersion value="4.0.1" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_AllergyIntoleranceType_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="allergy" />
+      <display value="Allergy" />
+      <target>
+        <code value="AllergieimmunvermittelterProzess" />
+        <display value="Allergie (immun-vermittelter Prozess)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="intolerance" />
+      <display value="Intolerance" />
+      <target>
+        <code value="Unvertraeglichkeitnichtimmunvermittelt" />
+        <display value="Unverträglichkeit (nicht immun-vermittelt)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://terminology.hl7.org/CodeSystem/allergyintolerance-verification" />
+    <sourceVersion value="4.0.1" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_AllergyIntoleranceVerificationStatusCodes_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="confirmed" />
+      <display value="Confirmed" />
+      <target>
+        <code value="Bestaetigt" />
+        <display value="Bestätigt" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="entered-in-error" />
+      <display value="Entered in Error" />
+      <target>
+        <code value="Versehentlicheingegeben" />
+        <display value="Versehentlich eingegeben" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="refuted" />
+      <display value="Refuted" />
+      <target>
+        <code value="Widerlegt" />
+        <display value="Widerlegt" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="unconfirmed" />
+      <display value="Unconfirmed" />
+      <target>
+        <code value="Unbestaetigt" />
+        <display value="Unbestätigt" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://loinc.org" />
+    <sourceVersion value="2.72" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Apgar_Score_Identifier_LOINC_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="9271-8" />
+      <display value="10 minute Apgar Score" />
+      <target>
+        <code value="ApgarzumZeitpunkt10MinnachGeburt" />
+        <display value="Apgar zum Zeitpunkt 10 Min. nach Geburt" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="9274-2" />
+      <display value="5 minute Apgar Score" />
+      <target>
+        <code value="ApgarzumZeitpunkt5MinnachGeburt" />
+        <display value="Apgar zum Zeitpunkt 5 Min. nach Geburt" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://snomed.info/sct" />
+    <sourceVersion value="http://snomed.info/sct/900000000000207008/version/20220331" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Apgar_Score_Identifier_SNOMED_CT_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="169909004" />
+      <display value="Apgar score at 5 minutes (observable entity)" />
+      <target>
+        <code value="ApgarzumZeitpunkt5MinnachGeburt" />
+        <display value="Apgar zum Zeitpunkt 5 Min. nach Geburt" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="169922007" />
+      <display value="Apgar score at 10 minutes (observable entity)" />
+      <target>
+        <code value="ApgarzumZeitpunkt10MinnachGeburt" />
+        <display value="Apgar zum Zeitpunkt 10 Min. nach Geburt" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://snomed.info/sct" />
+    <sourceVersion value="http://snomed.info/sct/900000000000207008/version/20220331" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Apgar_Score_Value_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="10318004" />
+      <display value="Apgar score 6 (finding)" />
+      <target>
+        <code value="Apgar6" />
+        <display value="Apgar 6" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="12431004" />
+      <display value="Apgar score 8 (finding)" />
+      <target>
+        <code value="Apgar8" />
+        <display value="Apgar 8" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="13323003" />
+      <display value="Apgar score 7 (finding)" />
+      <target>
+        <code value="Apgar7" />
+        <display value="Apgar 7" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="24388001" />
+      <display value="Apgar score 5 (finding)" />
+      <target>
+        <code value="Apgar5" />
+        <display value="Apgar 5" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="26635001" />
+      <display value="Apgar score 3 (finding)" />
+      <target>
+        <code value="Apgar3" />
+        <display value="Apgar 3" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="38107004" />
+      <display value="Apgar score 4 (finding)" />
+      <target>
+        <code value="Apgar4" />
+        <display value="Apgar 4" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="39910003" />
+      <display value="Apgar score 2 (finding)" />
+      <target>
+        <code value="Apgar2" />
+        <display value="Apgar 2" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="43610007" />
+      <display value="Apgar score 1 (finding)" />
+      <target>
+        <code value="Apgar1" />
+        <display value="Apgar 1" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="49544001" />
+      <display value="Apgar score 10 (finding)" />
+      <target>
+        <code value="Apgar10" />
+        <display value="Apgar 10" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="64198003" />
+      <display value="Apgar score 9 (finding)" />
+      <target>
+        <code value="Apgar9" />
+        <display value="Apgar 9" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="77714001" />
+      <display value="Apgar score 0 (finding)" />
+      <target>
+        <code value="Apgar0" />
+        <display value="Apgar 0" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://loinc.org" />
+    <sourceVersion value="2.72" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Blood_Pressure_LOINC_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="85354-9" />
+      <display value="Blood pressure panel with all children optional" />
+      <target>
+        <code value="Blutdruck" />
+        <display value="Blutdruck" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://snomed.info/sct" />
+    <sourceVersion value="http://snomed.info/sct/900000000000207008/version/20220331" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Blood_Pressure_SNOMED_CT_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="75367002" />
+      <display value="Blood pressure (observable entity)" />
+      <target>
+        <code value="Blutdruck" />
+        <display value="Blutdruck" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://loinc.org" />
+    <sourceVersion value="2.72" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Body_Height_LOINC_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="8302-2" />
+      <display value="Body height" />
+      <target>
+        <code value="KoerperlaengeKoerpergroesse" />
+        <display value="Körperlänge/Körpergröße" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="89269-5" />
+      <display value="Body height Measured --at birth" />
+      <target>
+        <code value="Geburtskoerperlaenge" />
+        <display value="Geburtskörperlänge" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://snomed.info/sct" />
+    <sourceVersion value="http://snomed.info/sct/900000000000207008/version/20220331" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Body_Height_SNOMED_CT_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="1149101003" />
+      <display value="Recumbent body height (observable entity)" />
+      <target>
+        <code value="KoerperlaengeKoerpergroesse" />
+        <display value="Körperlänge/Körpergröße" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="1153637007" />
+      <display value="Body height (observable entity)" />
+      <target>
+        <code value="KoerperlaengeKoerpergroesse" />
+        <display value="Körperlänge/Körpergröße" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="169886007" />
+      <display value="Birth length (observable entity)" />
+      <target>
+        <code value="Geburtskoerperlaenge" />
+        <display value="Geburtskörperlänge" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="248333004" />
+      <display value="Standing height (observable entity)" />
+      <target>
+        <code value="KoerperlaengeKoerpergroesse" />
+        <display value="Körperlänge/Körpergröße" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://loinc.org" />
+    <sourceVersion value="2.72" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Body_Temp_LOINC_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="8310-5" />
+      <display value="Body temperature" />
+      <target>
+        <code value="Koerpertemperatur" />
+        <display value="Körpertemperatur" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://snomed.info/sct" />
+    <sourceVersion value="http://snomed.info/sct/900000000000207008/version/20220331" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Body_Temp_SNOMED_CT_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="276885007" />
+      <display value="Core body temperature (observable entity)" />
+      <target>
+        <code value="Koerperkerntemperatur" />
+        <display value="Körperkerntemperatur" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="300076005" />
+      <display value="Basal body temperature (observable entity)" />
+      <target>
+        <code value="BasaleKoerpertemperatur" />
+        <display value="Basale Körpertemperatur" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="307047009" />
+      <display value="Core body temperature measured in rectum (observable entity)" />
+      <target>
+        <code value="KoerperkerntemperaturgemessenimRektum" />
+        <display value="Körperkerntemperatur gemessen im Rektum" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="364246006" />
+      <display value="Core body temperature measured vaginally (observable entity)" />
+      <target>
+        <code value="Koerperkerntemperaturvaginalgemessen" />
+        <display value="Körperkerntemperatur vaginal gemessen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="386725007" />
+      <display value="Body temperature (observable entity)" />
+      <target>
+        <code value="Koerpertemperatur" />
+        <display value="Körpertemperatur" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="415922000" />
+      <display value="Temperature of forehead (observable entity)" />
+      <target>
+        <code value="TemperaturderStirn" />
+        <display value="Temperatur der Stirn" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="415945006" />
+      <display value="Core body temperature measured in sublingual space (observable entity)" />
+      <target>
+        <code value="KoerperkerntemperaturSublingualgemessen" />
+        <display value="Körperkerntemperatur Sublingual gemessen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="415974002" />
+      <display value="Core body temperature measured at tympanic membrane (observable entity)" />
+      <target>
+        <code value="KoerperkerntemperaturgemessenamTrommelfell" />
+        <display value="Körperkerntemperatur gemessen am Trommelfell" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="431598003" />
+      <display value="Core body temperature measured in esophagus (observable entity)" />
+      <target>
+        <code value="KoerperkerntemperaturgemesseninderSpeiseroehre" />
+        <display value="Körperkerntemperatur gemessen in der Speiseröhre" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="698831002" />
+      <display value="Core body temperature measured in nasopharynx (observable entity)" />
+      <target>
+        <code value="KoerperkerntemperaturgemessenimNasopharynx" />
+        <display value="Körperkerntemperatur gemessen im Nasopharynx" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="698832009" />
+      <display value="Core body temperature measured at urinary bladder (observable entity)" />
+      <target>
+        <code value="KoerperkerntemperaturgemesseninderHarnblase" />
+        <display value="Körperkerntemperatur gemessen in der Harnblase" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="708499008" />
+      <display value="Core body temperature of neonate at birth (observable entity)" />
+      <target>
+        <code value="KoerperkerntemperaturdesNeugeborenenbeiderGeburt" />
+        <display value="Körperkerntemperatur des Neugeborenen bei der Geburt" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="860958002" />
+      <display value="Temperature of blood (observable entity)" />
+      <target>
+        <code value="TemperaturdesBlutes" />
+        <display value="Temperatur des Blutes" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://loinc.org" />
+    <sourceVersion value="2.72" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Body_Weight_LOINC_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="29463-7" />
+      <display value="Body weight" />
+      <target>
+        <code value="Koerpergewicht" />
+        <display value="Körpergewicht" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="8339-4" />
+      <display value="Birth weight Measured" />
+      <target>
+        <code value="Geburtsgewicht" />
+        <display value="Geburtsgewicht" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://snomed.info/sct" />
+    <sourceVersion value="http://snomed.info/sct/900000000000207008/version/20220331" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Body_Weight_Method_SNOMED_CT_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="363808001" />
+      <display value="Measured body weight (observable entity)" />
+      <target>
+        <code value="Koerpergewichtgemessen" />
+        <display value="Körpergewicht gemessen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="786458005" />
+      <display value="Self reported usual body weight (observable entity)" />
+      <target>
+        <code value="Koerpergewichtangegeben" />
+        <display value="Körpergewicht angegeben" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://snomed.info/sct" />
+    <sourceVersion value="http://snomed.info/sct/900000000000207008/version/20220331" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Body_Weight_SNOMED_CT_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="248351003" />
+      <display value="Previous well-weight (observable entity)" />
+      <target>
+        <code value="VorherigesWohlfuehlgewicht" />
+        <display value="Vorheriges Wohlfühlgewicht" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="27113001" />
+      <display value="Body weight (observable entity)" />
+      <target>
+        <code value="Koerpergewicht" />
+        <display value="Körpergewicht" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="363808001" />
+      <display value="Measured body weight (observable entity)" />
+      <target>
+        <code value="GemessenesKoerpergewicht" />
+        <display value="Gemessenes Körpergewicht" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="364589006" />
+      <display value="Birth weight (observable entity)" />
+      <target>
+        <code value="Geburtsgewicht" />
+        <display value="Geburtsgewicht" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="400967004" />
+      <display value="Baseline weight (observable entity)" />
+      <target>
+        <code value="Ausgangsgewicht" />
+        <display value="Ausgangsgewicht" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="424927000" />
+      <display value="Body weight with shoes (observable entity)" />
+      <target>
+        <code value="KoerpergewichtmitSchuhen" />
+        <display value="Körpergewicht mit Schuhen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="425024002" />
+      <display value="Body weight without shoes (observable entity)" />
+      <target>
+        <code value="KoerpergewichtohneSchuhe" />
+        <display value="Körpergewicht ohne Schuhe" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="443245006" />
+      <display value="Estimated weight using Broselow Luten pediatric weight estimation (observable entity)" />
+      <target>
+        <code value="GeschaetztesGewichtunterVerwendungderpaediatrischenGewichtsschaetzungnachBroselowLuten" />
+        <display value="Geschätztes Gewicht unter Verwendung der pädiatrischen Gewichtsschätzung nach Broselow Luten" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="445541000" />
+      <display value="Dry body weight (observable entity)" />
+      <target>
+        <code value="TrockenesKoerpergewicht" />
+        <display value="Trockenes Körpergewicht" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="735395000" />
+      <display value="Current body weight (observable entity)" />
+      <target>
+        <code value="AktuellesKoerpergewicht" />
+        <display value="Aktuelles Körpergewicht" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="784399000" />
+      <display value="Self reported body weight (observable entity)" />
+      <target>
+        <code value="SelbstangegebenesKoerpergewicht" />
+        <display value="Selbst angegebenes Körpergewicht" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="urn:ietf:bcp:47" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_CommonLanguages_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="tr-TR" />
+      <display value="Turkish" />
+      <target>
+        <code value="Tuerkisch" />
+        <display value="Türkisch" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="uk" />
+      <display value="Ukrainian" />
+      <target>
+        <code value="Ukrainisch" />
+        <display value="Ukrainisch" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="urn:ietf:bcp:47" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_CommonLanguages_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="ar" />
+      <display value="Arabic" />
+      <target>
+        <code value="Arabisch" />
+        <display value="Arabisch" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="bn" />
+      <display value="Bengali" />
+      <target>
+        <code value="Bengalisch" />
+        <display value="Bengalisch" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="cs" />
+      <display value="Czech" />
+      <target>
+        <code value="Tschechisch" />
+        <display value="Tschechisch" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="da" />
+      <display value="Danish" />
+      <target>
+        <code value="Daenisch" />
+        <display value="Dänisch" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="de" />
+      <display value="German" />
+      <target>
+        <code value="Deutsch" />
+        <display value="Deutsch" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="de-AT" />
+      <display value="German (Austria)" />
+      <target>
+        <code value="DeutschOesterreich" />
+        <display value="Deutsch (Österreich)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="de-CH" />
+      <display value="German (Switzerland)" />
+      <target>
+        <code value="DeutschSchweiz" />
+        <display value="Deutsch (Schweiz)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="de-DE" />
+      <display value="German (Germany)" />
+      <target>
+        <code value="DeutschDeutschland" />
+        <display value="Deutsch (Deutschland)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="el" />
+      <display value="Greek" />
+      <target>
+        <code value="Griechisch" />
+        <display value="Griechisch" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="en" />
+      <display value="English" />
+      <target>
+        <code value="Englisch" />
+        <display value="Englisch" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="en-AU" />
+      <display value="English (Australia)" />
+      <target>
+        <code value="EnglischAustralien" />
+        <display value="Englisch (Australien)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="en-CA" />
+      <display value="English (Canada)" />
+      <target>
+        <code value="EnglischKanada" />
+        <display value="Englisch (Kanada)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="en-GB" />
+      <display value="English (Great Britain)" />
+      <target>
+        <code value="EnglischGrossbritannien" />
+        <display value="Englisch (Großbritannien)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="en-IN" />
+      <display value="English (India)" />
+      <target>
+        <code value="EnglischIndien" />
+        <display value="Englisch (Indien)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="en-NZ" />
+      <display value="English (New Zeland)" />
+      <target>
+        <code value="EnglischNeuseeland" />
+        <display value="Englisch (Neuseeland)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="en-SG" />
+      <display value="English (Singapore)" />
+      <target>
+        <code value="EnglischSingapur" />
+        <display value="Englisch (Singapur)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="en-US" />
+      <display value="English (United States)" />
+      <target>
+        <code value="EnglischUSA" />
+        <display value="Englisch (USA)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="es" />
+      <display value="Spanish" />
+      <target>
+        <code value="Spanisch" />
+        <display value="Spanisch" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="es-AR" />
+      <display value="Spanish (Argentina)" />
+      <target>
+        <code value="SpanischArgentinien" />
+        <display value="Spanisch (Argentinien)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="es-ES" />
+      <display value="Spanish (Spain)" />
+      <target>
+        <code value="SpanischSpanien" />
+        <display value="Spanisch (Spanien)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="es-UY" />
+      <display value="Spanish (Uruguay)" />
+      <target>
+        <code value="SpanischUruguay" />
+        <display value="Spanisch (Uruguay)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="fi" />
+      <display value="Finnish" />
+      <target>
+        <code value="Finnisch" />
+        <display value="Finnisch" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="fr" />
+      <display value="French" />
+      <target>
+        <code value="Franzoesisch" />
+        <display value="Französisch" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="fr-BE" />
+      <display value="French (Belgium)" />
+      <target>
+        <code value="FranzoesischBelgien" />
+        <display value="Französisch (Belgien)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="fr-CH" />
+      <display value="French (Switzerland)" />
+      <target>
+        <code value="FranzoesischSchweiz" />
+        <display value="Französisch (Schweiz)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="fr-FR" />
+      <display value="French (France)" />
+      <target>
+        <code value="FranzoesischFrankreich" />
+        <display value="Französisch (Frankreich)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="fy" />
+      <display value="Frysian" />
+      <target>
+        <code value="Friesisch" />
+        <display value="Friesisch" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="fy-NL" />
+      <display value="Frysian (Netherlands)" />
+      <target>
+        <code value="FriesischNiederlande" />
+        <display value="Friesisch (Niederlande)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="hr" />
+      <display value="Croatian" />
+      <target>
+        <code value="Kroatisch" />
+        <display value="Kroatisch" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="it" />
+      <display value="Italian" />
+      <target>
+        <code value="Italienisch" />
+        <display value="Italienisch" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="it-CH" />
+      <display value="Italian (Switzerland)" />
+      <target>
+        <code value="ItalienischSchweiz" />
+        <display value="Italienisch (Schweiz)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="it-IT" />
+      <display value="Italian (Italy)" />
+      <target>
+        <code value="ItalienischItalien" />
+        <display value="Italienisch (Italien)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="ja" />
+      <display value="Japanese" />
+      <target>
+        <code value="Japanisch" />
+        <display value="Japanisch" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="ko" />
+      <display value="Korean" />
+      <target>
+        <code value="Koreanisch" />
+        <display value="Koreanisch" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="nl" />
+      <display value="Dutch" />
+      <target>
+        <code value="Niederlaendisch" />
+        <display value="Niederländisch" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="nl-BE" />
+      <display value="Dutch (Belgium)" />
+      <target>
+        <code value="NiederlaendischBelgien" />
+        <display value="Niederländisch (Belgien)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="nl-NL" />
+      <display value="Dutch (Netherlands)" />
+      <target>
+        <code value="NiederlaendischNiederlande" />
+        <display value="Niederländisch (Niederlande)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="no" />
+      <display value="Norwegian" />
+      <target>
+        <code value="Norwegisch" />
+        <display value="Norwegisch" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="no-NO" />
+      <display value="Norwegian (Norway)" />
+      <target>
+        <code value="NorwegischNorwegen" />
+        <display value="Norwegisch (Norwegen)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="pl" />
+      <display value="Polish" />
+      <target>
+        <code value="Polnisch" />
+        <display value="Polnisch" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="pt" />
+      <display value="Portuguese" />
+      <target>
+        <code value="Portugiesisch" />
+        <display value="Portugiesisch" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="pt-BR" />
+      <display value="Portuguese (Brazil)" />
+      <target>
+        <code value="PortugiesischBrasilien" />
+        <display value="Portugiesisch (Brasilien)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="ru" />
+      <display value="Russian" />
+      <target>
+        <code value="Russisch" />
+        <display value="Russisch" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="ru-RU" />
+      <display value="Russian (Russia)" />
+      <target>
+        <code value="RussischRussland" />
+        <display value="Russisch (Russland)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="sr" />
+      <display value="Serbian" />
+      <target>
+        <code value="Serbisch" />
+        <display value="Serbisch" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="sr-RS" />
+      <display value="Serbian (Serbia)" />
+      <target>
+        <code value="SerbischSerbien" />
+        <display value="Serbisch (Serbien)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="sv" />
+      <display value="Swedish" />
+      <target>
+        <code value="Schwedisch" />
+        <display value="Schwedisch" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="sv-SE" />
+      <display value="Swedish (Sweden)" />
+      <target>
+        <code value="SchwedischSchweden" />
+        <display value="Schwedisch (Schweden)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="te" />
+      <display value="Telegu" />
+      <target>
+        <code value="Telugu" />
+        <display value="Telugu" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="zh" />
+      <display value="Chinese" />
+      <target>
+        <code value="Chinesisch" />
+        <display value="Chinesisch" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="zh-CN" />
+      <display value="Chinese (China)" />
+      <target>
+        <code value="ChinesischChina" />
+        <display value="Chinesisch (China)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="zh-HK" />
+      <display value="Chinese (Hong Kong)" />
+      <target>
+        <code value="ChinesischHongKong" />
+        <display value="Chinesisch (Hong Kong)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="zh-SG" />
+      <display value="Chinese (Singapore)" />
+      <target>
+        <code value="ChinesischSingapur" />
+        <display value="Chinesisch (Singapur)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="zh-TW" />
+      <display value="Chinese (Taiwan)" />
+      <target>
+        <code value="ChinesischTaiwan" />
+        <display value="Chinesisch (Taiwan)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://terminology.hl7.org/CodeSystem/condition-clinical" />
+    <sourceVersion value="4.0.1" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_ConditionClinicalStatusCodes_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="active" />
+      <display value="Active" />
+      <target>
+        <code value="Aktiv" />
+        <display value="Aktiv" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="inactive" />
+      <display value="Inactive" />
+      <target>
+        <code value="Inaktiv" />
+        <display value="Inaktiv" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="recurrence" />
+      <display value="Recurrence" />
+      <target>
+        <code value="Wiederauftreten" />
+        <display value="Wiederauftreten" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="relapse" />
+      <display value="Relapse" />
+      <target>
+        <code value="Rezidiv" />
+        <display value="Rezidiv" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="resolved" />
+      <display value="Resolved" />
+      <target>
+        <code value="Behoben" />
+        <display value="Behoben" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://terminology.hl7.org/CodeSystem/condition-ver-status" />
+    <sourceVersion value="4.0.1" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_ConditionVerificationStatus_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="confirmed" />
+      <display value="Confirmed" />
+      <target>
+        <code value="GesicherteDiagnose" />
+        <display value="Gesicherte Diagnose" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="differential" />
+      <display value="Differential" />
+      <target>
+        <code value="Differentialdiagnose" />
+        <display value="Differentialdiagnose" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="entered-in-error" />
+      <display value="Entered in Error" />
+      <target>
+        <code value="FehlerhafteEingabe" />
+        <display value="Fehlerhafte Eingabe" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="provisional" />
+      <display value="Provisional" />
+      <target>
+        <code value="VorlaeufigeDiagnose" />
+        <display value="Vorläufige Diagnose" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="refuted" />
+      <display value="Refuted" />
+      <target>
+        <code value="AusgeschlosseneDiagnose" />
+        <display value="Ausgeschlossene Diagnose" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="unconfirmed" />
+      <display value="Unconfirmed" />
+      <target>
+        <code value="UnbestaetigteDiagnose" />
+        <display value="Unbestätigte Diagnose" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://snomed.info/sct" />
+    <sourceVersion value="http://snomed.info/sct/900000000000207008/version/20220331" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Condition_DiagnosisSeverity_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="24484000" />
+      <display value="Severe (severity modifier) (qualifier value)" />
+      <target>
+        <code value="schwer" />
+        <display value="schwer" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="255604002" />
+      <display value="Mild (qualifier value)" />
+      <target>
+        <code value="leicht" />
+        <display value="leicht" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="6736007" />
+      <display value="Moderate (severity modifier) (qualifier value)" />
+      <target>
+        <code value="mittelschwer" />
+        <display value="mittelschwer" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://hl7.org/fhir/contact-point-system" />
+    <sourceVersion value="4.0.1" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_ContactPointSystem_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="email" />
+      <display value="Email" />
+      <target>
+        <code value="EMail" />
+        <display value="E-Mail" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="other" />
+      <display value="Other" />
+      <target>
+        <code value="Sonstiges" />
+        <display value="Sonstiges" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="phone" />
+      <display value="Phone" />
+      <target>
+        <code value="Telefon" />
+        <display value="Telefon" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://hl7.org/fhir/days-of-week" />
+    <sourceVersion value="4.0.1" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_DaysOfWeek_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="fri" />
+      <display value="Friday" />
+      <target>
+        <code value="freitags" />
+        <display value="freitags" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="mon" />
+      <display value="Monday" />
+      <target>
+        <code value="montags" />
+        <display value="montags" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="sat" />
+      <display value="Saturday" />
+      <target>
+        <code value="samstags" />
+        <display value="samstags" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="sun" />
+      <display value="Sunday" />
+      <target>
+        <code value="sonntags" />
+        <display value="sonntags" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="thu" />
+      <display value="Thursday" />
+      <target>
+        <code value="donnerstags" />
+        <display value="donnerstags" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="tue" />
+      <display value="Tuesday" />
+      <target>
+        <code value="dienstags" />
+        <display value="dienstags" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="wed" />
+      <display value="Wednesday" />
+      <target>
+        <code value="mittwochs" />
+        <display value="mittwochs" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://hl7.org/fhir/diagnostic-report-status" />
+    <sourceVersion value="4.0.1" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_DiagnosticReportStatus_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="amended" />
+      <display value="Amended" />
+      <target>
+        <code value="Geaendert" />
+        <display value="Geändert" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="appended" />
+      <display value="Appended" />
+      <target>
+        <code value="Angefuegt" />
+        <display value="Angefügt" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="cancelled" />
+      <display value="Cancelled" />
+      <target>
+        <code value="Storniert" />
+        <display value="Storniert" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="corrected" />
+      <display value="Corrected" />
+      <target>
+        <code value="Korrigiert" />
+        <display value="Korrigiert" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="entered-in-error" />
+      <display value="Entered in Error" />
+      <target>
+        <code value="irrtuemlicheEingabe" />
+        <display value="irrtümliche Eingabe" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="final" />
+      <display value="Final" />
+      <target>
+        <code value="Abgeschlossen" />
+        <display value="Abgeschlossen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="partial" />
+      <display value="Partial" />
+      <target>
+        <code value="Nichtvollstaendig" />
+        <display value="Nicht vollständig" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="preliminary" />
+      <display value="Preliminary" />
+      <target>
+        <code value="Vorlaeufig" />
+        <display value="Vorläufig" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="registered" />
+      <display value="Registered" />
+      <target>
+        <code value="Registriert" />
+        <display value="Registriert" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="unknown" />
+      <display value="Unknown" />
+      <target>
+        <code value="Unbekannt" />
+        <display value="Unbekannt" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://loinc.org" />
+    <sourceVersion value="2.72" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Diastolic_Blood_Pressure_LOINC_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="8462-4" />
+      <display value="Diastolic blood pressure" />
+      <target>
+        <code value="diastolischerBlutdruck" />
+        <display value="diastolischer Blutdruck" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://snomed.info/sct" />
+    <sourceVersion value="http://snomed.info/sct/900000000000207008/version/20220331" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Diastolic_Blood_Pressure_SNOMED_CT_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="271650006" />
+      <display value="Diastolic blood pressure (observable entity)" />
+      <target>
+        <code value="diastolischerBlutdruck" />
+        <display value="diastolischer Blutdruck" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://terminology.hl7.org/CodeSystem/v3-ActCode" />
+    <sourceVersion value="2018-08-12" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_EncounterClassDE_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="AMB" />
+      <display value="ambulatory" />
+      <target>
+        <code value="AmbulanteVorstellung" />
+        <display value="Ambulante Vorstellung" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="HH" />
+      <display value="home health" />
+      <target>
+        <code value="Hausbesuch" />
+        <display value="Hausbesuch" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="IMP" />
+      <display value="inpatient encounter" />
+      <target>
+        <code value="StationaereAufnahme" />
+        <display value="Stationäre Aufnahme" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="PRENC" />
+      <display value="pre-admission" />
+      <target>
+        <code value="PraestationaereVorstellung" />
+        <display value="Prästationäre Vorstellung" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="SS" />
+      <display value="short stay" />
+      <target>
+        <code value="StationaereKurzaufnahme" />
+        <display value="Stationäre Kurzaufnahme" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="VR" />
+      <display value="virtual" />
+      <target>
+        <code value="TelefonischetelemedizinischeKonsultation" />
+        <display value="Telefonische/telemedizinische Konsultation" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://hl7.org/fhir/encounter-status" />
+    <sourceVersion value="4.0.1" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_EncounterStatusDe_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="cancelled" />
+      <display value="Cancelled" />
+      <target>
+        <code value="Storniert" />
+        <display value="Storniert" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="entered-in-error" />
+      <display value="Entered in Error" />
+      <target>
+        <code value="IrrtuemlicheEingabe" />
+        <display value="Irrtümliche Eingabe" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="finished" />
+      <display value="Finished" />
+      <target>
+        <code value="Abgeschlossen" />
+        <display value="Abgeschlossen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="in-progress" />
+      <display value="In Progress" />
+      <target>
+        <code value="ImGange" />
+        <display value="Im Gange" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="onleave" />
+      <display value="On Leave" />
+      <target>
+        <code value="Beurlaubt" />
+        <display value="Beurlaubt" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="planned" />
+      <display value="Planned" />
+      <target>
+        <code value="Geplant" />
+        <display value="Geplant" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="unknown" />
+      <display value="Unknown" />
+      <target>
+        <code value="Unbekannt" />
+        <display value="Unbekannt" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://hl7.org/fhir/event-timing" />
+    <sourceVersion value="4.0.1" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Event_Timing_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="EVE" />
+      <display value="Evening" />
+      <target>
+        <code value="abends" />
+        <display value="abends" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="MORN" />
+      <display value="Morning" />
+      <target>
+        <code value="morgens" />
+        <display value="morgens" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="NIGHT" />
+      <display value="Night" />
+      <target>
+        <code value="zurNacht" />
+        <display value="zur Nacht" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="NOON" />
+      <display value="Noon" />
+      <target>
+        <code value="mittags" />
+        <display value="mittags" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="NOT_FOUND" />
+    <sourceVersion value="4.0.1" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_FHIRDeviceStatusReason_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="hw-discon" />
+      <display value="Hardware Disconnected" />
+      <target>
+        <code value="Hardwarenichtverbunden" />
+        <display value="Hardware nicht verbunden" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="not-ready" />
+      <display value="Not Ready" />
+      <target>
+        <code value="Nichtbereit" />
+        <display value="Nicht bereit" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="off" />
+      <display value="Off" />
+      <target>
+        <code value="Aus" />
+        <display value="Aus" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="paused" />
+      <display value="Paused" />
+      <target>
+        <code value="Pausiert" />
+        <display value="Pausiert" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="standby" />
+      <display value="Standby" />
+      <target>
+        <code value="StandBy" />
+        <display value="Stand-By" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="transduc-discon" />
+      <display value="Transducer Disconnected" />
+      <target>
+        <code value="Signalgebernichtverbunden" />
+        <display value="Signalgeber nicht verbunden" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://hl7.org/fhir/device-status" />
+    <sourceVersion value="4.0.1" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_FHIRDeviceStatus_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="active" />
+      <display value="Active" />
+      <target>
+        <code value="Aktiv" />
+        <display value="Aktiv" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="entered-in-error" />
+      <display value="Entered in Error" />
+      <target>
+        <code value="IrrtuemlicheEingabe" />
+        <display value="Irrtümliche Eingabe" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="inactive" />
+      <display value="Inactive" />
+      <target>
+        <code value="Inaktiv" />
+        <display value="Inaktiv" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="unknown" />
+      <display value="Unknown" />
+      <target>
+        <code value="Unbekannt" />
+        <display value="Unbekannt" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://snomed.info/sct" />
+    <sourceVersion value="http://snomed.info/sct/900000000000207008/version/20220331" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Glucose_Concentration_Interpretation_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="404684003:{363713009=260369004,363713009=255358001}" />
+      <display value="Clinical finding (finding) : { Has interpretation (attribute) = Increasing (qualifier value) , Has interpretation (attribute) = Rapid (qualifier value) }" />
+      <target>
+        <code value="schnellsteigend" />
+        <display value="schnell steigend" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="404684003:{363713009=260369004,363713009=255361000}" />
+      <display value="Clinical finding (finding) : { Has interpretation (attribute) = Increasing (qualifier value) , Has interpretation (attribute) = Slow (qualifier value) }" />
+      <target>
+        <code value="langsamsteigend" />
+        <display value="langsam steigend" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="404684003:{363713009=260369004}" />
+      <display value="Clinical finding (finding) : { Has interpretation (attribute) = Increasing (qualifier value) }" />
+      <target>
+        <code value="steigend" />
+        <display value="steigend" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="404684003:{363713009=260371004,363713009=255358001}" />
+      <display value="Clinical finding (finding) : { Has interpretation (attribute) = Decreasing (qualifier value) , Has interpretation (attribute) = Rapid (qualifier value) }" />
+      <target>
+        <code value="schnellfallend" />
+        <display value="schnell fallend" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="404684003:{363713009=260371004,363713009=255361000}" />
+      <display value="Clinical finding (finding) : { Has interpretation (attribute) = Decreasing (qualifier value) , Has interpretation (attribute) = Slow (qualifier value) }" />
+      <target>
+        <code value="langsamfallend" />
+        <display value="langsam fallend" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="404684003:{363713009=260371004}" />
+      <display value="Clinical finding (finding) : { Has interpretation (attribute) = Decreasing (qualifier value) }" />
+      <target>
+        <code value="fallend" />
+        <display value="fallend" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="404684003:{363713009=371928007,363713009=260371004,363713009=260369004}" />
+      <display value="Clinical finding (finding) : { Has interpretation (attribute) = Not significant (qualifier value) , Has interpretation (attribute) = Decreasing (qualifier value) , Has interpretation (attribute) = Increasing (qualifier value) }" />
+      <target>
+        <code value="langsamaendernd" />
+        <display value="langsam ändernd" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://loinc.org" />
+    <sourceVersion value="2.72" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Glucose_Concentration_LOINC_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="14745-4" />
+      <display value="Glucose [Moles/volume] in Body fluid" />
+      <target>
+        <code value="Gewebezuckerkonzentration" />
+        <display value="Gewebezuckerkonzentration" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="15074-8" />
+      <display value="Glucose [Moles/volume] in Blood" />
+      <target>
+        <code value="Blutzuckerkonzentration" />
+        <display value="Blutzuckerkonzentration" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="2339-0" />
+      <display value="Glucose [Mass/volume] in Blood" />
+      <target>
+        <code value="Blutzuckerkonzentration" />
+        <display value="Blutzuckerkonzentration" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="2344-0" />
+      <display value="Glucose [Mass/volume] in Body fluid" />
+      <target>
+        <code value="Gewebezuckerkonzentration" />
+        <display value="Gewebezuckerkonzentration" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://snomed.info/sct" />
+    <sourceVersion value="http://snomed.info/sct/900000000000207008/version/20220131" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Glucose_Concentration_Method_SNOMED_CT_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="271061004" />
+      <display value="Random blood glucose measurement (procedure)" />
+      <target>
+        <code value="Blutzuckerkonzentrationzufaellig" />
+        <display value="Blutzuckerkonzentration zufällig" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="271062006" />
+      <display value="Fasting blood glucose measurement (procedure)" />
+      <target>
+        <code value="Blutzuckerkonzentrationnuechtern" />
+        <display value="Blutzuckerkonzentration nüchtern" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="271063001" />
+      <display value="Lunch time blood sugar measurement (procedure)" />
+      <target>
+        <code value="BlutzuckerkonzentrationvordemMittagsessen" />
+        <display value="Blutzuckerkonzentration vor dem Mittagsessen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="271064007" />
+      <display value="Supper time blood sugar measurement (procedure)" />
+      <target>
+        <code value="BlutzuckerkonzentrationvordemAbendessen" />
+        <display value="Blutzuckerkonzentration vor dem Abendessen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="271065008" />
+      <display value="Bedtime blood sugar measurement (procedure)" />
+      <target>
+        <code value="BlutzuckerkonzentrationvordemSchlafengehen" />
+        <display value="Blutzuckerkonzentration vor dem Schlafengehen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="302788006" />
+      <display value="Post-prandial blood glucose measurement (procedure)" />
+      <target>
+        <code value="BlutzuckerkonzentrationnachdemEssen" />
+        <display value="Blutzuckerkonzentration nach dem Essen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="359776002" />
+      <display value="Glucose measurement by monitoring device (procedure)" />
+      <target>
+        <code value="KontinuierlicheGlukosemessungCGM" />
+        <display value="Kontinuierliche Glukosemessung (CGM)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://snomed.info/sct" />
+    <sourceVersion value="http://snomed.info/sct/900000000000207008/version/20220331" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Glucose_Concentration_SNOMED_CT_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="434910001" />
+      <display value="Interstitial fluid glucose concentration (observable entity)" />
+      <target>
+        <code value="Gewebezuckerkonzentration" />
+        <display value="Gewebezuckerkonzentration" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="434912009" />
+      <display value="Blood glucose concentration (observable entity)" />
+      <target>
+        <code value="Blutzuckerkonzentration" />
+        <display value="Blutzuckerkonzentration" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://hl7.org/fhir/goal-status" />
+    <sourceVersion value="4.0.1" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_GoalLifecycleStatus_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="accepted" />
+      <display value="Accepted" />
+      <target>
+        <code value="Angenommen" />
+        <display value="Angenommen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="active" />
+      <display value="Active" />
+      <target>
+        <code value="Aktiv" />
+        <display value="Aktiv" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="cancelled" />
+      <display value="Cancelled" />
+      <target>
+        <code value="Storniert" />
+        <display value="Storniert" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="completed" />
+      <display value="Completed" />
+      <target>
+        <code value="Abgeschlossen" />
+        <display value="Abgeschlossen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="entered-in-error" />
+      <display value="Entered in Error" />
+      <target>
+        <code value="IrrtuemlicheEingabe" />
+        <display value="Irrtümliche Eingabe" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="on-hold" />
+      <display value="On Hold" />
+      <target>
+        <code value="Pausiert" />
+        <display value="Pausiert" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="planned" />
+      <display value="Planned" />
+      <target>
+        <code value="Geplant" />
+        <display value="Geplant" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="proposed" />
+      <display value="Proposed" />
+      <target>
+        <code value="Vorgeschlagen" />
+        <display value="Vorgeschlagen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="rejected" />
+      <display value="Rejected" />
+      <target>
+        <code value="Abgelehnt" />
+        <display value="Abgelehnt" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://loinc.org" />
+    <sourceVersion value="2.72" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Head_Circumference_LOINC_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="9843-4" />
+      <display value="Head Occipital-frontal circumference" />
+      <target>
+        <code value="Kopfumfangokzipitalfrontal" />
+        <display value="Kopfumfang okzipital-frontal" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://snomed.info/sct" />
+    <sourceVersion value="http://snomed.info/sct/900000000000207008/version/20220331" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Head_Circumference_SNOMED_CT_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="169876006" />
+      <display value="Birth head circumference (observable entity)" />
+      <target>
+        <code value="KopfumfangbeiGeburt" />
+        <display value="Kopfumfang bei Geburt" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="363812007" />
+      <display value="Head circumference (observable entity)" />
+      <target>
+        <code value="Kopfumfang" />
+        <display value="Kopfumfang" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://loinc.org" />
+    <sourceVersion value="2.72" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Heart_Rate_LOINC_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="8867-4" />
+      <display value="Heart rate" />
+      <target>
+        <code value="Herzfrequenz" />
+        <display value="Herzfrequenz" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://snomed.info/sct" />
+    <sourceVersion value="http://snomed.info/sct/900000000000207008/version/20220331" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Heart_Rate_SNOMED_CT_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="249043002" />
+      <display value="Fetal heart rate (observable entity)" />
+      <target>
+        <code value="fetaleHerzfrequenz" />
+        <display value="fetale Herzfrequenz" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="364075005" />
+      <display value="Heart rate (observable entity)" />
+      <target>
+        <code value="Herzfrequenz" />
+        <display value="Herzfrequenz" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="78564009" />
+      <display value="Heart rate measured at systemic artery (observable entity)" />
+      <target>
+        <code value="HerzfrequenzanArteriegemessen" />
+        <display value="Herzfrequenz an Arterie gemessen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://snomed.info/sct" />
+    <sourceVersion value="http://snomed.info/sct/900000000000207008/version/20220331" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_KBV_Medication_Type_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="373873005:860781008=362943005" />
+      <display value="Pharmaceutical / biologic product (product) : Has product characteristic (attribute) = Manual method (qualifier value)" />
+      <target>
+        <code value="Rezeptur" />
+        <display value="Rezeptur" />
+        <equivalence value="inexact" />
+        <comment value="TBD" />
+      </target>
+    </element>
+    <element>
+      <code value="763158003" />
+      <display value="Medicinal product (product)" />
+      <target>
+        <code value="Fertigarzneimittel" />
+        <display value="Fertigarzneimittel" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://hl7.org/fhir/event-status" />
+    <sourceVersion value="4.0.1" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_KBV_VS_Base_Event_Status_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="completed" />
+      <display value="Completed" />
+      <target>
+        <code value="Erledigt" />
+        <display value="Erledigt" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="entered-in-error" />
+      <display value="Entered in Error" />
+      <target>
+        <code value="IrrtuemlicheEingabe" />
+        <display value="Irrtümliche Eingabe" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="in-progress" />
+      <display value="In Progress" />
+      <target>
+        <code value="ImGange" />
+        <display value="Im Gange" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="not-done" />
+      <display value="Not Done" />
+      <target>
+        <code value="Nichtdurchgefuehrt" />
+        <display value="Nicht durchgeführt" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="on-hold" />
+      <display value="On Hold" />
+      <target>
+        <code value="Pausiert" />
+        <display value="Pausiert" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="preparation" />
+      <display value="Preparation" />
+      <target>
+        <code value="InVorbereitung" />
+        <display value="In Vorbereitung" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="stopped" />
+      <display value="Stopped" />
+      <target>
+        <code value="Gestoppt" />
+        <display value="Gestoppt" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="unknown" />
+      <display value="Unknown" />
+      <target>
+        <code value="Unbekannt" />
+        <display value="Unbekannt" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://terminology.hl7.org/CodeSystem/v3-MaritalStatus" />
+    <sourceVersion value="4.0.1" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Marital_Status_Codes_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="A" />
+      <display value="Annulled" />
+      <target>
+        <code value="annuliert" />
+        <display value="annuliert" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="D" />
+      <display value="Divorced" />
+      <target>
+        <code value="geschieden" />
+        <display value="geschieden" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="I" />
+      <display value="Interlocutory" />
+      <target>
+        <code value="einstweilig" />
+        <display value="einstweilig" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="L" />
+      <display value="Legally Separated" />
+      <target>
+        <code value="getrenntlebend" />
+        <display value="getrennt lebend" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="M" />
+      <display value="Married" />
+      <target>
+        <code value="verheiratet" />
+        <display value="verheiratet" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="P" />
+      <display value="Polygamous" />
+      <target>
+        <code value="polygam" />
+        <display value="polygam" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="S" />
+      <display value="Never Married" />
+      <target>
+        <code value="ledig" />
+        <display value="ledig" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="T" />
+      <display value="Domestic partner" />
+      <target>
+        <code value="Lebenspartner" />
+        <display value="Lebenspartner" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="U" />
+      <display value="unmarried" />
+      <target>
+        <code value="unverheiratet" />
+        <display value="unverheiratet" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="W" />
+      <display value="Widowed" />
+      <target>
+        <code value="verwitwet" />
+        <display value="verwitwet" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://terminology.hl7.org/CodeSystem/v3-NullFlavor" />
+    <sourceVersion value="4.0.1" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Marital_Status_Codes_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="UNK" />
+      <display value="unknown" />
+      <target>
+        <code value="unbekannt" />
+        <display value="unbekannt" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://loinc.org" />
+    <sourceVersion value="2.72" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Mean_Blood_Pressure_LOINC_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="8478-0" />
+      <display value="Mean blood pressure" />
+      <target>
+        <code value="mittlererarteriellerBlutdruck" />
+        <display value="mittlerer arterieller Blutdruck" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://snomed.info/sct" />
+    <sourceVersion value="http://snomed.info/sct/900000000000207008/version/20220331" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Mean_Blood_Pressure_SNOMED_CT_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="6797001" />
+      <display value="Mean blood pressure (observable entity)" />
+      <target>
+        <code value="mittlererarteriellerBlutdruck" />
+        <display value="mittlerer arterieller Blutdruck" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://hl7.org/fhir/CodeSystem/medication-statement-status" />
+    <sourceVersion value="4.0.1" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Medication_Status_Codes_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="active" />
+      <display value="Active" />
+      <target>
+        <code value="Aktiv" />
+        <display value="Aktiv" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="completed" />
+      <display value="Completed" />
+      <target>
+        <code value="Abgeschlossen" />
+        <display value="Abgeschlossen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="intended" />
+      <display value="Intended" />
+      <target>
+        <code value="Geplant" />
+        <display value="Geplant" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="not-taken" />
+      <display value="Not Taken" />
+      <target>
+        <code value="Nichteingenommen" />
+        <display value="Nicht eingenommen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="on-hold" />
+      <display value="On Hold" />
+      <target>
+        <code value="Pausiert" />
+        <display value="Pausiert" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="stopped" />
+      <display value="Stopped" />
+      <target>
+        <code value="Abgesetzt" />
+        <display value="Abgesetzt" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="unknown" />
+      <display value="Unknown" />
+      <target>
+        <code value="Unbekannt" />
+        <display value="Unbekannt" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="urn:oid:0.4.0.127.0.16.1.1.2.1" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Medicine_Doseform_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="13119000" />
+      <display value="Effervescent powder and powder for oral suspension" />
+      <target>
+        <code value="BrausepulverundPulverfuereineSuspensionzumEinnehmen" />
+        <display value="Brausepulver und Pulver für eine Suspension zum Einnehmen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="13128000" />
+      <display value="Prolonged-release wound solution" />
+      <target>
+        <code value="WundloesungmitverlaengerterWirkungsdauer" />
+        <display value="Wundlösung mit verlängerter Wirkungsdauer" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="13129000" />
+      <display value="Nebuliser dispersion" />
+      <target>
+        <code value="Verneblerdispersion" />
+        <display value="Verneblerdispersion" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="13138000" />
+      <display value="Gastro-resistant powder and solvent for oral suspension" />
+      <target>
+        <code value="MagensaftresistentesPulverundLoesungsmittelfuereineSuspensionzumEinnehmen" />
+        <display value="Magensaftresistentes Pulver und Lösungsmittel für eine Suspension zum Einnehmen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="13139000" />
+      <display value="Concentrate for dispersion for injection" />
+      <target>
+        <code value="KonzentratzurHerstellungeinerDispersionzurInjektion" />
+        <display value="Konzentrat zur Herstellung einer Dispersion zur Injektion" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="13141000" />
+      <display value="Oromucosal pouch" />
+      <target>
+        <code value="BeutelchenzurAnwendunginderMundhoehle" />
+        <display value="Beutelchen zur Anwendung in der Mundhöhle" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="13143000" />
+      <display value="Concentrate and solvent for dispersion for injection" />
+      <target>
+        <code value="KonzentratundLoesungsmittelzurHerstellungeinerInjektionsdispersion" />
+        <display value="Konzentrat und Lösungsmittel zur Herstellung einer Injektionsdispersion" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="13144000" />
+      <display value="Concentrate and solvent for intravesical solution" />
+      <target>
+        <code value="KonzentratundLoesungsmittelzurHerstellungeinerintravesikalenLoesung" />
+        <display value="Konzentrat und Lösungsmittel zur Herstellung einer intravesikalen Lösung" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="13147000" />
+      <display value="Powder for oral suspension in sachet" />
+      <target>
+        <code value="PulverzurHerstellungeinerSuspensionzumEinnehmenimBeutel" />
+        <display value="Pulver zur Herstellung einer Suspension zum Einnehmen im Beutel" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="13148000" />
+      <display value="Prolonged-release pessary" />
+      <target>
+        <code value="VaginalzaepfchenmitverlaengerterWirkungsdauer" />
+        <display value="Vaginalzäpfchen mit verlängerter Wirkungsdauer" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="13149000" />
+      <display value="Oromucosal film" />
+      <target>
+        <code value="FilmzurAnwendunginderMundhoehle" />
+        <display value="Film zur Anwendung in der Mundhöhle" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="13150000" />
+      <display value="Effervescent powder and suspension for oral suspension" />
+      <target>
+        <code value="BrausepulverundSuspensionzurHerstellungeinerSuspensionzumEinnehmen" />
+        <display value="Brausepulver und Suspension zur Herstellung einer Suspension zum Einnehmen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="13152000" />
+      <display value="Concentrate for emulsion for injection" />
+      <target>
+        <code value="KonzentratzurHerstellungeinerEmulsionzurInjektion" />
+        <display value="Konzentrat zur Herstellung einer Emulsion zur Injektion" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="13153000" />
+      <display value="Concentrate and solvent for emulsion for injection" />
+      <target>
+        <code value="KonzentratundLoesungsmittelzurHerstellungeinerEmulsionzurInjektion" />
+        <display value="Konzentrat und Lösungsmittel zur Herstellung einer Emulsion zur Injektion" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="13154000" />
+      <display value="Film-coated granules" />
+      <target>
+        <code value="FilmueberzogenesGranulat" />
+        <display value="Filmüberzogenes Granulat" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="13155000" />
+      <display value="Film-coated granules in single-dose container" />
+      <target>
+        <code value="FilmueberzogenesGranulatimEinzeldosisbehaeltnis" />
+        <display value="Filmüberzogenes Granulat im Einzeldosisbehältnis" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="13157000" />
+      <display value="Effervescent granules and suspension for oral suspension" />
+      <target>
+        <code value="BrausegranulatundSuspensionzurHerstellungeinerSuspensionzumEinnehmen" />
+        <display value="Brausegranulat und Suspension zur Herstellung einer Suspension zum Einnehmen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="31100" />
+      <display value="Injection/infusion" />
+      <target>
+        <code value="InjektionInfusion" />
+        <display value="Injektion/Infusion" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="urn:oid:0.4.0.127.0.16.1.1.2.1" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Medicine_Route_Of_Administration_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="20087000" />
+      <display value="Extrapleural use" />
+      <target>
+        <code value="ExtrapleuraleAnwendung" />
+        <display value="Extrapleurale Anwendung" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://snomed.info/sct" />
+    <sourceVersion value="http://snomed.info/sct/900000000000207008/version/20220331" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Nursing_Professions_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="224570006" />
+      <display value="Clinical nurse specialist (occupation)" />
+      <target>
+        <code value="PflegeexperteAPNAdvancedPracticeNurses" />
+        <display value="Pflegeexperte APN (Advanced Practice Nurses)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="26369006" />
+      <display value="Public health nurse (occupation)" />
+      <target>
+        <code value="CommunityHealthNurseCHN" />
+        <display value="Community Health Nurse (CHN)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://terminology.hl7.org/CodeSystem/referencerange-meaning" />
+    <sourceVersion value="4.0.1" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_ObservationReferenceRangeMeaningCodes_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="endocrine" />
+      <display value="Endocrine" />
+      <target>
+        <code value="Endokrinologischadaptiert" />
+        <display value="Endokrinologisch adaptiert" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="follicular" />
+      <display value="Follicular Stage" />
+      <target>
+        <code value="ErwartungsbereichimfollikulaerenStadium" />
+        <display value="Erwartungsbereich im follikulären Stadium" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="luteal" />
+      <display value="Luteal" />
+      <target>
+        <code value="ErwartungsbereichinderlutealenPhase" />
+        <display value="Erwartungsbereich in der lutealen Phase" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="midcycle" />
+      <display value="MidCycle" />
+      <target>
+        <code value="ErwartungsbereichinderZyklusmitte" />
+        <display value="Erwartungsbereich in der Zyklusmitte" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="normal" />
+      <display value="Normal Range" />
+      <target>
+        <code value="Referenzbereich" />
+        <display value="Referenzbereich" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="post" />
+      <display value="Post Therapeutic Desired Level" />
+      <target>
+        <code value="PosttherapeutischerZielbereich" />
+        <display value="Posttherapeutischer Zielbereich" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="postmenopausal" />
+      <display value="Post-Menopause" />
+      <target>
+        <code value="Erwartungsbereichpostmenopausal" />
+        <display value="Erwartungsbereich postmenopausal" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="pre" />
+      <display value="Pre Therapeutic Desired Level" />
+      <target>
+        <code value="PraetherapeutischerZielbereich" />
+        <display value="Prätherapeutischer Zielbereich" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="pre-puberty" />
+      <display value="Pre-Puberty" />
+      <target>
+        <code value="Erwartungsbereichpraepubertaer" />
+        <display value="Erwartungsbereich präpubertär" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="recommended" />
+      <display value="Recommended Range" />
+      <target>
+        <code value="EntscheidungsgrenzeBewertungsgrenze" />
+        <display value="Entscheidungsgrenze, Bewertungsgrenze" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="therapeutic" />
+      <display value="Therapeutic Desired Level" />
+      <target>
+        <code value="TherapeutischerZielbereich" />
+        <display value="Therapeutischer Zielbereich" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="treatment" />
+      <display value="Treatment Range" />
+      <target>
+        <code value="TherapeutischerBereich" />
+        <display value="Therapeutischer Bereich" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="type" />
+      <display value="Type" />
+      <target>
+        <code value="Generell" />
+        <display value="Generell" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://terminology.hl7.org/CodeSystem/v3-ParticipationType" />
+    <sourceVersion value="2018-08-12" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Participant_Type_CS1_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="ADM" />
+      <display value="admitter" />
+      <target>
+        <code value="Aufnehmender" />
+        <display value="Aufnehmende/-r" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="ATND" />
+      <display value="attender" />
+      <target>
+        <code value="Verantworlicher" />
+        <display value="Verantworliche/-r" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="CALLBCK" />
+      <display value="callback contact" />
+      <target>
+        <code value="Rueckrufkontakt" />
+        <display value="Rückrufkontakt" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="CON" />
+      <display value="consultant" />
+      <target>
+        <code value="Konsilaerztinarzt" />
+        <display value="Konsilärztin/-arzt" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="DIS" />
+      <display value="discharger" />
+      <target>
+        <code value="Entlassender" />
+        <display value="Entlassende/-r" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="ESC" />
+      <display value="escort" />
+      <target>
+        <code value="Begleitperson" />
+        <display value="Begleitperson" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="PART" />
+      <display value="Participation" />
+      <target>
+        <code value="Teilnehmender" />
+        <display value="Teilnehmende/-r" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="PPRF" />
+      <display value="primary performer" />
+      <target>
+        <code value="Hauptbehandlerin" />
+        <display value="Hauptbehandler/-in" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="REF" />
+      <display value="referrer" />
+      <target>
+        <code value="Ueberweiserin" />
+        <display value="Überweiser/-in" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="SPRF" />
+      <display value="secondary performer" />
+      <target>
+        <code value="Nebenbehandlerin" />
+        <display value="Nebenbehandler/-in" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://terminology.hl7.org/CodeSystem/participant-type" />
+    <sourceVersion value="4.0.1" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Participant_Type_CS2_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="emergency" />
+      <display value="Emergency" />
+      <target>
+        <code value="Notfallkontakt" />
+        <display value="Notfallkontakt" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="translator" />
+      <display value="Translator" />
+      <target>
+        <code value="Uebersetzerin" />
+        <display value="Übersetzer/-in" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://terminology.hl7.org/CodeSystem/v2-0131" />
+    <sourceVersion value="NOT_FOUND" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_PatientRelationshipType_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="C" />
+      <display value="Emergency Contact" />
+      <target>
+        <code value="AnsprechpartnerIninNotfaellen" />
+        <display value="AnsprechpartnerIn in Notfällen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="E" />
+      <display value="Employer" />
+      <target>
+        <code value="ArbeitgeberIn" />
+        <display value="ArbeitgeberIn" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="F" />
+      <display value="Federal Agency" />
+      <target>
+        <code value="Bundesbehoerde" />
+        <display value="Bundesbehörde" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="I" />
+      <display value="Insurance Company" />
+      <target>
+        <code value="Versicherung" />
+        <display value="Versicherung" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="N" />
+      <display value="Next-of-Kin" />
+      <target>
+        <code value="Kontaktperson" />
+        <display value="Kontaktperson" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="O" />
+      <display value="Other" />
+      <target>
+        <code value="Andere" />
+        <display value="Andere" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="S" />
+      <display value="State Agency" />
+      <target>
+        <code value="Landesbehoerde" />
+        <display value="Landesbehörde" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="U" />
+      <display value="Unknown" />
+      <target>
+        <code value="Unbekannt" />
+        <display value="Unbekannt" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://terminology.hl7.org/CodeSystem/v3-RoleCode" />
+    <sourceVersion value="2.2.02.16.840.1.113883.18.58:2.1.0" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_PatientRelationshipType_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="ADOPTF" />
+      <display value="adoptive father" />
+      <target>
+        <code value="Adoptivvater" />
+        <display value="Adoptivvater" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="ADOPTM" />
+      <display value="adoptive mother" />
+      <target>
+        <code value="Adoptivmutter" />
+        <display value="Adoptivmutter" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="ADOPTP" />
+      <display value="adoptive parent" />
+      <target>
+        <code value="Adoptivelternteil" />
+        <display value="Adoptivelternteil" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="AUNT" />
+      <display value="aunt" />
+      <target>
+        <code value="Tante" />
+        <display value="Tante" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="BRO" />
+      <display value="brother" />
+      <target>
+        <code value="Bruder" />
+        <display value="Bruder" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="BROINLAW" />
+      <display value="brother-in-law" />
+      <target>
+        <code value="Schwager" />
+        <display value="Schwager" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="CHILD" />
+      <display value="child" />
+      <target>
+        <code value="Kind" />
+        <display value="Kind" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="CHLDADOPT" />
+      <display value="adopted child" />
+      <target>
+        <code value="Adoptivkind" />
+        <display value="Adoptivkind" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="CHLDFOST" />
+      <display value="foster child" />
+      <target>
+        <code value="Pflegekind" />
+        <display value="Pflegekind" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="CHLDINLAW" />
+      <display value="child-in-law" />
+      <target>
+        <code value="Schwiegersohn" />
+        <display value="Schwiegersohn" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="COUSN" />
+      <display value="cousin" />
+      <target>
+        <code value="Cousine" />
+        <display value="Cousine" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="DAU" />
+      <display value="natural daughter" />
+      <target>
+        <code value="LeiblicheTochter" />
+        <display value="Leibliche Tochter" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="DAUADOPT" />
+      <display value="adopted daughter" />
+      <target>
+        <code value="Adoptivtochter" />
+        <display value="Adoptivtochter" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="DAUC" />
+      <display value="daughter" />
+      <target>
+        <code value="Tochter" />
+        <display value="Tochter" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="DAUFOST" />
+      <display value="foster daughter" />
+      <target>
+        <code value="Pflegetochter" />
+        <display value="Pflegetochter" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="DAUINLAW" />
+      <display value="daughter in-law" />
+      <target>
+        <code value="Schwiegertochter" />
+        <display value="Schwiegertochter" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="DOMPART" />
+      <display value="domestic partner" />
+      <target>
+        <code value="Lebenspartnerin" />
+        <display value="Lebenspartner/-in" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="EXT" />
+      <display value="extended family member" />
+      <target>
+        <code value="ErweitertesFamilienmitglied" />
+        <display value="Erweitertes Familienmitglied" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="FAMMEMB" />
+      <display value="family member" />
+      <target>
+        <code value="Familienmitglied" />
+        <display value="Familienmitglied" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="FMRSPS" />
+      <display value="former spouse" />
+      <target>
+        <code value="EhemaligerEhepartnerIn" />
+        <display value="Ehemalige(r) EhepartnerIn" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="FRND" />
+      <display value="unrelated friend" />
+      <target>
+        <code value="NichtverwandterFreund" />
+        <display value="Nicht verwandter Freund" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="FTH" />
+      <display value="father" />
+      <target>
+        <code value="Vater" />
+        <display value="Vater" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="FTHFOST" />
+      <display value="foster father" />
+      <target>
+        <code value="Ziehvater" />
+        <display value="Ziehvater" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="FTHINLAW" />
+      <display value="father-in-law" />
+      <target>
+        <code value="Schwiegervater" />
+        <display value="Schwiegervater" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="FTWIN" />
+      <display value="fraternal twin" />
+      <target>
+        <code value="ZweieiigerZwilling" />
+        <display value="Zweieiiger Zwilling" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="FTWINBRO" />
+      <display value="fraternal twin brother" />
+      <target>
+        <code value="zweieiigerZwillingsbruder" />
+        <display value="zweieiiger Zwillingsbruder" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="FTWINSIS" />
+      <display value="fraternal twin sister" />
+      <target>
+        <code value="ZweieiigeZwillingsschwester" />
+        <display value="Zweieiige Zwillingsschwester" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="GESTM" />
+      <display value="gestational mother" />
+      <target>
+        <code value="werdendeMutter" />
+        <display value="werdende Mutter" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="GGRFTH" />
+      <display value="great grandfather" />
+      <target>
+        <code value="Urgrossvater" />
+        <display value="Urgroßvater" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="GGRMTH" />
+      <display value="great grandmother" />
+      <target>
+        <code value="Urgrossmutter" />
+        <display value="Urgroßmutter" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="GGRPRN" />
+      <display value="great grandparent" />
+      <target>
+        <code value="Urgrosseltern" />
+        <display value="Urgroßeltern" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="GRFTH" />
+      <display value="grandfather" />
+      <target>
+        <code value="Grossvater" />
+        <display value="Großvater" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="GRMTH" />
+      <display value="grandmother" />
+      <target>
+        <code value="Grossmutter" />
+        <display value="Großmutter" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="GRNDCHILD" />
+      <display value="grandchild" />
+      <target>
+        <code value="Enkelkind" />
+        <display value="Enkelkind" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="GRNDDAU" />
+      <display value="granddaughter" />
+      <target>
+        <code value="Enkeltochter" />
+        <display value="Enkeltochter" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="GRNDSON" />
+      <display value="grandson" />
+      <target>
+        <code value="Enkelsohn" />
+        <display value="Enkelsohn" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="GRPRN" />
+      <display value="grandparent" />
+      <target>
+        <code value="Grosseltern" />
+        <display value="Großeltern" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="HBRO" />
+      <display value="half-brother" />
+      <target>
+        <code value="Halbbruder" />
+        <display value="Halbbruder" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="HSIB" />
+      <display value="half-sibling" />
+      <target>
+        <code value="Halbgeschwister" />
+        <display value="Halbgeschwister" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="HSIS" />
+      <display value="half-sister" />
+      <target>
+        <code value="Halbschwester" />
+        <display value="Halbschwester" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="HUSB" />
+      <display value="husband" />
+      <target>
+        <code value="Ehemann" />
+        <display value="Ehemann" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="INLAW" />
+      <display value="inlaw" />
+      <target>
+        <code value="Schwiegerkind" />
+        <display value="Schwiegerkind" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="ITWIN" />
+      <display value="identical twin" />
+      <target>
+        <code value="EineiigerZwilling" />
+        <display value="Eineiiger Zwilling" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="ITWINBRO" />
+      <display value="identical twin brother" />
+      <target>
+        <code value="EineiigerZwillingsbruder" />
+        <display value="Eineiiger Zwillingsbruder" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="ITWINSIS" />
+      <display value="identical twin sister" />
+      <target>
+        <code value="EineiigeZwillingsschwester" />
+        <display value="Eineiige Zwillingsschwester" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="MAUNT" />
+      <display value="maternal aunt" />
+      <target>
+        <code value="Tantemuetterlicherseits" />
+        <display value="Tante mütterlicherseits" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="MCOUSN" />
+      <display value="maternal cousin" />
+      <target>
+        <code value="Cousinmuetterlicherseits" />
+        <display value="Cousin mütterlicherseits" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="MGGRFTH" />
+      <display value="maternal great-grandfather" />
+      <target>
+        <code value="Urgrossvatermuetterlicherseits" />
+        <display value="Urgroßvater mütterlicherseits" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="MGGRMTH" />
+      <display value="maternal great-grandmother" />
+      <target>
+        <code value="Urgrossmuttermuetterlicherseits" />
+        <display value="Urgroßmutter mütterlicherseits" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="MGGRPRN" />
+      <display value="maternal great-grandparent" />
+      <target>
+        <code value="Urgrosselternmuetterlicherseits" />
+        <display value="Urgroßeltern mütterlicherseits" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="MGRFTH" />
+      <display value="maternal grandfather" />
+      <target>
+        <code value="Grossvatermuetterlicherseits" />
+        <display value="Großvater mütterlicherseits" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="MGRMTH" />
+      <display value="maternal grandmother" />
+      <target>
+        <code value="Grossmuttermuetterlicherseits" />
+        <display value="Großmutter mütterlicherseits" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="MGRPRN" />
+      <display value="maternal grandparent" />
+      <target>
+        <code value="Grosselternmuetterlicherseits" />
+        <display value="Großeltern mütterlicherseits" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="MTH" />
+      <display value="mother" />
+      <target>
+        <code value="Mutter" />
+        <display value="Mutter" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="MTHFOST" />
+      <display value="foster mother" />
+      <target>
+        <code value="Pflegemutter" />
+        <display value="Pflegemutter" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="MTHINLAW" />
+      <display value="mother-in-law" />
+      <target>
+        <code value="Schwiegermutter" />
+        <display value="Schwiegermutter" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="MUNCLE" />
+      <display value="maternal uncle" />
+      <target>
+        <code value="Onkelmuetterlicherseits" />
+        <display value="Onkel mütterlicherseits" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="NBOR" />
+      <display value="neighbor" />
+      <target>
+        <code value="Nachbar" />
+        <display value="Nachbar" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="NBRO" />
+      <display value="natural brother" />
+      <target>
+        <code value="LeiblicherBruder" />
+        <display value="Leiblicher Bruder" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="NCHILD" />
+      <display value="natural child" />
+      <target>
+        <code value="LeiblichesKind" />
+        <display value="Leibliches Kind" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="NEPHEW" />
+      <display value="nephew" />
+      <target>
+        <code value="Neffe" />
+        <display value="Neffe" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="NFTH" />
+      <display value="natural father" />
+      <target>
+        <code value="LeiblicherVater" />
+        <display value="Leiblicher Vater" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="NFTHF" />
+      <display value="natural father of fetus" />
+      <target>
+        <code value="LeiblicherVaterdesFoetus" />
+        <display value="Leiblicher Vater des Fötus" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="NIECE" />
+      <display value="niece" />
+      <target>
+        <code value="Nichte" />
+        <display value="Nichte" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="NIENEPH" />
+      <display value="niece/nephew" />
+      <target>
+        <code value="NichteNeffe" />
+        <display value="Nichte/Neffe" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="NMTH" />
+      <display value="natural mother" />
+      <target>
+        <code value="LeiblicheMutter" />
+        <display value="Leibliche Mutter" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="NMTHF" />
+      <display value="natural mother of fetus" />
+      <target>
+        <code value="LeiblicheMutterdesFoetus" />
+        <display value="Leibliche Mutter des Fötus" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="NPRN" />
+      <display value="natural parent" />
+      <target>
+        <code value="LeiblicherElternteil" />
+        <display value="Leiblicher Elternteil" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="NSIB" />
+      <display value="natural sibling" />
+      <target>
+        <code value="LeiblichesGeschwisterkind" />
+        <display value="Leibliches Geschwisterkind" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="NSIS" />
+      <display value="natural sister" />
+      <target>
+        <code value="LeiblicheSchwester" />
+        <display value="Leibliche Schwester" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="ONESELF" />
+      <display value="self" />
+      <target>
+        <code value="Selbst" />
+        <display value="Selbst" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="PAUNT" />
+      <display value="paternal aunt" />
+      <target>
+        <code value="Tantevaeterlicherseits" />
+        <display value="Tante väterlicherseits" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="PCOUSN" />
+      <display value="paternal cousin" />
+      <target>
+        <code value="Cousinvaeterlicherseits" />
+        <display value="Cousin väterlicherseits" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="PGGRFTH" />
+      <display value="paternal great-grandfather" />
+      <target>
+        <code value="Urgrossvatervaeterlicherseits" />
+        <display value="Urgroßvater väterlicherseits" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="PGGRMTH" />
+      <display value="paternal great-grandmother" />
+      <target>
+        <code value="Urgrossmuttervaeterlicherseits" />
+        <display value="Urgroßmutter väterlicherseits" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="PGGRPRN" />
+      <display value="paternal great-grandparent" />
+      <target>
+        <code value="Urgrosselternvaeterlicherseits" />
+        <display value="Urgroßeltern väterlicherseits" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="PGRFTH" />
+      <display value="paternal grandfather" />
+      <target>
+        <code value="Grossvatervaeterlicherseits" />
+        <display value="Großvater väterlicherseits" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="PGRMTH" />
+      <display value="paternal grandmother" />
+      <target>
+        <code value="Grossmuttervaeterlicherseits" />
+        <display value="Großmutter väterlicherseits" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="PGRPRN" />
+      <display value="paternal grandparent" />
+      <target>
+        <code value="Grosselternvaeterlicherseits" />
+        <display value="Großeltern väterlicherseits" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="PRN" />
+      <display value="parent" />
+      <target>
+        <code value="Elternteil" />
+        <display value="Elternteil" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="PRNFOST" />
+      <display value="foster parent" />
+      <target>
+        <code value="Pflegemutter" />
+        <display value="Pflegemutter" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="PRNINLAW" />
+      <display value="parent in-law" />
+      <target>
+        <code value="Schwiegereltern" />
+        <display value="Schwiegereltern" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="PUNCLE" />
+      <display value="paternal uncle" />
+      <target>
+        <code value="Onkelvaeterlicherseits" />
+        <display value="Onkel väterlicherseits" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="ROOM" />
+      <display value="Roommate" />
+      <target>
+        <code value="MitbewohnerIn" />
+        <display value="MitbewohnerIn" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="SIB" />
+      <display value="sibling" />
+      <target>
+        <code value="Geschwisterteil" />
+        <display value="Geschwisterteil" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="SIBINLAW" />
+      <display value="sibling in-law" />
+      <target>
+        <code value="Schwiegergeschwister" />
+        <display value="Schwiegergeschwister" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="SIGOTHR" />
+      <display value="significant other" />
+      <target>
+        <code value="Lebensgefaehrtein" />
+        <display value="Lebensgefährte/-in" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="SIS" />
+      <display value="sister" />
+      <target>
+        <code value="Schwester" />
+        <display value="Schwester" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="SISINLAW" />
+      <display value="sister-in-law" />
+      <target>
+        <code value="Schwaegerin" />
+        <display value="Schwägerin" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="SON" />
+      <display value="natural son" />
+      <target>
+        <code value="LeiblicherSohn" />
+        <display value="Leiblicher Sohn" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="SONADOPT" />
+      <display value="adopted son" />
+      <target>
+        <code value="Adoptivsohn" />
+        <display value="Adoptivsohn" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="SONC" />
+      <display value="son" />
+      <target>
+        <code value="Sohn" />
+        <display value="Sohn" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="SONFOST" />
+      <display value="foster son" />
+      <target>
+        <code value="Pflegesohn" />
+        <display value="Pflegesohn" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="SONINLAW" />
+      <display value="son in-law" />
+      <target>
+        <code value="Schwiegersohn" />
+        <display value="Schwiegersohn" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="SPS" />
+      <display value="spouse" />
+      <target>
+        <code value="EhepartnerIn" />
+        <display value="EhepartnerIn" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="STPBRO" />
+      <display value="stepbrother" />
+      <target>
+        <code value="Stiefbruder" />
+        <display value="Stiefbruder" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="STPCHLD" />
+      <display value="step child" />
+      <target>
+        <code value="Stiefkind" />
+        <display value="Stiefkind" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="STPDAU" />
+      <display value="stepdaughter" />
+      <target>
+        <code value="Stieftochter" />
+        <display value="Stieftochter" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="STPFTH" />
+      <display value="stepfather" />
+      <target>
+        <code value="Stiefvater" />
+        <display value="Stiefvater" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="STPMTH" />
+      <display value="stepmother" />
+      <target>
+        <code value="Stiefmutter" />
+        <display value="Stiefmutter" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="STPPRN" />
+      <display value="step parent" />
+      <target>
+        <code value="Stiefelternteil" />
+        <display value="Stiefelternteil" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="STPSIB" />
+      <display value="step sibling" />
+      <target>
+        <code value="Stiefgeschwister" />
+        <display value="Stiefgeschwister" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="STPSIS" />
+      <display value="stepsister" />
+      <target>
+        <code value="Stiefschwester" />
+        <display value="Stiefschwester" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="STPSON" />
+      <display value="stepson" />
+      <target>
+        <code value="Stiefsohn" />
+        <display value="Stiefsohn" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="TWIN" />
+      <display value="twin" />
+      <target>
+        <code value="Zwilling" />
+        <display value="Zwilling" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="TWINBRO" />
+      <display value="twin brother" />
+      <target>
+        <code value="Zwillingsbruder" />
+        <display value="Zwillingsbruder" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="TWINSIS" />
+      <display value="twin sister" />
+      <target>
+        <code value="Zwillingsschwester" />
+        <display value="Zwillingsschwester" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="UNCLE" />
+      <display value="uncle" />
+      <target>
+        <code value="Onkel" />
+        <display value="Onkel" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="WIFE" />
+      <display value="wife" />
+      <target>
+        <code value="Ehefrau" />
+        <display value="Ehefrau" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://loinc.org" />
+    <sourceVersion value="2.72" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Peripheral_Oxygen_Saturation_LOINC_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="2708-6" />
+      <display value="Oxygen saturation in Arterial blood" />
+      <target>
+        <code value="peripherearterielleSauerstoffsaettigung" />
+        <display value="periphere arterielle Sauerstoffsättigung" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://snomed.info/sct" />
+    <sourceVersion value="http://snomed.info/sct/900000000000207008/version/20220331" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Peripheral_Oxygen_Saturation_Method_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="448703006" />
+      <display value="Pulse oximeter (physical object)" />
+      <target>
+        <code value="Pulsoximeter" />
+        <display value="Pulsoximeter" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://snomed.info/sct" />
+    <sourceVersion value="http://snomed.info/sct/900000000000207008/version/20220331" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Peripheral_Oxygen_Saturation_SNOMED_CT_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="431314004" />
+      <display value="Peripheral oxygen saturation (observable entity)" />
+      <target>
+        <code value="peripherearterielleSauerstoffsaettigung" />
+        <display value="periphere arterielle Sauerstoffsättigung" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://snomed.info/sct" />
+    <sourceVersion value="http://snomed.info/sct/900000000000207008/version/20220331" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Practitioner_Speciality_SNOMED_CT_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="309343006" />
+      <display value="Physician (occupation)" />
+      <target>
+        <code value="AerztinArzt" />
+        <display value="Ärztin/Arzt" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://snomed.info/sct" />
+    <sourceVersion value="http://snomed.info/sct/900000000000207008/version/20220331" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_ProcedureFollowUpCodes_SNOMEDCT_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="18949003" />
+      <display value="Change of dressing (procedure)" />
+      <target>
+        <code value="Verbandswechsel" />
+        <display value="Verbandswechsel" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="225164002" />
+      <display value="Removal of ligature (procedure)" />
+      <target>
+        <code value="EntfernungderLigatur" />
+        <display value="Entfernung der Ligatur" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="229506003" />
+      <display value="Scar tissue massage (regime/therapy)" />
+      <target>
+        <code value="Narbengewebemassage" />
+        <display value="Narbengewebemassage" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="241031001" />
+      <display value="Removal of drain (procedure)" />
+      <target>
+        <code value="Drainageentfernung" />
+        <display value="Drainageentfernung" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="274441001" />
+      <display value="Suction drainage (procedure)" />
+      <target>
+        <code value="Saugdrainage" />
+        <display value="Saugdrainage" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="30549001" />
+      <display value="Removal of suture (procedure)" />
+      <target>
+        <code value="Faedenziehen" />
+        <display value="Fäden ziehen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="35963001" />
+      <display value="Removal of staples (procedure)" />
+      <target>
+        <code value="Klammerentfernung" />
+        <display value="Klammerentfernung" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="359825008" />
+      <display value="Cytopathology, review of bronchioalveolar lavage specimen (procedure)" />
+      <target>
+        <code value="ZytopathologieKontrolleeinerbronchoalveolaerenLavageProbe" />
+        <display value="Zytopathologie, Kontrolle einer bronchoalveolären Lavage-Probe" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="394725008" />
+      <display value="Diabetes medication review (procedure)" />
+      <target>
+        <code value="KontrollederDiabetesmedikation" />
+        <display value="Kontrolle der Diabetesmedikation" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="447346005" />
+      <display value="Cardiopulmonary exercise test (procedure)" />
+      <target>
+        <code value="KardiopulmonalerBelastungstest" />
+        <display value="Kardiopulmonaler Belastungstest" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://snomed.info/sct" />
+    <sourceVersion value="http://snomed.info/sct/900000000000207008/version/20220331" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Procedure_Categories_SNOMED_CT_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="103693007" />
+      <display value="Diagnostic procedure (procedure)" />
+      <target>
+        <code value="DiagnostischeMassnahmen" />
+        <display value="Diagnostische Maßnahmen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="18629005" />
+      <display value="Administration of drug or medicament (procedure)" />
+      <target>
+        <code value="Medikamente" />
+        <display value="Medikamente" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="277132007" />
+      <display value="Therapeutic procedure (procedure)" />
+      <target>
+        <code value="NichtoperativetherapeutischeMassnahmen" />
+        <display value="Nichtoperative therapeutische Maßnahmen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="363679005" />
+      <display value="Imaging (procedure)" />
+      <target>
+        <code value="BildgebendeDiagnostik" />
+        <display value="Bildgebende Diagnostik" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="387713003" />
+      <display value="Surgical procedure (procedure)" />
+      <target>
+        <code value="Operationen" />
+        <display value="Operationen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="394841004" />
+      <display value="Other category (qualifier value)" />
+      <target>
+        <code value="ErgaenzendeMassnahmen" />
+        <display value="Ergänzende Maßnahmen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://snomed.info/sct" />
+    <sourceVersion value="http://snomed.info/sct/900000000000207008/version/20220331" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Reaction_Allergy_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="126485001" />
+      <display value="Urticaria (disorder)" />
+      <target>
+        <code value="Urtikaria" />
+        <display value="Urtikaria" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="162290004" />
+      <display value="Dry eyes (finding)" />
+      <target>
+        <code value="TrockeneAugen" />
+        <display value="Trockene Augen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="195967001" />
+      <display value="Asthma (disorder)" />
+      <target>
+        <code value="Asthmabronchiale" />
+        <display value="Asthma bronchiale" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="1985008" />
+      <display value="Vomitus (substance)" />
+      <target>
+        <code value="Erbrechen" />
+        <display value="Erbrechen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="23924001" />
+      <display value="Tight chest (finding)" />
+      <target>
+        <code value="EngegefuehlinderBrust" />
+        <display value="Engegefühl in der Brust" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="24079001" />
+      <display value="Atopic dermatitis (disorder)" />
+      <target>
+        <code value="AtopischeDermatitis" />
+        <display value="Atopische Dermatitis" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="247472004" />
+      <display value="Wheal (finding)" />
+      <target>
+        <code value="Quaddel" />
+        <display value="Quaddel" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="267036007" />
+      <display value="Dyspnea (finding)" />
+      <target>
+        <code value="Dyspnoe" />
+        <display value="Dyspnoe" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="271757001" />
+      <display value="Papular eruption (disorder)" />
+      <target>
+        <code value="PapuloeseHauteruption" />
+        <display value="Papulöse Hauteruption" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="271759003" />
+      <display value="Bullous eruption (disorder)" />
+      <target>
+        <code value="BulloeseHauteruption" />
+        <display value="Bullöse Hauteruption" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="31996006" />
+      <display value="Vasculitis (disorder)" />
+      <target>
+        <code value="Vaskulitis" />
+        <display value="Vaskulitis" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="39579001" />
+      <display value="Anaphylaxis (disorder)" />
+      <target>
+        <code value="Anaphylaxie" />
+        <display value="Anaphylaxie" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="410430005" />
+      <display value="Cardiorespiratory arrest (disorder)" />
+      <target>
+        <code value="KardiorespiratorischerStillstand" />
+        <display value="Kardiorespiratorischer Stillstand" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="41291007" />
+      <display value="Angioedema (disorder)" />
+      <target>
+        <code value="Angiooedem" />
+        <display value="Angioödem" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="418363000" />
+      <display value="Itching of skin (finding)" />
+      <target>
+        <code value="Hautjucken" />
+        <display value="Hautjucken" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="422587007" />
+      <display value="Nausea (finding)" />
+      <target>
+        <code value="Uebelkeit" />
+        <display value="Übelkeit" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="43116000" />
+      <display value="Eczema (disorder)" />
+      <target>
+        <code value="Ekzem" />
+        <display value="Ekzem" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="4386001" />
+      <display value="Bronchospasm (finding)" />
+      <target>
+        <code value="Bronchospasmus" />
+        <display value="Bronchospasmus" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="49727002" />
+      <display value="Cough (finding)" />
+      <target>
+        <code value="Husten" />
+        <display value="Husten" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="51599000" />
+      <display value="Edema of larynx (disorder)" />
+      <target>
+        <code value="Larynxoedem" />
+        <display value="Larynxödem" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="62315008" />
+      <display value="Diarrhea (finding)" />
+      <target>
+        <code value="Diarrhoe" />
+        <display value="Diarrhoe" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="698247007" />
+      <display value="Cardiac arrhythmia (disorder)" />
+      <target>
+        <code value="KardialeArrhythmien" />
+        <display value="Kardiale Arrhythmien" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="70076002" />
+      <display value="Rhinitis (disorder)" />
+      <target>
+        <code value="Rhinitis" />
+        <display value="Rhinitis" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="702809001" />
+      <display value="Drug reaction with eosinophilia and systemic symptoms (disorder)" />
+      <target>
+        <code value="ArzneimittelreaktionmitEosinophilieundsystemischenSymptomen" />
+        <display value="Arzneimittelreaktion mit Eosinophilie und systemischen Symptomen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="73442001" />
+      <display value="Stevens-Johnson syndrome (disorder)" />
+      <target>
+        <code value="StevensJohnsonSyndrom" />
+        <display value="Stevens-Johnson-Syndrom" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="76067001" />
+      <display value="Sneezing (finding)" />
+      <target>
+        <code value="Niesen" />
+        <display value="Niesen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="781682005" />
+      <display value="Hyperemia of eye (finding)" />
+      <target>
+        <code value="OkulareHyperaemie" />
+        <display value="Okulare Hyperämie" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="91175000" />
+      <display value="Seizure (finding)" />
+      <target>
+        <code value="EpileptischerAnfall" />
+        <display value="Epileptischer Anfall" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="9826008" />
+      <display value="Conjunctivitis (disorder)" />
+      <target>
+        <code value="Konjunktivitis" />
+        <display value="Konjunktivitis" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://loinc.org" />
+    <sourceVersion value="2.72" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Respiratory_Rate_LOINC_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="9279-1" />
+      <display value="Respiratory rate" />
+      <target>
+        <code value="Atemfrequenz" />
+        <display value="Atemfrequenz" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://snomed.info/sct" />
+    <sourceVersion value="http://snomed.info/sct/900000000000207008/version/20220331" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Respiratory_Rate_SNOMED_CT_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="271625008" />
+      <display value="Rate of spontaneous respiration (observable entity)" />
+      <target>
+        <code value="AtemfrequenzderSpontanatmung" />
+        <display value="Atemfrequenz der Spontanatmung" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="86290005" />
+      <display value="Respiratory rate (observable entity)" />
+      <target>
+        <code value="Atemfrequenz" />
+        <display value="Atemfrequenz" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://snomed.info/sct" />
+    <sourceVersion value="http://snomed.info/sct/900000000000207008/version/20220131" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Results_Type_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="271920001" />
+      <display value="Histopathology interpretation (observable entity)" />
+      <target>
+        <code value="Pathologiebefund" />
+        <display value="Pathologiebefund" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="277034006:704321009=103693007" />
+      <display value="Test interpretation (observable entity) : Characterizes (attribute) = Diagnostic procedure (procedure)" />
+      <target>
+        <code value="InterventionelleDiagnostik" />
+        <display value="Interventionelle Diagnostik" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="277034006:704321009=386053000" />
+      <display value="Test interpretation (observable entity) : Characterizes (attribute) = Evaluation procedure (procedure)" />
+      <target>
+        <code value="Andere" />
+        <display value="Andere" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="277034006:704321009=386344002" />
+      <display value="Test interpretation (observable entity) : Characterizes (attribute) = Laboratory data interpretation (procedure)" />
+      <target>
+        <code value="Laborbefund" />
+        <display value="Laborbefund" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="277034006:704321009=5880005" />
+      <display value="Test interpretation (observable entity) : Characterizes (attribute) = Physical examination procedure (procedure)" />
+      <target>
+        <code value="KlinischeUntersuchung" />
+        <display value="Klinische Untersuchung" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="282290005" />
+      <display value="Imaging interpretation (observable entity)" />
+      <target>
+        <code value="Bildgebungsbefund" />
+        <display value="Bildgebungsbefund" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://snomed.info/sct" />
+    <sourceVersion value="http://snomed.info/sct/900000000000207008/version/20220331" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Route_of_Administration_SNOMED_CT_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="10547007" />
+      <display value="Otic route (qualifier value)" />
+      <target>
+        <code value="aurikulaer" />
+        <display value="aurikulär" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="12130007" />
+      <display value="Intra-articular route (qualifier value)" />
+      <target>
+        <code value="intraartikulaer" />
+        <display value="intraartikulär" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="16857009" />
+      <display value="Vaginal route (qualifier value)" />
+      <target>
+        <code value="vaginal" />
+        <display value="vaginal" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="26643006" />
+      <display value="Oral route (qualifier value)" />
+      <target>
+        <code value="oral" />
+        <display value="oral" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="34206005" />
+      <display value="Subcutaneous route (qualifier value)" />
+      <target>
+        <code value="subkutan" />
+        <display value="subkutan" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="37161004" />
+      <display value="Rectal route (qualifier value)" />
+      <target>
+        <code value="rektal" />
+        <display value="rektal" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="372449004" />
+      <display value="Dental route (qualifier value)" />
+      <target>
+        <code value="dental" />
+        <display value="dental" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="372450004" />
+      <display value="Endocervical route (qualifier value)" />
+      <target>
+        <code value="endozervikal" />
+        <display value="endozervikal" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="372451000" />
+      <display value="Endosinusial route (qualifier value)" />
+      <target>
+        <code value="endosinusial" />
+        <display value="endosinusial" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="372452007" />
+      <display value="Endotracheopulmonary route (qualifier value)" />
+      <target>
+        <code value="endotracheopulmonal" />
+        <display value="endotracheopulmonal" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="372453002" />
+      <display value="Extra-amniotic route (qualifier value)" />
+      <target>
+        <code value="extraamniotisch" />
+        <display value="extra-amniotisch" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="372454008" />
+      <display value="Gastroenteral route (qualifier value)" />
+      <target>
+        <code value="gastroenteral" />
+        <display value="gastroenteral" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="372457001" />
+      <display value="Gingival route (qualifier value)" />
+      <target>
+        <code value="gingival" />
+        <display value="gingival" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="372458006" />
+      <display value="Intraamniotic route (qualifier value)" />
+      <target>
+        <code value="intraamniotisch" />
+        <display value="intra-amniotisch" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="372459003" />
+      <display value="Intrabursal route (qualifier value)" />
+      <target>
+        <code value="intrabursal" />
+        <display value="intrabursal" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="372460008" />
+      <display value="Intracardiac route (qualifier value)" />
+      <target>
+        <code value="intrakardial" />
+        <display value="intrakardial" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="372461007" />
+      <display value="Intracavernous route (qualifier value)" />
+      <target>
+        <code value="intrakavernoes" />
+        <display value="intrakavernös" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="372463005" />
+      <display value="Intracoronary route (qualifier value)" />
+      <target>
+        <code value="intrakoronar" />
+        <display value="intrakoronar" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="372464004" />
+      <display value="Intradermal route (qualifier value)" />
+      <target>
+        <code value="intradermal" />
+        <display value="intradermal" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="372465003" />
+      <display value="Intradiscal route (qualifier value)" />
+      <target>
+        <code value="intradiskal" />
+        <display value="intradiskal" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="372466002" />
+      <display value="Intralesional route (qualifier value)" />
+      <target>
+        <code value="intralaesional" />
+        <display value="intraläsional" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="372467006" />
+      <display value="Intralymphatic route (qualifier value)" />
+      <target>
+        <code value="intralymphatisch" />
+        <display value="intralymphatisch" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="372468001" />
+      <display value="Intraocular route (qualifier value)" />
+      <target>
+        <code value="intraokular" />
+        <display value="intraokular" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="372469009" />
+      <display value="Intrapleural route (qualifier value)" />
+      <target>
+        <code value="intrapleural" />
+        <display value="intrapleural" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="372470005" />
+      <display value="Intrasternal route (qualifier value)" />
+      <target>
+        <code value="intrasternal" />
+        <display value="intrasternal" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="372471009" />
+      <display value="Intravesical route (qualifier value)" />
+      <target>
+        <code value="intravesikal" />
+        <display value="intravesikal" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="372473007" />
+      <display value="Oromucosal route (qualifier value)" />
+      <target>
+        <code value="oromukosal" />
+        <display value="oromukosal" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="372474001" />
+      <display value="Periarticular route (qualifier value)" />
+      <target>
+        <code value="periartikulaer" />
+        <display value="periartikulär" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="372475000" />
+      <display value="Perineural route (qualifier value)" />
+      <target>
+        <code value="perineural" />
+        <display value="perineural" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="372476004" />
+      <display value="Subconjunctival route (qualifier value)" />
+      <target>
+        <code value="subkonjunktival" />
+        <display value="subkonjunktival" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="37839007" />
+      <display value="Sublingual route (qualifier value)" />
+      <target>
+        <code value="sublingual" />
+        <display value="sublingual" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="38239002" />
+      <display value="Intraperitoneal route (qualifier value)" />
+      <target>
+        <code value="intraperitoneal" />
+        <display value="intraperitoneal" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="404820008" />
+      <display value="Epidural route (qualifier value)" />
+      <target>
+        <code value="epidural" />
+        <display value="epidural" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="417255000" />
+      <display value="Intraosseous route (qualifier value)" />
+      <target>
+        <code value="intraossaer" />
+        <display value="intraossär" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="418321004" />
+      <display value="Retrobulbar route (qualifier value)" />
+      <target>
+        <code value="retrobulbaer" />
+        <display value="retrobulbär" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="418331006" />
+      <display value="Intracartilaginous route (qualifier value)" />
+      <target>
+        <code value="intrakartilaginoes" />
+        <display value="intrakartilaginös" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="418401004" />
+      <display value="Intravitreal route (qualifier value)" />
+      <target>
+        <code value="intravitreal" />
+        <display value="intravitreal" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="418664002" />
+      <display value="Oropharyngeal route (qualifier value)" />
+      <target>
+        <code value="oropharyngeal" />
+        <display value="oropharyngeal" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="418821007" />
+      <display value="Intracameral route (qualifier value)" />
+      <target>
+        <code value="intrakameral" />
+        <display value="intrakameral" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="418892005" />
+      <display value="Intracisternal route (qualifier value)" />
+      <target>
+        <code value="intrazisternal" />
+        <display value="intrazisternal" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="419874009" />
+      <display value="Submucosal route (qualifier value)" />
+      <target>
+        <code value="submukoes" />
+        <display value="submukös" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="420047004" />
+      <display value="Periosteal route (qualifier value)" />
+      <target>
+        <code value="periossaer" />
+        <display value="periossär" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="420185003" />
+      <display value="Laryngeal route (qualifier value)" />
+      <target>
+        <code value="larnygeal" />
+        <display value="larnygeal" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="445771006" />
+      <display value="Intrapericardial route (qualifier value)" />
+      <target>
+        <code value="intraperikardial" />
+        <display value="intraperikardial" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="446540005" />
+      <display value="Intracerebral route (qualifier value)" />
+      <target>
+        <code value="intrazerebral" />
+        <display value="intrazerebral" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="447052000" />
+      <display value="Periodontal route (qualifier value)" />
+      <target>
+        <code value="parodontal" />
+        <display value="parodontal" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="447122006" />
+      <display value="Intratumor route (qualifier value)" />
+      <target>
+        <code value="intratumoral" />
+        <display value="intratumoral" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="447694001" />
+      <display value="Respiratory tract route (qualifier value)" />
+      <target>
+        <code value="inhalatativ" />
+        <display value="inhalatativ" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="448077001" />
+      <display value="Intraepidermal route (qualifier value)" />
+      <target>
+        <code value="intraepidermal" />
+        <display value="intraepidermal" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="448598008" />
+      <display value="Cutaneous route (qualifier value)" />
+      <target>
+        <code value="kutan" />
+        <display value="kutan" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="45890007" />
+      <display value="Transdermal route (qualifier value)" />
+      <target>
+        <code value="transdermal" />
+        <display value="transdermal" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="46713006" />
+      <display value="Nasal route (qualifier value)" />
+      <target>
+        <code value="nasal" />
+        <display value="nasal" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="47625008" />
+      <display value="Intravenous route (qualifier value)" />
+      <target>
+        <code value="intravenoes" />
+        <display value="intravenös" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="54471007" />
+      <display value="Buccal route (qualifier value)" />
+      <target>
+        <code value="buccal" />
+        <display value="buccal" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="54485002" />
+      <display value="Ophthalmic route (qualifier value)" />
+      <target>
+        <code value="okulaer" />
+        <display value="okulär" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="58100008" />
+      <display value="Intra-arterial route (qualifier value)" />
+      <target>
+        <code value="intraarteriell" />
+        <display value="intraarteriell" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="6064005" />
+      <display value="Topical route (qualifier value)" />
+      <target>
+        <code value="topisch" />
+        <display value="topisch" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="62226000" />
+      <display value="Intrauterine route (qualifier value)" />
+      <target>
+        <code value="intrauterin" />
+        <display value="intrauterin" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="714743009" />
+      <display value="Extracorporeal route (qualifier value)" />
+      <target>
+        <code value="extrakorporal" />
+        <display value="extra-korporal" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="718329006" />
+      <display value="Infiltration route (qualifier value)" />
+      <target>
+        <code value="infiltrativ" />
+        <display value="infiltrativ" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="72607000" />
+      <display value="Intrathecal route (qualifier value)" />
+      <target>
+        <code value="intrathekal" />
+        <display value="intrathekal" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="764723001" />
+      <display value="Epilesional route (qualifier value)" />
+      <target>
+        <code value="perilaesional" />
+        <display value="periläsional" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="78421000" />
+      <display value="Intramuscular route (qualifier value)" />
+      <target>
+        <code value="intramuskulaer" />
+        <display value="intramuskulär" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="90028008" />
+      <display value="Urethral route (qualifier value)" />
+      <target>
+        <code value="urethral" />
+        <display value="urethral" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://snomed.info/sct" />
+    <sourceVersion value="http://snomed.info/sct/900000000000207008/version/20210731" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_SNOMED_CT_Drug_Therapy_Status_Codes_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="182840001:408730004=410529002" />
+      <display value="Drug treatment stopped - medical advice (situation) : Procedure context (attribute) = Not needed (qualifier value)" />
+      <target>
+        <code value="AbgesetztwegenfehlenderNotwendigkeit" />
+        <display value="Abgesetzt wegen fehlender Notwendigkeit" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="182840001:408730004=410536001" />
+      <display value="Drug treatment stopped - medical advice (situation) : Procedure context (attribute) = Contraindicated (qualifier value)" />
+      <target>
+        <code value="AbgesetztwegenKontraindikation" />
+        <display value="Abgesetzt wegen Kontraindikation" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="182841002" />
+      <display value="Doctor stopped drugs - ineffective (situation)" />
+      <target>
+        <code value="AbgesetztwegenIneffektivitaet" />
+        <display value="Abgesetzt wegen Ineffektivität" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="182842009" />
+      <display value="Doctor stopped drugs - side effect (situation)" />
+      <target>
+        <code value="AbgesetztwegenNebenwirkungen" />
+        <display value="Abgesetzt wegen Nebenwirkungen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="182844005" />
+      <display value="Doctor stopped drugs - patient dislikes (situation)" />
+      <target>
+        <code value="AbgesetztwegenAblehnungdurchPatientIn" />
+        <display value="Abgesetzt wegen Ablehnung durch PatientIn" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="182845006" />
+      <display value="Doctor stopped drugs - avoid interaction (situation)" />
+      <target>
+        <code value="AbgesetztwegenInterkationen" />
+        <display value="Abgesetzt wegen Interkationen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="182862001" />
+      <display value="Drug not taken - dislike taste (situation)" />
+      <target>
+        <code value="NichteingenommenwegenGeschmack" />
+        <display value="Nicht eingenommen wegen Geschmack" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="182864000" />
+      <display value="Drug not taken - side-effects (situation)" />
+      <target>
+        <code value="NichteingenommenwegenNebenwirkungen" />
+        <display value="Nicht eingenommen wegen Nebenwirkungen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="182869005" />
+      <display value="Drug not taken - patient lost tablets (situation)" />
+      <target>
+        <code value="NichteingenommenwegenVerlustdesArzneimittels" />
+        <display value="Nicht eingenommen wegen Verlust des Arzneimittels" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="182872003" />
+      <display value="Drug discontinued - too expensive (situation)" />
+      <target>
+        <code value="NichtweitereingenommenausKostengruenden" />
+        <display value="Nicht weiter eingenommen aus Kostengründen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="182878004" />
+      <display value="Medication increased (finding)" />
+      <target>
+        <code value="Dosiserhoehung" />
+        <display value="Dosiserhöhung" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="182879007" />
+      <display value="Medication decreased (finding)" />
+      <target>
+        <code value="Dosisreduktion" />
+        <display value="Dosisreduktion" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="266711001" />
+      <display value="Drug not taken - problem swallowing (situation)" />
+      <target>
+        <code value="NichteingenommenwegenSchluckproblemen" />
+        <display value="Nicht eingenommen wegen Schluckproblemen" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="275942009" />
+      <display value="New medication added (finding)" />
+      <target>
+        <code value="Neuangesetzt" />
+        <display value="Neu angesetzt" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://snomed.info/sct" />
+    <sourceVersion value="http://snomed.info/sct/900000000000207008/version/20220331" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Stage_Life_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="255398004" />
+      <display value="Childhood (qualifier value)" />
+      <target>
+        <code value="KindabBeginndes4biszumvollendeten12Lebensjahres" />
+        <display value="Kind (ab Beginn des 4. bis zum vollendeten 12. Lebensjahres)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="255407002" />
+      <display value="Neonatal (qualifier value)" />
+      <target>
+        <code value="Neugeborenesbiszumvollendeten28Lebenstag" />
+        <display value="Neugeborenes (bis zum vollendeten 28. Lebenstag)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="263659003" />
+      <display value="Adolescence (qualifier value)" />
+      <target>
+        <code value="JugendlicherabBeginndes13biszumvollendeten18Lebensjahres" />
+        <display value="Jugendlicher (ab Beginn des 13. bis zum vollendeten 18. Lebensjahres)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="271872005" />
+      <display value="Old age (qualifier value)" />
+      <target>
+        <code value="AelterePersonSeniorenmitBeginndes65Lebensjahres" />
+        <display value="Ältere Person/ Senioren (mit Beginn des 65. Lebensjahres)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="3658006" />
+      <display value="Infancy (qualifier value)" />
+      <target>
+        <code value="SaeuglingabBeginndes29Lebenstagesbiszumvollendeten12Lebensmonat" />
+        <display value="Säugling (ab Beginn des 29. Lebenstages bis zum vollendeten 12. Lebensmonat)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="41847000" />
+      <display value="Adulthood (qualifier value)" />
+      <target>
+        <code value="ErwachsenerabBeginndes19Lebensjahres" />
+        <display value="Erwachsener (ab Beginn des 19. Lebensjahres)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="713153009" />
+      <display value="Toddler (qualifier value)" />
+      <target>
+        <code value="KleinkindabBeginndes13Lebensmonatbiszumvollendeten3Lebensjahr" />
+        <display value="Kleinkind (ab Beginn des 13. Lebensmonat bis zum vollendeten 3. Lebensjahr)" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://loinc.org" />
+    <sourceVersion value="2.72" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Systolic_Blood_Pressure_LOINC_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="8480-6" />
+      <display value="Systolic blood pressure" />
+      <target>
+        <code value="systolischerBlutdruck" />
+        <display value="systolischer Blutdruck" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://snomed.info/sct" />
+    <sourceVersion value="http://snomed.info/sct/900000000000207008/version/20220331" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Systolic_Blood_Pressure_SNOMED_CT_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="271649006" />
+      <display value="Systolic blood pressure (observable entity)" />
+      <target>
+        <code value="systolischerBlutdruck" />
+        <display value="systolischer Blutdruck" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://unitsofmeasure.org" />
+    <sourceVersion value="2.1" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_UnitsOfTime_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="a" />
+      <display value="year" />
+      <target>
+        <code value="Jahr" />
+        <display value="Jahr" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="d" />
+      <display value="day" />
+      <target>
+        <code value="Tag" />
+        <display value="Tag" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="h" />
+      <display value="hour" />
+      <target>
+        <code value="Stunde" />
+        <display value="Stunde" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="min" />
+      <display value="minute" />
+      <target>
+        <code value="Minute" />
+        <display value="Minute" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="mo" />
+      <display value="month" />
+      <target>
+        <code value="Monat" />
+        <display value="Monat" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="s" />
+      <display value="second" />
+      <target>
+        <code value="Sekunde" />
+        <display value="Sekunde" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+    <element>
+      <code value="wk" />
+      <display value="week" />
+      <target>
+        <code value="Woche" />
+        <display value="Woche" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+  <group>
+    <source value="http://unitsofmeasure.org" />
+    <sourceVersion value="2.1" />
+    <target value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_VitalSignDE_Body_Length_UCUM_German" />
+    <targetVersion value="1.3.0" />
+    <element>
+      <code value="cm" />
+      <display value="centimeter" />
+      <target>
+        <code value="cm" />
+        <display value="cm" />
+        <equivalence value="equivalent" />
+      </target>
+    </element>
+  </group>
+</ConceptMap>

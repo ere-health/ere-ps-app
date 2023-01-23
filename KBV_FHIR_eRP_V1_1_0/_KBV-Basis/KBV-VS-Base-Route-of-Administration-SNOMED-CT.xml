@@ -1,0 +1,671 @@
+<ValueSet xmlns="http://hl7.org/fhir">
+  <id value="KBV-VS-Base-Route-of-Administration-SNOMED-CT" />
+  <url value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_Route_of_Administration_SNOMED_CT" />
+  <version value="1.3.0" />
+  <name value="KBV_VS_Base_Route_of_Administration_SNOMED_CT" />
+  <title value="Verabreichungsweg" />
+  <status value="active" />
+  <experimental value="false" />
+  <publisher value="Kassenärztliche Bundesvereinigung (KBV)" />
+  <contact>
+    <telecom>
+      <system value="url" />
+      <value value="http://www.kbv.de" />
+    </telecom>
+  </contact>
+  <description value="Dieses Valueset enthält die Codes zur Beschreibung von Verabreichungsweg." />
+  <immutable value="false" />
+  <copyright value="Im folgenden Profil können Codes aus den Codesystemen Snomed, Loinc oder Ucum enthalten sein, die dem folgenden Urheberrecht unterliegen: This material includes SNOMED Clinical Terms® (SNOMED CT®) which is used by permission of SNOMED International. All rights reserved. SNOMED CT®, was originally created by The College of American Pathologists. SNOMED and SNOMED CT are registered trademarks of SNOMED International. Implementers of these artefacts must have the appropriate SNOMED CT Affiliate license. This material contains content from LOINC (http://loinc.org). LOINC is copyright © 1995-2020, Regenstrief Institute, Inc. and the Logical Observation Identifiers Names and Codes (LOINC) Committee and is available at no cost under the license at http://loinc.org/license. LOINC® is a registered United States trademark of Regenstrief Institute, Inc. This product includes all or a portion of the UCUM table, UCUM codes, and UCUM definitions or is derived from it, subject to a license from Regenstrief Institute, Inc. and The UCUM Organization. Your use of the UCUM table, UCUM codes, UCUM definitions also is subject to this license, a copy of which is available at ​http://unitsofmeasure.org. The current complete UCUM table, UCUM Specification are available for download at http://unitsofmeasure.org. The UCUM table and UCUM codes are copyright © 1995-2009, Regenstrief Institute, Inc. and the Unified Codes for Units of Measures (UCUM) Organization. All rights reserved. THE UCUM TABLE (IN ALL FORMATS), UCUM DEFINITIONS, AND SPECIFICATION ARE PROVIDED &quot;AS IS.&quot; ANY EXPRESS OR IMPLIED WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE." />
+  <compose>
+    <include>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <concept>
+        <code value="10547007" />
+        <display value="Otic route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="54471007" />
+        <display value="Buccal route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="372449004" />
+        <display value="Dental route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="372451000" />
+        <display value="Endosinusial route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="372452007" />
+        <display value="Endotracheopulmonary route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="372450004" />
+        <display value="Endocervical route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="404820008" />
+        <display value="Epidural route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="372453002" />
+        <display value="Extra-amniotic route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="714743009" />
+        <display value="Extracorporeal route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="372454008" />
+        <display value="Gastroenteral route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="372457001" />
+        <display value="Gingival route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="718329006" />
+        <display value="Infiltration route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="447694001" />
+        <display value="Respiratory tract route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="372458006" />
+        <display value="Intraamniotic route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="58100008" />
+        <display value="Intra-arterial route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="12130007" />
+        <display value="Intra-articular route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="372459003" />
+        <display value="Intrabursal route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="372464004" />
+        <display value="Intradermal route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="372465003" />
+        <display value="Intradiscal route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="448077001" />
+        <display value="Intraepidermal route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="418821007" />
+        <display value="Intracameral route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="372460008" />
+        <display value="Intracardiac route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="418331006" />
+        <display value="Intracartilaginous route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="372461007" />
+        <display value="Intracavernous route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="372463005" />
+        <display value="Intracoronary route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="372466002" />
+        <display value="Intralesional route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="372467006" />
+        <display value="Intralymphatic route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="78421000" />
+        <display value="Intramuscular route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="372468001" />
+        <display value="Intraocular route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="417255000" />
+        <display value="Intraosseous route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="445771006" />
+        <display value="Intrapericardial route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="38239002" />
+        <display value="Intraperitoneal route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="372469009" />
+        <display value="Intrapleural route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="372470005" />
+        <display value="Intrasternal route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="72607000" />
+        <display value="Intrathecal route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="447122006" />
+        <display value="Intratumor route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="62226000" />
+        <display value="Intrauterine route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="47625008" />
+        <display value="Intravenous route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="372471009" />
+        <display value="Intravesical route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="418401004" />
+        <display value="Intravitreal route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="446540005" />
+        <display value="Intracerebral route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="418892005" />
+        <display value="Intracisternal route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="448598008" />
+        <display value="Cutaneous route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="420185003" />
+        <display value="Laryngeal route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="46713006" />
+        <display value="Nasal route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="54485002" />
+        <display value="Ophthalmic route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="26643006" />
+        <display value="Oral route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="372473007" />
+        <display value="Oromucosal route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="418664002" />
+        <display value="Oropharyngeal route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="447052000" />
+        <display value="Periodontal route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="372474001" />
+        <display value="Periarticular route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="764723001" />
+        <display value="Epilesional route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="372475000" />
+        <display value="Perineural route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="420047004" />
+        <display value="Periosteal route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="37161004" />
+        <display value="Rectal route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="418321004" />
+        <display value="Retrobulbar route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="372476004" />
+        <display value="Subconjunctival route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="34206005" />
+        <display value="Subcutaneous route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="37839007" />
+        <display value="Sublingual route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="419874009" />
+        <display value="Submucosal route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="6064005" />
+        <display value="Topical route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="45890007" />
+        <display value="Transdermal route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="90028008" />
+        <display value="Urethral route (qualifier value)" />
+      </concept>
+      <concept>
+        <code value="16857009" />
+        <display value="Vaginal route (qualifier value)" />
+      </concept>
+    </include>
+  </compose>
+  <expansion>
+    <identifier value="87e407d4-ee0f-11ec-b445-f875a4795910" />
+    <timestamp value="2022-06-17T09:31:41+02:00" />
+    <total value="64" />
+    <offset value="0" />
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="10547007" />
+      <display value="Otic route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="54471007" />
+      <display value="Buccal route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="372449004" />
+      <display value="Dental route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="372451000" />
+      <display value="Endosinusial route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="372452007" />
+      <display value="Endotracheopulmonary route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="372450004" />
+      <display value="Endocervical route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="404820008" />
+      <display value="Epidural route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="372453002" />
+      <display value="Extra-amniotic route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="714743009" />
+      <display value="Extracorporeal route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="372454008" />
+      <display value="Gastroenteral route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="372457001" />
+      <display value="Gingival route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="718329006" />
+      <display value="Infiltration route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="447694001" />
+      <display value="Respiratory tract route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="372458006" />
+      <display value="Intraamniotic route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="58100008" />
+      <display value="Intra-arterial route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="12130007" />
+      <display value="Intra-articular route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="372459003" />
+      <display value="Intrabursal route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="372464004" />
+      <display value="Intradermal route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="372465003" />
+      <display value="Intradiscal route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="448077001" />
+      <display value="Intraepidermal route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="418821007" />
+      <display value="Intracameral route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="372460008" />
+      <display value="Intracardiac route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="418331006" />
+      <display value="Intracartilaginous route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="372461007" />
+      <display value="Intracavernous route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="372463005" />
+      <display value="Intracoronary route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="372466002" />
+      <display value="Intralesional route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="372467006" />
+      <display value="Intralymphatic route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="78421000" />
+      <display value="Intramuscular route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="372468001" />
+      <display value="Intraocular route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="417255000" />
+      <display value="Intraosseous route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="445771006" />
+      <display value="Intrapericardial route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="38239002" />
+      <display value="Intraperitoneal route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="372469009" />
+      <display value="Intrapleural route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="372470005" />
+      <display value="Intrasternal route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="72607000" />
+      <display value="Intrathecal route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="447122006" />
+      <display value="Intratumor route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="62226000" />
+      <display value="Intrauterine route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="47625008" />
+      <display value="Intravenous route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="372471009" />
+      <display value="Intravesical route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="418401004" />
+      <display value="Intravitreal route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="446540005" />
+      <display value="Intracerebral route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="418892005" />
+      <display value="Intracisternal route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="448598008" />
+      <display value="Cutaneous route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="420185003" />
+      <display value="Laryngeal route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="46713006" />
+      <display value="Nasal route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="54485002" />
+      <display value="Ophthalmic route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="26643006" />
+      <display value="Oral route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="372473007" />
+      <display value="Oromucosal route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="418664002" />
+      <display value="Oropharyngeal route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="447052000" />
+      <display value="Periodontal route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="372474001" />
+      <display value="Periarticular route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="764723001" />
+      <display value="Epilesional route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="372475000" />
+      <display value="Perineural route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="420047004" />
+      <display value="Periosteal route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="37161004" />
+      <display value="Rectal route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="418321004" />
+      <display value="Retrobulbar route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="372476004" />
+      <display value="Subconjunctival route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="34206005" />
+      <display value="Subcutaneous route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="37839007" />
+      <display value="Sublingual route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="419874009" />
+      <display value="Submucosal route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="6064005" />
+      <display value="Topical route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="45890007" />
+      <display value="Transdermal route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="90028008" />
+      <display value="Urethral route (qualifier value)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="16857009" />
+      <display value="Vaginal route (qualifier value)" />
+    </contains>
+  </expansion>
+</ValueSet>

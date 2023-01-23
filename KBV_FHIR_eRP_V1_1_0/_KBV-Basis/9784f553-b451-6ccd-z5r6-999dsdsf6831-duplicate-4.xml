@@ -1,0 +1,76 @@
+<Goal xmlns="http://hl7.org/fhir">
+  <id value="9784f553-b451-6ccd-z5r6-999dsdsf6831" />
+  <meta>
+    <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Treatment_Goal|1.3.0" />
+  </meta>
+  <lifecycleStatus value="active" />
+  <achievementStatus>
+    <coding>
+      <system value="http://terminology.hl7.org/CodeSystem/goal-achievement" />
+      <code value="improving" />
+      <display value="Improving" />
+    </coding>
+  </achievementStatus>
+  <category>
+    <coding>
+      <system value="http://terminology.hl7.org/CodeSystem/goal-category" />
+      <code value="dietary" />
+      <display value="dietary" />
+    </coding>
+  </category>
+  <priority>
+    <coding>
+      <system value="http://terminology.hl7.org/CodeSystem/goal-priority" />
+      <code value="medium-priority" />
+      <display value="Medium priority" />
+    </coding>
+  </priority>
+  <description>
+    <coding>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="238131007" />
+      <display value="Overweight (finding)" />
+    </coding>
+  </description>
+  <subject>
+    <reference value="urn:uuid:9774f67f-a238-4daf-b4e6-679deeef3811" />
+  </subject>
+  <startDate value="2022-02-01" />
+  <target>
+    <measure>
+      <coding>
+        <system value="http://snomed.info/sct" />
+        <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+        <code value="27113001" />
+        <display value="Body weight (observable entity)" />
+      </coding>
+    </measure>
+    <detailQuantity>
+      <value value="70" />
+      <unit value="kg" />
+      <system value="http://unitsofmeasure.org" />
+      <code value="kg" />
+    </detailQuantity>
+    <dueDuration>
+      <value value="6" />
+      <comparator value="&lt;" />
+      <unit value="month" />
+      <system value="http://unitsofmeasure.org" />
+      <code value="mo" />
+    </dueDuration>
+  </target>
+  <statusDate value="2022-04-15" />
+  <statusReason value="Zielgewicht wurde erreicht" />
+  <expressedBy>
+    <reference value="urn:uuid:f3fg0113-9844-4333-bfd2-fff573222b65" />
+  </expressedBy>
+  <outcomeCode>
+    <coding>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="43664005" />
+      <display value="Normal weight (finding)" />
+    </coding>
+  </outcomeCode>
+</Goal>

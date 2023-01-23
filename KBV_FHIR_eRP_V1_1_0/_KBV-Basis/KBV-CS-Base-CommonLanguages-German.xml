@@ -1,0 +1,244 @@
+<CodeSystem xmlns="http://hl7.org/fhir">
+  <id value="KBV-CS-Base-CommonLanguages-German" />
+  <url value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_CommonLanguages_German" />
+  <version value="1.3.0" />
+  <name value="KBV_CS_Base_CommonLanguages_German" />
+  <title value="Bevorzugte Sprache" />
+  <status value="active" />
+  <experimental value="false" />
+  <publisher value="Kassenärztliche Bundesvereinigung (KBV)" />
+  <contact>
+    <telecom>
+      <system value="url" />
+      <value value="http://www.kbv.de" />
+    </telecom>
+  </contact>
+  <description value="Dieses Codesystem enthält die Codes für deutsche Bezeichner für Bevorzugte Sprache." />
+  <copyright value="Im folgenden Profil können Codes aus den Codesystemen Snomed, Loinc oder Ucum enthalten sein, die dem folgenden Urheberrecht unterliegen: This material includes SNOMED Clinical Terms® (SNOMED CT®) which is used by permission of SNOMED International. All rights reserved. SNOMED CT®, was originally created by The College of American Pathologists. SNOMED and SNOMED CT are registered trademarks of SNOMED International. Implementers of these artefacts must have the appropriate SNOMED CT Affiliate license. This material contains content from LOINC (http://loinc.org). LOINC is copyright © 1995-2020, Regenstrief Institute, Inc. and the Logical Observation Identifiers Names and Codes (LOINC) Committee and is available at no cost under the license at http://loinc.org/license. LOINC® is a registered United States trademark of Regenstrief Institute, Inc. This product includes all or a portion of the UCUM table, UCUM codes, and UCUM definitions or is derived from it, subject to a license from Regenstrief Institute, Inc. and The UCUM Organization. Your use of the UCUM table, UCUM codes, UCUM definitions also is subject to this license, a copy of which is available at ​http://unitsofmeasure.org. The current complete UCUM table, UCUM Specification are available for download at http://unitsofmeasure.org. The UCUM table and UCUM codes are copyright © 1995-2009, Regenstrief Institute, Inc. and the Unified Codes for Units of Measures (UCUM) Organization. All rights reserved. THE UCUM TABLE (IN ALL FORMATS), UCUM DEFINITIONS, AND SPECIFICATION ARE PROVIDED &quot;AS IS.&quot; ANY EXPRESS OR IMPLIED WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE." />
+  <caseSensitive value="true" />
+  <content value="complete" />
+  <concept>
+    <code value="Tuerkisch" />
+    <display value="Türkisch" />
+  </concept>
+  <concept>
+    <code value="Ukrainisch" />
+    <display value="Ukrainisch" />
+  </concept>
+  <concept>
+    <code value="Arabisch" />
+    <display value="Arabisch" />
+  </concept>
+  <concept>
+    <code value="Bengalisch" />
+    <display value="Bengalisch" />
+  </concept>
+  <concept>
+    <code value="Tschechisch" />
+    <display value="Tschechisch" />
+  </concept>
+  <concept>
+    <code value="Daenisch" />
+    <display value="Dänisch" />
+  </concept>
+  <concept>
+    <code value="DeutschOesterreich" />
+    <display value="Deutsch (Österreich)" />
+  </concept>
+  <concept>
+    <code value="DeutschSchweiz" />
+    <display value="Deutsch (Schweiz)" />
+  </concept>
+  <concept>
+    <code value="DeutschDeutschland" />
+    <display value="Deutsch (Deutschland)" />
+  </concept>
+  <concept>
+    <code value="Deutsch" />
+    <display value="Deutsch" />
+  </concept>
+  <concept>
+    <code value="Griechisch" />
+    <display value="Griechisch" />
+  </concept>
+  <concept>
+    <code value="EnglischAustralien" />
+    <display value="Englisch (Australien)" />
+  </concept>
+  <concept>
+    <code value="EnglischKanada" />
+    <display value="Englisch (Kanada)" />
+  </concept>
+  <concept>
+    <code value="EnglischGrossbritannien" />
+    <display value="Englisch (Großbritannien)" />
+  </concept>
+  <concept>
+    <code value="EnglischIndien" />
+    <display value="Englisch (Indien)" />
+  </concept>
+  <concept>
+    <code value="EnglischNeuseeland" />
+    <display value="Englisch (Neuseeland)" />
+  </concept>
+  <concept>
+    <code value="EnglischSingapur" />
+    <display value="Englisch (Singapur)" />
+  </concept>
+  <concept>
+    <code value="EnglischUSA" />
+    <display value="Englisch (USA)" />
+  </concept>
+  <concept>
+    <code value="Englisch" />
+    <display value="Englisch" />
+  </concept>
+  <concept>
+    <code value="SpanischArgentinien" />
+    <display value="Spanisch (Argentinien)" />
+  </concept>
+  <concept>
+    <code value="SpanischSpanien" />
+    <display value="Spanisch (Spanien)" />
+  </concept>
+  <concept>
+    <code value="SpanischUruguay" />
+    <display value="Spanisch (Uruguay)" />
+  </concept>
+  <concept>
+    <code value="Spanisch" />
+    <display value="Spanisch" />
+  </concept>
+  <concept>
+    <code value="Finnisch" />
+    <display value="Finnisch" />
+  </concept>
+  <concept>
+    <code value="FranzoesischBelgien" />
+    <display value="Französisch (Belgien)" />
+  </concept>
+  <concept>
+    <code value="FranzoesischSchweiz" />
+    <display value="Französisch (Schweiz)" />
+  </concept>
+  <concept>
+    <code value="FranzoesischFrankreich" />
+    <display value="Französisch (Frankreich)" />
+  </concept>
+  <concept>
+    <code value="Franzoesisch" />
+    <display value="Französisch" />
+  </concept>
+  <concept>
+    <code value="FriesischNiederlande" />
+    <display value="Friesisch (Niederlande)" />
+  </concept>
+  <concept>
+    <code value="Friesisch" />
+    <display value="Friesisch" />
+  </concept>
+  <concept>
+    <code value="Kroatisch" />
+    <display value="Kroatisch" />
+  </concept>
+  <concept>
+    <code value="ItalienischSchweiz" />
+    <display value="Italienisch (Schweiz)" />
+  </concept>
+  <concept>
+    <code value="ItalienischItalien" />
+    <display value="Italienisch (Italien)" />
+  </concept>
+  <concept>
+    <code value="Italienisch" />
+    <display value="Italienisch" />
+  </concept>
+  <concept>
+    <code value="Japanisch" />
+    <display value="Japanisch" />
+  </concept>
+  <concept>
+    <code value="Koreanisch" />
+    <display value="Koreanisch" />
+  </concept>
+  <concept>
+    <code value="NiederlaendischBelgien" />
+    <display value="Niederländisch (Belgien)" />
+  </concept>
+  <concept>
+    <code value="NiederlaendischNiederlande" />
+    <display value="Niederländisch (Niederlande)" />
+  </concept>
+  <concept>
+    <code value="Niederlaendisch" />
+    <display value="Niederländisch" />
+  </concept>
+  <concept>
+    <code value="NorwegischNorwegen" />
+    <display value="Norwegisch (Norwegen)" />
+  </concept>
+  <concept>
+    <code value="Norwegisch" />
+    <display value="Norwegisch" />
+  </concept>
+  <concept>
+    <code value="Polnisch" />
+    <display value="Polnisch" />
+  </concept>
+  <concept>
+    <code value="PortugiesischBrasilien" />
+    <display value="Portugiesisch (Brasilien)" />
+  </concept>
+  <concept>
+    <code value="Portugiesisch" />
+    <display value="Portugiesisch" />
+  </concept>
+  <concept>
+    <code value="RussischRussland" />
+    <display value="Russisch (Russland)" />
+  </concept>
+  <concept>
+    <code value="Russisch" />
+    <display value="Russisch" />
+  </concept>
+  <concept>
+    <code value="SerbischSerbien" />
+    <display value="Serbisch (Serbien)" />
+  </concept>
+  <concept>
+    <code value="Serbisch" />
+    <display value="Serbisch" />
+  </concept>
+  <concept>
+    <code value="SchwedischSchweden" />
+    <display value="Schwedisch (Schweden)" />
+  </concept>
+  <concept>
+    <code value="Schwedisch" />
+    <display value="Schwedisch" />
+  </concept>
+  <concept>
+    <code value="Telugu" />
+    <display value="Telugu" />
+  </concept>
+  <concept>
+    <code value="ChinesischChina" />
+    <display value="Chinesisch (China)" />
+  </concept>
+  <concept>
+    <code value="ChinesischHongKong" />
+    <display value="Chinesisch (Hong Kong)" />
+  </concept>
+  <concept>
+    <code value="ChinesischSingapur" />
+    <display value="Chinesisch (Singapur)" />
+  </concept>
+  <concept>
+    <code value="ChinesischTaiwan" />
+    <display value="Chinesisch (Taiwan)" />
+  </concept>
+  <concept>
+    <code value="Chinesisch" />
+    <display value="Chinesisch" />
+  </concept>
+</CodeSystem>

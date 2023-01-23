@@ -1,0 +1,276 @@
+<CodeSystem xmlns="http://hl7.org/fhir">
+  <id value="KBV-CS-Base-Route-of-Administration-SNOMED-CT-German" />
+  <url value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Route_of_Administration_SNOMED_CT_German" />
+  <version value="1.3.0" />
+  <name value="KBV_CS_Base_Route_of_Administration_SNOMED_CT_German" />
+  <title value="Verabreichungsweg" />
+  <status value="active" />
+  <experimental value="false" />
+  <publisher value="Kassenärztliche Bundesvereinigung (KBV)" />
+  <contact>
+    <telecom>
+      <system value="url" />
+      <value value="http://www.kbv.de" />
+    </telecom>
+  </contact>
+  <description value="Dieses Codesystem enthält die Codes für deutsche Bezeichner für Verabreichungsweg." />
+  <copyright value="Im folgenden Profil können Codes aus den Codesystemen Snomed, Loinc oder Ucum enthalten sein, die dem folgenden Urheberrecht unterliegen: This material includes SNOMED Clinical Terms® (SNOMED CT®) which is used by permission of SNOMED International. All rights reserved. SNOMED CT®, was originally created by The College of American Pathologists. SNOMED and SNOMED CT are registered trademarks of SNOMED International. Implementers of these artefacts must have the appropriate SNOMED CT Affiliate license. This material contains content from LOINC (http://loinc.org). LOINC is copyright © 1995-2020, Regenstrief Institute, Inc. and the Logical Observation Identifiers Names and Codes (LOINC) Committee and is available at no cost under the license at http://loinc.org/license. LOINC® is a registered United States trademark of Regenstrief Institute, Inc. This product includes all or a portion of the UCUM table, UCUM codes, and UCUM definitions or is derived from it, subject to a license from Regenstrief Institute, Inc. and The UCUM Organization. Your use of the UCUM table, UCUM codes, UCUM definitions also is subject to this license, a copy of which is available at ​http://unitsofmeasure.org. The current complete UCUM table, UCUM Specification are available for download at http://unitsofmeasure.org. The UCUM table and UCUM codes are copyright © 1995-2009, Regenstrief Institute, Inc. and the Unified Codes for Units of Measures (UCUM) Organization. All rights reserved. THE UCUM TABLE (IN ALL FORMATS), UCUM DEFINITIONS, AND SPECIFICATION ARE PROVIDED &quot;AS IS.&quot; ANY EXPRESS OR IMPLIED WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE." />
+  <caseSensitive value="true" />
+  <content value="complete" />
+  <concept>
+    <code value="aurikulaer" />
+    <display value="aurikulär" />
+  </concept>
+  <concept>
+    <code value="intraartikulaer" />
+    <display value="intraartikulär" />
+  </concept>
+  <concept>
+    <code value="vaginal" />
+    <display value="vaginal" />
+  </concept>
+  <concept>
+    <code value="oral" />
+    <display value="oral" />
+  </concept>
+  <concept>
+    <code value="subkutan" />
+    <display value="subkutan" />
+  </concept>
+  <concept>
+    <code value="rektal" />
+    <display value="rektal" />
+  </concept>
+  <concept>
+    <code value="dental" />
+    <display value="dental" />
+  </concept>
+  <concept>
+    <code value="endozervikal" />
+    <display value="endozervikal" />
+  </concept>
+  <concept>
+    <code value="endosinusial" />
+    <display value="endosinusial" />
+  </concept>
+  <concept>
+    <code value="endotracheopulmonal" />
+    <display value="endotracheopulmonal" />
+  </concept>
+  <concept>
+    <code value="extraamniotisch" />
+    <display value="extra-amniotisch" />
+  </concept>
+  <concept>
+    <code value="gastroenteral" />
+    <display value="gastroenteral" />
+  </concept>
+  <concept>
+    <code value="gingival" />
+    <display value="gingival" />
+  </concept>
+  <concept>
+    <code value="intraamniotisch" />
+    <display value="intra-amniotisch" />
+  </concept>
+  <concept>
+    <code value="intrabursal" />
+    <display value="intrabursal" />
+  </concept>
+  <concept>
+    <code value="intrakardial" />
+    <display value="intrakardial" />
+  </concept>
+  <concept>
+    <code value="intrakavernoes" />
+    <display value="intrakavernös" />
+  </concept>
+  <concept>
+    <code value="intrakoronar" />
+    <display value="intrakoronar" />
+  </concept>
+  <concept>
+    <code value="intradermal" />
+    <display value="intradermal" />
+  </concept>
+  <concept>
+    <code value="intradiskal" />
+    <display value="intradiskal" />
+  </concept>
+  <concept>
+    <code value="intralaesional" />
+    <display value="intraläsional" />
+  </concept>
+  <concept>
+    <code value="intralymphatisch" />
+    <display value="intralymphatisch" />
+  </concept>
+  <concept>
+    <code value="intraokular" />
+    <display value="intraokular" />
+  </concept>
+  <concept>
+    <code value="intrapleural" />
+    <display value="intrapleural" />
+  </concept>
+  <concept>
+    <code value="intrasternal" />
+    <display value="intrasternal" />
+  </concept>
+  <concept>
+    <code value="intravesikal" />
+    <display value="intravesikal" />
+  </concept>
+  <concept>
+    <code value="oromukosal" />
+    <display value="oromukosal" />
+  </concept>
+  <concept>
+    <code value="periartikulaer" />
+    <display value="periartikulär" />
+  </concept>
+  <concept>
+    <code value="perineural" />
+    <display value="perineural" />
+  </concept>
+  <concept>
+    <code value="subkonjunktival" />
+    <display value="subkonjunktival" />
+  </concept>
+  <concept>
+    <code value="sublingual" />
+    <display value="sublingual" />
+  </concept>
+  <concept>
+    <code value="intraperitoneal" />
+    <display value="intraperitoneal" />
+  </concept>
+  <concept>
+    <code value="epidural" />
+    <display value="epidural" />
+  </concept>
+  <concept>
+    <code value="intraossaer" />
+    <display value="intraossär" />
+  </concept>
+  <concept>
+    <code value="retrobulbaer" />
+    <display value="retrobulbär" />
+  </concept>
+  <concept>
+    <code value="intrakartilaginoes" />
+    <display value="intrakartilaginös" />
+  </concept>
+  <concept>
+    <code value="intravitreal" />
+    <display value="intravitreal" />
+  </concept>
+  <concept>
+    <code value="oropharyngeal" />
+    <display value="oropharyngeal" />
+  </concept>
+  <concept>
+    <code value="intrakameral" />
+    <display value="intrakameral" />
+  </concept>
+  <concept>
+    <code value="intrazisternal" />
+    <display value="intrazisternal" />
+  </concept>
+  <concept>
+    <code value="submukoes" />
+    <display value="submukös" />
+  </concept>
+  <concept>
+    <code value="periossaer" />
+    <display value="periossär" />
+  </concept>
+  <concept>
+    <code value="larnygeal" />
+    <display value="larnygeal" />
+  </concept>
+  <concept>
+    <code value="intraperikardial" />
+    <display value="intraperikardial" />
+  </concept>
+  <concept>
+    <code value="intrazerebral" />
+    <display value="intrazerebral" />
+  </concept>
+  <concept>
+    <code value="parodontal" />
+    <display value="parodontal" />
+  </concept>
+  <concept>
+    <code value="intratumoral" />
+    <display value="intratumoral" />
+  </concept>
+  <concept>
+    <code value="inhalatativ" />
+    <display value="inhalatativ" />
+  </concept>
+  <concept>
+    <code value="intraepidermal" />
+    <display value="intraepidermal" />
+  </concept>
+  <concept>
+    <code value="kutan" />
+    <display value="kutan" />
+  </concept>
+  <concept>
+    <code value="transdermal" />
+    <display value="transdermal" />
+  </concept>
+  <concept>
+    <code value="nasal" />
+    <display value="nasal" />
+  </concept>
+  <concept>
+    <code value="intravenoes" />
+    <display value="intravenös" />
+  </concept>
+  <concept>
+    <code value="buccal" />
+    <display value="buccal" />
+  </concept>
+  <concept>
+    <code value="okulaer" />
+    <display value="okulär" />
+  </concept>
+  <concept>
+    <code value="intraarteriell" />
+    <display value="intraarteriell" />
+  </concept>
+  <concept>
+    <code value="topisch" />
+    <display value="topisch" />
+  </concept>
+  <concept>
+    <code value="intrauterin" />
+    <display value="intrauterin" />
+  </concept>
+  <concept>
+    <code value="extrakorporal" />
+    <display value="extra-korporal" />
+  </concept>
+  <concept>
+    <code value="infiltrativ" />
+    <display value="infiltrativ" />
+  </concept>
+  <concept>
+    <code value="intrathekal" />
+    <display value="intrathekal" />
+  </concept>
+  <concept>
+    <code value="perilaesional" />
+    <display value="periläsional" />
+  </concept>
+  <concept>
+    <code value="intramuskulaer" />
+    <display value="intramuskulär" />
+  </concept>
+  <concept>
+    <code value="urethral" />
+    <display value="urethral" />
+  </concept>
+</CodeSystem>

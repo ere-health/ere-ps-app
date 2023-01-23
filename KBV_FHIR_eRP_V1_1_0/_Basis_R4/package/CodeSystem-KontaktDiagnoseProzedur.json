@@ -1,0 +1,66 @@
+{
+  "resourceType": "CodeSystem",
+  "status": "draft",
+  "content": "complete",
+  "name": "KontaktDiagnoseProzedur",
+  "id": "KontaktDiagnoseProzedur",
+  "description": "Rolle/Relevanz von Diagnosen undProzeduren im Encounter-Kontext",
+  "version": "1.3.2",
+  "url": "http://fhir.de/CodeSystem/KontaktDiagnoseProzedur",
+  "concept": [
+    {
+      "code": "referral-diagnosis",
+      "display": "Überweisungsdiagnose"
+    },
+    {
+      "code": "treatment-diagnosis",
+      "display": "Behandlungsdiagnose"
+    },
+    {
+      "code": "surgery-diagnosis",
+      "display": "Operationsdiagnose"
+    },
+    {
+      "code": "department-main-diagnosis",
+      "display": "Abteilung Hauptdiagnose"
+    },
+    {
+      "code": "hospital-main-diagnosis",
+      "display": "Krankenhaus Hauptdiagnose"
+    },
+    {
+      "code": "infection-control-diagnosis",
+      "display": "Infektionsschutzdiagnose"
+    },
+    {
+      "code": "cause-of-death",
+      "display": "Todesursache"
+    },
+    {
+      "code": "principle-DRG",
+      "display": "Primär-DRG"
+    },
+    {
+      "code": "secondary-DRG",
+      "display": "Sekundär-DRG"
+    }
+  ],
+  "experimental": false,
+  "caseSensitive": false,
+  "date": "2022-02-17",
+  "publisher": "HL7 Deutschland e.V. (Technisches Komitee FHIR)",
+  "contact": [
+    {
+      "telecom": [
+        {
+          "system": "other",
+          "value": "http://hl7.de/technische-komitees/fhir/"
+        }
+      ]
+    }
+  ],
+  "copyright": "HL7 Deutschland e.V.",
+  "valueSet": "http://fhir.de/ValueSet/kontakt-diagnose-prozedur",
+  "compositional": false,
+  "count": 9
+}

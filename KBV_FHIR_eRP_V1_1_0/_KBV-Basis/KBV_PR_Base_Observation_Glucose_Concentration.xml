@@ -1,0 +1,324 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="KBV-PR-Base-Observation-Glucose-Concentration" />
+  <url value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Observation_Glucose_Concentration" />
+  <version value="1.3.0" />
+  <name value="KBV_PR_Base_Observation_Glucose_Concentration" />
+  <status value="active" />
+  <publisher value="Kassenärztliche Bundesvereinigung (KBV)" />
+  <copyright value="Im folgenden Profil k&amp;#246;nnen Codes aus den Codesystemen Snomed, Loinc oder Ucum enthalten sein, die dem folgenden Urheberrecht unterliegen: This material includes SNOMED Clinical Terms&amp;#174; (SNOMED CT&amp;#174;) which is used by permission of SNOMED International. All rights reserved. SNOMED CT&amp;#174;, was originally created by The College of American Pathologists. SNOMED and SNOMED CT are registered trademarks of SNOMED International. Implementers of these artefacts must have the appropriate SNOMED CT Affiliate license. This material contains content from Loinc (http://loinc.org). Loinc is copyright &amp;#169; 1995-2020, Regenstrief Institute, Inc. and the Logical Observation Identifiers Names and Codes (Loinc) Committee and is available at no cost under the license at http://loinc.org/license. Loinc&amp;#174; is a registered United States trademark of Regenstrief Institute, Inc. This product includes all or a portion of the UCUM table, UCUM codes, and UCUM definitions or is derived from it, subject to a license from Regenstrief Institute, Inc. and The UCUM Organization. Your use of the UCUM table, UCUM codes, UCUM definitions also is subject to this license, a copy of which is available at ​http://unitsofmeasure.org. The current complete UCUM table, UCUM Specification are available for download at ​http://unitsofmeasure.org. The UCUM table and UCUM codes are copyright &amp;#169; 1995-2009, Regenstrief Institute, Inc. and the Unified Codes for Units of Measures (UCUM) Organization. All rights reserved. THE UCUM TABLE (IN ALL FORMATS), UCUM DEFINITIONS, AND SPECIFICATION ARE PROVIDED &amp;quot;AS IS.&amp;quot; ANY EXPRESS OR IMPLIED WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE." />
+  <fhirVersion value="4.0.1" />
+  <mapping>
+    <identity value="workflow" />
+    <uri value="http://hl7.org/fhir/workflow" />
+    <name value="Workflow Pattern" />
+  </mapping>
+  <mapping>
+    <identity value="sct-concept" />
+    <uri value="http://snomed.info/conceptdomain" />
+    <name value="SNOMED CT Concept Domain Binding" />
+  </mapping>
+  <mapping>
+    <identity value="v2" />
+    <uri value="http://hl7.org/v2" />
+    <name value="HL7 v2 Mapping" />
+  </mapping>
+  <mapping>
+    <identity value="rim" />
+    <uri value="http://hl7.org/v3" />
+    <name value="RIM Mapping" />
+  </mapping>
+  <mapping>
+    <identity value="w5" />
+    <uri value="http://hl7.org/fhir/fivews" />
+    <name value="FiveWs Pattern Mapping" />
+  </mapping>
+  <mapping>
+    <identity value="sct-attr" />
+    <uri value="http://snomed.org/attributebinding" />
+    <name value="SNOMED CT Attribute Binding" />
+  </mapping>
+  <kind value="resource" />
+  <abstract value="false" />
+  <type value="Observation" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Observation" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Observation">
+      <path value="Observation" />
+      <definition value="Dieses Element beschreibt die Messung eines einzelnen Glukosespiegels. Die Messung kann als sogenannte Point-of-Care-Testung (also einer Messung am Krankenbett oder in der unmittelbaren Nähe zur behandelten Person), oder auch durch die behandelte Person selbst erfolgen. " />
+    </element>
+    <element id="Observation.category">
+      <path value="Observation.category" />
+      <slicing>
+        <discriminator>
+          <type value="pattern" />
+          <path value="$this" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="1" />
+    </element>
+    <element id="Observation.category:vs-cat">
+      <path value="Observation.category" />
+      <sliceName value="vs-cat" />
+      <min value="1" />
+      <max value="1" />
+      <patternCodeableConcept>
+        <coding>
+          <system value="http://terminology.hl7.org/CodeSystem/observation-category" />
+          <code value="vital-signs" />
+        </coding>
+      </patternCodeableConcept>
+    </element>
+    <element id="Observation.code.coding">
+      <path value="Observation.code.coding" />
+      <slicing>
+        <discriminator>
+          <type value="pattern" />
+          <path value="$this" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="2" />
+    </element>
+    <element id="Observation.code.coding:loinc">
+      <path value="Observation.code.coding" />
+      <sliceName value="loinc" />
+      <min value="1" />
+      <max value="1" />
+      <binding>
+        <strength value="required" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_Glucose_Concentration_LOINC" />
+      </binding>
+    </element>
+    <element id="Observation.code.coding:loinc.system">
+      <path value="Observation.code.coding.system" />
+      <min value="1" />
+    </element>
+    <element id="Observation.code.coding:loinc.version">
+      <path value="Observation.code.coding.version" />
+      <min value="1" />
+      <patternString value="2.72" />
+    </element>
+    <element id="Observation.code.coding:loinc.code">
+      <path value="Observation.code.coding.code" />
+      <min value="1" />
+    </element>
+    <element id="Observation.code.coding:loinc.display">
+      <path value="Observation.code.coding.display" />
+      <min value="1" />
+    </element>
+    <element id="Observation.code.coding:codeSnomed">
+      <path value="Observation.code.coding" />
+      <sliceName value="codeSnomed" />
+      <min value="1" />
+      <max value="1" />
+      <binding>
+        <strength value="required" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_Glucose_Concentration_SNOMED_CT" />
+      </binding>
+    </element>
+    <element id="Observation.code.coding:codeSnomed.system">
+      <path value="Observation.code.coding.system" />
+      <min value="1" />
+    </element>
+    <element id="Observation.code.coding:codeSnomed.version">
+      <path value="Observation.code.coding.version" />
+      <min value="1" />
+    </element>
+    <element id="Observation.code.coding:codeSnomed.code">
+      <path value="Observation.code.coding.code" />
+      <min value="1" />
+    </element>
+    <element id="Observation.code.coding:codeSnomed.display">
+      <path value="Observation.code.coding.display" />
+      <min value="1" />
+    </element>
+    <element id="Observation.subject">
+      <path value="Observation.subject" />
+      <min value="1" />
+    </element>
+    <element id="Observation.focus">
+      <path value="Observation.focus" />
+      <max value="0" />
+    </element>
+    <element id="Observation.effective[x]">
+      <path value="Observation.effective[x]" />
+      <slicing>
+        <discriminator>
+          <type value="type" />
+          <path value="$this" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="1" />
+      <type>
+        <code value="dateTime" />
+      </type>
+    </element>
+    <element id="Observation.effective[x]:effectiveDateTime">
+      <path value="Observation.effective[x]" />
+      <sliceName value="effectiveDateTime" />
+      <type>
+        <code value="dateTime" />
+      </type>
+    </element>
+    <element id="Observation.value[x]">
+      <path value="Observation.value[x]" />
+      <slicing>
+        <discriminator>
+          <type value="type" />
+          <path value="$this" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <type>
+        <code value="Quantity" />
+      </type>
+    </element>
+    <element id="Observation.value[x]:valueQuantity">
+      <path value="Observation.value[x]" />
+      <sliceName value="valueQuantity" />
+      <type>
+        <code value="Quantity" />
+      </type>
+    </element>
+    <element id="Observation.value[x]:valueQuantity.value">
+      <path value="Observation.value[x].value" />
+      <min value="1" />
+    </element>
+    <element id="Observation.value[x]:valueQuantity.unit">
+      <path value="Observation.value[x].unit" />
+      <min value="1" />
+    </element>
+    <element id="Observation.value[x]:valueQuantity.system">
+      <path value="Observation.value[x].system" />
+      <min value="1" />
+      <patternUri value="http://unitsofmeasure.org" />
+    </element>
+    <element id="Observation.value[x]:valueQuantity.code">
+      <path value="Observation.value[x].code" />
+      <min value="1" />
+      <binding>
+        <strength value="required" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_Glucose_Concentration_Unit" />
+      </binding>
+    </element>
+    <element id="Observation.interpretation">
+      <path value="Observation.interpretation" />
+      <max value="1" />
+    </element>
+    <element id="Observation.interpretation.coding">
+      <path value="Observation.interpretation.coding" />
+      <min value="1" />
+      <max value="1" />
+      <binding>
+        <strength value="required" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_Glucose_Concentration_Interpretation" />
+      </binding>
+    </element>
+    <element id="Observation.interpretation.coding.system">
+      <path value="Observation.interpretation.coding.system" />
+      <min value="1" />
+      <patternUri value="http://snomed.info/sct" />
+    </element>
+    <element id="Observation.interpretation.coding.version">
+      <path value="Observation.interpretation.coding.version" />
+      <min value="1" />
+    </element>
+    <element id="Observation.interpretation.coding.code">
+      <path value="Observation.interpretation.coding.code" />
+      <min value="1" />
+    </element>
+    <element id="Observation.interpretation.coding.display">
+      <path value="Observation.interpretation.coding.display" />
+      <min value="1" />
+    </element>
+    <element id="Observation.method">
+      <path value="Observation.method" />
+      <definition value="Hier wird die Methode bzw. Voraussetzung der Messung des Glukosespiegels angegeben. " />
+    </element>
+    <element id="Observation.method.coding">
+      <path value="Observation.method.coding" />
+      <slicing>
+        <discriminator>
+          <type value="pattern" />
+          <path value="$this" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="1" />
+    </element>
+    <element id="Observation.method.coding:codeSnomed">
+      <path value="Observation.method.coding" />
+      <sliceName value="codeSnomed" />
+      <min value="1" />
+      <max value="1" />
+      <binding>
+        <strength value="extensible" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_Glucose_Concentration_Method_SNOMED_CT" />
+      </binding>
+    </element>
+    <element id="Observation.method.coding:codeSnomed.system">
+      <path value="Observation.method.coding.system" />
+      <min value="1" />
+      <patternUri value="http://snomed.info/sct" />
+    </element>
+    <element id="Observation.referenceRange">
+      <path value="Observation.referenceRange" />
+      <max value="1" />
+    </element>
+    <element id="Observation.referenceRange.low.value">
+      <path value="Observation.referenceRange.low.value" />
+      <min value="1" />
+    </element>
+    <element id="Observation.referenceRange.low.unit">
+      <path value="Observation.referenceRange.low.unit" />
+      <min value="1" />
+    </element>
+    <element id="Observation.referenceRange.low.system">
+      <path value="Observation.referenceRange.low.system" />
+      <min value="1" />
+      <fixedUri value="http://unitsofmeasure.org" />
+    </element>
+    <element id="Observation.referenceRange.low.code">
+      <path value="Observation.referenceRange.low.code" />
+      <min value="1" />
+      <binding>
+        <strength value="required" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_Glucose_Concentration_Unit" />
+      </binding>
+    </element>
+    <element id="Observation.referenceRange.high.value">
+      <path value="Observation.referenceRange.high.value" />
+      <min value="1" />
+    </element>
+    <element id="Observation.referenceRange.high.unit">
+      <path value="Observation.referenceRange.high.unit" />
+      <min value="1" />
+    </element>
+    <element id="Observation.referenceRange.high.system">
+      <path value="Observation.referenceRange.high.system" />
+      <min value="1" />
+      <fixedUri value="http://unitsofmeasure.org" />
+    </element>
+    <element id="Observation.referenceRange.high.code">
+      <path value="Observation.referenceRange.high.code" />
+      <min value="1" />
+      <binding>
+        <strength value="required" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_Glucose_Concentration_Unit" />
+      </binding>
+    </element>
+    <element id="Observation.referenceRange.type">
+      <path value="Observation.referenceRange.type" />
+      <binding>
+        <strength value="required" />
+      </binding>
+    </element>
+    <element id="Observation.component">
+      <path value="Observation.component" />
+      <max value="0" />
+    </element>
+  </differential>
+</StructureDefinition>

@@ -1,0 +1,56 @@
+<Observation xmlns="http://hl7.org/fhir">
+  <id value="9e67bb0c-edf6-458c-a044-d473f792cdae" />
+  <meta>
+    <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Observation_Peripheral_Oxygen_Saturation|1.3.0" />
+  </meta>
+  <status value="amended" />
+  <category>
+    <coding>
+      <system value="http://terminology.hl7.org/CodeSystem/observation-category" />
+      <code value="vital-signs" />
+    </coding>
+  </category>
+  <code>
+    <coding>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="431314004" />
+      <display value="Peripheral oxygen saturation (observable entity)" />
+    </coding>
+    <coding>
+      <system value="http://loinc.org" />
+      <version value="2.72" />
+      <code value="2708-6" />
+      <display value="Oxygen saturation in Arterial blood" />
+    </coding>
+  </code>
+  <subject>
+    <reference value="urn:uuid:6a15cff6-3cc1-4bf2-ab66-1cc6316e6777" />
+  </subject>
+  <effectiveDateTime value="2020-01-02" />
+  <performer>
+    <reference value="urn:uuid:8ad1ee6c-6164-493a-be52-c43cf49e9916" />
+  </performer>
+  <valueQuantity>
+    <value value="40" />
+    <unit value="%" />
+    <system value="http://unitsofmeasure.org" />
+    <code value="%" />
+  </valueQuantity>
+  <interpretation>
+    <coding>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="404684003:{363713009=263654008,363713009= 62482003}" />
+      <display value="Clinical finding where (Has interpretation = Abnormal, and Has interpretation = Low)" />
+    </coding>
+  </interpretation>
+  <method>
+    <coding>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="448703006" />
+      <display value="Pulse oximeter (physical object)" />
+    </coding>
+  </method>
+</Observation>

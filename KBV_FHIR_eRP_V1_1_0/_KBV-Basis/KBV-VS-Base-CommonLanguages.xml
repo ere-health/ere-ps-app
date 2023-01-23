@@ -1,0 +1,331 @@
+<ValueSet xmlns="http://hl7.org/fhir">
+  <id value="KBV-VS-Base-CommonLanguages" />
+  <url value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_CommonLanguages" />
+  <version value="1.3.0" />
+  <name value="KBV_VS_Base_CommonLanguages" />
+  <title value="Bevorzugte Sprache (Includes)" />
+  <status value="active" />
+  <experimental value="false" />
+  <publisher value="Kassenärztliche Bundesvereinigung (KBV)" />
+  <contact>
+    <telecom>
+      <system value="url" />
+      <value value="http://www.kbv.de" />
+    </telecom>
+  </contact>
+  <description value="Dieses Valueset enthält die Codes zur Beschreibung von Bevorzugte Sprache (Includes)." />
+  <immutable value="false" />
+  <copyright value="Im folgenden Profil können Codes aus den Codesystemen Snomed, Loinc oder Ucum enthalten sein, die dem folgenden Urheberrecht unterliegen: This material includes SNOMED Clinical Terms® (SNOMED CT®) which is used by permission of SNOMED International. All rights reserved. SNOMED CT®, was originally created by The College of American Pathologists. SNOMED and SNOMED CT are registered trademarks of SNOMED International. Implementers of these artefacts must have the appropriate SNOMED CT Affiliate license. This material contains content from LOINC (http://loinc.org). LOINC is copyright © 1995-2020, Regenstrief Institute, Inc. and the Logical Observation Identifiers Names and Codes (LOINC) Committee and is available at no cost under the license at http://loinc.org/license. LOINC® is a registered United States trademark of Regenstrief Institute, Inc. This product includes all or a portion of the UCUM table, UCUM codes, and UCUM definitions or is derived from it, subject to a license from Regenstrief Institute, Inc. and The UCUM Organization. Your use of the UCUM table, UCUM codes, UCUM definitions also is subject to this license, a copy of which is available at ​http://unitsofmeasure.org. The current complete UCUM table, UCUM Specification are available for download at http://unitsofmeasure.org. The UCUM table and UCUM codes are copyright © 1995-2009, Regenstrief Institute, Inc. and the Unified Codes for Units of Measures (UCUM) Organization. All rights reserved. THE UCUM TABLE (IN ALL FORMATS), UCUM DEFINITIONS, AND SPECIFICATION ARE PROVIDED &quot;AS IS.&quot; ANY EXPRESS OR IMPLIED WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE." />
+  <compose>
+    <include>
+      <system value="urn:ietf:bcp:47" />
+      <concept>
+        <code value="tr-TR" />
+        <display value="Turkish" />
+      </concept>
+      <concept>
+        <code value="uk" />
+        <display value="Ukrainian" />
+      </concept>
+    </include>
+    <include>
+      <valueSet value="http://hl7.org/fhir/ValueSet/languages" />
+    </include>
+  </compose>
+  <expansion>
+    <identifier value="2e23061e-ee0f-11ec-b445-f875a4795910" />
+    <timestamp value="2022-06-17T09:29:10+02:00" />
+    <total value="58" />
+    <offset value="0" />
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="tr-TR" />
+      <display value="Turkish" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="uk" />
+      <display value="Ukrainian" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="ar" />
+      <display value="Arabic" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="bn" />
+      <display value="Bengali" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="zh" />
+      <display value="Chinese" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="zh-CN" />
+      <display value="Chinese (China)" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="zh-HK" />
+      <display value="Chinese (Hong Kong)" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="zh-SG" />
+      <display value="Chinese (Singapore)" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="zh-TW" />
+      <display value="Chinese (Taiwan)" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="da" />
+      <display value="Danish" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="de" />
+      <display value="German" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="de-DE" />
+      <display value="German (Germany)" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="de-AT" />
+      <display value="German (Austria)" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="de-CH" />
+      <display value="German (Switzerland)" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="en" />
+      <display value="English" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="en-AU" />
+      <display value="English (Australia)" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="en-GB" />
+      <display value="English (Great Britain)" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="en-IN" />
+      <display value="English (India)" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="en-CA" />
+      <display value="English (Canada)" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="en-NZ" />
+      <display value="English (New Zeland)" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="en-SG" />
+      <display value="English (Singapore)" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="en-US" />
+      <display value="English (United States)" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="fi" />
+      <display value="Finnish" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="fr" />
+      <display value="French" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="fr-BE" />
+      <display value="French (Belgium)" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="fr-FR" />
+      <display value="French (France)" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="fr-CH" />
+      <display value="French (Switzerland)" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="fy" />
+      <display value="Frysian" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="fy-NL" />
+      <display value="Frysian (Netherlands)" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="el" />
+      <display value="Greek" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="hi" />
+      <display value="Hindi" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="it" />
+      <display value="Italian" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="it-IT" />
+      <display value="Italian (Italy)" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="it-CH" />
+      <display value="Italian (Switzerland)" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="ja" />
+      <display value="Japanese" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="ko" />
+      <display value="Korean" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="hr" />
+      <display value="Croatian" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="nl" />
+      <display value="Dutch" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="nl-BE" />
+      <display value="Dutch (Belgium)" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="nl-NL" />
+      <display value="Dutch (Netherlands)" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="no" />
+      <display value="Norwegian" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="no-NO" />
+      <display value="Norwegian (Norway)" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="pl" />
+      <display value="Polish" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="pt" />
+      <display value="Portuguese" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="pt-BR" />
+      <display value="Portuguese (Brazil)" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="pa" />
+      <display value="Punjabi" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="ru" />
+      <display value="Russian" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="ru-RU" />
+      <display value="Russian (Russia)" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="sv" />
+      <display value="Swedish" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="sv-SE" />
+      <display value="Swedish (Sweden)" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="sr" />
+      <display value="Serbian" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="sr-RS" />
+      <display value="Serbian (Serbia)" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="es" />
+      <display value="Spanish" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="es-AR" />
+      <display value="Spanish (Argentina)" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="es-ES" />
+      <display value="Spanish (Spain)" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="es-UY" />
+      <display value="Spanish (Uruguay)" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="te" />
+      <display value="Telegu" />
+    </contains>
+    <contains>
+      <system value="urn:ietf:bcp:47" />
+      <code value="cs" />
+      <display value="Czech" />
+    </contains>
+  </expansion>
+</ValueSet>

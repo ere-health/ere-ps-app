@@ -1,0 +1,146 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="KBV-PR-Base-RelatedPerson" />
+  <url value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_RelatedPerson" />
+  <version value="1.3.0" />
+  <name value="KBV_PR_Base_RelatedPerson" />
+  <status value="active" />
+  <fhirVersion value="4.0.1" />
+  <kind value="resource" />
+  <abstract value="false" />
+  <type value="RelatedPerson" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/RelatedPerson" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="RelatedPerson">
+      <path value="RelatedPerson" />
+      <definition value="Hier wird eine Kontaktperson erfasst, die eine persönliche oder professionelle Beziehung zur/zum PatientIn hat, aber nicht als behandelnde Person agiert." />
+    </element>
+    <element id="RelatedPerson.extension">
+      <path value="RelatedPerson.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="0" />
+    </element>
+    <element id="RelatedPerson.extension:Hinweis">
+      <path value="RelatedPerson.extension" />
+      <sliceName value="Hinweis" />
+      <definition value="Hier können weitere Informationen, beispielsweise die Pflegebedürftigkeitssituation der Kontaktperson, dargestellt werden. Wenn die Kontaktperson auch gesetzlich betreuende Person ist, kann hier beschrieben werden, für welchen Bereich sie bevollmächtigt ist." />
+      <min value="0" />
+      <max value="1" />
+      <type>
+        <code value="Extension" />
+        <profile value="https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Additional_Comment|1.3.0" />
+      </type>
+      <isModifier value="false" />
+    </element>
+    <element id="RelatedPerson.patient">
+      <path value="RelatedPerson.patient" />
+      <type>
+        <code value="Reference" />
+        <targetProfile value="http://hl7.org/fhir/StructureDefinition/Patient" />
+        <targetProfile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Patient|1.3.0" />
+      </type>
+    </element>
+    <element id="RelatedPerson.relationship">
+      <path value="RelatedPerson.relationship" />
+      <definition value="Hier wird die Beziehung der Kontaktperson zur/zum PatientIn anhand eines entsprechenden Codes oder mit einem Freitext angegeben." />
+    </element>
+    <element id="RelatedPerson.relationship.coding">
+      <path value="RelatedPerson.relationship.coding" />
+      <definition value="Hier wird die Beziehung der Kontaktperson zur/zum PatientIn anhand eines Codes aus einer Werteliste angegeben." />
+      <binding>
+        <strength value="preferred" />
+        <valueSet value="http://hl7.org/fhir/ValueSet/relatedperson-relationshiptype" />
+      </binding>
+    </element>
+    <element id="RelatedPerson.name">
+      <path value="RelatedPerson.name" />
+      <max value="1" />
+      <type>
+        <code value="HumanName" />
+        <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Datatype_Name|1.3.0" />
+      </type>
+    </element>
+    <element id="RelatedPerson.name.family">
+      <path value="RelatedPerson.name.family" />
+      <definition value="Nachname einer Person" />
+    </element>
+    <element id="RelatedPerson.name.prefix">
+      <path value="RelatedPerson.name.prefix" />
+      <definition value="Titel als akademischer Grad. Beispiele: Dr.med., Dr.rer.nat., Prof." />
+    </element>
+    <element id="RelatedPerson.telecom">
+      <path value="RelatedPerson.telecom" />
+      <type>
+        <code value="ContactPoint" />
+        <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Datatype_Contactpoint|1.3.0" />
+      </type>
+    </element>
+    <element id="RelatedPerson.telecom.system">
+      <path value="RelatedPerson.telecom.system" />
+      <definition value="Definition der Art des Kontaktes, z.B. Telefon (phone), E-Mail, Fax." />
+    </element>
+    <element id="RelatedPerson.telecom.value">
+      <path value="RelatedPerson.telecom.value" />
+      <definition value="In diesem Element können Kontaktinformationen passend zum Kontaktkanal angegeben werden." />
+    </element>
+    <element id="RelatedPerson.gender">
+      <path value="RelatedPerson.gender" />
+      <definition value="Geschlechtsdefinition nach den Versichertenstammdaten (VSD)" />
+    </element>
+    <element id="RelatedPerson.gender.extension">
+      <path value="RelatedPerson.gender.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="0" />
+    </element>
+    <element id="RelatedPerson.gender.extension:other-amtlich">
+      <path value="RelatedPerson.gender.extension" />
+      <sliceName value="other-amtlich" />
+      <min value="0" />
+      <max value="1" />
+      <type>
+        <code value="Extension" />
+        <profile value="http://fhir.de/StructureDefinition/gender-amtlich-de" />
+      </type>
+      <isModifier value="false" />
+    </element>
+    <element id="RelatedPerson.address">
+      <path value="RelatedPerson.address" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="type" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <definition value="Hier können Angaben zur Anschrift der Kontaktperson gemacht werden." />
+    </element>
+    <element id="RelatedPerson.address:Strassenanschrift">
+      <path value="RelatedPerson.address" />
+      <sliceName value="Strassenanschrift" />
+      <type>
+        <code value="Address" />
+        <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Datatype_Street_Address|1.3.0" />
+      </type>
+    </element>
+    <element id="RelatedPerson.address:Postfach">
+      <path value="RelatedPerson.address" />
+      <sliceName value="Postfach" />
+      <type>
+        <code value="Address" />
+        <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Datatype_Post_Office_Box|1.3.0" />
+      </type>
+    </element>
+  </differential>
+</StructureDefinition>

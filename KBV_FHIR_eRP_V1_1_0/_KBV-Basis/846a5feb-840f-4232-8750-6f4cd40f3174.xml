@@ -1,0 +1,76 @@
+<Medication xmlns="http://hl7.org/fhir">
+  <id value="846a5feb-840f-4232-8750-6f4cd40f3174" />
+  <meta>
+    <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Medication|1.3.0" />
+  </meta>
+  <extension url="https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Medication_Type">
+    <valueCodeableConcept>
+      <coding>
+        <system value="http://snomed.info/sct" />
+        <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+        <code value="763158003" />
+        <display value="Medicinal product (product)"></display>
+      </coding>
+      <text value="Fertigarzneimittel" />
+    </valueCodeableConcept>
+  </extension>
+  <code>
+    <coding>
+      <system value="http://fhir.de/CodeSystem/ifa/pzn" />
+      <version value="0.2" />
+      <code value="03953522" />
+      <display value="Metoprolol-ratiopharm® 100 mg Tabletten" />
+    </coding>
+    <coding>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="72770009" />
+      <display value="Metoprolol tartrate (substance)" />
+    </coding>
+    <coding>
+      <system value="http://fhir.de/CodeSystem/bfarm/atc" />
+      <version value="2022" />
+      <code value="C07AB02" />
+      <display value="Metoprolol" />
+    </coding>
+    <text value="Metoprolol-ratiopharm® 100 mg Tabletten" />
+  </code>
+  <form>
+    <coding>
+      <system value="https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM" />
+      <code value="TAB" />
+      <display value="Tabletten" />
+    </coding>
+    <coding>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="385055001" />
+      <display value="Tablet (basic dose form)" />
+    </coding>
+    <coding>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="12200" />
+      <display value="Tablet" />
+    </coding>
+  </form>
+  <amount>
+    <numerator>
+      <value value="100" />
+      <unit value="ml" />
+      <system value="http://unitsofmeasure.org" />
+      <code value="ml" />
+    </numerator>
+    <denominator>
+      <value value="1" />
+      <unit value="1" />
+      <system value="http://unitsofmeasure.org" />
+      <code value="1" />
+    </denominator>
+  </amount>
+  <ingredient>
+    <itemReference>
+      <reference value="urn:uuid:846a5feb-840f-4232-8750-6f4cd40f3174" />
+      <display value="test" />
+    </itemReference>
+  </ingredient>
+</Medication>

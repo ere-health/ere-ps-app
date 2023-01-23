@@ -1,0 +1,141 @@
+<ValueSet xmlns="http://hl7.org/fhir">
+  <id value="KBV-VS-Base-Body-Weight-SNOMED-CT" />
+  <url value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_Body_Weight_SNOMED_CT" />
+  <version value="1.3.0" />
+  <name value="KBV_VS_Base_Body_Weight_SNOMED_CT" />
+  <title value="Körpergewicht SNOMED CT®" />
+  <status value="active" />
+  <experimental value="false" />
+  <publisher value="Kassenärztliche Bundesvereinigung (KBV)" />
+  <contact>
+    <telecom>
+      <system value="url" />
+      <value value="http://www.kbv.de" />
+    </telecom>
+  </contact>
+  <description value="Dieses Valueset enthält die Codes zur Beschreibung von Körpergewicht SNOMED CT®." />
+  <immutable value="false" />
+  <copyright value="Im folgenden Profil können Codes aus den Codesystemen Snomed, Loinc oder Ucum enthalten sein, die dem folgenden Urheberrecht unterliegen: This material includes SNOMED Clinical Terms® (SNOMED CT®) which is used by permission of SNOMED International. All rights reserved. SNOMED CT®, was originally created by The College of American Pathologists. SNOMED and SNOMED CT are registered trademarks of SNOMED International. Implementers of these artefacts must have the appropriate SNOMED CT Affiliate license. This material contains content from LOINC (http://loinc.org). LOINC is copyright © 1995-2020, Regenstrief Institute, Inc. and the Logical Observation Identifiers Names and Codes (LOINC) Committee and is available at no cost under the license at http://loinc.org/license. LOINC® is a registered United States trademark of Regenstrief Institute, Inc. This product includes all or a portion of the UCUM table, UCUM codes, and UCUM definitions or is derived from it, subject to a license from Regenstrief Institute, Inc. and The UCUM Organization. Your use of the UCUM table, UCUM codes, UCUM definitions also is subject to this license, a copy of which is available at ​http://unitsofmeasure.org. The current complete UCUM table, UCUM Specification are available for download at http://unitsofmeasure.org. The UCUM table and UCUM codes are copyright © 1995-2009, Regenstrief Institute, Inc. and the Unified Codes for Units of Measures (UCUM) Organization. All rights reserved. THE UCUM TABLE (IN ALL FORMATS), UCUM DEFINITIONS, AND SPECIFICATION ARE PROVIDED &quot;AS IS.&quot; ANY EXPRESS OR IMPLIED WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE." />
+  <compose>
+    <include>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <concept>
+        <code value="27113001" />
+        <display value="Body weight (observable entity)" />
+      </concept>
+      <concept>
+        <code value="400967004" />
+        <display value="Baseline weight (observable entity)" />
+      </concept>
+      <concept>
+        <code value="364589006" />
+        <display value="Birth weight (observable entity)" />
+      </concept>
+      <concept>
+        <code value="424927000" />
+        <display value="Body weight with shoes (observable entity)" />
+      </concept>
+      <concept>
+        <code value="425024002" />
+        <display value="Body weight without shoes (observable entity)" />
+      </concept>
+      <concept>
+        <code value="735395000" />
+        <display value="Current body weight (observable entity)" />
+      </concept>
+      <concept>
+        <code value="445541000" />
+        <display value="Dry body weight (observable entity)" />
+      </concept>
+      <concept>
+        <code value="443245006" />
+        <display value="Estimated weight using Broselow Luten pediatric weight estimation (observable entity)" />
+      </concept>
+      <concept>
+        <code value="363808001" />
+        <display value="Measured body weight (observable entity)" />
+      </concept>
+      <concept>
+        <code value="248351003" />
+        <display value="Previous well-weight (observable entity)" />
+      </concept>
+      <concept>
+        <code value="784399000" />
+        <display value="Self reported body weight (observable entity)" />
+      </concept>
+    </include>
+  </compose>
+  <expansion>
+    <identifier value="7ba3edb2-ee0f-11ec-b445-f875a4795910" />
+    <timestamp value="2022-06-17T09:31:20+02:00" />
+    <total value="11" />
+    <offset value="0" />
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="27113001" />
+      <display value="Body weight (observable entity)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="400967004" />
+      <display value="Baseline weight (observable entity)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="364589006" />
+      <display value="Birth weight (observable entity)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="424927000" />
+      <display value="Body weight with shoes (observable entity)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="425024002" />
+      <display value="Body weight without shoes (observable entity)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="735395000" />
+      <display value="Current body weight (observable entity)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="445541000" />
+      <display value="Dry body weight (observable entity)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="443245006" />
+      <display value="Estimated weight using Broselow Luten pediatric weight estimation (observable entity)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="363808001" />
+      <display value="Measured body weight (observable entity)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="248351003" />
+      <display value="Previous well-weight (observable entity)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="784399000" />
+      <display value="Self reported body weight (observable entity)" />
+    </contains>
+  </expansion>
+</ValueSet>

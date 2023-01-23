@@ -1,0 +1,366 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="KBV-PR-Base-Practitioner" />
+  <url value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Practitioner" />
+  <version value="1.3.0" />
+  <name value="KBV_PR_Base_Practitioner" />
+  <status value="active" />
+  <fhirVersion value="4.0.1" />
+  <mapping>
+    <identity value="v2" />
+    <uri value="http://hl7.org/v2" />
+    <name value="HL7 v2 Mapping" />
+  </mapping>
+  <mapping>
+    <identity value="rim" />
+    <uri value="http://hl7.org/v3" />
+    <name value="RIM Mapping" />
+  </mapping>
+  <mapping>
+    <identity value="servd" />
+    <uri value="http://www.omg.org/spec/ServD/1.0/" />
+    <name value="ServD" />
+  </mapping>
+  <mapping>
+    <identity value="w5" />
+    <uri value="http://hl7.org/fhir/fivews" />
+    <name value="FiveWs Pattern Mapping" />
+  </mapping>
+  <kind value="resource" />
+  <abstract value="false" />
+  <type value="Practitioner" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Practitioner" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Practitioner">
+      <path value="Practitioner" />
+      <definition value="Dieses Element beschreibt die behandelnde Person. Diese kann einen ärztlichen, aber auch nicht ärztlichen Hintergrund besitzen." />
+      <constraint>
+        <key value="pract-de-1" />
+        <severity value="error" />
+        <human value="Die amtliche Differenzierung der Geschlechtsangabe 'other' darf nur gefüllt sein, wenn das Geschlecht 'other' angegeben ist" />
+        <expression value="gender.exists() and gender='other' implies gender.extension('http://fhir.de/StructureDefinition/gender-amtlich-de').exists()" />
+        <source value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Practitioner" />
+      </constraint>
+    </element>
+    <element id="Practitioner.extension">
+      <path value="Practitioner.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="0" />
+    </element>
+    <element id="Practitioner.extension:ergaenzende_Angaben">
+      <path value="Practitioner.extension" />
+      <sliceName value="ergaenzende_Angaben" />
+      <min value="0" />
+      <max value="1" />
+      <type>
+        <code value="Extension" />
+        <profile value="https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Additional_Comment|1.3.0" />
+      </type>
+    </element>
+    <element id="Practitioner.identifier">
+      <path value="Practitioner.identifier" />
+      <slicing>
+        <discriminator>
+          <type value="pattern" />
+          <path value="type" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="Practitioner.identifier:ANR">
+      <path value="Practitioner.identifier" />
+      <sliceName value="ANR" />
+      <type>
+        <code value="Identifier" />
+        <profile value="http://fhir.de/StructureDefinition/identifier-lanr|1.3.2" />
+      </type>
+    </element>
+    <element id="Practitioner.identifier:ANR.type">
+      <path value="Practitioner.identifier.type" />
+      <min value="1" />
+    </element>
+    <element id="Practitioner.identifier:ANR.type.coding">
+      <path value="Practitioner.identifier.type.coding" />
+      <min value="1" />
+      <max value="1" />
+    </element>
+    <element id="Practitioner.identifier:ANR.type.coding.system">
+      <path value="Practitioner.identifier.type.coding.system" />
+      <min value="1" />
+    </element>
+    <element id="Practitioner.identifier:ANR.type.coding.code">
+      <path value="Practitioner.identifier.type.coding.code" />
+      <min value="1" />
+    </element>
+    <element id="Practitioner.identifier:ANR.type.coding.display">
+      <path value="Practitioner.identifier.type.coding.display" />
+      <patternString value="Lifelong physician number" />
+    </element>
+    <element id="Practitioner.identifier:EFN">
+      <path value="Practitioner.identifier" />
+      <sliceName value="EFN" />
+      <max value="1" />
+      <type>
+        <code value="Identifier" />
+        <profile value="http://fhir.de/StructureDefinition/identifier-efn|1.3.2" />
+      </type>
+    </element>
+    <element id="Practitioner.identifier:EFN.type">
+      <path value="Practitioner.identifier.type" />
+      <min value="1" />
+    </element>
+    <element id="Practitioner.identifier:EFN.type.coding">
+      <path value="Practitioner.identifier.type.coding" />
+      <min value="1" />
+      <max value="1" />
+    </element>
+    <element id="Practitioner.identifier:EFN.type.coding.system">
+      <path value="Practitioner.identifier.type.coding.system" />
+      <min value="1" />
+    </element>
+    <element id="Practitioner.identifier:EFN.type.coding.code">
+      <path value="Practitioner.identifier.type.coding.code" />
+      <min value="1" />
+    </element>
+    <element id="Practitioner.identifier:EFN.type.coding.display">
+      <path value="Practitioner.identifier.type.coding.display" />
+      <patternString value="Doctor number" />
+    </element>
+    <element id="Practitioner.identifier:ZANR">
+      <path value="Practitioner.identifier" />
+      <sliceName value="ZANR" />
+      <type>
+        <code value="Identifier" />
+        <profile value="http://fhir.de/StructureDefinition/identifier-zanr|1.3.2" />
+      </type>
+    </element>
+    <element id="Practitioner.identifier:ZANR.type">
+      <path value="Practitioner.identifier.type" />
+      <min value="1" />
+    </element>
+    <element id="Practitioner.identifier:ZANR.type.coding">
+      <path value="Practitioner.identifier.type.coding" />
+      <min value="1" />
+      <max value="1" />
+    </element>
+    <element id="Practitioner.identifier:ZANR.type.coding.system">
+      <path value="Practitioner.identifier.type.coding.system" />
+      <min value="1" />
+    </element>
+    <element id="Practitioner.identifier:ZANR.type.coding.code">
+      <path value="Practitioner.identifier.type.coding.code" />
+      <min value="1" />
+    </element>
+    <element id="Practitioner.identifier:ZANR.type.coding.display">
+      <path value="Practitioner.identifier.type.coding.display" />
+      <patternString value="Zahnarztnummer" />
+    </element>
+    <element id="Practitioner.identifier:Telematik-ID">
+      <path value="Practitioner.identifier" />
+      <sliceName value="Telematik-ID" />
+      <type>
+        <code value="Identifier" />
+        <profile value="http://fhir.de/StructureDefinition/identifier-telematik-id|1.3.2" />
+      </type>
+    </element>
+    <element id="Practitioner.identifier:Telematik-ID.type">
+      <path value="Practitioner.identifier.type" />
+      <min value="1" />
+    </element>
+    <element id="Practitioner.identifier:Telematik-ID.type.coding">
+      <path value="Practitioner.identifier.type.coding" />
+      <min value="1" />
+      <max value="1" />
+    </element>
+    <element id="Practitioner.identifier:Telematik-ID.type.coding.system">
+      <path value="Practitioner.identifier.type.coding.system" />
+      <min value="1" />
+    </element>
+    <element id="Practitioner.identifier:Telematik-ID.type.coding.code">
+      <path value="Practitioner.identifier.type.coding.code" />
+      <min value="1" />
+    </element>
+    <element id="Practitioner.identifier:Telematik-ID.type.coding.display">
+      <path value="Practitioner.identifier.type.coding.display" />
+      <patternString value="Provider number" />
+    </element>
+    <element id="Practitioner.name">
+      <path value="Practitioner.name" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="use" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="1" />
+    </element>
+    <element id="Practitioner.name:name">
+      <path value="Practitioner.name" />
+      <sliceName value="name" />
+      <max value="1" />
+      <type>
+        <code value="HumanName" />
+        <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Datatype_Name|1.3.0" />
+      </type>
+    </element>
+    <element id="Practitioner.name:name.family.extension">
+      <path value="Practitioner.name.family.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="0" />
+    </element>
+    <element id="Practitioner.name:name.family.extension:namenszusatz">
+      <path value="Practitioner.name.family.extension" />
+      <sliceName value="namenszusatz" />
+      <short value="Namenszusatz" />
+      <definition value="Namenszusatz als Bestandteil das Nachnamens&#xD;&#xA;Beispiele: Gräfin, Prinz oder Fürst" />
+      <min value="0" />
+    </element>
+    <element id="Practitioner.name:name.family.extension:vorsatzwort">
+      <path value="Practitioner.name.family.extension" />
+      <sliceName value="vorsatzwort" />
+      <definition value="Vorsatzwort wie z.B.: von, van, zu" />
+      <min value="0" />
+    </element>
+    <element id="Practitioner.name:geburtsname">
+      <path value="Practitioner.name" />
+      <sliceName value="geburtsname" />
+      <max value="1" />
+      <type>
+        <code value="HumanName" />
+        <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Datatype_Maiden_Name|1.3.0" />
+      </type>
+    </element>
+    <element id="Practitioner.name:geburtsname.family.extension">
+      <path value="Practitioner.name.family.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="0" />
+    </element>
+    <element id="Practitioner.name:geburtsname.family.extension:namenszusatz">
+      <path value="Practitioner.name.family.extension" />
+      <sliceName value="namenszusatz" />
+      <definition value="Namenszusatz als Bestandteil das Nachnamens&#xD;&#xA;Beispiele: Gräfin, Prinz oder Fürst" />
+      <min value="0" />
+    </element>
+    <element id="Practitioner.name:geburtsname.family.extension:vorsatzwort">
+      <path value="Practitioner.name.family.extension" />
+      <sliceName value="vorsatzwort" />
+      <definition value="Vorsatzwort wie z.B.: von, van, zu" />
+      <min value="0" />
+    </element>
+    <element id="Practitioner.telecom">
+      <path value="Practitioner.telecom" />
+      <type>
+        <code value="ContactPoint" />
+        <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Datatype_Contactpoint|1.3.0" />
+      </type>
+    </element>
+    <element id="Practitioner.address">
+      <path value="Practitioner.address" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="type" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="Practitioner.address:Strassenanschrift">
+      <path value="Practitioner.address" />
+      <sliceName value="Strassenanschrift" />
+      <type>
+        <code value="Address" />
+        <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Datatype_Street_Address|1.3.0" />
+      </type>
+    </element>
+    <element id="Practitioner.address:Postfach">
+      <path value="Practitioner.address" />
+      <sliceName value="Postfach" />
+      <definition value="Eine Adresse gemäß postalischer Konventionen (im Gegensatz zu bspw. GPS-Koordinaten). Die Adresse kann sowohl zur Zustellung von Postsendungen oder zum Aufsuchen von Orten, die keine gültige Postadresse haben, verwendet werden.&#xD;&#xA;&#xD;&#xA;Die verwendeten Extensions in diesem Profil bilden die Struktur der Adresse ab, wie sie im VSDM-Format der elektronischen Versichertenkarte verwendet wird.&#xD;&#xA;&#xD;&#xA;Insbesondere bei ausländischenOrt Adresse oder Adressen, die nicht durch Einlesen einer elektronischen Versichertenkarte erfasst wurden, sind abweichende Strukturen möglich. Die Verwendung der Extensions ist nicht verpflichtend." />
+      <type>
+        <code value="Address" />
+        <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Datatype_Post_Office_Box|1.3.0" />
+      </type>
+    </element>
+    <element id="Practitioner.gender.extension">
+      <path value="Practitioner.gender.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="0" />
+    </element>
+    <element id="Practitioner.gender.extension:other-amtlich">
+      <path value="Practitioner.gender.extension" />
+      <sliceName value="other-amtlich" />
+      <min value="0" />
+      <max value="1" />
+      <type>
+        <code value="Extension" />
+        <profile value="http://fhir.de/StructureDefinition/gender-amtlich-de|1.3.2" />
+      </type>
+    </element>
+    <element id="Practitioner.birthDate.extension">
+      <path value="Practitioner.birthDate.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="0" />
+    </element>
+    <element id="Practitioner.birthDate.extension:data-absent-reason">
+      <path value="Practitioner.birthDate.extension" />
+      <sliceName value="data-absent-reason" />
+      <min value="0" />
+      <type>
+        <code value="Extension" />
+        <profile value="http://hl7.org/fhir/StructureDefinition/data-absent-reason" />
+      </type>
+    </element>
+    <element id="Practitioner.birthDate.extension:data-absent-reason.value[x]">
+      <path value="Practitioner.birthDate.extension.value[x]" />
+      <slicing>
+        <discriminator>
+          <type value="type" />
+          <path value="$this" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="Practitioner.birthDate.extension:data-absent-reason.value[x]:valueCode">
+      <path value="Practitioner.birthDate.extension.value[x]" />
+      <sliceName value="valueCode" />
+    </element>
+    <element id="Practitioner.qualification.code">
+      <path value="Practitioner.qualification.code" />
+      <binding>
+        <strength value="preferred" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_Practitioner_Speciality" />
+      </binding>
+    </element>
+  </differential>
+</StructureDefinition>

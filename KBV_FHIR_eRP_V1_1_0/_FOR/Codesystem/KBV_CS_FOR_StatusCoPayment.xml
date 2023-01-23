@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<CodeSystem xmlns="http://hl7.org/fhir" xmlns:ns2="http://www.w3.org/1999/xhtml">
+      <id value="KBV-CS-FOR-StatusCoPayment" />
+	<url value="https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_StatusCoPayment"/>
+    <version value="1.1.0" />
+    <name value="KBV_CS_FOR_StatusCoPayment"/>
+    <status value="active"/>
+	<date value="2022-09-30" />
+	<publisher value="Kassenärztliche Bundesvereinigung" />
+    <contact>
+        <telecom>
+            <system value="url"/>
+            <value value="http://www.kbv.de"/>
+        </telecom>
+    </contact>
+    <description value="Ausprägung des Zuzahlungsstatus für die Verordnung"/>
+    <copyright value="Kassenärztliche Bundesvereinigung"/>
+    <caseSensitive value="true"/>
+    <content value="complete"/>
+    <concept>
+        <code value="0"/>
+        <display value="von Zuzahlungspflicht nicht befreit / gebührenpflichtig"/>
+    </concept>
+    <concept>
+        <code value="1"/>
+        <display value="von Zuzahlungspflicht befreit / gebührenfrei"/>
+    </concept>
+    <concept>
+        <code value="2"/>
+        <display value="künstliche Befruchtung (Regelung nach § 27a SGB V)"/>
+    </concept>
+</CodeSystem>

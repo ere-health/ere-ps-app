@@ -1,0 +1,141 @@
+<ValueSet xmlns="http://hl7.org/fhir">
+  <id value="KBV-VS-Base-Apgar-Score-Value" />
+  <url value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_Apgar_Score_Value" />
+  <version value="1.3.0" />
+  <name value="KBV_VS_Base_Apgar_Score_Value" />
+  <title value="Apgar Score Wert" />
+  <status value="active" />
+  <experimental value="false" />
+  <publisher value="Kassenärztliche Bundesvereinigung (KBV)" />
+  <contact>
+    <telecom>
+      <system value="url" />
+      <value value="http://www.kbv.de" />
+    </telecom>
+  </contact>
+  <description value="Dieses Valueset enthält die Codes zur Beschreibung von Apgar Score Wert." />
+  <immutable value="false" />
+  <copyright value="Im folgenden Profil können Codes aus den Codesystemen Snomed, Loinc oder Ucum enthalten sein, die dem folgenden Urheberrecht unterliegen: This material includes SNOMED Clinical Terms® (SNOMED CT®) which is used by permission of SNOMED International. All rights reserved. SNOMED CT®, was originally created by The College of American Pathologists. SNOMED and SNOMED CT are registered trademarks of SNOMED International. Implementers of these artefacts must have the appropriate SNOMED CT Affiliate license. This material contains content from LOINC (http://loinc.org). LOINC is copyright © 1995-2020, Regenstrief Institute, Inc. and the Logical Observation Identifiers Names and Codes (LOINC) Committee and is available at no cost under the license at http://loinc.org/license. LOINC® is a registered United States trademark of Regenstrief Institute, Inc. This product includes all or a portion of the UCUM table, UCUM codes, and UCUM definitions or is derived from it, subject to a license from Regenstrief Institute, Inc. and The UCUM Organization. Your use of the UCUM table, UCUM codes, UCUM definitions also is subject to this license, a copy of which is available at ​http://unitsofmeasure.org. The current complete UCUM table, UCUM Specification are available for download at http://unitsofmeasure.org. The UCUM table and UCUM codes are copyright © 1995-2009, Regenstrief Institute, Inc. and the Unified Codes for Units of Measures (UCUM) Organization. All rights reserved. THE UCUM TABLE (IN ALL FORMATS), UCUM DEFINITIONS, AND SPECIFICATION ARE PROVIDED &quot;AS IS.&quot; ANY EXPRESS OR IMPLIED WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE." />
+  <compose>
+    <include>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <concept>
+        <code value="77714001" />
+        <display value="Apgar score 0 (finding)" />
+      </concept>
+      <concept>
+        <code value="43610007" />
+        <display value="Apgar score 1 (finding)" />
+      </concept>
+      <concept>
+        <code value="39910003" />
+        <display value="Apgar score 2 (finding)" />
+      </concept>
+      <concept>
+        <code value="26635001" />
+        <display value="Apgar score 3 (finding)" />
+      </concept>
+      <concept>
+        <code value="38107004" />
+        <display value="Apgar score 4 (finding)" />
+      </concept>
+      <concept>
+        <code value="24388001" />
+        <display value="Apgar score 5 (finding)" />
+      </concept>
+      <concept>
+        <code value="10318004" />
+        <display value="Apgar score 6 (finding)" />
+      </concept>
+      <concept>
+        <code value="13323003" />
+        <display value="Apgar score 7 (finding)" />
+      </concept>
+      <concept>
+        <code value="12431004" />
+        <display value="Apgar score 8 (finding)" />
+      </concept>
+      <concept>
+        <code value="64198003" />
+        <display value="Apgar score 9 (finding)" />
+      </concept>
+      <concept>
+        <code value="49544001" />
+        <display value="Apgar score 10 (finding)" />
+      </concept>
+    </include>
+  </compose>
+  <expansion>
+    <identifier value="7ba3edae-ee0f-11ec-b445-f875a4795910" />
+    <timestamp value="2022-06-17T09:31:20+02:00" />
+    <total value="11" />
+    <offset value="0" />
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="77714001" />
+      <display value="Apgar score 0 (finding)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="43610007" />
+      <display value="Apgar score 1 (finding)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="39910003" />
+      <display value="Apgar score 2 (finding)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="26635001" />
+      <display value="Apgar score 3 (finding)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="38107004" />
+      <display value="Apgar score 4 (finding)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="24388001" />
+      <display value="Apgar score 5 (finding)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="10318004" />
+      <display value="Apgar score 6 (finding)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="13323003" />
+      <display value="Apgar score 7 (finding)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="12431004" />
+      <display value="Apgar score 8 (finding)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="64198003" />
+      <display value="Apgar score 9 (finding)" />
+    </contains>
+    <contains>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="49544001" />
+      <display value="Apgar score 10 (finding)" />
+    </contains>
+  </expansion>
+</ValueSet>

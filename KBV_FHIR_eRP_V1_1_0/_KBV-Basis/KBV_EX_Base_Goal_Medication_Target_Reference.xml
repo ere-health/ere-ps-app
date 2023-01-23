@@ -1,0 +1,74 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="KBV-EX-Base-Goal-Medication-Target-Reference" />
+  <url value="https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Goal_Medication_Target_Reference" />
+  <version value="1.3.0" />
+  <name value="KBV_EX_Base_Goal_Medication_Target_Reference" />
+  <title value="KBV_EX_Base_Goal_Medication_Target_Reference" />
+  <status value="active" />
+  <publisher value="Kassenärztliche Bundesvereinigung (KBV)" />
+  <description value="Diese Extension dient der Referenz auf ein Behandlungsziel." />
+  <copyright value="Im folgenden Profil können Codes aus den Codesystemen Snomed, Loinc oder Ucum enthalten sein, die dem folgenden Urheberrecht unterliegen: This material includes SNOMED Clinical Terms® SNOMED CT® which is used by permission of SNOMED International. All rights reserved. SNOMED CT®, was originally created by The College of American Pathologists. SNOMED and SNOMED CT are registered trademarks of SNOMED International. Implementers of these artefacts must have the appropriate SNOMED CT Affiliate license. This material contains content from Loinc http://loinc.org. Loinc is copyright © 1995-2020, Regenstrief Institute, Inc. and the Logical Observation Identifiers Names and Codes Loinc Committee and is available at no cost under the license at http://loinc.org/license. Loinc® is a registered United States trademark of Regenstrief Institute, Inc. This product includes all or a portion of the UCUM table, UCUM codes, and UCUM definitions or is derived from it, subject to a license from Regenstrief Institute, Inc. and The UCUM Organization. Your use of the UCUM table, UCUM codes, UCUM definitions also is subject to this license, a copy of which is available at ​http://unitsofmeasure.org. The current complete UCUM table, UCUM Specification are available for download at ​http://unitsofmeasure.org. The UCUM table and UCUM codes are copyright © 1995-2009, Regenstrief Institute, Inc. and the Unified Codes for Units of Measures UCUM Organization. All rights reserved. THE UCUM TABLE IN ALL FORMATS, UCUM DEFINITIONS, AND SPECIFICATION ARE PROVIDED 'AS IS.' ANY EXPRESS OR IMPLIED WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE." />
+  <fhirVersion value="4.0.1" />
+  <kind value="complex-type" />
+  <abstract value="false" />
+  <context>
+    <type value="element" />
+    <expression value="MedicationStatement" />
+  </context>
+  <type value="Extension" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Extension" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Extension">
+      <path value="Extension" />
+      <definition value="Diese Extension dient der Referenz auf ein Behandlungsziel." />
+    </element>
+    <element id="Extension.url">
+      <path value="Extension.url" />
+      <patternUri value="https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Goal_Medication_Target_Reference" />
+    </element>
+    <element id="Extension.value[x]">
+      <path value="Extension.value[x]" />
+      <slicing>
+        <discriminator>
+          <type value="type" />
+          <path value="$this" />
+        </discriminator>
+        <rules value="closed" />
+      </slicing>
+      <min value="1" />
+      <type>
+        <code value="Reference" />
+      </type>
+      <mustSupport value="true" />
+    </element>
+    <element id="Extension.value[x]:valueReference">
+      <path value="Extension.valueReference" />
+      <sliceName value="valueReference" />
+      <min value="1" />
+      <type>
+        <code value="Reference" />
+        <targetProfile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Treatment_Goal|1.3.0" />
+      </type>
+      <mustSupport value="true" />
+    </element>
+    <element id="Extension.value[x]:valueReference.reference">
+      <path value="Extension.valueReference.reference" />
+      <min value="1" />
+      <max value="1" />
+      <mustSupport value="true" />
+    </element>
+    <element id="Extension.value[x]:valueReference.type">
+      <path value="Extension.valueReference.type" />
+      <max value="0" />
+    </element>
+    <element id="Extension.value[x]:valueReference.identifier">
+      <path value="Extension.valueReference.identifier" />
+      <max value="0" />
+    </element>
+    <element id="Extension.value[x]:valueReference.display">
+      <path value="Extension.valueReference.display" />
+      <max value="0" />
+    </element>
+  </differential>
+</StructureDefinition>

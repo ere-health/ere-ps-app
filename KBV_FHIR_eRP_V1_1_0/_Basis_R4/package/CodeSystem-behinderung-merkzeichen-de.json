@@ -1,0 +1,91 @@
+{
+  "resourceType": "CodeSystem",
+  "identifier": [
+    {
+      "system": "urn:ietf:rfc:3986",
+      "value": "urn:oid:1.2.276.0.76.5.528"
+    }
+  ],
+  "status": "active",
+  "content": "complete",
+  "name": "Merkzeichen",
+  "id": "cs-merkzeichen-de",
+  "title": "Deutsche Merkzeichen auf dem Behindertenausweis",
+  "description": "Deutsche Merkzeichen, wie sie auf dem Behindertenausweis verwendet werden",
+  "version": "1.3.2",
+  "url": "http://fhir.de/CodeSystem/merkzeichen-de",
+  "caseSensitive": true,
+  "concept": [
+    {
+      "code": "G",
+      "display": "erhebliche Gehbehinderung",
+      "definition": "erhebliche Gehbehinderung"
+    },
+    {
+      "code": "aG",
+      "display": "außergewöhnliche Gehbehinderung",
+      "definition": "außergewöhnliche Gehbehinderung"
+    },
+    {
+      "code": "H",
+      "display": "Hilflosigkeit",
+      "definition": "Hilflosigkeit"
+    },
+    {
+      "code": "B",
+      "display": "Begleitperson",
+      "definition": "Begleitperson"
+    },
+    {
+      "code": "RF",
+      "display": "Ermäßigung des Rundfunkbeitrags",
+      "definition": "Ermäßigung des Rundfunkbeitrags"
+    },
+    {
+      "code": "Gl",
+      "display": "Gehörlosigkeit",
+      "definition": "Gehörlosigkeit"
+    },
+    {
+      "code": "Bl",
+      "display": "Blindheit",
+      "definition": "Blindheit"
+    },
+    {
+      "code": "TBl",
+      "display": "Taubblindheit",
+      "definition": "Taubblindheit"
+    },
+    {
+      "code": "Kl",
+      "display": "1. Wagenklasse in Zügen der Deutschen Bahn",
+      "definition": "1. Wagenklasse in Zügen der Deutschen Bahn"
+    },
+    {
+      "code": "KB",
+      "display": "Kriegsbeschädigt",
+      "definition": "Kriegsbeschädigt"
+    },
+    {
+      "code": "VB",
+      "display": "Versorgungsberechtigte nach dem Soldatenversorgungsgesetz, dem Opferentschädigungsgesetz u. ä.",
+      "definition": "Versorgungsberechtigte nach dem Soldatenversorgungsgesetz, dem Opferentschädigungsgesetz u. ä."
+    },
+    {
+      "code": "EB",
+      "display": "Entschädigungsberechtigte nach dem Bundesentschädigungsgesetz",
+      "definition": "Entschädigungsberechtigte nach dem Bundesentschädigungsgesetz"
+    },
+    {
+      "code": "HS",
+      "display": "Hochgradig Sehbehindert (Mecklenburg-Vorpommern)",
+      "definition": "Hochgradig Sehbehindert (Mecklenburg-Vorpommern)"
+    },
+    {
+      "code": "T",
+      "display": "Teilnahmeberechtigung am Sonderfahrdienst (Berlin)",
+      "definition": "Teilnahmeberechtigung am Sonderfahrdienst (Berlin)"
+    }
+  ],
+  "count": 14
+}

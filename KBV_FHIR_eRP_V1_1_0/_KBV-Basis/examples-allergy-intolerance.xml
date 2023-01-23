@@ -1,0 +1,82 @@
+<AllergyIntolerance xmlns="http://hl7.org/fhir">
+  <id value="c3fd0113-9833-4333-bfd2-fff813222b64" />
+  <meta>
+    <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Allergy_Intolerance|1.3.0" />
+  </meta>
+  <extension url="https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Allergy_Intolerance_Abatement">
+    <valueDateTime value="2012" />
+  </extension>
+  <extension url="https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Stage_Life">
+    <valueCodeableConcept>
+      <coding>
+        <system value="http://snomed.info/sct" />
+        <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+        <code value="271872005" />
+        <display value="Old age (qualifier value)" />
+      </coding>
+    </valueCodeableConcept>
+  </extension>
+  <clinicalStatus>
+    <coding>
+      <system value="http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical" />
+      <version value="4.0.1" />
+      <code value="active" />
+      <display value="Active" />
+    </coding>
+  </clinicalStatus>
+  <verificationStatus>
+    <coding>
+      <system value="http://terminology.hl7.org/CodeSystem/allergyintolerance-verification" />
+      <version value="4.0.1" />
+      <code value="confirmed" />
+      <display value="Confirmed" />
+    </coding>
+  </verificationStatus>
+  <type value="allergy" />
+  <category value="food" />
+  <criticality value="high" />
+  <code>
+    <coding>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="227493005" />
+      <display value="Cashew nuts" />
+    </coding>
+    <text value="Cashewnüsse" />
+  </code>
+  <patient>
+    <reference value="urn:uuid:9774f67f-a238-4daf-b4e6-679deeef3811" />
+  </patient>
+  <onsetAge>
+    <extension url="https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Stage_Life">
+      <valueCodeableConcept>
+        <coding>
+          <system value="http://snomed.info/sct" />
+          <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+          <code value="255398004" />
+          <display value="Childhood (qualifier value)" />
+        </coding>
+      </valueCodeableConcept>
+    </extension>
+  </onsetAge>
+  <recorder>
+    <reference value="urn:uuid:4b1c81d0-bce7-48bb-b7e4-9764dfb1283f" />
+  </recorder>
+  <note>
+    <time value="2020-01-01" />
+    <text value="Seit einiger Zeit sind keine allergischen Reaktionen mehr aufgetreten." />
+  </note>
+  <reaction>
+    <manifestation>
+      <coding>
+        <system value="http://snomed.info/sct" />
+        <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+        <code value="39579001" />
+        <display value="Anaphylaxis (disorder)" />
+      </coding>
+      <text value="Atemnot" />
+    </manifestation>
+    <description value="Allergien und Intolleranzen" />
+    <severity value="severe" />
+  </reaction>
+</AllergyIntolerance>

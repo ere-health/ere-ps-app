@@ -1,0 +1,65 @@
+<RelatedPerson xmlns="http://hl7.org/fhir">
+  <id value="benedicte" />
+  <extension url="https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Additional_Comment">
+    <valueString value="test" />
+  </extension>
+  <active value="true" />
+  <patient>
+    <reference value="Patient/example" />
+  </patient>
+  <relationship>
+    <coding>
+      <system value="http://terminology.hl7.org/CodeSystem/v2-0131" />
+      <code value="N" />
+    </coding>
+    <coding>
+      <system value="http://terminology.hl7.org/CodeSystem/v3-RoleCode" />
+      <code value="WIFE" />
+    </coding>
+  </relationship>
+  <name>
+    <family value="du Marché">
+      <!--   the "du" part is a family name prefix (VV in iso 21090)   -->
+      <extension url="http://hl7.org/fhir/StructureDefinition/humanname-own-prefix">
+        <valueString value="VV" />
+      </extension>
+    </family>
+    <given value="Bénédicte" />
+  </name>
+  <telecom>
+    <system value="phone" />
+    <value value="+33 (237) 998327" />
+  </telecom>
+  <gender value="other">
+    <extension url="http://fhir.de/StructureDefinition/gender-amtlich-de">
+      <valueCoding>
+        <system value="http://fhir.de/CodeSystem/gender-amtlich-de" />
+        <code value="D" />
+      </valueCoding>
+    </extension>
+  </gender>
+  <address>
+    <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-precinct">
+      <valueString value="Mitte" />
+    </extension>
+    <type value="both" />
+    <line value="Musterstr. 1">
+      <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber">
+        <valueString value="1" />
+      </extension>
+      <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName">
+        <valueString value="Musterstr." />
+      </extension>
+    </line>
+    <line value="Mitte" />
+    <line value="Mitte" />
+    <!-- <line value="Mitte"/>   -->
+    <city value="Berlin" />
+    <postalCode value="64283" />
+    <country value="D" />
+  </address>
+  <photo>
+    <contentType value="image/jpeg" />
+    <url value="Binary/f016" />
+  </photo>
+</RelatedPerson>

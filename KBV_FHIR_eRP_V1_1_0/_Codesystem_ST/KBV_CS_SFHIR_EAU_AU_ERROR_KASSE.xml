@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<CodeSystem xmlns="http://hl7.org/fhir" xmlns:ns2="http://www.w3.org/1999/xhtml">
+    <id value="KBV-CS-SFHIR-EAU-AU-ERROR-KASSE"/>
+    <url value="https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_EAU_AU_ERROR_KASSE"/>
+    <identifier>
+        <system value="urn:ietf:rfc:3986"/>
+        <value value="urn:oid:1.2.276.0.76.3.1.1.5.2.61"/>
+    </identifier>
+    <version value="1.00"/>
+    <name value="KBV_CS_SFHIR_EAU_AU_ERROR_KASSE"/>
+    <status value="active"/>
+    <date value="2023-07-01"/>
+    <publisher value="Kassenärztliche Bundesvereinigung"/>
+    <contact>
+        <telecom>
+            <system value="url"/>
+            <value value="http://www.kbv.de"/>
+        </telecom>
+    </contact>
+    <copyright value="Kassenärztliche Bundesvereinigung"/>
+    <caseSensitive value="true"/>
+    <content value="complete"/>
+    <concept>
+        <code value="100"/>
+        <display value="Der Patient ist nicht bei der adressierten Krankenkasse versichert."/>
+    </concept>
+    <concept>
+        <code value="101"/>
+        <display value="Die übermittelte eAU entspricht nicht den Vorgaben und ist nicht lesbar."/>
+    </concept>
+    <concept>
+        <code value="102"/>
+        <display value="Die übermittelte Stornomeldung entspricht nicht den Vorgaben und ist nicht lesbar."/>
+    </concept>
+    <concept>
+        <code value="103"/>
+        <display value="Die übermittelte eAU besitzt einen falschen Zeichensatz."/>
+    </concept>
+    <concept>
+        <code value="104"/>
+        <display value="Die übermittelte Stornomeldung besitzt einen falschen Zeichensatz."/>
+    </concept>
+    <concept>
+        <code value="105"/>
+        <display value="Die zu stornierende eAU wurde von der Krankenkasse bereits als fehlerhaft abgewiesen."/>
+    </concept>
+    <concept>
+        <code value="201"/>
+        <display value="Die Signatur der eAU ist nicht gültig, da ein fehlerhaftes Zertifikat verwendet wurde."/>
+    </concept>
+    <concept>
+        <code value="202"/>
+        <display value="Die Signatur der eAU ist nicht gültig, da die übermittelten Daten nicht den signierten Daten entsprechen."/>
+    </concept>
+    <concept>
+        <code value="203"/>
+        <display value="Die Signatur der Stornomeldung ist nicht gültig, da ein fehlerhaftes Zertifikat verwendet wurde."/>
+    </concept>
+    <concept>
+        <code value="204"/>
+        <display value="Die Signatur der Stornomeldung ist nicht gültig, da die übermittelten Daten nicht den signierten Daten entsprechen."/>
+    </concept>
+    <concept>
+        <code value="301"/>
+        <display value="Die KIM-Nachricht für die Stornomeldung ist in einem falschen Format verschlüsselt."/>
+    </concept>
+    <concept>
+        <code value="303"/>
+        <display value="KIM-Nachricht der Stornomeldung besitzt keine Signatur."/>
+    </concept>
+    <concept>
+        <code value="304"/>
+        <display value="Die Signatur für die KIM-Nachricht der Stornomeldung hat das falsche Format."/>
+    </concept>
+    <concept>
+        <code value="305"/>
+        <display value="Die Signaturprüfung der KIM-Nachricht der Stornomeldung hat ergeben, dass der Nachrichteninhalt nicht mit der Signatur übereinstimmt."/>
+    </concept>
+    <concept>
+        <code value="307"/>
+        <display value="Die KIM-Nachricht für der eAU ist in einem falschen Format verschlüsselt."/>
+    </concept>
+    <concept>
+        <code value="309"/>
+        <display value="KIM-Nachricht der eAU besitzt keine Signatur."/>
+    </concept>
+    <concept>
+        <code value="310"/>
+        <display value="Die Signatur für die KIM-Nachricht der eAU hat das falsche Format."/>
+    </concept>
+    <concept>
+        <code value="311"/>
+        <display value="Die Signaturprüfung der KIM-Nachricht der eAU hat ergeben, dass der Nachrichteninhalt nicht mit der Signatur übereinstimmt."/>
+    </concept>
+    <concept>
+        <code value="313"/>
+        <display value="Die KIM-Nachricht der eAU konnte aufgrund es nicht verfügbaren Schlüssels nicht entschlüsselt werden."/>
+    </concept>
+    <concept>
+        <code value="314"/>
+        <display value="Die KIM-Nachricht der Stornomeldung konnte aufgrund es nicht verfügbaren Schlüssels nicht entschlüsselt werden."/>
+    </concept>
+</CodeSystem>

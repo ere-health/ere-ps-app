@@ -1,0 +1,2370 @@
+<ValueSet xmlns="http://hl7.org/fhir">
+  <id value="KBV-VS-Base-Deuev-Anlage-8" />
+  <url value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_Deuev_Anlage_8" />
+  <version value="1.3.0" />
+  <name value="KBV_VS_Base_Deuev_Anlage_8" />
+  <title value="Land/Wohnsitzländercode" />
+  <status value="active" />
+  <experimental value="false" />
+  <publisher value="Kassenärztliche Bundesvereinigung (KBV)" />
+  <contact>
+    <telecom>
+      <system value="url" />
+      <value value="http://www.kbv.de" />
+    </telecom>
+  </contact>
+  <description value="Dieses Valueset enthält die Codes zur Beschreibung von Land/Wohnsitzländercode." />
+  <immutable value="false" />
+  <copyright value="Im folgenden Profil können Codes aus den Codesystemen Snomed, Loinc oder Ucum enthalten sein, die dem folgenden Urheberrecht unterliegen: This material includes SNOMED Clinical Terms® (SNOMED CT®) which is used by permission of SNOMED International. All rights reserved. SNOMED CT®, was originally created by The College of American Pathologists. SNOMED and SNOMED CT are registered trademarks of SNOMED International. Implementers of these artefacts must have the appropriate SNOMED CT Affiliate license. This material contains content from LOINC (http://loinc.org). LOINC is copyright © 1995-2020, Regenstrief Institute, Inc. and the Logical Observation Identifiers Names and Codes (LOINC) Committee and is available at no cost under the license at http://loinc.org/license. LOINC® is a registered United States trademark of Regenstrief Institute, Inc. This product includes all or a portion of the UCUM table, UCUM codes, and UCUM definitions or is derived from it, subject to a license from Regenstrief Institute, Inc. and The UCUM Organization. Your use of the UCUM table, UCUM codes, UCUM definitions also is subject to this license, a copy of which is available at ​http://unitsofmeasure.org. The current complete UCUM table, UCUM Specification are available for download at http://unitsofmeasure.org. The UCUM table and UCUM codes are copyright © 1995-2009, Regenstrief Institute, Inc. and the Unified Codes for Units of Measures (UCUM) Organization. All rights reserved. THE UCUM TABLE (IN ALL FORMATS), UCUM DEFINITIONS, AND SPECIFICATION ARE PROVIDED &quot;AS IS.&quot; ANY EXPRESS OR IMPLIED WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE." />
+  <compose>
+    <include>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <concept>
+        <code value="D" />
+        <display value="Deutschland" />
+      </concept>
+      <concept>
+        <code value="AFG" />
+        <display value="Afghanistan" />
+      </concept>
+      <concept>
+        <code value="ET" />
+        <display value="Ägypten" />
+      </concept>
+      <concept>
+        <code value="AL" />
+        <display value="Albanien" />
+      </concept>
+      <concept>
+        <code value="DZ" />
+        <display value="Algerien" />
+      </concept>
+      <concept>
+        <code value="AJ" />
+        <display value="Amerik.-Jungferninseln" />
+      </concept>
+      <concept>
+        <code value="AS" />
+        <display value="Amerik.-Samoa" />
+      </concept>
+      <concept>
+        <code value="AND" />
+        <display value="Andorra" />
+      </concept>
+      <concept>
+        <code value="AGO" />
+        <display value="Angola" />
+      </concept>
+      <concept>
+        <code value="ANG" />
+        <display value="Anguilla" />
+      </concept>
+      <concept>
+        <code value="ANT" />
+        <display value="Antigua und Barbuda" />
+      </concept>
+      <concept>
+        <code value="AQU" />
+        <display value="Äquatorialguinea" />
+      </concept>
+      <concept>
+        <code value="RA" />
+        <display value="Argentinien" />
+      </concept>
+      <concept>
+        <code value="ARM" />
+        <display value="Armenien" />
+      </concept>
+      <concept>
+        <code value="ASE" />
+        <display value="Aserbaidschan" />
+      </concept>
+      <concept>
+        <code value="ETH" />
+        <display value="Äthiopien" />
+      </concept>
+      <concept>
+        <code value="AUS" />
+        <display value="Australien" />
+      </concept>
+      <concept>
+        <code value="BS" />
+        <display value="Bahamas" />
+      </concept>
+      <concept>
+        <code value="BRN" />
+        <display value="Bahrain" />
+      </concept>
+      <concept>
+        <code value="BD" />
+        <display value="Bangladesch" />
+      </concept>
+      <concept>
+        <code value="BDS" />
+        <display value="Barbados" />
+      </concept>
+      <concept>
+        <code value="B" />
+        <display value="Belgien" />
+      </concept>
+      <concept>
+        <code value="BH" />
+        <display value="Belize" />
+      </concept>
+      <concept>
+        <code value="DY" />
+        <display value="Benin" />
+      </concept>
+      <concept>
+        <code value="BER" />
+        <display value="Bermuda" />
+      </concept>
+      <concept>
+        <code value="BHT" />
+        <display value="Bhutan" />
+      </concept>
+      <concept>
+        <code value="BOL" />
+        <display value="Bolivien" />
+      </concept>
+      <concept>
+        <code value="BIH" />
+        <display value="Bosnien und Herzegowina" />
+      </concept>
+      <concept>
+        <code value="RB" />
+        <display value="Botsuana" />
+      </concept>
+      <concept>
+        <code value="BR" />
+        <display value="Brasilien" />
+      </concept>
+      <concept>
+        <code value="BJ" />
+        <display value="Brit.-Jungferninseln" />
+      </concept>
+      <concept>
+        <code value="BRU" />
+        <display value="Brunei Darussalam" />
+      </concept>
+      <concept>
+        <code value="BG" />
+        <display value="Bulgarien" />
+      </concept>
+      <concept>
+        <code value="HV" />
+        <display value="Burkina Faso" />
+      </concept>
+      <concept>
+        <code value="RU" />
+        <display value="Burundi" />
+      </concept>
+      <concept>
+        <code value="RCH" />
+        <display value="Chile" />
+      </concept>
+      <concept>
+        <code value="TJ" />
+        <display value="China" />
+      </concept>
+      <concept>
+        <code value="COI" />
+        <display value="Cookinseln" />
+      </concept>
+      <concept>
+        <code value="CR" />
+        <display value="Costa Rica" />
+      </concept>
+      <concept>
+        <code value="CI" />
+        <display value="Cote d`Ivoire" />
+      </concept>
+      <concept>
+        <code value="DK" />
+        <display value="Dänemark" />
+      </concept>
+      <concept>
+        <code value="WD" />
+        <display value="Dominica" />
+      </concept>
+      <concept>
+        <code value="DOM" />
+        <display value="Dominikanische Republik" />
+      </concept>
+      <concept>
+        <code value="DSC" />
+        <display value="Dschibuti" />
+      </concept>
+      <concept>
+        <code value="EC" />
+        <display value="Ecuador" />
+      </concept>
+      <concept>
+        <code value="ES" />
+        <display value="El Salvador" />
+      </concept>
+      <concept>
+        <code value="ERI" />
+        <display value="Eritrea" />
+      </concept>
+      <concept>
+        <code value="EST" />
+        <display value="Estland" />
+      </concept>
+      <concept>
+        <code value="FAL" />
+        <display value="Falklandinseln" />
+      </concept>
+      <concept>
+        <code value="FR" />
+        <display value="Färöer" />
+      </concept>
+      <concept>
+        <code value="FJI" />
+        <display value="Fidschi" />
+      </concept>
+      <concept>
+        <code value="FIN" />
+        <display value="Finnland" />
+      </concept>
+      <concept>
+        <code value="F" />
+        <display value="Frankreich" />
+      </concept>
+      <concept>
+        <code value="FG" />
+        <display value="Franz.-Guayana" />
+      </concept>
+      <concept>
+        <code value="FP" />
+        <display value="Franz.-Polynesien" />
+      </concept>
+      <concept>
+        <code value="GAB" />
+        <display value="Gabun" />
+      </concept>
+      <concept>
+        <code value="WAG" />
+        <display value="Gambia" />
+      </concept>
+      <concept>
+        <code value="GEO" />
+        <display value="Georgien" />
+      </concept>
+      <concept>
+        <code value="GH" />
+        <display value="Ghana" />
+      </concept>
+      <concept>
+        <code value="GIB" />
+        <display value="Gibraltar" />
+      </concept>
+      <concept>
+        <code value="WG" />
+        <display value="Grenada" />
+      </concept>
+      <concept>
+        <code value="GR" />
+        <display value="Griechenland" />
+      </concept>
+      <concept>
+        <code value="GRO" />
+        <display value="Grönland" />
+      </concept>
+      <concept>
+        <code value="GB" />
+        <display value="Großbritannien und Nordirland" />
+      </concept>
+      <concept>
+        <code value="GUA" />
+        <display value="Guadeloupe" />
+      </concept>
+      <concept>
+        <code value="GUM" />
+        <display value="Guam" />
+      </concept>
+      <concept>
+        <code value="GCA" />
+        <display value="Guatemala" />
+      </concept>
+      <concept>
+        <code value="RG" />
+        <display value="Guinea" />
+      </concept>
+      <concept>
+        <code value="GUB" />
+        <display value="Guinea-Bissau" />
+      </concept>
+      <concept>
+        <code value="GUY" />
+        <display value="Guyana" />
+      </concept>
+      <concept>
+        <code value="RH" />
+        <display value="Haiti" />
+      </concept>
+      <concept>
+        <code value="HCA" />
+        <display value="Honduras" />
+      </concept>
+      <concept>
+        <code value="HKG" />
+        <display value="Hongkong" />
+      </concept>
+      <concept>
+        <code value="IND" />
+        <display value="Indien" />
+      </concept>
+      <concept>
+        <code value="RI" />
+        <display value="Indonesien" />
+      </concept>
+      <concept>
+        <code value="MAN" />
+        <display value="Insel Man" />
+      </concept>
+      <concept>
+        <code value="IRQ" />
+        <display value="Irak" />
+      </concept>
+      <concept>
+        <code value="IR" />
+        <display value="&quot;Iran, Islamische Republik&quot;" />
+      </concept>
+      <concept>
+        <code value="IRL" />
+        <display value="Irland" />
+      </concept>
+      <concept>
+        <code value="IS" />
+        <display value="Island" />
+      </concept>
+      <concept>
+        <code value="IL" />
+        <display value="Israel" />
+      </concept>
+      <concept>
+        <code value="I" />
+        <display value="Italien" />
+      </concept>
+      <concept>
+        <code value="JA" />
+        <display value="Jamaika" />
+      </concept>
+      <concept>
+        <code value="J" />
+        <display value="Japan" />
+      </concept>
+      <concept>
+        <code value="YEM" />
+        <display value="Jemen" />
+      </concept>
+      <concept>
+        <code value="JOR" />
+        <display value="Jordanien" />
+      </concept>
+      <concept>
+        <code value="YU" />
+        <display value="Jugoslawien" />
+      </concept>
+      <concept>
+        <code value="KAI" />
+        <display value="Kaimaninseln" />
+      </concept>
+      <concept>
+        <code value="K" />
+        <display value="Kambodscha" />
+      </concept>
+      <concept>
+        <code value="CAM" />
+        <display value="Kamerun" />
+      </concept>
+      <concept>
+        <code value="CDN" />
+        <display value="Kanada" />
+      </concept>
+      <concept>
+        <code value="KAN" />
+        <display value="Kanalinseln" />
+      </concept>
+      <concept>
+        <code value="CV" />
+        <display value="Kap Verde" />
+      </concept>
+      <concept>
+        <code value="KAS" />
+        <display value="Kasachstan" />
+      </concept>
+      <concept>
+        <code value="QAT" />
+        <display value="Katar/Qatar" />
+      </concept>
+      <concept>
+        <code value="EAK" />
+        <display value="Kenia" />
+      </concept>
+      <concept>
+        <code value="KIS" />
+        <display value="Kirgisistan" />
+      </concept>
+      <concept>
+        <code value="KIB" />
+        <display value="Kiribati" />
+      </concept>
+      <concept>
+        <code value="CO" />
+        <display value="Kolumbien" />
+      </concept>
+      <concept>
+        <code value="KOM" />
+        <display value="Komoren" />
+      </concept>
+      <concept>
+        <code value="RCB" />
+        <display value="Kongo" />
+      </concept>
+      <concept>
+        <code value="ZRE" />
+        <display value="&quot;Kongo, Dem. Republik&quot;" />
+      </concept>
+      <concept>
+        <code value="KOR" />
+        <display value="&quot;Korea, Dem. Volksrepublik&quot;" />
+      </concept>
+      <concept>
+        <code value="ROK" />
+        <display value="&quot;Korea, Republik&quot;" />
+      </concept>
+      <concept>
+        <code value="KOS" />
+        <display value="Kosovo" />
+      </concept>
+      <concept>
+        <code value="HR" />
+        <display value="Kroatien" />
+      </concept>
+      <concept>
+        <code value="C" />
+        <display value="Kuba" />
+      </concept>
+      <concept>
+        <code value="KWT" />
+        <display value="Kuwait" />
+      </concept>
+      <concept>
+        <code value="LAO" />
+        <display value="&quot;Laos, Dem. Volksrepublik&quot;" />
+      </concept>
+      <concept>
+        <code value="LS" />
+        <display value="Lesotho" />
+      </concept>
+      <concept>
+        <code value="LV" />
+        <display value="Lettland" />
+      </concept>
+      <concept>
+        <code value="RL" />
+        <display value="Libanon" />
+      </concept>
+      <concept>
+        <code value="LB" />
+        <display value="Liberia" />
+      </concept>
+      <concept>
+        <code value="LAR" />
+        <display value="Libyen" />
+      </concept>
+      <concept>
+        <code value="FL" />
+        <display value="Liechtenstein" />
+      </concept>
+      <concept>
+        <code value="LT" />
+        <display value="Litauen" />
+      </concept>
+      <concept>
+        <code value="L" />
+        <display value="Luxemburg" />
+      </concept>
+      <concept>
+        <code value="MAC" />
+        <display value="Macau" />
+      </concept>
+      <concept>
+        <code value="RM" />
+        <display value="Madagaskar" />
+      </concept>
+      <concept>
+        <code value="MK" />
+        <display value="Makedonien / Mazedonien" />
+      </concept>
+      <concept>
+        <code value="MW" />
+        <display value="Malawi" />
+      </concept>
+      <concept>
+        <code value="MAL" />
+        <display value="Malaysia" />
+      </concept>
+      <concept>
+        <code value="BIO" />
+        <display value="Malediven" />
+      </concept>
+      <concept>
+        <code value="RMM" />
+        <display value="Mali" />
+      </concept>
+      <concept>
+        <code value="M" />
+        <display value="Malta" />
+      </concept>
+      <concept>
+        <code value="MA" />
+        <display value="Marokko" />
+      </concept>
+      <concept>
+        <code value="MAR" />
+        <display value="Marshallinseln" />
+      </concept>
+      <concept>
+        <code value="MAT" />
+        <display value="Martinique" />
+      </concept>
+      <concept>
+        <code value="RIM" />
+        <display value="Mauretanien" />
+      </concept>
+      <concept>
+        <code value="MS" />
+        <display value="Mauritius" />
+      </concept>
+      <concept>
+        <code value="MAY" />
+        <display value="Mayotte" />
+      </concept>
+      <concept>
+        <code value="MEX" />
+        <display value="Mexiko" />
+      </concept>
+      <concept>
+        <code value="MIK" />
+        <display value="&quot;Mikronesien, Föderierte Staaten von&quot;" />
+      </concept>
+      <concept>
+        <code value="MD" />
+        <display value="Moldau" />
+      </concept>
+      <concept>
+        <code value="MC" />
+        <display value="Monaco" />
+      </concept>
+      <concept>
+        <code value="MON" />
+        <display value="Mongolei" />
+      </concept>
+      <concept>
+        <code value="MNE" />
+        <display value="Montenegro" />
+      </concept>
+      <concept>
+        <code value="MOT" />
+        <display value="Montserrat" />
+      </concept>
+      <concept>
+        <code value="MOZ" />
+        <display value="Mosambik" />
+      </concept>
+      <concept>
+        <code value="MYA" />
+        <display value="Myanmar" />
+      </concept>
+      <concept>
+        <code value="SWA" />
+        <display value="Namibia" />
+      </concept>
+      <concept>
+        <code value="NAU" />
+        <display value="Nauru" />
+      </concept>
+      <concept>
+        <code value="NEP" />
+        <display value="Nepal" />
+      </concept>
+      <concept>
+        <code value="NKA" />
+        <display value="Neukaledonien" />
+      </concept>
+      <concept>
+        <code value="NZ" />
+        <display value="Neuseeland" />
+      </concept>
+      <concept>
+        <code value="NIC" />
+        <display value="Nicaragua" />
+      </concept>
+      <concept>
+        <code value="NL" />
+        <display value="Niederlande" />
+      </concept>
+      <concept>
+        <code value="NLA" />
+        <display value="Niederländische Antillen" />
+      </concept>
+      <concept>
+        <code value="RN" />
+        <display value="Niger" />
+      </concept>
+      <concept>
+        <code value="WAN" />
+        <display value="Nigeria" />
+      </concept>
+      <concept>
+        <code value="NIU" />
+        <display value="Niue" />
+      </concept>
+      <concept>
+        <code value="NMA" />
+        <display value="Nördliche Marianen" />
+      </concept>
+      <concept>
+        <code value="N" />
+        <display value="Norwegen" />
+      </concept>
+      <concept>
+        <code value="MAO" />
+        <display value="Oman" />
+      </concept>
+      <concept>
+        <code value="A" />
+        <display value="Österreich" />
+      </concept>
+      <concept>
+        <code value="PK" />
+        <display value="Pakistan" />
+      </concept>
+      <concept>
+        <code value="PSE" />
+        <display value="Palästinensische Gebiete" />
+      </concept>
+      <concept>
+        <code value="PAL" />
+        <display value="Palau" />
+      </concept>
+      <concept>
+        <code value="PA" />
+        <display value="Panama" />
+      </concept>
+      <concept>
+        <code value="PNG" />
+        <display value="Papua-Neugiunea" />
+      </concept>
+      <concept>
+        <code value="PY" />
+        <display value="Paraguay" />
+      </concept>
+      <concept>
+        <code value="PIN" />
+        <display value="Pazifische Inseln (Marianen- und Karolineninseln)" />
+      </concept>
+      <concept>
+        <code value="PE" />
+        <display value="Peru" />
+      </concept>
+      <concept>
+        <code value="RP" />
+        <display value="Philippinen" />
+      </concept>
+      <concept>
+        <code value="PIT" />
+        <display value="Pitcairn-Insel" />
+      </concept>
+      <concept>
+        <code value="PL" />
+        <display value="Polen" />
+      </concept>
+      <concept>
+        <code value="P" />
+        <display value="Portugal" />
+      </concept>
+      <concept>
+        <code value="PRI" />
+        <display value="Puerto Rico" />
+      </concept>
+      <concept>
+        <code value="REU" />
+        <display value="Réunion" />
+      </concept>
+      <concept>
+        <code value="RWA" />
+        <display value="Ruanda" />
+      </concept>
+      <concept>
+        <code value="RO" />
+        <display value="Rumänien" />
+      </concept>
+      <concept>
+        <code value="RUS" />
+        <display value="Russische Föderation" />
+      </concept>
+      <concept>
+        <code value="PIE" />
+        <display value="Saint Pierre und Miquelon" />
+      </concept>
+      <concept>
+        <code value="SOL" />
+        <display value="Salomonen" />
+      </concept>
+      <concept>
+        <code value="Z" />
+        <display value="Sambia" />
+      </concept>
+      <concept>
+        <code value="WS" />
+        <display value="Samoa" />
+      </concept>
+      <concept>
+        <code value="RSM" />
+        <display value="San Marino" />
+      </concept>
+      <concept>
+        <code value="STP" />
+        <display value="Sao Tomé und Principe" />
+      </concept>
+      <concept>
+        <code value="SAU" />
+        <display value="Saudi-Arabien" />
+      </concept>
+      <concept>
+        <code value="S" />
+        <display value="Schweden" />
+      </concept>
+      <concept>
+        <code value="CH" />
+        <display value="Schweiz" />
+      </concept>
+      <concept>
+        <code value="SN" />
+        <display value="Senegal" />
+      </concept>
+      <concept>
+        <code value="SRB" />
+        <display value="Serbien (einschl. Kosovo)" />
+      </concept>
+      <concept>
+        <code value="SCG" />
+        <display value="Serbien und Montenegro" />
+      </concept>
+      <concept>
+        <code value="SY" />
+        <display value="Seychellen" />
+      </concept>
+      <concept>
+        <code value="WAL" />
+        <display value="Sierra Leone" />
+      </concept>
+      <concept>
+        <code value="ZW" />
+        <display value="Simbabwe" />
+      </concept>
+      <concept>
+        <code value="SGP" />
+        <display value="Singapur" />
+      </concept>
+      <concept>
+        <code value="SK" />
+        <display value="Slowakei" />
+      </concept>
+      <concept>
+        <code value="SLO" />
+        <display value="Slowenien" />
+      </concept>
+      <concept>
+        <code value="SP" />
+        <display value="Somalia" />
+      </concept>
+      <concept>
+        <code value="E" />
+        <display value="Spanien" />
+      </concept>
+      <concept>
+        <code value="CL" />
+        <display value="Sri Lanka" />
+      </concept>
+      <concept>
+        <code value="HEL" />
+        <display value="St. Helena einschl. Ascension" />
+      </concept>
+      <concept>
+        <code value="SCN" />
+        <display value="St. Kitts und Nevis" />
+      </concept>
+      <concept>
+        <code value="WL" />
+        <display value="St. Lucia" />
+      </concept>
+      <concept>
+        <code value="WV" />
+        <display value="St. Vincent und die Grenadinen" />
+      </concept>
+      <concept>
+        <code value="ZA" />
+        <display value="Südafrika" />
+      </concept>
+      <concept>
+        <code value="SUD" />
+        <display value="Sudan" />
+      </concept>
+      <concept>
+        <code value="SDN" />
+        <display value="Republik Sudan (ohne Südsudan)" />
+      </concept>
+      <concept>
+        <code value="SSD" />
+        <display value="Südsudan (Republik Südsudan)" />
+      </concept>
+      <concept>
+        <code value="SME" />
+        <display value="Suriname" />
+      </concept>
+      <concept>
+        <code value="SD" />
+        <display value="Swasiland" />
+      </concept>
+      <concept>
+        <code value="SYR" />
+        <display value="&quot;Syrien, Arabische Republik&quot;" />
+      </concept>
+      <concept>
+        <code value="TAD" />
+        <display value="Tadschikistan" />
+      </concept>
+      <concept>
+        <code value="TWN" />
+        <display value="Taiwan" />
+      </concept>
+      <concept>
+        <code value="EAT" />
+        <display value="&quot;Tansania, Vereinigte Republik&quot;" />
+      </concept>
+      <concept>
+        <code value="T" />
+        <display value="Thailand" />
+      </concept>
+      <concept>
+        <code value="OTI" />
+        <display value="Timor-Leste" />
+      </concept>
+      <concept>
+        <code value="TG" />
+        <display value="Togo" />
+      </concept>
+      <concept>
+        <code value="TOK" />
+        <display value="Tokelau-Inseln" />
+      </concept>
+      <concept>
+        <code value="TON" />
+        <display value="Tonga" />
+      </concept>
+      <concept>
+        <code value="TT" />
+        <display value="Trinidad und Tobago" />
+      </concept>
+      <concept>
+        <code value="CHD" />
+        <display value="Tschad" />
+      </concept>
+      <concept>
+        <code value="CZ" />
+        <display value="Tschechische Republik" />
+      </concept>
+      <concept>
+        <code value="TN" />
+        <display value="Tunesien" />
+      </concept>
+      <concept>
+        <code value="TR" />
+        <display value="Türkei" />
+      </concept>
+      <concept>
+        <code value="TUR" />
+        <display value="Turkmenistan" />
+      </concept>
+      <concept>
+        <code value="TUC" />
+        <display value="Turks- und Caicosinseln" />
+      </concept>
+      <concept>
+        <code value="TUV" />
+        <display value="Tuvalu" />
+      </concept>
+      <concept>
+        <code value="EAU" />
+        <display value="Uganda" />
+      </concept>
+      <concept>
+        <code value="UA" />
+        <display value="Ukraine" />
+      </concept>
+      <concept>
+        <code value="H" />
+        <display value="Ungarn" />
+      </concept>
+      <concept>
+        <code value="ROU" />
+        <display value="Uruguay" />
+      </concept>
+      <concept>
+        <code value="USB" />
+        <display value="Usbekistan" />
+      </concept>
+      <concept>
+        <code value="VAN" />
+        <display value="Vanuatu" />
+      </concept>
+      <concept>
+        <code value="V" />
+        <display value="Vatikanstadt" />
+      </concept>
+      <concept>
+        <code value="YV" />
+        <display value="Venezuela" />
+      </concept>
+      <concept>
+        <code value="UAE" />
+        <display value="Vereinigte Arabische Emirate" />
+      </concept>
+      <concept>
+        <code value="USA" />
+        <display value="Vereinigte Staaten" />
+      </concept>
+      <concept>
+        <code value="VN" />
+        <display value="Vietnam" />
+      </concept>
+      <concept>
+        <code value="BY" />
+        <display value="Weißrußland (Belarus)" />
+      </concept>
+      <concept>
+        <code value="RCA" />
+        <display value="Zentralafrikanische Republik" />
+      </concept>
+      <concept>
+        <code value="CY" />
+        <display value="Zypern" />
+      </concept>
+    </include>
+  </compose>
+  <expansion>
+    <identifier value="2e23061c-ee0f-11ec-b445-f875a4795910" />
+    <timestamp value="2022-06-17T09:29:10+02:00" />
+    <total value="234" />
+    <offset value="0" />
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="D" />
+      <display value="Deutschland" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="AFG" />
+      <display value="Afghanistan" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="ET" />
+      <display value="Ägypten" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="AL" />
+      <display value="Albanien" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="DZ" />
+      <display value="Algerien" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="AJ" />
+      <display value="Amerik.-Jungferninseln" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="AS" />
+      <display value="Amerik.-Samoa" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="AND" />
+      <display value="Andorra" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="AGO" />
+      <display value="Angola" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="ANG" />
+      <display value="Anguilla" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="ANT" />
+      <display value="Antigua und Barbuda" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="AQU" />
+      <display value="Äquatorialguinea" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="RA" />
+      <display value="Argentinien" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="ARM" />
+      <display value="Armenien" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="ASE" />
+      <display value="Aserbaidschan" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="ETH" />
+      <display value="Äthiopien" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="AUS" />
+      <display value="Australien" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="BS" />
+      <display value="Bahamas" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="BRN" />
+      <display value="Bahrain" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="BD" />
+      <display value="Bangladesch" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="BDS" />
+      <display value="Barbados" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="B" />
+      <display value="Belgien" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="BH" />
+      <display value="Belize" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="DY" />
+      <display value="Benin" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="BER" />
+      <display value="Bermuda" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="BHT" />
+      <display value="Bhutan" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="BOL" />
+      <display value="Bolivien" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="BIH" />
+      <display value="Bosnien und Herzegowina" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="RB" />
+      <display value="Botsuana" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="BR" />
+      <display value="Brasilien" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="BJ" />
+      <display value="Brit.-Jungferninseln" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="BRU" />
+      <display value="Brunei Darussalam" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="BG" />
+      <display value="Bulgarien" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="HV" />
+      <display value="Burkina Faso" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="RU" />
+      <display value="Burundi" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="RCH" />
+      <display value="Chile" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="TJ" />
+      <display value="China" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="COI" />
+      <display value="Cookinseln" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="CR" />
+      <display value="Costa Rica" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="CI" />
+      <display value="Cote d`Ivoire" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="DK" />
+      <display value="Dänemark" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="WD" />
+      <display value="Dominica" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="DOM" />
+      <display value="Dominikanische Republik" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="DSC" />
+      <display value="Dschibuti" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="EC" />
+      <display value="Ecuador" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="ES" />
+      <display value="El Salvador" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="ERI" />
+      <display value="Eritrea" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="EST" />
+      <display value="Estland" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="FAL" />
+      <display value="Falklandinseln" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="FR" />
+      <display value="Färöer" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="FJI" />
+      <display value="Fidschi" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="FIN" />
+      <display value="Finnland" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="F" />
+      <display value="Frankreich" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="FG" />
+      <display value="Franz.-Guayana" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="FP" />
+      <display value="Franz.-Polynesien" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="GAB" />
+      <display value="Gabun" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="WAG" />
+      <display value="Gambia" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="GEO" />
+      <display value="Georgien" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="GH" />
+      <display value="Ghana" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="GIB" />
+      <display value="Gibraltar" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="WG" />
+      <display value="Grenada" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="GR" />
+      <display value="Griechenland" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="GRO" />
+      <display value="Grönland" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="GB" />
+      <display value="Großbritannien und Nordirland" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="GUA" />
+      <display value="Guadeloupe" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="GUM" />
+      <display value="Guam" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="GCA" />
+      <display value="Guatemala" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="RG" />
+      <display value="Guinea" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="GUB" />
+      <display value="Guinea-Bissau" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="GUY" />
+      <display value="Guyana" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="RH" />
+      <display value="Haiti" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="HCA" />
+      <display value="Honduras" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="HKG" />
+      <display value="Hongkong" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="IND" />
+      <display value="Indien" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="RI" />
+      <display value="Indonesien" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="MAN" />
+      <display value="Insel Man" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="IRQ" />
+      <display value="Irak" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="IR" />
+      <display value="&quot;Iran, Islamische Republik&quot;" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="IRL" />
+      <display value="Irland" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="IS" />
+      <display value="Island" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="IL" />
+      <display value="Israel" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="I" />
+      <display value="Italien" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="JA" />
+      <display value="Jamaika" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="J" />
+      <display value="Japan" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="YEM" />
+      <display value="Jemen" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="JOR" />
+      <display value="Jordanien" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="YU" />
+      <display value="Jugoslawien" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="KAI" />
+      <display value="Kaimaninseln" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="K" />
+      <display value="Kambodscha" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="CAM" />
+      <display value="Kamerun" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="CDN" />
+      <display value="Kanada" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="KAN" />
+      <display value="Kanalinseln" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="CV" />
+      <display value="Kap Verde" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="KAS" />
+      <display value="Kasachstan" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="QAT" />
+      <display value="Katar/Qatar" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="EAK" />
+      <display value="Kenia" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="KIS" />
+      <display value="Kirgisistan" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="KIB" />
+      <display value="Kiribati" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="CO" />
+      <display value="Kolumbien" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="KOM" />
+      <display value="Komoren" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="RCB" />
+      <display value="Kongo" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="ZRE" />
+      <display value="&quot;Kongo, Dem. Republik&quot;" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="KOR" />
+      <display value="&quot;Korea, Dem. Volksrepublik&quot;" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="ROK" />
+      <display value="&quot;Korea, Republik&quot;" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="KOS" />
+      <display value="Kosovo" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="HR" />
+      <display value="Kroatien" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="C" />
+      <display value="Kuba" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="KWT" />
+      <display value="Kuwait" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="LAO" />
+      <display value="&quot;Laos, Dem. Volksrepublik&quot;" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="LS" />
+      <display value="Lesotho" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="LV" />
+      <display value="Lettland" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="RL" />
+      <display value="Libanon" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="LB" />
+      <display value="Liberia" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="LAR" />
+      <display value="Libyen" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="FL" />
+      <display value="Liechtenstein" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="LT" />
+      <display value="Litauen" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="L" />
+      <display value="Luxemburg" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="MAC" />
+      <display value="Macau" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="RM" />
+      <display value="Madagaskar" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="MK" />
+      <display value="Makedonien / Mazedonien" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="MW" />
+      <display value="Malawi" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="MAL" />
+      <display value="Malaysia" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="BIO" />
+      <display value="Malediven" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="RMM" />
+      <display value="Mali" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="M" />
+      <display value="Malta" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="MA" />
+      <display value="Marokko" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="MAR" />
+      <display value="Marshallinseln" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="MAT" />
+      <display value="Martinique" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="RIM" />
+      <display value="Mauretanien" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="MS" />
+      <display value="Mauritius" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="MAY" />
+      <display value="Mayotte" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="MEX" />
+      <display value="Mexiko" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="MIK" />
+      <display value="&quot;Mikronesien, Föderierte Staaten von&quot;" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="MD" />
+      <display value="Moldau" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="MC" />
+      <display value="Monaco" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="MON" />
+      <display value="Mongolei" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="MNE" />
+      <display value="Montenegro" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="MOT" />
+      <display value="Montserrat" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="MOZ" />
+      <display value="Mosambik" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="MYA" />
+      <display value="Myanmar" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="SWA" />
+      <display value="Namibia" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="NAU" />
+      <display value="Nauru" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="NEP" />
+      <display value="Nepal" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="NKA" />
+      <display value="Neukaledonien" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="NZ" />
+      <display value="Neuseeland" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="NIC" />
+      <display value="Nicaragua" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="NL" />
+      <display value="Niederlande" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="NLA" />
+      <display value="Niederländische Antillen" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="RN" />
+      <display value="Niger" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="WAN" />
+      <display value="Nigeria" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="NIU" />
+      <display value="Niue" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="NMA" />
+      <display value="Nördliche Marianen" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="N" />
+      <display value="Norwegen" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="MAO" />
+      <display value="Oman" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="A" />
+      <display value="Österreich" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="PK" />
+      <display value="Pakistan" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="PSE" />
+      <display value="Palästinensische Gebiete" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="PAL" />
+      <display value="Palau" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="PA" />
+      <display value="Panama" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="PNG" />
+      <display value="Papua-Neugiunea" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="PY" />
+      <display value="Paraguay" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="PIN" />
+      <display value="Pazifische Inseln (Marianen- und Karolineninseln)" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="PE" />
+      <display value="Peru" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="RP" />
+      <display value="Philippinen" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="PIT" />
+      <display value="Pitcairn-Insel" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="PL" />
+      <display value="Polen" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="P" />
+      <display value="Portugal" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="PRI" />
+      <display value="Puerto Rico" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="REU" />
+      <display value="Réunion" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="RWA" />
+      <display value="Ruanda" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="RO" />
+      <display value="Rumänien" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="RUS" />
+      <display value="Russische Föderation" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="PIE" />
+      <display value="Saint Pierre und Miquelon" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="SOL" />
+      <display value="Salomonen" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="Z" />
+      <display value="Sambia" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="WS" />
+      <display value="Samoa" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="RSM" />
+      <display value="San Marino" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="STP" />
+      <display value="Sao Tomé und Principe" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="SAU" />
+      <display value="Saudi-Arabien" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="S" />
+      <display value="Schweden" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="CH" />
+      <display value="Schweiz" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="SN" />
+      <display value="Senegal" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="SRB" />
+      <display value="Serbien (einschl. Kosovo)" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="SCG" />
+      <display value="Serbien und Montenegro" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="SY" />
+      <display value="Seychellen" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="WAL" />
+      <display value="Sierra Leone" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="ZW" />
+      <display value="Simbabwe" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="SGP" />
+      <display value="Singapur" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="SK" />
+      <display value="Slowakei" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="SLO" />
+      <display value="Slowenien" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="SP" />
+      <display value="Somalia" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="E" />
+      <display value="Spanien" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="CL" />
+      <display value="Sri Lanka" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="HEL" />
+      <display value="St. Helena einschl. Ascension" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="SCN" />
+      <display value="St. Kitts und Nevis" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="WL" />
+      <display value="St. Lucia" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="WV" />
+      <display value="St. Vincent und die Grenadinen" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="ZA" />
+      <display value="Südafrika" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="SUD" />
+      <display value="Sudan" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="SDN" />
+      <display value="Republik Sudan (ohne Südsudan)" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="SSD" />
+      <display value="Südsudan (Republik Südsudan)" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="SME" />
+      <display value="Suriname" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="SD" />
+      <display value="Swasiland" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="SYR" />
+      <display value="&quot;Syrien, Arabische Republik&quot;" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="TAD" />
+      <display value="Tadschikistan" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="TWN" />
+      <display value="Taiwan" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="EAT" />
+      <display value="&quot;Tansania, Vereinigte Republik&quot;" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="T" />
+      <display value="Thailand" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="OTI" />
+      <display value="Timor-Leste" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="TG" />
+      <display value="Togo" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="TOK" />
+      <display value="Tokelau-Inseln" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="TON" />
+      <display value="Tonga" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="TT" />
+      <display value="Trinidad und Tobago" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="CHD" />
+      <display value="Tschad" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="CZ" />
+      <display value="Tschechische Republik" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="TN" />
+      <display value="Tunesien" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="TR" />
+      <display value="Türkei" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="TUR" />
+      <display value="Turkmenistan" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="TUC" />
+      <display value="Turks- und Caicosinseln" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="TUV" />
+      <display value="Tuvalu" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="EAU" />
+      <display value="Uganda" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="UA" />
+      <display value="Ukraine" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="H" />
+      <display value="Ungarn" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="ROU" />
+      <display value="Uruguay" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="USB" />
+      <display value="Usbekistan" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="VAN" />
+      <display value="Vanuatu" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="V" />
+      <display value="Vatikanstadt" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="YV" />
+      <display value="Venezuela" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="UAE" />
+      <display value="Vereinigte Arabische Emirate" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="USA" />
+      <display value="Vereinigte Staaten" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="VN" />
+      <display value="Vietnam" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="BY" />
+      <display value="Weißrußland (Belarus)" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="RCA" />
+      <display value="Zentralafrikanische Republik" />
+    </contains>
+    <contains>
+      <system value="http://fhir.de/CodeSystem/deuev/anlage-8-laenderkennzeichen" />
+      <version value="2.56" />
+      <code value="CY" />
+      <display value="Zypern" />
+    </contains>
+  </expansion>
+</ValueSet>

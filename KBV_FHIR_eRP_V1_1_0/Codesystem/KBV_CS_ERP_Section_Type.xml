@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeSystem xmlns="http://hl7.org/fhir">
+    <id value="KBV-CS-ERP-Section-Type"/>
+	<url value= "https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Section_Type"/>
+    <version value="1.1.0" />
+	<name value="KBV_CS_ERP_Section_Type"/>
+    <status value="active"/>
+	<date value="2022-09-30"/>
+	<publisher value="Kassenärztliche Bundesvereinigung" />
+	<contact>
+		<telecom>
+			<system value="url"/>
+			<value value="http://www.kbv.de"/>
+		</telecom>
+	</contact>
+	<description value="Abbildung der Slice in der Section der Composition"/>
+	<copyright value="Kassenaerztliche Bundesvereinigung"/>
+	<caseSensitive value="true"/>
+	<content value="complete"/>
+	<concept>
+		<code value="FOR_PractitionerRole"/>
+		<display value="FOR_PractitionerRole (ASV-Ausübung)"/>
+	</concept>
+	<concept>
+		<code value="Coverage"/>
+		<display value="Krankenversicherungsverhältnis"/>
+	</concept>
+	<concept>
+		<code value="Prescription"/>
+		<display value="Verordnungsinformation Arzneimittel"/>
+	</concept>
+	<concept>
+		<code value="PracticeSupply"/>
+		<display value="Verordnungsinformation Sprechstundenbedarf"/>
+	</concept>
+</CodeSystem>

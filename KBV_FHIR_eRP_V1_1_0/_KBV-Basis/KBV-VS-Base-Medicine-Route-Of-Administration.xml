@@ -1,0 +1,1092 @@
+<ValueSet xmlns="http://hl7.org/fhir">
+  <id value="KBV-VS-Base-Medicine-Route-Of-Administration" />
+  <url value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_Medicine_Route_Of_Administration" />
+  <version value="1.3.0" />
+  <name value="KBV_VS_Base_Medicine_Route_Of_Administration" />
+  <title value="medicine-route-of-administration" />
+  <status value="active" />
+  <experimental value="false" />
+  <publisher value="Kassenärztliche Bundesvereinigung (KBV)" />
+  <contact>
+    <telecom>
+      <system value="url" />
+      <value value="http://www.kbv.de" />
+    </telecom>
+  </contact>
+  <description value="Dieses Valueset enthält die Codes zur Beschreibung von medicine-route-of-administration." />
+  <immutable value="false" />
+  <copyright value="Im folgenden Profil können Codes aus den Codesystemen Snomed, Loinc oder Ucum enthalten sein, die dem folgenden Urheberrecht unterliegen: This material includes SNOMED Clinical Terms® (SNOMED CT®) which is used by permission of SNOMED International. All rights reserved. SNOMED CT®, was originally created by The College of American Pathologists. SNOMED and SNOMED CT are registered trademarks of SNOMED International. Implementers of these artefacts must have the appropriate SNOMED CT Affiliate license. This material contains content from LOINC (http://loinc.org). LOINC is copyright © 1995-2020, Regenstrief Institute, Inc. and the Logical Observation Identifiers Names and Codes (LOINC) Committee and is available at no cost under the license at http://loinc.org/license. LOINC® is a registered United States trademark of Regenstrief Institute, Inc. This product includes all or a portion of the UCUM table, UCUM codes, and UCUM definitions or is derived from it, subject to a license from Regenstrief Institute, Inc. and The UCUM Organization. Your use of the UCUM table, UCUM codes, UCUM definitions also is subject to this license, a copy of which is available at ​http://unitsofmeasure.org. The current complete UCUM table, UCUM Specification are available for download at http://unitsofmeasure.org. The UCUM table and UCUM codes are copyright © 1995-2009, Regenstrief Institute, Inc. and the Unified Codes for Units of Measures (UCUM) Organization. All rights reserved. THE UCUM TABLE (IN ALL FORMATS), UCUM DEFINITIONS, AND SPECIFICATION ARE PROVIDED &quot;AS IS.&quot; ANY EXPRESS OR IMPLIED WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE." />
+  <compose>
+    <include>
+      <system value="http://standardterms.edqm.eu" />
+      <concept>
+        <code value="20001000" />
+        <display value="Auricular use" />
+        <designation>
+          <language value="de" />
+          <value value="Anwendung am Ohr" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20002500" />
+        <display value="Buccal use" />
+        <designation>
+          <language value="de" />
+          <value value="Buccale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20003000" />
+        <display value="Cutaneous use" />
+        <designation>
+          <language value="de" />
+          <value value="Anwendung auf der Haut" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20004000" />
+        <display value="Dental use" />
+        <designation>
+          <language value="de" />
+          <value value="dentale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20006000" />
+        <display value="Endocervical use" />
+        <designation>
+          <language value="de" />
+          <value value="endozervikale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20007000" />
+        <display value="Endosinusial use" />
+        <designation>
+          <language value="de" />
+          <value value="Anwendung in den Nebenhöhlen" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20008000" />
+        <display value="Endotracheopulmonary use" />
+        <designation>
+          <language value="de" />
+          <value value="endotracheopulmonale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20009000" />
+        <display value="Epidural use" />
+        <designation>
+          <language value="de" />
+          <value value="epidurale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20010000" />
+        <display value="Epilesional use" />
+        <designation>
+          <language value="de" />
+          <value value="zum Auftragen auf die Wunde" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20011000" />
+        <display value="Extraamniotic use" />
+        <designation>
+          <language value="de" />
+          <value value="extraamniotische Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20011500" />
+        <display value="Extracorporeal use" />
+        <designation>
+          <language value="de" />
+          <value value="extrakorporale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20013000" />
+        <display value="Gastroenteral use" />
+        <designation>
+          <language value="de" />
+          <value value="gastrointestinale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20013500" />
+        <display value="Gastric use" />
+        <designation>
+          <language value="de" />
+          <value value="zur Anwendung mittels Magensonde" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20014000" />
+        <display value="Gingival use" />
+        <designation>
+          <language value="de" />
+          <value value="Anwendung am Zahnfleisch" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20015000" />
+        <display value="Haemodialysis" />
+        <designation>
+          <language value="de" />
+          <value value="Hämodialyse" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20015500" />
+        <display value="Implantation" />
+        <designation>
+          <language value="de" />
+          <value value="zur Implantation" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20019500" />
+        <display value="Infiltration" />
+        <designation>
+          <language value="de" />
+          <value value="Infiltration" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20020000" />
+        <display value="Inhalation use" />
+        <designation>
+          <language value="de" />
+          <value value="zur Inhalation" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20021000" />
+        <display value="Intestinal use" />
+        <designation>
+          <language value="de" />
+          <value value="intestinale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20022000" />
+        <display value="Intraamniotic use" />
+        <designation>
+          <language value="de" />
+          <value value="intraamniotische Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20023000" />
+        <display value="Intraarterial use" />
+        <designation>
+          <language value="de" />
+          <value value="intraarterielle Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20024000" />
+        <display value="Intraarticular use" />
+        <designation>
+          <language value="de" />
+          <value value="intraartikuläre Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20025000" />
+        <display value="Intrabursal use" />
+        <designation>
+          <language value="de" />
+          <value value="intrabursale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20025500" />
+        <display value="Intracameral use" />
+        <designation>
+          <language value="de" />
+          <value value="intrakamerale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20026000" />
+        <display value="Intracardiac use" />
+        <designation>
+          <language value="de" />
+          <value value="intracardiale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20026500" />
+        <display value="Intracartilaginous use" />
+        <designation>
+          <language value="de" />
+          <value value="intrakartilaginäre Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20027000" />
+        <display value="Intracavernous use" />
+        <designation>
+          <language value="de" />
+          <value value="intrakavernöse Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20027010" />
+        <display value="Intracerebral use" />
+        <designation>
+          <language value="de" />
+          <value value="Intrazerebrale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20028000" />
+        <display value="Intracervical use" />
+        <designation>
+          <language value="de" />
+          <value value="intrazervikale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20028300" />
+        <display value="Intracholangiopancreatic use" />
+        <designation>
+          <language value="de" />
+          <value value="zur Anwendung in der Cholangiopankreatikographie" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20028500" />
+        <display value="Intracisternal use" />
+        <designation>
+          <language value="de" />
+          <value value="intracisternale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20029000" />
+        <display value="Intracoronary use" />
+        <designation>
+          <language value="de" />
+          <value value="intrakoronare Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20030000" />
+        <display value="Intradermal use" />
+        <designation>
+          <language value="de" />
+          <value value="intradermale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20031000" />
+        <display value="Intradiscal use" />
+        <designation>
+          <language value="de" />
+          <value value="intradiskale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20031500" />
+        <display value="Intraepidermal use" />
+        <designation>
+          <language value="de" />
+          <value value="intraepidermale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20031700" />
+        <display value="Intraglandular use" />
+        <designation>
+          <language value="de" />
+          <value value="intraglanduläre Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20032000" />
+        <display value="Intralesional use" />
+        <designation>
+          <language value="de" />
+          <value value="intraläsionale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20033000" />
+        <display value="Intralymphatic use" />
+        <designation>
+          <language value="de" />
+          <value value="intralymphatische Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20035000" />
+        <display value="Intramuscular use" />
+        <designation>
+          <language value="de" />
+          <value value="intramuskuläre Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20036000" />
+        <display value="Intraocular use" />
+        <designation>
+          <language value="de" />
+          <value value="intraokulare Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20036500" />
+        <display value="Intraosseous use" />
+        <designation>
+          <language value="de" />
+          <value value="intraossäre Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20037000" />
+        <display value="Intrapericardial use" />
+        <designation>
+          <language value="de" />
+          <value value="Intraperikardial" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20038000" />
+        <display value="Intraperitoneal use" />
+        <designation>
+          <language value="de" />
+          <value value="intraperitoneale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20039000" />
+        <display value="Intrapleural use" />
+        <designation>
+          <language value="de" />
+          <value value="intrapleurale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20039200" />
+        <display value="Intraportal use" />
+        <designation>
+          <language value="de" />
+          <value value="intraportale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20039500" />
+        <display value="Intraprostatic use" />
+        <designation>
+          <language value="de" />
+          <value value="intraprostatische Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20041000" />
+        <display value="Intrasternal use" />
+        <designation>
+          <language value="de" />
+          <value value="intrasternale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20042000" />
+        <display value="Intrathecal use" />
+        <designation>
+          <language value="de" />
+          <value value="intrathekale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20043000" />
+        <display value="Intratumoral use" />
+        <designation>
+          <language value="de" />
+          <value value="intratumorale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20044000" />
+        <display value="Intrauterine use" />
+        <designation>
+          <language value="de" />
+          <value value="intrauterine Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20045000" />
+        <display value="Intravenous use" />
+        <designation>
+          <language value="de" />
+          <value value="intravenöse Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20046000" />
+        <display value="Intravesical use" />
+        <designation>
+          <language value="de" />
+          <value value="intravesikale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20047000" />
+        <display value="Intravitreal use" />
+        <designation>
+          <language value="de" />
+          <value value="intravitreale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20047500" />
+        <display value="Iontophoresis" />
+        <designation>
+          <language value="de" />
+          <value value="zur Iontophorese" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20048000" />
+        <display value="Laryngopharyngeal use" />
+        <designation>
+          <language value="de" />
+          <value value="zur Anwendung im Rachen und am Kehlkopf" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20049000" />
+        <display value="Nasal use" />
+        <designation>
+          <language value="de" />
+          <value value="nasale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20051000" />
+        <display value="Ocular use" />
+        <designation>
+          <language value="de" />
+          <value value="Anwendung am Auge" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20053000" />
+        <display value="Oral use" />
+        <designation>
+          <language value="de" />
+          <value value="zum Einnehmen" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20054000" />
+        <display value="Oromucosal use" />
+        <designation>
+          <language value="de" />
+          <value value="Anwendung in der Mundhöhle" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20055000" />
+        <display value="Oropharyngeal use" />
+        <designation>
+          <language value="de" />
+          <value value="zur Anwendung im Mund- und Rachenraum" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20057000" />
+        <display value="Periarticular use" />
+        <designation>
+          <language value="de" />
+          <value value="periartikuläre Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20058000" />
+        <display value="Perineural use" />
+        <designation>
+          <language value="de" />
+          <value value="perineurale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20059000" />
+        <display value="Periodontal use" />
+        <designation>
+          <language value="de" />
+          <value value="periodontale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20059300" />
+        <display value="Periosseous use" />
+        <designation>
+          <language value="de" />
+          <value value="periossäre Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20059400" />
+        <display value="Peritumoral use" />
+        <designation>
+          <language value="de" />
+          <value value="peritumorale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20059500" />
+        <display value="Posterior juxtascleral use" />
+        <designation>
+          <language value="de" />
+          <value value="posteriore juxtasclerale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20061000" />
+        <display value="Rectal use" />
+        <designation>
+          <language value="de" />
+          <value value="rektale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20061500" />
+        <display value="Retrobulbar use" />
+        <designation>
+          <language value="de" />
+          <value value="retrobulbäre Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20062000" />
+        <display value="Route of administration not applicable" />
+        <designation>
+          <language value="de" />
+          <value value="Art der Anwendung nicht spezifizierbar" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20063000" />
+        <display value="Skin scarification" />
+        <designation>
+          <language value="de" />
+          <value value="Einritzen der Haut" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20065000" />
+        <display value="Subconjunctival use" />
+        <designation>
+          <language value="de" />
+          <value value="subkonjunktivale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20066000" />
+        <display value="Subcutaneous use" />
+        <designation>
+          <language value="de" />
+          <value value="subkutane Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20067000" />
+        <display value="Sublingual use" />
+        <designation>
+          <language value="de" />
+          <value value="Sublingual" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20067500" />
+        <display value="Submucosal use" />
+        <designation>
+          <language value="de" />
+          <value value="submuköse Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20070000" />
+        <display value="Transdermal use" />
+        <designation>
+          <language value="de" />
+          <value value="transdermale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20071000" />
+        <display value="Urethral use" />
+        <designation>
+          <language value="de" />
+          <value value="Anwendung in der Harnröhre" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20072000" />
+        <display value="Vaginal use" />
+        <designation>
+          <language value="de" />
+          <value value="vaginale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20080000" />
+        <display value="Intracerebroventricular use" />
+        <designation>
+          <language value="de" />
+          <value value="intracerebroventrikuläre Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20081000" />
+        <display value="Subretinal use" />
+        <designation>
+          <language value="de" />
+          <value value="subretinale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20084000" />
+        <display value="Intracorneal use" />
+        <designation>
+          <language value="de" />
+          <value value="intracorneale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20086000" />
+        <display value="Intraputaminal use" />
+        <designation>
+          <language value="de" />
+          <value value="Intraputaminale Anwendung" />
+        </designation>
+      </concept>
+      <concept>
+        <code value="20087000" />
+        <display value="Extrapleural use" />
+      </concept>
+    </include>
+  </compose>
+  <expansion>
+    <identifier value="87e407d8-ee0f-11ec-b445-f875a4795910" />
+    <timestamp value="2022-06-17T09:31:42+02:00" />
+    <total value="82" />
+    <offset value="0" />
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20001000" />
+      <display value="Auricular use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20002500" />
+      <display value="Buccal use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20003000" />
+      <display value="Cutaneous use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20004000" />
+      <display value="Dental use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20006000" />
+      <display value="Endocervical use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20007000" />
+      <display value="Endosinusial use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20008000" />
+      <display value="Endotracheopulmonary use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20009000" />
+      <display value="Epidural use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20010000" />
+      <display value="Epilesional use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20011000" />
+      <display value="Extraamniotic use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20011500" />
+      <display value="Extracorporeal use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20013000" />
+      <display value="Gastroenteral use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20013500" />
+      <display value="Gastric use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20014000" />
+      <display value="Gingival use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20015000" />
+      <display value="Haemodialysis" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20015500" />
+      <display value="Implantation" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20019500" />
+      <display value="Infiltration" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20020000" />
+      <display value="Inhalation use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20021000" />
+      <display value="Intestinal use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20022000" />
+      <display value="Intraamniotic use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20023000" />
+      <display value="Intraarterial use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20024000" />
+      <display value="Intraarticular use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20025000" />
+      <display value="Intrabursal use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20025500" />
+      <display value="Intracameral use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20026000" />
+      <display value="Intracardiac use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20026500" />
+      <display value="Intracartilaginous use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20027000" />
+      <display value="Intracavernous use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20027010" />
+      <display value="Intracerebral use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20028000" />
+      <display value="Intracervical use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20028300" />
+      <display value="Intracholangiopancreatic use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20028500" />
+      <display value="Intracisternal use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20029000" />
+      <display value="Intracoronary use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20030000" />
+      <display value="Intradermal use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20031000" />
+      <display value="Intradiscal use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20031500" />
+      <display value="Intraepidermal use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20031700" />
+      <display value="Intraglandular use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20032000" />
+      <display value="Intralesional use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20033000" />
+      <display value="Intralymphatic use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20035000" />
+      <display value="Intramuscular use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20036000" />
+      <display value="Intraocular use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20036500" />
+      <display value="Intraosseous use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20037000" />
+      <display value="Intrapericardial use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20038000" />
+      <display value="Intraperitoneal use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20039000" />
+      <display value="Intrapleural use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20039200" />
+      <display value="Intraportal use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20039500" />
+      <display value="Intraprostatic use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20041000" />
+      <display value="Intrasternal use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20042000" />
+      <display value="Intrathecal use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20043000" />
+      <display value="Intratumoral use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20044000" />
+      <display value="Intrauterine use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20045000" />
+      <display value="Intravenous use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20046000" />
+      <display value="Intravesical use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20047000" />
+      <display value="Intravitreal use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20047500" />
+      <display value="Iontophoresis" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20048000" />
+      <display value="Laryngopharyngeal use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20049000" />
+      <display value="Nasal use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20051000" />
+      <display value="Ocular use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20053000" />
+      <display value="Oral use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20054000" />
+      <display value="Oromucosal use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20055000" />
+      <display value="Oropharyngeal use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20057000" />
+      <display value="Periarticular use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20058000" />
+      <display value="Perineural use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20059000" />
+      <display value="Periodontal use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20059300" />
+      <display value="Periosseous use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20059400" />
+      <display value="Peritumoral use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20059500" />
+      <display value="Posterior juxtascleral use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20061000" />
+      <display value="Rectal use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20061500" />
+      <display value="Retrobulbar use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20062000" />
+      <display value="Route of administration not applicable" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20063000" />
+      <display value="Skin scarification" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20065000" />
+      <display value="Subconjunctival use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20066000" />
+      <display value="Subcutaneous use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20067000" />
+      <display value="Sublingual use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20067500" />
+      <display value="Submucosal use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20070000" />
+      <display value="Transdermal use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20071000" />
+      <display value="Urethral use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20072000" />
+      <display value="Vaginal use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20080000" />
+      <display value="Intracerebroventricular use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20081000" />
+      <display value="Subretinal use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20084000" />
+      <display value="Intracorneal use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20086000" />
+      <display value="Intraputaminal use" />
+    </contains>
+    <contains>
+      <system value="http://standardterms.edqm.eu" />
+      <code value="20087000" />
+      <display value="Extrapleural use" />
+    </contains>
+  </expansion>
+</ValueSet>

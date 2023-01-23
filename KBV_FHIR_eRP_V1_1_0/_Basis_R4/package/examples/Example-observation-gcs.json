@@ -1,0 +1,93 @@
+{
+	"resourceType": "Observation",
+	"id": "Example-observation-gcs",
+	"meta": {
+	  "profile": [
+		"http://fhir.de/StructureDefinition/observation-de-vitalsign-gcs"
+	  ]
+	},
+	"category": [
+	  {
+		"coding": [
+		  {
+			"system": "http://terminology.hl7.org/CodeSystem/observation-category",
+			"code": "vital-signs"
+		  }
+		]
+	  }
+	],
+	"code": {
+	  "coding": [
+		{
+		  "code": "9269-2",
+		  "system": "http://loinc.org",
+		  "display": "Glasgow coma score total"
+		}
+	  ]
+	},
+	"component": [
+	  {
+		"code": {
+		  "coding": [
+			{
+			  "code": "9270-0",
+			  "system": "http://loinc.org",
+			  "display": "Glasgow coma score verbal"
+			}
+		  ]
+		},
+		"valueQuantity": {
+		  "system": "http://unitsofmeasure.org",
+		  "value": 4,
+		  "code": "1",
+		  "unit": "Punktwert"
+		}
+	  },
+	  {
+		"code": {
+		  "coding": [
+			{
+			  "code": "9268-4",
+			  "system": "http://loinc.org",
+			  "display": "Glasgow coma score motor"
+			}
+		  ]
+		},
+		"valueQuantity": {
+		  "system": "http://unitsofmeasure.org",
+		  "value": 4,
+		  "code": "1",
+		  "unit": "Punktwert"
+		}
+	  },
+	  {
+		"code": {
+		  "coding": [
+			{
+			  "code": "9267-6",
+			  "system": "http://loinc.org",
+			  "display": "Glasgow coma score eye opening"
+			}
+		  ]
+		},
+		"valueQuantity": {
+		  "system": "http://unitsofmeasure.org",
+		  "value": 3,
+		  "code": "1",
+		  "unit": "Punktwert"
+		}
+	  }
+	],
+	"valueQuantity": {
+	  "system": "http://unitsofmeasure.org",
+	  "value": 11,
+	  "code": "1",
+	  "unit": "Punktwert"
+	},
+	"status": "final",
+	"subject": {
+	  "reference": "https://server/Patient/example"
+	},
+	"effectiveDateTime": "2020-10-11"
+  }
+  
