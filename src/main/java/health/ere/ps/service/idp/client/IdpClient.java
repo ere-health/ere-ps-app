@@ -14,20 +14,21 @@ import java.util.function.Function;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.logging.Logger;
+import org.jose4j.jws.JsonWebSignature;
+import org.jose4j.jwt.JwtClaims;
+import org.jose4j.lang.JoseException;
+
 import com.diffplug.common.base.Errors;
 import com.diffplug.common.base.Throwing;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.jboss.logging.Logger;
-import org.jose4j.jws.JsonWebSignature;
-import org.jose4j.jwt.JwtClaims;
-import org.jose4j.lang.JoseException;
 
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.exception.idp.IdpClientException;
@@ -59,6 +60,12 @@ public class IdpClient implements IIdpClient {
     }
 
     private final Set<IdpScope> scopes = Set.of(IdpScope.OPENID, IdpScope.EREZEPT);
+    private final Set<IdpScope> scopes_rudev = Set.of(IdpScope.OPENID, IdpScope.EREZEPTDEV);
+
+
+    @ConfigProperty(name = "ere.workflow-service.prescription.server.url")
+    String prescriptionServiceURL;
+
     private final CodeChallengeMethod codeChallengeMethod = CodeChallengeMethod.S256;
 
     @Inject
@@ -174,7 +181,7 @@ public class IdpClient implements IIdpClient {
                                 .codeChallengeMethod(codeChallengeMethod)
                                 .redirectUri(redirectUrl)
                                 .state(state)
-                                .scopes(scopes)
+                                .scopes(prescriptionServiceURL.equals("https://erp-dev.zentral.erp.splitdns.ti-dienste.de") ? scopes_rudev : scopes)
                                 .nonce(nonce)
                                 .build());
 

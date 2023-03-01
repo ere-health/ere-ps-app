@@ -39,7 +39,6 @@ import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Practitioner;
 import org.hl7.fhir.r4.model.Reference;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import ca.uhn.fhir.context.FhirContext;
@@ -51,7 +50,7 @@ import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.config.UserConfig;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
-import health.ere.ps.profile.RUTestProfile;
+import health.ere.ps.profile.RUDevTestProfile;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
@@ -62,8 +61,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 
 @QuarkusTest
-@Disabled
-@TestProfile(RUTestProfile.class)
+@TestProfile(RUDevTestProfile.class)
 public class MassGenerator2Test {
 
     private static Logger log = Logger.getLogger(MassGenerator2Test.class.getName());
@@ -151,6 +149,11 @@ public class MassGenerator2Test {
     }
 
     @Test
+    void testCreateERezeptMassKBV() throws Exception {
+        createERezeptMassCreateBatch(null, null, "../secret-test-print-samples/kbv/", true);
+    }
+
+    @Test
     void testParsing() throws Exception {
 
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get("../secret-test-print-samples/gematik/"), "*")) {
@@ -173,6 +176,7 @@ public class MassGenerator2Test {
     void testCreateERezeptMassKonnektathonAOK_NO() throws Exception {
         createERezeptMassCreate(null, null, "../secret-test-print-samples/Konnektathon/");
     }
+    
 
     void createERezeptMassCreate(String cardsString) throws Exception {
         createERezeptMassCreate(cardsString, null);

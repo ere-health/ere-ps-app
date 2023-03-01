@@ -96,7 +96,8 @@ import oasis.names.tc.dss._1_0.core.schema.Base64Data;
 @ApplicationScoped
 public class ERezeptWorkflowService {
 
-    private static final String EREZEPT_IDENTIFIER_SYSTEM = "https://gematik.de/fhir/NamingSystem/PrescriptionID";
+    private static final String EREZEPT_IDENTIFIER_SYSTEM = "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId";
+    private static final String EREZEPT_ACCESS_CODE_SYSTEM = "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_AccessCode";
     private static final Logger log = Logger.getLogger(ERezeptWorkflowService.class.getName());
     private static final FhirContext fhirContext = FhirContext.forR4();
 
@@ -151,7 +152,7 @@ public class ERezeptWorkflowService {
      */
     static String getAccessCode(Task task) {
         return task.getIdentifier().stream()
-                .filter(id -> id.getSystem().equals("https://gematik.de/fhir/NamingSystem/AccessCode")).findFirst()
+                .filter(id -> id.getSystem().equals(EREZEPT_ACCESS_CODE_SYSTEM)).findFirst()
                 .orElse(new Identifier()).getValue();
     }
 
@@ -410,7 +411,8 @@ public class ERezeptWorkflowService {
 
     public static String getPrescriptionId(Task task) {
         String prescriptionID = task.getIdentifier().stream()
-                .filter(id -> id.getSystem().equals(EREZEPT_IDENTIFIER_SYSTEM)).findFirst().orElse(new Identifier()).getValue();
+                .filter(id -> id.getSystem().equals(EREZEPT_IDENTIFIER_SYSTEM) ||
+                id.getSystem().equals("https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId")).findFirst().orElse(new Identifier()).getValue();
         return prescriptionID;
     }
 
