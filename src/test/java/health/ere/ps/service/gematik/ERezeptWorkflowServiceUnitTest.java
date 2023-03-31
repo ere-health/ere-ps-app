@@ -1,5 +1,6 @@
 package health.ere.ps.service.gematik;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -8,6 +9,9 @@ import static org.mockito.Mockito.when;
 
 import javax.enterprise.event.Event;
 
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Identifier;
+import org.hl7.fhir.r4.model.Task;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -47,5 +51,73 @@ public class ERezeptWorkflowServiceUnitTest {
         GetSignatureModeResponseEvent thrownEvent = argumentCaptor.getValue();
         
         assertNotNull(thrownEvent.getUserId());
+    }
+
+    @Test
+    void testGetAccessCode() {
+        Task task = new Task();
+        Identifier identifier = new Identifier();
+        identifier.setSystem(ERezeptWorkflowService.EREZEPT_ACCESS_CODE_SYSTEM);
+        identifier.setValue("ACCESS_CODE");
+        task.addIdentifier(identifier);
+        assertEquals("ACCESS_CODE", ERezeptWorkflowService.getAccessCode(task));
+    }
+
+    @Test
+    void testGetAccessCode_GEM() {
+        Task task = new Task();
+        Identifier identifier = new Identifier();
+        identifier.setSystem(ERezeptWorkflowService.EREZEPT_ACCESS_CODE_SYSTEM_GEM);
+        identifier.setValue("ACCESS_CODE");
+        task.addIdentifier(identifier);
+        assertEquals("ACCESS_CODE", ERezeptWorkflowService.getAccessCode(task));
+    }
+
+    @Test
+    void testGetPrescriptionId() {
+        Task task = new Task();
+        Identifier identifier = new Identifier();
+        identifier.setSystem(ERezeptWorkflowService.EREZEPT_IDENTIFIER_SYSTEM);
+        identifier.setValue("PrescriptionId");
+        task.addIdentifier(identifier);
+        assertEquals("PrescriptionId", ERezeptWorkflowService.getPrescriptionId(task));
+    }
+
+    @Test
+    void testGetPrescriptionId_GEM() {
+        Task task = new Task();
+        Identifier identifier = new Identifier();
+        identifier.setSystem(ERezeptWorkflowService.EREZEPT_IDENTIFIER_SYSTEM_GEM);
+        identifier.setValue("PrescriptionId");
+        task.addIdentifier(identifier);
+        assertEquals("PrescriptionId", ERezeptWorkflowService.getPrescriptionId(task));
+    }
+
+    @Test
+    void testUpdateBundleWithTask() {
+        Task task = new Task();
+        Identifier identifier = new Identifier();
+        identifier.setSystem(ERezeptWorkflowService.EREZEPT_IDENTIFIER_SYSTEM);
+        identifier.setValue("PrescriptionId");
+        task.addIdentifier(identifier);
+
+        Bundle bundle = new Bundle();
+        ERezeptWorkflowService.updateBundleWithTask(task, bundle);
+        assertEquals(bundle.getIdentifier().getValue(), "PrescriptionId");
+        assertEquals(bundle.getIdentifier().getSystem(), ERezeptWorkflowService.EREZEPT_IDENTIFIER_SYSTEM);
+    }
+
+    @Test
+    void testUpdateBundleWithTask_GEM() {
+        Task task = new Task();
+        Identifier identifier = new Identifier();
+        identifier.setSystem(ERezeptWorkflowService.EREZEPT_IDENTIFIER_SYSTEM_GEM);
+        identifier.setValue("PrescriptionId");
+        task.addIdentifier(identifier);
+
+        Bundle bundle = new Bundle();
+        ERezeptWorkflowService.updateBundleWithTask(task, bundle);
+        assertEquals(bundle.getIdentifier().getValue(), "PrescriptionId");
+        assertEquals(bundle.getIdentifier().getSystem(), ERezeptWorkflowService.EREZEPT_IDENTIFIER_SYSTEM_GEM);
     }
 }

@@ -337,18 +337,18 @@
                                                 <xsl:value-of
                                                         select="fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:dispenseRequest/fhir:quantity/fhir:value/@value"/>
                                                 <xsl:text>x </xsl:text>
-                                                <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:meta/fhir:profile/@value = 'https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.0.2' or fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:meta/fhir:profile/@value = 'https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_FreeText|1.0.2'">
+                                                <xsl:if test="starts-with(string(fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:meta/fhir:profile/@value), 'https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN') or starts-with(string(fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:meta/fhir:profile/@value), 'https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_FreeText')">
                                                     <xsl:value-of
                                                         select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:text/@value"/>
                                                 </xsl:if>
-                                                <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:meta/fhir:profile/@value = 'https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Ingredient|1.0.2'">
+                                                <xsl:if test="starts-with(string(fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:meta/fhir:profile/@value), 'https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Ingredient')">
                                                     <xsl:value-of
                                                         select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:ingredient/fhir:itemCodeableConcept/fhir:text/@value"/> / <xsl:value-of
                                                         select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:ingredient/fhir:strength/fhir:numerator/fhir:value/@value"/><xsl:text> </xsl:text><xsl:value-of
                                                         select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:ingredient/fhir:strength/fhir:numerator/fhir:unit/@value"/> / <xsl:value-of
                                                         select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:form/fhir:text/@value"/> 
                                                 </xsl:if>
-                                                <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:meta/fhir:profile/@value = 'https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Compounding|1.0.2'">
+                                                <xsl:if test="starts-with(string(fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:meta/fhir:profile/@value), 'https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Compounding')">
                                                     <xsl:value-of
                                                         select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:text/@value"/>
                                                     <xsl:value-of

@@ -96,7 +96,10 @@ import oasis.names.tc.dss._1_0.core.schema.Base64Data;
 @ApplicationScoped
 public class ERezeptWorkflowService {
 
-    private static final String EREZEPT_IDENTIFIER_SYSTEM = "https://gematik.de/fhir/NamingSystem/PrescriptionID";
+    static final String EREZEPT_ACCESS_CODE_SYSTEM = "https://gematik.de/fhir/NamingSystem/AccessCode";
+    static final String EREZEPT_ACCESS_CODE_SYSTEM_GEM = "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_AccessCode";
+    static final String EREZEPT_IDENTIFIER_SYSTEM = "https://gematik.de/fhir/NamingSystem/PrescriptionID";
+    static final String EREZEPT_IDENTIFIER_SYSTEM_GEM = "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId";
     private static final Logger log = Logger.getLogger(ERezeptWorkflowService.class.getName());
     private static final FhirContext fhirContext = FhirContext.forR4();
 
@@ -151,7 +154,8 @@ public class ERezeptWorkflowService {
      */
     static String getAccessCode(Task task) {
         return task.getIdentifier().stream()
-                .filter(id -> id.getSystem().equals("https://gematik.de/fhir/NamingSystem/AccessCode")).findFirst()
+                .filter(id -> id.getSystem().equals(EREZEPT_ACCESS_CODE_SYSTEM)
+                || id.getSystem().equals(EREZEPT_ACCESS_CODE_SYSTEM_GEM)).findFirst()
                 .orElse(new Identifier()).getValue();
     }
 
@@ -397,21 +401,24 @@ public class ERezeptWorkflowService {
      * @param task
      * @param bundle
      */
-    public BundleWithAccessCodeOrThrowable updateBundleWithTask(Task task, Bundle bundle) {
-        String prescriptionID = getPrescriptionId(task);
-        Identifier identifier = new Identifier();
-        identifier.setSystem(EREZEPT_IDENTIFIER_SYSTEM);
-        identifier.setValue(prescriptionID);
+    public static BundleWithAccessCodeOrThrowable updateBundleWithTask(Task task, Bundle bundle) {
+        Identifier prescriptionID = getPrescriptionIdentifier(task);
+        Identifier identifier = prescriptionID.copy();
         bundle.setIdentifier(identifier);
 
         String accessCode = ERezeptWorkflowService.getAccessCode(task);
         return new BundleWithAccessCodeOrThrowable(bundle, accessCode);
     }
 
-    public static String getPrescriptionId(Task task) {
-        String prescriptionID = task.getIdentifier().stream()
-                .filter(id -> id.getSystem().equals(EREZEPT_IDENTIFIER_SYSTEM)).findFirst().orElse(new Identifier()).getValue();
+    static String getPrescriptionId(Task task) {
+        String prescriptionID = getPrescriptionIdentifier(task).getValue();
         return prescriptionID;
+    }
+
+    static Identifier getPrescriptionIdentifier(Task task) {
+        return task.getIdentifier().stream()
+                .filter(id -> id.getSystem().equals(EREZEPT_IDENTIFIER_SYSTEM) ||
+                id.getSystem().equals(ERezeptWorkflowService.EREZEPT_IDENTIFIER_SYSTEM_GEM)).findFirst().orElse(new Identifier());
     }
 
     public SignResponse signBundleWithIdentifiers(Bundle bundle) throws ERezeptWorkflowException {

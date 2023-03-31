@@ -542,4 +542,5 @@ public class ERezeptWorkflowServiceTest {
         String parameterBearerToken = bearerTokenService.requestBearerToken();
         assertTrue(eRezeptWorkflowService.isERezeptServiceReachable(null, parameterBearerToken));
     }
+
 }

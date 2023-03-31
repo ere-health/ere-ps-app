@@ -4,7 +4,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 public enum IdpScope {
-    OPENID("openid"), EREZEPT("e-rezept"), PAIRING("pairing");
+    OPENID("openid"), EREZEPT("e-rezept"), EREZEPTDEV("e-rezept-dev"), PAIRING("pairing");
 
     private String jwtValue;
 

@@ -81,7 +81,7 @@ public class DocumentService {
             //fopFactory.getFontManager().setResourceResolver(new LoggingResolver(fopFactory.getFontManager().getResourceResolver()));
             //log.info(fopFactory.getFontManager().getResourceResolver().toString());
         } catch (Exception ex) {
-            log.severe("FOP Factory not initializable:" + ex);
+            log.log(Level.SEVERE, "FOP Factory not initializable", ex);
             exceptionEvent.fireAsync(ex);
         }
     }

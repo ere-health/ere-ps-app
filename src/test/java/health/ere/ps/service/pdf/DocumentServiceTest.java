@@ -3,13 +3,17 @@ package health.ere.ps.service.pdf;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.LogManager;
+import java.util.stream.Collectors;
 
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -22,7 +26,9 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import ca.uhn.fhir.context.ConfigurationException;
 import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.DataFormatException;
 import health.ere.ps.event.BundlesWithAccessCodeEvent;
 import health.ere.ps.event.ERezeptWithDocumentsEvent;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
@@ -170,6 +176,41 @@ public class DocumentServiceTest {
         // WHEN + THEN
         ByteArrayOutputStream generatedPdfsStream = createStreamForANumberOfPdfs(9);
         Files.write(Paths.get(TARGET_PATH + "Erezept_with_nine_medications.pdf"), generatedPdfsStream.toByteArray());
+    }
+
+    @Test
+    @Disabled("Running the pdf generation tests takes a lot of time, run them manually")
+    public void generateAllKBVPdf() throws IOException {
+        String dir = "src/test/resources/examples-kbv-fhir-erp-v1-0-2";
+        String prefix = "1_0_2";
+        generatePdfsForAllFilesInFolder(dir, prefix);
+
+        dir = "src/test/resources/examples-kbv-fhir-erp-v1-1-0";
+        prefix = "1_1_0";
+        generatePdfsForAllFilesInFolder(dir, prefix);
+    }
+
+    private void generatePdfsForAllFilesInFolder(String dir, String prefix) throws IOException {
+        List<ByteArrayOutputStream> pdfStreams = Files.list(Paths.get(dir))
+            .filter((p) -> p.toFile().isFile())
+            .map((p) -> {
+                try {
+                    return new BundleWithAccessCodeOrThrowable((Bundle) ctx.newXmlParser().parseResource(new FileReader(p.toFile())), "ACCESS_CODE");
+                } catch (ConfigurationException | DataFormatException | FileNotFoundException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }).map((b) -> {
+                try {
+                    return documentService.generateERezeptPdf(Arrays.asList(b));
+                } catch (FOPException | IOException | TransformerException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }).collect(Collectors.toList());
+        for(int i = 0;i<pdfStreams.size();i++) {
+            Files.write(Paths.get(TARGET_PATH + prefix+ "_" +i + ".pdf"), pdfStreams.get(i).toByteArray());
+        }
     }
 
 
