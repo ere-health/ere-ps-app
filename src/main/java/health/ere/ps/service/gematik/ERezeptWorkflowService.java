@@ -404,6 +404,7 @@ public class ERezeptWorkflowService {
     public static BundleWithAccessCodeOrThrowable updateBundleWithTask(Task task, Bundle bundle) {
         Identifier prescriptionID = getPrescriptionIdentifier(task);
         Identifier identifier = prescriptionID.copy();
+        identifier.setUse(null);
         bundle.setIdentifier(identifier);
 
         String accessCode = ERezeptWorkflowService.getAccessCode(task);

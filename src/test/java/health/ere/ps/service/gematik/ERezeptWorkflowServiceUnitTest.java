@@ -2,6 +2,7 @@ package health.ere.ps.service.gematik;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -11,6 +12,7 @@ import javax.enterprise.event.Event;
 
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Identifier;
+import org.hl7.fhir.r4.model.Identifier.IdentifierUse;
 import org.hl7.fhir.r4.model.Task;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -111,6 +113,7 @@ public class ERezeptWorkflowServiceUnitTest {
     void testUpdateBundleWithTask_GEM() {
         Task task = new Task();
         Identifier identifier = new Identifier();
+        identifier.setUse(IdentifierUse.OFFICIAL);
         identifier.setSystem(ERezeptWorkflowService.EREZEPT_IDENTIFIER_SYSTEM_GEM);
         identifier.setValue("PrescriptionId");
         task.addIdentifier(identifier);
@@ -118,6 +121,7 @@ public class ERezeptWorkflowServiceUnitTest {
         Bundle bundle = new Bundle();
         ERezeptWorkflowService.updateBundleWithTask(task, bundle);
         assertEquals(bundle.getIdentifier().getValue(), "PrescriptionId");
+        assertNull(bundle.getIdentifier().getUse());
         assertEquals(bundle.getIdentifier().getSystem(), ERezeptWorkflowService.EREZEPT_IDENTIFIER_SYSTEM_GEM);
     }
 }
