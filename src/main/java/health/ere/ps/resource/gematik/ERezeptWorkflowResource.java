@@ -37,8 +37,8 @@ public class ERezeptWorkflowResource {
     @Inject
     ERezeptWorkflowService eRezeptWorkflowService;
 
-    IParser jsonParser = FhirContext.forR4().newJsonParser();
-    IParser xmlParser = FhirContext.forR4().newXmlParser();
+    static IParser jsonParser = FhirContext.forR4().newJsonParser();
+    static IParser xmlParser = FhirContext.forR4().newXmlParser();
 
     @Context
     HttpServletRequest httpServletRequest;
@@ -46,7 +46,7 @@ public class ERezeptWorkflowResource {
     @POST
     @Path("/task")
     public Response createERezeptTask(@HeaderParam("accept") String accept) {
-        Task task = eRezeptWorkflowService.createERezeptTask(extractRuntimeConfigFromHeaders());
+        Task task = eRezeptWorkflowService.createERezeptTask(extractRuntimeConfigFromHeaders(httpServletRequest));
         if("application/xml".equals(accept)) {
             return Response.ok().entity(xmlParser.encodeResourceToString(task)).type(MediaType.APPLICATION_XML).build();
         } else {
@@ -54,7 +54,7 @@ public class ERezeptWorkflowResource {
         }
     }
 
-    RuntimeConfig extractRuntimeConfigFromHeaders() {
+    static RuntimeConfig extractRuntimeConfigFromHeaders(HttpServletRequest httpServletRequest) {
         for(Object name : Collections.list(httpServletRequest.getHeaderNames())) {
             if(name.toString().startsWith("X-")) {
                 return new RuntimeConfig(httpServletRequest);
@@ -67,7 +67,7 @@ public class ERezeptWorkflowResource {
     @Path("/sign")
     public Response signBundleWithIdentifiers(@HeaderParam("Content-Type") String contentType, String bundle) throws DataFormatException, ERezeptWorkflowException {
         Bundle bundleObject = string2bundle(contentType, bundle);
-        SignResponse signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundleObject, false, extractRuntimeConfigFromHeaders());
+        SignResponse signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundleObject, false, extractRuntimeConfigFromHeaders(httpServletRequest));
         String base64String = signResponse2base64String(signResponse);
         return Response.ok().entity(base64String).type(MediaType.TEXT_PLAIN).build();
     }
@@ -76,7 +76,7 @@ public class ERezeptWorkflowResource {
         return new String(Base64.getEncoder().encode(signResponse.getSignatureObject().getBase64Signature().getValue()));
     }
 
-    Bundle string2bundle(String contentType, String bundle) {
+    static Bundle string2bundle(String contentType, String bundle) {
         Bundle bundleObject = "application/xml".equals(contentType) ? xmlParser.parseResource(Bundle.class, bundle) : jsonParser.parseResource(Bundle.class, bundle);
         return bundleObject;
     }
@@ -85,7 +85,7 @@ public class ERezeptWorkflowResource {
     @Path("/batch-sign")
     public Response signBundlesWithIdentifiers(@HeaderParam("Content-Type") String contentType, String bundles) throws DataFormatException, ERezeptWorkflowException {
         List<Bundle> bundlesList = Arrays.asList(bundles.split("\\r?\\n")).stream().map((bundle) ->  string2bundle(contentType, bundle)).collect(Collectors.toList());
-        List<SignResponse> signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundlesList, false, extractRuntimeConfigFromHeaders());
+        List<SignResponse> signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundlesList, false, extractRuntimeConfigFromHeaders(httpServletRequest));
         String responses = signResponse.stream().map(ERezeptWorkflowResource::signResponse2base64String).collect(Collectors.joining("\n"));
         return Response.ok().entity(responses).type(MediaType.TEXT_PLAIN).build();
     }
@@ -94,7 +94,7 @@ public class ERezeptWorkflowResource {
     @Path("/cards")
     public GetCardsResponse cards() {
         try {
-            return eRezeptWorkflowService.getCards(extractRuntimeConfigFromHeaders());
+            return eRezeptWorkflowService.getCards(extractRuntimeConfigFromHeaders(httpServletRequest));
         } catch (FaultMessage e) {
             throw new WebApplicationException(e);
         }
@@ -103,28 +103,28 @@ public class ERezeptWorkflowResource {
     @POST
     @Path("/update")
     public Response updateERezeptTask(UpdateERezept updateERezept) {
-        eRezeptWorkflowService.updateERezeptTask(updateERezept.getTaskId(), updateERezept.getAccessCode(), Base64.getDecoder().decode(updateERezept.getSignedBytes()), extractRuntimeConfigFromHeaders());
+        eRezeptWorkflowService.updateERezeptTask(updateERezept.getTaskId(), updateERezept.getAccessCode(), Base64.getDecoder().decode(updateERezept.getSignedBytes()), extractRuntimeConfigFromHeaders(httpServletRequest));
         return Response.ok().build();
     }
 
     @POST
     @Path("/abort")
     public Response abortERezeptTask(AbortERezept abortERezept) {
-        eRezeptWorkflowService.abortERezeptTask(extractRuntimeConfigFromHeaders(), abortERezept.getTaskId(), abortERezept.getAccessCode());
+        eRezeptWorkflowService.abortERezeptTask(extractRuntimeConfigFromHeaders(httpServletRequest), abortERezept.getTaskId(), abortERezept.getAccessCode());
         return Response.noContent().build();
     }
 
     @POST
     @Path("/comfortsignature/activate")
     public Response activate() {
-        String userId = eRezeptWorkflowService.activateComfortSignature(extractRuntimeConfigFromHeaders());
+        String userId = eRezeptWorkflowService.activateComfortSignature(extractRuntimeConfigFromHeaders(httpServletRequest));
         return Response.ok(Entity.text(userId)).build();
     }
 
     @POST
     @Path("/comfortsignature/deactivate")
     public Response deactivate() {
-        eRezeptWorkflowService.deactivateComfortSignature(extractRuntimeConfigFromHeaders());
+        eRezeptWorkflowService.deactivateComfortSignature(extractRuntimeConfigFromHeaders(httpServletRequest));
         return Response.ok().build();
     }
 

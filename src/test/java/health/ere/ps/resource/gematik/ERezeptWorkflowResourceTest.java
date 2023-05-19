@@ -47,7 +47,7 @@ public class ERezeptWorkflowResourceTest {
         });
         ERezeptWorkflowResource eRezeptWorkflowResource = new ERezeptWorkflowResource();
         eRezeptWorkflowResource.httpServletRequest = httpServletRequest;
-        RuntimeConfig runtimeConfig = eRezeptWorkflowResource.extractRuntimeConfigFromHeaders();
+        RuntimeConfig runtimeConfig = ERezeptWorkflowResource.extractRuntimeConfigFromHeaders(httpServletRequest);
 
         assertEquals("HBA-1", runtimeConfig.getEHBAHandle());
         assertEquals("SMCB-1", runtimeConfig.getSMCBHandle());

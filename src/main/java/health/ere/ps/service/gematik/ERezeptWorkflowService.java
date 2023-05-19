@@ -11,10 +11,8 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -36,7 +34,6 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.ws.Holder;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.xml.security.c14n.CanonicalizationException;
 import org.apache.xml.security.c14n.Canonicalizer;
 import org.apache.xml.security.c14n.InvalidCanonicalizerException;
@@ -49,9 +46,6 @@ import org.hl7.fhir.r4.model.Parameters;
 import org.hl7.fhir.r4.model.Parameters.ParametersParameterComponent;
 import org.hl7.fhir.r4.model.Task;
 import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
-import org.jose4j.jwt.consumer.InvalidJwtException;
-import org.jose4j.jwt.consumer.JwtConsumer;
-import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 
 import ca.uhn.fhir.context.FhirContext;
 import de.gematik.ws.conn.connectorcommon.v5.Status;
@@ -82,19 +76,17 @@ import health.ere.ps.event.GetSignatureModeEvent;
 import health.ere.ps.event.GetSignatureModeResponseEvent;
 import health.ere.ps.event.ReadyToSignBundlesEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
-import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.exception.connector.ConnectorCardsException;
 import health.ere.ps.exception.gematik.ERezeptWorkflowException;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
-import health.ere.ps.service.idp.BearerTokenService;
 import health.ere.ps.vau.VAUEngine;
 import health.ere.ps.websocket.ExceptionWithReplyToExcetion;
 import oasis.names.tc.dss._1_0.core.schema.Base64Data;
 
 @ApplicationScoped
-public class ERezeptWorkflowService {
+public class ERezeptWorkflowService extends BearerTokenManageService {
 
     static final String EREZEPT_ACCESS_CODE_SYSTEM = "https://gematik.de/fhir/NamingSystem/AccessCode";
     static final String EREZEPT_ACCESS_CODE_SYSTEM_GEM = "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_AccessCode";
@@ -123,8 +115,6 @@ public class ERezeptWorkflowService {
     @Inject
     Event<Exception> exceptionEvent;
     @Inject
-    BearerTokenService bearerTokenService;
-    @Inject
     Event<AbortTasksStatusEvent> abortTasksStatusEvent;
     @Inject
     Event<GetSignatureModeResponseEvent> getSignatureModeResponseEvent;
@@ -132,14 +122,8 @@ public class ERezeptWorkflowService {
     Event<GetCardsResponseEvent> getCardsResponseEvent;
 
     private Client client;
-    //In the future it should be managed automatically by the webclient, including its renewal
-    private Map<RuntimeConfig, String> bearerToken = new HashMap<>();
-
     private String userIdForComfortSignature;
-
-    public void setBearerToken(String bearerToken) {
-        this.bearerToken.put(null, bearerToken);
-    }
+    
 
     public String getUserIdForComfortSignature() {
         return this.userIdForComfortSignature;
@@ -160,17 +144,27 @@ public class ERezeptWorkflowService {
     }
 
     @PostConstruct
-    public void init() throws SecretsManagerException {
+    public void init() {
+        client = initClientWithVAU(appConfig, exceptionEvent);
+    }
+
+    static Client initClientWithVAU(AppConfig appConfig) {
+        return initClientWithVAU(appConfig, null);
+    }
+
+    static Client initClientWithVAU(AppConfig appConfig, Event<Exception> exceptionEvent) {
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
         if (appConfig.vauEnabled()) {
             try {
                 ((ResteasyClientBuilderImpl) clientBuilder).httpEngine(new VAUEngine(appConfig.getPrescriptionServiceURL()));
             } catch (Exception ex) {
                 log.log(Level.SEVERE, "Could not enable VAU", ex);
-                exceptionEvent.fireAsync(ex);
+                if(exceptionEvent != null) {
+                    exceptionEvent.fireAsync(ex);
+                }
             }
         }
-        client = clientBuilder.build();
+        return clientBuilder.build();
     }
 
     /**
@@ -724,48 +718,6 @@ public class ERezeptWorkflowService {
             }
             
             log.info("Task $abort Response: " + taskString);
-        }
-    }
-    
-    public void requestNewAccessTokenIfNecessary() {
-        requestNewAccessTokenIfNecessary(null, null, null);
-    }
-
-    /**
-     * Requests a new userConfig if the current one is expired
-     */
-    public void requestNewAccessTokenIfNecessary(RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId) {
-        if (StringUtils.isEmpty(getBearerToken(runtimeConfig)) || isExpired(bearerToken.get(runtimeConfig))) {
-            log.info("Request new bearer token.");
-            String bearerTokenString = bearerTokenService.requestBearerToken(runtimeConfig, replyTo, replyToMessageId);
-            bearerToken.put(runtimeConfig, bearerTokenString);
-        }
-    }
-
-    public String getBearerToken() {
-        return bearerToken.get(null);
-    }
-
-    public String getBearerToken(RuntimeConfig runtimeConfig) {
-        return bearerToken.get(runtimeConfig);
-    }
-    
-    /**
-     * Checks if the given bearer token is expired.
-     * @param bearerToken2 the bearer token to check
-     */
-    boolean isExpired(String bearerToken2) {
-        JwtConsumer consumer = new JwtConsumerBuilder()
-            .setDisableRequireSignature()
-            .setSkipSignatureVerification()
-            .setSkipDefaultAudienceValidation()
-            .setRequireExpirationTime()
-            .build();
-        try {
-            consumer.process(bearerToken2);
-            return false;
-        } catch (InvalidJwtException e) {
-            return true;
         }
     }
 
