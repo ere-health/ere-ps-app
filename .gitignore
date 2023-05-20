@@ -35,6 +35,8 @@ nb-configuration.xml
 *.orig
 *.rej
 
+yarn-error.log
+
 # Env file to override the configuration
 .env
 

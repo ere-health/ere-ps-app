@@ -23,7 +23,7 @@ public class PharmacyResource {
 
     @GET
     @Path("/Task")
-    public Bundle task(@QueryParam("egkHandle") String egkHandle, @QueryParam("smbcHandle") String smbcHandle) throws FaultMessage {
-        return pharmacyService.getEPrescriptionsForCardHandle(egkHandle, smbcHandle, ERezeptWorkflowResource.extractRuntimeConfigFromHeaders(httpServletRequest));
+    public Bundle task(@QueryParam("egkHandle") String egkHandle, @QueryParam("smcbHandle") String smcbHandle) throws FaultMessage {
+        return pharmacyService.getEPrescriptionsForCardHandle(egkHandle, smcbHandle, ERezeptWorkflowResource.extractRuntimeConfigFromHeaders(httpServletRequest));
     } 
 }

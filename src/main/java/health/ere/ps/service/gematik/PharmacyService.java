@@ -48,7 +48,8 @@ public class PharmacyService extends BearerTokenManageService {
         client = ERezeptWorkflowService.initClientWithVAU(appConfig);
     }
 
-    public Bundle getEPrescriptionsForCardHandle(String egkHandle, String smbcHandle, RuntimeConfig runtimeConfig) throws FaultMessage {
+    public Bundle getEPrescriptionsForCardHandle(String egkHandle, String smcbHandle, RuntimeConfig runtimeConfig) throws FaultMessage {
+        requestNewAccessTokenIfNecessary(runtimeConfig, null, null);
         ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
 
         Holder<byte[]> persoenlicheVersichertendaten = new Holder<>();
@@ -56,7 +57,7 @@ public class PharmacyService extends BearerTokenManageService {
 			Holder<byte[]> geschuetzteVersichertendaten = new Holder<>();
 			Holder<VSDStatusType> vSD_Status = new Holder<>();
 			Holder<byte[]> pruefungsnachweis = new Holder<>();
-        connectorServicesProvider.getVSDServicePortType(runtimeConfig).readVSD(egkHandle, smbcHandle, true, true,
+        connectorServicesProvider.getVSDServicePortType(runtimeConfig).readVSD(egkHandle, smcbHandle, true, true,
                 context, persoenlicheVersichertendaten, allgemeineVersicherungsdaten, geschuetzteVersichertendaten,
                 vSD_Status, pruefungsnachweis);
 
