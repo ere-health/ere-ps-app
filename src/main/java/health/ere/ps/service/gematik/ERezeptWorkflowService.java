@@ -399,6 +399,14 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
         Identifier prescriptionID = getPrescriptionIdentifier(task);
         Identifier identifier = prescriptionID.copy();
         identifier.setUse(null);
+        try {
+            // This bundle uses the old KBV profile
+            if(bundle.getMeta() != null && bundle.getMeta().getProfile() != null && bundle.getMeta().getProfile().stream().filter(pf -> pf.getValue().equals("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle|1.0.2")).count() > 0) {
+                identifier.setSystem(EREZEPT_IDENTIFIER_SYSTEM);
+            }
+        } catch(Exception ex) {
+            log.log(Level.WARNING, "Could not identify profile", ex);
+        }
         bundle.setIdentifier(identifier);
 
         String accessCode = ERezeptWorkflowService.getAccessCode(task);

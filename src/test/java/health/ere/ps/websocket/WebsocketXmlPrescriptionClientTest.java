@@ -42,6 +42,24 @@ public class WebsocketXmlPrescriptionClientTest {
 
     @Test
     @Disabled
+    public void testVOSNewProfileBundle() {
+
+        String jsonBundle;
+        try {
+            jsonBundle = new String(Files.readAllBytes(Paths.get("../vos-erp-translator/src/test/resources/websocket/ERE-612.json")));
+            
+            jsonBundle = jsonBundle.replaceFirst("3cc0e077-92c0-4a35-b856-8fa35b2aba4d", UUID.randomUUID().toString());
+            jsonBundle = jsonBundle.replaceAll("2023-05-22T02:00:00\\+02:00", Instant.now().toString());
+            
+
+            sendMessage(jsonBundle);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    @Disabled
     public void testVOSBundleWithError() {
 
         String jsonBundle;

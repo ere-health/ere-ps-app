@@ -124,4 +124,22 @@ public class ERezeptWorkflowServiceUnitTest {
         assertNull(bundle.getIdentifier().getUse());
         assertEquals(bundle.getIdentifier().getSystem(), ERezeptWorkflowService.EREZEPT_IDENTIFIER_SYSTEM_GEM);
     }
+
+    @Test
+    void testUpdateBundleWithTask_With_Profile() {
+        Task task = new Task();
+        Identifier identifier = new Identifier();
+        identifier.setUse(IdentifierUse.OFFICIAL);
+        identifier.setSystem(ERezeptWorkflowService.EREZEPT_IDENTIFIER_SYSTEM_GEM);
+        identifier.setValue("PrescriptionId");
+        task.addIdentifier(identifier);
+
+        Bundle bundle = new Bundle();
+        bundle.getMeta().addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle|1.0.2");
+
+        ERezeptWorkflowService.updateBundleWithTask(task, bundle);
+        assertEquals(bundle.getIdentifier().getValue(), "PrescriptionId");
+        assertNull(bundle.getIdentifier().getUse());
+        assertEquals(bundle.getIdentifier().getSystem(), ERezeptWorkflowService.EREZEPT_IDENTIFIER_SYSTEM);
+    }
 }
