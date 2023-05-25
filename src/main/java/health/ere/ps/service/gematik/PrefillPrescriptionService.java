@@ -323,7 +323,7 @@ public class PrefillPrescriptionService {
 				certHolder.value.getX509DataInfo().get(0).getX509Data().getX509Certificate());
 	}
 
-	private String getFirstCardOfType(EventServicePortType eventService, CardTypeType type, ContextType context)
+	static String getFirstCardOfType(EventServicePortType eventService, CardTypeType type, ContextType context)
 			throws FaultMessage {
 		GetCards parameter = new GetCards();
 		parameter.setContext(context);

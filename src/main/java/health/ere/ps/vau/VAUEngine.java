@@ -72,7 +72,10 @@ public class VAUEngine extends ApacheHttpClient43Engine {
 
     @Override
     protected HttpEntity buildEntity(final ClientInvocation request) throws IOException {
-        HttpEntity httpEntity = super.buildEntity(request);
+        HttpEntity httpEntity = null;
+        if(request.getMethod().equals("POST")) {
+            httpEntity = super.buildEntity(request);
+        }
         MultivaluedMap<String, Object> newHeaders = request.getHeaders().getHeaders();
         String userAgent = (String) newHeaders.getFirst("User-Agent");
 
@@ -100,17 +103,23 @@ public class VAUEngine extends ApacheHttpClient43Engine {
 
         byte[] finalMessageData;
         try {
-            byte[] postBytes = httpEntity.getContent().readAllBytes();
-            String postBody = new String(postBytes);
-            String content = request.getMethod() + " " + request.getUri().getPath() + " HTTP/1.1\r\n" +
-                    "Host: " + request.getUri().getHost() + "\r\n" +
-                    "Authorization: " + authorization + "\r\n" +
-                    "Content-Type: " + contentType + "\r\n" +
-                    (accessCode != null ? "X-AccessCode: " + accessCode + "\r\n" : "") +
-                    "User-Agent: " + userAgent + "\r\n" +
-                    "Content-Length: " + postBytes.length + "\r\n" +
-                    "Accept: application/fhir+xml; charset=utf-8\r\n\r\n"
-                    + postBody;
+            String content = request.getMethod() + " " + request.getUri().getPath() + (request.getUri().getQuery() != null ? "?"+request.getUri().getRawQuery() : "") +" HTTP/1.1\r\n" +
+                "Host: " + request.getUri().getHost() + "\r\n" +
+                "Authorization: " + authorization + "\r\n" +
+                (accessCode != null ? "X-AccessCode: " + accessCode + "\r\n" : "") +
+                "User-Agent: " + userAgent + "\r\n" +
+                "Accept: application/fhir+xml; charset=utf-8\r\n";
+            log.info(contentType);
+            if(httpEntity != null) {
+                    log.info(httpEntity.toString());
+                    byte[] postBytes = httpEntity.getContent().readAllBytes();
+                    String postBody = new String(postBytes);
+                content += "Content-Type: " + contentType + "\r\n" +
+                     "Content-Length: " + postBytes.length + "\r\n\r\n"
+                        + postBody;
+            } else {
+                content += "\r\n";
+            }
 
             String bearer = authorization.substring(7);
             requestid = VAU.byteArrayToHexString(vau.getRandom(16)).toLowerCase();
@@ -149,6 +158,12 @@ public class VAUEngine extends ApacheHttpClient43Engine {
     @Override
     public Response invoke(Invocation inv) {
         Response response = null;
+        
+        ClientInvocation request = (ClientInvocation) inv;
+        if(request.getMethod().equals("GET")) {
+            // enforce that build entity is called
+            request.setEntityObject("");
+        }
         response = super.invoke(inv);
 
         byte[] transportedData;

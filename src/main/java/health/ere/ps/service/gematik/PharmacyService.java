@@ -14,7 +14,9 @@ import javax.xml.ws.Holder;
 import org.hl7.fhir.r4.model.Bundle;
 
 import ca.uhn.fhir.context.FhirContext;
+import de.gematik.ws.conn.cardservicecommon.v2.CardTypeType;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
+import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
 import de.gematik.ws.conn.vsds.vsdservice.v5.VSDStatusType;
 import health.ere.ps.config.AppConfig;
@@ -48,7 +50,11 @@ public class PharmacyService extends BearerTokenManageService {
         client = ERezeptWorkflowService.initClientWithVAU(appConfig);
     }
 
-    public Bundle getEPrescriptionsForCardHandle(String egkHandle, String smcbHandle, RuntimeConfig runtimeConfig) throws FaultMessage {
+    public Bundle getEPrescriptionsForCardHandle(String egkHandle, String smcbHandle, RuntimeConfig runtimeConfig) throws FaultMessage, de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
+        if(runtimeConfig == null) {
+            runtimeConfig = new RuntimeConfig();
+        }
+        runtimeConfig.setSMCBHandle(smcbHandle);
         requestNewAccessTokenIfNecessary(runtimeConfig, null, null);
         ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
 
@@ -57,11 +63,20 @@ public class PharmacyService extends BearerTokenManageService {
 			Holder<byte[]> geschuetzteVersichertendaten = new Holder<>();
 			Holder<VSDStatusType> vSD_Status = new Holder<>();
 			Holder<byte[]> pruefungsnachweis = new Holder<>();
+
+        EventServicePortType eventService = connectorServicesProvider.getEventServicePortType(runtimeConfig);
+        if(egkHandle == null) {
+            egkHandle = PrefillPrescriptionService.getFirstCardOfType(eventService, CardTypeType.EGK, context);
+            
+        }
+        if(smcbHandle == null) {
+            smcbHandle = PrefillPrescriptionService.getFirstCardOfType(eventService, CardTypeType.SMC_B, context);
+        }
         connectorServicesProvider.getVSDServicePortType(runtimeConfig).readVSD(egkHandle, smcbHandle, true, true,
                 context, persoenlicheVersichertendaten, allgemeineVersicherungsdaten, geschuetzteVersichertendaten,
                 vSD_Status, pruefungsnachweis);
 
-        String pnw = Base64.getUrlEncoder().encodeToString(pruefungsnachweis.value);
+        String pnw = Base64.getEncoder().encodeToString(pruefungsnachweis.value);
 
         try (Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task")
                 .queryParam("pnw", pnw).request()
