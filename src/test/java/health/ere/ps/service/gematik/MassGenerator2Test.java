@@ -16,7 +16,6 @@ import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -30,19 +29,18 @@ import java.util.stream.StreamSupport;
 
 import javax.inject.Inject;
 
+import org.gradle.internal.impldep.com.google.common.collect.Lists;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Coverage;
 import org.hl7.fhir.r4.model.DateTimeType;
 import org.hl7.fhir.r4.model.Medication;
 import org.hl7.fhir.r4.model.MedicationRequest;
 import org.hl7.fhir.r4.model.Patient;
-import org.hl7.fhir.r4.model.Period;
 import org.hl7.fhir.r4.model.Practitioner;
 import org.hl7.fhir.r4.model.Reference;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
-import com.google.common.collect.Lists;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
@@ -64,7 +62,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 
 @QuarkusTest
-// @Disabled
+@Disabled
 @TestProfile(RUTestProfile.class)
 public class MassGenerator2Test {
 
@@ -135,11 +133,6 @@ public class MassGenerator2Test {
     }
     @Test
     void testCreateERezeptMassCreateCIDA() throws Exception {
-        createERezeptMassCreate("../secret-test-print-samples/CIDA/egk/cards.txt", null, "../secret-test-print-samples/CIDA/CIDA-9/", false);
-    }
-
-    @Test
-    void testCreateERezeptMassCreateCIDA9() throws Exception {
         createERezeptMassCreate("../secret-test-print-samples/CIDA/egk/cards.txt", null, "../secret-test-print-samples/CIDA/CIDA-5/", true);
     }
     @Test
@@ -194,8 +187,6 @@ public class MassGenerator2Test {
     }
 
     void createERezeptMassCreate(String cardsString, String insuranceString, String templateFolder, boolean move) throws Exception {
-        
-        
         if(move) {
             File processed = new File(templateFolder+"/processed");
             if(!processed.exists()) {
@@ -223,8 +214,6 @@ public class MassGenerator2Test {
         }
         for(String singleInsurance : insuranceList) {
             for(String card : cards) {
-                Instant randomStart = Instant.now().plus((long)Math.floor(Math.random()*30), ChronoUnit.DAYS);
-                
                 try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(templateFolder), "*")) {
                     for (Path entry : stream) {
                         File file = entry.toFile();
@@ -249,20 +238,6 @@ public class MassGenerator2Test {
                             bundle.setId(UUID.randomUUID().toString());
                             try {
                                 ((MedicationRequest)bundle.getEntry().stream().filter(e -> e.getResource() instanceof MedicationRequest).findAny().get().getResource()).setAuthoredOnElement(new DateTimeType(new Date(), TemporalPrecisionEnum.DAY));
-                            } catch(NoSuchElementException ex) {
-                                ex.printStackTrace();
-                            }
-                            try {
-                                MedicationRequest medicationRequest = ((MedicationRequest)bundle.getEntry().stream().filter(e -> e.getResource() instanceof MedicationRequest).findAny().get().getResource());
-                                Period period = ((Period)medicationRequest.getExtensionByUrl("https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription").getExtensionByUrl("Zeitraum").getValue());
-                                
-                                long valid = (long) Math.floor(Math.random()*90);
-                                period.setStart(Date.from(randomStart));
-                                randomStart = randomStart.plus(valid, ChronoUnit.DAYS);
-                                period.setEnd(Date.from(randomStart));
-                                medicationRequest.getExtensionByUrl("https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription").getExtensionByUrl("Zeitraum").setValue(period);
-                                
-
                             } catch(NoSuchElementException ex) {
                                 ex.printStackTrace();
                             }
@@ -355,7 +330,6 @@ public class MassGenerator2Test {
     }
 
     void createERezeptMassCreateBatch(String cardsString, String insuranceString, String templateFolder, boolean move) throws Exception {
-        Instant randomStart = Instant.now().plus((long)Math.floor(Math.random()*30), ChronoUnit.DAYS);
         if(move) {
             File processed = new File(templateFolder+"/processed");
             if(!processed.exists()) {
@@ -405,8 +379,6 @@ public class MassGenerator2Test {
                             } catch(NoSuchElementException ex) {
                                 ex.printStackTrace();
                             }
-                            MedicationRequest medicationRequest = null;
-                            
                             try {
                                 if(card != null) {
                                     Patient patient = ((Patient)bundle.getEntry().stream().filter(e -> e.getResource() instanceof Patient).findAny().get().getResource());
@@ -460,7 +432,12 @@ public class MassGenerator2Test {
                                 String fileName = fileEntry.getName().replace(".xml", "")+"-"+card+"-" + thisMoment + ".pdf";
                                 Files.write(Paths.get("target/"+fileName), a.toByteArray());
                                 Bundle bundle = bundleWithAccessCodeOrThrowable.getBundle();
-                                
+                                MedicationRequest medicationRequest = null;
+                                try {
+                                    medicationRequest = ((MedicationRequest)bundle.getEntry().stream().filter(e -> e.getResource() instanceof MedicationRequest).findAny().get().getResource());
+                                } catch(NoSuchElementException ex) {
+                                    ex.printStackTrace();
+                                }
                                 Medication medication = null;
                                 try {
                                     medication = ((Medication)bundle.getEntry().stream().filter(e -> e.getResource() instanceof Medication).findAny().get().getResource());
