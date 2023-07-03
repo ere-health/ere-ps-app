@@ -51,13 +51,13 @@ public class PharmacyService extends BearerTokenManageService {
     }
 
     public Bundle getEPrescriptionsForCardHandle(String egkHandle, String smcbHandle, RuntimeConfig runtimeConfig) throws FaultMessage, de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
+        
         if(runtimeConfig == null) {
             runtimeConfig = new RuntimeConfig();
         }
         runtimeConfig.setSMCBHandle(smcbHandle);
-        requestNewAccessTokenIfNecessary(runtimeConfig, null, null);
         ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
-
+        
         Holder<byte[]> persoenlicheVersichertendaten = new Holder<>();
 			Holder<byte[]> allgemeineVersicherungsdaten = new Holder<>();
 			Holder<byte[]> geschuetzteVersichertendaten = new Holder<>();
@@ -71,7 +71,10 @@ public class PharmacyService extends BearerTokenManageService {
         }
         if(smcbHandle == null) {
             smcbHandle = PrefillPrescriptionService.getFirstCardOfType(eventService, CardTypeType.SMC_B, context);
+            runtimeConfig.setSMCBHandle(smcbHandle);
         }
+        requestNewAccessTokenIfNecessary(runtimeConfig, null, null);
+        log.info(egkHandle+" "+smcbHandle);
         connectorServicesProvider.getVSDServicePortType(runtimeConfig).readVSD(egkHandle, smcbHandle, true, true,
                 context, persoenlicheVersichertendaten, allgemeineVersicherungsdaten, geschuetzteVersichertendaten,
                 vSD_Status, pruefungsnachweis);
