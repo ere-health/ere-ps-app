@@ -36,7 +36,7 @@ public class BearerTokenManageServiceTest {
     }
 
     @Test
-    public void testRequestBearerTokenWithExistingButExpiredToken() {
+    public void testRequestNewAccessTokenWithExistingButExpiredToken() {
         Map<RuntimeConfig, String> configMap = new HashMap<>();
         configMap.put(mockRuntimeConfig, EXPIRED_JWT);
         bearerTokenManageService.bearerToken = configMap;
@@ -51,7 +51,7 @@ public class BearerTokenManageServiceTest {
     }
 
     @Test
-    public void testRequestBearerTokenWithoutExistingToken() {
+    public void testRequestNewAccessTokenWithoutExistingToken() {
         Map<RuntimeConfig, String> bearerTokenMap = bearerTokenManageService.bearerToken;
 
         assertEquals(bearerTokenMap.size(), 0);
@@ -63,7 +63,7 @@ public class BearerTokenManageServiceTest {
     }
 
     @Test
-    public void testRequestBearerTokenWithValidToken() {
+    public void testRequestNewAccessTokenWithValidToken() {
         String[] parts = EXPIRED_JWT.split("\\.");
         String decodedExpiredTokenPart = new String(Base64.getUrlDecoder().decode(parts[1]));
         String decodedValidTokenPart = decodedExpiredTokenPart.replaceFirst("\"exp\":0", ",\"exp\":" + Instant.now().getEpochSecond() + 60);
