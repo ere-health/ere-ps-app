@@ -41,6 +41,7 @@ import org.apache.xml.security.parser.XMLParserException;
 import org.hl7.fhir.r4.model.Binary;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Coding;
+import org.hl7.fhir.r4.model.Coverage;
 import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Parameters;
 import org.hl7.fhir.r4.model.Parameters.ParametersParameterComponent;
@@ -236,6 +237,18 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
         for (Bundle bundle : bundles) {
             // Example: src/test/resources/gematik/Task-4711.xml
             try {
+                try {
+                    // We have a PKV prescription
+                    if(flowtype.equals("160") &&
+                        bundle.getEntry().stream().filter(be -> be.getResource() instanceof Coverage)
+                            .map(be -> (Coverage)be.getResource())
+                                .filter(c -> c.getType().getCoding().stream()
+                                    .filter(coding -> coding.getCode().equals("PKV")).count() > 0).count() > 0) {
+                        flowtype = "200";
+                    }
+                } catch(Exception ex) {
+                    log.log(Level.WARNING, "Could not determine flowtype", ex);
+                }
                 Task task = createERezeptTask(true, runtimeConfig, flowtype);
                 tasks.add(task);
                 bundleWithAccessCodes.add(new BundleWithAccessCodeOrThrowable());
