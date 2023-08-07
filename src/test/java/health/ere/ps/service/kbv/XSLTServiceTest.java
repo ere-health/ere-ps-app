@@ -50,6 +50,22 @@ public class XSLTServiceTest {
         Files.write(Paths.get("src/test/resources/kbv-xslt/PF08_3.html"), result.get(2).getBytes());
     }
 
+    @Test
+    public void testGenerateHTMLForOtherPF() throws IOException, TransformerException {
+        List<Integer> otherPF = List.of(2, 3, 4, 5, 7, 9, 10);
+        XSLTService xsltService = new XSLTService();
+        xsltService.init();
+        for (Integer number : otherPF) {
+            String filename = String.format("src/test/resources/kbv-zip/PF%02d.xml", number);
+            System.out.println(filename);
+            Bundle bundle = parser.parseResource(Bundle.class, getXmlString(filename));
+            String result = xsltService.generateHtmlForBundle(bundle);
+
+            filename = String.format("src/test/resources/kbv-xslt/PF%02d.html", number);
+            Files.write(Paths.get(filename), result.getBytes());
+        }
+    }
+
     private String getXmlString(String string) throws IOException {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+Files.readString(Paths.get(string));
     }
