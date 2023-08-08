@@ -58,4 +58,22 @@ public class RuntimeConfigTest {
         runtimeConfig.getConfigurations().setConnectorBaseURL("7");
         assertEquals("7", runtimeConfig.getConnectorBaseURL());
     }
+
+        @Test
+    public void testUserConfig2() {
+        JsonObject messageWithRuntimeConfig = Json.createObjectBuilder()
+            .add("runtimeConfig", Json.createObjectBuilder())
+        .build();
+         AbortTasksEvent abortTasksEvent = new AbortTasksEvent(messageWithRuntimeConfig, null, null);
+        UserConfig userConfig = new UserConfig();
+        userConfig.defaultTvMode = "8";
+        userConfig.defaultPruefnummer = "9";
+        userConfig.defaultMuster16TemplateProfile = "10"
+         RuntimeConfig runtimeConfig = abortTasksEvent.getRuntimeConfig();
+        userConfig.updateProperties(new UserConfigurations());
+        runtimeConfig.copyValuesFromUserConfig(userConfig);
+        assertEquals("8", abortTasksEvent.getTvMode());
+        assertEquals("9", abortTasksEvent.getPruefnummer());
+        assertEquals("10", abortTasksEvent.getMuster16TemplateProfile());
+    }
 }
