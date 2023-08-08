@@ -39,7 +39,6 @@ import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Practitioner;
 import org.hl7.fhir.r4.model.Reference;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import ca.uhn.fhir.context.FhirContext;
@@ -133,7 +132,7 @@ public class MassGenerator2Test {
     }
     @Test
     void testCreateERezeptMassCreateCIDA() throws Exception {
-        createERezeptMassCreate("../secret-test-print-samples/CIDA/egk/cards.txt", null, "../secret-test-print-samples/CIDA/CIDA-5/", true);
+        createERezeptMassCreate("../secret-test-print-samples/CIDA/egk/cards.txt", null, "../secret-test-print-samples/CIDA/CIDA-10/", true);
     }
     @Test
     void testCreateERezeptMassCGMLauer() throws Exception {
@@ -218,10 +217,13 @@ public class MassGenerator2Test {
                     for (Path entry : stream) {
                         File file = entry.toFile();
                         List<File> bundleFile;
+                        String directoryName = "";
                         if(!file.isDirectory()) {
                             bundleFile = Arrays.asList(file);
+                            directoryName = "";
                         } else if(!file.getName().equals("processed")) {
                             bundleFile = Arrays.asList(file.listFiles());
+                            directoryName = file.getName()+"-";
                         } else {
                             continue;
                         }
@@ -231,7 +233,7 @@ public class MassGenerator2Test {
                             String template = new String(fileStream.readAllBytes());
                             fileStream.close();
                             if(move) {
-                                Files.move(myFile.toPath(), Paths.get(templateFolder+"/processed/"+myFile.getName()), StandardCopyOption.REPLACE_EXISTING);
+                                Files.move(myFile.toPath(), Paths.get(templateFolder+"/processed/"+directoryName+myFile.getName()), StandardCopyOption.REPLACE_EXISTING);
                             }
                             
                             Bundle bundle = iParser.parseResource(Bundle.class, template);
@@ -484,7 +486,7 @@ public class MassGenerator2Test {
                         log.info("Time: "+thisMoment);
                         
                         i++;
-                        if((i % 8) == 0) {
+                        if((i % 200) == 0) {
                             eRezeptWorkflowService.deactivateComfortSignature(runtimeConfig);
                             eRezeptWorkflowService.activateComfortSignature(runtimeConfig);
                         }
