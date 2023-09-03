@@ -24,6 +24,44 @@ public class WebsocketXmlPrescriptionClientTest {
 
     @Test
     @Disabled
+    public void testVOSBundleERE614() {
+
+        String jsonBundle;
+        try {
+            jsonBundle = new String(Files.readAllBytes(Paths.get("../vos-erp-translator/src/test/resources/websocket/ERE-614.json")));
+            
+            jsonBundle = jsonBundle.replaceFirst("a99442c7-e26f-4101-ba53-598e214c9a0c", UUID.randomUUID().toString());
+            jsonBundle = jsonBundle.replaceAll("2023-08-21T15:21:50\\+02:00", Instant.now().toString());
+            jsonBundle = jsonBundle.replaceAll("2023-08-21", Instant.now().toString().substring(0, 10));
+            
+
+            sendMessage(jsonBundle);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    @Disabled
+    public void testVOSBundleERE614List() {
+
+        String jsonBundle;
+        try {
+            jsonBundle = new String(Files.readAllBytes(Paths.get("../vos-erp-translator/src/test/resources/websocket/ERE-614-list-of-list.json")));
+            
+            jsonBundle = jsonBundle.replaceFirst("a99442c7-e26f-4101-ba53-598e214c9a0c", UUID.randomUUID().toString());
+            jsonBundle = jsonBundle.replaceAll("2023-08-21T15:21:50\\+02:00", Instant.now().toString());
+            jsonBundle = jsonBundle.replaceAll("2023-08-21", Instant.now().toString().substring(0, 10));
+            
+
+            sendMessage(jsonBundle);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    @Disabled
     public void testVOSBundle() {
 
         String jsonBundle;

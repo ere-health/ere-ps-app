@@ -185,6 +185,11 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
 
         List<List<BundleWithAccessCodeOrThrowable>> bundleWithAccessCodeOrThrowable = new ArrayList<>();
         List<Bundle> bundles = signAndUploadBundlesEvent.listOfListOfBundles.stream().flatMap(b -> b.stream()).collect(Collectors.toList());
+        if(bundles.size() == 0) {
+            log.warning("No bundles to sign. Returning.");
+            exceptionEvent.fireAsync(new ArrayIndexOutOfBoundsException("No bundles to sign. Returning. Please see https://github.com/ere-health/ere-ps-app/blob/main/src/test/resources/websocket-messages/SignAndUploadBundles.json for an example message"));
+            return;
+        }
         log.info(String.format("Getting access codes for %d bundles.",
                 bundles.size()));
 
