@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.WebApplicationException;
@@ -45,8 +46,12 @@ public class ERezeptWorkflowResource {
 
     @POST
     @Path("/task")
-    public Response createERezeptTask(@HeaderParam("accept") String accept) {
-        Task task = eRezeptWorkflowService.createERezeptTask(extractRuntimeConfigFromHeaders(httpServletRequest));
+    public Response createERezeptTask(@HeaderParam("accept") String accept, @QueryParam("flowtype") String flowtype) {
+
+	if(flowtype == null) {
+	    flowtype = "160";
+	}
+        Task task = eRezeptWorkflowService.createERezeptTask(true, extractRuntimeConfigFromHeaders(httpServletRequest), flowtype);
         if("application/xml".equals(accept)) {
             return Response.ok().entity(xmlParser.encodeResourceToString(task)).type(MediaType.APPLICATION_XML).build();
         } else {
