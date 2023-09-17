@@ -1,0 +1,273 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="KBV-PR-Base-Procedure" />
+  <url value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Procedure" />
+  <version value="1.3.0" />
+  <name value="KBV_PR_Base_Procedure" />
+  <title value="KBV_PR_Base_Procedure" />
+  <status value="active" />
+  <publisher value="Kassenärztliche Bundesvereinigung (KBV)" />
+  <description value="Dieses Profil bildet eine Prozedur ab." />
+  <copyright value="Im folgenden Profil können Codes aus den Codesystemen Snomed, Loinc oder Ucum enthalten sein, die dem folgenden Urheberrecht unterliegen: This material includes SNOMED Clinical Terms® SNOMED CT® which is used by permission of SNOMED International. All rights reserved. SNOMED CT®, was originally created by The College of American Pathologists. SNOMED and SNOMED CT are registered trademarks of SNOMED International. Implementers of these artefacts must have the appropriate SNOMED CT Affiliate license. This material contains content from Loinc http://loinc.org. Loinc is copyright © 1995-2020, Regenstrief Institute, Inc. and the Logical Observation Identifiers Names and Codes Loinc Committee and is available at no cost under the license at http://loinc.org/license. Loinc® is a registered United States trademark of Regenstrief Institute, Inc. This product includes all or a portion of the UCUM table, UCUM codes, and UCUM definitions or is derived from it, subject to a license from Regenstrief Institute, Inc. and The UCUM Organization. Your use of the UCUM table, UCUM codes, UCUM definitions also is subject to this license, a copy of which is available at ​http://unitsofmeasure.org. The current complete UCUM table, UCUM Specification are available for download at ​http://unitsofmeasure.org. The UCUM table and UCUM codes are copyright © 1995-2009, Regenstrief Institute, Inc. and the Unified Codes for Units of Measures UCUM Organization. All rights reserved. THE UCUM TABLE IN ALL FORMATS, UCUM DEFINITIONS, AND SPECIFICATION ARE PROVIDED &amp;quot;AS IS.&amp;quot; ANY EXPRESS OR IMPLIED WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE." />
+  <fhirVersion value="4.0.1" />
+  <kind value="resource" />
+  <abstract value="false" />
+  <type value="Procedure" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Procedure" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Procedure">
+      <path value="Procedure" />
+      <definition value="Dieses Profil bildet eine Prozedur ab." />
+    </element>
+    <element id="Procedure.extension">
+      <path value="Procedure.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="0" />
+    </element>
+    <element id="Procedure.extension:Dokumentationsdatum">
+      <path value="Procedure.extension" />
+      <sliceName value="Dokumentationsdatum" />
+      <min value="0" />
+      <max value="1" />
+      <type>
+        <code value="Extension" />
+        <profile value="http://fhir.de/StructureDefinition/ProzedurDokumentationsdatum" />
+      </type>
+      <isModifier value="false" />
+    </element>
+    <element id="Procedure.status">
+      <path value="Procedure.status" />
+      <definition value="Hier wird der Status der Prozedur als Code aus dem ValueSet: https://www.hl7.org/fhir/valueset-event-status.html angegeben." />
+    </element>
+    <element id="Procedure.statusReason">
+      <path value="Procedure.statusReason" />
+      <definition value="Hier wird der Grund für den angegebenen Status als Code aus dem ValueSet http://hl7.org/fhir/ValueSet/procedure-not-performed-reason angegeben. Die Terminologie-Assoziation kann in den verschiedenen Anwendungen variieren und ist deshalb in FHIR® als Example-binding von SNOMED CT®-Konzepten in den Subklassen von SNOMED-Konzepten vorgesehen, siehe http://hl7.org/fhir/ValueSet/procedure-not-performed-reason." />
+    </element>
+    <element id="Procedure.category">
+      <path value="Procedure.category" />
+      <definition value="Hier wird eine grobe Einordnung/Klassifizierung der Prozedur anhand eines entsprechenden Codes oder alternativ mit einem Freitext angegeben. Die Kategorie klassifiziert die Prozedur zu Such-, Sortier- und Anzeigezwecken." />
+    </element>
+    <element id="Procedure.category.coding">
+      <path value="Procedure.category.coding" />
+      <slicing>
+        <discriminator>
+          <type value="pattern" />
+          <path value="$this" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="Procedure.category.coding:snomedCT">
+      <path value="Procedure.category.coding" />
+      <sliceName value="snomedCT" />
+      <patternCoding>
+        <system value="http://snomed.info/sct" />
+      </patternCoding>
+      <binding>
+        <strength value="extensible" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_Procedure_Categories_SNOMED_CT" />
+      </binding>
+    </element>
+    <element id="Procedure.category.coding:snomedCT.system">
+      <path value="Procedure.category.coding.system" />
+      <min value="1" />
+    </element>
+    <element id="Procedure.category.coding:snomedCT.version">
+      <path value="Procedure.category.coding.version" />
+      <min value="1" />
+    </element>
+    <element id="Procedure.category.coding:snomedCT.code">
+      <path value="Procedure.category.coding.code" />
+      <min value="1" />
+    </element>
+    <element id="Procedure.category.coding:snomedCT.display">
+      <path value="Procedure.category.coding.display" />
+      <min value="1" />
+    </element>
+    <element id="Procedure.category.text">
+      <path value="Procedure.category.text" />
+      <definition value="Hier wird ein Freitext eingetragen." />
+    </element>
+    <element id="Procedure.code">
+      <path value="Procedure.code" />
+      <definition value="Hier wird die spezifische Prozedur anhand eines entsprechenden Codes oder alternativ mit einem Freitext angegeben." />
+      <min value="1" />
+    </element>
+    <element id="Procedure.code.coding">
+      <path value="Procedure.code.coding" />
+      <slicing>
+        <discriminator>
+          <type value="pattern" />
+          <path value="$this" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="Procedure.code.coding:ops">
+      <path value="Procedure.code.coding" />
+      <sliceName value="ops" />
+      <max value="1" />
+      <type>
+        <code value="Coding" />
+        <profile value="http://fhir.de/StructureDefinition/CodingOPS|1.3.2" />
+      </type>
+      <patternCoding>
+        <system value="http://fhir.de/CodeSystem/bfarm/ops" />
+      </patternCoding>
+    </element>
+    <element id="Procedure.code.coding:snomed">
+      <path value="Procedure.code.coding" />
+      <sliceName value="snomed" />
+      <max value="1" />
+      <binding>
+        <strength value="required" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_Procedure_SNOMED_CT" />
+      </binding>
+    </element>
+    <element id="Procedure.code.coding:snomed.system">
+      <path value="Procedure.code.coding.system" />
+      <min value="1" />
+    </element>
+    <element id="Procedure.code.coding:snomed.version">
+      <path value="Procedure.code.coding.version" />
+      <min value="1" />
+    </element>
+    <element id="Procedure.code.coding:snomed.code">
+      <path value="Procedure.code.coding.code" />
+      <min value="1" />
+    </element>
+    <element id="Procedure.code.coding:snomed.display">
+      <path value="Procedure.code.coding.display" />
+      <min value="1" />
+    </element>
+    <element id="Procedure.code.text">
+      <path value="Procedure.code.text" />
+      <definition value="Hier wird ein Freitext eingetragen." />
+    </element>
+    <element id="Procedure.subject">
+      <path value="Procedure.subject" />
+      <type>
+        <code value="Reference" />
+        <targetProfile value="http://hl7.org/fhir/StructureDefinition/Patient" />
+        <targetProfile value="http://hl7.org/fhir/StructureDefinition/Group" />
+        <targetProfile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Patient|1.3.0" />
+      </type>
+    </element>
+    <element id="Procedure.performed[x]">
+      <path value="Procedure.performed[x]" />
+      <slicing>
+        <discriminator>
+          <type value="type" />
+          <path value="$this" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <definition value="Hier wird angegeben, wann die Prozedur durchgeführt wurde. Dies kann ein spezifischer Zeitpunkt oder ein Zeitraum sein." />
+      <min value="1" />
+    </element>
+    <element id="Procedure.performed[x]:performedDateTime">
+      <path value="Procedure.performed[x]" />
+      <sliceName value="performedDateTime" />
+      <definition value="Hier wird ein Zeitpunkt angegeben, wobei dieser mindestens Tag, Monat und Jahr beinhalten muss." />
+      <type>
+        <code value="dateTime" />
+      </type>
+    </element>
+    <element id="Procedure.performed[x]:performedPeriod">
+      <path value="Procedure.performed[x]" />
+      <sliceName value="performedPeriod" />
+      <definition value="Hier wird ein Zeitraum angegeben, innerhalb dessen die Prozedur durchgeführt wurde. Ein Zeitraum besteht aus einem &quot;von&quot; und einem &quot;bis&quot; Zeitpunkt." />
+      <type>
+        <code value="Period" />
+      </type>
+    </element>
+    <element id="Procedure.performed[x]:performedAge">
+      <path value="Procedure.performed[x]" />
+      <sliceName value="performedAge" />
+      <definition value="Hier wird die Lebensphase, während der die Prozedur durchgeführt wurde, angegeben.&#xD;&#xA;Dies kann beispielsweise bei anamnestischen Angaben zu lange zurückliegenden Prozeduren sinnvoll sein." />
+      <type>
+        <code value="Age" />
+      </type>
+    </element>
+    <element id="Procedure.performed[x]:performedAge.extension">
+      <path value="Procedure.performed[x].extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="0" />
+    </element>
+    <element id="Procedure.performed[x]:performedAge.extension:Lebensphase">
+      <path value="Procedure.performed[x].extension" />
+      <sliceName value="Lebensphase" />
+      <min value="0" />
+      <max value="1" />
+      <type>
+        <code value="Extension" />
+        <profile value="https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Stage_Life|1.3.0" />
+      </type>
+      <isModifier value="false" />
+    </element>
+    <element id="Procedure.performed[x]:performedString">
+      <path value="Procedure.performed[x]" />
+      <sliceName value="performedString" />
+      <definition value="Hier wird das Durchführungsdatum mittels eines Freitextes angegeben." />
+      <type>
+        <code value="string" />
+      </type>
+    </element>
+    <element id="Procedure.recorder">
+      <path value="Procedure.recorder" />
+      <definition value="Hier wird die Person referenziert, die die Prozedur dokumentiert hat und Verantwortung für den Inhalt übernimmt." />
+    </element>
+    <element id="Procedure.performer">
+      <path value="Procedure.performer" />
+      <definition value="Hier wird die Person referenziert, die die Prozedur durchgeführt hat." />
+    </element>
+    <element id="Procedure.reasonCode">
+      <path value="Procedure.reasonCode" />
+      <definition value="Hier wird die Begründung für die Prozedur abgebildet" />
+    </element>
+    <element id="Procedure.reasonReference">
+      <path value="Procedure.reasonReference" />
+      <definition value="Hier werden Instanzen referenziert, die die Prozedur begründen." />
+    </element>
+    <element id="Procedure.bodySite">
+      <path value="Procedure.bodySite" />
+      <definition value="Hier wird die Körperstelle, an der die Prozedur durchgeführt wurde, anhand eines entsprechenden Codes oder alternativ mit einem Freitext angegeben.&#xD;&#xA;Die Angabe mehrerer Körperstellen kann z.B. bei der Entnahme von multiplen Biopsien sinnvoll sein." />
+    </element>
+    <element id="Procedure.complication">
+      <path value="Procedure.complication" />
+      <definition value="Hier werden Komplikationen der Prozedur angegeben." />
+    </element>
+    <element id="Procedure.complicationDetail">
+      <path value="Procedure.complicationDetail" />
+      <definition value="Hier werden Instanzen referenziert, die Komplikationen der Prozedur abbilden." />
+    </element>
+    <element id="Procedure.followUp">
+      <path value="Procedure.followUp" />
+      <definition value="Hier wird die Nachbehandlung der Prozedur anhand eines entsprechenden Codes oder alternativ mit einem Freitext angegeben." />
+    </element>
+    <element id="Procedure.focalDevice">
+      <path value="Procedure.focalDevice" />
+      <definition value="Hier werden Geräte erfasst, die während der Prozedur implantiert, entfernt oder manipuliert wurden." />
+    </element>
+    <element id="Procedure.focalDevice.action">
+      <path value="Procedure.focalDevice.action" />
+      <definition value="Hier wird die Art der durchgeführten Handlung (z.B. Implantation, Explantation, Kalibration, Batteriewechsel, ...) anhand eines entsprechenden Codes oder alternativ mit einem Freitext angegeben." />
+    </element>
+    <element id="Procedure.focalDevice.manipulated">
+      <path value="Procedure.focalDevice.manipulated" />
+      <definition value="Hier wird das Gerät referenziert, das von der Prozedur betroffen ist." />
+    </element>
+  </differential>
+</StructureDefinition>

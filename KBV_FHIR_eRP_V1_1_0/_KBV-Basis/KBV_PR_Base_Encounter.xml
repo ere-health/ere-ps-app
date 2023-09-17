@@ -1,0 +1,127 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="kbv-pr-base-encounter" />
+  <url value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Encounter" />
+  <version value="1.3.0" />
+  <name value="KBV_PR_Base_Encounter" />
+  <title value="KBV_PR_Base_Encounter" />
+  <status value="active" />
+  <fhirVersion value="4.0.1" />
+  <kind value="resource" />
+  <abstract value="false" />
+  <type value="Encounter" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Encounter" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Encounter">
+      <path value="Encounter" />
+      <definition value="Hier werden Begegnungen bzw. Aufenthalte mit Interaktionen zwischen PatientIn und behandelnden Personen abgebildet.&#xD;&#xA;Dies kann zum Beispiel ein ambulanter Arzttermin oder ein stationärer Aufenthalt sein." />
+    </element>
+    <element id="Encounter.status">
+      <path value="Encounter.status" />
+      <definition value="Hier wird der Status der Begegnung bzw. des Aufenthalts angegeben." />
+    </element>
+    <element id="Encounter.class">
+      <path value="Encounter.class" />
+      <definition value="Hier wird das Setting der Begegnung bzw. des Aufenthalts angegeben." />
+      <binding>
+        <strength value="extensible" />
+        <description value="Setting des Termins bzw. Aufenthalts" />
+        <valueSet value="http://fhir.de/ValueSet/EncounterClassDE" />
+      </binding>
+    </element>
+    <element id="Encounter.serviceType">
+      <path value="Encounter.serviceType" />
+      <definition value="Hier wird die medizinische Fachrichtung bzw. die Fachabteilung einer Einrichtung angegeben." />
+    </element>
+    <element id="Encounter.serviceType.coding">
+      <path value="Encounter.serviceType.coding" />
+      <slicing>
+        <discriminator>
+          <type value="pattern" />
+          <path value="$this" />
+        </discriminator>
+        <description value="Hier werden Codes angegeben." />
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="Encounter.serviceType.coding:KBV-Fachgruppencodierung">
+      <path value="Encounter.serviceType.coding" />
+      <sliceName value="KBV-Fachgruppencodierung" />
+      <definition value="Hier wird die Fachrichtung/Fachabteilung anhand der KBV-Schlüsseltabelle S_BAR2_ARZTNRFACHGRUPPE wiedergegeben.&#xD;&#xA;Diese enthält die zweistellige Fachgruppencodierung für die 8.+9. Stelle der LANR (nach BAR-Schlüsselverzeichnis, Anlage 35)." />
+      <patternCoding>
+        <system value="https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_BAR2_ARZTNRFACHGRUPPE" />
+      </patternCoding>
+    </element>
+    <element id="Encounter.serviceType.coding:HL7-Fachabteilungsschluessel">
+      <path value="Encounter.serviceType.coding" />
+      <sliceName value="HL7-Fachabteilungsschluessel" />
+      <definition value="Hier wird die Fachrichtung/Fachabteilung anhand eines Codes aus dem Codesystem &quot;Fachabteilungsschlüssel&quot; der HL7 Basis Deutschland angegeben." />
+      <patternCoding>
+        <system value="http://fhir.de/CodeSystem/dkgev/Fachabteilungsschluessel" />
+      </patternCoding>
+    </element>
+    <element id="Encounter.serviceType.coding:HL7-Fachabteilungsschluessel-erweitert">
+      <path value="Encounter.serviceType.coding" />
+      <sliceName value="HL7-Fachabteilungsschluessel-erweitert" />
+      <definition value="Hier wird die Fachrichtung/Fachabteilung anhand eines Codes aus dem Codesystem &quot;FachabteilungsschlüsselErweitert&quot; der HL7 Basis Deutschland angegeben." />
+      <patternCoding>
+        <system value="http://fhir.de/CodeSystem/dkgev/Fachabteilungsschluessel-erweitert" />
+      </patternCoding>
+    </element>
+    <element id="Encounter.serviceType.text">
+      <path value="Encounter.serviceType.text" />
+      <definition value="Hier wird die Fachrichtung als Freitext angegeben." />
+    </element>
+    <element id="Encounter.subject">
+      <path value="Encounter.subject" />
+      <type>
+        <code value="Reference" />
+        <targetProfile value="http://hl7.org/fhir/StructureDefinition/Patient" />
+        <targetProfile value="http://hl7.org/fhir/StructureDefinition/Group" />
+        <targetProfile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Patient|1.3.0" />
+      </type>
+    </element>
+    <element id="Encounter.participant">
+      <path value="Encounter.participant" />
+      <definition value="Hier werden alle Personen angegeben, die außer dem/der PatientIn selbst an der Begegnung bzw. dem Aufenthalt beteiligt sind." />
+    </element>
+    <element id="Encounter.participant.type">
+      <path value="Encounter.participant.type" />
+      <definition value="Hier wird angegeben, welche Rolle die Person bei dem Termin bzw. beim Aufenthalt spielt." />
+    </element>
+    <element id="Encounter.participant.individual">
+      <path value="Encounter.participant.individual" />
+      <definition value="Hier wird die Person referenziert, die beteiligt ist. Dies kann z.B. eine behandelnde Person oder eine Kontaktperson sein." />
+    </element>
+    <element id="Encounter.period">
+      <path value="Encounter.period" />
+      <definition value="Hier wird eine Zeitangabe gemacht, zu der die Begegnung bzw. der Aufenthalt stattfindet." />
+      <min value="1" />
+    </element>
+    <element id="Encounter.period.start">
+      <path value="Encounter.period.start" />
+      <definition value="Hier wird ein Zeitpunkt angegeben, wobei dieser mindestens das Jahr beinhalten muss. &#xD;&#xA;Wird kein Endzeitpunkt angegeben muss dieser jedoch mindestens Tags, Monat und Jahr beinhalten." />
+    </element>
+    <element id="Encounter.period.end">
+      <path value="Encounter.period.end" />
+      <definition value="Hier wird ein Zeitpunkt angegeben, wobei dieser mindestens das Jahr beinhalten muss." />
+    </element>
+    <element id="Encounter.reasonCode">
+      <path value="Encounter.reasonCode" />
+      <definition value="Hier wird die Begründung für die Begegnung bzw. den Aufenthalt anhand eines entsprechenden Codes oder alternativ mit einem Freitext angegeben." />
+    </element>
+    <element id="Encounter.reasonReference">
+      <path value="Encounter.reasonReference" />
+      <definition value="Hier werden Instanzen referenziert, die die Begegnung bzw. den Aufenthalt begründen." />
+    </element>
+    <element id="Encounter.location">
+      <path value="Encounter.location" />
+      <definition value="Hier kann der Ort der Begegnung bzw. des Aufenthaltes angegeben werden, sofern dieser nicht bereits über ein anderes Element (z.B. über die Verantwortliche Einrichtung) erfasst ist." />
+      <max value="1" />
+    </element>
+    <element id="Encounter.serviceProvider">
+      <path value="Encounter.serviceProvider" />
+      <definition value="Hier wird die Einrichtung referenziert, die verantwortlich für die Begegnung bzw. den Aufenthalt ist." />
+    </element>
+  </differential>
+</StructureDefinition>

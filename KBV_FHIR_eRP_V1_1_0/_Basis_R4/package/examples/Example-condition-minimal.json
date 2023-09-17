@@ -1,0 +1,1 @@
+{"resourceType":"Condition","id":"Example-condition-minimal","code":{"coding":[{"system":"http://fhir.de/CodeSystem/bfarm/icd-10-gm","version":"2019","code":"F71.0","display":"Mittelgradige Intelligenzminderung Keine oder geringfügige Verhaltensstörung"}]},"subject":{"reference":"Patient/example"}}

@@ -1,0 +1,40 @@
+<Observation xmlns="http://hl7.org/fhir">
+  <id value="9e67bb0c-edf6-458c-a044-d473f792cdae" />
+  <meta>
+    <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Observation_Body_Temperature|1.3.0" />
+  </meta>
+  <status value="amended" />
+  <category>
+    <coding>
+      <system value="http://terminology.hl7.org/CodeSystem/observation-category" />
+      <code value="vital-signs" />
+    </coding>
+  </category>
+  <code>
+    <coding>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="386725007" />
+      <display value="Body temperature (observable entity)" />
+    </coding>
+    <coding>
+      <system value="http://loinc.org" />
+      <version value="2.72" />
+      <code value="8310-5" />
+      <display value="Body temperature" />
+    </coding>
+  </code>
+  <subject>
+    <reference value="urn:uuid:6a15cff6-3cc1-4bf2-ab66-1cc6316e6777" />
+  </subject>
+  <effectiveDateTime value="2020-01-02" />
+  <performer>
+    <reference value="urn:uuid:8ad1ee6c-6164-493a-be52-c43cf49e9916" />
+  </performer>
+  <valueQuantity>
+    <value value="40" />
+    <unit value="Celsius" />
+    <system value="http://unitsofmeasure.org" />
+    <code value="Cel" />
+  </valueQuantity>
+</Observation>

@@ -1,0 +1,121 @@
+<Practitioner xmlns="http://hl7.org/fhir">
+  <id value="12345678901234567890" />
+  <meta>
+    <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Practitioner|1.3.0" />
+  </meta>
+  <!-- ANR -->
+  <identifier>
+    <type>
+      <coding>
+        <system value="http://terminology.hl7.org/CodeSystem/v2-0203" />
+        <code value="LANR" />
+        <display value="Lifelong physician number" />
+      </coding>
+    </type>
+    <system value="https://fhir.kbv.de/NamingSystem/KBV_NS_Base_ANR" />
+    <value value="123456789" />
+  </identifier>
+  <!-- EFN -->
+  <identifier>
+    <type>
+      <coding>
+        <system value="http://terminology.hl7.org/CodeSystem/v2-0203" />
+        <code value="DN" />
+        <display value="Doctor number" />
+      </coding>
+    </type>
+    <system value="http://fhir.de/sid/bundesaerztekammer/efn" />
+    <value value="123456789123456" />
+  </identifier>
+  <!-- ZANR -->
+  <identifier>
+    <type>
+      <coding>
+        <system value="http://fhir.de/CodeSystem/identifier-type-de-basis" />
+        <code value="ZANR" />
+        <display value="Zahnarztnummer" />
+      </coding>
+    </type>
+    <system value="http://fhir.de/sid/kzbv/zahnarztnummer" />
+    <value value="123456789" />
+  </identifier>
+  <!--  Telematik ID  -->
+  <identifier>
+    <type>
+      <coding>
+        <system value="http://terminology.hl7.org/CodeSystem/v2-0203" />
+        <code value="PRN" />
+        <display value="Provider number" />
+      </coding>
+    </type>
+    <system value="https://gematik.de/fhir/sid/telematik-id" />
+    <value value="123456789" />
+  </identifier>
+  <name>
+    <use value="official" />
+    <text value="Hans Topp-Glücklich" />
+    <family value="Topp-Glücklich">
+      <extension url="http://hl7.org/fhir/StructureDefinition/humanname-own-name">
+        <valueString value="Topp-Glücklich" />
+      </extension>
+    </family>
+    <given value="Hans" />
+    <prefix value="Dr. med.">
+      <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier">
+        <valueCode value="AC" />
+      </extension>
+    </prefix>
+  </name>
+  <telecom>
+    <system value="phone" />
+    <value value="06151/1111111" />
+  </telecom>
+  <address>
+    <type value="both" />
+    <line value="Musterstr. 1">
+      <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber">
+        <valueString value="1" />
+      </extension>
+      <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName">
+        <valueString value="Musterstr." />
+      </extension>
+    </line>
+    <city value="Darmstadt" />
+    <postalCode value="64283" />
+    <country value="D" />
+  </address>
+  <qualification>
+    <code>
+      <coding>
+        <system value="http://snomed.info/sct" />
+        <code value="309343006" />
+        <display value="Physician (occupation)" />
+      </coding>
+    </code>
+  </qualification>
+  <qualification>
+    <code>
+      <coding>
+        <system value="urn:oid:1.2.276.0.76.5.514" />
+        <code value="11001" />
+        <display value="FA Allgemeinmedizin"></display>
+      </coding>
+    </code>
+  </qualification>
+  <qualification>
+    <code>
+      <coding>
+        <system value="urn:oid:1.3.6.1.4.1.19376.3.276.1.5.11" />
+        <code value="2" />
+      </coding>
+    </code>
+  </qualification>
+  <qualification>
+    <code>
+      <coding>
+        <system value="urn:oid:1.2.276.0.76.5.492" />
+        <code value="1" />
+      </coding>
+    </code>
+  </qualification>
+</Practitioner>

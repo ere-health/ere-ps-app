@@ -1,0 +1,34 @@
+<NamingSystem xmlns="http://hl7.org/fhir">
+  <id value="KBV-NS-Base-ANR" />
+  <meta>
+    <profile value="http://fhir.de/StructureDefinition/namingsystem-de-basis" />
+  </meta>
+  <name value="KBV_NS_Base_ANR" />
+  <status value="active" />
+  <kind value="identifier" />
+  <date value="2019-12-11" />
+  <publisher value="Kassenärztliche Bundesvereinigung (KBV)" />
+  <contact>
+    <telecom>
+      <system value="url" />
+      <value value="http://www.kbv.de" />
+    </telecom>
+  </contact>
+  <type>
+    <coding>
+      <system value="http://terminology.hl7.org/CodeSystem/v2-0203" />
+      <code value="LANR" />
+    </coding>
+  </type>
+  <description value="Die Arztnummer (umgangssprachlich auch Lebenslange Arztnummer „LANR“ genannt) wird an jeden im vertragsärztlichen Bereich oder in einem nach §108 SGB V zugelassenen Krankenhaus tätigen Arzt vergeben. Im vertragsärztlichen Bereich erfolgt die Vergabe durch die zuständige Kassenärztliche Vereinigung, im Krankenhausbereich durch das Krankenhaus-Arztverzeichnis nach §293 Abs. 7 SGB V. Die Arztnummer setzt sich aus insgesamt neun Ziffern zusammen: 1.einer sechsstelligen eineindeutigen Ziffernfolge (Ziffern1-6); 2. Einer Prüfziffer (Ziffer 7); 3. Einem zweistelligen Arztgruppenschlüssel, der den Versorgungsbereich sowie die Facharztgruppe differenziert nach Schwerpunkten angibt (Ziffern 8-9) gemäß Anlage 2 (Richtlinie der Kassenärztlichen Bundesvereinigung nach § 75 Absatz 7SGB V zur Vergabe der Arzt-, Betriebsstätten- sowie der Praxisnetznummern)" />
+  <uniqueId>
+    <type value="oid" />
+    <value value="1.2.276.0.76.4.16" />
+    <preferred value="false" />
+  </uniqueId>
+  <uniqueId>
+    <type value="uri" />
+    <value value="https://fhir.kbv.de/NamingSystem/KBV_NS_Base_ANR" />
+    <preferred value="true" />
+  </uniqueId>
+</NamingSystem>

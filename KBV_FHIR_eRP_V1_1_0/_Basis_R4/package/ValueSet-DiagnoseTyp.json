@@ -1,0 +1,39 @@
+{
+  "resourceType": "ValueSet",
+  "status": "draft",
+  "name": "DiagnoseTyp",
+  "id": "DiagnoseTyp",
+  "version": "1.3.2",
+  "url": "http://fhir.de/ValueSet/DiagnoseTyp",
+  "experimental": false,
+  "date": "2022-02-17",
+  "publisher": "HL7 Deutschland e.V. (Technisches Komitee FHIR)",
+  "contact": [
+    {
+      "telecom": [
+        {
+          "system": "other",
+          "value": "http://hl7.de/technische-komitees/fhir/"
+        }
+      ]
+    }
+  ],
+  "copyright": "HL7 Deutschland e.V.",
+  "compose": {
+    "include": [
+      {
+        "system": "http://fhir.de/CodeSystem/KontaktDiagnoseProzedur",
+        "concept": [
+          {
+            "code": "referral-diagnosis",
+            "display": "Überweisungsdiagnose"
+          },
+          {
+            "code": "treatment-diagnosis",
+            "display": "Behandlungsdiagnose"
+          }
+        ]
+      }
+    ]
+  }
+}

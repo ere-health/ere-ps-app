@@ -1,0 +1,54 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="KBV-PR-Base-DocumentReference" />
+  <url value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_DocumentReference" />
+  <version value="1.3.0" />
+  <name value="KBV_PR_Base_DocumentReference" />
+  <status value="active" />
+  <publisher value="Kassenärztliche Bundesvereinigung (KBV)" />
+  <description value="Hier kann auf ein externes Dokument verwiesen und/oder ein Dokument angehängt werden." />
+  <copyright value="Im folgenden Profil können Codes aus den Codesystemen Snomed, Loinc oder Ucum enthalten sein, die dem folgenden Urheberrecht unterliegen: This material includes SNOMED Clinical Terms® (SNOMED CT®) which is used by permission of SNOMED International. All rights reserved. SNOMED CT®, was originally created by The College of American Pathologists. SNOMED and SNOMED CT are registered trademarks of SNOMED International. Implementers of these artefacts must have the appropriate SNOMED CT Affiliate license. This material contains content from LOINC (http://loinc.org). LOINC is copyright © 1995-2020, Regenstrief Institute, Inc. and the Logical Observation Identifiers Names and Codes (LOINC) Committee and is available at no cost under the license at http://loinc.org/license. LOINC® is a registered United States trademark of Regenstrief Institute, Inc. This product includes all or a portion of the UCUM table, UCUM codes, and UCUM definitions or is derived from it, subject to a license from Regenstrief Institute, Inc. and The UCUM Organization. Your use of the UCUM table, UCUM codes, UCUM definitions also is subject to this license, a copy of which is available at http://unitsofmeasure.org. The current complete UCUM table, UCUM Specification are available for download at http://unitsofmeasure.org. The UCUM table and UCUM codes are copyright © 1995-2009, Regenstrief Institute, Inc. and the Unified Codes for Units of Measures (UCUM) Organization. All rights reserved. THE UCUM TABLE (IN ALL FORMATS), UCUM DEFINITIONS, AND SPECIFICATION ARE PROVIDED 'AS IS.' ANY EXPRESS OR IMPLIED WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE." />
+  <fhirVersion value="4.0.1" />
+  <kind value="resource" />
+  <abstract value="false" />
+  <type value="DocumentReference" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/DocumentReference" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="DocumentReference">
+      <path value="DocumentReference" />
+      <definition value="Hier kann auf ein externes Dokument verwiesen und/oder ein Dokument angehängt werden." />
+    </element>
+    <element id="DocumentReference.author">
+      <path value="DocumentReference.author" />
+      <definition value="Hier werden Personen, Einrichtungen oder Geräte, die das Dokument erzeugt haben, referenziert." />
+    </element>
+    <element id="DocumentReference.description">
+      <path value="DocumentReference.description" />
+      <definition value="Hier wird der Dokumentenverweis als Freitext erfasst, z. B. &quot;Arztbrief vom 28.04.2020&quot;." />
+    </element>
+    <element id="DocumentReference.content">
+      <path value="DocumentReference.content" />
+      <definition value="Strukturierte Referenz auf andere Inhalte, dies kann z. B. ein anderes Dokument in der ePA sein&#xD;&#xA;&#xD;&#xA;oder&#xD;&#xA;&#xD;&#xA;Hier wird das Dokument in Form eines formatierten Anhangs abgebildet." />
+    </element>
+    <element id="DocumentReference.content.attachment.contentType">
+      <path value="DocumentReference.content.attachment.contentType" />
+      <definition value="Hier wird das Dateiformat ausgewählt.&#xD;&#xA;Es ist ein Code aus dem System urn:ietf:bcp:13 zu wählen" />
+    </element>
+    <element id="DocumentReference.content.attachment.data">
+      <path value="DocumentReference.content.attachment.data" />
+      <definition value="Hier wird das Dokument als Datei angehängt." />
+    </element>
+    <element id="DocumentReference.content.attachment.url">
+      <path value="DocumentReference.content.attachment.url" />
+      <definition value="URI des Eintrags." />
+    </element>
+    <element id="DocumentReference.content.attachment.title">
+      <path value="DocumentReference.content.attachment.title" />
+      <definition value="Name des referenzierten Dokumentes." />
+    </element>
+    <element id="DocumentReference.content.attachment.creation">
+      <path value="DocumentReference.content.attachment.creation" />
+      <definition value="Hier wird der Zeitpunkt der Erstellung des referenzierten Dokumentes bzw. des Anhangs angegeben." />
+    </element>
+  </differential>
+</StructureDefinition>

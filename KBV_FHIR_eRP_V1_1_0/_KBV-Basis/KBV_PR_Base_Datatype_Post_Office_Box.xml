@@ -1,0 +1,73 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="KBV-PR-Base-Datatype-Post-Office-Box" />
+  <url value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Datatype_Post_Office_Box" />
+  <version value="1.3.0" />
+  <name value="KBV_PR_Base_Datatype_Post_Office_Box" />
+  <status value="active" />
+  <fhirVersion value="4.0.1" />
+  <kind value="complex-type" />
+  <abstract value="false" />
+  <type value="Address" />
+  <baseDefinition value="http://fhir.de/StructureDefinition/address-de-basis|1.3.2" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Address">
+      <path value="Address" />
+      <short value="Ein Postfach gemäß postalischer Konventionen" />
+      <definition value="Hier können Angaben zu einem Postfach gemacht werden." />
+      <constraint>
+        <key value="postBox-de-1" />
+        <severity value="error" />
+        <human value="Die Extension 'http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-postBox' darf nur einmal vorkommen." />
+        <expression value="line.where($this.extension('http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-postBox').exists()).count()=1" />
+        <source value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Datatype_Post_Office_Box" />
+      </constraint>
+    </element>
+    <element id="Address.type">
+      <path value="Address.type" />
+      <min value="1" />
+      <patternCode value="postal" />
+    </element>
+    <element id="Address.line.extension">
+      <path value="Address.line.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="0" />
+    </element>
+    <element id="Address.line.extension:Strasse">
+      <path value="Address.line.extension" />
+      <sliceName value="Strasse" />
+      <min value="0" />
+      <max value="0" />
+    </element>
+    <element id="Address.line.extension:Hausnummer">
+      <path value="Address.line.extension" />
+      <sliceName value="Hausnummer" />
+      <min value="0" />
+      <max value="0" />
+    </element>
+    <element id="Address.line.extension:Adresszusatz">
+      <path value="Address.line.extension" />
+      <sliceName value="Adresszusatz" />
+      <min value="0" />
+      <max value="0" />
+    </element>
+    <element id="Address.line.extension:Postfach">
+      <path value="Address.line.extension" />
+      <sliceName value="Postfach" />
+      <min value="0" />
+    </element>
+    <element id="Address.country">
+      <path value="Address.country" />
+      <binding>
+        <strength value="extensible" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_Deuev_Anlage_8" />
+      </binding>
+    </element>
+  </differential>
+</StructureDefinition>

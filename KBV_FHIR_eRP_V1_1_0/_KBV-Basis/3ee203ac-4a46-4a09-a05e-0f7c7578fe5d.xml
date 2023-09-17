@@ -1,0 +1,134 @@
+<Patient xmlns="http://hl7.org/fhir">
+  <id value="3ee203ac-4a46-4a09-a05e-0f7c7578fe5d" />
+  <meta>
+    <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Patient|1.3.0" />
+  </meta>
+  <!-- Versichertennummer kvk -->
+  <identifier>
+    <type>
+      <coding>
+        <system value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_identifier_type" />
+        <code value="kvk" />
+        <display value="Krankenversichertenkarte" />
+      </coding>
+    </type>
+    <system value="http://fhir.de/sid/gkv/kvk-versichertennummer" />
+    <value value="123456784" />
+  </identifier>
+  <!-- pid -->
+  <identifier>
+    <type>
+      <coding>
+        <system value="http://terminology.hl7.org/CodeSystem/v2-0203" />
+        <code value="MR" />
+        <display value="Medical record number" />
+      </coding>
+    </type>
+    <system value="http://www.acmedasdd.com/identifiers/patient" />
+    <value value="23" />
+  </identifier>
+  <!-- Reisepassnummer -->
+  <identifier>
+    <type>
+      <coding>
+        <system value="http://terminology.hl7.org/CodeSystem/v2-0203" />
+        <code value="PPN" />
+        <display value="Passport number" />
+      </coding>
+    </type>
+    <value value="1234" />
+  </identifier>
+  <!-- Versichertennummer PKV -->
+  <identifier>
+    <type>
+      <coding>
+        <system value="http://fhir.de/CodeSystem/identifier-type-de-basis" />
+        <code value="PKV" />
+        <display value="Private Krankenversicherung" />
+      </coding>
+    </type>
+    <value value="1234567890" />
+    <assigner>
+      <display value="KK" />
+    </assigner>
+  </identifier>
+  <!-- Versicherten ID GKV -->
+  <identifier>
+    <type>
+      <coding>
+        <system value="http://fhir.de/CodeSystem/identifier-type-de-basis" />
+        <code value="GKV" />
+        <display value="Gesetzliche Krankenversicherung" />
+      </coding>
+    </type>
+    <system value="http://fhir.de/sid/gkv/kvid-10" />
+    <value value="K123456789" />
+  </identifier>
+  <active value="true" />
+  <name>
+    <use value="official" />
+    <text value="Peter Rot" />
+    <family value="Rot">
+      <extension url="http://hl7.org/fhir/StructureDefinition/humanname-own-name">
+        <valueString value="Rot" />
+      </extension>
+    </family>
+    <given value="Peter" />
+  </name>
+  <name>
+    <use value="maiden" />
+    <text value="Grün" />
+    <family value="Grün">
+      <extension url="http://hl7.org/fhir/StructureDefinition/humanname-own-name">
+        <valueString value="Grün" />
+      </extension>
+    </family>
+  </name>
+  <telecom>
+    <system value="phone" />
+    <value value="0134 5678910" />
+  </telecom>
+  <gender value="other">
+    <extension url="http://fhir.de/StructureDefinition/gender-amtlich-de">
+      <valueCoding>
+        <system value="http://fhir.de/CodeSystem/gender-amtlich-de" />
+        <code value="D" />
+      </valueCoding>
+    </extension>
+  </gender>
+  <birthDate value="1935-06-22" />
+  <address>
+    <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-precinct">
+      <valueString value="Neu" />
+    </extension>
+    <type value="both" />
+    <line value="Musterstr. 1">
+      <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber">
+        <valueString value="1" />
+      </extension>
+      <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName">
+        <valueString value="Musterstr." />
+      </extension>
+    </line>
+    <line value="bsa">
+      <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-additionalLocator">
+        <valueString value="bsa" />
+      </extension>
+    </line>
+    <line value="Neu" />
+    <city value="Darmstadt" />
+    <postalCode value="64283" />
+    <country value="D" />
+  </address>
+  <address>
+    <type value="postal" />
+    <line value="124ji">
+      <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-postBox">
+        <valueString value="124ji" />
+      </extension>
+    </line>
+    <city value="Köln" />
+    <postalCode value="15457" />
+    <country value="D" />
+  </address>
+</Patient>

@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="KBV-EX-FOR-Accident" />
+  <url value="https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Accident" />
+  <version value="1.1.0" />
+  <name value="KBV_EX_FOR_Accident" />
+  <status value="active" />
+  <date value="2022-09-30" />
+  <publisher value="Kassenärztliche Bundesvereinigung" />
+  <fhirVersion value="4.0.1" />
+  <mapping>
+    <identity value="rim" />
+    <uri value="http://hl7.org/v3" />
+    <name value="RIM Mapping" />
+  </mapping>
+  <kind value="complex-type" />
+  <abstract value="false" />
+  <context>
+    <type value="element" />
+    <expression value="MedicationRequest" />
+  </context>
+  <context>
+    <type value="element" />
+    <expression value="DeviceRequest" />
+  </context>
+  <context>
+    <type value="element" />
+    <expression value="Composition" />
+  </context>
+  <type value="Extension" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Extension" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Extension">
+      <path value="Extension" />
+      <short value="Unfallinformationen" />
+      <definition value="Abbildung der Unfallinformationen zu einer Verordnung" />
+    </element>
+    <element id="Extension.extension">
+      <path value="Extension.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="closed" />
+      </slicing>
+      <min value="1" />
+    </element>
+    <element id="Extension.extension:Unfallkennzeichen">
+      <path value="Extension.extension" />
+      <sliceName value="Unfallkennzeichen" />
+      <short value="Unfallkennzeichen" />
+      <definition value="Information, ob die Verordnung im Zusammenhang mit einem Unfall  ausgestellt wurde" />
+      <min value="1" />
+      <max value="1" />
+    </element>
+    <element id="Extension.extension:Unfallkennzeichen.url">
+      <path value="Extension.extension.url" />
+      <fixedUri value="Unfallkennzeichen" />
+    </element>
+    <element id="Extension.extension:Unfallkennzeichen.value[x]">
+      <path value="Extension.extension.value[x]" />
+      <slicing>
+        <discriminator>
+          <type value="type" />
+          <path value="$this" />
+        </discriminator>
+        <rules value="closed" />
+      </slicing>
+      <min value="1" />
+      <type>
+        <code value="Coding" />
+      </type>
+    </element>
+    <element id="Extension.extension:Unfallkennzeichen.value[x]:valueCoding">
+      <path value="Extension.extension.value[x]" />
+      <sliceName value="valueCoding" />
+      <min value="1" />
+      <type>
+        <code value="Coding" />
+      </type>
+    </element>
+    <element id="Extension.extension:Unfallkennzeichen.value[x]:valueCoding.system">
+      <path value="Extension.extension.value[x].system" />
+      <min value="1" />
+    </element>
+    <element id="Extension.extension:Unfallkennzeichen.value[x]:valueCoding.version">
+      <path value="Extension.extension.value[x].version" />
+      <max value="0" />
+    </element>
+    <element id="Extension.extension:Unfallkennzeichen.value[x]:valueCoding.code">
+      <path value="Extension.extension.value[x].code" />
+      <min value="1" />
+    </element>
+    <element id="Extension.extension:Unfallkennzeichen.value[x]:valueCoding.display">
+      <path value="Extension.extension.value[x].display" />
+      <max value="0" />
+    </element>
+    <element id="Extension.extension:Unfallkennzeichen.value[x]:valueCoding.userSelected">
+      <path value="Extension.extension.value[x].userSelected" />
+      <max value="0" />
+    </element>
+    <element id="Extension.extension:Unfallbetrieb">
+      <path value="Extension.extension" />
+      <sliceName value="Unfallbetrieb" />
+      <min value="0" />
+      <max value="1" />
+    </element>
+    <element id="Extension.extension:Unfallbetrieb.url">
+      <path value="Extension.extension.url" />
+      <fixedUri value="Unfallbetrieb" />
+    </element>
+    <element id="Extension.extension:Unfallbetrieb.value[x]">
+      <path value="Extension.extension.value[x]" />
+      <slicing>
+        <discriminator>
+          <type value="type" />
+          <path value="$this" />
+        </discriminator>
+        <rules value="closed" />
+      </slicing>
+      <min value="1" />
+      <type>
+        <code value="string" />
+      </type>
+    </element>
+    <element id="Extension.extension:Unfallbetrieb.value[x]:valueString">
+      <path value="Extension.extension.value[x]" />
+      <sliceName value="valueString" />
+      <short value="Name des Unfallberiebs" />
+      <definition value="Name des Arbeitgebers oder Dienstherrn, in dessen Einflussbereich sich der Unfall ereignete (auch Wegeunfall)" />
+      <min value="1" />
+      <type>
+        <code value="string" />
+      </type>
+      <maxLength value="45" />
+    </element>
+    <element id="Extension.extension:Unfalltag">
+      <path value="Extension.extension" />
+      <sliceName value="Unfalltag" />
+      <min value="0" />
+      <max value="1" />
+	  <constraint>
+			<key value="-for-begrenzungDate" />
+			<severity value="error" />
+			<human value="Begrenzung der Datumsangabe auf 10 Zeichen JJJJ-MM-TT" />
+			<expression value="value.toString().length()=10" />
+        <source value="https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Accident" />
+      </constraint>
+    </element>
+    <element id="Extension.extension:Unfalltag.url">
+      <path value="Extension.extension.url" />
+      <fixedUri value="Unfalltag" />
+    </element>
+    <element id="Extension.extension:Unfalltag.value[x]">
+      <path value="Extension.extension.value[x]" />
+      <slicing>
+        <discriminator>
+          <type value="type" />
+          <path value="$this" />
+        </discriminator>
+        <rules value="closed" />
+      </slicing>
+      <type>
+        <code value="date" />
+      </type>
+    </element>
+    <element id="Extension.extension:Unfalltag.value[x]:valueDate">
+      <path value="Extension.extension.value[x]" />
+      <sliceName value="valueDate" />
+      <short value="Unfalltag" />
+      <definition value="Tag des Unfallereignisses, das Ursache für die initiierte Behandlung ist" />
+      <type>
+        <code value="date" />
+      </type>
+    </element>
+    <element id="Extension.url">
+      <path value="Extension.url" />
+      <fixedUri value="https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Accident" />
+    </element>
+    <element id="Extension.value[x]">
+      <path value="Extension.value[x]" />
+      <max value="0" />
+    </element>
+  </differential>
+</StructureDefinition>

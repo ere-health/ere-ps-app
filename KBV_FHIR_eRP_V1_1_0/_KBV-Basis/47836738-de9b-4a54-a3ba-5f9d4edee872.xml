@@ -1,0 +1,121 @@
+<Condition xmlns="http://hl7.org/fhir">
+  <id value="47836738-de9b-4a54-a3ba-5f9d4edee872" />
+  <meta>
+    <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Diagnosis|1.3.0" />
+  </meta>
+  <extension url="http://hl7.org/fhir/StructureDefinition/condition-assertedDate">
+    <valueDateTime value="2012" />
+  </extension>
+  <clinicalStatus>
+    <coding>
+      <system value="http://terminology.hl7.org/CodeSystem/condition-clinical" />
+      <code value="resolved" />
+      <display value="resolved"></display>
+    </coding>
+  </clinicalStatus>
+  <verificationStatus>
+    <coding>
+      <system value="http://terminology.hl7.org/CodeSystem/condition-ver-status" />
+      <code value="confirmed" />
+      <display value="confirmed"></display>
+    </coding>
+  </verificationStatus>
+  <severity>
+    <coding>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="24484000" />
+      <display value="Severe (severity modifier) (qualifier value)"></display>
+    </coding>
+  </severity>
+  <code>
+    <coding>
+      <extension url="http://fhir.de/StructureDefinition/icd-10-gm-mehrfachcodierungs-kennzeichen">
+        <valueCoding>
+          <system value="http://fhir.de/CodeSystem/icd-10-gm-mehrfachcodierungs-kennzeichen" />
+          <code value="*" />
+          <display value="*" />
+        </valueCoding>
+      </extension>
+      <extension url="http://fhir.de/StructureDefinition/seitenlokalisation">
+        <valueCoding>
+          <system value="https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_ICD_SEITENLOKALISATION" />
+          <code value="B" />
+          <display value="beiderseits" />
+        </valueCoding>
+      </extension>
+      <extension url="http://fhir.de/StructureDefinition/icd-10-gm-diagnosesicherheit">
+        <valueCoding>
+          <system value="https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_ICD_DIAGNOSESICHERHEIT" />
+          <code value="Z" />
+          <display value="Zustand nach" />
+        </valueCoding>
+      </extension>
+      <system value="http://fhir.de/CodeSystem/bfarm/icd-10-gm" />
+      <version value="2020" />
+      <code value="A00.0" />
+      <display value="test" />
+    </coding>
+    <coding>
+      <system value="http://fhir.de/CodeSystem/bfarm/alpha-id" />
+      <version value="2020" />
+      <code value="I6158" />
+    </coding>
+    <coding>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="404684003" />
+      <display value="Clinical finding (finding)"></display>
+    </coding>
+    <coding>
+      <system value="http://www.orpha.net" />
+      <version value="5.36.0" />
+      <code value="104075" />
+    </coding>
+  </code>
+  <bodySite>
+    <coding>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="76505004" />
+      <display value="Thumb"></display>
+    </coding>
+  </bodySite>
+  <subject>
+    <identifier>
+      <type>
+        <coding>
+          <system value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_identifier_type" />
+          <code value="kvk" />
+        </coding>
+      </type>
+      <system value="http://fhir.de/NamingSystem/gkv/kvk-versichertennummer" />
+      <value value="F123456784" />
+    </identifier>
+  </subject>
+  <onsetAge>
+    <extension url="https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Stage_Life">
+      <valueCodeableConcept>
+        <coding>
+          <system value="http://snomed.info/sct" />
+          <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+          <code value="271872005" />
+          <display value="Old age (qualifier value)"></display>
+        </coding>
+      </valueCodeableConcept>
+    </extension>
+  </onsetAge>
+  <abatementAge>
+    <extension url="https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Stage_Life">
+      <valueCodeableConcept>
+        <coding>
+          <system value="http://snomed.info/sct" />
+          <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+          <code value="271872005" />
+          <display value="Old age (qualifier value)"></display>
+        </coding>
+      </valueCodeableConcept>
+    </extension>
+  </abatementAge>
+  <recordedDate value="2020-05-07" />
+</Condition>

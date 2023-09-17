@@ -1,0 +1,25 @@
+{
+  "resourceType": "ValueSet",
+  "status": "active",
+  "name": "Wahlleistungen",
+  "id": "wahlleistungen-de",
+  "title": "Deutsche Merkzeichen auf dem Behindertenausweis",
+  "description": "Deutsche Merkzeichen, wie sie auf dem Behindertenausweis verwendet werden",
+  "version": "1.3.2",
+  "url": "http://fhir.de/ValueSet/wahlleistungen-de",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/StructureDefinition/shareablevalueset"
+    ]
+  },
+  "experimental": false,
+  "date": "2021-12-21",
+  "publisher": "HL7 Deutschland e.V. (Technisches Komitee FHIR)",
+  "compose": {
+    "include": [
+      {
+        "system": "http://fhir.de/CodeSystem/wahlleistungen-de"
+      }
+    ]
+  }
+}

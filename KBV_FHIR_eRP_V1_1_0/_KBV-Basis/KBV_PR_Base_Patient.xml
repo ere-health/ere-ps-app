@@ -1,0 +1,324 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="KBV-PR-Base-Patient" />
+  <url value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Patient" />
+  <version value="1.3.0" />
+  <name value="KBV_PR_Base_Patient" />
+  <status value="active" />
+  <fhirVersion value="4.0.1" />
+  <mapping>
+    <identity value="rim" />
+    <uri value="http://hl7.org/v3" />
+    <name value="RIM Mapping" />
+  </mapping>
+  <mapping>
+    <identity value="cda" />
+    <uri value="http://hl7.org/v3/cda" />
+    <name value="CDA (R2)" />
+  </mapping>
+  <mapping>
+    <identity value="w5" />
+    <uri value="http://hl7.org/fhir/fivews" />
+    <name value="FiveWs Pattern Mapping" />
+  </mapping>
+  <mapping>
+    <identity value="v2" />
+    <uri value="http://hl7.org/v2" />
+    <name value="HL7 v2 Mapping" />
+  </mapping>
+  <mapping>
+    <identity value="loinc" />
+    <uri value="http://loinc.org" />
+    <name value="LOINC code for the element" />
+  </mapping>
+  <kind value="resource" />
+  <abstract value="false" />
+  <type value="Patient" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Patient" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Patient">
+      <path value="Patient" />
+      <definition value="Dieses Element beschreibt eine Person, die eine oder mehrere medizinische Leistungen in Anspruch nimmt." />
+      <constraint>
+        <key value="pat-de-1" />
+        <severity value="error" />
+        <human value="Die amtliche Differenzierung der Geschlechtsangabe 'other' darf nur gefüllt sein, wenn das Geschlecht 'other' angegeben ist" />
+        <expression value="gender.exists() and gender='other' implies gender.extension('http://fhir.de/StructureDefinition/gender-amtlich-de').exists()" />
+        <source value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Patient" />
+      </constraint>
+    </element>
+    <element id="Patient.identifier">
+      <path value="Patient.identifier" />
+      <slicing>
+        <discriminator>
+          <type value="pattern" />
+          <path value="type" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="Patient.identifier:pid">
+      <path value="Patient.identifier" />
+      <sliceName value="pid" />
+      <type>
+        <code value="Identifier" />
+        <profile value="http://fhir.de/StructureDefinition/identifier-pid|1.3.2" />
+      </type>
+    </element>
+    <element id="Patient.identifier:pid.type">
+      <path value="Patient.identifier.type" />
+      <min value="1" />
+    </element>
+    <element id="Patient.identifier:pid.type.coding">
+      <path value="Patient.identifier.type.coding" />
+      <min value="1" />
+      <max value="1" />
+    </element>
+    <element id="Patient.identifier:pid.type.coding.system">
+      <path value="Patient.identifier.type.coding.system" />
+      <min value="1" />
+    </element>
+    <element id="Patient.identifier:pid.type.coding.code">
+      <path value="Patient.identifier.type.coding.code" />
+      <min value="1" />
+    </element>
+    <element id="Patient.identifier:pid.type.coding.display">
+      <path value="Patient.identifier.type.coding.display" />
+      <patternString value="Medical record number" />
+    </element>
+    <element id="Patient.identifier:versichertenId_GKV">
+      <path value="Patient.identifier" />
+      <sliceName value="versichertenId_GKV" />
+      <max value="1" />
+      <type>
+        <code value="Identifier" />
+        <profile value="http://fhir.de/StructureDefinition/identifier-kvid-10|1.3.2" />
+      </type>
+    </element>
+    <element id="Patient.identifier:versichertenId_GKV.type">
+      <path value="Patient.identifier.type" />
+      <min value="1" />
+    </element>
+    <element id="Patient.identifier:versichertenId_GKV.type.coding">
+      <path value="Patient.identifier.type.coding" />
+      <min value="1" />
+      <max value="1" />
+    </element>
+    <element id="Patient.identifier:versichertenId_GKV.type.coding.system">
+      <path value="Patient.identifier.type.coding.system" />
+      <min value="1" />
+    </element>
+    <element id="Patient.identifier:versichertenId_GKV.type.coding.code">
+      <path value="Patient.identifier.type.coding.code" />
+      <min value="1" />
+    </element>
+    <element id="Patient.identifier:versichertenId_GKV.type.coding.display">
+      <path value="Patient.identifier.type.coding.display" />
+      <patternString value="Gesetzliche Krankenversicherung" />
+    </element>
+    <element id="Patient.identifier:versichertennummer_pkv">
+      <path value="Patient.identifier" />
+      <sliceName value="versichertennummer_pkv" />
+      <max value="1" />
+      <type>
+        <code value="Identifier" />
+        <profile value="http://fhir.de/StructureDefinition/identifier-pkv|1.3.2" />
+      </type>
+    </element>
+    <element id="Patient.identifier:versichertennummer_pkv.type">
+      <path value="Patient.identifier.type" />
+      <min value="1" />
+    </element>
+    <element id="Patient.identifier:versichertennummer_pkv.type.coding">
+      <path value="Patient.identifier.type.coding" />
+      <min value="1" />
+      <max value="1" />
+    </element>
+    <element id="Patient.identifier:versichertennummer_pkv.type.coding.system">
+      <path value="Patient.identifier.type.coding.system" />
+      <min value="1" />
+    </element>
+    <element id="Patient.identifier:versichertennummer_pkv.type.coding.code">
+      <path value="Patient.identifier.type.coding.code" />
+      <min value="1" />
+    </element>
+    <element id="Patient.identifier:versichertennummer_pkv.type.coding.display">
+      <path value="Patient.identifier.type.coding.display" />
+      <patternString value="Private Krankenversicherung" />
+    </element>
+    <element id="Patient.identifier:reisepassnummer">
+      <path value="Patient.identifier" />
+      <sliceName value="reisepassnummer" />
+      <type>
+        <code value="Identifier" />
+        <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Identifier_Reisepassnummer|1.3.0" />
+      </type>
+    </element>
+    <element id="Patient.identifier:versichertennummer_kvk">
+      <path value="Patient.identifier" />
+      <sliceName value="versichertennummer_kvk" />
+      <type>
+        <code value="Identifier" />
+        <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Identifier_KVK|1.3.0" />
+      </type>
+    </element>
+    <element id="Patient.name">
+      <path value="Patient.name" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="use" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="1" />
+    </element>
+    <element id="Patient.name:name">
+      <path value="Patient.name" />
+      <sliceName value="name" />
+      <max value="1" />
+      <type>
+        <code value="HumanName" />
+        <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Datatype_Name|1.3.0" />
+      </type>
+    </element>
+    <element id="Patient.name:geburtsname">
+      <path value="Patient.name" />
+      <sliceName value="geburtsname" />
+      <max value="1" />
+      <type>
+        <code value="HumanName" />
+        <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Datatype_Maiden_Name|1.3.0" />
+      </type>
+    </element>
+    <element id="Patient.telecom">
+      <path value="Patient.telecom" />
+      <type>
+        <code value="ContactPoint" />
+        <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Datatype_Contactpoint|1.3.0" />
+      </type>
+    </element>
+    <element id="Patient.gender.extension">
+      <path value="Patient.gender.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="0" />
+    </element>
+    <element id="Patient.gender.extension:other-amtlich">
+      <path value="Patient.gender.extension" />
+      <sliceName value="other-amtlich" />
+      <min value="0" />
+      <max value="1" />
+      <type>
+        <code value="Extension" />
+        <profile value="http://fhir.de/StructureDefinition/gender-amtlich-de|1.3.2" />
+      </type>
+    </element>
+    <element id="Patient.birthDate">
+      <path value="Patient.birthDate" />
+      <min value="1" />
+    </element>
+    <element id="Patient.birthDate.extension">
+      <path value="Patient.birthDate.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="0" />
+    </element>
+    <element id="Patient.birthDate.extension:data-absent-reason">
+      <path value="Patient.birthDate.extension" />
+      <sliceName value="data-absent-reason" />
+      <min value="0" />
+      <type>
+        <code value="Extension" />
+        <profile value="http://hl7.org/fhir/StructureDefinition/data-absent-reason" />
+      </type>
+    </element>
+    <element id="Patient.birthDate.extension:data-absent-reason.value[x]">
+      <path value="Patient.birthDate.extension.value[x]" />
+      <slicing>
+        <discriminator>
+          <type value="type" />
+          <path value="$this" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="Patient.birthDate.extension:data-absent-reason.value[x]:valueCode">
+      <path value="Patient.birthDate.extension.value[x]" />
+      <sliceName value="valueCode" />
+      <fixedCode value="unknown" />
+    </element>
+    <element id="Patient.address">
+      <path value="Patient.address" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="type" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="Patient.address:Strassenanschrift">
+      <path value="Patient.address" />
+      <sliceName value="Strassenanschrift" />
+      <type>
+        <code value="Address" />
+        <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Datatype_Street_Address|1.3.0" />
+      </type>
+    </element>
+    <element id="Patient.address:Postfach">
+      <path value="Patient.address" />
+      <sliceName value="Postfach" />
+      <type>
+        <code value="Address" />
+        <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Datatype_Post_Office_Box|1.3.0" />
+      </type>
+    </element>
+    <element id="Patient.maritalStatus">
+      <path value="Patient.maritalStatus" />
+      <short value="Personenstand" />
+      <definition value="Hier wird der Personenstand (Familienstand) der behandelten Person angegeben." />
+    </element>
+    <element id="Patient.maritalStatus.coding.system">
+      <path value="Patient.maritalStatus.coding.system" />
+      <min value="1" />
+    </element>
+    <element id="Patient.maritalStatus.coding.code">
+      <path value="Patient.maritalStatus.coding.code" />
+      <min value="1" />
+    </element>
+    <element id="Patient.maritalStatus.coding.display">
+      <path value="Patient.maritalStatus.coding.display" />
+      <min value="1" />
+    </element>
+    <element id="Patient.contact.address.country">
+      <path value="Patient.contact.address.country" />
+      <short value="Staat" />
+      <definition value="Staat gemäß dem ValueSet https://fhir.kbv.de/ValueSet/KBV_VS_Base_Deuev_Anlage_8" />
+      <comment value="Staat gemäß dem ValueSet https://fhir.kbv.de/ValueSet/KBV_VS_Base_Deuev_Anlage_8" />
+      <binding>
+        <strength value="extensible" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_Deuev_Anlage_8" />
+      </binding>
+    </element>
+    <element id="Patient.communication">
+      <path value="Patient.communication" />
+      <short value="Bevorzugte Sprache" />
+      <definition value="Die Sprache, die zur Kommunikation mit dem Patienten über medizinische Themen verwendet werden kann." />
+      <binding>
+        <strength value="preferred" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_CommonLanguages" />
+      </binding>
+    </element>
+  </differential>
+</StructureDefinition>

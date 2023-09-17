@@ -1,0 +1,12 @@
+{
+  "name": "de.basisprofil.r4",
+  "version": "1.3.2",
+  "description": "Projekt Basisprofilierung R4 (HL7 Deutschland e.V.)",
+  "author": "stefanlang1",
+  "fhirVersions": [
+    "4.0.1"
+  ],
+  "dependencies": {
+    "hl7.fhir.r4.core": "4.0.1"
+  }
+}

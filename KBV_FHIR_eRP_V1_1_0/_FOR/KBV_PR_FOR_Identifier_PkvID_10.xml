@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="KBV-PR-FOR-Identifier-PkvID-10" />
+  <url value="https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Identifier_PkvID_10" />
+  <version value="1.1.0" />
+  <name value="KBV_PR_FOR_Identifier_PkvID_10" />
+  <title value="Identifier-Profil für die 10-stellige Versicherten ID (PKV)" />
+  <status value="active" />
+  <date value="2022-09-30" />
+  <description value="Identifier-Profil für den unveränderlichen 10-stelligen Teil der Versicherten ID der privaten Krankenversicherungen" />
+  <fhirVersion value="4.0.1" />
+  <kind value="complex-type" />
+  <abstract value="false" />
+  <type value="Identifier" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Identifier" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Identifier.type">
+      <path value="Identifier.type" />
+      <patternCodeableConcept>
+        <coding>
+          <system value="http://fhir.de/CodeSystem/identifier-type-de-basis" />
+          <code value="PKV" />
+        </coding>
+      </patternCodeableConcept>
+      <binding>
+        <strength value="extensible" />
+        <valueSet value="http://fhir.de/ValueSet/identifier-type-de-basis" />
+      </binding>
+    </element>
+    <element id="Identifier.system">
+      <path value="Identifier.system" />
+      <min value="1" />
+      <fixedUri value="http://fhir.de/sid/pkv/kvid-10" />
+    </element>
+    <element id="Identifier.value">
+      <path value="Identifier.value" />
+      <min value="1" />
+      <constraint>
+        <key value="pkvid-1" />
+        <severity value="error" />
+        <human value="Der unveränderliche Teil der PKVID muss 10-stellig sein und mit einem Großbuchstaben anfangen" />
+        <expression value="matches('^[A-Z][0-9]{9}$')" />
+      </constraint>
+    </element>
+  </differential>
+</StructureDefinition>

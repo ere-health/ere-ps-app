@@ -1,0 +1,129 @@
+<Patient xmlns="http://hl7.org/fhir">
+  <id value="904e04d0-c9f2-4edd-b734-c3526f015000" />
+  <meta>
+    <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Patient|1.3.0" />
+  </meta>
+  <identifier>
+    <type>
+      <coding>
+        <system value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_identifier_type" />
+        <code value="kvk" />
+        <display value="Krankenversichertenkarte" />
+      </coding>
+    </type>
+    <system value="http://fhir.de/sid/gkv/kvk-versichertennummer" />
+    <value value="123456784" />
+  </identifier>
+  <!-- pid -->
+  <identifier>
+    <type>
+      <coding>
+        <system value="http://terminology.hl7.org/CodeSystem/v2-0203" />
+        <code value="MR" />
+        <display value="Medical record number" />
+      </coding>
+    </type>
+    <system value="http://www.acmedasdd.com/identifiers/patient" />
+    <value value="1002345" />
+  </identifier>
+  <!-- Reisepassnummer -->
+  <identifier>
+    <type>
+      <coding>
+        <system value="http://terminology.hl7.org/CodeSystem/v2-0203" />
+        <code value="PPN" />
+        <display value="Passport number" />
+      </coding>
+    </type>
+    <value value="L388G569" />
+  </identifier>
+  <!-- Versicherten ID GKV -->
+  <identifier>
+    <type>
+      <coding>
+        <system value="http://fhir.de/CodeSystem/identifier-type-de-basis" />
+        <code value="GKV" />
+        <display value="Gesetzliche Krankenversicherung" />
+      </coding>
+    </type>
+    <system value="http://fhir.de/sid/gkv/kvid-10" />
+    <value value="K004567123" />
+  </identifier>
+  <name>
+    <use value="official" />
+    <family value="Gonzales">
+      <extension url="http://hl7.org/fhir/StructureDefinition/humanname-own-name">
+        <valueString value="Gonzales" />
+      </extension>
+    </family>
+    <given value="Melissa" />
+  </name>
+  <telecom>
+    <system value="phone"></system>
+    <value value="0172 8611693" />
+  </telecom>
+  <gender value="other">
+    <extension url="http://fhir.de/StructureDefinition/gender-amtlich-de">
+      <valueCoding>
+        <system value="http://fhir.de/CodeSystem/gender-amtlich-de" />
+        <code value="D" />
+      </valueCoding>
+    </extension>
+  </gender>
+  <!-- <birthDate value="1980-03-03"> -->
+  <birthDate>
+    <extension url="http://hl7.org/fhir/StructureDefinition/data-absent-reason">
+      <valueCode value="unknown" />
+    </extension>
+  </birthDate>
+  <address>
+    <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-precinct">
+      <valueString value="Mitte" />
+    </extension>
+    <type value="both" />
+    <line value="Musterstr. 1">
+      <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber">
+        <valueString value="1" />
+      </extension>
+      <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName">
+        <valueString value="Musterstr." />
+      </extension>
+    </line>
+    <line value="Mitte" />
+    <line value="Mitte" />
+    <!-- <line value="Mitte"/>   -->
+    <city value="Berlin" />
+    <postalCode value="64283" />
+    <country value="D" />
+  </address>
+  <address>
+    <type value="postal" />
+    <line value="124xx">
+      <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-postBox">
+        <valueString value="124xx" />
+      </extension>
+    </line>
+    <city value="Berlin" />
+    <postalCode value="15457" />
+    <country value="D" />
+  </address>
+  <maritalStatus>
+    <coding>
+      <system value="http://terminology.hl7.org/CodeSystem/v3-MaritalStatus" />
+      <version value="2018-08-12" />
+      <code value="A" />
+      <display value="Annulled"></display>
+    </coding>
+  </maritalStatus>
+  <communication>
+    <language>
+      <coding>
+        <system value="urn:ietf:bcp:47" />
+        <version value="4.0.1" />
+        <code value="es" />
+        <display value="Spanish" />
+      </coding>
+    </language>
+    <preferred value="true" />
+  </communication>
+</Patient>

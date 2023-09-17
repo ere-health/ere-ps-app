@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<StructureDefinition xmlns="http://hl7.org/fhir">
+	<id value="KBV-EX-FOR-StatusCoPayment"/>
+	<url value="https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_StatusCoPayment"/>
+	<version value="1.1.0"/>
+	<name value="KBV_EX_FOR_StatusCoPayment"/>
+	<status value="active"/>
+	<date value="2022-09-30"/>
+	<publisher value="Kassenärztliche Bundesvereinigung"/>
+	<fhirVersion value="4.0.1"/>
+	<mapping>
+		<identity value="rim"/>
+		<uri value="http://hl7.org/v3"/>
+		<name value="RIM Mapping"/>
+	</mapping>
+	<kind value="complex-type"/>
+	<abstract value="false"/>
+	<context>
+		<type value="element"/>
+		<expression value="MedicationRequest"/>
+	</context>
+	<context>
+		<type value="element"/>
+		<expression value="SupplyRequest"/>
+	</context>
+	<context>
+		<type value="element"/>
+		<expression value="DeviceRequest"/>
+	</context>
+	<type value="Extension"/>
+	<baseDefinition value="http://hl7.org/fhir/StructureDefinition/Extension"/>
+	<derivation value="constraint"/>
+	<differential>
+		<element id="Extension">
+			<extension url="http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status">
+				<valueCode value="normative"/>
+			</extension>
+			<extension url="http://hl7.org/fhir/StructureDefinition/structuredefinition-normative-version">
+				<valueCode value="4.0.0"/>
+			</extension>
+			<path value="Extension"/>
+			<short value="Zuzahlungsstatus"/>
+			<definition value="Abbildung des Zuzahlungsstatus für die Verordnung"/>
+		</element>
+		<element id="Extension.url">
+			<path value="Extension.url"/>
+			<fixedUri value="https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_StatusCoPayment"/>
+		</element>
+		<element id="Extension.value[x]">
+			<extension url="http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status">
+				<valueCode value="normative"/>
+			</extension>
+			<extension url="http://hl7.org/fhir/StructureDefinition/structuredefinition-normative-version">
+				<valueCode value="4.0.0"/>
+			</extension>
+			<path value="Extension.value[x]"/>
+			<slicing>
+				<discriminator>
+					<type value="type"/>
+					<path value="$this"/>
+				</discriminator>
+				<rules value="closed"/>
+			</slicing>
+			<min value="1"/>
+			<type>
+				<code value="Coding"/>
+			</type>
+		</element>
+		<element id="Extension.value[x]:valueCoding">
+			<extension url="http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status">
+				<valueCode value="normative"/>
+			</extension>
+			<extension url="http://hl7.org/fhir/StructureDefinition/structuredefinition-normative-version">
+				<valueCode value="4.0.0"/>
+			</extension>
+			<path value="Extension.value[x]"/>
+			<sliceName value="valueCoding"/>
+			<min value="1"/>
+			<type>
+				<code value="Coding"/>
+			</type>
+		</element>
+		<element id="Extension.value[x]:valueCoding.system">
+			<extension url="http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status">
+				<valueCode value="normative"/>
+			</extension>
+			<extension url="http://hl7.org/fhir/StructureDefinition/structuredefinition-normative-version">
+				<valueCode value="4.0.0"/>
+			</extension>
+			<path value="Extension.value[x].system"/>
+			<min value="1"/>
+		</element>
+		<element id="Extension.value[x]:valueCoding.version">
+			<extension url="http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status">
+				<valueCode value="normative"/>
+			</extension>
+			<extension url="http://hl7.org/fhir/StructureDefinition/structuredefinition-normative-version">
+				<valueCode value="4.0.0"/>
+			</extension>
+			<path value="Extension.value[x].version"/>
+			<max value="0"/>
+		</element>
+		<element id="Extension.value[x]:valueCoding.code">
+			<extension url="http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status">
+				<valueCode value="normative"/>
+			</extension>
+			<extension url="http://hl7.org/fhir/StructureDefinition/structuredefinition-normative-version">
+				<valueCode value="4.0.0"/>
+			</extension>
+			<path value="Extension.value[x].code"/>
+			<short value="Zuzahlungsstatus"/>
+			<definition value="Abbildung des Zuzahlungsstatus für die Verordnung"/>
+			<min value="1"/>
+		</element>
+		<element id="Extension.value[x]:valueCoding.display">
+			<extension url="http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status">
+				<valueCode value="normative"/>
+			</extension>
+			<extension url="http://hl7.org/fhir/StructureDefinition/structuredefinition-normative-version">
+				<valueCode value="4.0.0"/>
+			</extension>
+			<path value="Extension.value[x].display"/>
+			<max value="0"/>
+		</element>
+		<element id="Extension.value[x]:valueCoding.userSelected">
+			<extension url="http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status">
+				<valueCode value="normative"/>
+			</extension>
+			<extension url="http://hl7.org/fhir/StructureDefinition/structuredefinition-normative-version">
+				<valueCode value="4.0.0"/>
+			</extension>
+			<path value="Extension.value[x].userSelected"/>
+			<max value="0"/>
+		</element>
+	</differential>
+</StructureDefinition>

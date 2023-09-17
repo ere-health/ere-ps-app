@@ -1,0 +1,46 @@
+{
+	"resourceType": "Observation",
+	"id": "Example-observation-koerpergewicht",
+	"meta": {
+		"profile": [
+			"http://fhir.de/StructureDefinition/observation-de-vitalsign-koerpergewicht",
+			"http://hl7.org/fhir/StructureDefinition/bodyweight"
+		]
+	},
+	"status": "final",
+	"category": [
+		{
+			"coding": [
+				{
+					"system": "http://terminology.hl7.org/CodeSystem/observation-category",
+					"code": "vital-signs"
+				}
+			]
+		}
+	],
+	"code": {
+		"coding": [
+			{
+				"system": "http://loinc.org",
+				"code": "29463-7",
+				"display": "Body weight"
+			},
+			{
+				"system": "http://snomed.info/sct",
+				"code": "27113001",
+				"display": "Body weight"
+			}
+		],
+		"text": "Körpergewicht"
+	},
+	"subject": {
+		"reference": "Patient/example"
+	},
+	"effectiveDateTime": "2020-10-11",
+	"valueQuantity": {
+		"value": 79,
+		"unit": "kilogram",
+		"system": "http://unitsofmeasure.org",
+		"code": "kg"
+	}
+}

@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="utf-8"?>
+<StructureDefinition xmlns="http://hl7.org/fhir">
+	<id value="KBV-PR-ERP-PracticeSupply"/>
+	<url value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_PracticeSupply"/>
+	<version value="1.1.0"/>
+	<name value="KBV_PR_ERP_PracticeSupply"/>
+	<status value="active"/>
+	<date value="2022-09-30"/>
+	<publisher value="Kassenärztliche Bundesvereinigung"/>
+	<fhirVersion value="4.0.1"/>
+	<mapping>
+		<identity value="workflow"/>
+		<uri value="http://hl7.org/fhir/workflow"/>
+		<name value="Workflow Pattern"/>
+	</mapping>
+	<kind value="resource"/>
+	<abstract value="false"/>
+	<type value="SupplyRequest"/>
+	<baseDefinition value="http://hl7.org/fhir/StructureDefinition/SupplyRequest"/>
+	<derivation value="constraint"/>
+	<differential>
+		<element id="SupplyRequest">
+			<path value="SupplyRequest"/>
+			<constraint>
+				<key value="-erp-begrenzungDate"/>
+				<severity value="error"/>
+				<human value="Begrenzung der Datumsangabe auf 10 Zeichen JJJJ-MM-TT"/>
+				<expression value="authoredOn.toString().length()=10"/>
+				<source value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_PracticeSupply"/>
+			</constraint>
+			<mustSupport value="true"/>
+		</element>
+		<element id="SupplyRequest.id">
+			<path value="SupplyRequest.id"/>
+			<min value="1"/>
+			<mustSupport value="true"/>
+		</element>
+		<element id="SupplyRequest.meta">
+			<path value="SupplyRequest.meta"/>
+			<min value="1"/>
+			<mustSupport value="true"/>
+		</element>
+		<element id="SupplyRequest.meta.versionId">
+			<path value="SupplyRequest.meta.versionId"/>
+			<max value="0"/>
+		</element>
+		<element id="SupplyRequest.meta.lastUpdated">
+			<path value="SupplyRequest.meta.lastUpdated"/>
+			<max value="0"/>
+		</element>
+		<element id="SupplyRequest.meta.source">
+			<path value="SupplyRequest.meta.source"/>
+			<max value="0"/>
+		</element>
+		<element id="SupplyRequest.meta.profile">
+			<path value="SupplyRequest.meta.profile"/>
+			<min value="1"/>
+			<max value="1"/>
+			<fixedCanonical value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_PracticeSupply|1.1.0"/>
+			<mustSupport value="true"/>
+		</element>
+		<element id="SupplyRequest.meta.security">
+			<path value="SupplyRequest.meta.security"/>
+			<max value="0"/>
+		</element>
+		<element id="SupplyRequest.meta.tag">
+			<path value="SupplyRequest.meta.tag"/>
+			<max value="0"/>
+		</element>
+		<element id="SupplyRequest.implicitRules">
+			<path value="SupplyRequest.implicitRules"/>
+			<max value="0"/>
+		</element>
+		<element id="SupplyRequest.language">
+			<path value="SupplyRequest.language"/>
+			<max value="0"/>
+		</element>
+		<element id="SupplyRequest.text">
+			<path value="SupplyRequest.text"/>
+			<max value="0"/>
+		</element>
+		<element id="SupplyRequest.contained">
+			<path value="SupplyRequest.contained"/>
+			<max value="0"/>
+		</element>
+		<element id="SupplyRequest.extension">
+			<path value="SupplyRequest.extension"/>
+			<slicing>
+				<discriminator>
+					<type value="value"/>
+					<path value="url"/>
+				</discriminator>
+				<rules value="closed"/>
+			</slicing>
+			<min value="1"/>
+		</element>
+		<element id="SupplyRequest.extension:Kostentraeger">
+			<path value="SupplyRequest.extension"/>
+			<sliceName value="Kostentraeger"/>
+			<min value="1"/>
+			<max value="1"/>
+			<type>
+				<code value="Extension"/>
+				<profile value="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_PracticeSupply_Payor"/>
+			</type>
+			<mustSupport value="true"/>
+		</element>
+		<element id="SupplyRequest.extension:Kostentraeger.extension">
+			<path value="SupplyRequest.extension.extension"/>
+			<slicing>
+				<discriminator>
+					<type value="value"/>
+					<path value="url"/>
+				</discriminator>
+				<rules value="closed"/>
+			</slicing>
+			<min value="2"/>
+		</element>
+		<element id="SupplyRequest.extension:Kostentraeger.extension:IK">
+			<path value="SupplyRequest.extension.extension"/>
+			<sliceName value="IK"/>
+			<min value="0"/>
+			<mustSupport value="true"/>
+		</element>
+		<element id="SupplyRequest.extension:Kostentraeger.extension:IK.value[x]:valueIdentifier">
+			<path value="SupplyRequest.extension.extension.value[x]"/>
+			<sliceName value="valueIdentifier"/>
+		</element>
+		<element id="SupplyRequest.extension:Kostentraeger.extension:IK.value[x]:valueIdentifier.system">
+			<path value="SupplyRequest.extension.extension.value[x].system"/>
+			<mustSupport value="true"/>
+		</element>
+		<element id="SupplyRequest.extension:Kostentraeger.extension:IK.value[x]:valueIdentifier.value">
+			<path value="SupplyRequest.extension.extension.value[x].value"/>
+			<constraint>
+				<key value="-erp-laengeIK"/>
+				<severity value="error"/>
+				<human value="Die IK-Nummer muss 9-stellig sein."/>
+				<expression value="length()=9"/>
+				<source value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_PracticeSupply"/>
+			</constraint>
+			<mustSupport value="true"/>
+		</element>
+		<element id="SupplyRequest.extension:Kostentraeger.extension:Name">
+			<path value="SupplyRequest.extension.extension"/>
+			<sliceName value="Name"/>
+			<min value="1"/>
+			<mustSupport value="true"/>
+		</element>
+		<element id="SupplyRequest.extension:Kostentraeger.extension:Name.value[x]">
+			<path value="SupplyRequest.extension.extension.value[x]"/>
+			<mustSupport value="true"/>
+		</element>
+		<element id="SupplyRequest.extension:Kostentraeger.extension:Name.value[x]:valueString">
+			<path value="SupplyRequest.extension.extension.value[x]"/>
+			<sliceName value="valueString"/>
+			<mustSupport value="true"/>
+		</element>
+		<element id="SupplyRequest.extension:Kostentraeger.extension:Kostentraegertyp">
+			<path value="SupplyRequest.extension.extension"/>
+			<sliceName value="Kostentraegertyp"/>
+			<min value="1"/>
+			<mustSupport value="true"/>
+		</element>
+		<element id="SupplyRequest.extension:Kostentraeger.extension:Kostentraegertyp.value[x]">
+			<path value="SupplyRequest.extension.extension.value[x]"/>
+			<mustSupport value="true"/>
+		</element>
+		<element id="SupplyRequest.extension:Kostentraeger.extension:Kostentraegertyp.value[x]:valueCoding">
+			<path value="SupplyRequest.extension.extension.value[x]"/>
+			<sliceName value="valueCoding"/>
+			<mustSupport value="true"/>
+		</element>
+		<element id="SupplyRequest.extension:Kostentraeger.extension:Kostentraegertyp.value[x]:valueCoding.system">
+			<path value="SupplyRequest.extension.extension.value[x].system"/>
+			<mustSupport value="true"/>
+		</element>
+		<element id="SupplyRequest.extension:Kostentraeger.extension:Kostentraegertyp.value[x]:valueCoding.code">
+			<path value="SupplyRequest.extension.extension.value[x].code"/>
+			<mustSupport value="true"/>
+		</element>
+		<element id="SupplyRequest.identifier">
+			<path value="SupplyRequest.identifier"/>
+			<max value="0"/>
+		</element>
+		<element id="SupplyRequest.status">
+			<path value="SupplyRequest.status"/>
+			<max value="0"/>
+		</element>
+		<element id="SupplyRequest.category">
+			<path value="SupplyRequest.category"/>
+			<max value="0"/>
+		</element>
+		<element id="SupplyRequest.priority">
+			<path value="SupplyRequest.priority"/>
+			<max value="0"/>
+		</element>
+		<element id="SupplyRequest.item[x]">
+			<path value="SupplyRequest.item[x]"/>
+			<slicing>
+				<discriminator>
+					<type value="type"/>
+					<path value="$this"/>
+				</discriminator>
+				<rules value="closed"/>
+			</slicing>
+			<type>
+				<code value="Reference"/>
+				<targetProfile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_FreeText|1.1.0"/>
+				<targetProfile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.1.0"/>
+				<targetProfile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Compounding|1.1.0"/>
+				<targetProfile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Ingredient|1.1.0"/>
+			</type>
+			<mustSupport value="true"/>
+		</element>
+		<element id="SupplyRequest.item[x]:itemReference">
+			<path value="SupplyRequest.item[x]"/>
+			<sliceName value="itemReference"/>
+			<min value="1"/>
+			<type>
+				<code value="Reference"/>
+				<targetProfile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_FreeText|1.1.0"/>
+				<targetProfile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.1.0"/>
+				<targetProfile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Compounding|1.1.0"/>
+				<targetProfile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Ingredient|1.1.0"/>
+			</type>
+			<mustSupport value="true"/>
+		</element>
+		<element id="SupplyRequest.item[x]:itemReference.reference">
+			<path value="SupplyRequest.item[x].reference"/>
+			<min value="1"/>
+			<mustSupport value="true"/>
+		</element>
+		<element id="SupplyRequest.item[x]:itemReference.type">
+			<path value="SupplyRequest.item[x].type"/>
+			<max value="0"/>
+		</element>
+		<element id="SupplyRequest.item[x]:itemReference.identifier">
+			<path value="SupplyRequest.item[x].identifier"/>
+			<max value="0"/>
+		</element>
+		<element id="SupplyRequest.item[x]:itemReference.display">
+			<path value="SupplyRequest.item[x].display"/>
+			<max value="0"/>
+		</element>
+		<element id="SupplyRequest.quantity">
+			<path value="SupplyRequest.quantity"/>
+			<constraint>
+				<key value="-erp-begrenzungValue"/>
+				<severity value="error"/>
+				<human value="Die Anzahl der verordneten Packungen darf aus maximal 6 Zeichen bestehen."/>
+				<expression value="value.toString().length() &lt;= 6"/>
+				<source value="https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_PracticeSupply"/>
+			</constraint>
+			<mustSupport value="true"/>
+		</element>
+		<element id="SupplyRequest.quantity.value">
+			<path value="SupplyRequest.quantity.value"/>
+			<short value="Anzahl der verordneten Packungen"/>
+			<definition value="Anzahl der verordneten Packungen"/>
+			<min value="1"/>
+			<mustSupport value="true"/>
+		</element>
+		<element id="SupplyRequest.quantity.comparator">
+			<path value="SupplyRequest.quantity.comparator"/>
+			<max value="0"/>
+		</element>
+		<element id="SupplyRequest.quantity.unit">
+			<path value="SupplyRequest.quantity.unit"/>
+			<max value="0"/>
+		</element>
+		<element id="SupplyRequest.quantity.system">
+			<path value="SupplyRequest.quantity.system"/>
+			<min value="1"/>
+			<fixedUri value="http://unitsofmeasure.org"/>
+			<mustSupport value="true"/>
+		</element>
+		<element id="SupplyRequest.quantity.code">
+			<path value="SupplyRequest.quantity.code"/>
+			<min value="1"/>
+			<fixedCode value="{Package}"/>
+			<mustSupport value="true"/>
+		</element>
+		<element id="SupplyRequest.parameter">
+			<path value="SupplyRequest.parameter"/>
+			<max value="0"/>
+		</element>
+		<element id="SupplyRequest.occurrence[x]">
+			<path value="SupplyRequest.occurrence[x]"/>
+			<max value="0"/>
+		</element>
+		<element id="SupplyRequest.authoredOn">
+			<path value="SupplyRequest.authoredOn"/>
+			<short value="Ausstellungsdatum"/>
+			<definition value="Ausstellungsdatum der Verordnung"/>
+			<min value="1"/>
+			<mustSupport value="true"/>
+		</element>
+		<element id="SupplyRequest.requester">
+			<path value="SupplyRequest.requester"/>
+			<min value="1"/>
+			<type>
+				<code value="Reference"/>
+				<targetProfile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner|1.1.0"/>
+			</type>
+			<mustSupport value="true"/>
+		</element>
+		<element id="SupplyRequest.requester.reference">
+			<path value="SupplyRequest.requester.reference"/>
+			<min value="1"/>
+			<mustSupport value="true"/>
+		</element>
+		<element id="SupplyRequest.requester.type">
+			<path value="SupplyRequest.requester.type"/>
+			<max value="0"/>
+		</element>
+		<element id="SupplyRequest.requester.identifier">
+			<path value="SupplyRequest.requester.identifier"/>
+			<max value="0"/>
+		</element>
+		<element id="SupplyRequest.requester.display">
+			<path value="SupplyRequest.requester.display"/>
+			<max value="0"/>
+		</element>
+		<element id="SupplyRequest.supplier">
+			<path value="SupplyRequest.supplier"/>
+			<max value="0"/>
+		</element>
+		<element id="SupplyRequest.reasonCode">
+			<path value="SupplyRequest.reasonCode"/>
+			<max value="0"/>
+		</element>
+		<element id="SupplyRequest.reasonReference">
+			<path value="SupplyRequest.reasonReference"/>
+			<max value="0"/>
+		</element>
+		<element id="SupplyRequest.deliverFrom">
+			<path value="SupplyRequest.deliverFrom"/>
+			<max value="0"/>
+		</element>
+		<element id="SupplyRequest.deliverTo">
+			<path value="SupplyRequest.deliverTo"/>
+			<max value="0"/>
+		</element>
+	</differential>
+</StructureDefinition>

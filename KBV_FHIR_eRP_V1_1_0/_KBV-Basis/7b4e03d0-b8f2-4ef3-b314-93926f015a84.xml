@@ -1,0 +1,62 @@
+<Observation xmlns="http://hl7.org/fhir">
+  <id value="7b4e03d0-b8f2-4ef3-b314-93926f015a84" />
+  <meta>
+    <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Observation_Glucose_Concentration|1.3.0" />
+  </meta>
+  <status value="amended" />
+  <category>
+    <coding>
+      <system value="http://terminology.hl7.org/CodeSystem/observation-category" />
+      <code value="vital-signs" />
+    </coding>
+  </category>
+  <code>
+    <coding>
+      <system value="http://loinc.org" />
+      <version value="2.72" />
+      <code value="2339-0" />
+      <display value="Glucose [Mass/volume] in Blood" />
+    </coding>
+    <coding>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="434912009" />
+      <display value="Blood glucose concentration (observable entity)" />
+    </coding>
+  </code>
+  <subject>
+    <reference value="urn:uuid:6a15cff6-3cc1-4bf2-ab66-1cc6316e6777" />
+  </subject>
+  <effectiveDateTime value="2020-01-02" />
+  <performer>
+    <reference value="urn:uuid:8ad1ee6c-6164-493a-be52-c43cf49e9916" />
+  </performer>
+  <valueQuantity>
+    <value value="90" />
+    <unit value="mg/dL" />
+    <system value="http://unitsofmeasure.org" />
+    <code value="mg/dL" />
+  </valueQuantity>
+  <interpretation>
+    <coding>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="404684003:{363713009=260369004,363713009=255361000}" />
+      <display value="Clinical finding where (Has interpretation = Increasing, and Has interpretation = Slow)" />
+    </coding>
+  </interpretation>
+  <referenceRange>
+    <low>
+      <value value="60" />
+      <unit value="mg/dL" />
+      <system value="http://unitsofmeasure.org" />
+      <code value="mg/dL" />
+    </low>
+    <high>
+      <value value="100" />
+      <unit value="mg/dL" />
+      <system value="http://unitsofmeasure.org" />
+      <code value="mg/dL" />
+    </high>
+  </referenceRange>
+</Observation>

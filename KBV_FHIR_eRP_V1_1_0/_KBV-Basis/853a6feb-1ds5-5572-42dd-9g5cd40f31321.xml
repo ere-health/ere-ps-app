@@ -1,0 +1,166 @@
+<Encounter xmlns="http://hl7.org/fhir">
+  <id value="853a6feb-1ds5-5572-42dd-9g5cd40f31321" />
+  <meta>
+    <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Encounter|1.3.0" />
+  </meta>
+  <status value="finished" />
+  <statusHistory>
+    <status value="planned" />
+    <period>
+      <start value="2022-05-25" />
+      <end value="2022-05-31" />
+    </period>
+  </statusHistory>
+  <class>
+    <system value="http://terminology.hl7.org/CodeSystem/v3-ActCode" />
+    <code value="IMP" />
+    <display value="inpatient encounter" />
+  </class>
+  <classHistory>
+    <class>
+      <system value="http://terminology.hl7.org/CodeSystem/v3-ActCode" />
+      <code value="PRENC" />
+      <display value="pre-admission" />
+    </class>
+    <period>
+      <start value="2022-05-25" />
+      <end value="2022-05-31" />
+    </period>
+  </classHistory>
+  <type>
+    <coding>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="300007000" />
+      <display value="Screening for cardiovascular system disease (procedure)" />
+    </coding>
+  </type>
+  <serviceType>
+    <coding>
+      <system value="https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_BAR2_ARZTNRFACHGRUPPE" />
+      <code value="28" />
+      <display value="Kardiologie" />
+    </coding>
+  </serviceType>
+  <priority>
+    <coding>
+      <system value="http://terminology.hl7.org/CodeSystem/v3-ActPriority" />
+      <code value="UR" />
+      <display value="urgent" />
+    </coding>
+  </priority>
+  <subject>
+    <reference value="urn:uuid:9774f67f-a238-4daf-b4e6-679deeef3811" />
+  </subject>
+  <!--<episodeOfCare> 0..* Reference(EpisodeOfCare) Episode(s) of care that this encounter should be recorded against</episodeOfCare> -->
+  <!--<basedOn> 0..* Reference(ServiceRequest) The ServiceRequest that initiated this encounter </basedOn> -->
+  <participant>
+    <type>
+      <coding>
+        <system value="http://terminology.hl7.org/CodeSystem/v3-ParticipationType" />
+        <code value="ATND" />
+        <display value="attender" />
+      </coding>
+    </type>
+    <period>
+      <start value="2022-06-01" />
+    </period>
+    <individual>
+      <reference value="urn:uuid:f3fg0113-9844-4333-bfd2-fff573222b65" />
+    </individual>
+  </participant>
+  <!--appointment> 0..* Reference(Appointment) The appointment that scheduled this encounter </appointment>-->
+  <period>
+    <start value="2022-06-01" />
+    <end value="2022-06-04" />
+  </period>
+  <length>
+    <value value="3" />
+    <unit value="day" />
+    <system value="http://unitsofmeasure.org" />
+    <code value="d" />
+  </length>
+  <reasonCode>
+    <coding>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="185349003" />
+      <display value="Encounter for check up (procedure)" />
+    </coding>
+  </reasonCode>
+  <diagnosis>
+    <condition>
+      <reference value="urn:uuid:xxx" />
+    </condition>
+    <use>
+      <coding>
+        <system value="http://terminology.hl7.org/CodeSystem/diagnosis-role" />
+        <code value="AD" />
+        <display value="Admission diagnosis" />
+      </coding>
+    </use>
+    <rank value="1" />
+  </diagnosis>
+  <!-- <account>0..* Reference(Account) The set of accounts that may be used for billing for this Encounter </account>-->
+  <hospitalization>
+    <!--<preAdmissionIdentifier> 0..1 Identifier Pre-admission identifier </preAdmissionIdentifier>-->
+    <origin>
+      <reference value="urn:uuid:cf042e44-086a-4d51-9c77-172f9a972e3b" />
+    </origin>
+    <admitSource>
+      <coding>
+        <system value="http://terminology.hl7.org/CodeSystem/admit-source" />
+        <code value="mp" />
+        <display value="Medical Practitioner/physician referral" />
+      </coding>
+    </admitSource>
+    <reAdmission>
+      <coding>
+        <system value="http://terminology.hl7.org/CodeSystem/v2-0092" />
+        <code value="R" />
+        <display value="Wiederaufnahme" />
+      </coding>
+    </reAdmission>
+    <dietPreference>
+      <coding>
+        <system value="http://terminology.hl7.org/CodeSystem/diet" />
+        <code value="vegetarian" />
+        <display value="Vegetarian" />
+      </coding>
+    </dietPreference>
+    <specialCourtesy>
+      <coding>
+        <system value="http://terminology.hl7.org/CodeSystem/v3-EncounterSpecialCourtesy" />
+        <code value="STF" />
+        <display value="staff" />
+      </coding>
+    </specialCourtesy>
+    <specialArrangement>
+      <coding>
+        <system value="http://terminology.hl7.org/CodeSystem/encounter-special-arrangements" />
+        <code value="att" />
+        <display value="Attendant" />
+      </coding>
+    </specialArrangement>
+    <destination>
+      <reference value="urn:uuid:cf042e44-086a-4d51-9c77-172f9a972e3b" />
+    </destination>
+    <dischargeDisposition>
+      <coding>
+        <system value="http://terminology.hl7.org/CodeSystem/discharge-disposition" />
+        <code value="home" />
+        <display value="Home" />
+      </coding>
+    </dischargeDisposition>
+  </hospitalization>
+  <!--<location>   0..* List of locations where the patient has been
+  <location>< 1..1 Reference(Location) Location the encounter takes place </location>
+  <status value="[code]"/> 0..1 planned | active | reserved | completed
+  <physicalType>< 0..1 CodeableConcept The physical type of the location (usually the level in the location hierachy - bed room ward etc.) </physicalType>
+  <period> 0..1 Period Time period during which the patient was present at the location </period>s
+ </location> -->
+  <serviceProvider>
+    <reference value="urn:uuid:cf042e44-086a-4d51-9c77-172f9a972e3b" />
+  </serviceProvider>
+  <!--<partOf> 0..1 Reference(Encounter) Another Encounter this encounter is part of </partOf>-->
+</Encounter>

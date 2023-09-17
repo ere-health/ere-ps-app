@@ -1,0 +1,136 @@
+<CodeSystem xmlns="http://hl7.org/fhir">
+  <id value="KBV-CS-Base-Reaction-Allergy-German" />
+  <url value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Reaction_Allergy_German" />
+  <version value="1.3.0" />
+  <name value="KBV_CS_Base_Reaction_Allergy_German" />
+  <title value="Manifestation" />
+  <status value="active" />
+  <experimental value="false" />
+  <publisher value="Kassenärztliche Bundesvereinigung (KBV)" />
+  <contact>
+    <telecom>
+      <system value="url" />
+      <value value="http://www.kbv.de" />
+    </telecom>
+  </contact>
+  <description value="Dieses Codesystem enthält die Codes für deutsche Bezeichner für Manifestation." />
+  <copyright value="Im folgenden Profil können Codes aus den Codesystemen Snomed, Loinc oder Ucum enthalten sein, die dem folgenden Urheberrecht unterliegen: This material includes SNOMED Clinical Terms® (SNOMED CT®) which is used by permission of SNOMED International. All rights reserved. SNOMED CT®, was originally created by The College of American Pathologists. SNOMED and SNOMED CT are registered trademarks of SNOMED International. Implementers of these artefacts must have the appropriate SNOMED CT Affiliate license. This material contains content from LOINC (http://loinc.org). LOINC is copyright © 1995-2020, Regenstrief Institute, Inc. and the Logical Observation Identifiers Names and Codes (LOINC) Committee and is available at no cost under the license at http://loinc.org/license. LOINC® is a registered United States trademark of Regenstrief Institute, Inc. This product includes all or a portion of the UCUM table, UCUM codes, and UCUM definitions or is derived from it, subject to a license from Regenstrief Institute, Inc. and The UCUM Organization. Your use of the UCUM table, UCUM codes, UCUM definitions also is subject to this license, a copy of which is available at ​http://unitsofmeasure.org. The current complete UCUM table, UCUM Specification are available for download at http://unitsofmeasure.org. The UCUM table and UCUM codes are copyright © 1995-2009, Regenstrief Institute, Inc. and the Unified Codes for Units of Measures (UCUM) Organization. All rights reserved. THE UCUM TABLE (IN ALL FORMATS), UCUM DEFINITIONS, AND SPECIFICATION ARE PROVIDED &quot;AS IS.&quot; ANY EXPRESS OR IMPLIED WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE." />
+  <caseSensitive value="true" />
+  <content value="complete" />
+  <concept>
+    <code value="Urtikaria" />
+    <display value="Urtikaria" />
+  </concept>
+  <concept>
+    <code value="TrockeneAugen" />
+    <display value="Trockene Augen" />
+  </concept>
+  <concept>
+    <code value="Asthmabronchiale" />
+    <display value="Asthma bronchiale" />
+  </concept>
+  <concept>
+    <code value="Erbrechen" />
+    <display value="Erbrechen" />
+  </concept>
+  <concept>
+    <code value="EngegefuehlinderBrust" />
+    <display value="Engegefühl in der Brust" />
+  </concept>
+  <concept>
+    <code value="AtopischeDermatitis" />
+    <display value="Atopische Dermatitis" />
+  </concept>
+  <concept>
+    <code value="Quaddel" />
+    <display value="Quaddel" />
+  </concept>
+  <concept>
+    <code value="Dyspnoe" />
+    <display value="Dyspnoe" />
+  </concept>
+  <concept>
+    <code value="PapuloeseHauteruption" />
+    <display value="Papulöse Hauteruption" />
+  </concept>
+  <concept>
+    <code value="BulloeseHauteruption" />
+    <display value="Bullöse Hauteruption" />
+  </concept>
+  <concept>
+    <code value="Vaskulitis" />
+    <display value="Vaskulitis" />
+  </concept>
+  <concept>
+    <code value="Anaphylaxie" />
+    <display value="Anaphylaxie" />
+  </concept>
+  <concept>
+    <code value="KardiorespiratorischerStillstand" />
+    <display value="Kardiorespiratorischer Stillstand" />
+  </concept>
+  <concept>
+    <code value="Angiooedem" />
+    <display value="Angioödem" />
+  </concept>
+  <concept>
+    <code value="Hautjucken" />
+    <display value="Hautjucken" />
+  </concept>
+  <concept>
+    <code value="Uebelkeit" />
+    <display value="Übelkeit" />
+  </concept>
+  <concept>
+    <code value="Ekzem" />
+    <display value="Ekzem" />
+  </concept>
+  <concept>
+    <code value="Bronchospasmus" />
+    <display value="Bronchospasmus" />
+  </concept>
+  <concept>
+    <code value="Husten" />
+    <display value="Husten" />
+  </concept>
+  <concept>
+    <code value="Larynxoedem" />
+    <display value="Larynxödem" />
+  </concept>
+  <concept>
+    <code value="Diarrhoe" />
+    <display value="Diarrhoe" />
+  </concept>
+  <concept>
+    <code value="KardialeArrhythmien" />
+    <display value="Kardiale Arrhythmien" />
+  </concept>
+  <concept>
+    <code value="Rhinitis" />
+    <display value="Rhinitis" />
+  </concept>
+  <concept>
+    <code value="ArzneimittelreaktionmitEosinophilieundsystemischenSymptomen" />
+    <display value="Arzneimittelreaktion mit Eosinophilie und systemischen Symptomen" />
+  </concept>
+  <concept>
+    <code value="StevensJohnsonSyndrom" />
+    <display value="Stevens-Johnson-Syndrom" />
+  </concept>
+  <concept>
+    <code value="Niesen" />
+    <display value="Niesen" />
+  </concept>
+  <concept>
+    <code value="OkulareHyperaemie" />
+    <display value="Okulare Hyperämie" />
+  </concept>
+  <concept>
+    <code value="EpileptischerAnfall" />
+    <display value="Epileptischer Anfall" />
+  </concept>
+  <concept>
+    <code value="Konjunktivitis" />
+    <display value="Konjunktivitis" />
+  </concept>
+</CodeSystem>

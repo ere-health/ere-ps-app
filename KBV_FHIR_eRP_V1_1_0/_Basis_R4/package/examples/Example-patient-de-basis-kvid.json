@@ -1,0 +1,1 @@
+{"resourceType":"Patient","id":"Example-patient-de-basis-kvid","identifier":[{"system":"http://fhir.de/sid/gkv/kvid-10","value":"G995030567"}],"name":[{"family":"Mustermann","given":["Max"]}]}

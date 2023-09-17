@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeSystem xmlns="http://hl7.org/fhir">
+  <id value="KBV-CS-FOR-Ursache-Type" />
+	<url value= "https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_Ursache_Type"/>
+	<version value="1.1.0" />
+	<name value="KBV_CS_FOR_Ursache_Type"/>
+	<status value="active"/>
+	<date value="2022-09-30" />
+	<publisher value="Kassenärztliche Bundesvereinigung" />
+	<contact>
+		<telecom>
+			<system value="url"/>
+			<value value="http://www.kbv.de"/>
+		</telecom>
+	</contact>
+	<description value="Ausprägung der möglichen Ursachen"/>
+	<copyright value="Kassenaerztliche Bundesvereinigung"/>
+	<caseSensitive value="true"/>
+	<content value="complete"/>
+	<concept>
+		<code value="1"/>
+		<display value="Unfall"/>
+	</concept>
+	<concept>
+		<code value="2"/>
+		<display value="Arbeitsunfall (Berufsgenossenschaft/Unfallkasse)"/>
+	</concept>
+	<concept>
+		<code value="3"/>
+		<display value="Versorgungsleiden"/>
+	</concept>
+	<concept>
+		<code value="4"/>
+		<display value="Berufskrankheit (Berufsgenossenschaft/Unfallkasse)"/>
+	</concept>
+</CodeSystem>

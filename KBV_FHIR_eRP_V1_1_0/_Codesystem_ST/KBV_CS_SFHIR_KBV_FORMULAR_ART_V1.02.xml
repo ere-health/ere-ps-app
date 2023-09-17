@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<CodeSystem xmlns="http://hl7.org/fhir" xmlns:ns2="http://www.w3.org/1999/xhtml">
+    <url value="https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_FORMULAR_ART"/>
+    <identifier>
+        <system value="urn:ietf:rfc:3986"/>
+        <value value="urn:oid:1.2.276.0.76.3.1.1.5.2.58"/>
+    </identifier>
+    <version value="1.02"/>
+    <name value="KBV_CS_SFHIR_KBV_FORMULAR_ART"/>
+    <status value="active"/>
+    <date value="2022-03-25"/>
+    <publisher value="Kassenärztliche Bundesvereinigung"/>
+    <contact>
+        <telecom>
+            <system value="url"/>
+            <value value="http://www.kbv.de"/>
+        </telecom>
+    </contact>
+    <description value="Diese Schlüsseltabelle beinhaltet, die in FHIR abgebildeten vertragsärztlichen Formulare. "/>
+    <copyright value="Kassenärztliche Bundesvereinigung"/>
+    <caseSensitive value="true"/>
+    <content value="complete"/>
+    <concept>
+        <code value="e010"/>
+        <display value="eAU Krankenkassenausfertigung"/>
+    </concept>
+    <concept>
+        <code value="e011"/>
+        <display value="eAU Patientenausfertigung"/>
+    </concept>
+    <concept>
+        <code value="e012"/>
+        <display value="eAU Arbeitgeberausfertigung"/>
+    </concept>
+    <concept>
+        <code value="e013"/>
+        <display value="Stornonachricht für eine eAU"/>
+    </concept>
+    <concept>
+        <code value="e16A"/>
+        <display value="elektronische Arzneimittelverordnung"/>
+    </concept>
+    <concept>
+        <code value="e16D"/>
+        <display value="elektronische Digitale-Gesundheitsanwendungen-Verordnung"/>
+    </concept>
+</CodeSystem>

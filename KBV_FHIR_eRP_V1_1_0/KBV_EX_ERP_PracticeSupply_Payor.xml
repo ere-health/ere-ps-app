@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<StructureDefinition xmlns="http://hl7.org/fhir">
+	<id value="KBV-EX-ERP-PracticeSupply-Payor"/>
+	<url value="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_PracticeSupply_Payor"/>
+	<version value="1.1.0"/>
+	<name value="KBV_EX_ERP_PracticeSupply_Payor"/>
+	<status value="active"/>
+	<date value="2022-09-30"/>
+	<publisher value="Kassenärztliche Bundesvereinigung"/>
+	<fhirVersion value="4.0.1"/>
+	<mapping>
+		<identity value="rim"/>
+		<uri value="http://hl7.org/v3"/>
+		<name value="RIM Mapping"/>
+	</mapping>
+	<kind value="complex-type"/>
+	<abstract value="false"/>
+	<context>
+		<type value="element"/>
+		<expression value="SupplyRequest"/>
+	</context>
+	<type value="Extension"/>
+	<baseDefinition value="http://hl7.org/fhir/StructureDefinition/Extension"/>
+	<derivation value="constraint"/>
+	<differential>
+		<element id="Extension">
+			<path value="Extension"/>
+			<short value="Kostenträger"/>
+			<definition value="Abbildung der Informationen über den zuständigen Kostenträger für die Verordnung von Sprechstundenbedarf"/>
+		</element>
+		<element id="Extension.extension">
+			<path value="Extension.extension"/>
+			<slicing>
+				<discriminator>
+					<type value="value"/>
+					<path value="url"/>
+				</discriminator>
+				<rules value="closed"/>
+			</slicing>
+			<min value="2"/>
+			<max value="3"/>
+		</element>
+		<element id="Extension.extension:IK">
+			<path value="Extension.extension"/>
+			<sliceName value="IK"/>
+			<short value="IK der zuständigen Krankenkasse"/>
+			<min value="0"/>
+			<max value="1"/>
+		</element>
+		<element id="Extension.extension:IK.url">
+			<path value="Extension.extension.url"/>
+			<fixedUri value="IK"/>
+		</element>
+		<element id="Extension.extension:IK.value[x]">
+			<path value="Extension.extension.value[x]"/>
+			<slicing>
+				<discriminator>
+					<type value="type"/>
+					<path value="$this"/>
+				</discriminator>
+				<rules value="closed"/>
+			</slicing>
+			<min value="1"/>
+			<type>
+				<code value="Identifier"/>
+			</type>
+		</element>
+		<element id="Extension.extension:IK.value[x]:valueIdentifier">
+			<path value="Extension.extension.value[x]"/>
+			<sliceName value="valueIdentifier"/>
+			<min value="1"/>
+			<type>
+				<code value="Identifier"/>
+				<profile value="http://fhir.de/StructureDefinition/identifier-iknr"/>
+			</type>
+		</element>
+		<element id="Extension.extension:IK.value[x]:valueIdentifier.use">
+			<path value="Extension.extension.value[x].use"/>
+			<max value="0"/>
+		</element>
+		<element id="Extension.extension:IK.value[x]:valueIdentifier.type.coding:XX-Type">
+			<path value="Extension.extension.value[x].type.coding"/>
+			<sliceName value="XX-Type"/>
+		</element>
+		<element id="Extension.extension:IK.value[x]:valueIdentifier.type.coding:XX-Type.version">
+			<path value="Extension.extension.value[x].type.coding.version"/>
+			<max value="0"/>
+		</element>
+		<element id="Extension.extension:IK.value[x]:valueIdentifier.type.coding:XX-Type.display">
+			<path value="Extension.extension.value[x].type.coding.display"/>
+			<max value="0"/>
+		</element>
+		<element id="Extension.extension:IK.value[x]:valueIdentifier.type.coding:XX-Type.userSelected">
+			<path value="Extension.extension.value[x].type.coding.userSelected"/>
+			<max value="0"/>
+		</element>
+		<element id="Extension.extension:IK.value[x]:valueIdentifier.type.text">
+			<path value="Extension.extension.value[x].type.text"/>
+			<max value="0"/>
+		</element>
+		<element id="Extension.extension:IK.value[x]:valueIdentifier.value">
+			<path value="Extension.extension.value[x].value"/>
+			<short value="IK der zuständigen Krankenkasse"/>
+			<maxLength value="9"/>
+		</element>
+		<element id="Extension.extension:IK.value[x]:valueIdentifier.period">
+			<path value="Extension.extension.value[x].period"/>
+			<max value="0"/>
+		</element>
+		<element id="Extension.extension:IK.value[x]:valueIdentifier.assigner">
+			<path value="Extension.extension.value[x].assigner"/>
+			<max value="0"/>
+		</element>
+		<element id="Extension.extension:Name">
+			<path value="Extension.extension"/>
+			<sliceName value="Name"/>
+			<short value="Name des Kostenträgers"/>
+			<min value="1"/>
+			<max value="1"/>
+		</element>
+		<element id="Extension.extension:Name.url">
+			<path value="Extension.extension.url"/>
+			<fixedUri value="Name"/>
+		</element>
+		<element id="Extension.extension:Name.value[x]">
+			<path value="Extension.extension.value[x]"/>
+			<slicing>
+				<discriminator>
+					<type value="type"/>
+					<path value="$this"/>
+				</discriminator>
+				<rules value="closed"/>
+			</slicing>
+			<min value="1"/>
+			<type>
+				<code value="string"/>
+			</type>
+		</element>
+		<element id="Extension.extension:Name.value[x]:valueString">
+			<path value="Extension.extension.value[x]"/>
+			<sliceName value="valueString"/>
+			<short value="Name des Kostenträgers"/>
+			<min value="1"/>
+			<type>
+				<code value="string"/>
+			</type>
+			<maxLength value="45"/>
+		</element>
+		<element id="Extension.extension:Kostentraegertyp">
+			<path value="Extension.extension"/>
+			<sliceName value="Kostentraegertyp"/>
+			<short value="Kostenträgertyp"/>
+			<definition value="Art des Kostenträgers"/>
+			<min value="1"/>
+			<max value="1"/>
+		</element>
+		<element id="Extension.extension:Kostentraegertyp.url">
+			<path value="Extension.extension.url"/>
+			<fixedUri value="Kostentraegertyp"/>
+		</element>
+		<element id="Extension.extension:Kostentraegertyp.value[x]">
+			<path value="Extension.extension.value[x]"/>
+			<slicing>
+				<discriminator>
+					<type value="type"/>
+					<path value="$this"/>
+				</discriminator>
+				<rules value="closed"/>
+			</slicing>
+			<min value="1"/>
+			<type>
+				<code value="Coding"/>
+			</type>
+		</element>
+		<element id="Extension.extension:Kostentraegertyp.value[x]:valueCoding">
+			<path value="Extension.extension.value[x]"/>
+			<sliceName value="valueCoding"/>
+			<min value="1"/>
+			<type>
+				<code value="Coding"/>
+			</type>
+			<binding>
+				<strength value="required"/>
+				<valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_FOR_Payor_type"/>
+			</binding>
+		</element>
+		<element id="Extension.extension:Kostentraegertyp.value[x]:valueCoding.system">
+			<path value="Extension.extension.value[x].system"/>
+			<min value="1"/>
+		</element>
+		<element id="Extension.extension:Kostentraegertyp.value[x]:valueCoding.version">
+			<path value="Extension.extension.value[x].version"/>
+			<max value="0"/>
+		</element>
+		<element id="Extension.extension:Kostentraegertyp.value[x]:valueCoding.code">
+			<path value="Extension.extension.value[x].code"/>
+			<short value="Kostenträgertyp"/>
+			<definition value="Art des Kostenträgers"/>
+			<min value="1"/>
+		</element>
+		<element id="Extension.extension:Kostentraegertyp.value[x]:valueCoding.display">
+			<path value="Extension.extension.value[x].display"/>
+			<max value="0"/>
+		</element>
+		<element id="Extension.extension:Kostentraegertyp.value[x]:valueCoding.userSelected">
+			<path value="Extension.extension.value[x].userSelected"/>
+			<max value="0"/>
+		</element>
+		<element id="Extension.url">
+			<path value="Extension.url"/>
+			<fixedUri value="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_PracticeSupply_Payor"/>
+		</element>
+		<element id="Extension.value[x]">
+			<path value="Extension.value[x]"/>
+			<max value="0"/>
+		</element>
+	</differential>
+</StructureDefinition>

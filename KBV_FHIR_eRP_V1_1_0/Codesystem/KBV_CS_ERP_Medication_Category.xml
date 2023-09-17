@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<CodeSystem xmlns="http://hl7.org/fhir">
+	<id value="KBV-CS-ERP-Medication-Category"/>
+    <url value="https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Category"/>
+    <version value="1.1.0" />
+    <name value="KBV_CS_ERP_Medication_Category"/>
+    <status value="active"/>
+	<date value="2022-09-30"/>
+	<publisher value="Kassenärztliche Bundesvereinigung" />
+    <contact>
+        <telecom>
+            <system value="url"/>
+            <value value="http://www.kbv.de"/>
+        </telecom>
+    </contact>
+    <description value="Kennzeichnung der Verordnungskategorie"/>
+    <copyright value="Kassenärztliche Bundesvereinigung"/>
+    <caseSensitive value="true"/>
+    <content value="complete"/>
+    <concept>
+        <code value="00"/>
+        <display value="Arzneimittel oder in die Arzneimittelversorgung nach § 31 SGB V einbezogenes Produkt"/>
+    </concept>
+    <concept>
+        <code value="01"/>
+        <display value="BtM"/>
+    </concept>
+    <concept>
+        <code value="02"/>
+        <display value="AMVV § 3a Abs. 1 (Thalidomid o. ä.)"/>
+    </concept>
+    <concept>
+        <code value="03"/>
+        <display value="Sonstiges"/>
+    </concept>
+</CodeSystem>

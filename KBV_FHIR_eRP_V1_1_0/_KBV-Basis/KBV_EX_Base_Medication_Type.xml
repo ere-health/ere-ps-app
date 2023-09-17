@@ -1,0 +1,72 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="KBV-EX-Base-Medication-Type" />
+  <url value="https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Medication_Type" />
+  <version value="1.3.0" />
+  <name value="KBV_EX_Base_Medication_Type" />
+  <status value="active" />
+  <fhirVersion value="4.0.1" />
+  <mapping>
+    <identity value="rim" />
+    <uri value="http://hl7.org/v3" />
+    <name value="RIM Mapping" />
+  </mapping>
+  <kind value="complex-type" />
+  <abstract value="false" />
+  <context>
+    <type value="element" />
+    <expression value="Medication" />
+  </context>
+  <type value="Extension" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Extension" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Extension.url">
+      <path value="Extension.url" />
+      <fixedUri value="https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Medication_Type" />
+    </element>
+    <element id="Extension.value[x]">
+      <path value="Extension.value[x]" />
+      <slicing>
+        <discriminator>
+          <type value="type" />
+          <path value="$this" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <type>
+        <code value="CodeableConcept" />
+      </type>
+    </element>
+    <element id="Extension.value[x]:valueCodeableConcept">
+      <path value="Extension.value[x]" />
+      <sliceName value="valueCodeableConcept" />
+      <type>
+        <code value="CodeableConcept" />
+      </type>
+    </element>
+    <element id="Extension.value[x]:valueCodeableConcept.coding">
+      <path value="Extension.value[x].coding" />
+      <max value="1" />
+      <binding>
+        <strength value="required" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_Medication_Type|1.3.0" />
+      </binding>
+    </element>
+    <element id="Extension.value[x]:valueCodeableConcept.coding.system">
+      <path value="Extension.value[x].coding.system" />
+      <min value="1" />
+    </element>
+    <element id="Extension.value[x]:valueCodeableConcept.coding.version">
+      <path value="Extension.value[x].coding.version" />
+      <min value="1" />
+    </element>
+    <element id="Extension.value[x]:valueCodeableConcept.coding.code">
+      <path value="Extension.value[x].coding.code" />
+      <min value="1" />
+    </element>
+    <element id="Extension.value[x]:valueCodeableConcept.coding.display">
+      <path value="Extension.value[x].coding.display" />
+      <min value="1" />
+    </element>
+  </differential>
+</StructureDefinition>

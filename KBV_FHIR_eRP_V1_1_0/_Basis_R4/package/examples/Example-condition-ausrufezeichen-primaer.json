@@ -1,0 +1,1 @@
+{"resourceType":"Condition","id":"Example-condition-ausrufezeichen-primaer","code":{"coding":[{"system":"http://fhir.de/CodeSystem/bfarm/icd-10-gm","version":"2019","code":"F16.1","display":"Psychische Verhaltensstörung durch Halluzinogene (Akute Intoxikation)"}]},"subject":{"reference":"Patient/example"}}

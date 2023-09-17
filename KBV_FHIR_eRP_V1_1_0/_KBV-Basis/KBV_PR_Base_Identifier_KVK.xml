@@ -1,0 +1,63 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="KBV-PR-Base-Identifier-KVK" />
+  <url value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Identifier_KVK" />
+  <version value="1.3.0" />
+  <name value="KBV_PR_Base_Identifier_KVK" />
+  <status value="active" />
+  <fhirVersion value="4.0.1" />
+  <kind value="complex-type" />
+  <abstract value="false" />
+  <type value="Identifier" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Identifier" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Identifier">
+      <path value="Identifier" />
+      <short value="Identifier KVK" />
+      <definition value="Versichertennummer der Krankenversichertenkarte (KVK)" />
+    </element>
+    <element id="Identifier.type">
+      <path value="Identifier.type" />
+      <min value="1" />
+      <patternCodeableConcept>
+        <coding>
+          <system value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_identifier_type" />
+          <code value="kvk" />
+        </coding>
+      </patternCodeableConcept>
+    </element>
+    <element id="Identifier.type.coding">
+      <path value="Identifier.type.coding" />
+      <min value="1" />
+      <max value="1" />
+    </element>
+    <element id="Identifier.type.coding.system">
+      <path value="Identifier.type.coding.system" />
+      <min value="1" />
+    </element>
+    <element id="Identifier.type.coding.code">
+      <path value="Identifier.type.coding.code" />
+      <min value="1" />
+    </element>
+    <element id="Identifier.type.coding.display">
+      <path value="Identifier.type.coding.display" />
+      <patternString value="Krankenversichertenkarte" />
+    </element>
+    <element id="Identifier.system">
+      <path value="Identifier.system" />
+      <min value="1" />
+      <fixedUri value="http://fhir.de/sid/gkv/kvk-versichertennummer" />
+    </element>
+    <element id="Identifier.value">
+      <path value="Identifier.value" />
+      <min value="1" />
+      <constraint>
+        <key value="kvk-1" />
+        <severity value="error" />
+        <human value="Die Krankenversichertenkartenummer muss numerisch und 6- bis 12-stellig sein." />
+        <expression value="matches('^[0-9]{6,12}$')" />
+        <source value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Identifier_KVK" />
+      </constraint>
+    </element>
+  </differential>
+</StructureDefinition>

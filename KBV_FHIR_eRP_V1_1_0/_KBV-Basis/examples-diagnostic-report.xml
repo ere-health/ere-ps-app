@@ -1,0 +1,26 @@
+<DiagnosticReport xmlns="http://hl7.org/fhir">
+  <meta>
+    <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_DiagnosticReport|1.3.0" />
+  </meta>
+  <status value="appended" />
+  <category>
+    <coding>
+      <system value="http://snomed.info/sct" />
+      <version value="http://snomed.info/sct/900000000000207008/version/20220331" />
+      <code value="282290005" />
+      <display value="Imaging interpretation (observable entity)" />
+    </coding>
+  </category>
+  <code>
+    <text value="EKG" />
+  </code>
+  <subject>
+    <reference value="urn:uuid:b5df1dd6-237b-4057-9859-2f7fbacd3261" />
+  </subject>
+  <!-- <effectiveDateTime value="2022-01-14" /> -->
+  <effectivePeriod>
+    <start value="2022" />
+    <end value="2023" />
+  </effectivePeriod>
+  <conclusion value="Durchgehender SR mit unauffälligem Frequenzspektrum und wenigen SVES und VES" />
+</DiagnosticReport>

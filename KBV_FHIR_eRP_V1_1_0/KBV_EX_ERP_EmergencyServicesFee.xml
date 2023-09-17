@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<StructureDefinition xmlns="http://hl7.org/fhir">
+	<id value="KBV-EX-ERP-EmergencyServicesFee"/>
+	<url value="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_EmergencyServicesFee"/>
+	<version value="1.1.0"/>
+	<name value="KBV_EX_ERP_EmergencyServicesFee"/>
+	<status value="active"/>
+	<date value="2022-09-30"/>
+	<publisher value="Kassenärztliche Bundesvereinigung"/>
+	<fhirVersion value="4.0.1"/>
+	<mapping>
+		<identity value="rim"/>
+		<uri value="http://hl7.org/v3"/>
+		<name value="RIM Mapping"/>
+	</mapping>
+	<kind value="complex-type"/>
+	<abstract value="false"/>
+	<context>
+		<type value="element"/>
+		<expression value="MedicationRequest"/>
+	</context>
+	<type value="Extension"/>
+	<baseDefinition value="http://hl7.org/fhir/StructureDefinition/Extension"/>
+	<derivation value="constraint"/>
+	<differential>
+		<element id="Extension">
+			<extension url="http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status">
+				<valueCode value="normative"/>
+			</extension>
+			<extension url="http://hl7.org/fhir/StructureDefinition/structuredefinition-normative-version">
+				<valueCode value="4.0.0"/>
+			</extension>
+			<path value="Extension"/>
+			<short value="Kennzeichen Noctu"/>
+			<definition value="Ärztliche Kennzeichnung, ob diese Verordnung auch während der allgemeinen Ladenschlusszeiten beliefert werden soll, verbunden mit der Erhebung der Noctu-Gebühr zu Lasten der Krankenkasse gemäß Arzneimittelpreisverordnung."/>
+		</element>
+		<element id="Extension.url">
+			<path value="Extension.url"/>
+			<fixedUri value="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_EmergencyServicesFee"/>
+		</element>
+		<element id="Extension.value[x]">
+			<extension url="http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status">
+				<valueCode value="normative"/>
+			</extension>
+			<extension url="http://hl7.org/fhir/StructureDefinition/structuredefinition-normative-version">
+				<valueCode value="4.0.0"/>
+			</extension>
+			<path value="Extension.value[x]"/>
+			<slicing>
+				<discriminator>
+					<type value="type"/>
+					<path value="$this"/>
+				</discriminator>
+				<rules value="closed"/>
+			</slicing>
+			<min value="1"/>
+			<type>
+				<code value="boolean"/>
+			</type>
+		</element>
+		<element id="Extension.value[x]:valueBoolean">
+			<extension url="http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status">
+				<valueCode value="normative"/>
+			</extension>
+			<extension url="http://hl7.org/fhir/StructureDefinition/structuredefinition-normative-version">
+				<valueCode value="4.0.0"/>
+			</extension>
+			<path value="Extension.value[x]"/>
+			<sliceName value="valueBoolean"/>
+			<short value="Noctu"/>
+			<definition value="Ärztliche Kennzeichnung, ob diese Verordnung auch während der allgemeinen Ladenschlusszeitetruen beliefert werden soll, verbunden mit der Erhebung der Noctu-Gebühr zu Lasten der Krankenkasse gemäß Arzneimittelpreisverordnung.&#xD;&#xA;&#xD;&#xA;false - Noctu Gebühr ist vom Versicherten zu zahlen (Standardwert)&#xD;&#xA;true - Noctu Gebühr ist nicht vom Versicherten sondern vom Kostenträger zu zahlen"/>
+			<min value="1"/>
+			<type>
+				<code value="boolean"/>
+			</type>
+		</element>
+	</differential>
+</StructureDefinition>

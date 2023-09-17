@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="utf-8"?>
+<StructureDefinition xmlns="http://hl7.org/fhir">
+	<id value="KBV-EX-ERP-Multiple-Prescription"/>
+	<url value="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription"/>
+	<version value="1.1.0"/>
+	<name value="KBV_EX_ERP_Multiple_Prescription"/>
+	<status value="active"/>
+	<date value="2022-09-30"/>
+	<publisher value="Kassenärztliche Bundesvereinigung"/>
+	<fhirVersion value="4.0.1"/>
+	<mapping>
+		<identity value="rim"/>
+		<uri value="http://hl7.org/v3"/>
+		<name value="RIM Mapping"/>
+	</mapping>
+	<kind value="complex-type"/>
+	<abstract value="false"/>
+	<context>
+		<type value="element"/>
+		<expression value="MedicationRequest"/>
+	</context>
+	<type value="Extension"/>
+	<baseDefinition value="http://hl7.org/fhir/StructureDefinition/Extension"/>
+	<derivation value="constraint"/>
+	<differential>
+		<element id="Extension">
+			<path value="Extension"/>
+			<short value="Mehrfachverordnung"/>
+			<definition value="Abbildung der Informationen im Rahmen einer Mehrfachverordnung"/>
+			<constraint>
+				<key value="-erp-multiplePrescriptionKennzeichenTrueNummerierung"/>
+				<severity value="error"/>
+				<human value="Mehrfachverordnung: Wenn das Kennzeichen gleich true ist, muss eine Nummerierung (Zaehler und Nenner)	angegeben werden."/>
+				<expression value="(extension('Kennzeichen').value as boolean)=true implies extension('Nummerierung').exists()"/>
+				<source value="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription"/>
+			</constraint>
+			<constraint>
+				<key value="-erp-multiplePrescriptionKennzeichenFalseNummerierung"/>
+				<severity value="error"/>
+				<human value="Mehrfachverordnung: Wenn das Kennzeichen gleich false ist, darf keine Nummerierung (Zaehler und Nenner) angegeben werden."/>
+				<expression value="(extension('Kennzeichen').value as boolean)=false implies extension('Nummerierung').exists().not()"/>
+				<source value="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription"/>
+			</constraint>
+			<constraint>
+				<key value="-erp-multiplePrescriptionKennzeichenTrueZeitraum"/>
+				<severity value="error"/>
+				<human value="Mehrfachverordnung: Wenn das Kennzeichen gleich true ist, muss ein Zeitraum (mindestens Beginn der Einlösefrist)	angegeben werden."/>
+				<expression value="(extension('Kennzeichen').value as boolean)=true implies extension('Zeitraum').exists()"/>
+				<source value="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription"/>
+			</constraint>
+			<constraint>
+				<key value="-erp-multiplePrescriptionKennzeichenFalseZeitraum"/>
+				<severity value="error"/>
+				<human value="Mehrfachverordnung: Wenn das Kennzeichen gleich false ist, darf kein Zeitraum angegeben werden."/>
+				<expression value="(extension('Kennzeichen').value as boolean)=false implies extension('Zeitraum').exists().not()"/>
+				<source value="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription"/>
+			</constraint>
+			<constraint>
+				<key value="-erp-multiplePrescriptionKennzeichenTrueID"/>
+				<severity value="error"/>
+				<human value="Mehrfachverordnung: Wenn das Kennzeichen gleich true ist, muss eine ID angegeben werden."/>
+				<expression value="(extension('Kennzeichen').value as boolean)=true implies extension('ID').exists()"/>
+				<source value="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription"/>
+			</constraint>
+			<constraint>
+				<key value="-erp-multiplePrescriptionKennzeichenFalseID"/>
+				<severity value="error"/>
+				<human value="Mehrfachverordnung: Wenn das Kennzeichen gleich false ist, darf keine ID angegeben werden."/>
+				<expression value="(extension('Kennzeichen').value as boolean)=false implies extension('ID').exists().not()"/>
+				<source value="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription"/>
+			</constraint>
+		</element>
+		<element id="Extension.extension">
+			<path value="Extension.extension"/>
+			<slicing>
+				<discriminator>
+					<type value="value"/>
+					<path value="url"/>
+				</discriminator>
+				<rules value="closed"/>
+			</slicing>
+			<min value="1"/>
+		</element>
+		<element id="Extension.extension:Kennzeichen">
+			<path value="Extension.extension"/>
+			<sliceName value="Kennzeichen"/>
+			<min value="1"/>
+			<max value="1"/>
+		</element>
+		<element id="Extension.extension:Kennzeichen.url">
+			<path value="Extension.extension.url"/>
+			<fixedUri value="Kennzeichen"/>
+		</element>
+		<element id="Extension.extension:Kennzeichen.value[x]">
+			<path value="Extension.extension.value[x]"/>
+			<slicing>
+				<discriminator>
+					<type value="type"/>
+					<path value="$this"/>
+				</discriminator>
+				<rules value="closed"/>
+			</slicing>
+			<min value="1"/>
+			<type>
+				<code value="boolean"/>
+			</type>
+		</element>
+		<element id="Extension.extension:Kennzeichen.value[x]:valueBoolean">
+			<path value="Extension.extension.value[x]"/>
+			<sliceName value="valueBoolean"/>
+			<short value="Kennzeichen Mehrfachverordnung"/>
+			<definition value="Abbildung, ob die aktuelle Verordnung Teil einer Mehrfachverordnung ist&#xD;&#xA;&#xD;&#xA;true - die aktuelle Verordnung ist Teil einer Mehrfachverordnung &#xD;&#xA;false - die aktuelle Verordnung ist kein Teil einer Mehrfachverordnung"/>
+			<min value="1"/>
+			<type>
+				<code value="boolean"/>
+			</type>
+		</element>
+		<element id="Extension.extension:Nummerierung">
+			<path value="Extension.extension"/>
+			<sliceName value="Nummerierung"/>
+			<min value="0"/>
+			<max value="1"/>
+		</element>
+		<element id="Extension.extension:Nummerierung.url">
+			<path value="Extension.extension.url"/>
+			<fixedUri value="Nummerierung"/>
+		</element>
+		<element id="Extension.extension:Nummerierung.value[x]">
+			<path value="Extension.extension.value[x]"/>
+			<slicing>
+				<discriminator>
+					<type value="type"/>
+					<path value="$this"/>
+				</discriminator>
+				<rules value="closed"/>
+			</slicing>
+			<min value="1"/>
+			<type>
+				<code value="Ratio"/>
+			</type>
+		</element>
+		<element id="Extension.extension:Nummerierung.value[x]:valueRatio">
+			<path value="Extension.extension.value[x]"/>
+			<sliceName value="valueRatio"/>
+			<min value="1"/>
+			<type>
+				<code value="Ratio"/>
+			</type>
+			<constraint>
+				<key value="-erp-multiplePrescriptionNummerierung"/>
+				<severity value="error"/>
+				<human value="Mehrfachverordnung: Der Zaehler (Nummer der Teilverordnung) darf nicht größer als der Nenner (Gesamtanzahl) sein."/>
+				<expression value="numerator.value &lt;= denominator.value"/>
+				<source value="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription"/>
+			</constraint>
+		</element>
+		<element id="Extension.extension:Nummerierung.value[x]:valueRatio.numerator">
+			<path value="Extension.extension.value[x].numerator"/>
+			<min value="1"/>
+			<constraint>
+				<key value="-erp-multiplePrescriptionNumeratorValue"/>
+				<severity value="error"/>
+				<human value="Mehrfachverordnung: Zaehler muss den Wert 1, 2, 3 oder 4 haben."/>
+				<expression value="where(value=1 or value=2 or value=3 or value=4).count()=1"/>
+				<source value="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription"/>
+			</constraint>
+		</element>
+		<element id="Extension.extension:Nummerierung.value[x]:valueRatio.numerator.value">
+			<path value="Extension.extension.value[x].numerator.value"/>
+			<short value="Zähler Mehrfachverordnung"/>
+			<definition value="Das Feld dient der Kennzeichnung, um die wievielte Mehrfachverordnung einer Serie es sich handelt. Beispiel: &quot;2&quot; in &quot;2 von 4&quot;"/>
+			<min value="1"/>
+		</element>
+		<element id="Extension.extension:Nummerierung.value[x]:valueRatio.numerator.comparator">
+			<path value="Extension.extension.value[x].numerator.comparator"/>
+			<max value="0"/>
+		</element>
+		<element id="Extension.extension:Nummerierung.value[x]:valueRatio.numerator.unit">
+			<path value="Extension.extension.value[x].numerator.unit"/>
+			<max value="0"/>
+		</element>
+		<element id="Extension.extension:Nummerierung.value[x]:valueRatio.numerator.system">
+			<path value="Extension.extension.value[x].numerator.system"/>
+			<max value="0"/>
+		</element>
+		<element id="Extension.extension:Nummerierung.value[x]:valueRatio.numerator.code">
+			<path value="Extension.extension.value[x].numerator.code"/>
+			<max value="0"/>
+		</element>
+		<element id="Extension.extension:Nummerierung.value[x]:valueRatio.denominator">
+			<path value="Extension.extension.value[x].denominator"/>
+			<min value="1"/>
+			<constraint>
+				<key value="-erp-multiplePrescriptionDenominatorValue"/>
+				<severity value="error"/>
+				<human value="Mehrfachverordnung: Nenner muss den Wert 2, 3 oder 4 haben."/>
+				<expression value="where(value=2 or value=3 or value=4).count()=1"/>
+				<source value="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription"/>
+			</constraint>
+		</element>
+		<element id="Extension.extension:Nummerierung.value[x]:valueRatio.denominator.value">
+			<path value="Extension.extension.value[x].denominator.value"/>
+			<short value="Nenner Mehrfachverordnung"/>
+			<definition value="Das Feld dient der Kennzeichnung der Länge dieser Serie. Beispiel: &quot;4&quot; in &quot;2 von 4&quot;"/>
+			<min value="1"/>
+		</element>
+		<element id="Extension.extension:Nummerierung.value[x]:valueRatio.denominator.comparator">
+			<path value="Extension.extension.value[x].denominator.comparator"/>
+			<max value="0"/>
+		</element>
+		<element id="Extension.extension:Nummerierung.value[x]:valueRatio.denominator.unit">
+			<path value="Extension.extension.value[x].denominator.unit"/>
+			<max value="0"/>
+		</element>
+		<element id="Extension.extension:Nummerierung.value[x]:valueRatio.denominator.system">
+			<path value="Extension.extension.value[x].denominator.system"/>
+			<max value="0"/>
+		</element>
+		<element id="Extension.extension:Nummerierung.value[x]:valueRatio.denominator.code">
+			<path value="Extension.extension.value[x].denominator.code"/>
+			<max value="0"/>
+		</element>
+		<element id="Extension.extension:Zeitraum">
+			<path value="Extension.extension"/>
+			<sliceName value="Zeitraum"/>
+			<short value="Zeitraum der Einlösefrist"/>
+			<min value="0"/>
+			<max value="1"/>
+		</element>
+		<element id="Extension.extension:Zeitraum.url">
+			<path value="Extension.extension.url"/>
+			<fixedUri value="Zeitraum"/>
+		</element>
+		<element id="Extension.extension:Zeitraum.value[x]">
+			<path value="Extension.extension.value[x]"/>
+			<slicing>
+				<discriminator>
+					<type value="type"/>
+					<path value="$this"/>
+				</discriminator>
+				<rules value="closed"/>
+			</slicing>
+			<min value="1"/>
+			<type>
+				<code value="Period"/>
+			</type>
+		</element>
+		<element id="Extension.extension:Zeitraum.value[x]:valuePeriod">
+			<path value="Extension.extension.valuePeriod"/>
+			<sliceName value="valuePeriod"/>
+			<min value="1"/>
+			<type>
+				<code value="Period"/>
+			</type>
+			<constraint>
+				<key value="-erp-begrenzungDateStart"/>
+				<severity value="error"/>
+				<human value="Begrenzung der Datumsangabe auf 10 Zeichen JJJJ-MM-TT"/>
+				<expression value="start.toString().length()=10"/>
+				<source value="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription"/>
+			</constraint>
+			<constraint>
+				<key value="-erp-begrenzungDateEnd"/>
+				<severity value="error"/>
+				<human value="Begrenzung der Datumsangabe auf 10 Zeichen JJJJ-MM-TT"/>
+				<expression value="end.exists().not() or end.toString().length()=10"/>
+				<source value="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription"/>
+			</constraint>
+		</element>
+		<element id="Extension.extension:Zeitraum.value[x]:valuePeriod.start">
+			<path value="Extension.extension.valuePeriod.start"/>
+			<short value="Beginn Einlösefrist der Verordnung"/>
+			<definition value="Datum, ab dem die Teilverordnung der Mehrfachverordnung eingelöst werden kann"/>
+			<min value="1"/>
+		</element>
+		<element id="Extension.extension:Zeitraum.value[x]:valuePeriod.end">
+			<path value="Extension.extension.valuePeriod.end"/>
+			<short value="Ende Einlösefrist der Verordnung"/>
+			<definition value="Datum des letzten Einlösetages der Teilverordnung der Mehrfachverordnung.&#xD;&#xA;Von der ausstellenden Person kann eine von der Arzneimittelverschreibungsverordnung (AMVV) abweichende Einlösefrist angegeben werden."/>
+		</element>
+		<element id="Extension.extension:ID">
+			<path value="Extension.extension"/>
+			<sliceName value="ID"/>
+			<min value="0"/>
+			<max value="1"/>
+		</element>
+		<element id="Extension.extension:ID.url">
+			<path value="Extension.extension.url"/>
+			<fixedUri value="ID"/>
+		</element>
+		<element id="Extension.extension:ID.value[x]">
+			<path value="Extension.extension.value[x]"/>
+			<slicing>
+				<discriminator>
+					<type value="type"/>
+					<path value="$this"/>
+				</discriminator>
+				<rules value="closed"/>
+			</slicing>
+			<min value="1"/>
+			<type>
+				<code value="Identifier"/>
+			</type>
+		</element>
+		<element id="Extension.extension:ID.value[x]:valueIdentifier">
+			<path value="Extension.extension.value[x]"/>
+			<sliceName value="valueIdentifier"/>
+			<type>
+				<code value="Identifier"/>
+			</type>
+		</element>
+		<element id="Extension.extension:ID.value[x]:valueIdentifier.use">
+			<path value="Extension.extension.value[x].use"/>
+			<max value="0"/>
+		</element>
+		<element id="Extension.extension:ID.value[x]:valueIdentifier.type">
+			<path value="Extension.extension.value[x].type"/>
+			<max value="0"/>
+		</element>
+		<element id="Extension.extension:ID.value[x]:valueIdentifier.system">
+			<path value="Extension.extension.value[x].system"/>
+			<short value="Festlegung als UUID"/>
+			<fixedUri value="urn:ietf:rfc:3986"/>
+		</element>
+		<element id="Extension.extension:ID.value[x]:valueIdentifier.value">
+			<path value="Extension.extension.value[x].value"/>
+			<short value="ID Mehrfachverordnung"/>
+			<definition value="Eineindeutige ID, welche über alle Teilverordnungen einer Mehrfachverordnung identisch ist."/>
+		</element>
+		<element id="Extension.extension:ID.value[x]:valueIdentifier.period">
+			<path value="Extension.extension.value[x].period"/>
+			<max value="0"/>
+		</element>
+		<element id="Extension.extension:ID.value[x]:valueIdentifier.assigner">
+			<path value="Extension.extension.value[x].assigner"/>
+			<max value="0"/>
+		</element>
+		<element id="Extension.url">
+			<path value="Extension.url"/>
+			<fixedUri value="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription"/>
+		</element>
+		<element id="Extension.value[x]">
+			<path value="Extension.value[x]"/>
+			<max value="0"/>
+		</element>
+	</differential>
+</StructureDefinition>

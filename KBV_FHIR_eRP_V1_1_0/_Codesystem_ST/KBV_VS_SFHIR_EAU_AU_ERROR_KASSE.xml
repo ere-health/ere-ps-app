@@ -1,0 +1,22 @@
+<ValueSet xmlns="http://hl7.org/fhir">
+    <id value="KBV-VS-SFHIR-EAU-AU-ERROR-KASSE"/>
+    <url value="https://fhir.kbv.de/ValueSet/KBV_VS_SFHIR_EAU_AU_ERROR_KASSE"/>
+    <version value="1.00"/>
+    <name value="KBV_VS_SFHIR_EAU_AU_ERROR_KASSE"/>
+    <status value="active"/>
+    <date value="2023-07-01"/>
+    <publisher value="Kassenärztliche Bundesvereinigung"/>
+    <contact>
+        <telecom>
+            <system value="url"/>
+            <value value="http://www.kbv.de"/>
+        </telecom>
+    </contact>
+    <description value="Das Valueset enthält alle Codes aus dem Codesystem https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_EAU_AU_ERROR_KASSE"/>
+    <copyright value="Kassenärztliche Bundesvereinigung"/>
+    <compose>
+        <include>
+            <system value="https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_EAU_AU_ERROR_KASSE"/>
+        </include>
+    </compose>
+</ValueSet>

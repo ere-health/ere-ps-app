@@ -1,0 +1,46 @@
+{
+  "resourceType": "Observation",
+  "id": "Example-grad-der-behinderung",
+  "meta": {
+    "profile": [
+      "http://fhir.de/StructureDefinition/GradDerBehinderung"
+    ]
+  },
+  "code": {
+    "coding": [
+      {
+        "code": "116149007",
+        "system": "http://snomed.info/sct"
+      }
+    ]
+  },
+  "status": "final",
+  "subject": {
+    "reference": "Patient/example"
+  },
+  "valueInteger": 100,
+  "component": [
+    {
+      "code": {
+        "coding": [
+          {
+            "code": "G",
+            "system": "http://fhir.de/CodeSystem/merkzeichen-de"
+          }
+        ]
+      },
+      "valueBoolean": true
+    },
+    {
+      "code": {
+        "coding": [
+          {
+            "code": "H",
+            "system": "http://fhir.de/CodeSystem/merkzeichen-de"
+          }
+        ]
+      },
+      "valueBoolean": true
+    }
+  ]
+}

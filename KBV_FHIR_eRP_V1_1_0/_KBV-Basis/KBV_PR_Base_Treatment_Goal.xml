@@ -1,0 +1,236 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="KBV-PR-Base-Treatment-Goal" />
+  <url value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Treatment_Goal" />
+  <version value="1.3.0" />
+  <name value="KBV_PR_Base_Treatment_Goal" />
+  <title value="KBV_PR_Base_Treatment_Goal" />
+  <status value="active" />
+  <publisher value="Kassenärztliche Bundesvereinigung (KBV)" />
+  <description value="Dieses Profil bildet ein individuelles Behandlungsziel ab." />
+  <copyright value="Im folgenden Profil können Codes aus den Codesystemen Snomed, Loinc oder Ucum enthalten sein, die dem folgenden Urheberrecht unterliegen: This material includes SNOMED Clinical Terms® SNOMED CT® which is used by permission of SNOMED International. All rights reserved. SNOMED CT®, was originally created by The College of American Pathologists. SNOMED and SNOMED CT are registered trademarks of SNOMED International. Implementers of these artefacts must have the appropriate SNOMED CT Affiliate license. This material contains content from Loinc http://loinc.org. Loinc is copyright ©; 1995-2020, Regenstrief Institute, Inc. and the Logical Observation Identifiers Names and Codes Loinc Committee and is available at no cost under the license at http://loinc.org/license. Loinc® is a registered United States trademark of Regenstrief Institute, Inc. This product includes all or a portion of the UCUM table, UCUM codes, and UCUM definitions or is derived from it, subject to a license from Regenstrief Institute, Inc. and The UCUM Organization. Your use of the UCUM table, UCUM codes, UCUM definitions also is subject to this license, a copy of which is available at ​http://unitsofmeasure.org. The current complete UCUM table, UCUM Specification are available for download at ​http://unitsofmeasure.org. The UCUM table and UCUM codes are copyright ©; 1995-2009, Regenstrief Institute, Inc. and the Unified Codes for Units of Measures UCUM Organization. All rights reserved. THE UCUM TABLE IN ALL FORMATS, UCUM DEFINITIONS, AND SPECIFICATION ARE PROVIDED &amp;quot;AS IS.&amp;quot; ANY EXPRESS OR IMPLIED WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE." />
+  <fhirVersion value="4.0.1" />
+  <kind value="resource" />
+  <abstract value="false" />
+  <type value="Goal" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Goal" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Goal">
+      <path value="Goal" />
+      <definition value="Hier werden Informationen zu einem individuellen Behandlungsziel erfasst, das durch eine Behandlung (z.B. durch eine medikamentöse Therapie) erreicht werden soll." />
+    </element>
+    <element id="Goal.extension">
+      <path value="Goal.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="0" />
+    </element>
+    <element id="Goal.extension:endDatum">
+      <path value="Goal.extension" />
+      <sliceName value="endDatum" />
+      <definition value="Hier wird das Datum angegeben, nach dem das Ziel nicht mehr verfolgt werden soll." />
+      <min value="0" />
+      <max value="1" />
+      <type>
+        <code value="Extension" />
+        <profile value="https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Treatment_Goal_End|1.3.0" />
+      </type>
+    </element>
+    <element id="Goal.lifecycleStatus">
+      <path value="Goal.lifecycleStatus" />
+      <definition value="Hier wird der Status des Behandlungsziels angegeben." />
+    </element>
+    <element id="Goal.description">
+      <path value="Goal.description" />
+      <definition value="Hier wird das Behandlungsziel mittels eines Codes oder einer freitextlichen Beschreibung identifiziert. Das Behandlungsziel einer medikamentösen Antikoagulation kann zum Beispiel das Verhindern eines Schlaganfalls sein" />
+    </element>
+    <element id="Goal.description.coding.system">
+      <path value="Goal.description.coding.system" />
+      <min value="1" />
+    </element>
+    <element id="Goal.description.coding.code">
+      <path value="Goal.description.coding.code" />
+      <min value="1" />
+    </element>
+    <element id="Goal.description.coding.display">
+      <path value="Goal.description.coding.display" />
+      <min value="1" />
+    </element>
+    <element id="Goal.subject">
+      <path value="Goal.subject" />
+      <type>
+        <code value="Reference" />
+        <targetProfile value="http://hl7.org/fhir/StructureDefinition/Patient" />
+        <targetProfile value="http://hl7.org/fhir/StructureDefinition/Group" />
+        <targetProfile value="http://hl7.org/fhir/StructureDefinition/Organization" />
+        <targetProfile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Patient|1.3.0" />
+      </type>
+    </element>
+    <element id="Goal.start[x]">
+      <path value="Goal.start[x]" />
+      <slicing>
+        <discriminator>
+          <type value="type" />
+          <path value="$this" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <definition value="Hier wird das Datum angegeben, ab dem das Ziel verfolgt werden soll." />
+    </element>
+    <element id="Goal.start[x]:startDate">
+      <path value="Goal.startDate" />
+      <sliceName value="startDate" />
+      <definition value="Hier wird das Datum angegeben, ab dem das Ziel verfolgt werden soll." />
+      <type>
+        <code value="date" />
+      </type>
+    </element>
+    <element id="Goal.target">
+      <path value="Goal.target" />
+      <definition value="Hier werden bestimmte Größen bzw. Parameter definiert, anhand derer sich die Erfüllung des Behandlungsziels überprüfen lässt. Dies können qualitative oder quantitative Parameter sein." />
+    </element>
+    <element id="Goal.target.measure">
+      <path value="Goal.target.measure" />
+      <definition value="Hier wird angegeben, anhand welcher Zielgröße das Behandlungsziel definiert ist." />
+      <min value="1" />
+    </element>
+    <element id="Goal.target.measure.coding.system">
+      <path value="Goal.target.measure.coding.system" />
+      <min value="1" />
+    </element>
+    <element id="Goal.target.measure.coding.code">
+      <path value="Goal.target.measure.coding.code" />
+      <min value="1" />
+    </element>
+    <element id="Goal.target.measure.coding.display">
+      <path value="Goal.target.measure.coding.display" />
+      <min value="1" />
+    </element>
+    <element id="Goal.target.detail[x]">
+      <path value="Goal.target.detail[x]" />
+      <slicing>
+        <discriminator>
+          <type value="type" />
+          <path value="$this" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <definition value="Ein quantitativer Zielwert wird als numerischer Wert angegeben, und je nach Zielgröße oder Skalierung als:&#xD;&#xA;- eine Dezimalzahl (z.B. bei Angabe einer Masse pro Volumen wie mg/dl)&#xD;&#xA;- eine ganze Zahl (z.B. bei einer Zellzählung)&#xD;&#xA;- eine Zeitdauer (z.B. bei der Ermittlung des Gerinnungsstatus mit Messung einer speziellen Gerinnungszeit)&#xD;&#xA;oder als&#xD;&#xA;- ein Zahlenverhältnis (z.B. beim Nachweis von Antikörpern ab einer bestimmen Verdünnungsstufe des Reagenz, sog. Titerangabe)&#xD;&#xA;oder als &#xD;&#xA;- ein Ergebnisbereich (Werteintervall)" />
+    </element>
+    <element id="Goal.target.detail[x]:detailQuantity">
+      <path value="Goal.target.detail[x]" />
+      <sliceName value="detailQuantity" />
+      <definition value="Hier wird der Zielwert als Quantität angegeben." />
+      <type>
+        <code value="Quantity" />
+      </type>
+      <patternQuantity>
+        <system value="http://unitsofmeasure.org" />
+      </patternQuantity>
+    </element>
+    <element id="Goal.target.detail[x]:detailQuantity.value">
+      <path value="Goal.target.detail[x].value" />
+      <definition value="Numerischer Wert für eine gemessene Größe, eine Zahl mit optionalen Dezimalstellen." />
+      <min value="1" />
+    </element>
+    <element id="Goal.target.detail[x]:detailQuantity.system">
+      <path value="Goal.target.detail[x].system" />
+      <patternUri value="http://unitsofmeasure.org" />
+    </element>
+    <element id="Goal.target.detail[x]:detailRange">
+      <path value="Goal.target.detail[x]" />
+      <sliceName value="detailRange" />
+      <definition value="Für Ziele, die nicht als genau ein Wert, sondern als ein Wertebereich / Werteintervall angegeben werden. Sollte nur der Wert für die Ober- oder Untergrenze bekannt sein, muss die Angabe als Quantität mit Komparator erfolgen." />
+      <type>
+        <code value="Range" />
+      </type>
+    </element>
+    <element id="Goal.target.detail[x]:detailRange.low">
+      <path value="Goal.target.detail[x].low" />
+      <min value="1" />
+    </element>
+    <element id="Goal.target.detail[x]:detailRange.low.value">
+      <path value="Goal.target.detail[x].low.value" />
+      <min value="1" />
+    </element>
+    <element id="Goal.target.detail[x]:detailRange.low.system">
+      <path value="Goal.target.detail[x].low.system" />
+      <patternUri value="http://unitsofmeasure.org" />
+    </element>
+    <element id="Goal.target.detail[x]:detailRange.high">
+      <path value="Goal.target.detail[x].high" />
+      <min value="1" />
+    </element>
+    <element id="Goal.target.detail[x]:detailRange.high.value">
+      <path value="Goal.target.detail[x].high.value" />
+      <min value="1" />
+    </element>
+    <element id="Goal.target.detail[x]:detailRange.high.system">
+      <path value="Goal.target.detail[x].high.system" />
+      <patternUri value="http://unitsofmeasure.org" />
+    </element>
+    <element id="Goal.target.detail[x]:detailCodeableConcept">
+      <path value="Goal.target.detail[x]" />
+      <sliceName value="detailCodeableConcept" />
+      <definition value="Qualitative Zielwerte sind - je nach Messgröße oder Skalierung:&#xD;&#xA;&#xD;&#xA;Ordinal, d.h. Ordnungswerte, die in keinem linearen Verhältnis zueinander stehen, beispielsweise&#xD;&#xA;- eine Schmerzskala (z.B. von 1 bis 10)&#xD;&#xA;- eine Angabe zum Nachweis (z.B. positiv / negativ; vorhanden / nicht vorhanden; ja / nein)&#xD;&#xA;&#xD;&#xA;Nominal, d.h. Festwerte ohne Rangordnung, beispielsweise in der Mikrobiologie:&#xD;&#xA;- Krankheitserreger (z.B. Escherichia Coli; Staphylococcus aureus als Bezeichner oder als Code.)" />
+      <type>
+        <code value="CodeableConcept" />
+      </type>
+    </element>
+    <element id="Goal.target.detail[x]:detailString">
+      <path value="Goal.target.detail[x]" />
+      <sliceName value="detailString" />
+      <type>
+        <code value="string" />
+      </type>
+    </element>
+    <element id="Goal.target.detail[x]:detailBoolean">
+      <path value="Goal.target.detail[x]" />
+      <sliceName value="detailBoolean" />
+      <type>
+        <code value="boolean" />
+      </type>
+    </element>
+    <element id="Goal.target.detail[x]:detailInteger">
+      <path value="Goal.target.detail[x]" />
+      <sliceName value="detailInteger" />
+      <type>
+        <code value="integer" />
+      </type>
+    </element>
+    <element id="Goal.target.detail[x]:detailRatio">
+      <path value="Goal.target.detail[x]" />
+      <sliceName value="detailRatio" />
+      <definition value="Hier wird der Zielwert als zwei ins Verhältnis gesetzte Quantitäten (Zähler, Nenner) angegeben. Dies kann zum Beispiel ein Antikörper-Titer sein." />
+      <type>
+        <code value="Ratio" />
+      </type>
+    </element>
+    <element id="Goal.target.detail[x]:detailRatio.numerator.value">
+      <path value="Goal.target.detail[x].numerator.value" />
+      <min value="1" />
+    </element>
+    <element id="Goal.target.detail[x]:detailRatio.numerator.system">
+      <path value="Goal.target.detail[x].numerator.system" />
+      <patternUri value="http://unitsofmeasure.org" />
+    </element>
+    <element id="Goal.target.detail[x]:detailRatio.denominator.value">
+      <path value="Goal.target.detail[x].denominator.value" />
+      <min value="1" />
+    </element>
+    <element id="Goal.target.detail[x]:detailRatio.denominator.system">
+      <path value="Goal.target.detail[x].denominator.system" />
+      <patternUri value="http://unitsofmeasure.org" />
+    </element>
+    <element id="Goal.note">
+      <path value="Goal.note" />
+      <definition value="Hier können ergänzende Informationen zum Behandlungsziel angegeben werden." />
+      <max value="1" />
+    </element>
+  </differential>
+</StructureDefinition>

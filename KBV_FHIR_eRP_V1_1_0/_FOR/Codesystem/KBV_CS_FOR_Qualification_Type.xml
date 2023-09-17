@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeSystem xmlns="http://hl7.org/fhir">
+    <id value="KBV-CS-FOR-Qualification-Type" />
+	<url value= "https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_Qualification_Type"/>
+	<version value="1.1.0" />
+	<name value="KBV_CS_FOR_Qualification_Type"/>
+	<status value="active"/>
+	<date value="2022-09-30" />
+	<publisher value="Kassenärztliche Bundesvereinigung" />
+	<contact>
+		<telecom>
+			<system value="url"/>
+			<value value="http://www.kbv.de"/>
+		</telecom>
+	</contact>
+	<description value="Kennzeichnung/Kategorie der Person"/>
+	<copyright value="Kassenaerztliche Bundesvereinigung"/>
+	<caseSensitive value="true"/>
+	<content value="complete"/>
+	<concept>
+		<code value="00"/>
+		<display value="Arzt"/>
+	</concept>
+	<concept>
+		<code value="01"/>
+		<display value="Zahnarzt"/>
+	</concept>
+	<concept>
+		<code value="02"/>
+		<display value="Hebamme"/>
+	</concept>
+	<concept>
+		<code value="03"/>
+		<display value="Arzt in Weiterbildung"/>
+	</concept>
+	<concept>
+		<code value="04"/>
+		<display value="Arzt als Vertreter"/>
+	</concept>
+</CodeSystem>

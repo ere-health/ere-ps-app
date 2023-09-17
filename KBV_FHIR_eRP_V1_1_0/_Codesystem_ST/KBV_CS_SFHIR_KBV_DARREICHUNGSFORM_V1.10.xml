@@ -1,0 +1,1111 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<CodeSystem xmlns="http://hl7.org/fhir" xmlns:ns2="http://www.w3.org/1999/xhtml">
+    <url value="https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM"/>
+    <identifier>
+        <system value="urn:ietf:rfc:3986"/>
+        <value value="urn:oid:1.2.276.0.76.3.1.1.5.2.15"/>
+    </identifier>
+    <version value="1.10"/>
+    <name value="KBV_CS_SFHIR_KBV_DARREICHUNGSFORM"/>
+    <status value="active"/>
+    <date value="2022-07-01"/>
+    <publisher value="Kassenärztliche Bundesvereinigung"/>
+    <contact>
+        <telecom>
+            <system value="url"/>
+            <value value="http://www.kbv.de"/>
+        </telecom>
+    </contact>
+    <description value="Darreichungsform Arzneimittel/Rezeptur"/>
+    <copyright value="Kassenärztliche Bundesvereinigung"/>
+    <caseSensitive value="true"/>
+    <content value="complete"/>
+    <concept>
+        <code value="---"/>
+        <display value="keine Darreichungsform"/>
+    </concept>
+    <concept>
+        <code value="AEO"/>
+        <display value="Ätherisches Öl"/>
+    </concept>
+    <concept>
+        <code value="AMP"/>
+        <display value="Ampullen"/>
+    </concept>
+    <concept>
+        <code value="APA"/>
+        <display value="Ampullenpaare"/>
+    </concept>
+    <concept>
+        <code value="ASN"/>
+        <display value="Augen- und Nasensalbe"/>
+    </concept>
+    <concept>
+        <code value="ASO"/>
+        <display value="Augen- und Ohrensalbe"/>
+    </concept>
+    <concept>
+        <code value="ATO"/>
+        <display value="Augen- und Ohrentropfen"/>
+    </concept>
+    <concept>
+        <code value="ATR"/>
+        <display value="Augentropfen"/>
+    </concept>
+    <concept>
+        <code value="AUB"/>
+        <display value="Augenbad"/>
+    </concept>
+    <concept>
+        <code value="AUC"/>
+        <display value="Augencreme"/>
+    </concept>
+    <concept>
+        <code value="AUG"/>
+        <display value="Augengel"/>
+    </concept>
+    <concept>
+        <code value="AUS"/>
+        <display value="Augensalbe"/>
+    </concept>
+    <concept>
+        <code value="BAD"/>
+        <display value="Bad"/>
+    </concept>
+    <concept>
+        <code value="BAL"/>
+        <display value="Balsam"/>
+    </concept>
+    <concept>
+        <code value="BAN"/>
+        <display value="Bandage"/>
+    </concept>
+    <concept>
+        <code value="BEU"/>
+        <display value="Beutel"/>
+    </concept>
+    <concept>
+        <code value="BIN"/>
+        <display value="Binden"/>
+    </concept>
+    <concept>
+        <code value="BON"/>
+        <display value="Bonbons"/>
+    </concept>
+    <concept>
+        <code value="BPL"/>
+        <display value="Basisplatte"/>
+    </concept>
+    <concept>
+        <code value="BRE"/>
+        <display value="Brei"/>
+    </concept>
+    <concept>
+        <code value="BTA"/>
+        <display value="Brausetabletten"/>
+    </concept>
+    <concept>
+        <code value="CRE"/>
+        <display value="Creme"/>
+    </concept>
+    <concept>
+        <code value="DFL"/>
+        <display value="Durchstechflaschen"/>
+    </concept>
+    <concept>
+        <code value="DIG"/>
+        <display value="Digitale Gesundheitsanwendungen"/>
+    </concept>
+    <concept>
+        <code value="DIL"/>
+        <display value="Dilution"/>
+    </concept>
+    <concept>
+        <code value="DIS"/>
+        <display value="Depot-Injektionssuspension"/>
+    </concept>
+    <concept>
+        <code value="DKA"/>
+        <display value="Dragees in Kalenderpackung"/>
+    </concept>
+    <concept>
+        <code value="DOS"/>
+        <display value="Dosieraerosol"/>
+    </concept>
+    <concept>
+        <code value="DRA"/>
+        <display value="Dragees"/>
+    </concept>
+    <concept>
+        <code value="DRM"/>
+        <display value="Dragees magensaftresistent"/>
+    </concept>
+    <concept>
+        <code value="DSC"/>
+        <display value="Dosierschaum"/>
+    </concept>
+    <concept>
+        <code value="DSS"/>
+        <display value="Dosierspray"/>
+    </concept>
+    <concept>
+        <code value="EDP"/>
+        <display value="Einzeldosis-Pipetten"/>
+    </concept>
+    <concept>
+        <code value="EIN"/>
+        <display value="Einreibung"/>
+    </concept>
+    <concept>
+        <code value="ELE"/>
+        <display value="Elektroden"/>
+    </concept>
+    <concept>
+        <code value="ELI"/>
+        <display value="Elixier"/>
+    </concept>
+    <concept>
+        <code value="EMU"/>
+        <display value="Emulsion"/>
+    </concept>
+    <concept>
+        <code value="ESS"/>
+        <display value="Essenz"/>
+    </concept>
+    <concept>
+        <code value="ESU"/>
+        <display value="Erwachsenen-Suppositorien"/>
+    </concept>
+    <concept>
+        <code value="EXT"/>
+        <display value="Extrakt"/>
+    </concept>
+    <concept>
+        <code value="FBE"/>
+        <display value="Filterbeutel"/>
+    </concept>
+    <concept>
+        <code value="FBW"/>
+        <display value="Franzbranntwein"/>
+    </concept>
+    <concept>
+        <code value="FDA"/>
+        <display value="Filmdragees"/>
+    </concept>
+    <concept>
+        <code value="FER"/>
+        <display value="Fertigspritzen"/>
+    </concept>
+    <concept>
+        <code value="FET"/>
+        <display value="Fettsalbe"/>
+    </concept>
+    <concept>
+        <code value="FLA"/>
+        <display value="Flasche"/>
+    </concept>
+    <concept>
+        <code value="FLE"/>
+        <display value="Flüssigkeit zum Einnehmen"/>
+    </concept>
+    <concept>
+        <code value="FLU"/>
+        <display value="Flüssig"/>
+    </concept>
+    <concept>
+        <code value="FMR"/>
+        <display value="Filmtabletten magensaftresistent"/>
+    </concept>
+    <concept>
+        <code value="FOL"/>
+        <display value="Folie"/>
+    </concept>
+    <concept>
+        <code value="FRB"/>
+        <display value="Beutel mit retardierten Filmtabletten"/>
+    </concept>
+    <concept>
+        <code value="FSE"/>
+        <display value="Flüssigseife"/>
+    </concept>
+    <concept>
+        <code value="FTA"/>
+        <display value="Filmtabletten"/>
+    </concept>
+    <concept>
+        <code value="GEK"/>
+        <display value="Granulat zur Entnahme aus Kapseln"/>
+    </concept>
+    <concept>
+        <code value="GEL"/>
+        <display value="Gel"/>
+    </concept>
+    <concept>
+        <code value="GLI"/>
+        <display value="Gas und Lösungsmittel zur Herstellung einer Injektions-/Infusionsdispersion"/>
+    </concept>
+    <concept>
+        <code value="GLO"/>
+        <display value="Globuli"/>
+    </concept>
+    <concept>
+        <code value="GMR"/>
+        <display value="Magensaftresistentes Granulat"/>
+    </concept>
+    <concept>
+        <code value="GPA"/>
+        <display value="Gelplatte"/>
+    </concept>
+    <concept>
+        <code value="GRA"/>
+        <display value="Granulat"/>
+    </concept>
+    <concept>
+        <code value="GSE"/>
+        <display value="Granulat zur Herstellung einer Suspension zum Einnehmen"/>
+    </concept>
+    <concept>
+        <code value="GUL"/>
+        <display value="Gurgellösung"/>
+    </concept>
+    <concept>
+        <code value="HAS"/>
+        <display value="Handschuhe"/>
+    </concept>
+    <concept>
+        <code value="HKM"/>
+        <display value="Magensaftresistente Hartkapseln"/>
+    </concept>
+    <concept>
+        <code value="HKP"/>
+        <display value="Hartkapseln"/>
+    </concept>
+    <concept>
+        <code value="HPI"/>
+        <display value="Hartkapseln mit Pulver zur Inhalation"/>
+    </concept>
+    <concept>
+        <code value="HVW"/>
+        <display value="Hartkapseln mit veränderter Wirkstofffreisetzung"/>
+    </concept>
+    <concept>
+        <code value="IFA"/>
+        <display value="Infusionsampullen"/>
+    </concept>
+    <concept>
+        <code value="IFB"/>
+        <display value="Infusionsbeutel"/>
+    </concept>
+    <concept>
+        <code value="IFD"/>
+        <display value="Infusionsdispersion"/>
+    </concept>
+    <concept>
+        <code value="IFE"/>
+        <display value="Injektionslösung in einer Fertigspritze"/>
+    </concept>
+    <concept>
+        <code value="IFF"/>
+        <display value="Infusionsflaschen"/>
+    </concept>
+    <concept>
+        <code value="IFK"/>
+        <display value="Infusionslösungskonzentrat"/>
+    </concept>
+    <concept>
+        <code value="IFL"/>
+        <display value="Injektionsflaschen"/>
+    </concept>
+    <concept>
+        <code value="IFS"/>
+        <display value="Infusionsset"/>
+    </concept>
+    <concept>
+        <code value="IHA"/>
+        <display value="Inhalationsampullen"/>
+    </concept>
+    <concept>
+        <code value="IHP"/>
+        <display value="Inhalationspulver"/>
+    </concept>
+    <concept>
+        <code value="IIE"/>
+        <display value="Injektions- oder Infusionslösung oder Lösung zum Einnehmen"/>
+    </concept>
+    <concept>
+        <code value="IIL"/>
+        <display value="Injektions-, Infusionslösung"/>
+    </concept>
+    <concept>
+        <code value="IIM"/>
+        <display value="Injektionslösung zur intramuskulären Anwendung"/>
+    </concept>
+    <concept>
+        <code value="IKA"/>
+        <display value="Inhalationskapseln"/>
+    </concept>
+    <concept>
+        <code value="ILO"/>
+        <display value="Injektionslösung"/>
+    </concept>
+    <concept>
+        <code value="IMP"/>
+        <display value="Implantat"/>
+    </concept>
+    <concept>
+        <code value="INF"/>
+        <display value="Infusionslösung"/>
+    </concept>
+    <concept>
+        <code value="INH"/>
+        <display value="Inhalat"/>
+    </concept>
+    <concept>
+        <code value="INI"/>
+        <display value="Injektions-, Infusionsflaschen"/>
+    </concept>
+    <concept>
+        <code value="INL"/>
+        <display value="Inhalationslösung"/>
+    </concept>
+    <concept>
+        <code value="INS"/>
+        <display value="Instant-Tee"/>
+    </concept>
+    <concept>
+        <code value="IST"/>
+        <display value="Instillation"/>
+    </concept>
+    <concept>
+        <code value="ISU"/>
+        <display value="Injektionssuspension"/>
+    </concept>
+    <concept>
+        <code value="IUP"/>
+        <display value="Intrauterinpessar"/>
+    </concept>
+    <concept>
+        <code value="KAN"/>
+        <display value="Kanülen"/>
+    </concept>
+    <concept>
+        <code value="KAP"/>
+        <display value="Kapseln"/>
+    </concept>
+    <concept>
+        <code value="KAT"/>
+        <display value="Katheter"/>
+    </concept>
+    <concept>
+        <code value="KDA"/>
+        <display value="Kaudragees"/>
+    </concept>
+    <concept>
+        <code value="KEG"/>
+        <display value="Kegel"/>
+    </concept>
+    <concept>
+        <code value="KER"/>
+        <display value="Kerne"/>
+    </concept>
+    <concept>
+        <code value="KGU"/>
+        <display value="Kaugummi"/>
+    </concept>
+    <concept>
+        <code value="KID"/>
+        <display value="Konzentrat zur Herstellung einer Infusionsdispersion"/>
+    </concept>
+    <concept>
+        <code value="KII"/>
+        <display value="Konzentrat zur Herstellung einer Injektions- oder Infusionslösung"/>
+    </concept>
+    <concept>
+        <code value="KKS"/>
+        <display value="Kleinkinder-Suppositorien"/>
+    </concept>
+    <concept>
+        <code value="KLI"/>
+        <display value="Klistiere"/>
+    </concept>
+    <concept>
+        <code value="KLT"/>
+        <display value="Klistier-Tabletten"/>
+    </concept>
+    <concept>
+        <code value="KMP"/>
+        <display value="Hartkapseln mit magensaftresistent überzogenen Pellets"/>
+    </concept>
+    <concept>
+        <code value="KMR"/>
+        <display value="Kapseln magensaftresistent"/>
+    </concept>
+    <concept>
+        <code value="KOD"/>
+        <display value="Kondome"/>
+    </concept>
+    <concept>
+        <code value="KOM"/>
+        <display value="Kompressen"/>
+    </concept>
+    <concept>
+        <code value="KON"/>
+        <display value="Konzentrat"/>
+    </concept>
+    <concept>
+        <code value="KPG"/>
+        <display value="Kombipackung"/>
+    </concept>
+    <concept>
+        <code value="KRI"/>
+        <display value="Kristallsuspension"/>
+    </concept>
+    <concept>
+        <code value="KSS"/>
+        <display value="Kinder- und Säuglings-Suppositorien"/>
+    </concept>
+    <concept>
+        <code value="KSU"/>
+        <display value="Kinder-Suppositorien"/>
+    </concept>
+    <concept>
+        <code value="KTA"/>
+        <display value="Kautabletten"/>
+    </concept>
+    <concept>
+        <code value="LAN"/>
+        <display value="Lanzetten"/>
+    </concept>
+    <concept>
+        <code value="LII"/>
+        <display value="Lösung zur Injektion, Infusion und Inhalation"/>
+    </concept>
+    <concept>
+        <code value="LIQ"/>
+        <display value="Liquidum"/>
+    </concept>
+    <concept>
+        <code value="LOE"/>
+        <display value="Lösung"/>
+    </concept>
+    <concept>
+        <code value="LOT"/>
+        <display value="Lotion"/>
+    </concept>
+    <concept>
+        <code value="LOV"/>
+        <display value="Lösung für einen Vernebler"/>
+    </concept>
+    <concept>
+        <code value="LSE"/>
+        <display value="Lösung zum Einnehmen"/>
+    </concept>
+    <concept>
+        <code value="LTA"/>
+        <display value="Lacktabletten"/>
+    </concept>
+    <concept>
+        <code value="LUP"/>
+        <display value="Lutschpastillen"/>
+    </concept>
+    <concept>
+        <code value="LUT"/>
+        <display value="Lutschtabletten"/>
+    </concept>
+    <concept>
+        <code value="MIL"/>
+        <display value="Milch"/>
+    </concept>
+    <concept>
+        <code value="MIS"/>
+        <display value="Mischung"/>
+    </concept>
+    <concept>
+        <code value="MIX"/>
+        <display value="Mixtur"/>
+    </concept>
+    <concept>
+        <code value="MRG"/>
+        <display value="Magensaftresistentes Retardgranulat"/>
+    </concept>
+    <concept>
+        <code value="MRP"/>
+        <display value="Magensaftresistente Pellets"/>
+    </concept>
+    <concept>
+        <code value="MTA"/>
+        <display value="Manteltabletten"/>
+    </concept>
+    <concept>
+        <code value="MUW"/>
+        <display value="Mundwasser"/>
+    </concept>
+    <concept>
+        <code value="NAG"/>
+        <display value="Nasengel"/>
+    </concept>
+    <concept>
+        <code value="NAO"/>
+        <display value="Nasenöl"/>
+    </concept>
+    <concept>
+        <code value="NAS"/>
+        <display value="Nasenspray"/>
+    </concept>
+    <concept>
+        <code value="NAW"/>
+        <display value="Wirkstoffhaltiger Nagellack"/>
+    </concept>
+    <concept>
+        <code value="NDS"/>
+        <display value="Nasendosierspray"/>
+    </concept>
+    <concept>
+        <code value="NSA"/>
+        <display value="Nasensalbe"/>
+    </concept>
+    <concept>
+        <code value="NTR"/>
+        <display value="Nasentropfen"/>
+    </concept>
+    <concept>
+        <code value="OCU"/>
+        <display value="Ocusert"/>
+    </concept>
+    <concept>
+        <code value="OEL"/>
+        <display value="Öl"/>
+    </concept>
+    <concept>
+        <code value="OHT"/>
+        <display value="Ohrentropfen"/>
+    </concept>
+    <concept>
+        <code value="OVU"/>
+        <display value="Ovula"/>
+    </concept>
+    <concept>
+        <code value="PAM"/>
+        <display value="Packungsmasse"/>
+    </concept>
+    <concept>
+        <code value="PAS"/>
+        <display value="Pastillen"/>
+    </concept>
+    <concept>
+        <code value="PEL"/>
+        <display value="Pellets"/>
+    </concept>
+    <concept>
+        <code value="PEN"/>
+        <display value="Injektionslösung in einem Fertigpen"/>
+    </concept>
+    <concept>
+        <code value="PER"/>
+        <display value="Perlen"/>
+    </concept>
+    <concept>
+        <code value="PFL"/>
+        <display value="Pflaster"/>
+    </concept>
+    <concept>
+        <code value="PFT"/>
+        <display value="Pflaster transdermal"/>
+    </concept>
+    <concept>
+        <code value="PHI"/>
+        <display value="Pulver zur Herstellung einer Injektions-, Infusions- oder Inhalationslösung"/>
+    </concept>
+    <concept>
+        <code value="PHV"/>
+        <display value="Pulver zur Herstellung einer Injektions- bzw. Infusionslösung oder Pulver und Lösungsmittel zur Herstellung einer Lösung zur intravesikalen Anwendung"/>
+    </concept>
+    <concept>
+        <code value="PIE"/>
+        <display value="Pulver für ein Konzentrat zur Herstellung einer Infusionslösung, Pulver zur Herstellung einer Lösung zum Einnehmen"/>
+    </concept>
+    <concept>
+        <code value="PIF"/>
+        <display value="Pulver für ein Konzentrat zur Herstellung einer Infusionslösung, Pulver zur Herstellung einer Lösung zum Einnehmen"/>
+    </concept>
+    <concept>
+        <code value="PII"/>
+        <display value="Pulver zur Herstellung einer Injektions- oder Infusionslösung"/>
+    </concept>
+    <concept>
+        <code value="PIJ"/>
+        <display value="Pulver zur Herstellung einer Injektionslösung"/>
+    </concept>
+    <concept>
+        <code value="PIK"/>
+        <display value="Pulver zur Herstellung eines Infusionslösungskonzentrates"/>
+    </concept>
+    <concept>
+        <code value="PIS"/>
+        <display value="Pulver zur Herstellung einer Infusionssuspension"/>
+    </concept>
+    <concept>
+        <code value="PIV"/>
+        <display value="Pulver zur Herstellung einer Injektions- bzw. Infusionslösung oder einer Lösung zur intravesikalen Anwendung"/>
+    </concept>
+    <concept>
+        <code value="PKI"/>
+        <display value="Pulver für ein Konzentrat zur Herstellung einer Infusionslösung"/>
+    </concept>
+    <concept>
+        <code value="PLE"/>
+        <display value="Pulver zur Herstellung einer Lösung zum Einnehmen"/>
+    </concept>
+    <concept>
+        <code value="PLF"/>
+        <display value="Pulver und Lösungsmittel zur Herstellung einer Infusionslösung"/>
+    </concept>
+    <concept>
+        <code value="PLG"/>
+        <display value="Perlongetten"/>
+    </concept>
+    <concept>
+        <code value="PLH"/>
+        <display value="Pulver und Lösungsmittel zur Herstellung einer Injektions- bzw. Infusionslösung"/>
+    </concept>
+    <concept>
+        <code value="PLI"/>
+        <display value="Pulver und Lösungsmittel zur Herstellung einer Injektionslösung"/>
+    </concept>
+    <concept>
+        <code value="PLK"/>
+        <display value="Pulver und Lösungsmittel für ein Konzentrat zur Herstellung einer Infusionslösung"/>
+    </concept>
+    <concept>
+        <code value="PLS"/>
+        <display value="Pulver und Lösungsmittel zur Herstellung einer Injektionssuspension"/>
+    </concept>
+    <concept>
+        <code value="PLV"/>
+        <display value="Pulver und Lösungsmittel zur Herstellung einer Lösung zur intravesikalen Anwendung"/>
+    </concept>
+    <concept>
+        <code value="PPL"/>
+        <display value="Pumplösung"/>
+    </concept>
+    <concept>
+        <code value="PRS"/>
+        <display value="Presslinge"/>
+    </concept>
+    <concept>
+        <code value="PSE"/>
+        <display value="Pulver zur Herstellung einer Suspension zum Einnehmen"/>
+    </concept>
+    <concept>
+        <code value="PST"/>
+        <display value="Paste"/>
+    </concept>
+    <concept>
+        <code value="PUD"/>
+        <display value="Puder"/>
+    </concept>
+    <concept>
+        <code value="PUL"/>
+        <display value="Pulver"/>
+    </concept>
+    <concept>
+        <code value="RED"/>
+        <display value="Retard-Dragees"/>
+    </concept>
+    <concept>
+        <code value="REK"/>
+        <display value="Retard-Kapseln"/>
+    </concept>
+    <concept>
+        <code value="RET"/>
+        <display value="Retard-Tabletten"/>
+    </concept>
+    <concept>
+        <code value="RGR"/>
+        <display value="Retard-Granulat"/>
+    </concept>
+    <concept>
+        <code value="RKA"/>
+        <display value="Rektal-Kapseln"/>
+    </concept>
+    <concept>
+        <code value="RMS"/>
+        <display value="Retardmikrokapseln und Suspensionsmittel"/>
+    </concept>
+    <concept>
+        <code value="RSC"/>
+        <display value="Rektalschaum"/>
+    </concept>
+    <concept>
+        <code value="RSU"/>
+        <display value="Rektalsuspension"/>
+    </concept>
+    <concept>
+        <code value="RUT"/>
+        <display value="Retard-überzogene Tabletten"/>
+    </concept>
+    <concept>
+        <code value="SAF"/>
+        <display value="Saft"/>
+    </concept>
+    <concept>
+        <code value="SAL"/>
+        <display value="Salbe"/>
+    </concept>
+    <concept>
+        <code value="SAM"/>
+        <display value="Salbe zur Anwendung in der Mundhöhle"/>
+    </concept>
+    <concept>
+        <code value="SCH"/>
+        <display value="Schaum"/>
+    </concept>
+    <concept>
+        <code value="SEI"/>
+        <display value="Seife"/>
+    </concept>
+    <concept>
+        <code value="SHA"/>
+        <display value="Shampoo"/>
+    </concept>
+    <concept>
+        <code value="SIR"/>
+        <display value="Sirup"/>
+    </concept>
+    <concept>
+        <code value="SLZ"/>
+        <display value="Salz"/>
+    </concept>
+    <concept>
+        <code value="SMF"/>
+        <display value="Schmelzfilm"/>
+    </concept>
+    <concept>
+        <code value="SMT"/>
+        <display value="Schmelztabletten"/>
+    </concept>
+    <concept>
+        <code value="SMU"/>
+        <display value="Suppositorien mit Mulleinlage"/>
+    </concept>
+    <concept>
+        <code value="SPA"/>
+        <display value="Spritzampullen"/>
+    </concept>
+    <concept>
+        <code value="SPF"/>
+        <display value="Sprühflasche"/>
+    </concept>
+    <concept>
+        <code value="SPL"/>
+        <display value="Spüllösung"/>
+    </concept>
+    <concept>
+        <code value="SPR"/>
+        <display value="Spray"/>
+    </concept>
+    <concept>
+        <code value="SPT"/>
+        <display value="Transdermales Spray"/>
+    </concept>
+    <concept>
+        <code value="SRI"/>
+        <display value="Spritzen"/>
+    </concept>
+    <concept>
+        <code value="SSU"/>
+        <display value="Säuglings-Suppositorien"/>
+    </concept>
+    <concept>
+        <code value="STA"/>
+        <display value="Stechampullen"/>
+    </concept>
+    <concept>
+        <code value="STB"/>
+        <display value="Stäbchen"/>
+    </concept>
+    <concept>
+        <code value="STI"/>
+        <display value="Stifte"/>
+    </concept>
+    <concept>
+        <code value="STR"/>
+        <display value="Streifen"/>
+    </concept>
+    <concept>
+        <code value="SUB"/>
+        <display value="Substanz"/>
+    </concept>
+    <concept>
+        <code value="SUE"/>
+        <display value="Suspension zum Einnehmen"/>
+    </concept>
+    <concept>
+        <code value="SUL"/>
+        <display value="Sublingualspray, Lösung"/>
+    </concept>
+    <concept>
+        <code value="SUP"/>
+        <display value="Suppositorien"/>
+    </concept>
+    <concept>
+        <code value="SUS"/>
+        <display value="Suspension"/>
+    </concept>
+    <concept>
+        <code value="SUT"/>
+        <display value="Sublingualtabletten"/>
+    </concept>
+    <concept>
+        <code value="SUV"/>
+        <display value="Suspension für einen Vernebler"/>
+    </concept>
+    <concept>
+        <code value="SWA"/>
+        <display value="Schwämme"/>
+    </concept>
+    <concept>
+        <code value="TAB"/>
+        <display value="Tabletten"/>
+    </concept>
+    <concept>
+        <code value="TAE"/>
+        <display value="Täfelchen"/>
+    </concept>
+    <concept>
+        <code value="TAM"/>
+        <display value="Trockenampullen"/>
+    </concept>
+    <concept>
+        <code value="TEE"/>
+        <display value="Tee"/>
+    </concept>
+    <concept>
+        <code value="TEI"/>
+        <display value="Tropfen zum Einnehmen"/>
+    </concept>
+    <concept>
+        <code value="TES"/>
+        <display value="Test"/>
+    </concept>
+    <concept>
+        <code value="TIN"/>
+        <display value="Tinktur"/>
+    </concept>
+    <concept>
+        <code value="TKA"/>
+        <display value="Tabletten in Kalenderpackung"/>
+    </concept>
+    <concept>
+        <code value="TLE"/>
+        <display value="Tablette zur Herstellung einer Lösung zum Einnehmen"/>
+    </concept>
+    <concept>
+        <code value="TMR"/>
+        <display value="Tabletten magensaftresistent"/>
+    </concept>
+    <concept>
+        <code value="TON"/>
+        <display value="Tonikum"/>
+    </concept>
+    <concept>
+        <code value="TPN"/>
+        <display value="Tampon"/>
+    </concept>
+    <concept>
+        <code value="TPO"/>
+        <display value="Tamponaden"/>
+    </concept>
+    <concept>
+        <code value="TRA"/>
+        <display value="Trinkampullen"/>
+    </concept>
+    <concept>
+        <code value="TRI"/>
+        <display value="Trituration"/>
+    </concept>
+    <concept>
+        <code value="TRO"/>
+        <display value="Tropfen"/>
+    </concept>
+    <concept>
+        <code value="TRS"/>
+        <display value="Trockensubstanz mit Lösungsmittel"/>
+    </concept>
+    <concept>
+        <code value="TRT"/>
+        <display value="Trinktabletten"/>
+    </concept>
+    <concept>
+        <code value="TSA"/>
+        <display value="Trockensaft"/>
+    </concept>
+    <concept>
+        <code value="TSD"/>
+        <display value="Tabletten zur Herstellung einer Suspension zum Einnehmen für einen Dosierspender"/>
+    </concept>
+    <concept>
+        <code value="TSE"/>
+        <display value="Tablette zur Herstellung einer Suspension zum Einnehmen"/>
+    </concept>
+    <concept>
+        <code value="TSS"/>
+        <display value="Trockensubstanz ohne Lösungsmittel"/>
+    </concept>
+    <concept>
+        <code value="TST"/>
+        <display value="Teststäbchen"/>
+    </concept>
+    <concept>
+        <code value="TSY"/>
+        <display value="Transdermales System"/>
+    </concept>
+    <concept>
+        <code value="TTR"/>
+        <display value="Teststreifen"/>
+    </concept>
+    <concept>
+        <code value="TUB"/>
+        <display value="Tube"/>
+    </concept>
+    <concept>
+        <code value="TUE"/>
+        <display value="Tücher"/>
+    </concept>
+    <concept>
+        <code value="TUP"/>
+        <display value="Tupfer"/>
+    </concept>
+    <concept>
+        <code value="TVW"/>
+        <display value="Tablette mit veränderter Wirkstofffreisetzung"/>
+    </concept>
+    <concept>
+        <code value="UTA"/>
+        <display value="Überzogene Tabletten"/>
+    </concept>
+    <concept>
+        <code value="VAL"/>
+        <display value="Vaginallösung"/>
+    </concept>
+    <concept>
+        <code value="VAR"/>
+        <display value="Vaginalring"/>
+    </concept>
+    <concept>
+        <code value="VCR"/>
+        <display value="Vaginalcreme"/>
+    </concept>
+    <concept>
+        <code value="VER"/>
+        <display value="Verband"/>
+    </concept>
+    <concept>
+        <code value="VGE"/>
+        <display value="Vaginalgel"/>
+    </concept>
+    <concept>
+        <code value="VKA"/>
+        <display value="Vaginalkapseln"/>
+    </concept>
+    <concept>
+        <code value="VLI"/>
+        <display value="Vlies"/>
+    </concept>
+    <concept>
+        <code value="VOV"/>
+        <display value="Vaginalovula"/>
+    </concept>
+    <concept>
+        <code value="VST"/>
+        <display value="Vaginalstäbchen"/>
+    </concept>
+    <concept>
+        <code value="VSU"/>
+        <display value="Vaginalsuppositorien"/>
+    </concept>
+    <concept>
+        <code value="VTA"/>
+        <display value="Vaginaltabletten"/>
+    </concept>
+    <concept>
+        <code value="WAT"/>
+        <display value="Watte"/>
+    </concept>
+    <concept>
+        <code value="WGA"/>
+        <display value="Wundgaze"/>
+    </concept>
+    <concept>
+        <code value="WKA"/>
+        <display value="Weichkapseln"/>
+    </concept>
+    <concept>
+        <code value="WKM"/>
+        <display value="Magensaftresistente Weichkapseln"/>
+    </concept>
+    <concept>
+        <code value="WUE"/>
+        <display value="Würfel"/>
+    </concept>
+    <concept>
+        <code value="XDG"/>
+        <display value="Duschgel"/>
+    </concept>
+    <concept>
+        <code value="XDS"/>
+        <display value="Deo-Spray"/>
+    </concept>
+    <concept>
+        <code value="XFE"/>
+        <display value="Festiger"/>
+    </concept>
+    <concept>
+        <code value="XGM"/>
+        <display value="Gesichtsmaske"/>
+    </concept>
+    <concept>
+        <code value="XHA"/>
+        <display value="Halsband"/>
+    </concept>
+    <concept>
+        <code value="XHS"/>
+        <display value="Haarspülung"/>
+    </concept>
+    <concept>
+        <code value="XNC"/>
+        <display value="Nachtcreme"/>
+    </concept>
+    <concept>
+        <code value="XPK"/>
+        <display value="Körperpflege"/>
+    </concept>
+    <concept>
+        <code value="XTC"/>
+        <display value="Tagescreme"/>
+    </concept>
+    <concept>
+        <code value="ZAM"/>
+        <display value="Zylinderampullen"/>
+    </concept>
+    <concept>
+        <code value="ZBU"/>
+        <display value="Zahnbürste"/>
+    </concept>
+    <concept>
+        <code value="ZCR"/>
+        <display value="Zahncreme"/>
+    </concept>
+    <concept>
+        <code value="ZGE"/>
+        <display value="Zahngel"/>
+    </concept>
+    <concept>
+        <code value="ZKA"/>
+        <display value="Zerbeisskapseln"/>
+    </concept>
+    <concept>
+        <code value="ZPA"/>
+        <display value="Zahnpasta"/>
+    </concept>
+</CodeSystem>

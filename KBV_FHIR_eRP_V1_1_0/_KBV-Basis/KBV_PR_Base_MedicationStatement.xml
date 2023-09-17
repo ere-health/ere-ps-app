@@ -1,0 +1,452 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="KBV-PR-Base-Medication-Statemen" />
+  <url value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_MedicationStatement" />
+  <version value="1.3.0" />
+  <name value="KBV_PR_Base_MedicationStatement" />
+  <title value="KBV_PR_Base_MedicationStatement" />
+  <status value="active" />
+  <publisher value="Kassenärztliche Bundesvereinigung (KBV)" />
+  <description value="Dieses Profil bildet die Medikationsinformation ab." />
+  <copyright value="Im folgenden Profil können Codes aus den Codesystemen Snomed, Loinc oder Ucum enthalten sein, die dem folgenden Urheberrecht unterliegen: This material includes SNOMED Clinical Terms® SNOMED CT® which is used by permission of SNOMED International. All rights reserved. SNOMED CT®, was originally created by The College of American Pathologists. SNOMED and SNOMED CT are registered trademarks of SNOMED International. Implementers of these artefacts must have the appropriate SNOMED CT Affiliate license. This material contains content from Loinc http://loinc.org. Loinc is copyright © 1995-2020, Regenstrief Institute, Inc. and the Logical Observation Identifiers Names and Codes Loinc Committee and is available at no cost under the license at http://loinc.org/license. Loinc® is a registered United States trademark of Regenstrief Institute, Inc. This product includes all or a portion of the UCUM table, UCUM codes, and UCUM definitions or is derived from it, subject to a license from Regenstrief Institute, Inc. and The UCUM Organization. Your use of the UCUM table, UCUM codes, UCUM definitions also is subject to this license, a copy of which is available at ​http://unitsofmeasure.org. The current complete UCUM table, UCUM Specification are available for download at ​http://unitsofmeasure.org. The UCUM table and UCUM codes are copyright © 1995-2009, Regenstrief Institute, Inc. and the Unified Codes for Units of Measures UCUM Organization. All rights reserved. THE UCUM TABLE IN ALL FORMATS, UCUM DEFINITIONS, AND SPECIFICATION ARE PROVIDED 'AS IS.' ANY EXPRESS OR IMPLIED WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE." />
+  <fhirVersion value="4.0.1" />
+  <kind value="resource" />
+  <abstract value="false" />
+  <type value="MedicationStatement" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/MedicationStatement" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="MedicationStatement">
+      <path value="MedicationStatement" />
+      <definition value="Hier werden Angaben dazu gemacht, wie ein bestimmtes Arzneimittel eingenommen bzw. verabreicht wird oder werden soll." />
+    </element>
+    <element id="MedicationStatement.extension">
+      <path value="MedicationStatement.extension" />
+      <slicing>
+        <discriminator>
+          <type value="value" />
+          <path value="url" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="0" />
+    </element>
+    <element id="MedicationStatement.extension:behandlungsziel">
+      <path value="MedicationStatement.extension" />
+      <sliceName value="behandlungsziel" />
+      <definition value="Hier können Behandlungsziele erfasst werden, welche durch die Arzneimittelverordnung erreicht werden sollen.\nDies kann z.B. ein bestimmter INR-Zielbereich bei einer oralen Antikoagulation, ein LDL-Zielbereich bei einer kardiovaskulären Erkrankung oder ein therapeutischer Wirkstoffspiegel sein. Die Referenz soll eine Instanz der Ressource KBV_Base_Treatment_Goal sein." />
+      <min value="0" />
+      <type>
+        <code value="Extension" />
+        <profile value="http://hl7.org/fhir/StructureDefinition/resource-pertainsToGoal" />
+      </type>
+    </element>
+    <element id="MedicationStatement.status">
+      <path value="MedicationStatement.status" />
+      <definition value="Hier wird der Status der Medikations-Information angegeben." />
+    </element>
+    <element id="MedicationStatement.statusReason">
+      <path value="MedicationStatement.statusReason" />
+      <definition value="Hier kann der Status begründet werden. Es wird ein Beispiel-Valueset zur Verfügung gestellt. Das ValueSet besteht aus einer Auswahl aus dem von FHIR hinterlegten ValueSet http://hl7.org/fhir/ValueSet/reason-medication-status-codes." />
+      <binding>
+        <strength value="example" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_Drug_Therapy_Status_Codes_SNOMED_CT" />
+      </binding>
+    </element>
+    <element id="MedicationStatement.medication[x]">
+      <path value="MedicationStatement.medication[x]" />
+      <slicing>
+        <discriminator>
+          <type value="type" />
+          <path value="$this" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="MedicationStatement.medication[x]:medicationReference">
+      <path value="MedicationStatement.medication[x]" />
+      <sliceName value="medicationReference" />
+      <min value="1" />
+      <type>
+        <code value="Reference" />
+        <targetProfile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Medication|1.3.0" />
+        <targetProfile value="http://hl7.org/fhir/StructureDefinition/Medication" />
+      </type>
+    </element>
+    <element id="MedicationStatement.medication[x]:medicationReference.reference">
+      <path value="MedicationStatement.medication[x].reference" />
+      <min value="1" />
+    </element>
+    <element id="MedicationStatement.subject">
+      <path value="MedicationStatement.subject" />
+      <type>
+        <code value="Reference" />
+        <targetProfile value="http://hl7.org/fhir/StructureDefinition/Patient" />
+        <targetProfile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Patient|1.3.0" />
+      </type>
+    </element>
+    <element id="MedicationStatement.effective[x]">
+      <path value="MedicationStatement.effective[x]" />
+      <slicing>
+        <discriminator>
+          <type value="type" />
+          <path value="$this" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <definition value="Hier wird eine Zeitangabe für den Verabreichungs- bzw. Einnahmezeitraum vorgenommen. Diese kann entweder ein spezifischer Zeitpunkt (z.B. bei einer Einmalgabe) oder ein Zeitraum mit Start- und/oder Enddatum sein." />
+    </element>
+    <element id="MedicationStatement.effective[x]:effectiveDateTime">
+      <path value="MedicationStatement.effective[x]" />
+      <sliceName value="effectiveDateTime" />
+      <definition value="Hier wird ein Zeitpunkt eingetragen, wobei dieser mindestens Tag, Monat und Jahr beinhalten muss." />
+      <type>
+        <code value="dateTime" />
+      </type>
+    </element>
+    <element id="MedicationStatement.effective[x]:effectivePeriod">
+      <path value="MedicationStatement.effective[x]" />
+      <sliceName value="effectivePeriod" />
+      <definition value="Zeitraum mit Start- und Enddatum." />
+      <type>
+        <code value="Period" />
+      </type>
+    </element>
+    <element id="MedicationStatement.dateAsserted">
+      <path value="MedicationStatement.dateAsserted" />
+      <definition value="Hier wird angegeben, wann die vorliegende Medikations-Information erfasst wurde." />
+    </element>
+    <element id="MedicationStatement.reasonCode">
+      <path value="MedicationStatement.reasonCode" />
+      <definition value="Hier kann der Behandlungsgrund als codierte Information oder als Freitext angegeben werden." />
+      <max value="1" />
+    </element>
+    <element id="MedicationStatement.reasonCode.coding.system">
+      <path value="MedicationStatement.reasonCode.coding.system" />
+      <min value="1" />
+    </element>
+    <element id="MedicationStatement.reasonCode.coding.code">
+      <path value="MedicationStatement.reasonCode.coding.code" />
+      <min value="1" />
+    </element>
+    <element id="MedicationStatement.reasonCode.coding.display">
+      <path value="MedicationStatement.reasonCode.coding.display" />
+      <min value="1" />
+    </element>
+    <element id="MedicationStatement.reasonReference">
+      <path value="MedicationStatement.reasonReference" />
+      <definition value="Hier kann der Behandlungsgrund als Referenz auf ein anderes Element, z.B. auf eine Diagnose, einen Befund oder eine Beobachtung, angegeben werden." />
+      <max value="1" />
+      <type>
+        <code value="Reference" />
+        <targetProfile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Diagnosis|1.3.0" />
+      </type>
+    </element>
+    <element id="MedicationStatement.note">
+      <path value="MedicationStatement.note" />
+      <definition value="Sonstige Informationen über die Medikation, die über die bereitgestellten Elemente nicht abgebildet werden können." />
+    </element>
+    <element id="MedicationStatement.dosage">
+      <path value="MedicationStatement.dosage" />
+      <definition value="Hier werden Informationen zur Dosierung angegeben." />
+    </element>
+    <element id="MedicationStatement.dosage.text">
+      <path value="MedicationStatement.dosage.text" />
+      <definition value="Hier können ergänzende freitextliche Angaben gemacht oder die gesamte Dosieranweisung in Form eines Freitextes angegeben werden." />
+    </element>
+    <element id="MedicationStatement.dosage.patientInstruction">
+      <path value="MedicationStatement.dosage.patientInstruction" />
+      <definition value="Hier können patientenorientierte Hinweise angegeben werden zu Anwendung, Lagerung, Einnahme, etc." />
+    </element>
+    <element id="MedicationStatement.dosage.timing.repeat">
+      <path value="MedicationStatement.dosage.timing.repeat" />
+      <definition value="Hier können detaillierte Angaben dazu gemacht werden, zu welchen Zeitpunkten das Arzneimittels wiederholt verabreicht/eingenommen wird." />
+    </element>
+    <element id="MedicationStatement.dosage.timing.repeat.duration">
+      <path value="MedicationStatement.dosage.timing.repeat.duration" />
+      <definition value="Hier kann angegeben werden, über welchen Zeitraum eine einzelne Verabreichung/Einnahme durchgeführt wird." />
+    </element>
+    <element id="MedicationStatement.dosage.timing.repeat.frequency">
+      <path value="MedicationStatement.dosage.timing.repeat.frequency" />
+      <definition value="Hier kann angegeben werden, über welchen Zeitraum eine einzelne Verabreichung/Einnahme durchgeführt wird." />
+    </element>
+    <element id="MedicationStatement.dosage.timing.repeat.frequencyMax">
+      <path value="MedicationStatement.dosage.timing.repeat.frequencyMax" />
+      <definition value="Hier wird die maximale Anzahl der Verabreichungen/Einnahmen innerhalb der definierten Zeitspanne angegeben. Dies entspricht dem Zähler bei der Frequenzangabe." />
+    </element>
+    <element id="MedicationStatement.dosage.timing.repeat.period">
+      <path value="MedicationStatement.dosage.timing.repeat.period" />
+      <definition value="Hier wird die Dauer der Zeitspanne angegeben, innerhalb der die definierte Anzahl der Verabreichungen/Einnahmen durchgeführt wird. Dies entspricht der Zahl im Nenner bei der Frequenzangabe." />
+    </element>
+    <element id="MedicationStatement.dosage.timing.repeat.periodMax">
+      <path value="MedicationStatement.dosage.timing.repeat.periodMax" />
+      <definition value="Hier wird die Dauer der Zeitspanne angegeben, innerhalb der die definierte Anzahl der Verabreichungen/Einnahmen maximal durchgeführt werden darf." />
+    </element>
+    <element id="MedicationStatement.dosage.timing.repeat.dayOfWeek">
+      <path value="MedicationStatement.dosage.timing.repeat.dayOfWeek" />
+      <definition value="Hier werden Wochentage, an dem das Arzneimittel verabreicht/eingenommen werden soll, angegeben. Es ist darauf zu achten, dass diese Informationen logisch zu den Angaben bei der Wiederholungsfrequenz passen." />
+    </element>
+    <element id="MedicationStatement.dosage.timing.repeat.timeOfDay">
+      <path value="MedicationStatement.dosage.timing.repeat.timeOfDay" />
+      <definition value="Hier wird die Anzahl der Verabreichungen/Einnahmen innerhalb der definierten Zeitspanne angegeben. Dies entspricht dem Zähler bei der Frequenzangabe." />
+    </element>
+    <element id="MedicationStatement.dosage.timing.repeat.when">
+      <path value="MedicationStatement.dosage.timing.repeat.when" />
+      <definition value="Hier werden Tageszeiten angegeben, zu denen das Arzneimittel verabreicht/eingenommen wird. Es ist darauf zu achten, dass diese Informationen logisch zu den Angaben bei der Wiederholungsfrequenz passen." />
+      <binding>
+        <strength value="required" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_Event_Timing" />
+      </binding>
+    </element>
+    <element id="MedicationStatement.dosage.asNeeded[x]">
+      <path value="MedicationStatement.dosage.asNeeded[x]" />
+      <slicing>
+        <discriminator>
+          <type value="type" />
+          <path value="$this" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="MedicationStatement.dosage.asNeeded[x]:asNeededBoolean">
+      <path value="MedicationStatement.dosage.asNeeded[x]" />
+      <sliceName value="asNeededBoolean" />
+      <type>
+        <code value="boolean" />
+      </type>
+    </element>
+    <element id="MedicationStatement.dosage.asNeeded[x]:asNeededCodeableConcept">
+      <path value="MedicationStatement.dosage.asNeeded[x]" />
+      <sliceName value="asNeededCodeableConcept" />
+      <definition value="Hier wird angegeben, welcher Zustand die Bedingung zur Verabreichung/Einnahme der Bedarfsmedikation ist, z.B. Schmerzen, Übelkeit, usw." />
+      <type>
+        <code value="CodeableConcept" />
+      </type>
+    </element>
+    <element id="MedicationStatement.dosage.site">
+      <path value="MedicationStatement.dosage.site" />
+      <definition value="Hier wird die Körperstelle, an der das Arzneimittel verabreicht/eingenommen/angewendet wird, als codierte Information oder als Freitext angegeben." />
+    </element>
+    <element id="MedicationStatement.dosage.site.coding.system">
+      <path value="MedicationStatement.dosage.site.coding.system" />
+      <min value="1" />
+    </element>
+    <element id="MedicationStatement.dosage.site.coding.code">
+      <path value="MedicationStatement.dosage.site.coding.code" />
+      <min value="1" />
+    </element>
+    <element id="MedicationStatement.dosage.site.coding.display">
+      <path value="MedicationStatement.dosage.site.coding.display" />
+      <min value="1" />
+    </element>
+    <element id="MedicationStatement.dosage.route">
+      <path value="MedicationStatement.dosage.route" />
+      <definition value="Hier wird der Verabreichungsweg mit einem entsprechenden Code oder alternativ mit einem Freitext angegeben." />
+    </element>
+    <element id="MedicationStatement.dosage.route.coding">
+      <path value="MedicationStatement.dosage.route.coding" />
+      <slicing>
+        <discriminator>
+          <type value="pattern" />
+          <path value="$this" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="MedicationStatement.dosage.route.coding:codeSnomed">
+      <path value="MedicationStatement.dosage.route.coding" />
+      <sliceName value="codeSnomed" />
+      <definition value="Hier wird ein Code aus dem Code-System SNOMED CT® eingetragen. Ein Beispiel-Valueset wird zur Verfügung gestellt." />
+      <max value="1" />
+      <patternCoding>
+        <system value="http://snomed.info/sct" />
+      </patternCoding>
+      <binding>
+        <strength value="example" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_Route_of_Administration_SNOMED_CT" />
+      </binding>
+    </element>
+    <element id="MedicationStatement.dosage.route.coding:codeSnomed.system">
+      <path value="MedicationStatement.dosage.route.coding.system" />
+      <min value="1" />
+    </element>
+    <element id="MedicationStatement.dosage.route.coding:codeSnomed.version">
+      <path value="MedicationStatement.dosage.route.coding.version" />
+      <min value="1" />
+    </element>
+    <element id="MedicationStatement.dosage.route.coding:codeSnomed.code">
+      <path value="MedicationStatement.dosage.route.coding.code" />
+      <min value="1" />
+    </element>
+    <element id="MedicationStatement.dosage.route.coding:codeSnomed.display">
+      <path value="MedicationStatement.dosage.route.coding.display" />
+      <min value="1" />
+    </element>
+    <element id="MedicationStatement.dosage.route.coding:edqmCode">
+      <path value="MedicationStatement.dosage.route.coding" />
+      <sliceName value="edqmCode" />
+      <definition value="Hier kann der Verabreichungsweg in Form eines EDQM-Codes angegeben werden." />
+      <max value="1" />
+      <binding>
+        <strength value="required" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_Medicine_Route_Of_Administration" />
+      </binding>
+    </element>
+    <element id="MedicationStatement.dosage.route.coding:edqmCode.system">
+      <path value="MedicationStatement.dosage.route.coding.system" />
+      <min value="1" />
+    </element>
+    <element id="MedicationStatement.dosage.route.coding:edqmCode.version">
+      <path value="MedicationStatement.dosage.route.coding.version" />
+      <min value="1" />
+    </element>
+    <element id="MedicationStatement.dosage.route.coding:edqmCode.code">
+      <path value="MedicationStatement.dosage.route.coding.code" />
+      <min value="1" />
+    </element>
+    <element id="MedicationStatement.dosage.route.coding:edqmCode.display">
+      <path value="MedicationStatement.dosage.route.coding.display" />
+      <min value="1" />
+    </element>
+    <element id="MedicationStatement.dosage.doseAndRate">
+      <path value="MedicationStatement.dosage.doseAndRate" />
+      <definition value="Hier werden verschiedene Angaben dazu gemacht, wie das Arzneimittel bei einer einzelnen Verabreichung/Einnahme dosiert wird." />
+      <max value="1" />
+    </element>
+    <element id="MedicationStatement.dosage.doseAndRate.dose[x]">
+      <path value="MedicationStatement.dosage.doseAndRate.dose[x]" />
+      <slicing>
+        <discriminator>
+          <type value="type" />
+          <path value="$this" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="MedicationStatement.dosage.doseAndRate.dose[x]:doseQuantity">
+      <path value="MedicationStatement.dosage.doseAndRate.doseQuantity" />
+      <sliceName value="doseQuantity" />
+      <definition value="Hier wird die Dosiermenge mittels einer definierten Menge angegeben." />
+      <type>
+        <code value="Quantity" />
+      </type>
+      <binding>
+        <strength value="preferred" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_SFHIR_BMP_DOSIEREINHEIT" />
+      </binding>
+    </element>
+    <element id="MedicationStatement.dosage.doseAndRate.dose[x]:doseQuantity.unit">
+      <path value="MedicationStatement.dosage.doseAndRate.doseQuantity.unit" />
+      <definition value="Hier wird die Dosiereinheit als Code angegeben. Hierbei sollte nach Möglichkeit folgendes ValueSet verwendet werden: https://fhir.kbv.de/ValueSet/KBV_VS_SFHIR_BMP_DOSIEREINHEIT." />
+    </element>
+    <element id="MedicationStatement.dosage.doseAndRate.dose[x]:doseRange">
+      <path value="MedicationStatement.dosage.doseAndRate.dose[x]" />
+      <sliceName value="doseRange" />
+      <definition value="Hier wird die Dosiermenge mittels eines definierten Mengenbereichs angegeben" />
+      <type>
+        <code value="Range" />
+      </type>
+    </element>
+    <element id="MedicationStatement.dosage.doseAndRate.dose[x]:doseRange.low">
+      <path value="MedicationStatement.dosage.doseAndRate.dose[x].low" />
+      <definition value="Hier wird die Dosiereinheit als Code angegeben. Hierbei sollte nach Möglichkeit folgendes ValueSet verwendet werden: https://fhir.kbv.de/ValueSet/KBV_VS_SFHIR_BMP_DOSIEREINHEIT." />
+      <binding>
+        <strength value="preferred" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_SFHIR_BMP_DOSIEREINHEIT" />
+      </binding>
+    </element>
+    <element id="MedicationStatement.dosage.doseAndRate.dose[x]:doseRange.high">
+      <path value="MedicationStatement.dosage.doseAndRate.dose[x].high" />
+      <definition value="Hier wird die Dosiereinheit als Code angegeben. Hierbei sollte nach Möglichkeit folgendes ValueSet verwendet werden: https://fhir.kbv.de/ValueSet/KBV_VS_SFHIR_BMP_DOSIEREINHEIT." />
+      <binding>
+        <strength value="preferred" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_SFHIR_BMP_DOSIEREINHEIT" />
+      </binding>
+    </element>
+    <element id="MedicationStatement.dosage.doseAndRate.rate[x]">
+      <path value="MedicationStatement.dosage.doseAndRate.rate[x]" />
+      <slicing>
+        <discriminator>
+          <type value="type" />
+          <path value="$this" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+    </element>
+    <element id="MedicationStatement.dosage.doseAndRate.rate[x]:rateRatio">
+      <path value="MedicationStatement.dosage.doseAndRate.rate[x]" />
+      <sliceName value="rateRatio" />
+      <definition value="Hier kann angegeben werden, mit welcher Geschwindigkeit bzw. Flussrate (z.B. ml/h) das Arzneimittel verabreicht wird." />
+      <type>
+        <code value="Ratio" />
+      </type>
+    </element>
+    <element id="MedicationStatement.dosage.doseAndRate.rate[x]:rateRatio.numerator">
+      <path value="MedicationStatement.dosage.doseAndRate.rate[x].numerator" />
+      <binding>
+        <strength value="preferred" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_SFHIR_BMP_DOSIEREINHEIT" />
+      </binding>
+    </element>
+    <element id="MedicationStatement.dosage.doseAndRate.rate[x]:rateRatio.denominator">
+      <path value="MedicationStatement.dosage.doseAndRate.rate[x].denominator" />
+      <binding>
+        <strength value="required" />
+        <valueSet value="http://hl7.org/fhir/ValueSet/units-of-time" />
+      </binding>
+    </element>
+    <element id="MedicationStatement.dosage.doseAndRate.rate[x]:rateRatio.denominator.system">
+      <path value="MedicationStatement.dosage.doseAndRate.rate[x].denominator.system" />
+      <min value="1" />
+    </element>
+    <element id="MedicationStatement.dosage.doseAndRate.rate[x]:rateRatio.denominator.code">
+      <path value="MedicationStatement.dosage.doseAndRate.rate[x].denominator.code" />
+      <min value="1" />
+    </element>
+    <element id="MedicationStatement.dosage.maxDosePerPeriod">
+      <path value="MedicationStatement.dosage.maxDosePerPeriod" />
+      <definition value="Hier wird die maximale Dosis angegeben, die in einer bestimmten Zeitspanne verabreicht werden darf." />
+    </element>
+    <element id="MedicationStatement.dosage.maxDosePerPeriod.numerator">
+      <path value="MedicationStatement.dosage.maxDosePerPeriod.numerator" />
+      <binding>
+        <strength value="preferred" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_SFHIR_BMP_DOSIEREINHEIT" />
+      </binding>
+    </element>
+    <element id="MedicationStatement.dosage.maxDosePerPeriod.numerator.value">
+      <path value="MedicationStatement.dosage.maxDosePerPeriod.numerator.value" />
+      <min value="1" />
+    </element>
+    <element id="MedicationStatement.dosage.maxDosePerPeriod.denominator">
+      <path value="MedicationStatement.dosage.maxDosePerPeriod.denominator" />
+      <binding>
+        <strength value="required" />
+        <valueSet value="http://hl7.org/fhir/ValueSet/units-of-time" />
+      </binding>
+    </element>
+    <element id="MedicationStatement.dosage.maxDosePerPeriod.denominator.value">
+      <path value="MedicationStatement.dosage.maxDosePerPeriod.denominator.value" />
+      <min value="1" />
+    </element>
+    <element id="MedicationStatement.dosage.maxDosePerPeriod.denominator.system">
+      <path value="MedicationStatement.dosage.maxDosePerPeriod.denominator.system" />
+      <min value="1" />
+    </element>
+    <element id="MedicationStatement.dosage.maxDosePerPeriod.denominator.code">
+      <path value="MedicationStatement.dosage.maxDosePerPeriod.denominator.code" />
+      <min value="1" />
+    </element>
+    <element id="MedicationStatement.dosage.maxDosePerAdministration">
+      <path value="MedicationStatement.dosage.maxDosePerAdministration" />
+      <definition value="Hier wird die Dosiermenge mittels einer maximalen Menge angegeben." />
+      <binding>
+        <strength value="preferred" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_SFHIR_BMP_DOSIEREINHEIT" />
+      </binding>
+    </element>
+    <element id="MedicationStatement.dosage.maxDosePerAdministration.value">
+      <path value="MedicationStatement.dosage.maxDosePerAdministration.value" />
+      <min value="1" />
+    </element>
+  </differential>
+</StructureDefinition>

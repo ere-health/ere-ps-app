@@ -1,0 +1,96 @@
+<CodeSystem xmlns="http://hl7.org/fhir">
+  <id value="KBV-CS-Base-Rolecare" />
+  <url value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_Rolecare" />
+  <version value="1.3.0" />
+  <name value="KBV_CS_Base_Rolecare" />
+  <title value="KBV_CS_Base_Rolecare" />
+  <status value="active" />
+  <experimental value="false" />
+  <publisher value="Kassenärztliche Bundesvereinigung (KBV)" />
+  <contact>
+    <telecom>
+      <system value="url" />
+      <value value="http://www.kbv.de" />
+    </telecom>
+  </contact>
+  <description value="Dieses Codesystem enthält die Codes für deutsche Bezeichner für KBV_CS_Base_Role_Care." />
+  <copyright value="Im folgenden Profil können Codes aus den Codesystemen Snomed, Loinc oder Ucum enthalten sein, die dem folgenden Urheberrecht unterliegen: This material includes SNOMED Clinical Terms® (SNOMED CT®) which is used by permission of SNOMED International. All rights reserved. SNOMED CT®, was originally created by The College of American Pathologists. SNOMED and SNOMED CT are registered trademarks of SNOMED International. Implementers of these artefacts must have the appropriate SNOMED CT Affiliate license. This material contains content from LOINC (http://loinc.org). LOINC is copyright © 1995-2020, Regenstrief Institute, Inc. and the Logical Observation Identifiers Names and Codes (LOINC) Committee and is available at no cost under the license at http://loinc.org/license. LOINC® is a registered United States trademark of Regenstrief Institute, Inc. This product includes all or a portion of the UCUM table, UCUM codes, and UCUM definitions or is derived from it, subject to a license from Regenstrief Institute, Inc. and The UCUM Organization. Your use of the UCUM table, UCUM codes, UCUM definitions also is subject to this license, a copy of which is available at ​http://unitsofmeasure.org. The current complete UCUM table, UCUM Specification are available for download at http://unitsofmeasure.org. The UCUM table and UCUM codes are copyright © 1995-2009, Regenstrief Institute, Inc. and the Unified Codes for Units of Measures (UCUM) Organization. All rights reserved. THE UCUM TABLE (IN ALL FORMATS), UCUM DEFINITIONS, AND SPECIFICATION ARE PROVIDED &quot;AS IS.&quot; ANY EXPRESS OR IMPLIED WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE." />
+  <caseSensitive value="true" />
+  <content value="complete" />
+  <concept>
+    <code value="AD" />
+    <display value="Ärztliche(r) DirektorIn" />
+  </concept>
+  <concept>
+    <code value="AG" />
+    <display value="Ärztliche(r) GeschäftsführerIn" />
+  </concept>
+  <concept>
+    <code value="CA" />
+    <display value="Chefärztin/-arzt" />
+  </concept>
+  <concept>
+    <code value="LOA" />
+    <display value="Leitende(r) Oberärztin/-arzt" />
+  </concept>
+  <concept>
+    <code value="OA" />
+    <display value="Oberärztin/-arzt" />
+  </concept>
+  <concept>
+    <code value="SA" />
+    <display value="Stationsärztin/-arzt" />
+  </concept>
+  <concept>
+    <code value="AA" />
+    <display value="Assistenzärztin/-arzt" />
+  </concept>
+  <concept>
+    <code value="BA" />
+    <display value="Belegärztin/-arzt" />
+  </concept>
+  <concept>
+    <code value="API" />
+    <display value="Ärztliche(r) PraxisinhaberIn" />
+  </concept>
+  <concept>
+    <code value="AAV" />
+    <display value="Ärztin/Arzt als VertreterIn" />
+  </concept>
+  <concept>
+    <code value="AW" />
+    <display value="Ärztin/Arzt in Weiterbildung" />
+  </concept>
+  <concept>
+    <code value="PDL" />
+    <display value="Pflegedienstleitung" />
+  </concept>
+  <concept>
+    <code value="PBL" />
+    <display value="Pflegerische Bereichsleitung" />
+  </concept>
+  <concept>
+    <code value="PSL" />
+    <display value="Pflegerische Stationsleitung" />
+  </concept>
+  <concept>
+    <code value="PF" />
+    <display value="Pflegefachkraft" />
+  </concept>
+  <concept>
+    <code value="PH" />
+    <display value="PflegehelferIn" />
+  </concept>
+  <concept>
+    <code value="NAT" />
+    <display value="Nicht-ärztliche(r) TherapeutIn" />
+  </concept>
+  <concept>
+    <code value="NAPP" />
+    <display value="Nicht-ärztliches Praxispersonal" />
+  </concept>
+  <concept>
+    <code value="PS" />
+    <display value="PraktikantIn/SchülerIn" />
+  </concept>
+</CodeSystem>

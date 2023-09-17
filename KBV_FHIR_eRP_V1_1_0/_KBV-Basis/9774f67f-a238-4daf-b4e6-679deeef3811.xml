@@ -1,0 +1,113 @@
+<Patient xmlns="http://hl7.org/fhir">
+  <id value="9774f67f-a238-4daf-b4e6-679deeef3811" />
+  <meta>
+    <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Patient|1.3.0" />
+  </meta>
+  <!-- Versichertennummer kvk -->
+  <identifier>
+    <type>
+      <coding>
+        <system value="https://fhir.kbv.de/CodeSystem/KBV_CS_Base_identifier_type" />
+        <code value="kvk" />
+        <display value="Krankenversichertenkarte" />
+      </coding>
+    </type>
+    <system value="http://fhir.de/sid/gkv/kvk-versichertennummer" />
+    <value value="123456784" />
+  </identifier>
+  <!-- pid -->
+  <identifier>
+    <type>
+      <coding>
+        <system value="http://terminology.hl7.org/CodeSystem/v2-0203" />
+        <code value="MR" />
+        <display value="Medical record number" />
+      </coding>
+    </type>
+    <system value="http://www.acmedasdd.com/identifiers/patient" />
+    <value value="23" />
+  </identifier>
+  <!-- Reisepassnummer -->
+  <identifier>
+    <type>
+      <coding>
+        <system value="http://terminology.hl7.org/CodeSystem/v2-0203" />
+        <code value="PPN" />
+        <display value="Passport number" />
+      </coding>
+    </type>
+    <value value="1234" />
+  </identifier>
+  <!-- Versichertennummer PKV -->
+  <identifier>
+    <type>
+      <coding>
+        <system value="http://fhir.de/CodeSystem/identifier-type-de-basis" />
+        <code value="PKV" />
+        <display value="Private Krankenversicherung" />
+      </coding>
+    </type>
+    <value value="1234567890" />
+    <assigner>
+      <display value="KK" />
+    </assigner>
+  </identifier>
+  <!-- Versicherten ID GKV -->
+  <identifier>
+    <type>
+      <coding>
+        <system value="http://fhir.de/CodeSystem/identifier-type-de-basis" />
+        <code value="GKV" />
+        <display value="Gesetzliche Krankenversicherung" />
+      </coding>
+    </type>
+    <system value="http://fhir.de/sid/gkv/kvid-10" />
+    <value value="K123456789" />
+  </identifier>
+  <name>
+    <use value="official" />
+    <text value="Erwin Fleischer" />
+    <family value="Fleischer">
+      <extension url="http://hl7.org/fhir/StructureDefinition/humanname-own-name">
+        <valueString value="Fleischer" />
+      </extension>
+    </family>
+    <given value="Erwin" />
+  </name>
+  <name>
+    <use value="maiden" />
+    <text value="Mülller" />
+    <family value="Müller">
+      <extension url="http://hl7.org/fhir/StructureDefinition/humanname-own-name">
+        <valueString value="Müller" />
+      </extension>
+    </family>
+  </name>
+  <gender value="male" />
+  <birthDate value="1953-02-14" />
+  <address>
+    <type value="both" />
+    <line value="Musterstr. 1">
+      <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber">
+        <valueString value="1" />
+      </extension>
+      <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName">
+        <valueString value="Musterstr." />
+      </extension>
+    </line>
+    <city value="Darmstadt" />
+    <postalCode value="64283" />
+    <country value="D" />
+  </address>
+  <address>
+    <type value="postal" />
+    <line value="d123">
+      <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-postBox">
+        <valueString value="d123" />
+      </extension>
+    </line>
+    <city value="Dortmund" />
+    <postalCode value="44135" />
+    <country value="D" />
+  </address>
+</Patient>

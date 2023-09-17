@@ -1,0 +1,102 @@
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="KBV-EX-Base-Stage-Life" />
+  <url value="https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Stage_Life" />
+  <version value="1.3.0" />
+  <name value="KBV_EX_Base_Stage_Life" />
+  <status value="active" />
+  <publisher value="Kassenärztliche Bundesvereinigung (KBV)" />
+  <copyright value="Copyright © [2022], Kassenärztliche Bundesvereinigung (KBV). All rights reserved." />
+  <fhirVersion value="4.0.1" />
+  <mapping>
+    <identity value="rim" />
+    <uri value="http://hl7.org/v3" />
+    <name value="RIM Mapping" />
+  </mapping>
+  <kind value="complex-type" />
+  <abstract value="false" />
+  <context>
+    <type value="element" />
+    <expression value="DateTime" />
+  </context>
+  <context>
+    <type value="fhirpath" />
+    <expression value="Condition.onset.ofType(Age)" />
+  </context>
+  <context>
+    <type value="fhirpath" />
+    <expression value="Condition.abatement.ofType(Age)" />
+  </context>
+  <context>
+    <type value="fhirpath" />
+    <expression value="AllergyIntolerance.onset.ofType(Age)" />
+  </context>
+  <context>
+    <type value="fhirpath" />
+    <expression value="Procedure.performed.ofType(Age)" />
+  </context>
+  <context>
+    <type value="element" />
+    <expression value="AllergyIntolerance" />
+  </context>
+  <type value="Extension" />
+  <baseDefinition value="http://hl7.org/fhir/StructureDefinition/Extension" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Extension.url">
+      <path value="Extension.url" />
+      <fixedUri value="https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Stage_Life" />
+    </element>
+    <element id="Extension.value[x]">
+      <path value="Extension.value[x]" />
+      <slicing>
+        <discriminator>
+          <type value="type" />
+          <path value="$this" />
+        </discriminator>
+        <rules value="open" />
+      </slicing>
+      <min value="1" />
+      <type>
+        <code value="CodeableConcept" />
+      </type>
+    </element>
+    <element id="Extension.value[x]:valueCodeableConcept">
+      <path value="Extension.value[x]" />
+      <sliceName value="valueCodeableConcept" />
+      <type>
+        <code value="CodeableConcept" />
+      </type>
+    </element>
+    <element id="Extension.value[x]:valueCodeableConcept.coding">
+      <path value="Extension.value[x].coding" />
+      <min value="1" />
+      <max value="1" />
+      <binding>
+        <strength value="required" />
+        <description value="Lebensphase" />
+        <valueSet value="https://fhir.kbv.de/ValueSet/KBV_VS_Base_Stage_Life" />
+      </binding>
+    </element>
+    <element id="Extension.value[x]:valueCodeableConcept.coding.system">
+      <path value="Extension.value[x].coding.system" />
+      <min value="1" />
+      <patternUri value="http://snomed.info/sct" />
+    </element>
+    <element id="Extension.value[x]:valueCodeableConcept.coding.version">
+      <path value="Extension.value[x].coding.version" />
+      <min value="1" />
+    </element>
+    <element id="Extension.value[x]:valueCodeableConcept.coding.code">
+      <path value="Extension.value[x].coding.code" />
+      <min value="1" />
+    </element>
+    <element id="Extension.value[x]:valueCodeableConcept.coding.display">
+      <path value="Extension.value[x].coding.display" />
+      <min value="1" />
+    </element>
+    <element id="Extension.value[x]:valueCodeableConcept.text">
+      <path value="Extension.value[x].text" />
+      <max value="0" />
+    </element>
+  </differential>
+</StructureDefinition>

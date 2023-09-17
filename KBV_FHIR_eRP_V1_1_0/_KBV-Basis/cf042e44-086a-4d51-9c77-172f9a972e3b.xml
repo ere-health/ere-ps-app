@@ -1,0 +1,95 @@
+<Organization xmlns="http://hl7.org/fhir">
+  <id value="cf042e44-086a-4d51-9c77-172f9a972e3b" />
+  <meta>
+    <profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_Base_Organization|1.3.0" />
+  </meta>
+  <!--  BSNR  -->
+  <identifier>
+    <type>
+      <coding>
+        <system value="http://terminology.hl7.org/CodeSystem/v2-0203" />
+        <code value="BSNR" />
+        <display value="Primary physician office number" />
+      </coding>
+    </type>
+    <system value="https://fhir.kbv.de/NamingSystem/KBV_NS_Base_BSNR" />
+    <value value="012300004" />
+  </identifier>
+  <!--  Institutionskennzeichen  -->
+  <identifier>
+    <type>
+      <coding>
+        <system value="http://terminology.hl7.org/CodeSystem/v2-0203" />
+        <code value="XX" />
+        <display value="Organisations-ID" />
+      </coding>
+    </type>
+    <system value="http://fhir.de/sid/arge-ik/iknr" />
+    <value value="123456789" />
+  </identifier>
+  <!--  KZV-Abrechnungsnummer  -->
+  <identifier>
+    <type>
+      <coding>
+        <system value="http://terminology.hl7.org/CodeSystem/v2-0203" />
+        <code value="NIIP" />
+        <display value="National Insurance Payor Identifier (Payor)" />
+      </coding>
+    </type>
+    <system value="http://fhir.de/sid/kbv/vknr" />
+    <value value="123456789" />
+  </identifier>
+  <!--  VKNR  -->
+  <identifier>
+    <type>
+      <coding>
+        <system value="http://fhir.de/CodeSystem/identifier-type-de-basis" />
+        <code value="KZVA" />
+        <display value="KZVAbrechnungsnummer" />
+      </coding>
+    </type>
+    <system value="http://fhir.de/sid/kzbv/kzvabrechnungsnummer" />
+    <value value="123456789" />
+  </identifier>
+  <!--  Telematik ID  -->
+  <identifier>
+    <type>
+      <coding>
+        <system value="http://terminology.hl7.org/CodeSystem/v2-0203" />
+        <code value="PRN" />
+        <display value="Provider number" />
+      </coding>
+    </type>
+    <system value="https://gematik.de/fhir/sid/telematik-id" />
+    <value value="123456789" />
+  </identifier>
+  <name value="Praxis Dr. med. Hans Topp-Glücklich" />
+  <address>
+    <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-precinct">
+      <valueString value="Mitte" />
+    </extension>
+    <type value="both" />
+    <line value="Musterstr. 1">
+      <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber">
+        <valueString value="1" />
+      </extension>
+      <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName">
+        <valueString value="Musterstr." />
+      </extension>
+    </line>
+    <line value="Mitte" />
+    <city value="Darmstadt" />
+    <postalCode value="64283" />
+    <country value="D" />
+  </address>
+  <address>
+    <type value="postal" />
+    <line value="45678">
+      <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-postBox">
+        <valueString value="45678" />
+      </extension>
+    </line>
+    <city value="Darmstadt" />
+    <country value="D" />
+  </address>
+</Organization>

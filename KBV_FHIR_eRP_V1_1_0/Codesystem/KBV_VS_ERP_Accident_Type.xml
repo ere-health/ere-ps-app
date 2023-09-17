@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ValueSet xmlns="http://hl7.org/fhir">
+    <id value="KBV-VS-ERP-Accident-Type"/>
+    <url value="https://fhir.kbv.de/ValueSet/KBV_VS_ERP_Accident_Type"/>
+    <version value="1.1.0" />
+    <name value="KBV_VS_ERP_Accident_Type"/>
+    <status value="active"/>
+	<date value="2022-09-30"/>
+	<publisher value="Kassenärztliche Bundesvereinigung"/>
+    <description value="ValueSet f&#252;r die Auspr&#228;gung der m&#246;glichen Ursachen / Unf&#228;lle" />
+    <compose>
+		<include>
+            <system value="https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_Ursache_Type"/>
+			<concept>
+				<code value="1"/>
+				<display value="Unfall"/>
+			</concept>	
+			<concept>
+				<code value="2"/>
+				<display value="Arbeitsunfall (Berufsgenossenschaft/Unfallkasse)"/>
+			</concept>		
+			<concept>
+				<code value="4"/>
+				<display value="Berufskrankheit (Berufsgenossenschaft/Unfallkasse)"/>
+			</concept>			
+        </include>
+    </compose>
+</ValueSet>

@@ -1,0 +1,21 @@
+{
+  "resourceType": "CodeSystem",
+  "status": "active",
+  "content": "complete",
+  "name": "CS_CommonMetaTag_De",
+  "id": "cs-common-meta-tag-de",
+  "title": "CS Basisprofil Common Meta Tag DE",
+  "description": "Gebräuchliche Codes zur Kodierung von Resource.meta.tag",
+  "version": "1.3.2",
+  "url": "http://fhir.de/CodeSystem/common-meta-tag-de",
+  "valueSet": "http://fhir.de/ValueSet/common-meta-tag-de",
+  "caseSensitive": true,
+  "concept": [
+    {
+      "code": "external",
+      "display": "External",
+      "definition": "Informationen welche in der Ressource abgebildet werden stammen aus einem externen, potentiell unverifizierten System"
+    }
+  ],
+  "count": 1
+}
