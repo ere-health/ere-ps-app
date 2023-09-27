@@ -1,16 +1,6 @@
 package health.ere.ps.model.idp.client.authentication;
 
-import health.ere.ps.exception.idp.crypto.IdpCryptoException;
-import health.ere.ps.model.idp.crypto.PkiIdentity;
-import health.ere.ps.exception.idp.IdpJoseException;
-import health.ere.ps.model.idp.client.field.ClaimName;
-import health.ere.ps.model.idp.client.token.JsonWebToken;
-
-import org.jose4j.jws.AlgorithmIdentifiers;
-import org.jose4j.jws.JsonWebSignature;
-import org.jose4j.jwt.JwtClaims;
-import org.jose4j.jwt.NumericDate;
-import org.jose4j.lang.JoseException;
+import static health.ere.ps.model.idp.client.brainPoolExtension.BrainpoolAlgorithmSuiteIdentifiers.BRAINPOOL256_USING_SHA256;
 
 import java.security.Key;
 import java.security.cert.X509Certificate;
@@ -21,7 +11,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static health.ere.ps.model.idp.client.brainPoolExtension.BrainpoolAlgorithmSuiteIdentifiers.BRAINPOOL256_USING_SHA256;
+import org.jose4j.jca.ProviderContext;
+import org.jose4j.jws.AlgorithmIdentifiers;
+import org.jose4j.jws.JsonWebSignature;
+import org.jose4j.jwt.JwtClaims;
+import org.jose4j.jwt.NumericDate;
+import org.jose4j.lang.JoseException;
+
+import health.ere.ps.exception.idp.IdpJoseException;
+import health.ere.ps.exception.idp.crypto.IdpCryptoException;
+import health.ere.ps.model.idp.client.field.ClaimName;
+import health.ere.ps.model.idp.client.token.JsonWebToken;
+import health.ere.ps.model.idp.crypto.PkiIdentity;
 
 public class JwtBuilder {
     private final Map<String, Object> headerClaims = new HashMap<>();
@@ -114,6 +115,9 @@ public class JwtBuilder {
         }
 
         try {
+            ProviderContext providerCtx = new ProviderContext();
+            providerCtx.getSuppliedKeyProviderContext().setSignatureProvider("BC");
+            jws.setProviderContext(providerCtx);
             return new JsonWebToken(jws.getCompactSerialization());
         } catch (final JoseException e) {
             throw new IdpJoseException(e);

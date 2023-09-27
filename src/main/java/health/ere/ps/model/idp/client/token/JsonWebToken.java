@@ -1,25 +1,28 @@
 package health.ere.ps.model.idp.client.token;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import health.ere.ps.exception.idp.IdpJoseException;
-import health.ere.ps.exception.idp.IdpJwtExpiredException;
-import health.ere.ps.exception.idp.IdpJwtSignatureInvalidException;
-import health.ere.ps.model.idp.client.field.ClaimName;
-import org.jose4j.jwt.consumer.ErrorCodes;
-import org.jose4j.jwt.consumer.InvalidJwtException;
-import org.jose4j.jwt.consumer.JwtConsumer;
-import org.jose4j.jwt.consumer.JwtConsumerBuilder;
-
 import java.io.IOException;
 import java.security.Key;
 import java.security.PublicKey;
 import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.Optional;
+
+import org.jose4j.jca.ProviderContext;
+import org.jose4j.jwt.consumer.ErrorCodes;
+import org.jose4j.jwt.consumer.InvalidJwtException;
+import org.jose4j.jwt.consumer.JwtConsumer;
+import org.jose4j.jwt.consumer.JwtConsumerBuilder;
+
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+import health.ere.ps.exception.idp.IdpJoseException;
+import health.ere.ps.exception.idp.IdpJwtExpiredException;
+import health.ere.ps.exception.idp.IdpJwtSignatureInvalidException;
+import health.ere.ps.model.idp.client.field.ClaimName;
 
 @JsonSerialize(using = IdpJoseObject.Serializer.class)
 @JsonDeserialize(using = JsonWebToken.Deserializer.class)
@@ -30,9 +33,12 @@ public class JsonWebToken extends IdpJoseObject {
     }
 
     public void verify(final PublicKey publicKey) throws IdpJoseException {
+        ProviderContext providerContext = new ProviderContext();
+        providerContext.getSuppliedKeyProviderContext().setSignatureProvider("BC");
         final JwtConsumer jwtConsumer = new JwtConsumerBuilder()
             .setVerificationKey(publicKey)
             .setSkipDefaultAudienceValidation()
+            .setJwsProviderContext(providerContext)
             .build();
 
         try {

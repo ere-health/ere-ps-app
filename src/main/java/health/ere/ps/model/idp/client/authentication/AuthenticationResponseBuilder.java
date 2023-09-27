@@ -1,5 +1,8 @@
 package health.ere.ps.model.idp.client.authentication;
 
+import static org.jose4j.jws.AlgorithmIdentifiers.RSA_PSS_USING_SHA256;
+
+import org.jose4j.jca.ProviderContext;
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.lang.JoseException;
@@ -9,8 +12,6 @@ import health.ere.ps.model.idp.client.field.ClaimName;
 import health.ere.ps.model.idp.client.token.JsonWebToken;
 import health.ere.ps.model.idp.crypto.PkiIdentity;
 import health.ere.ps.service.idp.crypto.KeyAnalysis;
-
-import static org.jose4j.jws.AlgorithmIdentifiers.RSA_PSS_USING_SHA256;
 
 public class AuthenticationResponseBuilder {
 
@@ -33,6 +34,10 @@ public class AuthenticationResponseBuilder {
         jsonWebSignature.setHeader("typ", "JWT");
         jsonWebSignature.setHeader("cty", "NJWT");
         jsonWebSignature.setCertificateChainHeaderValue(clientIdentity.getCertificate());
+
+        ProviderContext providerCtx = new ProviderContext();
+        providerCtx.getSuppliedKeyProviderContext().setSignatureProvider("BC");
+        jsonWebSignature.setProviderContext(providerCtx);    
 
         try {
             final String compactSerialization = jsonWebSignature.getCompactSerialization();

@@ -1,15 +1,6 @@
 package health.ere.ps.model.idp.client.authentication;
 
-import health.ere.ps.exception.idp.crypto.IdpCryptoException;
-import health.ere.ps.model.idp.crypto.PkiIdentity;
-import health.ere.ps.exception.idp.IdpJoseException;
-import health.ere.ps.model.idp.client.field.ClaimName;
-import health.ere.ps.model.idp.client.token.JsonWebToken;
-
-import org.apache.commons.lang3.Validate;
-import org.jose4j.jws.AlgorithmIdentifiers;
-import org.jose4j.jws.JsonWebSignature;
-import org.jose4j.lang.JoseException;
+import static health.ere.ps.model.idp.client.brainPoolExtension.BrainpoolAlgorithmSuiteIdentifiers.BRAINPOOL256_USING_SHA256;
 
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
@@ -19,7 +10,16 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import static health.ere.ps.model.idp.client.brainPoolExtension.BrainpoolAlgorithmSuiteIdentifiers.BRAINPOOL256_USING_SHA256;
+import org.apache.commons.lang3.Validate;
+import org.jose4j.jws.AlgorithmIdentifiers;
+import org.jose4j.jws.JsonWebSignature;
+import org.jose4j.lang.JoseException;
+
+import health.ere.ps.exception.idp.IdpJoseException;
+import health.ere.ps.exception.idp.crypto.IdpCryptoException;
+import health.ere.ps.model.idp.client.field.ClaimName;
+import health.ere.ps.model.idp.client.token.JsonWebToken;
+import health.ere.ps.model.idp.crypto.PkiIdentity;
 
 public class IdpJwtProcessor {
 
