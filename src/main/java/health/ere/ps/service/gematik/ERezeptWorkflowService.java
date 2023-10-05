@@ -694,7 +694,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
         ParametersParameterComponent workflowTypeParameter = new ParametersParameterComponent();
         workflowTypeParameter.setName("workflowType");
         Coding valueCoding = (Coding) workflowTypeParameter.addChild("valueCoding");
-        valueCoding.setSystem("https://gematik.de/fhir/CodeSystem/Flowtype");
+        valueCoding.setSystem("https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_FlowType");
         valueCoding.setCode(flowtype);
         parameters.addParameter(workflowTypeParameter);
 
