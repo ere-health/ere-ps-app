@@ -67,10 +67,10 @@ public class PrescriptionBundleValidator {
 
         // needed for initializing
         validateResource("{\"resourceType\":\"Bundle\",\"id\":\"2e38f9d3-6de0-4272-b343-7b6975e8fe9e\",\"meta\":{\"lastUpdated\":\"2021-04-06T08:30:00Z\",\"profile\":"+
-        "[\"https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle|1.0.2\"]},\"identifier\":{\"system\":\"https://gematik.de/fhir/NamingSystem/PrescriptionID\",\"value\":\"160.10"+
+        "[\"https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle|1.1.0\"]},\"identifier\":{\"system\":\"https://gematik.de/fhir/NamingSystem/PrescriptionID\",\"value\":\"160.10"+
         "0.000.000.004.30\"},\"type\":\"document\",\"timestamp\":\"2021-04-06T08:30:00Z\",\"entry\":[{\"fullUrl\":\"http://pvs.praxis.local/fhir/Composition/70e4e747-a1e6-44cd-b91d-"+
         "7cc2eef89c0c\",\"resource\":{\"resourceType\":\"Composition\",\"id\":\"70e4e747-a1e6-44cd-b91d-7cc2eef89c0c\",\"meta\":{\"profile\":[\"https://fhir.kbv.de/StructureDefinition/"+
-        "KBV_PR_ERP_Composition|1.0.2\"]},\"extension\":[{\"url\":\"https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Legal_basis\",\"valueCoding\":{\"system\":\"https://fhir.kbv.de/Co"+
+        "KBV_PR_ERP_Composition|1.1.0\"]},\"extension\":[{\"url\":\"https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Legal_basis\",\"valueCoding\":{\"system\":\"https://fhir.kbv.de/Co"+
         "deSystem/KBV_CS_SFHIR_KBV_STATUSKENNZEICHEN\",\"code\":\"00\"}}],\"status\":\"final\",\"type\":{\"coding\":[{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_SFH"+
         "IR_KBV_FORMULAR_ART\",\"code\":\"e16A\"}]},\"subject\":{\"reference\":\"Patient/93866fdc-3e50-4902-a7e9-891b54737b5e\"},\"date\":\"2021-04-05T08:00:00Z\",\"author\""+
         ":[{\"reference\":\"Practitioner/cb7558e2-0fdf-4107-93f6-07f13f39e067\",\"type\":\"Practitioner\"},{\"type\":\"Device\",\"identifier\":{\"system\":\"https://fhir.kbv.de/N"+
@@ -80,7 +80,7 @@ public class PrescriptionBundleValidator {
         "nRequest/877e9689-523e-46ca-aa78-8de34a023583\"}]},{\"code\":{\"coding\":[{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Section_Type\",\"code\":\"Coverage\""+
         "}]},\"entry\":[{\"reference\":\"Coverage/1b89236c-ab14-4e92-937e-5af0b59d0cd4\"}]}]}},{\"fullUrl\":\"http://pvs.praxis.local/fhir/MedicationRequest/877e9689-523e-46ca-aa"+
         "78-8de34a023583\",\"resource\":{\"resourceType\":\"MedicationRequest\",\"id\":\"877e9689-523e-46ca-aa78-8de34a023583\",\"meta\":{\"profile\":[\"https://fhir.kbv.de/Stru"+
-        "ctureDefinition/KBV_PR_ERP_Prescription|1.0.2\"]},\"extension\":[{\"url\":\"https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_StatusCoPayment\",\"valueCoding\":{\"syst"+
+        "ctureDefinition/KBV_PR_ERP_Prescription|1.1.0\"]},\"extension\":[{\"url\":\"https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_StatusCoPayment\",\"valueCoding\":{\"syst"+
         "em\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_StatusCoPayment\",\"code\":\"0\"}},{\"url\":\"https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_EmergencyServicesFee\""+
         ",\"valueBoolean\":false},{\"url\":\"https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_BVG\",\"valueBoolean\":false},{\"url\":\"https://fhir.kbv.de/StructureDefinition/"+
         "KBV_EX_ERP_Multiple_Prescription\",\"extension\":[{\"url\":\"Kennzeichen\",\"valueBoolean\":false}]}],\"status\":\"active\",\"intent\":\"order\",\"medicationReference\":"+
@@ -89,7 +89,7 @@ public class PrescriptionBundleValidator {
         "4\"}],\"note\":[{\"text\":\"Bitte auf Anwendung schulen\"}],\"dosageInstruction\":[{\"extension\":[{\"url\":\"https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_DosageF"+
         "lag\",\"valueBoolean\":false}]}],\"dispenseRequest\":{\"quantity\":{\"value\":2,\"system\":\"http://unitsofmeasure.org\",\"code\":\"{Package}\"}},\"substitution\":{\"al"+
         "lowedBoolean\":true}}},{\"fullUrl\":\"http://pvs.praxis.local/fhir/Medication/b7dd5ddb-b5ad-4b04-af11-6d2a354bce0c\",\"resource\":{\"resourceType\":\"Medication\",\"id\""+
-        ":\"b7dd5ddb-b5ad-4b04-af11-6d2a354bce0c\",\"meta\":{\"profile\":[\"https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.0.2\"]},\"extension\":[{\"url\":\""+
+        ":\"b7dd5ddb-b5ad-4b04-af11-6d2a354bce0c\",\"meta\":{\"profile\":[\"https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.1.0\"]},\"extension\":[{\"url\":\""+
         "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Category\",\"valueCoding\":{\"system\":\"https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Category\",\""+
         "code\":\"00\"}},{\"url\":\"https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Vaccine\",\"valueBoolean\":false},{\"url\":\"http://fhir.de/StructureDefinitio"+
         "n/normgroesse\",\"valueCode\":\"N1\"}],\"code\":{\"coding\":[{\"system\":\"http://fhir.de/CodeSystem/ifa/pzn\",\"code\":\"00427833\"}],\"text\":\"Viani 50\u00B5g/250\u00B5"+

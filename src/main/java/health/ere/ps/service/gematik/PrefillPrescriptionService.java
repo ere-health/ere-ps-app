@@ -343,7 +343,7 @@ public class PrefillPrescriptionService {
 		Medication medication = new Medication();
 
 		medication.setId(UUID.randomUUID().toString()).getMeta()
-				.addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.0.2");
+				.addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.1.0");
 
 		Coding medicationCategory = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Category", "00",
 				null);
@@ -380,7 +380,7 @@ public class PrefillPrescriptionService {
 
 		medicationRequest.setId(UUID.randomUUID().toString());
 
-		medicationRequest.getMeta().addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.0.2");
+		medicationRequest.getMeta().addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.1.0");
 
 		Coding valueCoding = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_StatusCoPayment", "0", null);
 		Extension coPayment = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_StatusCoPayment",

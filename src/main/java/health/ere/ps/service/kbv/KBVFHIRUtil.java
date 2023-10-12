@@ -266,7 +266,7 @@ public class KBVFHIRUtil {
 	    // and packaged for transmission.
 	    bundle.getMeta()
 	            .setLastUpdated(new Date())
-	            .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle|1.0.2");
+	            .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle|1.1.0");
 	
 	    bundle.setTimestamp(new Date());
 	    return bundle;
@@ -290,7 +290,7 @@ public class KBVFHIRUtil {
 	    composition.setId(UUID.randomUUID().toString());
 	
 	    composition.getMeta().addProfile(
-	            "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Composition|1.0.2");
+	            "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Composition|1.1.0");
 	
 	    Coding valueCoding = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_STATUSKENNZEICHEN", asvAusuebungRoleId != null ? "01" : "00", null);
 	    Extension legalBasis = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Legal_basis", valueCoding);

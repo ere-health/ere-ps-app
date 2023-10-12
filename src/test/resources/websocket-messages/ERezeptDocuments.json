@@ -81,12 +81,7 @@
                                         },
                                         "entry": [
                                             {
-                                                "reference": "MedicationRequest/06dc1594-509a-4f4c-ada7-dfd477a02d86",
-                                                "_reference": {
-                                                    "fhir_comments": [
-                                                        "  Referenz auf Verordnung (MedicationRequest)  "
-                                                    ]
-                                                }
+                                                "reference": "MedicationRequest/06dc1594-509a-4f4c-ada7-dfd477a02d86"
                                             }
                                         ]
                                     },
@@ -101,12 +96,7 @@
                                         },
                                         "entry": [
                                             {
-                                                "reference": "Coverage/df0f2536-97b9-4bae-99cc-83ba2e8371e4",
-                                                "_reference": {
-                                                    "fhir_comments": [
-                                                        "  Referenz auf Krankenkasse/KostentrĂ¤ger   "
-                                                    ]
-                                                }
+                                                "reference": "Coverage/df0f2536-97b9-4bae-99cc-83ba2e8371e4"
                                             }
                                         ]
                                     }
@@ -119,9 +109,6 @@
                                 "resourceType": "MedicationRequest",
                                 "id": "06dc1594-509a-4f4c-ada7-dfd477a02d86",
                                 "_id": {
-                                    "fhir_comments": [
-                                        " Beispiel MedicationRequest für eine PZN-Verordnung  "
-                                    ]
                                 },
                                 "meta": {
                                     "profile": [

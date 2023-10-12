@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.config.ConfigProvider;
@@ -28,6 +29,8 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
             EreLogger.SystemContext.KbvBundleValidator,
             EreLogger.SystemContext.KbvBundleValidatorConfiguration);
     private IParser xmlParser = FhirContext.forR4().newXmlParser();
+    private IParser jsonParser = FhirContext.forR4().newJsonParser();
+    private static Logger log = Logger.getLogger(ErePrePopulatedValidationSupport.class.getName());
 
     protected enum ConfigType {
         PROFILE, EXTENSION, VALUE_SET, CODE_SYSTEM, NAMING_SYSTEM, UNKNOWN
@@ -41,17 +44,18 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
         initKbvValidatorConfiguration();
     }
 
-    protected void addKbvProfile(InputStream configDefinitionInputStream) {
-        addKbvProfile(null, null, configDefinitionInputStream);
+    protected void addKbvProfile(InputStream configDefinitionInputStream, boolean json) {
+        addKbvProfile(null, null, configDefinitionInputStream, json);
     }
 
     protected void addKbvProfile(String configUrl,
                                  String configVersion,
-                                 InputStream configDefinitionInputStream) {
+                                 InputStream configDefinitionInputStream, boolean json) {
         StructureDefinition structureDefinition;
 
         try (configDefinitionInputStream) {
-            structureDefinition = xmlParser.parseResource(StructureDefinition.class,
+            structureDefinition = json ? jsonParser.parseResource(StructureDefinition.class,
+                    configDefinitionInputStream) : xmlParser.parseResource(StructureDefinition.class,
                     configDefinitionInputStream);
 
             if (configUrl != null) {
@@ -76,17 +80,18 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
         }
     }
 
-    protected void addKbvValueSet(InputStream configDefinitionInputStream) {
-        addKbvValueSet(null, null, configDefinitionInputStream);
+    protected void addKbvValueSet(InputStream configDefinitionInputStream, boolean json) {
+        addKbvValueSet(null, null, configDefinitionInputStream, json);
     }
 
     protected void addKbvValueSet(String configUrl, String configVersion,
-                                  InputStream configDefinitionInputStream) {
+                                  InputStream configDefinitionInputStream, boolean json) {
 
         ValueSet valueSet;
 
         try (configDefinitionInputStream) {
-            valueSet = xmlParser.parseResource(ValueSet.class,
+            valueSet = json ? jsonParser.parseResource(ValueSet.class,
+                    configDefinitionInputStream) : xmlParser.parseResource(ValueSet.class,
                     configDefinitionInputStream);
             if (configUrl != null) {
                 valueSet.setUrl(configUrl);
@@ -106,17 +111,18 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
         }
     }
 
-    protected void addKbvCodeSystem(InputStream configDefinitionInputStream) {
-        addKbvCodeSystem(null, null, configDefinitionInputStream);
+    protected void addKbvCodeSystem(InputStream configDefinitionInputStream, boolean json) {
+        addKbvCodeSystem(null, null, configDefinitionInputStream, json);
     }
 
     protected void addKbvCodeSystem(String configUrl, String configVersion,
-                                    InputStream configDefinitionInputStream) {
+                                    InputStream configDefinitionInputStream, boolean json) {
 
         CodeSystem codeSystem;
 
         try (configDefinitionInputStream) {
-            codeSystem = xmlParser.parseResource(CodeSystem.class,
+            codeSystem =  json ? jsonParser.parseResource(CodeSystem.class,
+                    configDefinitionInputStream) : xmlParser.parseResource(CodeSystem.class,
                     configDefinitionInputStream);
 
             if (configUrl != null) {
@@ -160,7 +166,7 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
     protected ConfigType getConfigType(Path kbvConfigFile) {
         String configFileName = kbvConfigFile.getFileName().toString();
 
-        if (StringUtils.isNotBlank(configFileName) && configFileName.endsWith(".xml") &&
+        if (StringUtils.isNotBlank(configFileName) && (configFileName.endsWith(".xml") || configFileName.endsWith(".json")) &&
                 (configFileName.contains("ERP") || configFileName.contains("FOR") ||
                         configFileName.contains("Base") || configFileName.contains("Profile-") ||
                         configFileName.contains("Extension-") || configFileName.contains("ValueSet-") ||
@@ -186,21 +192,23 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
 
     protected void applyConfiguration(Path kbvConfigFile) throws IOException {
         try (BufferedInputStream bis = new BufferedInputStream(Files.newInputStream(kbvConfigFile))) {
+            boolean json = kbvConfigFile.getFileName().toString().endsWith(".json");
             switch (getConfigType(kbvConfigFile)) {
                 case PROFILE:
                 case EXTENSION:
-                    addKbvProfile(bis);
+                    log.fine("Adding profile or extension: "+kbvConfigFile.getFileName().toString());
+                    addKbvProfile(bis, json);
                     break;
-
-                
                 case CODE_SYSTEM:
-                    addKbvCodeSystem(bis);
+                    log.fine("Adding code system: "+kbvConfigFile.getFileName().toString());
+                    addKbvCodeSystem(bis, json);
                     break;
-
                 case VALUE_SET:
-                    addKbvValueSet(bis);
+                    log.fine("Adding value set: "+kbvConfigFile.getFileName().toString());
+                    addKbvValueSet(bis, json);
                     break;
                 default:
+                    log.fine("No config type for: "+kbvConfigFile.getFileName().toString());
                     break;
                 
             }
