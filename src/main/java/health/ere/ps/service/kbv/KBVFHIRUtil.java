@@ -16,9 +16,6 @@ import org.hl7.fhir.r4.model.CodeType;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Composition;
-import org.hl7.fhir.r4.model.Composition.CompositionAttestationMode;
-import org.hl7.fhir.r4.model.Composition.CompositionStatus;
-import org.hl7.fhir.r4.model.Composition.SectionComponent;
 import org.hl7.fhir.r4.model.Coverage;
 import org.hl7.fhir.r4.model.Extension;
 import org.hl7.fhir.r4.model.HumanName;
@@ -49,7 +46,7 @@ public class KBVFHIRUtil {
 	
 	    coverage.setId(UUID.randomUUID().toString());
 	    coverage.getMeta()
-	            .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Coverage|1.0.3");
+	            .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Coverage|1.1.0");
 	
 	    Coding besonderePersonengruppe = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_PERSONENGRUPPE", String.format("%02d", versichungKennzeichen.getBesonderePersonengruppe() != null ? versichungKennzeichen.getBesonderePersonengruppe() : 0), null);
 	    Extension besonderePersonengruppeEx = new Extension("http://fhir.de/StructureDefinition/gkv/besondere-personengruppe", besonderePersonengruppe);
@@ -87,7 +84,7 @@ public class KBVFHIRUtil {
 	    coverage.addPayor()
 	            .setDisplay(kostentraeger)
 	            .getIdentifier()
-	            .setSystem("http://fhir.de/NamingSystem/arge-ik/iknr")
+	            .setSystem("http://fhir.de/sid/arge-ik/iknr")
 	            .setValue(iknr);
 	
 	    if(versicherung.getVersicherter().getVersicherungsschutz().getBeginn() != null && versicherung.getVersicherter().getVersicherungsschutz().getEnde() != null) {
@@ -115,7 +112,7 @@ public class KBVFHIRUtil {
 	
 	    patient.setId(UUID.randomUUID().toString());
 	    patient.getMeta()
-	            .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.0.3");
+	            .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.1.0");
 	
 	    Identifier identifier = patient.addIdentifier();
 	
@@ -123,7 +120,7 @@ public class KBVFHIRUtil {
 	            .addCoding();
 	    typeDeBasis.setSystem("http://fhir.de/CodeSystem/identifier-type-de-basis");
 	    typeDeBasis.setCode("GKV");
-	    identifier.getSystemElement().setValue("http://fhir.de/NamingSystem/gkv/kvid-10");
+	    identifier.getSystemElement().setValue("http://fhir.de/sid/gkv/kvid-10");
 	    identifier.setValue(versicherter.getVersichertenID());
 	    
 	    List<StringType> prefixList = new ArrayList<StringType>();
@@ -201,7 +198,7 @@ public class KBVFHIRUtil {
 	    // This will be set by the erezept workflow
 	    bundle.setType(BundleType.DOCUMENT);
 	
-	    bundle.getIdentifier().setSystem("https://gematik.de/fhir/NamingSystem/PrescriptionID");
+	    bundle.getIdentifier().setSystem("https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId");
 	
 	    generateIdentifier(bundle);
 	    

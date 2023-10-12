@@ -214,7 +214,7 @@ public class PrefillPrescriptionService {
 		Organization organization = new Organization();
 
 		organization.setId(UUID.randomUUID().toString()).getMeta()
-				.addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Organization|1.0.3");
+				.addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Organization|1.1.0");
 
 		Identifier identifier = organization.addIdentifier();
 
@@ -259,7 +259,7 @@ public class PrefillPrescriptionService {
 		Practitioner practitioner = new Practitioner();
 
 		practitioner.setId(UUID.randomUUID().toString()).getMeta()
-				.addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner|1.0.3");
+				.addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner|1.1.0");
 
 		Identifier identifier = practitioner.addIdentifier();
 		CodeableConcept identifierCodeableConcept = identifier.getType();
@@ -299,7 +299,11 @@ public class PrefillPrescriptionService {
 
 		qualification.setCode(qualificationCodeableConcept);
 		practitioner.addQualification(qualification);
-		practitioner.addQualification().getCode().setText("Arzt");
+		qualification = practitioner.addQualification();
+        CodeableConcept code = qualification.getCode();
+        code.setText("Arzt");
+        practitionerQualificationCoding = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_Berufsbezeichnung", "Berufsbezeichnung", null);
+        code.getCoding().add(practitionerQualificationCoding);
 
 		return practitioner;
 	}
@@ -345,6 +349,12 @@ public class PrefillPrescriptionService {
 		medication.setId(UUID.randomUUID().toString()).getMeta()
 				.addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.1.0");
 
+		Coding medicationType = new Coding("http://snomed.info/sct", "763158003", "Medicinal product (product)");
+		medicationType.setVersion("http://snomed.info/sct/900000000000207008/version/20220331");
+		CodeableConcept codeableConcept = new CodeableConcept(medicationType);
+		Extension medicationTypeEx = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Medication_Type", codeableConcept);
+		medication.addExtension(medicationTypeEx);
+
 		Coding medicationCategory = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Category", "00",
 				null);
 		Extension medicationCategoryEx = new Extension(
@@ -382,8 +392,8 @@ public class PrefillPrescriptionService {
 
 		medicationRequest.getMeta().addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.1.0");
 
-		Coding valueCoding = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_StatusCoPayment", "0", null);
-		Extension coPayment = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_StatusCoPayment",
+		Coding valueCoding = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_StatusCoPayment", "0", null);
+		Extension coPayment = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_StatusCoPayment",
 				valueCoding);
 		medicationRequest.addExtension(coPayment);
 

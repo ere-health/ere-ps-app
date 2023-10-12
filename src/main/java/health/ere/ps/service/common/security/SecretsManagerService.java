@@ -69,7 +69,7 @@ public class SecretsManagerService {
     public SSLContext createSSLContext(UserConfigurations userConfigurations) {
         String base64UrlCertificate = userConfigurations.getClientCertificate();
         String clientCertificateString = base64UrlCertificate.split(",")[1];
-        log.info("Using certifcate: "+clientCertificateString);
+        log.fine("Using certifcate: "+clientCertificateString);
         byte[] clientCertificateBytes = Base64.getDecoder().decode(clientCertificateString);
         try (ByteArrayInputStream certificateInputStream = new ByteArrayInputStream(clientCertificateBytes)) {
             return createSSLContext(userConfigurations.getClientCertificatePassword(), certificateInputStream);
