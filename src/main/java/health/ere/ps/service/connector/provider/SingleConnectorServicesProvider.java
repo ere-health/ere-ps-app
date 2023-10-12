@@ -93,7 +93,7 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
             // example: "data:application/x-pkcs12;base64,MIACAQMwgAY...gtc/qoCAwGQAAAA"
             String[] schemeSpecificParts = uriParser.getSchemeSpecificPart().split(";");
             String contentType = schemeSpecificParts[0];
-            if (contentType.equalsIgnoreCase("application/x-pkcs12")){
+            if (contentType.equalsIgnoreCase("application/x-pkcs12") || contentType.equalsIgnoreCase("application/octet-stream")){
                 String[] dataParts = schemeSpecificParts[1].split(",");
                 String encodingType = dataParts[0];
                 if (encodingType.equalsIgnoreCase("base64")){
