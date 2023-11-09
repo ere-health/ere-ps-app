@@ -1,13 +1,10 @@
 package health.ere.ps.websocket;
 
-import java.awt.Desktop;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.math.BigInteger;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -66,6 +63,7 @@ import health.ere.ps.event.PrefillBundleEvent;
 import health.ere.ps.event.ReadyToSignBundlesEvent;
 import health.ere.ps.event.RequestStatusEvent;
 import health.ere.ps.event.SaveSettingsEvent;
+import health.ere.ps.event.SaveSettingsResponseEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
 import health.ere.ps.event.StatusResponseEvent;
 import health.ere.ps.event.UnblockPinEvent;
@@ -164,8 +162,6 @@ public class Websocket {
             .withAdapters(new ThrowableAdapter())
             .withAdapters(new DurationAdapter());
     public static Jsonb jsonbFactory = JsonbBuilder.create(customConfig);
-    private static final String CHROME_X86_PATH = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
-    private static final String CHROME_X64_PATH = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
     private static final EreLogger ereLog = EreLogger.getLogger(Websocket.class);
 
     private final FhirContext ctx = FhirContext.forR4();
@@ -332,7 +328,7 @@ public class Websocket {
             } else if("SaveSettings".equals(object.getString("type"))) {
                 String userConfiguration = object.getJsonObject("payload").toString();
                 UserConfigurations userConfigurations = jsonbFactory.fromJson(userConfiguration, UserConfigurations.class);
-                saveSettingsEvent.fireAsync(new SaveSettingsEvent(userConfigurations));
+                saveSettingsEvent.fireAsync(new SaveSettingsEvent(userConfigurations, senderSession, messageId));
             } else if("RequestStatus".equals(object.getString("type"))) {
                 requestStatusEvent.fireAsync(new RequestStatusEvent(object, senderSession, messageId));
             } else if ("Publish".equals(object.getString("type"))) {
@@ -387,7 +383,6 @@ public class Websocket {
     }
 
     public void onFhirBundle(@ObservesAsync BundlesEvent bundlesEvent) {
-        assureChromeIsOpen();
         String bundlesString = generateJson(bundlesEvent);
         Set<Session> localSessions = new HashSet<>();
         if(bundlesEvent.getReplyTo() != null) {
@@ -405,7 +400,7 @@ public class Websocket {
     }
 
     public void onAbortTasksStatusEvent(@ObservesAsync AbortTasksStatusEvent abortTasksStatusEvent) {
-        assureChromeIsOpen();
+        
         String abortTasksStatusString = generateJson(abortTasksStatusEvent);
         
         abortTasksStatusEvent.getReplyTo().getAsyncRemote().sendObject(
@@ -418,7 +413,7 @@ public class Websocket {
     }
 
     public void onGetCardsResponseEvent(@ObservesAsync GetCardsResponseEvent getCardsResponseEvent) {
-        assureChromeIsOpen();
+        
         String abortTasksStatusString = generateJson(getCardsResponseEvent);
         
         getCardsResponseEvent.getReplyTo().getAsyncRemote().sendObject(
@@ -431,7 +426,7 @@ public class Websocket {
     }
 
     public void onGetSignatureModeResponseEvent(@ObservesAsync GetSignatureModeResponseEvent getSignatureModeResponseEvent) {
-        assureChromeIsOpen();
+        
         String abortTasksStatusString = generateJson(getSignatureModeResponseEvent);
         getSignatureModeResponseEvent.getReplyTo().getAsyncRemote().sendObject(
                 "{\"type\": \"GetSignatureModeResponse\", \"payload\": " + abortTasksStatusString + ", \"replyToMessageId\": \""+getSignatureModeResponseEvent.getReplyToMessageId()+"\"}",
@@ -443,7 +438,7 @@ public class Websocket {
     }
 
     public void onChangePinResponseEvent(@ObservesAsync ChangePinResponseEvent changePinResponseEvent) {
-        assureChromeIsOpen();
+        
         String changePinResponseString = generateJson(changePinResponseEvent);
         changePinResponseEvent.getReplyTo().getAsyncRemote().sendObject(
                 "{\"type\": \"ChangePinResponse\", \"payload\": " + changePinResponseString + ", \"replyToMessageId\": \""+changePinResponseEvent.getReplyToMessageId()+"\"}",
@@ -455,7 +450,7 @@ public class Websocket {
     }
 
     public void onStatusResponseEvent(@ObservesAsync StatusResponseEvent statusResponseEvent) {
-        assureChromeIsOpen();
+        
         statusResponseEvent.getReplyTo().getAsyncRemote().sendObject(statusResponseEvent,
                 result -> {
                     if (!result.isOK()) {
@@ -465,7 +460,7 @@ public class Websocket {
     }
 
     public void onVZDSearchResultEvent(@ObservesAsync VZDSearchResultEvent vZDSearchResultEvent) {
-        assureChromeIsOpen();
+        
         vZDSearchResultEvent.getReplyTo().getAsyncRemote().sendObject(vZDSearchResultEvent,
                 result -> {
                     if (!result.isOK()) {
@@ -475,7 +470,7 @@ public class Websocket {
     }
 
     public void onVerifyPinResponseEvent(@ObservesAsync VerifyPinResponseEvent verifyPinResponseEvent) {
-        assureChromeIsOpen();
+        
         verifyPinResponseEvent.getReplyTo().getAsyncRemote().sendObject(verifyPinResponseEvent,
                 result -> {
                     if (!result.isOK()) {
@@ -485,7 +480,7 @@ public class Websocket {
     }
 
     public void onUnblockPinResponseEvent(@ObservesAsync UnblockPinResponseEvent unblockPinResponseEvent) {
-        assureChromeIsOpen();
+        
         unblockPinResponseEvent.getReplyTo().getAsyncRemote().sendObject(unblockPinResponseEvent,
                 result -> {
                     if (!result.isOK()) {
@@ -495,11 +490,21 @@ public class Websocket {
     }
 
     public void onGetPinStatusResponseEvent(@ObservesAsync GetPinStatusResponseEvent getPinStatusResponseEvent) {
-        assureChromeIsOpen();
+        
         getPinStatusResponseEvent.getReplyTo().getAsyncRemote().sendObject(getPinStatusResponseEvent,
                 result -> {
                     if (!result.isOK()) {
                         ereLog.fatal("Unable to send GetPinStatusResponseEvent: " + result.getException());
+                    }
+                });
+    }
+
+    public void onSaveSettingsResponseEvent(@ObservesAsync SaveSettingsResponseEvent saveSettingsResponseEvent) {
+        saveSettingsResponseEvent.getReplyTo().getAsyncRemote().sendObject(
+        "{\"type\": \"SaveSettingsResponseEvent\", \"payload\": " + jsonbFactory.toJson(saveSettingsResponseEvent) + ", \"replyToMessageId\": \""+saveSettingsResponseEvent.getReplyToMessageId()+"\"}",
+                result -> {
+                    if (!result.isOK()) {
+                        ereLog.fatal("Unable to send SaveSettingsResponseEvent: " + result.getException());
                     }
                 });
     }
@@ -530,18 +535,6 @@ public class Websocket {
 
     String generateJson(GetPinStatusResponseEvent getPinStatusResponseEvent) {
         return jsonbFactory.toJson(getPinStatusResponseEvent.getGetPinStatusResponse());
-    }
-
-    void assureChromeIsOpen() {
-        // if nobody is connected to the websocket
-        if (sessions.size() == 0) {
-            try {
-                startWebappInChrome();
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                ereLog.warn("Could not open browser", e);
-            }
-        }
     }
 
     public void onERezeptDocuments(@ObservesAsync ERezeptWithDocumentsEvent eRezeptDocumentsEvent) {
@@ -688,22 +681,4 @@ public class Websocket {
         return message;
     }
 
-    private void startWebappInChrome() {
-        try {
-            if (Files.exists(Path.of(CHROME_X86_PATH))) {
-                Runtime.getRuntime().exec(CHROME_X86_PATH + " http://localhost:8080/frontend/app/src/index.html");
-            } else if (Files.exists(Path.of(CHROME_X64_PATH))) {
-                Runtime.getRuntime().exec(CHROME_X64_PATH + " http://localhost:8080/frontend/app/src/index.html");
-            } else {
-                ereLog.warn("Could not start the webapp on Chrome as no Chrome was detected");
-                // If you're not on Windows but have Chrome as a default browser
-                if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-                    Desktop.getDesktop().browse(new URI("http://localhost:8080/frontend/app/src/index.html"));
-                }
-            }
-        } catch (IOException | URISyntaxException e) {
-            ereLog.error("There was a problem when opening the browser:");
-            e.printStackTrace();
-        }
-    }
 }

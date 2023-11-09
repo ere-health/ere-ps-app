@@ -1,24 +1,16 @@
 package health.ere.ps.event;
 
-import javax.websocket.Session;
-
 import health.ere.ps.model.config.UserConfigurations;
 
-public class SaveSettingsEvent extends AbstractEvent {
+public class SaveSettingsResponseEvent extends AbstractEvent {
     private UserConfigurations userConfigurations;
 
-    public SaveSettingsEvent() {
+    public SaveSettingsResponseEvent() {
 
     }
 
-    public SaveSettingsEvent(UserConfigurations userConfigurations) {
+    public SaveSettingsResponseEvent(UserConfigurations userConfigurations) {
         setUserConfigurations(userConfigurations);
-    }
-
-    public SaveSettingsEvent(UserConfigurations userConfigurations, Session senderSession, String messageId) {
-        setUserConfigurations(userConfigurations);
-        setReplyTo(senderSession);
-        setId(messageId);
     }
 
     public UserConfigurations getUserConfigurations() {

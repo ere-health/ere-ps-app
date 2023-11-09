@@ -14,6 +14,7 @@ import javax.enterprise.event.ObservesAsync;
 import javax.inject.Inject;
 
 import health.ere.ps.event.SaveSettingsEvent;
+import health.ere.ps.event.SaveSettingsResponseEvent;
 import health.ere.ps.event.config.UserConfigurationsUpdateEvent;
 import health.ere.ps.model.config.UserConfigurations;
 
@@ -24,6 +25,9 @@ public class UserConfigurationService {
 
     @Inject
     Event<UserConfigurationsUpdateEvent> configurationsUpdateEvent;
+
+    @Inject
+    Event<SaveSettingsResponseEvent> saveSettingsResponseEvent;
 
     private String getConfigFilePath() {
         // TODO configure proper file path
@@ -90,5 +94,11 @@ public class UserConfigurationService {
 
     public void onSaveSettingsEvent(@ObservesAsync SaveSettingsEvent saveSettingsEvent) {
         updateConfig(saveSettingsEvent.getUserConfigurations());
+        SaveSettingsResponseEvent message = new SaveSettingsResponseEvent(saveSettingsEvent.getUserConfigurations());
+        message.setReplyTo(saveSettingsEvent.getReplyTo());
+        message.setReplyToMessageId(saveSettingsEvent.getId());
+        saveSettingsResponseEvent.fireAsync(message);
     }
+
+
 }
