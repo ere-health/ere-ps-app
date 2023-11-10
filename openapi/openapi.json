@@ -92,6 +92,44 @@
         }
       }
     },
+    "/pharmacy/Task" : {
+      "get" : {
+        "parameters" : [ {
+          "name" : "egkHandle",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "smcbHandle",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Bundle"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/status" : {
+      "get" : {
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
     "/validate" : {
       "post" : {
         "requestBody" : {
@@ -210,6 +248,22 @@
         }
       }
     },
+    "/workflow/idp-token" : {
+      "get" : {
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/workflow/sign" : {
       "post" : {
         "requestBody" : {
@@ -230,6 +284,13 @@
     },
     "/workflow/task" : {
       "post" : {
+        "parameters" : [ {
+          "name" : "flowtype",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "OK"
@@ -284,6 +345,1219 @@
           },
           "taskId" : {
             "type" : "string"
+          }
+        }
+      },
+      "Address" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Extension"
+            }
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "city" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "country" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "district" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "line" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/StringType"
+            }
+          },
+          "period" : {
+            "$ref" : "#/components/schemas/Period"
+          },
+          "postalCode" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "state" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "text" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "type" : {
+            "$ref" : "#/components/schemas/EnumerationAddressType"
+          },
+          "use" : {
+            "$ref" : "#/components/schemas/EnumerationAddressUse"
+          },
+          "cityElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "countryElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "districtElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "postalCodeElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "stateElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "textElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "typeElement" : {
+            "$ref" : "#/components/schemas/EnumerationAddressType"
+          },
+          "useElement" : {
+            "$ref" : "#/components/schemas/EnumerationAddressUse"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "AddressType" : {
+        "enum" : [ "BOTH", "NULL", "PHYSICAL", "POSTAL" ],
+        "type" : "string"
+      },
+      "AddressUse" : {
+        "enum" : [ "BILLING", "HOME", "NULL", "OLD", "TEMP", "WORK" ],
+        "type" : "string"
+      },
+      "Base64BinaryType" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "myCoercedValue" : {
+            "type" : "array",
+            "items" : {
+              "format" : "byte",
+              "type" : "string"
+            }
+          },
+          "myStringValue" : {
+            "type" : "string"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "myValue" : {
+            "type" : "array",
+            "items" : {
+              "format" : "byte",
+              "type" : "string"
+            }
+          },
+          "value" : {
+            "type" : "array",
+            "items" : {
+              "format" : "byte",
+              "type" : "string"
+            }
+          },
+          "valueAsString" : {
+            "type" : "string"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "BaseCalendar" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "eras" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Era"
+            }
+          },
+          "calendarDate" : {
+            "$ref" : "#/components/schemas/CalendarDate"
+          },
+          "weekLength" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        }
+      },
+      "BaseDateTimeType" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "valueAsString" : {
+            "type" : "string"
+          },
+          "myCoercedValue" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "myStringValue" : {
+            "type" : "string"
+          },
+          "value" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "myFractionalSeconds" : {
+            "type" : "string"
+          },
+          "myPrecision" : {
+            "$ref" : "#/components/schemas/TemporalPrecisionEnum"
+          },
+          "myTimeZone" : {
+            "$ref" : "#/components/schemas/TimeZone"
+          },
+          "myTimeZoneZulu" : {
+            "type" : "boolean"
+          },
+          "day" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "defaultPrecisionForDatatype" : {
+            "$ref" : "#/components/schemas/TemporalPrecisionEnum"
+          },
+          "highEdge" : {
+            "$ref" : "#/components/schemas/BaseDateTimeType"
+          },
+          "hour" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "millis" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "minute" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "month" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "nanos" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "precision" : {
+            "$ref" : "#/components/schemas/TemporalPrecisionEnum"
+          },
+          "second" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "secondsMilli" : {
+            "format" : "float",
+            "type" : "number"
+          },
+          "timeZone" : {
+            "$ref" : "#/components/schemas/TimeZone"
+          },
+          "valueAsCalendar" : {
+            "$ref" : "#/components/schemas/GregorianCalendar"
+          },
+          "year" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "timeZoneZulu" : {
+            "type" : "boolean"
+          },
+          "today" : {
+            "type" : "boolean"
+          },
+          "valueAsV3String" : {
+            "type" : "string"
+          }
+        }
+      },
+      "BooleanType" : {
+        "type" : "object",
+        "properties" : {
+          "value" : {
+            "type" : "object"
+          },
+          "valueAsString" : {
+            "type" : "string"
+          },
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "myCoercedValue" : {
+            "type" : "boolean"
+          },
+          "myStringValue" : {
+            "type" : "string"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "Bundle" : {
+        "type" : "object",
+        "properties" : {
+          "idElement" : {
+            "$ref" : "#/components/schemas/IIdType"
+          },
+          "meta" : {
+            "$ref" : "#/components/schemas/IBaseMetaType"
+          },
+          "structureFhirVersionEnum" : {
+            "$ref" : "#/components/schemas/FhirVersionEnum"
+          },
+          "deleted" : {
+            "type" : "boolean"
+          },
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/IdType"
+          },
+          "implicitRules" : {
+            "$ref" : "#/components/schemas/UriType"
+          },
+          "language" : {
+            "$ref" : "#/components/schemas/CodeType"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idPart" : {
+            "type" : "string"
+          },
+          "implicitRulesElement" : {
+            "$ref" : "#/components/schemas/UriType"
+          },
+          "languageElement" : {
+            "$ref" : "#/components/schemas/CodeType"
+          },
+          "entry" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/BundleEntryComponent"
+            }
+          },
+          "identifier" : {
+            "$ref" : "#/components/schemas/Identifier"
+          },
+          "link" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/BundleLinkComponent"
+            }
+          },
+          "signature" : {
+            "$ref" : "#/components/schemas/Signature"
+          },
+          "timestamp" : {
+            "$ref" : "#/components/schemas/InstantType"
+          },
+          "total" : {
+            "$ref" : "#/components/schemas/UnsignedIntType"
+          },
+          "type" : {
+            "$ref" : "#/components/schemas/EnumerationBundleType"
+          },
+          "entryFirstRep" : {
+            "$ref" : "#/components/schemas/BundleEntryComponent"
+          },
+          "linkFirstRep" : {
+            "$ref" : "#/components/schemas/BundleLinkComponent"
+          },
+          "resourceType" : {
+            "$ref" : "#/components/schemas/ResourceType"
+          },
+          "timestampElement" : {
+            "$ref" : "#/components/schemas/InstantType"
+          },
+          "totalElement" : {
+            "$ref" : "#/components/schemas/UnsignedIntType"
+          },
+          "typeElement" : {
+            "$ref" : "#/components/schemas/EnumerationBundleType"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "BundleEntryComponent" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "modifierExtension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "modifierExtensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "fullUrl" : {
+            "$ref" : "#/components/schemas/UriType"
+          },
+          "link" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/BundleLinkComponent"
+            }
+          },
+          "request" : {
+            "$ref" : "#/components/schemas/BundleEntryRequestComponent"
+          },
+          "resource" : {
+            "$ref" : "#/components/schemas/Resource"
+          },
+          "response" : {
+            "$ref" : "#/components/schemas/BundleEntryResponseComponent"
+          },
+          "search" : {
+            "$ref" : "#/components/schemas/BundleEntrySearchComponent"
+          },
+          "fullUrlElement" : {
+            "$ref" : "#/components/schemas/UriType"
+          },
+          "linkFirstRep" : {
+            "$ref" : "#/components/schemas/BundleLinkComponent"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "BundleEntryRequestComponent" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "modifierExtension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "modifierExtensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "ifMatch" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "ifModifiedSince" : {
+            "$ref" : "#/components/schemas/InstantType"
+          },
+          "ifNoneExist" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "ifNoneMatch" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "method" : {
+            "$ref" : "#/components/schemas/EnumerationHTTPVerb"
+          },
+          "url" : {
+            "$ref" : "#/components/schemas/UriType"
+          },
+          "ifMatchElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "ifModifiedSinceElement" : {
+            "$ref" : "#/components/schemas/InstantType"
+          },
+          "ifNoneExistElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "ifNoneMatchElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "methodElement" : {
+            "$ref" : "#/components/schemas/EnumerationHTTPVerb"
+          },
+          "urlElement" : {
+            "$ref" : "#/components/schemas/UriType"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "BundleEntryResponseComponent" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "modifierExtension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "modifierExtensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "etag" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "lastModified" : {
+            "$ref" : "#/components/schemas/InstantType"
+          },
+          "location" : {
+            "$ref" : "#/components/schemas/UriType"
+          },
+          "outcome" : {
+            "$ref" : "#/components/schemas/Resource"
+          },
+          "status" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "etagElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "lastModifiedElement" : {
+            "$ref" : "#/components/schemas/InstantType"
+          },
+          "locationElement" : {
+            "$ref" : "#/components/schemas/UriType"
+          },
+          "statusElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "BundleEntrySearchComponent" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "modifierExtension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "modifierExtensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "mode" : {
+            "$ref" : "#/components/schemas/EnumerationSearchEntryMode"
+          },
+          "score" : {
+            "$ref" : "#/components/schemas/DecimalType"
+          },
+          "modeElement" : {
+            "$ref" : "#/components/schemas/EnumerationSearchEntryMode"
+          },
+          "scoreElement" : {
+            "$ref" : "#/components/schemas/DecimalType"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "BundleLinkComponent" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "modifierExtension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "modifierExtensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "relation" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "url" : {
+            "$ref" : "#/components/schemas/UriType"
+          },
+          "relationElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "urlElement" : {
+            "$ref" : "#/components/schemas/UriType"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "BundleType" : {
+        "enum" : [ "BATCH", "BATCHRESPONSE", "COLLECTION", "DOCUMENT", "HISTORY", "MESSAGE", "NULL", "SEARCHSET", "TRANSACTION", "TRANSACTIONRESPONSE" ],
+        "type" : "string"
+      },
+      "CalendarDate" : {
+        "type" : "object",
+        "properties" : {
+          "dayOfMonth" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "dayOfWeek" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "daylightSaving" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "era" : {
+            "$ref" : "#/components/schemas/Era"
+          },
+          "forceStandardTime" : {
+            "type" : "boolean"
+          },
+          "fraction" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "hours" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "leapYear" : {
+            "type" : "boolean"
+          },
+          "locale" : {
+            "$ref" : "#/components/schemas/Locale"
+          },
+          "millis" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "minutes" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "month" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "normalized" : {
+            "type" : "boolean"
+          },
+          "seconds" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "year" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "zoneOffset" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "zoneinfo" : {
+            "$ref" : "#/components/schemas/TimeZone"
+          },
+          "timeOfDay" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "zone" : {
+            "$ref" : "#/components/schemas/TimeZone"
+          },
+          "daylightTime" : {
+            "type" : "boolean"
+          },
+          "standardTime" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "CanonicalType" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "myCoercedValue" : {
+            "type" : "string"
+          },
+          "myStringValue" : {
+            "type" : "string"
+          },
+          "value" : {
+            "type" : "string"
+          },
+          "valueAsString" : {
+            "type" : "string"
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "primitive" : {
+            "type" : "boolean"
           }
         }
       },
@@ -459,6 +1733,711 @@
           }
         }
       },
+      "CodeType" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "myCoercedValue" : {
+            "type" : "string"
+          },
+          "myStringValue" : {
+            "type" : "string"
+          },
+          "value" : {
+            "type" : "string"
+          },
+          "valueAsString" : {
+            "type" : "string"
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "valueNotNull" : {
+            "type" : "string"
+          },
+          "system" : {
+            "type" : "string"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "display" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "string"
+          }
+        }
+      },
+      "CodeableConcept" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Extension"
+            }
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "coding" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Coding"
+            }
+          },
+          "text" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "codingFirstRep" : {
+            "$ref" : "#/components/schemas/Coding"
+          },
+          "textElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "Coding" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Extension"
+            }
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "code" : {
+            "$ref" : "#/components/schemas/CodeType"
+          },
+          "display" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "system" : {
+            "$ref" : "#/components/schemas/UriType"
+          },
+          "userSelected" : {
+            "$ref" : "#/components/schemas/BooleanType"
+          },
+          "version" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "codeElement" : {
+            "$ref" : "#/components/schemas/CodeType"
+          },
+          "displayElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "systemElement" : {
+            "$ref" : "#/components/schemas/UriType"
+          },
+          "userSelectedElement" : {
+            "$ref" : "#/components/schemas/BooleanType"
+          },
+          "versionElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "ContactPoint" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Extension"
+            }
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "period" : {
+            "$ref" : "#/components/schemas/Period"
+          },
+          "rank" : {
+            "$ref" : "#/components/schemas/PositiveIntType"
+          },
+          "system" : {
+            "$ref" : "#/components/schemas/EnumerationContactPointSystem"
+          },
+          "use" : {
+            "$ref" : "#/components/schemas/EnumerationContactPointUse"
+          },
+          "value" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "rankElement" : {
+            "$ref" : "#/components/schemas/PositiveIntType"
+          },
+          "systemElement" : {
+            "$ref" : "#/components/schemas/EnumerationContactPointSystem"
+          },
+          "useElement" : {
+            "$ref" : "#/components/schemas/EnumerationContactPointUse"
+          },
+          "valueElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "ContactPointSystem" : {
+        "enum" : [ "EMAIL", "FAX", "NULL", "OTHER", "PAGER", "PHONE", "SMS", "URL" ],
+        "type" : "string"
+      },
+      "ContactPointUse" : {
+        "enum" : [ "HOME", "MOBILE", "NULL", "OLD", "TEMP", "WORK" ],
+        "type" : "string"
+      },
+      "Date" : {
+        "type" : "object",
+        "properties" : {
+          "dayOfMonth" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "dayOfWeek" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "daylightSaving" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "era" : {
+            "$ref" : "#/components/schemas/Era"
+          },
+          "forceStandardTime" : {
+            "type" : "boolean"
+          },
+          "fraction" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "hours" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "leapYear" : {
+            "type" : "boolean"
+          },
+          "locale" : {
+            "$ref" : "#/components/schemas/Locale"
+          },
+          "millis" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "minutes" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "month" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "normalized" : {
+            "type" : "boolean"
+          },
+          "seconds" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "year" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "zoneOffset" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "zoneinfo" : {
+            "$ref" : "#/components/schemas/TimeZone"
+          },
+          "timeOfDay" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "zone" : {
+            "$ref" : "#/components/schemas/TimeZone"
+          },
+          "daylightTime" : {
+            "type" : "boolean"
+          },
+          "standardTime" : {
+            "type" : "boolean"
+          },
+          "cachedFixedDateJan1" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "cachedFixedDateNextJan1" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "cachedYear" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "cachedJan1" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "normalizedYear" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        }
+      },
+      "DateTimeType" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "valueAsString" : {
+            "type" : "string"
+          },
+          "myCoercedValue" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "myStringValue" : {
+            "type" : "string"
+          },
+          "value" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "myFractionalSeconds" : {
+            "type" : "string"
+          },
+          "myPrecision" : {
+            "$ref" : "#/components/schemas/TemporalPrecisionEnum"
+          },
+          "myTimeZone" : {
+            "$ref" : "#/components/schemas/TimeZone"
+          },
+          "myTimeZoneZulu" : {
+            "type" : "boolean"
+          },
+          "day" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "highEdge" : {
+            "$ref" : "#/components/schemas/BaseDateTimeType"
+          },
+          "hour" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "millis" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "minute" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "month" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "nanos" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "precision" : {
+            "$ref" : "#/components/schemas/TemporalPrecisionEnum"
+          },
+          "second" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "secondsMilli" : {
+            "format" : "float",
+            "type" : "number"
+          },
+          "timeZone" : {
+            "$ref" : "#/components/schemas/TimeZone"
+          },
+          "valueAsCalendar" : {
+            "$ref" : "#/components/schemas/GregorianCalendar"
+          },
+          "year" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "timeZoneZulu" : {
+            "type" : "boolean"
+          },
+          "today" : {
+            "type" : "boolean"
+          },
+          "valueAsV3String" : {
+            "type" : "string"
+          },
+          "asV3" : {
+            "type" : "string"
+          },
+          "defaultPrecisionForDatatype" : {
+            "$ref" : "#/components/schemas/TemporalPrecisionEnum"
+          },
+          "tzHour" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "tzMin" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "tzSign" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "DecimalType" : {
+        "type" : "object",
+        "properties" : {
+          "valueAsString" : {
+            "type" : "string"
+          },
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "myCoercedValue" : {
+            "type" : "number"
+          },
+          "myStringValue" : {
+            "type" : "string"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "valueAsInteger" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "valueAsNumber" : {
+            "type" : "number"
+          },
+          "value" : {
+            "format" : "double",
+            "type" : "number"
+          }
+        }
+      },
       "Detail" : {
         "type" : "object",
         "properties" : {
@@ -471,6 +2450,1262 @@
               "name" : "Encoding",
               "attribute" : true
             }
+          }
+        }
+      },
+      "Endpoint" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/IIdType"
+          },
+          "languageElement" : {
+            "$ref" : "#/components/schemas/IPrimitiveTypeString"
+          },
+          "meta" : {
+            "$ref" : "#/components/schemas/IBaseMetaType"
+          },
+          "structureFhirVersionEnum" : {
+            "$ref" : "#/components/schemas/FhirVersionEnum"
+          },
+          "deleted" : {
+            "type" : "boolean"
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "implicitRules" : {
+            "$ref" : "#/components/schemas/UriType"
+          },
+          "language" : {
+            "$ref" : "#/components/schemas/CodeType"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idPart" : {
+            "type" : "string"
+          },
+          "implicitRulesElement" : {
+            "$ref" : "#/components/schemas/UriType"
+          },
+          "contained" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Resource"
+            }
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Extension"
+            }
+          },
+          "modifierExtension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Extension"
+            }
+          },
+          "text" : {
+            "$ref" : "#/components/schemas/Narrative"
+          },
+          "address" : {
+            "$ref" : "#/components/schemas/UrlType"
+          },
+          "connectionType" : {
+            "$ref" : "#/components/schemas/Coding"
+          },
+          "contact" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ContactPoint"
+            }
+          },
+          "header" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/StringType"
+            }
+          },
+          "identifier" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Identifier"
+            }
+          },
+          "managingOrganization" : {
+            "$ref" : "#/components/schemas/Reference"
+          },
+          "managingOrganizationTarget" : {
+            "$ref" : "#/components/schemas/Organization"
+          },
+          "name" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "payloadMimeType" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CodeType"
+            }
+          },
+          "payloadType" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CodeableConcept"
+            }
+          },
+          "period" : {
+            "$ref" : "#/components/schemas/Period"
+          },
+          "status" : {
+            "$ref" : "#/components/schemas/EnumerationEndpointStatus"
+          },
+          "addressElement" : {
+            "$ref" : "#/components/schemas/UrlType"
+          },
+          "contactFirstRep" : {
+            "$ref" : "#/components/schemas/ContactPoint"
+          },
+          "identifierFirstRep" : {
+            "$ref" : "#/components/schemas/Identifier"
+          },
+          "nameElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "payloadTypeFirstRep" : {
+            "$ref" : "#/components/schemas/CodeableConcept"
+          },
+          "resourceType" : {
+            "$ref" : "#/components/schemas/ResourceType"
+          },
+          "statusElement" : {
+            "$ref" : "#/components/schemas/EnumerationEndpointStatus"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "EndpointStatus" : {
+        "enum" : [ "ACTIVE", "ENTEREDINERROR", "ERROR", "NULL", "OFF", "SUSPENDED", "TEST" ],
+        "type" : "string"
+      },
+      "EnumFactoryAddressType" : {
+        "type" : "object"
+      },
+      "EnumFactoryAddressUse" : {
+        "type" : "object"
+      },
+      "EnumFactoryBundleType" : {
+        "type" : "object"
+      },
+      "EnumFactoryContactPointSystem" : {
+        "type" : "object"
+      },
+      "EnumFactoryContactPointUse" : {
+        "type" : "object"
+      },
+      "EnumFactoryEndpointStatus" : {
+        "type" : "object"
+      },
+      "EnumFactoryHTTPVerb" : {
+        "type" : "object"
+      },
+      "EnumFactoryIdentifierUse" : {
+        "type" : "object"
+      },
+      "EnumFactoryNameUse" : {
+        "type" : "object"
+      },
+      "EnumFactoryNarrativeStatus" : {
+        "type" : "object"
+      },
+      "EnumFactorySearchEntryMode" : {
+        "type" : "object"
+      },
+      "EnumerationAddressType" : {
+        "type" : "object",
+        "properties" : {
+          "value" : {
+            "$ref" : "#/components/schemas/AddressType"
+          },
+          "valueAsString" : {
+            "type" : "string"
+          },
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "myCoercedValue" : {
+            "$ref" : "#/components/schemas/AddressType"
+          },
+          "myStringValue" : {
+            "type" : "string"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "myEnumFactory" : {
+            "$ref" : "#/components/schemas/EnumFactoryAddressType"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "display" : {
+            "type" : "string"
+          },
+          "enumFactory" : {
+            "$ref" : "#/components/schemas/EnumFactoryAddressType"
+          },
+          "system" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "string"
+          }
+        }
+      },
+      "EnumerationAddressUse" : {
+        "type" : "object",
+        "properties" : {
+          "value" : {
+            "$ref" : "#/components/schemas/AddressUse"
+          },
+          "valueAsString" : {
+            "type" : "string"
+          },
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "myCoercedValue" : {
+            "$ref" : "#/components/schemas/AddressUse"
+          },
+          "myStringValue" : {
+            "type" : "string"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "myEnumFactory" : {
+            "$ref" : "#/components/schemas/EnumFactoryAddressUse"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "display" : {
+            "type" : "string"
+          },
+          "enumFactory" : {
+            "$ref" : "#/components/schemas/EnumFactoryAddressUse"
+          },
+          "system" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "string"
+          }
+        }
+      },
+      "EnumerationBundleType" : {
+        "type" : "object",
+        "properties" : {
+          "value" : {
+            "$ref" : "#/components/schemas/BundleType"
+          },
+          "valueAsString" : {
+            "type" : "string"
+          },
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "myCoercedValue" : {
+            "$ref" : "#/components/schemas/BundleType"
+          },
+          "myStringValue" : {
+            "type" : "string"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "myEnumFactory" : {
+            "$ref" : "#/components/schemas/EnumFactoryBundleType"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "display" : {
+            "type" : "string"
+          },
+          "enumFactory" : {
+            "$ref" : "#/components/schemas/EnumFactoryBundleType"
+          },
+          "system" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "string"
+          }
+        }
+      },
+      "EnumerationContactPointSystem" : {
+        "type" : "object",
+        "properties" : {
+          "value" : {
+            "$ref" : "#/components/schemas/ContactPointSystem"
+          },
+          "valueAsString" : {
+            "type" : "string"
+          },
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "myCoercedValue" : {
+            "$ref" : "#/components/schemas/ContactPointSystem"
+          },
+          "myStringValue" : {
+            "type" : "string"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "myEnumFactory" : {
+            "$ref" : "#/components/schemas/EnumFactoryContactPointSystem"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "display" : {
+            "type" : "string"
+          },
+          "enumFactory" : {
+            "$ref" : "#/components/schemas/EnumFactoryContactPointSystem"
+          },
+          "system" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "string"
+          }
+        }
+      },
+      "EnumerationContactPointUse" : {
+        "type" : "object",
+        "properties" : {
+          "value" : {
+            "$ref" : "#/components/schemas/ContactPointUse"
+          },
+          "valueAsString" : {
+            "type" : "string"
+          },
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "myCoercedValue" : {
+            "$ref" : "#/components/schemas/ContactPointUse"
+          },
+          "myStringValue" : {
+            "type" : "string"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "myEnumFactory" : {
+            "$ref" : "#/components/schemas/EnumFactoryContactPointUse"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "display" : {
+            "type" : "string"
+          },
+          "enumFactory" : {
+            "$ref" : "#/components/schemas/EnumFactoryContactPointUse"
+          },
+          "system" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "string"
+          }
+        }
+      },
+      "EnumerationEndpointStatus" : {
+        "type" : "object",
+        "properties" : {
+          "value" : {
+            "$ref" : "#/components/schemas/EndpointStatus"
+          },
+          "valueAsString" : {
+            "type" : "string"
+          },
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "myCoercedValue" : {
+            "$ref" : "#/components/schemas/EndpointStatus"
+          },
+          "myStringValue" : {
+            "type" : "string"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "myEnumFactory" : {
+            "$ref" : "#/components/schemas/EnumFactoryEndpointStatus"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "display" : {
+            "type" : "string"
+          },
+          "enumFactory" : {
+            "$ref" : "#/components/schemas/EnumFactoryEndpointStatus"
+          },
+          "system" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "string"
+          }
+        }
+      },
+      "EnumerationHTTPVerb" : {
+        "type" : "object",
+        "properties" : {
+          "value" : {
+            "$ref" : "#/components/schemas/HTTPVerb"
+          },
+          "valueAsString" : {
+            "type" : "string"
+          },
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "myCoercedValue" : {
+            "$ref" : "#/components/schemas/HTTPVerb"
+          },
+          "myStringValue" : {
+            "type" : "string"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "myEnumFactory" : {
+            "$ref" : "#/components/schemas/EnumFactoryHTTPVerb"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "display" : {
+            "type" : "string"
+          },
+          "enumFactory" : {
+            "$ref" : "#/components/schemas/EnumFactoryHTTPVerb"
+          },
+          "system" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "string"
+          }
+        }
+      },
+      "EnumerationIdentifierUse" : {
+        "type" : "object",
+        "properties" : {
+          "value" : {
+            "$ref" : "#/components/schemas/IdentifierUse"
+          },
+          "valueAsString" : {
+            "type" : "string"
+          },
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "myCoercedValue" : {
+            "$ref" : "#/components/schemas/IdentifierUse"
+          },
+          "myStringValue" : {
+            "type" : "string"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "myEnumFactory" : {
+            "$ref" : "#/components/schemas/EnumFactoryIdentifierUse"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "display" : {
+            "type" : "string"
+          },
+          "enumFactory" : {
+            "$ref" : "#/components/schemas/EnumFactoryIdentifierUse"
+          },
+          "system" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "string"
+          }
+        }
+      },
+      "EnumerationNameUse" : {
+        "type" : "object",
+        "properties" : {
+          "value" : {
+            "$ref" : "#/components/schemas/NameUse"
+          },
+          "valueAsString" : {
+            "type" : "string"
+          },
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "myCoercedValue" : {
+            "$ref" : "#/components/schemas/NameUse"
+          },
+          "myStringValue" : {
+            "type" : "string"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "myEnumFactory" : {
+            "$ref" : "#/components/schemas/EnumFactoryNameUse"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "display" : {
+            "type" : "string"
+          },
+          "enumFactory" : {
+            "$ref" : "#/components/schemas/EnumFactoryNameUse"
+          },
+          "system" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "string"
+          }
+        }
+      },
+      "EnumerationNarrativeStatus" : {
+        "type" : "object",
+        "properties" : {
+          "value" : {
+            "$ref" : "#/components/schemas/NarrativeStatus"
+          },
+          "valueAsString" : {
+            "type" : "string"
+          },
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "myCoercedValue" : {
+            "$ref" : "#/components/schemas/NarrativeStatus"
+          },
+          "myStringValue" : {
+            "type" : "string"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "myEnumFactory" : {
+            "$ref" : "#/components/schemas/EnumFactoryNarrativeStatus"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "display" : {
+            "type" : "string"
+          },
+          "enumFactory" : {
+            "$ref" : "#/components/schemas/EnumFactoryNarrativeStatus"
+          },
+          "system" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "string"
+          }
+        }
+      },
+      "EnumerationSearchEntryMode" : {
+        "type" : "object",
+        "properties" : {
+          "value" : {
+            "$ref" : "#/components/schemas/SearchEntryMode"
+          },
+          "valueAsString" : {
+            "type" : "string"
+          },
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "myCoercedValue" : {
+            "$ref" : "#/components/schemas/SearchEntryMode"
+          },
+          "myStringValue" : {
+            "type" : "string"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "myEnumFactory" : {
+            "$ref" : "#/components/schemas/EnumFactorySearchEntryMode"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "display" : {
+            "type" : "string"
+          },
+          "enumFactory" : {
+            "$ref" : "#/components/schemas/EnumFactorySearchEntryMode"
+          },
+          "system" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Era" : {
+        "type" : "object",
+        "properties" : {
+          "abbr" : {
+            "type" : "string"
+          },
+          "hash" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "localTime" : {
+            "type" : "boolean"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "since" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "sinceDate" : {
+            "$ref" : "#/components/schemas/CalendarDate"
+          },
+          "abbreviation" : {
+            "type" : "string"
           }
         }
       },
@@ -503,6 +3738,85 @@
           }
         }
       },
+      "Extension" : {
+        "type" : "object",
+        "properties" : {
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object"
+            }
+          },
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "valueAsPrimitive" : {
+            "$ref" : "#/components/schemas/IPrimitiveTypeObject"
+          },
+          "url" : {
+            "$ref" : "#/components/schemas/UriType"
+          },
+          "value" : {
+            "$ref" : "#/components/schemas/Type"
+          },
+          "urlElement" : {
+            "$ref" : "#/components/schemas/UriType"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "FhirVersionEnum" : {
+        "enum" : [ "DSTU2", "DSTU2_1", "DSTU2_HL7ORG", "DSTU3", "R4", "R4B", "R5" ],
+        "type" : "string"
+      },
       "GetCardsResponse" : {
         "type" : "object",
         "properties" : {
@@ -526,8 +3840,1560 @@
           }
         }
       },
+      "GregorianCalendar" : {
+        "type" : "object",
+        "properties" : {
+          "areFieldsSet" : {
+            "type" : "boolean"
+          },
+          "fields" : {
+            "type" : "array",
+            "items" : {
+              "format" : "int32",
+              "type" : "integer"
+            }
+          },
+          "firstDayOfWeek" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "isSet" : {
+            "type" : "array",
+            "items" : {
+              "type" : "boolean"
+            }
+          },
+          "isTimeSet" : {
+            "type" : "boolean"
+          },
+          "lenient" : {
+            "type" : "boolean"
+          },
+          "minimalDaysInFirstWeek" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "nextStamp" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "serialVersionOnStream" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "time" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "zone" : {
+            "$ref" : "#/components/schemas/TimeZone"
+          },
+          "setStateFields" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "timeInMillis" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "fullyNormalized" : {
+            "type" : "boolean"
+          },
+          "partiallyNormalized" : {
+            "type" : "boolean"
+          },
+          "fieldsComputed" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "fieldsNormalized" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "weekCountData" : {
+            "$ref" : "#/components/schemas/Locale"
+          },
+          "zoneShared" : {
+            "type" : "boolean"
+          },
+          "gregorianCutover" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "calendarType" : {
+            "type" : "string"
+          },
+          "currentFixedDate" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "cutoverCalendarSystem" : {
+            "$ref" : "#/components/schemas/BaseCalendar"
+          },
+          "gregorianChange" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "lastJulianDate" : {
+            "$ref" : "#/components/schemas/Date"
+          },
+          "normalizedCalendar" : {
+            "$ref" : "#/components/schemas/GregorianCalendar"
+          },
+          "timeZone" : {
+            "$ref" : "#/components/schemas/TimeZone"
+          },
+          "weekYear" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "weeksInWeekYear" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "yearOffsetInMillis" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "weekDateSupported" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "HTTPVerb" : {
+        "enum" : [ "DELETE", "GET", "HEAD", "NULL", "PATCH", "POST", "PUT" ],
+        "type" : "string"
+      },
+      "HumanName" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Extension"
+            }
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "family" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "given" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/StringType"
+            }
+          },
+          "period" : {
+            "$ref" : "#/components/schemas/Period"
+          },
+          "prefix" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/StringType"
+            }
+          },
+          "suffix" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/StringType"
+            }
+          },
+          "text" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "use" : {
+            "$ref" : "#/components/schemas/EnumerationNameUse"
+          },
+          "familyElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "givenAsSingleString" : {
+            "type" : "string"
+          },
+          "nameAsSingleString" : {
+            "type" : "string"
+          },
+          "prefixAsSingleString" : {
+            "type" : "string"
+          },
+          "suffixAsSingleString" : {
+            "type" : "string"
+          },
+          "textElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "useElement" : {
+            "$ref" : "#/components/schemas/EnumerationNameUse"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "IBaseCoding" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "display" : {
+            "type" : "string"
+          },
+          "system" : {
+            "type" : "string"
+          },
+          "userSelected" : {
+            "type" : "boolean"
+          },
+          "version" : {
+            "type" : "string"
+          }
+        }
+      },
+      "IBaseDatatype" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "IBaseExtensionObjectObject" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object"
+            }
+          },
+          "url" : {
+            "type" : "string"
+          },
+          "value" : {
+            "$ref" : "#/components/schemas/IBaseDatatype"
+          }
+        }
+      },
+      "IBaseMetaType" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "lastUpdated" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "profile" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IPrimitiveTypeString"
+            }
+          },
+          "security" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseCoding"
+            }
+          },
+          "tag" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseCoding"
+            }
+          },
+          "versionId" : {
+            "type" : "string"
+          }
+        }
+      },
+      "IIdType" : {
+        "type" : "object",
+        "properties" : {
+          "valueAsString" : {
+            "type" : "string"
+          },
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "baseUrl" : {
+            "type" : "string"
+          },
+          "idPart" : {
+            "type" : "string"
+          },
+          "idPartAsLong" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "resourceType" : {
+            "type" : "string"
+          },
+          "value" : {
+            "type" : "string"
+          },
+          "versionIdPart" : {
+            "type" : "string"
+          },
+          "versionIdPartAsLong" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "absolute" : {
+            "type" : "boolean"
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "idPartValid" : {
+            "type" : "boolean"
+          },
+          "idPartValidLong" : {
+            "type" : "boolean"
+          },
+          "local" : {
+            "type" : "boolean"
+          },
+          "versionIdPartValidLong" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "IPrimitiveTypeObject" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "value" : {
+            "type" : "object"
+          },
+          "valueAsString" : {
+            "type" : "string"
+          }
+        }
+      },
+      "IPrimitiveTypeString" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "value" : {
+            "type" : "string"
+          },
+          "valueAsString" : {
+            "type" : "string"
+          }
+        }
+      },
+      "IdType" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "myCoercedValue" : {
+            "type" : "string"
+          },
+          "myStringValue" : {
+            "type" : "string"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "myBaseUrl" : {
+            "type" : "string"
+          },
+          "myHaveComponentParts" : {
+            "type" : "boolean"
+          },
+          "myResourceType" : {
+            "type" : "string"
+          },
+          "myUnqualifiedId" : {
+            "type" : "string"
+          },
+          "myUnqualifiedVersionId" : {
+            "type" : "string"
+          },
+          "baseUrl" : {
+            "type" : "string"
+          },
+          "idPart" : {
+            "type" : "string"
+          },
+          "idPartAsBigDecimal" : {
+            "type" : "number"
+          },
+          "idPartAsLong" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "resourceType" : {
+            "type" : "string"
+          },
+          "value" : {
+            "type" : "string"
+          },
+          "valueAsString" : {
+            "type" : "string"
+          },
+          "versionIdPart" : {
+            "type" : "string"
+          },
+          "versionIdPartAsLong" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "absolute" : {
+            "type" : "boolean"
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "idPartValid" : {
+            "type" : "boolean"
+          },
+          "idPartValidLong" : {
+            "type" : "boolean"
+          },
+          "local" : {
+            "type" : "boolean"
+          },
+          "urn" : {
+            "type" : "boolean"
+          },
+          "versionIdPartValidLong" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "Identifier" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Extension"
+            }
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "assigner" : {
+            "$ref" : "#/components/schemas/Reference"
+          },
+          "assignerTarget" : {
+            "$ref" : "#/components/schemas/Organization"
+          },
+          "period" : {
+            "$ref" : "#/components/schemas/Period"
+          },
+          "system" : {
+            "$ref" : "#/components/schemas/UriType"
+          },
+          "type" : {
+            "$ref" : "#/components/schemas/CodeableConcept"
+          },
+          "use" : {
+            "$ref" : "#/components/schemas/EnumerationIdentifierUse"
+          },
+          "value" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "systemElement" : {
+            "$ref" : "#/components/schemas/UriType"
+          },
+          "useElement" : {
+            "$ref" : "#/components/schemas/EnumerationIdentifierUse"
+          },
+          "valueElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "IdentifierUse" : {
+        "enum" : [ "NULL", "OFFICIAL", "OLD", "SECONDARY", "TEMP", "USUAL" ],
+        "type" : "string"
+      },
       "InputStream" : {
         "type" : "object"
+      },
+      "InstantType" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "valueAsString" : {
+            "type" : "string"
+          },
+          "myCoercedValue" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "myStringValue" : {
+            "type" : "string"
+          },
+          "value" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "myFractionalSeconds" : {
+            "type" : "string"
+          },
+          "myPrecision" : {
+            "$ref" : "#/components/schemas/TemporalPrecisionEnum"
+          },
+          "myTimeZone" : {
+            "$ref" : "#/components/schemas/TimeZone"
+          },
+          "myTimeZoneZulu" : {
+            "type" : "boolean"
+          },
+          "day" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "highEdge" : {
+            "$ref" : "#/components/schemas/BaseDateTimeType"
+          },
+          "hour" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "millis" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "minute" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "month" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "nanos" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "precision" : {
+            "$ref" : "#/components/schemas/TemporalPrecisionEnum"
+          },
+          "second" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "secondsMilli" : {
+            "format" : "float",
+            "type" : "number"
+          },
+          "timeZone" : {
+            "$ref" : "#/components/schemas/TimeZone"
+          },
+          "valueAsCalendar" : {
+            "$ref" : "#/components/schemas/GregorianCalendar"
+          },
+          "year" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "timeZoneZulu" : {
+            "type" : "boolean"
+          },
+          "today" : {
+            "type" : "boolean"
+          },
+          "valueAsV3String" : {
+            "type" : "string"
+          },
+          "defaultPrecisionForDatatype" : {
+            "$ref" : "#/components/schemas/TemporalPrecisionEnum"
+          }
+        }
+      },
+      "Locale" : {
+        "type" : "object",
+        "properties" : {
+          "country" : {
+            "type" : "string"
+          },
+          "displayCountry" : {
+            "type" : "string"
+          },
+          "displayLanguage" : {
+            "type" : "string"
+          },
+          "displayName" : {
+            "type" : "string"
+          },
+          "displayScript" : {
+            "type" : "string"
+          },
+          "displayVariant" : {
+            "type" : "string"
+          },
+          "extensionKeys" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "format" : "byte",
+              "type" : "string"
+            }
+          },
+          "iSO3Country" : {
+            "type" : "string"
+          },
+          "iSO3Language" : {
+            "type" : "string"
+          },
+          "language" : {
+            "type" : "string"
+          },
+          "script" : {
+            "type" : "string"
+          },
+          "unicodeLocaleAttributes" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "unicodeLocaleKeys" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "variant" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Location" : {
+        "type" : "object",
+        "properties" : {
+          "column" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "line" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        }
+      },
+      "Meta" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Extension"
+            }
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "lastUpdated" : {
+            "$ref" : "#/components/schemas/InstantType"
+          },
+          "profile" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CanonicalType"
+            }
+          },
+          "security" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Coding"
+            }
+          },
+          "source" : {
+            "$ref" : "#/components/schemas/UriType"
+          },
+          "tag" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Coding"
+            }
+          },
+          "versionId" : {
+            "$ref" : "#/components/schemas/IdType"
+          },
+          "lastUpdatedElement" : {
+            "$ref" : "#/components/schemas/InstantType"
+          },
+          "securityFirstRep" : {
+            "$ref" : "#/components/schemas/Coding"
+          },
+          "sourceElement" : {
+            "$ref" : "#/components/schemas/UriType"
+          },
+          "tagFirstRep" : {
+            "$ref" : "#/components/schemas/Coding"
+          },
+          "versionIdElement" : {
+            "$ref" : "#/components/schemas/IdType"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "NameUse" : {
+        "enum" : [ "ANONYMOUS", "MAIDEN", "NICKNAME", "NULL", "OFFICIAL", "OLD", "TEMP", "USUAL" ],
+        "type" : "string"
+      },
+      "Narrative" : {
+        "type" : "object",
+        "properties" : {
+          "divAsString" : {
+            "type" : "string"
+          },
+          "statusAsString" : {
+            "type" : "string"
+          },
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Extension"
+            }
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "div" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "status" : {
+            "$ref" : "#/components/schemas/EnumerationNarrativeStatus"
+          },
+          "statusElement" : {
+            "$ref" : "#/components/schemas/EnumerationNarrativeStatus"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "NarrativeStatus" : {
+        "enum" : [ "ADDITIONAL", "EMPTY", "EXTENSIONS", "GENERATED", "NULL" ],
+        "type" : "string"
+      },
+      "NodeType" : {
+        "enum" : [ "Comment", "DocType", "Document", "Element", "Instruction", "Text" ],
+        "type" : "string"
+      },
+      "Organization" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/IIdType"
+          },
+          "languageElement" : {
+            "$ref" : "#/components/schemas/IPrimitiveTypeString"
+          },
+          "meta" : {
+            "$ref" : "#/components/schemas/IBaseMetaType"
+          },
+          "structureFhirVersionEnum" : {
+            "$ref" : "#/components/schemas/FhirVersionEnum"
+          },
+          "deleted" : {
+            "type" : "boolean"
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "implicitRules" : {
+            "$ref" : "#/components/schemas/UriType"
+          },
+          "language" : {
+            "$ref" : "#/components/schemas/CodeType"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idPart" : {
+            "type" : "string"
+          },
+          "implicitRulesElement" : {
+            "$ref" : "#/components/schemas/UriType"
+          },
+          "contained" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Resource"
+            }
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Extension"
+            }
+          },
+          "modifierExtension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Extension"
+            }
+          },
+          "text" : {
+            "$ref" : "#/components/schemas/Narrative"
+          },
+          "active" : {
+            "$ref" : "#/components/schemas/BooleanType"
+          },
+          "address" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Address"
+            }
+          },
+          "alias" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/StringType"
+            }
+          },
+          "contact" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OrganizationContactComponent"
+            }
+          },
+          "endpoint" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Reference"
+            }
+          },
+          "endpointTarget" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Endpoint"
+            }
+          },
+          "identifier" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Identifier"
+            }
+          },
+          "name" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "partOf" : {
+            "$ref" : "#/components/schemas/Reference"
+          },
+          "partOfTarget" : {
+            "$ref" : "#/components/schemas/Organization"
+          },
+          "telecom" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ContactPoint"
+            }
+          },
+          "type" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CodeableConcept"
+            }
+          },
+          "activeElement" : {
+            "$ref" : "#/components/schemas/BooleanType"
+          },
+          "addressFirstRep" : {
+            "$ref" : "#/components/schemas/Address"
+          },
+          "contactFirstRep" : {
+            "$ref" : "#/components/schemas/OrganizationContactComponent"
+          },
+          "endpointFirstRep" : {
+            "$ref" : "#/components/schemas/Reference"
+          },
+          "identifierFirstRep" : {
+            "$ref" : "#/components/schemas/Identifier"
+          },
+          "nameElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "resourceType" : {
+            "$ref" : "#/components/schemas/ResourceType"
+          },
+          "telecomFirstRep" : {
+            "$ref" : "#/components/schemas/ContactPoint"
+          },
+          "typeFirstRep" : {
+            "$ref" : "#/components/schemas/CodeableConcept"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "OrganizationContactComponent" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "modifierExtension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "modifierExtensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "address" : {
+            "$ref" : "#/components/schemas/Address"
+          },
+          "name" : {
+            "$ref" : "#/components/schemas/HumanName"
+          },
+          "purpose" : {
+            "$ref" : "#/components/schemas/CodeableConcept"
+          },
+          "telecom" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ContactPoint"
+            }
+          },
+          "telecomFirstRep" : {
+            "$ref" : "#/components/schemas/ContactPoint"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "Period" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Extension"
+            }
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "end" : {
+            "$ref" : "#/components/schemas/DateTimeType"
+          },
+          "start" : {
+            "$ref" : "#/components/schemas/DateTimeType"
+          },
+          "endElement" : {
+            "$ref" : "#/components/schemas/DateTimeType"
+          },
+          "startElement" : {
+            "$ref" : "#/components/schemas/DateTimeType"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "PositiveIntType" : {
+        "type" : "object",
+        "properties" : {
+          "value" : {
+            "type" : "object"
+          },
+          "valueAsString" : {
+            "type" : "string"
+          },
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "myCoercedValue" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "myStringValue" : {
+            "type" : "string"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          }
+        }
       },
       "QName" : {
         "type" : "object",
@@ -540,6 +5406,284 @@
           },
           "prefix" : {
             "type" : "string"
+          }
+        }
+      },
+      "Reference" : {
+        "type" : "object",
+        "properties" : {
+          "referenceElement" : {
+            "$ref" : "#/components/schemas/IIdType"
+          },
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Extension"
+            }
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "display" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "identifier" : {
+            "$ref" : "#/components/schemas/Identifier"
+          },
+          "reference" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "type" : {
+            "$ref" : "#/components/schemas/UriType"
+          },
+          "displayElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "referenceElement_" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "typeElement" : {
+            "$ref" : "#/components/schemas/UriType"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "Resource" : {
+        "type" : "object",
+        "properties" : {
+          "structureFhirVersionEnum" : {
+            "$ref" : "#/components/schemas/FhirVersionEnum"
+          },
+          "deleted" : {
+            "type" : "boolean"
+          },
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/IdType"
+          },
+          "implicitRules" : {
+            "$ref" : "#/components/schemas/UriType"
+          },
+          "language" : {
+            "$ref" : "#/components/schemas/CodeType"
+          },
+          "meta" : {
+            "$ref" : "#/components/schemas/Meta"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/IdType"
+          },
+          "idPart" : {
+            "type" : "string"
+          },
+          "implicitRulesElement" : {
+            "$ref" : "#/components/schemas/UriType"
+          },
+          "languageElement" : {
+            "$ref" : "#/components/schemas/CodeType"
+          },
+          "resourceType" : {
+            "$ref" : "#/components/schemas/ResourceType"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "ResourceType" : {
+        "enum" : [ "Account", "ActivityDefinition", "AdverseEvent", "AllergyIntolerance", "Appointment", "AppointmentResponse", "AuditEvent", "Basic", "Binary", "BiologicallyDerivedProduct", "BodyStructure", "Bundle", "CapabilityStatement", "CarePlan", "CareTeam", "CatalogEntry", "ChargeItem", "ChargeItemDefinition", "Claim", "ClaimResponse", "ClinicalImpression", "CodeSystem", "Communication", "CommunicationRequest", "CompartmentDefinition", "Composition", "ConceptMap", "Condition", "Consent", "Contract", "Coverage", "CoverageEligibilityRequest", "CoverageEligibilityResponse", "DetectedIssue", "Device", "DeviceDefinition", "DeviceMetric", "DeviceRequest", "DeviceUseStatement", "DiagnosticReport", "DocumentManifest", "DocumentReference", "EffectEvidenceSynthesis", "Encounter", "Endpoint", "EnrollmentRequest", "EnrollmentResponse", "EpisodeOfCare", "EventDefinition", "Evidence", "EvidenceVariable", "ExampleScenario", "ExplanationOfBenefit", "FamilyMemberHistory", "Flag", "Goal", "GraphDefinition", "Group", "GuidanceResponse", "HealthcareService", "ImagingStudy", "Immunization", "ImmunizationEvaluation", "ImmunizationRecommendation", "ImplementationGuide", "InsurancePlan", "Invoice", "Library", "Linkage", "List", "Location", "Measure", "MeasureReport", "Media", "Medication", "MedicationAdministration", "MedicationDispense", "MedicationKnowledge", "MedicationRequest", "MedicationStatement", "MedicinalProduct", "MedicinalProductAuthorization", "MedicinalProductContraindication", "MedicinalProductIndication", "MedicinalProductIngredient", "MedicinalProductInteraction", "MedicinalProductManufactured", "MedicinalProductPackaged", "MedicinalProductPharmaceutical", "MedicinalProductUndesirableEffect", "MessageDefinition", "MessageHeader", "MolecularSequence", "NamingSystem", "NutritionOrder", "Observation", "ObservationDefinition", "OperationDefinition", "OperationOutcome", "Organization", "OrganizationAffiliation", "Parameters", "Patient", "PaymentNotice", "PaymentReconciliation", "Person", "PlanDefinition", "Practitioner", "PractitionerRole", "Procedure", "Provenance", "Questionnaire", "QuestionnaireResponse", "RelatedPerson", "RequestGroup", "ResearchDefinition", "ResearchElementDefinition", "ResearchStudy", "ResearchSubject", "RiskAssessment", "RiskEvidenceSynthesis", "Schedule", "SearchParameter", "ServiceRequest", "Slot", "Specimen", "SpecimenDefinition", "StructureDefinition", "StructureMap", "Subscription", "Substance", "SubstanceNucleicAcid", "SubstancePolymer", "SubstanceProtein", "SubstanceReferenceInformation", "SubstanceSourceMaterial", "SubstanceSpecification", "SupplyDelivery", "SupplyRequest", "Task", "TerminologyCapabilities", "TestReport", "TestScript", "ValueSet", "VerificationResult", "VisionPrescription" ],
+        "type" : "string"
+      },
+      "SearchEntryMode" : {
+        "enum" : [ "INCLUDE", "MATCH", "NULL", "OUTCOME" ],
+        "type" : "string"
+      },
+      "Signature" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Extension"
+            }
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/Base64BinaryType"
+          },
+          "onBehalfOf" : {
+            "$ref" : "#/components/schemas/Reference"
+          },
+          "onBehalfOfTarget" : {
+            "$ref" : "#/components/schemas/Resource"
+          },
+          "sigFormat" : {
+            "$ref" : "#/components/schemas/CodeType"
+          },
+          "targetFormat" : {
+            "$ref" : "#/components/schemas/CodeType"
+          },
+          "type" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Coding"
+            }
+          },
+          "when" : {
+            "$ref" : "#/components/schemas/InstantType"
+          },
+          "who" : {
+            "$ref" : "#/components/schemas/Reference"
+          },
+          "whoTarget" : {
+            "$ref" : "#/components/schemas/Resource"
+          },
+          "dataElement" : {
+            "$ref" : "#/components/schemas/Base64BinaryType"
+          },
+          "sigFormatElement" : {
+            "$ref" : "#/components/schemas/CodeType"
+          },
+          "targetFormatElement" : {
+            "$ref" : "#/components/schemas/CodeType"
+          },
+          "typeFirstRep" : {
+            "$ref" : "#/components/schemas/Coding"
+          },
+          "whenElement" : {
+            "$ref" : "#/components/schemas/InstantType"
+          },
+          "empty" : {
+            "type" : "boolean"
           }
         }
       },
@@ -560,6 +5704,110 @@
                 "name" : "Error"
               }
             } ]
+          }
+        }
+      },
+      "StringType" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "myCoercedValue" : {
+            "type" : "string"
+          },
+          "myStringValue" : {
+            "type" : "string"
+          },
+          "value" : {
+            "type" : "string"
+          },
+          "valueAsString" : {
+            "type" : "string"
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "valueNotNull" : {
+            "type" : "string"
+          }
+        }
+      },
+      "TemporalPrecisionEnum" : {
+        "enum" : [ "DAY", "MILLI", "MINUTE", "MONTH", "SECOND", "YEAR" ],
+        "type" : "string"
+      },
+      "TimeZone" : {
+        "type" : "object",
+        "properties" : {
+          "ID" : {
+            "type" : "string"
+          },
+          "dSTSavings" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "displayName" : {
+            "type" : "string"
+          },
+          "iD" : {
+            "type" : "string"
+          },
+          "rawOffset" : {
+            "format" : "int32",
+            "type" : "integer"
           }
         }
       },
@@ -625,6 +5873,145 @@
           }
         }
       },
+      "Type" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Extension"
+            }
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          }
+        }
+      },
+      "UnsignedIntType" : {
+        "type" : "object",
+        "properties" : {
+          "value" : {
+            "type" : "object"
+          },
+          "valueAsString" : {
+            "type" : "string"
+          },
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "myCoercedValue" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "myStringValue" : {
+            "type" : "string"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          }
+        }
+      },
       "UpdateERezept" : {
         "type" : "object",
         "properties" : {
@@ -636,6 +6023,156 @@
           },
           "taskId" : {
             "type" : "string"
+          }
+        }
+      },
+      "UriType" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "myCoercedValue" : {
+            "type" : "string"
+          },
+          "myStringValue" : {
+            "type" : "string"
+          },
+          "value" : {
+            "type" : "string"
+          },
+          "valueAsString" : {
+            "type" : "string"
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "primitive" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "UrlType" : {
+        "type" : "object",
+        "properties" : {
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "extension" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/IBaseExtensionObjectObject"
+            }
+          },
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "booleanPrimitive" : {
+            "type" : "boolean"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "metadataBased" : {
+            "type" : "boolean"
+          },
+          "resource" : {
+            "type" : "boolean"
+          },
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "extensionFirstRep" : {
+            "$ref" : "#/components/schemas/Extension"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "myCoercedValue" : {
+            "type" : "string"
+          },
+          "myStringValue" : {
+            "type" : "string"
+          },
+          "value" : {
+            "type" : "string"
+          },
+          "valueAsString" : {
+            "type" : "string"
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "primitive" : {
+            "type" : "boolean"
           }
         }
       },
@@ -775,6 +6312,89 @@
             "type" : "boolean"
           }
         }
+      },
+      "XhtmlNode" : {
+        "type" : "object",
+        "properties" : {
+          "attributes" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "childNodes" : {
+            "$ref" : "#/components/schemas/XhtmlNodeList"
+          },
+          "content" : {
+            "type" : "string"
+          },
+          "emptyExpanded" : {
+            "type" : "boolean"
+          },
+          "location" : {
+            "$ref" : "#/components/schemas/Location"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "namedParamValues" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          },
+          "namedParams" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/XhtmlNode"
+            }
+          },
+          "nodeType" : {
+            "$ref" : "#/components/schemas/NodeType"
+          },
+          "notPretty" : {
+            "type" : "boolean"
+          },
+          "seperated" : {
+            "type" : "boolean"
+          },
+          "firstElement" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "formatCommentsPre" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "nsDecl" : {
+            "type" : "string"
+          },
+          "value" : {
+            "type" : "string"
+          },
+          "valueAsString" : {
+            "type" : "string"
+          },
+          "empty" : {
+            "type" : "boolean"
+          },
+          "noPretty" : {
+            "type" : "boolean"
+          },
+          "para" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "XhtmlNodeList" : {
+        "type" : "array"
       }
     }
   }

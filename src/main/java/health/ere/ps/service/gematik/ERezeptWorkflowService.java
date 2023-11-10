@@ -550,8 +550,12 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
 
                 List<de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse> signResponsesV755;
                 ContextType contextType = connectorServicesProvider.getContextType(runtimeConfig);
-                if(userIdForComfortSignature != null) {
-                    contextType.setUserId(userIdForComfortSignature);
+                if(runtimeConfig != null && runtimeConfig.getUserId() != null) {
+                    contextType.setUserId(runtimeConfig.getUserId());
+                } else {
+                    if(userIdForComfortSignature != null) {
+                        contextType.setUserId(userIdForComfortSignature);
+                    }
                 }
                 if(appConfig.enableBatchSign()) {
                     String jobNumber = connectorServicesProvider.getSignatureServicePortTypeV755(runtimeConfig).getJobNumber(connectorServicesProvider.getContextType(runtimeConfig));
@@ -868,7 +872,11 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
         try {
             signatureServiceCardHandle = getSignatureServiceCardHandle(runtimeConfig);;
             ContextType contextType = connectorServicesProvider.getContextType(runtimeConfig);
-            contextType.setUserId(userIdForComfortSignature);
+            if(runtimeConfig != null && runtimeConfig.getUserId() != null) {
+                contextType.setUserId(runtimeConfig.getUserId());
+            } else {
+                contextType.setUserId(userIdForComfortSignature);
+            }
             connectorServicesProvider.getSignatureServicePortTypeV755(runtimeConfig).getSignatureMode(signatureServiceCardHandle, contextType, status, comfortSignatureStatus,
                     comfortSignatureMax, comfortSignatureTimer, sessionInfo);
             return new GetSignatureModeResponseEvent(status.value, comfortSignatureStatus.value, comfortSignatureMax.value, comfortSignatureTimer.value, sessionInfo.value);
@@ -903,7 +911,11 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
         try {
             signatureServiceCardHandle = getSignatureServiceCardHandle(runtimeConfig);
             ContextType contextType = connectorServicesProvider.getContextType(runtimeConfig);
-            contextType.setUserId(userIdForComfortSignature);
+            if(runtimeConfig != null && runtimeConfig.getUserId() != null) {
+                contextType.setUserId(runtimeConfig.getUserId());
+            } else {
+                contextType.setUserId(userIdForComfortSignature);
+            }
             
             connectorServicesProvider.getSignatureServicePortTypeV755(runtimeConfig).deactivateComfortSignature(Arrays.asList(signatureServiceCardHandle));
             userIdForComfortSignature = null;

@@ -26,7 +26,7 @@ public class XSLTResource {
     IParser xmlParser = FhirContext.forR4().newXmlParser();
 
     @POST
-    @Path("/transform")
+    @Path("transform")
     public Response transform(@HeaderParam("Content-Type") String contentType, String bundle) {
         String htmlPreview;
         try {

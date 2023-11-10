@@ -1,7 +1,9 @@
 package health.ere.ps.resource.ipp;
 
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.logging.Logger;
 
@@ -18,6 +20,7 @@ import com.hp.jipp.encoding.IppInputStream;
 import com.hp.jipp.encoding.IppOutputStream;
 import com.hp.jipp.trans.IppPacketData;
 import com.hp.jipp.trans.IppServerTransport;
+
 import health.ere.ps.service.ipp.PrinterService;
 
 
@@ -32,7 +35,7 @@ public class PrinterResource implements IppServerTransport {
     private static Logger log = Logger.getLogger(PrinterResource.class.getName());
 
     @POST
-    @Path("/{queue}")
+    @Path("{queue}")
     public Response handle(@PathParam("queue") String queue, @Context UriInfo uriInfo, InputStream stream) throws IOException {
         try {
             IppInputStream inputStream = new IppInputStream(stream);

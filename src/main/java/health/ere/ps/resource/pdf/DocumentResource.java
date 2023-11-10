@@ -35,7 +35,7 @@ public class DocumentResource {
     IParser xmlParser = FhirContext.forR4().newXmlParser();
 
     @POST
-    @Path("/bundles")
+    @Path("bundles")
     public Response createAndSendPrescriptions(String bundlesString) {
 
         JsonArray jsonArray = Json.createReader(new StringReader(bundlesString)).readArray();
