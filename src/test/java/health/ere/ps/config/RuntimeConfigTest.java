@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.Optional;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -43,7 +44,7 @@ public class RuntimeConfigTest {
         userConfig.defaultConnectorBaseURI = "2";
         userConfig.defaultConnectorVersion = "3";
         userConfig.defaultMandantId = "4";
-        userConfig.defaultUserId = "5";
+        userConfig.defaultUserId = Optional.of("5");
         userConfig.defaultWorkplaceId = "6";
         RuntimeConfig runtimeConfig = abortTasksEvent.getRuntimeConfig();
         userConfig.updateProperties(new UserConfigurations());

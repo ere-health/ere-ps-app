@@ -550,7 +550,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
 
                 List<de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse> signResponsesV755;
                 ContextType contextType = connectorServicesProvider.getContextType(runtimeConfig);
-                if(runtimeConfig != null && runtimeConfig.getUserId() != null) {
+                if(runtimeConfig != null && runtimeConfig.getUserId() != null && !"".equals(runtimeConfig.getUserId())) {
                     contextType.setUserId(runtimeConfig.getUserId());
                 } else {
                     if(userIdForComfortSignature != null) {
@@ -872,7 +872,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
         try {
             signatureServiceCardHandle = getSignatureServiceCardHandle(runtimeConfig);;
             ContextType contextType = connectorServicesProvider.getContextType(runtimeConfig);
-            if(runtimeConfig != null && runtimeConfig.getUserId() != null) {
+            if(runtimeConfig != null && runtimeConfig.getUserId() != null && !"".equals(runtimeConfig.getUserId())) {
                 contextType.setUserId(runtimeConfig.getUserId());
             } else {
                 contextType.setUserId(userIdForComfortSignature);
@@ -911,7 +911,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
         try {
             signatureServiceCardHandle = getSignatureServiceCardHandle(runtimeConfig);
             ContextType contextType = connectorServicesProvider.getContextType(runtimeConfig);
-            if(runtimeConfig != null && runtimeConfig.getUserId() != null) {
+            if(runtimeConfig != null && runtimeConfig.getUserId() != null && !"".equals(runtimeConfig.getUserId())) {
                 contextType.setUserId(runtimeConfig.getUserId());
             } else {
                 contextType.setUserId(userIdForComfortSignature);

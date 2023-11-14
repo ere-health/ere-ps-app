@@ -3,6 +3,7 @@ package health.ere.ps.config;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -50,7 +51,7 @@ public class RuntimeConfig extends UserConfig {
             this.defaultMandantId = userConfig.getMandantId();
             this.defaultClientSystemId = userConfig.getClientSystemId();
             this.defaultWorkplaceId = userConfig.getWorkplaceId();
-            this.defaultUserId = userConfig.getUserId();
+            this.defaultUserId = Optional.ofNullable(userConfig.getUserId());
             
             this.defaultConnectorVersion = userConfig.getConnectorVersion();
             this.defaultTvMode = userConfig.getTvMode();

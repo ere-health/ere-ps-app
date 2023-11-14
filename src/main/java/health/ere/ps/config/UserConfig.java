@@ -2,6 +2,7 @@ package health.ere.ps.config;
 
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
@@ -36,7 +37,7 @@ public class UserConfig {
     String defaultClientSystemId;
 
     @ConfigProperty(name = "connector.user-id")
-    String defaultUserId;
+    Optional<String> defaultUserId;
 
     @ConfigProperty(name = "connector.tvMode")
     String defaultTvMode;
@@ -96,7 +97,7 @@ public class UserConfig {
     }
 
     public String getUserId() {
-        return getConfigOrDefault(getConfigurations().getUserId(), defaultUserId);
+        return getConfigOrDefault(getConfigurations().getUserId(), defaultUserId == null ? null : defaultUserId.orElse(null));
     }
 
     public String getTvMode() {
