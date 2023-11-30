@@ -67,6 +67,7 @@ public class VAU {
     private static final Logger log = Logger.getLogger(VAU.class.getName());
     static X9ECParameters x9EC = org.bouncycastle.asn1.x9.ECNamedCurveTable
             .getByOID(new ASN1ObjectIdentifier(TeleTrusTObjectIdentifiers.brainpoolP256r1.getId()));
+    static X509Certificate z;
 
     static {
         Security.addProvider(new BouncyCastleProvider());
@@ -152,10 +153,14 @@ public class VAU {
 
     KeyCoords getVauPublicKeyXY() throws CertificateException, IOException, NoSuchProviderException {
         CertificateFactory certFactory = CertificateFactory.getInstance("X.509", BouncyCastleProvider.PROVIDER_NAME);
-        X509Certificate z = (X509Certificate) certFactory
-                .generateCertificate(new URL(fachdienstUrl + "/VAUCertificate").openStream());
-        if(certificateService != null) {
-            verifyCertificate(z);
+        synchronized(this) {
+            if(z == null) {
+                z = (X509Certificate) certFactory
+                        .generateCertificate(new URL(fachdienstUrl + "/VAUCertificate").openStream());
+                if(certificateService != null) {
+                    verifyCertificate(z);
+                }
+            }
         }
         BCECPublicKey x = (BCECPublicKey) z.getPublicKey();
 
