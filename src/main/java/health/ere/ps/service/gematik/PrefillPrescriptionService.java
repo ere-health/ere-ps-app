@@ -321,6 +321,9 @@ public class PrefillPrescriptionService {
 
 		Holder<Status> statusHolder = new Holder<>();
 		Holder<X509DataInfoListType> certHolder = new Holder<>();
+		if(context.getUserId() == null || context.getUserId().isEmpty()) {
+			context.setUserId(UUID.randomUUID().toString());
+		}
 		certificateService.readCardCertificate(hbaHandle, context, certRefList, statusHolder, certHolder);
 
 		return CryptoLoader.getCertificateFromAsn1DERCertBytes(
