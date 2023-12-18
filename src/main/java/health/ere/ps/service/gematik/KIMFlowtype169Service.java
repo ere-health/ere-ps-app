@@ -7,6 +7,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -90,6 +91,7 @@ public class KIMFlowtype169Service {
             MimeMessage msg = new MimeMessage(session);
             //set message headers
             msg.addHeader("X-KIM-Dienstkennung", "eRezept;Zuweisung;V1.0");
+            msg.addHeader("X-KIM-Encounter-Id", UUID.randomUUID().toString());
 
             msg.setFrom(new InternetAddress(fromKimAddress));
 
