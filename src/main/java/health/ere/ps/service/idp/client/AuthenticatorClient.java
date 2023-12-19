@@ -31,13 +31,13 @@ import javax.json.JsonReader;
 import javax.json.JsonString;
 import javax.ws.rs.core.Response;
 
-import com.diffplug.common.base.Errors;
-import com.diffplug.common.base.Throwing;
-
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.jose4j.jwt.JwtClaims;
+
+import com.diffplug.common.base.Errors;
+import com.diffplug.common.base.Throwing;
 
 import health.ere.ps.exception.idp.IdpClientException;
 import health.ere.ps.exception.idp.IdpException;
@@ -338,6 +338,7 @@ public class AuthenticatorClient {
         try {
             idpHttpClientService = RestClientBuilder.newBuilder()
                     .baseUrl(new URL(url))
+                    .connectTimeout(5000, java.util.concurrent.TimeUnit.MILLISECONDS)
                     .build(IdpHttpClientService.class);
         } catch (MalformedURLException e) {
             throw new IdpClientException("Bad URL: " + url, e);
