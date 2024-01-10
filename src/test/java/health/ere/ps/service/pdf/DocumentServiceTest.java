@@ -65,6 +65,8 @@ public class DocumentServiceTest {
                 DocumentServiceTest.class.getResourceAsStream("/examples_erezept/Erezept_template_4.xml")));
         testBundles.add((Bundle) ctx.newXmlParser().parseResource(
                 DocumentServiceTest.class.getResourceAsStream("/examples_erezept/Erezept_template_5.xml")));
+        testBundles.add((Bundle) ctx.newXmlParser().parseResource(
+                DocumentServiceTest.class.getResourceAsStream("/examples_erezept/Beispiel_16.xml")));
 
         try {
             // https://community.oracle.com/thread/1307033?start=0&tstart=0
@@ -119,6 +121,17 @@ public class DocumentServiceTest {
         // DefaultFontConfigurator
         ByteArrayOutputStream baos = createStreamForANumberOfPdfs(1);
         Files.write(Paths.get(TARGET_PATH + "Erezept_with_one_medications.pdf"), baos.toByteArray());
+    }
+
+    @Test
+    @Disabled("Running the pdf generation tests takes a lot of time, run them manually")
+    public void generateERezeptPdf_generatesCorrectPdf_givenOneMedicationToDisplayIngredient() throws IOException, FOPException, TransformerException {
+        // WHEN + THEN
+        // DefaultFontConfigurator
+        List<BundleWithAccessCodeOrThrowable> bundles = new ArrayList<>();
+        bundles.add(new BundleWithAccessCodeOrThrowable(testBundles.get(5), "MOCK_CODE"));
+        ByteArrayOutputStream baos = documentService.generateERezeptPdf(bundles);
+        Files.write(Paths.get(TARGET_PATH + "Erezept_with_one_medications_ingredient.pdf"), baos.toByteArray());
     }
 
     @Test

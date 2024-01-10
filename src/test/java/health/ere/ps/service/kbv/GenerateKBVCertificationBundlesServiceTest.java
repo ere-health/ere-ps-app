@@ -189,7 +189,7 @@ public class GenerateKBVCertificationBundlesServiceTest {
     }
 
     @Test
-    @Disabled
+    // @Disabled
     public void testRegeneratePdf() throws IOException, FOPException, TransformerException {
 
         genPDF("PF01", "d78fe79c81be9541bcf7a95c8254821e3ab3e88eaa1898db9e1b78a982fc94b2");
