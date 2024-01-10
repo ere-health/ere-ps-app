@@ -23,7 +23,7 @@
             <fo:layout-master-set>
                 <fo:simple-page-master master-name="DIN-A5" column-count="2"
                                        page-width="210mm" page-height="148mm"
-                                       margin-top="5mm" margin-bottom="5mm"
+                                       margin-top="5mm" margin-bottom="0mm"
                                        margin-left="8mm" margin-right="5mm">
                     <fo:region-body region-name="body"
                                     margin-top="60mm" margin-bottom="0mm"
@@ -249,7 +249,7 @@
                     </fo:table>
                 </fo:table-cell>
                 <fo:table-cell display-align="after">
-                    <fo:block-container reference-orientation="90" margin-left="1mm">
+                    <fo:block-container reference-orientation="90" margin-left="2mm">
                         <fo:block font-size="6pt" font-family="Liberation Sans" font-weight="bold" wrap-option="no-wrap">
                             Sammelcode zur Einlösung aller Verordnungen
                         </fo:block>
@@ -277,8 +277,8 @@
 
     <xsl:template name="body">
         <fo:table table-layout="fixed" width="190mm">
-            <fo:table-column column-number="1" column-width="51%"/>
-            <fo:table-column column-number="2" column-width="49%"/>
+            <fo:table-column column-number="1" column-width="50%"/>
+            <fo:table-column column-number="2" column-width="50%"/>
             <fo:table-body>
                 <xsl:for-each select="fhir:bundle">
                     <xsl:variable name="pos" select="position()"/>
@@ -290,7 +290,7 @@
                             <fo:table-column/>
                             <fo:table-column/>
                             <fo:table-body>
-                                <fo:table-row height="35mm">
+                                <fo:table-row height="40mm">
                                     <fo:table-cell width="31mm">
                                         <fo:block>
                                             <fo:instream-foreign-object>
@@ -299,7 +299,7 @@
                                                             select="fhir:Bundle/fhir:identifier/fhir:value/@value"/>/$accept?ac=<xsl:value-of
                                                             select="fhir:accessCode"/>"]}</xsl:attribute>
                                                     <barcode:datamatrix>
-                                                        <barcode:module-width>0.7mm</barcode:module-width>
+                                                        <barcode:module-width>0.9mm</barcode:module-width>
                                                     </barcode:datamatrix>
                                                 </barcode:barcode>
                                             </fo:instream-foreign-object>
