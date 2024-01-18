@@ -400,7 +400,9 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
                     log.warning("Was not able to $activate on first try. Status:" +response.getStatus()+" Response: " + taskString);
                     updateERezeptTask(taskId, accessCode, signedBytes, false, runtimeConfig, replyTo, replyToMessageId);
                 } else {
-                    throw new WebApplicationException("Error on "+appConfig.getPrescriptionServiceURL()+" "+taskString, response.getStatus());
+                    Response.ResponseBuilder responseBuilder = Response.status(response.getStatus());
+                    responseBuilder.entity(taskString);
+                    throw new WebApplicationException(responseBuilder.build());
                 }
             }
             log.info("Task $activate Response: " + taskString);
@@ -719,7 +721,9 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
             }
 
             if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
-                throw new WebApplicationException("Error on "+appConfig.getPrescriptionServiceURL()+" "+taskString+" Status: "+response.getStatus(), response.getStatus());
+                Response.ResponseBuilder responseBuilder = Response.status(response.getStatus());
+                responseBuilder.entity(taskString);
+                throw new WebApplicationException(responseBuilder.build());
             }
             log.info("Task Response: " + taskString);
             return fhirContext.newXmlParser().parseResource(Task.class, new StringReader(taskString));
@@ -744,7 +748,9 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
             String taskString = response.readEntity(String.class);
             // if it is not successful
             if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
-                throw new WebApplicationException("Error on "+appConfig.getPrescriptionServiceURL()+" "+taskString, response.getStatus());
+                Response.ResponseBuilder responseBuilder = Response.status(response.getStatus());
+                responseBuilder.entity(taskString);
+                throw new WebApplicationException(responseBuilder.build());
             }
             
             log.info("Task $abort Response: " + taskString);
