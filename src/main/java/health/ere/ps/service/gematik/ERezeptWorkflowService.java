@@ -559,6 +559,10 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
                         contextType.setUserId(userIdForComfortSignature);
                     }
                 }
+                // if we don't have a user id, generate one
+                if(contextType.getUserId() == null || "".equals(contextType.getUserId())) {
+                    contextType.setUserId(UUID.randomUUID().toString());
+                }
                 if(appConfig.enableBatchSign()) {
                     String jobNumber = connectorServicesProvider.getSignatureServicePortTypeV755(runtimeConfig).getJobNumber(connectorServicesProvider.getContextType(runtimeConfig));
             
