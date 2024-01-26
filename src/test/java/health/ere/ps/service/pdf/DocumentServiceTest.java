@@ -67,6 +67,9 @@ public class DocumentServiceTest {
                 DocumentServiceTest.class.getResourceAsStream("/examples_erezept/Erezept_template_5.xml")));
         testBundles.add((Bundle) ctx.newXmlParser().parseResource(
                 DocumentServiceTest.class.getResourceAsStream("/examples_erezept/Beispiel_16.xml")));
+        testBundles.add((Bundle) ctx.newXmlParser().parseResource(
+                DocumentServiceTest.class.getResourceAsStream("/examples_erezept/Beispiel_52.xml")));
+
 
         try {
             // https://community.oracle.com/thread/1307033?start=0&tstart=0
@@ -121,6 +124,17 @@ public class DocumentServiceTest {
         // DefaultFontConfigurator
         ByteArrayOutputStream baos = createStreamForANumberOfPdfs(1);
         Files.write(Paths.get(TARGET_PATH + "Erezept_with_one_medications.pdf"), baos.toByteArray());
+    }
+
+    @Test
+    @Disabled("Running the pdf generation tests takes a lot of time, run them manually")
+    public void generateERezeptPdf_generatesCorrectPdf_givenOneCompoundingToDisplay() throws IOException, FOPException, TransformerException {
+        // WHEN + THEN
+        // DefaultFontConfigurator
+        List<BundleWithAccessCodeOrThrowable> bundles = new ArrayList<>();
+        bundles.add(new BundleWithAccessCodeOrThrowable(testBundles.get(6), "MOCK_CODE"));
+        ByteArrayOutputStream baos = documentService.generateERezeptPdf(bundles);
+        Files.write(Paths.get(TARGET_PATH + "Erezept_with_one_compounding.pdf"), baos.toByteArray());
     }
 
     @Test
@@ -230,7 +244,7 @@ public class DocumentServiceTest {
     private ByteArrayOutputStream createStreamForANumberOfPdfs(int number) {
         List<BundleWithAccessCodeOrThrowable> bundles = new ArrayList<>();
         for (int i = 0; i < number; i++) {
-            bundles.add(new BundleWithAccessCodeOrThrowable(testBundles.get(i % 5), "MOCK_CODE" + i));
+            bundles.add(new BundleWithAccessCodeOrThrowable(testBundles.get(i % 6), "MOCK_CODE" + i));
         }
         try {
             return documentService.generateERezeptPdf(bundles);
