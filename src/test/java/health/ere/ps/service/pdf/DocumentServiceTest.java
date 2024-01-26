@@ -127,12 +127,12 @@ public class DocumentServiceTest {
     }
 
     @Test
-    @Disabled("Running the pdf generation tests takes a lot of time, run them manually")
+    // @Disabled("Running the pdf generation tests takes a lot of time, run them manually")
     public void generateERezeptPdf_generatesCorrectPdf_givenOneCompoundingToDisplay() throws IOException, FOPException, TransformerException {
         // WHEN + THEN
         // DefaultFontConfigurator
         List<BundleWithAccessCodeOrThrowable> bundles = new ArrayList<>();
-        bundles.add(new BundleWithAccessCodeOrThrowable(testBundles.get(6), "MOCK_CODE"));
+        bundles.add(new BundleWithAccessCodeOrThrowable(testBundles.get(6), "777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea"));
         ByteArrayOutputStream baos = documentService.generateERezeptPdf(bundles);
         Files.write(Paths.get(TARGET_PATH + "Erezept_with_one_compounding.pdf"), baos.toByteArray());
     }
@@ -244,7 +244,7 @@ public class DocumentServiceTest {
     private ByteArrayOutputStream createStreamForANumberOfPdfs(int number) {
         List<BundleWithAccessCodeOrThrowable> bundles = new ArrayList<>();
         for (int i = 0; i < number; i++) {
-            bundles.add(new BundleWithAccessCodeOrThrowable(testBundles.get(i % 6), "MOCK_CODE" + i));
+            bundles.add(new BundleWithAccessCodeOrThrowable(testBundles.get(i % 6), "777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea" + i));
         }
         try {
             return documentService.generateERezeptPdf(bundles);

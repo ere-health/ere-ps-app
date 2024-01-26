@@ -166,6 +166,7 @@
 						<system value="https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Type"/>
 						<code value="rezeptur"/>
 					</coding>
+					<text value="Nerisona Salbe"/>
 				</code>
 				<form>
 					<text value="Salbe"/>
