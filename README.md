@@ -81,6 +81,14 @@ below from the ere-ps-app directory:
   Then run:
   
   > mvn quarkus:dev
+
+  If you want a special profile use:
+
+  > mvn -Dquarkus.profile=RU quarkus:dev
+
+  If you want to see the SOAP message between ere-ps-app and the konnektor use:
+
+  > mvn -Dquarkus.profile=RU -Djvm.args="-Dcom.sun.xml.ws.transport.http.client.HttpTransportPipe.dump=true -Dcom.sun.xml.internal.ws.transport.http.client.HttpTransportPipe.dump=true -Dcom.sun.xml.ws.transport.http.HttpAdapter.dump=true -Dcom.sun.xml.internal.ws.transport.http.HttpAdapter.dump=true -Dcom.sun.xml.ws.transport.http.HttpAdapter.dumpTreshold=999999" quarkus:dev
   
   At this point, the application should be running as highlighted below.
   
