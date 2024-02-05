@@ -107,6 +107,10 @@ public class UserConfigurations {
     }
 
     public UserConfigurations(HttpServletRequest httpServletRequest) {
+        updateWithRequest(httpServletRequest);
+    }
+
+    public UserConfigurations updateWithRequest(HttpServletRequest httpServletRequest) {
         Enumeration<String> enumeration = httpServletRequest.getHeaderNames();
         List<String> list = Collections.list(enumeration);
         for(String headerName : list) {
@@ -123,6 +127,7 @@ public class UserConfigurations {
                 }
             }
         }
+        return this;
     }
 
     private void fillValues(Function<String, Object> getValue) {

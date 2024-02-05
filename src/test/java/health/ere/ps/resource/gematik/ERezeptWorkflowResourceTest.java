@@ -17,6 +17,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import health.ere.ps.config.RuntimeConfig;
+import health.ere.ps.config.UserConfig;
 import health.ere.ps.service.gematik.ERezeptWorkflowService;
 
 public class ERezeptWorkflowResourceTest {
@@ -50,7 +51,7 @@ public class ERezeptWorkflowResourceTest {
         });
         ERezeptWorkflowResource eRezeptWorkflowResource = new ERezeptWorkflowResource();
         eRezeptWorkflowResource.httpServletRequest = httpServletRequest;
-        RuntimeConfig runtimeConfig = ERezeptWorkflowResource.extractRuntimeConfigFromHeaders(httpServletRequest);
+        RuntimeConfig runtimeConfig = ERezeptWorkflowResource.extractRuntimeConfigFromHeaders(httpServletRequest, new UserConfig());
 
         assertEquals("HBA-1", runtimeConfig.getEHBAHandle());
         assertEquals("SMCB-1", runtimeConfig.getSMCBHandle());

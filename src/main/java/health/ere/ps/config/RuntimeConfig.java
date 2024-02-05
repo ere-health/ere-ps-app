@@ -90,7 +90,7 @@ public class RuntimeConfig extends UserConfig {
         this.idpClientId = httpServletRequest.getHeader("X-idpClientId");
         this.idpAuthRequestRedirectURL = httpServletRequest.getHeader("X-idpAuthRequestRedirectURL");
         this.prescriptionServerURL = httpServletRequest.getHeader("X-prescriptionServerURL");
-        this.updateProperties(new UserConfigurations(httpServletRequest));
+        this.updateProperties(this.getConfigurations().updateWithRequest(httpServletRequest));
     }
 
     public void updateConfigurationsWithJsonObject(JsonObject object) {

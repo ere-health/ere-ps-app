@@ -29,6 +29,7 @@ import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
 import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
 import de.gematik.ws.conn.signatureservice.v7.SignResponse;
 import health.ere.ps.config.RuntimeConfig;
+import health.ere.ps.config.UserConfig;
 import health.ere.ps.exception.gematik.ERezeptWorkflowException;
 import health.ere.ps.service.gematik.ERezeptWorkflowService;
 
@@ -44,6 +45,9 @@ public class ERezeptWorkflowResource {
     @Context
     HttpServletRequest httpServletRequest;
 
+    @Inject
+    UserConfig userConfig;
+
     @POST
     @Path("task")
     public Response createERezeptTask(@HeaderParam("accept") String accept, @QueryParam("flowtype") String flowtype) {
@@ -51,7 +55,7 @@ public class ERezeptWorkflowResource {
 	if(flowtype == null) {
 	    flowtype = "160";
 	}
-        Task task = eRezeptWorkflowService.createERezeptTask(true, extractRuntimeConfigFromHeaders(httpServletRequest), flowtype);
+        Task task = eRezeptWorkflowService.createERezeptTask(true, extractRuntimeConfigFromHeaders(httpServletRequest, userConfig), flowtype);
         if("application/xml".equals(accept)) {
             return Response.ok().entity(xmlParser.encodeResourceToString(task)).type(MediaType.APPLICATION_XML).build();
         } else {
@@ -59,10 +63,13 @@ public class ERezeptWorkflowResource {
         }
     }
 
-    static RuntimeConfig extractRuntimeConfigFromHeaders(HttpServletRequest httpServletRequest) {
+    static RuntimeConfig extractRuntimeConfigFromHeaders(HttpServletRequest httpServletRequest, UserConfig userConfig) {
         for(Object name : Collections.list(httpServletRequest.getHeaderNames())) {
             if(name.toString().startsWith("X-")) {
-                return new RuntimeConfig(httpServletRequest);
+                RuntimeConfig runtimeConfig = new RuntimeConfig();
+                runtimeConfig.copyValuesFromUserConfig(userConfig);
+                runtimeConfig.updateConfigurationsWithHttpServletRequest(httpServletRequest);
+                return runtimeConfig;
             }
         }
         return null;
@@ -72,7 +79,7 @@ public class ERezeptWorkflowResource {
     @Path("sign")
     public Response signBundleWithIdentifiers(@HeaderParam("Content-Type") String contentType, String bundle) throws DataFormatException, ERezeptWorkflowException {
         Bundle bundleObject = string2bundle(contentType, bundle);
-        SignResponse signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundleObject, false, extractRuntimeConfigFromHeaders(httpServletRequest));
+        SignResponse signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundleObject, false, extractRuntimeConfigFromHeaders(httpServletRequest, userConfig));
         String base64String = signResponse2base64String(signResponse);
         return Response.ok().entity(base64String).type(MediaType.TEXT_PLAIN).build();
     }
@@ -90,7 +97,7 @@ public class ERezeptWorkflowResource {
     @Path("batch-sign")
     public Response signBundlesWithIdentifiers(@HeaderParam("Content-Type") String contentType, String bundles) throws DataFormatException, ERezeptWorkflowException {
         List<Bundle> bundlesList = Arrays.asList(bundles.split("\\r?\\n")).stream().map((bundle) ->  string2bundle(contentType, bundle)).collect(Collectors.toList());
-        List<SignResponse> signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundlesList, false, extractRuntimeConfigFromHeaders(httpServletRequest));
+        List<SignResponse> signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundlesList, false, extractRuntimeConfigFromHeaders(httpServletRequest, userConfig));
         String responses = signResponse.stream().map(ERezeptWorkflowResource::signResponse2base64String).collect(Collectors.joining("\n"));
         return Response.ok().entity(responses).type(MediaType.TEXT_PLAIN).build();
     }
@@ -99,7 +106,7 @@ public class ERezeptWorkflowResource {
     @Path("cards")
     public GetCardsResponse cards() {
         try {
-            return eRezeptWorkflowService.getCards(extractRuntimeConfigFromHeaders(httpServletRequest));
+            return eRezeptWorkflowService.getCards(extractRuntimeConfigFromHeaders(httpServletRequest, userConfig));
         } catch (FaultMessage e) {
             throw new WebApplicationException(e);
         }
@@ -108,28 +115,28 @@ public class ERezeptWorkflowResource {
     @POST
     @Path("update")
     public Response updateERezeptTask(UpdateERezept updateERezept) {
-        eRezeptWorkflowService.updateERezeptTask(updateERezept.getTaskId(), updateERezept.getAccessCode(), Base64.getDecoder().decode(updateERezept.getSignedBytes()), extractRuntimeConfigFromHeaders(httpServletRequest));
+        eRezeptWorkflowService.updateERezeptTask(updateERezept.getTaskId(), updateERezept.getAccessCode(), Base64.getDecoder().decode(updateERezept.getSignedBytes()), extractRuntimeConfigFromHeaders(httpServletRequest, userConfig));
         return Response.ok().build();
     }
 
     @POST
     @Path("abort")
     public Response abortERezeptTask(AbortERezept abortERezept) {
-        eRezeptWorkflowService.abortERezeptTask(extractRuntimeConfigFromHeaders(httpServletRequest), abortERezept.getTaskId(), abortERezept.getAccessCode());
+        eRezeptWorkflowService.abortERezeptTask(extractRuntimeConfigFromHeaders(httpServletRequest, userConfig), abortERezept.getTaskId(), abortERezept.getAccessCode());
         return Response.noContent().build();
     }
 
     @POST
     @Path("comfortsignature/activate")
     public Response activate() {
-        String userId = eRezeptWorkflowService.activateComfortSignature(extractRuntimeConfigFromHeaders(httpServletRequest));
+        String userId = eRezeptWorkflowService.activateComfortSignature(extractRuntimeConfigFromHeaders(httpServletRequest, userConfig));
         return Response.ok(Entity.text(userId)).build();
     }
 
     @POST
     @Path("comfortsignature/deactivate")
     public Response deactivate() {
-        eRezeptWorkflowService.deactivateComfortSignature(extractRuntimeConfigFromHeaders(httpServletRequest));
+        eRezeptWorkflowService.deactivateComfortSignature(extractRuntimeConfigFromHeaders(httpServletRequest, userConfig));
         return Response.ok().build();
     }
 
@@ -149,7 +156,7 @@ public class ERezeptWorkflowResource {
     @GET
     @Path("idp-token")
     public String idpToken() {
-        RuntimeConfig runtimeConfig = extractRuntimeConfigFromHeaders(httpServletRequest);
+        RuntimeConfig runtimeConfig = extractRuntimeConfigFromHeaders(httpServletRequest, userConfig);
         eRezeptWorkflowService.requestNewAccessTokenIfNecessary(runtimeConfig, null, null);
         return eRezeptWorkflowService.getBearerToken(runtimeConfig);
     }

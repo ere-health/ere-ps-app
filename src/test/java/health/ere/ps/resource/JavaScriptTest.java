@@ -15,6 +15,8 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 @Disabled
+// @QuarkusTest
+// @TestProfile(RUDevTestProfile.class)
 public class JavaScriptTest {
 
     public static String utilJavaScript = "var print = function (s) { java.lang.System.out.print(s); }; var println = function (s) { java.lang.System.out.println(s); };";
