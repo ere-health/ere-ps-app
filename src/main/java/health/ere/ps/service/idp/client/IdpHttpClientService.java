@@ -18,7 +18,9 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 @RegisterRestClient
 public interface IdpHttpClientService {
     String DISCOVERY_DOCUMENT_URI = "/.well-known/openid-configuration";
-    String USER_AGENT = "IdP-Client";
+
+
+    String USER_AGENT = "ere.health/1.0.0 IncentergyGmbH/GEMIncenereS2QmFN83P";
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
