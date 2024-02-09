@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.LogManager;
 import java.util.stream.Collectors;
 
@@ -217,21 +218,39 @@ public class DocumentServiceTest {
         generatePdfsForAllFilesInFolder(dir, prefix);
     }
 
+    @Test
+    @Disabled("Running the pdf generation tests takes a lot of time, run them manually")
+    public void generatePdfsForTestingBundleFoldersViaHelperFunction() throws IOException {
+        String dir = "src/test/resources/secret/bundles-v1-1-0";
+        String prefix = "test_v1_1_0";
+        generatePdfsForAllFilesInFolder(dir, prefix);
+    }
+
     private void generatePdfsForAllFilesInFolder(String dir, String prefix) throws IOException {
         List<ByteArrayOutputStream> pdfStreams = Files.list(Paths.get(dir))
-            .filter((p) -> p.toFile().isFile())
-            .map((p) -> {
-                try {
-                    return new BundleWithAccessCodeOrThrowable((Bundle) ctx.newXmlParser().parseResource(new FileReader(p.toFile())), "ACCESS_CODE");
-                } catch (ConfigurationException | DataFormatException | FileNotFoundException e) {
-                    e.printStackTrace();
-                    return null;
-                }
-            }).map((b) -> {
+                .filter((p) -> p.toFile().isFile())
+                .map((p) -> {
+                    try {
+                        if (p.getFileName().toString().endsWith(".xml")) {
+                            return new BundleWithAccessCodeOrThrowable((Bundle) ctx.newXmlParser().parseResource(new FileReader(p.toFile())), "ACCESS_CODE");
+                        } else if (p.getFileName().toString().endsWith(".json"))  {
+                            return new BundleWithAccessCodeOrThrowable((Bundle) ctx.newJsonParser().parseResource(new FileReader(p.toFile())), "ACCESS_CODE");
+                        } else {
+                            return null;
+                        }
+                    } catch (ConfigurationException | DataFormatException | FileNotFoundException e) {
+                        e.printStackTrace();
+                        fail("Couldn't parse: " + p.getFileName().toString());
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .map((b) -> {
                 try {
                     return documentService.generateERezeptPdf(Arrays.asList(b));
                 } catch (FOPException | IOException | TransformerException e) {
                     e.printStackTrace();
+                    fail("Couldn't generate pdf for bundle with medicationRequestId: " + b.getMedicationRequestId());
                     return null;
                 }
             }).collect(Collectors.toList());

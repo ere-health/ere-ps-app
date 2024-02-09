@@ -46,3 +46,11 @@ yarn-error.log
 
 # Test generated file
 user.properties
+
+# Generate secrets folder, but don't commit files
+src/test/resources/secret/*
+!src/test/resources/secret/.gitkeep
+src/test/resources/secret/bundles-v1-1-0/*
+!src/test/resources/secret/bundles-v1-1-0/.gitkeep
+src/test/resources/secret/bundles-multiples-v1-1-0/*
+!src/test/resources/secret/bundles-multiples-v1-1-0/.gitkeep
