@@ -38,6 +38,19 @@ public class BearerTokenManageService {
      * Requests a new userConfig if the current one is expired
      */
     public void requestNewAccessTokenIfNecessary(RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId) {
+        int hashCode = runtimeConfig.hashCode();
+        boolean containsKey = false;
+        int i = 0;
+        while(i < bearerToken.size() && !containsKey){
+            RuntimeConfig runtimeConfig2 = (RuntimeConfig) bearerToken.keySet().toArray()[i];
+            if(runtimeConfig2 != null && runtimeConfig2.hashCode() == hashCode) {
+                if(!isExpired(bearerToken.get(runtimeConfig2))) {
+                    bearerToken.put(runtimeConfig, bearerToken.get(runtimeConfig2));
+                }
+                containsKey = true;
+            }
+            i++;
+        }
         if (StringUtils.isEmpty(getBearerToken(runtimeConfig)) || isExpired(bearerToken.get(runtimeConfig))) {
             log.info("Request new bearer token.");
             String bearerTokenString = bearerTokenService.requestBearerToken(runtimeConfig, replyTo, replyToMessageId);
@@ -50,20 +63,26 @@ public class BearerTokenManageService {
     }
 
     public String getBearerToken(RuntimeConfig runtimeConfig) {
+        int hashCode = runtimeConfig.hashCode();
+        for(RuntimeConfig runtimeConfig2 : bearerToken.keySet()) {
+            if(runtimeConfig2 != null && runtimeConfig2.hashCode() == hashCode) {
+                runtimeConfig = runtimeConfig2;
+            }
+        }
         return bearerToken.get(runtimeConfig);
     }
-    
+
     /**
      * Checks if the given bearer token is expired.
      * @param bearerToken2 the bearer token to check
      */
     boolean isExpired(String bearerToken2) {
         JwtConsumer consumer = new JwtConsumerBuilder()
-            .setDisableRequireSignature()
-            .setSkipSignatureVerification()
-            .setSkipDefaultAudienceValidation()
-            .setRequireExpirationTime()
-            .build();
+                .setDisableRequireSignature()
+                .setSkipSignatureVerification()
+                .setSkipDefaultAudienceValidation()
+                .setRequireExpirationTime()
+                .build();
         try {
             consumer.process(bearerToken2);
             return false;
