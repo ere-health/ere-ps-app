@@ -379,6 +379,8 @@
                                             </fo:block>
                                             <fo:block>
                                                 <xsl:value-of
+                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:dosageInstruction/fhir:text/@value"/>
+                                                <xsl:value-of
                                                         select="fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:dosageInstruction/fhir:patientInstruction/@value"/><!-- 128 -->
                                             </fo:block>
                                             <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:coding/fhir:code/@value != 'freitext' and fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:coding/fhir:code/@value != 'wirkstoff' and fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:coding/fhir:code/@value != 'rezeptur'">
