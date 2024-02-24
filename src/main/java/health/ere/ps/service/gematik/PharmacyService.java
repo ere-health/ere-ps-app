@@ -1,16 +1,21 @@
 package health.ere.ps.service.gematik;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.jws.WebParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.ws.Holder;
 
 import org.bouncycastle.cms.CMSProcessableByteArray;
@@ -20,8 +25,13 @@ import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Task;
 
 import ca.uhn.fhir.context.FhirContext;
+import de.gematik.ws.conn.cardservice.v8.CardInfoType;
 import de.gematik.ws.conn.cardservicecommon.v2.CardTypeType;
+import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
+import de.gematik.ws.conn.eventservice.v7.GetCards;
+import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
+import de.gematik.ws.conn.eventservice.v7.SubscriptionType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
 import de.gematik.ws.conn.vsds.vsdservice.v5.VSDStatusType;
@@ -29,6 +39,7 @@ import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.config.UserConfig;
 import health.ere.ps.exception.common.security.SecretsManagerException;
+import health.ere.ps.service.cetp.CETPServer;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 
@@ -50,6 +61,8 @@ public class PharmacyService extends BearerTokenManageService {
     private static final FhirContext fhirContext = FhirContext.forR4();
 
     Client client;
+
+    List<String> subscriptionsIds = new ArrayList<>();
 
     @PostConstruct
     public void init() throws SecretsManagerException {
@@ -148,6 +161,43 @@ public class PharmacyService extends BearerTokenManageService {
             return null;
         }
 
+    }
+
+    public String subscribe(RuntimeConfig runtimeConfig, String host) throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
+        if(runtimeConfig == null) {
+            runtimeConfig = new RuntimeConfig();
+        }
+        ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
+
+        EventServicePortType eventService = connectorServicesProvider.getEventServicePortType(runtimeConfig);
+        SubscriptionType subscriptionType = new SubscriptionType();
+
+        subscriptionType.setEventTo("cetp://"+host+":"+CETPServer.PORT);
+        subscriptionType.setTopic("CARD/INSERTED");
+        Holder<Status> status = new Holder<>();
+        Holder<String> subscriptionId = new Holder<>();
+        Holder<XMLGregorianCalendar> terminationTime = new Holder<>();
+        eventService.subscribe(context, subscriptionType, status, subscriptionId, terminationTime);
+        subscriptionsIds.add(subscriptionId.value);
+        return status.value.getResult()+" "+subscriptionId.value+" "+terminationTime.value.toString();
+    }
+
+    public void unsubscribeAll(RuntimeConfig runtimeConfig, String host) throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
+        if(runtimeConfig == null) {
+            runtimeConfig = new RuntimeConfig();
+        }
+        ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
+
+        EventServicePortType eventService = connectorServicesProvider.getEventServicePortType(runtimeConfig);
+
+        for(String subscriptionId : subscriptionsIds) {
+            try {
+                eventService.unsubscribe(context, subscriptionId, "cetp://"+host+":"+CETPServer.PORT);
+            } catch(Throwable t) {
+                log.log(Level.WARNING, "Could not unsubscribe "+subscriptionId, t);
+            }
+        }
+        subscriptionsIds.clear();
     }
     
 }

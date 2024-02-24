@@ -1,11 +1,15 @@
 package health.ere.ps.resource.gematik;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
 
 import org.hl7.fhir.r4.model.Bundle;
 
@@ -25,6 +29,21 @@ public class PharmacyResource {
     @Inject
     UserConfig userConfig;
 
+    @GET
+    @Path("Subscribe")
+    public String subscribe() throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
+        return pharmacyService.subscribe(ERezeptWorkflowResource.extractRuntimeConfigFromHeaders(httpServletRequest, userConfig), httpServletRequest.getServerName());
+        
+    }
+
+    @GET
+    @Path("Unsubscribe")
+    public Response unsubscribe() throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
+        pharmacyService.unsubscribeAll(ERezeptWorkflowResource.extractRuntimeConfigFromHeaders(httpServletRequest, userConfig), httpServletRequest.getServerName());
+        return Response.ok(httpServletRequest.getServerName()).build();
+        
+    }
+ 
     @GET
     @Path("Task")
     public Bundle task(@QueryParam("egkHandle") String egkHandle, @QueryParam("smcbHandle") String smcbHandle) throws FaultMessage, de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {

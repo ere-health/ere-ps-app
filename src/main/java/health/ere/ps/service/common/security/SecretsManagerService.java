@@ -48,6 +48,8 @@ public class SecretsManagerService {
 
     private SSLContext sslContext;
 
+    KeyManagerFactory keyManagerFactory;
+
 
     public SecretsManagerService() {
     }
@@ -117,10 +119,10 @@ public class SecretsManagerService {
         KeyStore ks = KeyStore.getInstance(KeyStoreType.PKCS12.getKeyStoreType());
         ks.load(certificateInputStream, connectorTlsCertAuthStorePwd.toCharArray());
 
-        KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-        kmf.init(ks, connectorTlsCertAuthStorePwd.toCharArray());
+        keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        keyManagerFactory.init(ks, connectorTlsCertAuthStorePwd.toCharArray());
 
-        sslContext.init(kmf.getKeyManagers(), new TrustManager[]{new SSLUtilities.FakeX509TrustManager()},
+        sslContext.init(keyManagerFactory.getKeyManagers(), new TrustManager[]{new SSLUtilities.FakeX509TrustManager()},
                 null);
         return sslContext;
     }
@@ -140,6 +142,10 @@ public class SecretsManagerService {
 
     public SSLContext getSslContext() {
         return sslContext;
+    }
+
+    public KeyManagerFactory getKeyManagerFactory() {
+        return keyManagerFactory;
     }
 
 
