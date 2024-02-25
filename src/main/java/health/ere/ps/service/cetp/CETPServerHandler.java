@@ -7,6 +7,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.json.Json;
+import javax.json.JsonArray;
 import javax.json.JsonObject;
 
 import org.hl7.fhir.r4.model.Bundle;
@@ -30,12 +31,12 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
 
     CardlinkWebsocketClient cardlinkWebsocketClient;
 
-    IParser parser = FhirContext.forR4().newJsonParser();
+    IParser parser = FhirContext.forR4().newXmlParser();
     
     public CETPServerHandler(PharmacyService pharmacyService) {
         this.pharmacyService = pharmacyService;
         try {
-            cardlinkWebsocketClient = new CardlinkWebsocketClient(new URI("https://cardlink.service-health.de:8444/80276003650110006580-20230112"));
+            cardlinkWebsocketClient = new CardlinkWebsocketClient(new URI("wss://cardlink.service-health.de:8444/websocket/80276003650110006580-20230112"));
         } catch (URISyntaxException e) {
             log.log(Level.WARNING, "Could not connect to card link", e);
         }
@@ -57,15 +58,17 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
             log.info("Card inserted");
             String cardHandle = event.getMessage().getParameter().stream().filter(p -> p.getKey().equals("CardHandle")).map(p -> p.getValue()).findFirst().get();
 
-            String SlotID = event.getMessage().getParameter().stream().filter(p -> p.getKey().equals("SlotID")).map(p -> p.getValue()).findFirst().get();
+            int SlotID = Integer.parseInt(event.getMessage().getParameter().stream().filter(p -> p.getKey().equals("SlotID")).map(p -> p.getValue()).findFirst().get());
             String CtID = event.getMessage().getParameter().stream().filter(p -> p.getKey().equals("CtID")).map(p -> p.getValue()).findFirst().get();
 
             try {
                 Bundle bundle = pharmacyService.getEPrescriptionsForCardHandle(cardHandle, null, null);
-                String json = parser.encodeToString(bundle);
-                JsonObject bundleAJsonObject = Json.createReader(new StringReader(json)).readObject();
-                JsonObject j = Json.createObjectBuilder().add("type", "ERezeptTokensFromAVS").add("SlotId", SlotID).add("CtID", CtID).add("tokens", bundleAJsonObject).build();
-                cardlinkWebsocketClient.sendMessage(j.toString());
+                String xml = parser.encodeToString(bundle);
+                JsonObject j = Json.createObjectBuilder().add("type", "ERezeptTokensFromAVS").add("SlotId", SlotID).add("CtID", CtID).add("tokens", xml).build();
+                JsonArray jArray = Json.createArrayBuilder().add(j).build();
+                String jsonMessage = jArray.toString();
+                log.info(jsonMessage);
+                cardlinkWebsocketClient.sendMessage(jsonMessage);
             } catch (FaultMessage | de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage e) {
                 log.log(Level.WARNING, "Could not get prescription for Bundle", e);
             }
