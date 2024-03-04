@@ -60,6 +60,14 @@ public class AppConfig {
     @ConfigProperty(name = "cardlink.server.url")
     Optional<String> cardLinkServer;
 
+    public Optional<String> getCardLinkServer() {
+        return cardLinkServer;
+    }
+
+    public void setCardLinkServer(Optional<String> cardLinkServer) {
+        this.cardLinkServer = cardLinkServer;
+    }
+
     public String getDirectoryWatcherDir() {
         return directoryWatcherDir;
     }
