@@ -57,6 +57,9 @@ public class AppConfig {
     @ConfigProperty(name = "connector.cert.auth.store.file.password")
     Optional<String> certAuthStoreFilePassword;
 
+    @ConfigProperty(name = "cardlink.server.url")
+    Optional<String> cardLinkServer;
+
     public String getDirectoryWatcherDir() {
         return directoryWatcherDir;
     }

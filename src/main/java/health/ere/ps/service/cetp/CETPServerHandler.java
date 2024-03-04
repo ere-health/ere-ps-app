@@ -33,10 +33,11 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
 
     IParser parser = FhirContext.forR4().newXmlParser();
     
-    public CETPServerHandler(PharmacyService pharmacyService) {
+    public CETPServerHandler(PharmacyService pharmacyService, String cardLinkServer) {
         this.pharmacyService = pharmacyService;
         try {
-            cardlinkWebsocketClient = new CardlinkWebsocketClient(new URI("wss://cardlink.service-health.de:8444/websocket/80276003650110006580-20230112"));
+            log.info("Starting websocket connection to: "+cardLinkServer);
+            cardlinkWebsocketClient = new CardlinkWebsocketClient(new URI(cardLinkServer));
         } catch (URISyntaxException e) {
             log.log(Level.WARNING, "Could not connect to card link", e);
         }

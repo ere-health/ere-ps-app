@@ -11,6 +11,7 @@ import javax.net.ssl.SSLContext;
 
 import org.wildfly.common.net.Inet;
 
+import health.ere.ps.config.AppConfig;
 import health.ere.ps.service.cetp.codec.CETPDecoder;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.gematik.PharmacyService;
@@ -44,6 +45,9 @@ public class CETPServer {
 
     @Inject
     SecretsManagerService secretsManagerService;
+
+    @Inject
+    AppConfig appConfig;
 
     void onStart(@Observes StartupEvent ev) {               
         log.info("Running CETP Server on port "+PORT);
@@ -83,7 +87,7 @@ public class CETPServer {
                         ch.pipeline()
                             .addLast("ssl", sslContext.newHandler(ch.alloc()))
                             .addLast(new CETPDecoder())
-                            .addLast(new CETPServerHandler(pharmacyService));
+                            .addLast(new CETPServerHandler(pharmacyService, appConfig.getCardLinkServer().orElse("wss://cardlink.service-health.de:8444/websocket/80276003650110006580-20230112")));
                     } catch (Exception e) {
                         log.log(Level.WARNING, "Failed to create SSL context", e);
                     }
