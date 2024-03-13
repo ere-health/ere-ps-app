@@ -8,13 +8,16 @@ import javax.json.JsonObject;
 import javax.json.JsonValue;
 import javax.websocket.Session;
 
+import ca.uhn.fhir.context.FhirContext;
 import org.hl7.fhir.r4.model.Bundle;
 
-import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
+
+import health.ere.ps.service.fhir.FHIRService;
 
 public class ReadyToSignBundlesEvent extends AbstractEvent {
 
+    private static final FhirContext fhirContext = FHIRService.getFhirContext();
     public List<List<Bundle>> listOfListOfBundles = new ArrayList<>();
 
     public ReadyToSignBundlesEvent(JsonObject jsonObject) {
@@ -23,7 +26,7 @@ public class ReadyToSignBundlesEvent extends AbstractEvent {
 
             if (jsonValue instanceof JsonArray) {
                 for (JsonValue singleBundle : (JsonArray) jsonValue) {
-                    IParser jsonParser = FhirContext.forR4().newJsonParser();
+                    IParser jsonParser = fhirContext.newJsonParser();
 
                     Bundle bundle = jsonParser.parseResource(Bundle.class, singleBundle.toString());
                     bundles.add(bundle);

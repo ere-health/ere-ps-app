@@ -82,6 +82,7 @@ import health.ere.ps.exception.gematik.ERezeptWorkflowException;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
+import health.ere.ps.service.fhir.FHIRService;
 import health.ere.ps.vau.VAUEngine;
 import health.ere.ps.websocket.ExceptionWithReplyToExcetion;
 import oasis.names.tc.dss._1_0.core.schema.Base64Data;
@@ -94,7 +95,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
     static final String EREZEPT_IDENTIFIER_SYSTEM = "https://gematik.de/fhir/NamingSystem/PrescriptionID";
     static final String EREZEPT_IDENTIFIER_SYSTEM_GEM = "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId";
     private static final Logger log = Logger.getLogger(ERezeptWorkflowService.class.getName());
-    private static final FhirContext fhirContext = FhirContext.forR4();
+    private static final FhirContext fhirContext = FHIRService.getFhirContext();
 
     static {
         org.apache.xml.security.Init.init();

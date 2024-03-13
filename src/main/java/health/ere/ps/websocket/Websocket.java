@@ -35,6 +35,7 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
+import health.ere.ps.service.fhir.FHIRService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.hl7.fhir.r4.model.Bundle;
 
@@ -164,7 +165,7 @@ public class Websocket {
     public static Jsonb jsonbFactory = JsonbBuilder.create(customConfig);
     private static final EreLogger ereLog = EreLogger.getLogger(Websocket.class);
 
-    private final FhirContext ctx = FhirContext.forR4();
+    private final FhirContext fhirContext = FHIRService.getFhirContext();
     private final static Set<Session> sessions = new CopyOnWriteArraySet<>();
 
     @OnOpen
@@ -176,36 +177,36 @@ public class Websocket {
     void sendAllKBVExamples(String folder, Session senderSession) {
         if(folder.equals("../src/test/resources/kbv-zip")) {
             try {
-                Bundle bundle = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF01.xml"));
+                Bundle bundle = fhirContext.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF01.xml"));
                 bundle.setId(UUID.randomUUID().toString());
                 onFhirBundle(new BundlesEvent(Collections.singletonList(bundle), senderSession, ""));
 
-                bundle = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF02.xml"));
+                bundle = fhirContext.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF02.xml"));
                 bundle.setId(UUID.randomUUID().toString());
                 onFhirBundle(new BundlesEvent(Collections.singletonList(bundle), senderSession, ""));
 
-                Bundle bundle03 = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF03.xml"));
+                Bundle bundle03 = fhirContext.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF03.xml"));
                 bundle03.setId(UUID.randomUUID().toString());
 
-                Bundle bundle04 = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF04.xml"));
+                Bundle bundle04 = fhirContext.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF04.xml"));
                 bundle04.setId(UUID.randomUUID().toString());
 
-                Bundle bundle05 = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF05.xml"));
+                Bundle bundle05 = fhirContext.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF05.xml"));
                 bundle05.setId(UUID.randomUUID().toString());
 
                 onFhirBundle(new BundlesEvent(Arrays.asList(bundle03, bundle04, bundle05), senderSession, ""));
 
-                bundle = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF07.xml"));
+                bundle = fhirContext.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF07.xml"));
                 bundle.setId(UUID.randomUUID().toString());
                 onFhirBundle(new BundlesEvent(Collections.singletonList(bundle), senderSession, ""));
 
-                Bundle bundle08_1 = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF08_1.xml"));
+                Bundle bundle08_1 = fhirContext.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF08_1.xml"));
                 bundle08_1.setId(UUID.randomUUID().toString());
 
-                Bundle bundle08_2 = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF08_2.xml"));
+                Bundle bundle08_2 = fhirContext.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF08_2.xml"));
                 bundle08_2.setId(UUID.randomUUID().toString());
 
-                Bundle bundle08_3 = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF08_3.xml"));
+                Bundle bundle08_3 = fhirContext.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF08_3.xml"));
                 bundle08_3.setId(UUID.randomUUID().toString());
 
                 onFhirBundle(new BundlesEvent(Arrays.asList(bundle08_1, bundle08_2, bundle08_3), senderSession, ""));
@@ -219,7 +220,7 @@ public class Websocket {
                         .forEach(f -> {
                             try (InputStream inputStream = new FileInputStream(f.toFile())) {
                                 String xml = new String(inputStream.readAllBytes(), "UTF-8").replaceAll("<!--.*-->", "");
-                                Bundle bundle = ctx.newXmlParser().parseResource(Bundle.class, xml);
+                                Bundle bundle = fhirContext.newXmlParser().parseResource(Bundle.class, xml);
                                 bundle.setId(UUID.randomUUID().toString());
                                 onFhirBundle(new BundlesEvent(Collections.singletonList(bundle)));
                             } catch (IOException ex) {
@@ -590,7 +591,7 @@ public class Websocket {
                     .collect(Collectors.joining(",\n", "[", "]"));
         } else {
             return bundlesEvent.getBundles().stream().map(bundle ->
-                            ctx.newJsonParser().encodeResourceToString(bundle))
+                            fhirContext.newJsonParser().encodeResourceToString(bundle))
                     .collect(Collectors.joining(",\n", "[", "]"));
         }
     }
