@@ -11,6 +11,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.transform.TransformerException;
 
+import health.ere.ps.service.fhir.FHIRService;
 import org.hl7.fhir.r4.model.Bundle;
 
 import ca.uhn.fhir.context.FhirContext;
@@ -22,8 +23,9 @@ public class XSLTResource {
     @Inject
     XSLTService xsltService;
 
-    IParser jsonParser = FhirContext.forR4().newJsonParser();
-    IParser xmlParser = FhirContext.forR4().newXmlParser();
+    private static final FhirContext fhirContext = FHIRService.getFhirContext();
+    IParser jsonParser = fhirContext.newJsonParser();
+    IParser xmlParser = fhirContext.newXmlParser();
 
     @POST
     @Path("transform")
