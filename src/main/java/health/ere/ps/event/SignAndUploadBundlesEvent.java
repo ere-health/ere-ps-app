@@ -13,6 +13,7 @@ import javax.json.JsonString;
 import javax.json.JsonValue;
 import javax.websocket.Session;
 
+import health.ere.ps.service.fhir.FHIRService;
 import org.hl7.fhir.r4.model.Bundle;
 
 import ca.uhn.fhir.context.FhirContext;
@@ -29,6 +30,8 @@ public class SignAndUploadBundlesEvent extends AbstractEvent {
     public String noteToPharmacy;
 
     public Map<String,String> kimConfigMap = new HashMap<>();
+
+    private static final FhirContext fhirContext = FHIRService.getFhirContext();
 
 
     public SignAndUploadBundlesEvent(JsonObject jsonObject) {
@@ -54,7 +57,7 @@ public class SignAndUploadBundlesEvent extends AbstractEvent {
 
             if (jsonValue instanceof JsonArray) {
                 for (JsonValue singleBundle : (JsonArray) jsonValue) {
-                    IParser jsonParser = FhirContext.forR4().newJsonParser();
+                    IParser jsonParser = fhirContext.newJsonParser();
 
                     Bundle bundle = jsonParser.parseResource(Bundle.class, singleBundle.toString());
                     bundles.add(bundle);
