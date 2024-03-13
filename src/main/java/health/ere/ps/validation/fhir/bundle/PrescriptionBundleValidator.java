@@ -26,11 +26,15 @@ import ca.uhn.fhir.context.support.DefaultProfileValidationSupport;
 import ca.uhn.fhir.validation.FhirValidator;
 import ca.uhn.fhir.validation.SingleValidationMessage;
 import ca.uhn.fhir.validation.ValidationResult;
-import health.ere.ps.validation.fhir.context.support.ErePrePopulatedValidationSupport;
+
 import io.quarkus.runtime.Startup;
 
-@ApplicationScoped
+import health.ere.ps.service.fhir.FHIRService;
+import health.ere.ps.validation.fhir.context.support.ErePrePopulatedValidationSupport;
+
+
 @Startup
+@ApplicationScoped
 public class PrescriptionBundleValidator {
 
     private static final Logger log =
@@ -40,7 +44,7 @@ public class PrescriptionBundleValidator {
     @PostConstruct
     void init() {
         log.info("Starting validator");
-        FhirContext ctx = FhirContext.forR4();
+        FhirContext fhirContext = FHIRService.getFhirContext();
 
         // Create a chain that will hold our modules
         ValidationSupportChain validationSupportChain = new ValidationSupportChain();
@@ -48,13 +52,13 @@ public class PrescriptionBundleValidator {
         // DefaultProfileValidationSupport supplies base FHIR definitions. This is generally required
         // even if you are using custom profiles, since those profiles will derive from the base
         // definitions.
-        validationSupportChain.addValidationSupport(new DefaultProfileValidationSupport(ctx));
-        validationSupportChain.addValidationSupport(new ErePrePopulatedValidationSupport(ctx));
-        validationSupportChain.addValidationSupport(new CommonCodeSystemsTerminologyService(ctx));
-        validationSupportChain.addValidationSupport(new InMemoryTerminologyServerValidationSupport(ctx));
-        validationSupportChain.addValidationSupport(new SnapshotGeneratingValidationSupport(ctx));
+        validationSupportChain.addValidationSupport(new DefaultProfileValidationSupport(fhirContext));
+        validationSupportChain.addValidationSupport(new ErePrePopulatedValidationSupport(fhirContext));
+        validationSupportChain.addValidationSupport(new CommonCodeSystemsTerminologyService(fhirContext));
+        validationSupportChain.addValidationSupport(new InMemoryTerminologyServerValidationSupport(fhirContext));
+        validationSupportChain.addValidationSupport(new SnapshotGeneratingValidationSupport(fhirContext));
 
-        CachingValidationSupport cache = new CachingValidationSupport(validationSupportChain);
+        CachingValidationSupport cache = new CachingValidationSupport(validationSupportChain); // todo: 10 min cache timeout...can't we just keep it in memory for the lifetime of the app?
 
         FhirInstanceValidator validatorModule = new FhirInstanceValidator(cache);
 
@@ -63,7 +67,7 @@ public class PrescriptionBundleValidator {
         validatorModule.setNoTerminologyChecks(true); // TODO: Fix issues when set to false.
         validatorModule.setCustomExtensionDomains("http://fhir.de", "https://fhir.kbv.de");
 
-        validator = ctx.newValidator().registerValidatorModule(validatorModule);
+        validator = fhirContext.newValidator().registerValidatorModule(validatorModule);
 
         // needed for initializing
         validateResource("{\"resourceType\":\"Bundle\",\"id\":\"2e38f9d3-6de0-4272-b343-7b6975e8fe9e\",\"meta\":{\"lastUpdated\":\"2021-04-06T08:30:00Z\",\"profile\":"+
