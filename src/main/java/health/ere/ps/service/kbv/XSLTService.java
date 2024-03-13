@@ -25,6 +25,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import health.ere.ps.service.fhir.FHIRService;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.hl7.fhir.r4.model.Bundle;
 
@@ -38,7 +39,7 @@ public class XSLTService {
 
     private static Logger log = Logger.getLogger(XSLTService.class.getName());
 
-    private final FhirContext fhirContext = FhirContext.forR4();
+    private static final FhirContext fhirContext = FHIRService.getFhirContext();
 
     @Inject
     Event<Exception> exceptionEvent;
