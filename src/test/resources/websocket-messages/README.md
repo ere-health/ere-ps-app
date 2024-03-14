@@ -9,8 +9,7 @@ The following messages are currently supported:
    * Status messages are sent during the process:
      * HTMLBundles - This message contains the XSLT stylesheet of the KBV processed bundles that must be displayed to the user
      * BundlesValidationResult - If a bundle is invalid, this message will be sent with the appropriate validation error
-     * Exception - Exceptions that can occur during processing
- messages and the Process is canceled
+     * Exception - Exceptions that can occur during processing messages and the Process is canceled
    * Response
      * ERezeptWithDocuments - Contains the signed bundles including AccessCode and PrescriptionID. Furthermore, the created PDF is encoded as base64 Document included
  * ValidateBundles - Validates the submitted bundles

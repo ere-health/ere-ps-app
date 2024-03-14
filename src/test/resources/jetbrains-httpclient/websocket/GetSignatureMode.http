@@ -1,0 +1,52 @@
+# GetSignatureMode example messages
+# First Message won't get the sessionInfo
+### GetSignatureMode examples
+WEBSOCKET ws://{{baseURL}}/websocket
+
+{
+    "type": "GetSignatureMode"
+}
+
+=== wait-for-server
+
+{
+    "type": "GetSignatureMode",
+    "runtimeConfig": {
+      "eHBAHandle": "{{eHBAHandle}}",
+      "SMCBHandle": "{{SMCBHandle}}",
+      "userId": "{{userId}}"
+    }
+}
+
+=== wait-for-server
+
+{
+    "type": "GetSignatureMode",
+    "id": "{{userId}}",
+    "runtimeConfig": {
+        "eHBAHandle": "{{eHBAHandle}}",
+        "SMCBHandle": "{{SMCBHandle}}",
+        "userId": "{{userId}}",
+        "client-system-id": "{{connector.client-system-id}}",
+        "mandant-id": "{{connector.mandant-id}}",
+        "workplace-id": "{{connector.workplace-id}}"
+    }
+}
+
+=== wait-for-server
+
+{
+    "type": "GetSignatureMode",
+    "runtimeConfig": {
+        "eHBAHandle": "{{eHBAHandle}}",
+        "SMCBHandle": "{{SMCBHandle}}",
+        "userId": "{{userId}}",
+        "base-url": "{{connector.base-url}}",
+        "client-certificate": "{{connector.client-certificate}}",
+        "client-certificate-password": "{{connector.client-certificate-password}}",
+        "client-system-id": "{{connector.client-system-id}}",
+        "mandant-id": "{{connector.mandant-id}}",
+        "version": "{{connector.version}}",
+        "workplace-id": "{{connector.workplace-id}}"
+    }
+}

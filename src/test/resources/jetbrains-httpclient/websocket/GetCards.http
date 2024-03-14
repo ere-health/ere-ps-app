@@ -1,0 +1,32 @@
+# GetCards example messages
+WEBSOCKET ws://{{baseURL}}/websocket
+
+{
+    "type": "GetCards"
+}
+
+=== wait-for-server
+
+{
+    "type": "GetCards",
+    "runtimeConfig": {
+        "connector.client-system-id": "{{connector.client-system-id}}",
+        "connector.mandant-id": "{{connector.mandant-id}}",
+        "connector.workplace-id": "{{connector.workplace-id}}"
+    }
+}
+
+=== wait-for-server
+
+{
+    "type": "GetCards",
+    "runtimeConfig": {
+        "connector.base-url": "{{connector.base-url}}",
+        "connector.client-certificate": "{{connector.client-certificate}}",
+        "connector.client-certificate-password": "{{connector.client-certificate-password}}",
+        "connector.client-system-id": "{{connector.client-system-id}}",
+        "connector.mandant-id": "{{connector.mandant-id}}",
+        "connector.version": "{{connector.version}}",
+        "connector.workplace-id": "{{connector.workplace-id}}"
+    }
+}
