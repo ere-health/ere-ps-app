@@ -53,6 +53,7 @@ import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.v7.GetCards;
 import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
+import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.signatureservice.v7.DocumentType;
 import de.gematik.ws.conn.signatureservice.v7.SignRequest;
 import de.gematik.ws.conn.signatureservice.v7.SignRequest.OptionalInputs;
@@ -790,7 +791,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
      */
     public void onActivateComfortSignatureEvent(@ObservesAsync ActivateComfortSignatureEvent activateComfortSignatureEvent) {
         String userId = activateComfortSignature(activateComfortSignatureEvent.getRuntimeConfig(), activateComfortSignatureEvent.getReplyTo(), activateComfortSignatureEvent.getId());
-        onGetSignatureModeEvent(new GetSignatureModeEvent(activateComfortSignatureEvent.getReplyTo(), activateComfortSignatureEvent.getId()), userId);
+        onGetSignatureModeEvent(new GetSignatureModeEvent(activateComfortSignatureEvent.getReplyTo(), activateComfortSignatureEvent.getId()), userId, true);
     }
 
 
@@ -837,17 +838,22 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
         onGetSignatureModeEvent(getSignatureModeEvent, null);
     }
 
+    public void onGetSignatureModeEvent(GetSignatureModeEvent getSignatureModeEvent, String userId) {
+        onGetSignatureModeEvent(getSignatureModeEvent, userId, false);
+    }
+
     /**
      * Reacts to the event the GetSignatureMode Event
      */
-    public void onGetSignatureModeEvent(GetSignatureModeEvent getSignatureModeEvent, String userId) {
+    public void onGetSignatureModeEvent(GetSignatureModeEvent getSignatureModeEvent, String userId, boolean answertToActivateComfortSignature) {
         GetSignatureModeResponseEvent getSignatureModeResponseEvent = getSignatureMode(getSignatureModeEvent.getRuntimeConfig(), getSignatureModeEvent.getReplyTo(), getSignatureModeEvent.getId());
         if(getSignatureModeResponseEvent != null) {
             if(getSignatureModeEvent != null) {
                 getSignatureModeResponseEvent.setReplyTo(getSignatureModeEvent.getReplyTo());
                 getSignatureModeResponseEvent.setReplyToMessageId(getSignatureModeEvent.getId());
             }
-            getSignatureModeResponseEvent.setUserId(userId);
+            getSignatureModeResponseEvent.setUserId(userId != null ? userId : (getSignatureModeEvent.getRuntimeConfig() != null ? getSignatureModeEvent.getRuntimeConfig().getUserId() : null));
+            getSignatureModeResponseEvent.setAnswertToActivateComfortSignature(answertToActivateComfortSignature);
             this.getSignatureModeResponseEvent.fireAsync(getSignatureModeResponseEvent);
         }
     }
@@ -860,7 +866,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
      *
      */
     public GetSignatureModeResponseEvent getSignatureMode(RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId) {
-        if(userIdForComfortSignature == null) {
+        if(userIdForComfortSignature == null && (runtimeConfig.getUserId() == null || runtimeConfig.getUserId().isEmpty())) {
             Status status = new Status();
             status.setResult("OK");
             ComfortSignatureStatusEnum comfortSignatureStatus = ComfortSignatureStatusEnum.DISABLED;
@@ -956,7 +962,12 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
     public GetCardsResponse getCards(RuntimeConfig runtimeConfig) throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         GetCards parameter = new GetCards();
         parameter.setContext(connectorServicesProvider.getContextType(runtimeConfig));
-        return connectorServicesProvider.getEventServicePortType(runtimeConfig).getCards(parameter);
+        EventServicePortType eventServicePortType = connectorServicesProvider.getEventServicePortType(runtimeConfig);
+        if(eventServicePortType == null) {
+            throw new RuntimeException("EventServicePortType is null. This normally means that the connector configuration is not correct.");
+        } else {
+            return eventServicePortType.getCards(parameter);
+        }
     }
 
     /**

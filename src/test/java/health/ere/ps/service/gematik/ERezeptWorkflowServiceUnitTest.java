@@ -1,14 +1,18 @@
 package health.ere.ps.service.gematik;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import javax.enterprise.event.Event;
+import javax.json.Json;
+import javax.json.JsonObject;
 
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Identifier;
@@ -20,6 +24,7 @@ import org.mockito.ArgumentCaptor;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
 import health.ere.ps.event.ActivateComfortSignatureEvent;
+import health.ere.ps.event.GetSignatureModeEvent;
 import health.ere.ps.event.GetSignatureModeResponseEvent;
 import health.ere.ps.exception.gematik.ERezeptWorkflowException;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
@@ -29,18 +34,7 @@ public class ERezeptWorkflowServiceUnitTest {
 
     @Test
     void testActivateComfortSignatureUnit() throws ERezeptWorkflowException {
-        ERezeptWorkflowService eRezeptWorkflowServiceUnit = new ERezeptWorkflowService();
-        
-        ConnectorCardsService connectorCardsService = mock(ConnectorCardsService.class);
-        eRezeptWorkflowServiceUnit.connectorCardsService = connectorCardsService;
-
-        MultiConnectorServicesProvider connectorServicesProvider = mock(MultiConnectorServicesProvider.class);
-        eRezeptWorkflowServiceUnit.connectorServicesProvider = connectorServicesProvider;
-
-        when(connectorServicesProvider.getContextType(any())).thenReturn(new ContextType());
-
-        SignatureServicePortTypeV755 signatureServicePortTypeV755 = mock(SignatureServicePortTypeV755.class);
-        when(connectorServicesProvider.getSignatureServicePortTypeV755(any())).thenReturn(signatureServicePortTypeV755);
+        ERezeptWorkflowService eRezeptWorkflowServiceUnit = mockERezeptWorkflowServiceUnit();
 
         Event<GetSignatureModeResponseEvent> getSignatureModeResponseEvent = (Event<GetSignatureModeResponseEvent>) mock(Event.class);
         eRezeptWorkflowServiceUnit.getSignatureModeResponseEvent = getSignatureModeResponseEvent;
@@ -53,6 +47,44 @@ public class ERezeptWorkflowServiceUnitTest {
         GetSignatureModeResponseEvent thrownEvent = argumentCaptor.getValue();
         
         assertNotNull(thrownEvent.getUserId());
+        assertTrue(thrownEvent.getAnswertToActivateComfortSignature());
+    }
+
+    private ERezeptWorkflowService mockERezeptWorkflowServiceUnit() {
+        ERezeptWorkflowService eRezeptWorkflowServiceUnit = new ERezeptWorkflowService();
+        
+        ConnectorCardsService connectorCardsService = mock(ConnectorCardsService.class);
+        eRezeptWorkflowServiceUnit.connectorCardsService = connectorCardsService;
+
+        MultiConnectorServicesProvider connectorServicesProvider = mock(MultiConnectorServicesProvider.class);
+        eRezeptWorkflowServiceUnit.connectorServicesProvider = connectorServicesProvider;
+
+        when(connectorServicesProvider.getContextType(any())).thenReturn(new ContextType());
+
+        SignatureServicePortTypeV755 signatureServicePortTypeV755 = mock(SignatureServicePortTypeV755.class);
+        when(connectorServicesProvider.getSignatureServicePortTypeV755(any())).thenReturn(signatureServicePortTypeV755);
+        return eRezeptWorkflowServiceUnit;
+    }
+
+    @Test
+    void testOnGetSignatureMode() {
+
+        ERezeptWorkflowService eRezeptWorkflowServiceUnit = mockERezeptWorkflowServiceUnit();
+        Event<GetSignatureModeResponseEvent> getSignatureModeResponseEvent = (Event<GetSignatureModeResponseEvent>) mock(Event.class);
+        eRezeptWorkflowServiceUnit.getSignatureModeResponseEvent = getSignatureModeResponseEvent;
+        ArgumentCaptor<GetSignatureModeResponseEvent> argumentCaptor = ArgumentCaptor.forClass(GetSignatureModeResponseEvent.class);
+        
+        JsonObject jsonObject = Json.createObjectBuilder().add("runtimeConfig",
+        Json.createObjectBuilder().add("connector.user-id", "37c312a6-eb7f-11ee-8eea-6ba768ebd268")
+        ).build();
+        
+        eRezeptWorkflowServiceUnit.onGetSignatureModeEvent(new GetSignatureModeEvent(jsonObject));
+        verify(getSignatureModeResponseEvent).fireAsync(argumentCaptor.capture());
+        GetSignatureModeResponseEvent thrownEvent = argumentCaptor.getValue();
+        
+        assertNotNull(thrownEvent.getUserId());
+        assertFalse(thrownEvent.getAnswertToActivateComfortSignature());
+
     }
 
     @Test
