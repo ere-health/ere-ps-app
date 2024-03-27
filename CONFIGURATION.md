@@ -25,6 +25,9 @@ If you want to use a special profile ("%RU." prefix in files for "RU" profile) u
 - If you want so see the SSL Handshake use:
 > mvn -Djvm.args="-Djavax.net.debug=ssl:handshake" quarkus:dev
 
+- If you want to use a certain version of a JDK use:
+> JAVA_HOME=/usr/lib/jvm/java-1.11.0-openjdk-amd64/ mvn quarkus:dev
+
 ---
 
 ### Environment Variables
