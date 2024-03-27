@@ -7,7 +7,11 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -78,7 +82,7 @@ import health.ere.ps.event.PrefillBundleEvent;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import health.ere.ps.service.idp.crypto.CryptoLoader;
 import health.ere.ps.service.kbv.KBVFHIRUtil;
-import health.ere.ps.websocket.ExceptionWithReplyToExcetion;
+import health.ere.ps.websocket.ExceptionWithReplyToException;
 
 @ApplicationScoped
 public class PrefillPrescriptionService {
@@ -451,7 +455,7 @@ public class PrefillPrescriptionService {
 			bundleEvent.fireAsync(new BundlesEvent(Arrays.asList(get(prefillBundleEvent.getRuntimeConfig()))));
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "Could not create bundles", e);
-			exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, prefillBundleEvent.getReplyTo(),
+			exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, prefillBundleEvent.getReplyTo(),
 					prefillBundleEvent.getId()));
 		}
 	}

@@ -35,7 +35,6 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import health.ere.ps.service.fhir.FHIRService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.hl7.fhir.r4.model.Bundle;
 
@@ -81,6 +80,7 @@ import health.ere.ps.jsonb.ThrowableAdapter;
 import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.model.websocket.OutgoingPayload;
 import health.ere.ps.service.config.UserConfigurationService;
+import health.ere.ps.service.fhir.FHIRService;
 import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
 import health.ere.ps.service.fhir.bundle.EreBundle;
 import health.ere.ps.service.logging.EreLogger;
@@ -343,7 +343,7 @@ public class Websocket {
             }
         } catch(Exception ex) {
             ereLog.warn("Could not process message", ex);
-            onException(new ExceptionWithReplyToExcetion(ex, senderSession, messageId));
+            onException(new ExceptionWithReplyToException(ex, senderSession, messageId));
         }
     }
 
@@ -604,8 +604,8 @@ public class Websocket {
         String replyToMessageIdFromException = null; 
 
         // only send the exception to the session that provoked it
-        if(exceptionParam instanceof ExceptionWithReplyToExcetion) {
-            ExceptionWithReplyToExcetion exceptionWithReplyToExcetion = (ExceptionWithReplyToExcetion) exceptionParam;
+        if(exceptionParam instanceof ExceptionWithReplyToException) {
+            ExceptionWithReplyToException exceptionWithReplyToExcetion = (ExceptionWithReplyToException) exceptionParam;
             localSessions = new HashSet<>();
             if(exceptionWithReplyToExcetion.getReplyTo() != null) {
                 localSessions.add(exceptionWithReplyToExcetion.getReplyTo());

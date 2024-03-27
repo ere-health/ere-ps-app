@@ -25,14 +25,14 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import health.ere.ps.service.fhir.FHIRService;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.hl7.fhir.r4.model.Bundle;
 
 import ca.uhn.fhir.context.FhirContext;
 import health.ere.ps.event.HTMLBundlesEvent;
 import health.ere.ps.event.ReadyToSignBundlesEvent;
-import health.ere.ps.websocket.ExceptionWithReplyToExcetion;
+import health.ere.ps.service.fhir.FHIRService;
+import health.ere.ps.websocket.ExceptionWithReplyToException;
 
 @ApplicationScoped
 public class XSLTService {
@@ -127,13 +127,13 @@ public class XSLTService {
                 try {
                     return generateHtmlForBundle(bundle);
                 } catch (Exception e) {
-                    exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, readyToSignBundlesEvent.getReplyTo(), readyToSignBundlesEvent.getReplyToMessageId()));
+                    exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, readyToSignBundlesEvent.getReplyTo(), readyToSignBundlesEvent.getReplyToMessageId()));
                     return "";
                 }
             }).collect(Collectors.toList());
             hTMLBundlesEvent.fireAsync(new HTMLBundlesEvent(htmlBundlesList, readyToSignBundlesEvent.getReplyTo(), readyToSignBundlesEvent.getReplyToMessageId()));
         } catch(Exception ex) {
-            exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(ex, readyToSignBundlesEvent.getReplyTo(), readyToSignBundlesEvent.getReplyToMessageId()));
+            exceptionEvent.fireAsync(new ExceptionWithReplyToException(ex, readyToSignBundlesEvent.getReplyTo(), readyToSignBundlesEvent.getReplyToMessageId()));
         }
     }
 }

@@ -37,7 +37,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamSource;
 
-import health.ere.ps.service.fhir.FHIRService;
 import org.apache.fop.apps.FOPException;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
@@ -53,7 +52,8 @@ import health.ere.ps.event.BundlesWithAccessCodeEvent;
 import health.ere.ps.event.ERezeptWithDocumentsEvent;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.model.pdf.ERezeptDocument;
-import health.ere.ps.websocket.ExceptionWithReplyToExcetion;
+import health.ere.ps.service.fhir.FHIRService;
+import health.ere.ps.websocket.ExceptionWithReplyToException;
 
 @ApplicationScoped
 public class DocumentService {
@@ -187,7 +187,7 @@ public class DocumentService {
                             boas = generateERezeptPdf(subList);
                         } catch (IOException | FOPException | TransformerException e) {
                             log.severe("Could not generate ERezept PDF:" + e);
-                            exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, bundlesWithAccessCodeEvent.getReplyTo(), bundlesWithAccessCodeEvent.getReplyToMessageId()));
+                            exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, bundlesWithAccessCodeEvent.getReplyTo(), bundlesWithAccessCodeEvent.getReplyToMessageId()));
                             boas = new ByteArrayOutputStream();
                         }
                     }
@@ -200,7 +200,7 @@ public class DocumentService {
                     log.info("Sending prescription receipts results.");
                 }
             } catch (Exception ex) {
-                exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(ex, bundlesWithAccessCodeEvent.getReplyTo(), bundlesWithAccessCodeEvent.getReplyToMessageId()));
+                exceptionEvent.fireAsync(new ExceptionWithReplyToException(ex, bundlesWithAccessCodeEvent.getReplyTo(), bundlesWithAccessCodeEvent.getReplyToMessageId()));
             }
         });
     }

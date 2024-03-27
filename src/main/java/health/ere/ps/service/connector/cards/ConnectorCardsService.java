@@ -39,7 +39,7 @@ import health.ere.ps.model.gematik.GetPinStatusResponse;
 import health.ere.ps.model.gematik.UnblockPinResponse;
 import health.ere.ps.model.gematik.VerifyPinResponse;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
-import health.ere.ps.websocket.ExceptionWithReplyToExcetion;
+import health.ere.ps.websocket.ExceptionWithReplyToException;
 
 
 @ApplicationScoped
@@ -138,7 +138,7 @@ public class ConnectorCardsService {
             changePinResponseEvent.fireAsync(new ChangePinResponseEvent(changePinResponse, changePinEvent.getReplyTo(), changePinEvent.getId()));
         } catch (Exception e) {
             log.log(Level.WARNING, "Could not change pin for card", e);
-            exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, changePinEvent.getReplyTo(), changePinEvent.getId()));
+            exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, changePinEvent.getReplyTo(), changePinEvent.getId()));
         }
     }
     
@@ -148,7 +148,7 @@ public class ConnectorCardsService {
             verifyPinResponseEvent.fireAsync(new VerifyPinResponseEvent(verifyPinResponse, verifyPinEvent.getReplyTo(), verifyPinEvent.getId()));
         } catch (Exception e) {
             log.log(Level.WARNING, "Could not verify pin for card", e);
-            exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, verifyPinEvent.getReplyTo(), verifyPinEvent.getId()));
+            exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, verifyPinEvent.getReplyTo(), verifyPinEvent.getId()));
         }
     }
 
@@ -158,7 +158,7 @@ public class ConnectorCardsService {
             unblockPinResponseEvent.fireAsync(new UnblockPinResponseEvent(unblockPinResponse, unblockPinEvent.getReplyTo(), unblockPinEvent.getId()));
         } catch (Exception e) {
             log.log(Level.WARNING, "Could not unblock pin for card", e);
-            exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, unblockPinEvent.getReplyTo(), unblockPinEvent.getId()));
+            exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, unblockPinEvent.getReplyTo(), unblockPinEvent.getId()));
         }
     }
 
@@ -168,7 +168,7 @@ public class ConnectorCardsService {
             getPinStatusResponseEvent.fireAsync(new GetPinStatusResponseEvent(getPinStatusResponse, getPinStatusEvent.getReplyTo(), getPinStatusEvent.getId()));
         } catch (Exception e) {
             log.log(Level.WARNING, "Could not unblock pin for card", e);
-            exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, getPinStatusEvent.getReplyTo(), getPinStatusEvent.getId()));
+            exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, getPinStatusEvent.getReplyTo(), getPinStatusEvent.getId()));
         }
     }
 
