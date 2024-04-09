@@ -1,6 +1,5 @@
 package health.ere.ps.service.gematik;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -10,7 +9,6 @@ import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.jws.WebParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -25,12 +23,9 @@ import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Task;
 
 import ca.uhn.fhir.context.FhirContext;
-import de.gematik.ws.conn.cardservice.v8.CardInfoType;
 import de.gematik.ws.conn.cardservicecommon.v2.CardTypeType;
 import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
-import de.gematik.ws.conn.eventservice.v7.GetCards;
-import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
 import de.gematik.ws.conn.eventservice.v7.SubscriptionType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
@@ -102,6 +97,7 @@ public class PharmacyService extends BearerTokenManageService {
 
         try (Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task")
                 .queryParam("pnw", pnw).request()
+                .header("Content-Type", "application/fhir+xml; charset=UTF-8")
                 .header("User-Agent", appConfig.getUserAgent())
                 .header("Authorization", "Bearer " + bearerToken.get(runtimeConfig))
                 .get()) {
@@ -121,6 +117,7 @@ public class PharmacyService extends BearerTokenManageService {
         String secret = "";
         String prescriptionId = "";
         try (Response response = client.target(appConfig.getPrescriptionServiceURL()+token).request()
+                .header("Content-Type", "application/fhir+xml; charset=UTF-8")
                 .header("User-Agent", appConfig.getUserAgent())
                 .header("Authorization", "Bearer " + bearerToken.get(runtimeConfig))
                 .post(Entity.entity("", "application/fhir+xml; charset=UTF-8"))) {
