@@ -64,13 +64,8 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
             String CtID = event.getMessage().getParameter().stream().filter(p -> p.getKey().equals("CtID")).map(p -> p.getValue()).findFirst().get();
 
             try {
-                String xml;
-                try {
-                    Bundle bundle = pharmacyService.getEPrescriptionsForCardHandle(cardHandle, null, null);
-                    xml = parser.encodeToString(bundle);
-                } catch (Exception e) {
-                    xml = e.getMessage();
-                }
+                Bundle bundle = pharmacyService.getEPrescriptionsForCardHandle(cardHandle, null, null);
+                String xml = parser.encodeToString(bundle);
                 JsonObject j = Json.createObjectBuilder().add("type", "ERezeptTokensFromAVS").add("SlotId", SlotID).add("CtID", CtID).add("tokens", xml).build();
                 JsonArray jArray = Json.createArrayBuilder().add(j).build();
                 String jsonMessage = jArray.toString();
@@ -97,8 +92,14 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
                         String taskId = task.getIdentifier().stream().filter(t -> "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId".equals(t.getSystem())).map(t -> t.getValue()).findAny().orElse(null);
                         String accessCode = task.getIdentifier().stream().filter(t -> "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_AccessCode".equals(t.getSystem())).map(t -> t.getValue()).findAny().orElse(null);
                         log.info("TaskId: "+taskId+" AccessCode: "+accessCode);
-                        Bundle bundleEPrescription = pharmacyService.accept("/Task/"+taskId+"/$accept?ac="+accessCode, new RuntimeConfig());
-                        bundles.add(parser.encodeToString(bundleEPrescription));
+                        String token = "/Task/"+taskId+"/$accept?ac="+accessCode;
+                        try {
+                            Bundle bundleEPrescription = pharmacyService.accept(token, new RuntimeConfig());
+                            bundles.add(parser.encodeToString(bundleEPrescription));
+                            
+                        } catch (Exception e) {
+                            bundles.add("Error for "+token+" "+e.getMessage());
+                        }
                     }
                 }
 
