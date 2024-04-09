@@ -1,6 +1,5 @@
 package health.ere.ps.service.cetp;
 
-import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.logging.Level;
@@ -8,9 +7,11 @@ import java.util.logging.Logger;
 
 import javax.json.Json;
 import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 
 import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
@@ -18,7 +19,6 @@ import de.gematik.ws.conn.eventservice.v7.Event;
 import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
 import health.ere.ps.service.cardlink.CardlinkWebsocketClient;
 import health.ere.ps.service.gematik.PharmacyService;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
@@ -70,6 +70,38 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
                 String jsonMessage = jArray.toString();
                 log.info(jsonMessage);
                 cardlinkWebsocketClient.sendMessage(jsonMessage);
+
+                JsonArrayBuilder bundles = Json.createArrayBuilder().add(j);
+                for(BundleEntryComponent entry : bundle.getEntry()) {
+                    if(entry.getResource() instanceof org.hl7.fhir.r4.model.Task) {
+                        /*
+                         * <identifier>
+                         *    <use value="official"/>
+                         *    <system value="https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId"/>
+                         *    <value value="160.000.187.347.039.26"/>
+                         *    </identifier>
+                         *    <identifier>
+                         *    <use value="official"/>
+                         *    <system value="https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_AccessCode"/>
+                         *    <value value="e624d3e6980e73d397517d0f2219aad553a11c9a8194fca04354eb346edbb266"/>
+                         * </identifier>
+                         */
+
+                        org.hl7.fhir.r4.model.Task task = (org.hl7.fhir.r4.model.Task) entry.getResource();
+                        String taskId = task.getIdentifier().stream().filter(t -> "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId".equals(t.getSystem())).map(t -> t.getValue()).findAny().orElse(null);
+                        String accessCode = task.getIdentifier().stream().filter(t -> "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_AccessCode".equals(t.getSystem())).map(t -> t.getValue()).findAny().orElse(null);
+                        log.info("TaskId: "+taskId+" AccessCode: "+accessCode);
+                        Bundle bundleEPrescription = pharmacyService.accept("/Task/"+taskId+"/$accept?ac=", null);
+                        bundles.add(parser.encodeToString(bundleEPrescription));
+                    }
+                }
+
+                JsonObject eRezeptBundlesFromAVS = Json.createObjectBuilder().add("type", "ERezeptBundlesFromAVS").add("SlotId", SlotID).add("CtID", CtID).add("bundles", bundles).build();
+
+                jArray = Json.createArrayBuilder().add(eRezeptBundlesFromAVS).build();
+
+                cardlinkWebsocketClient.sendMessage(jArray.toString());
+                
             } catch (FaultMessage | de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage e) {
                 log.log(Level.WARNING, "Could not get prescription for Bundle", e);
             }
