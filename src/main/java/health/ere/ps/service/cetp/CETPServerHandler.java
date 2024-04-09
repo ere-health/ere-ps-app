@@ -64,8 +64,13 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
             String CtID = event.getMessage().getParameter().stream().filter(p -> p.getKey().equals("CtID")).map(p -> p.getValue()).findFirst().get();
 
             try {
-                Bundle bundle = pharmacyService.getEPrescriptionsForCardHandle(cardHandle, null, null);
-                String xml = parser.encodeToString(bundle);
+                String xml;
+                try {
+                    Bundle bundle = pharmacyService.getEPrescriptionsForCardHandle(cardHandle, null, null);
+                    xml = parser.encodeToString(bundle);
+                } catch (Exception e) {
+                    xml = e.getMessage();
+                }
                 JsonObject j = Json.createObjectBuilder().add("type", "ERezeptTokensFromAVS").add("SlotId", SlotID).add("CtID", CtID).add("tokens", xml).build();
                 JsonArray jArray = Json.createArrayBuilder().add(j).build();
                 String jsonMessage = jArray.toString();
