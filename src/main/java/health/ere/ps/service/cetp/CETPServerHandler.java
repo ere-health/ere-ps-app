@@ -100,7 +100,7 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
                 JsonObject eRezeptBundlesFromAVS = Json.createObjectBuilder().add("type", "ERezeptBundlesFromAVS").add("SlotId", SlotID).add("CtID", CtID).add("bundles", bundles).build();
 
                 jArray = Json.createArrayBuilder().add(eRezeptBundlesFromAVS).build();
-
+                log.info(jArray.toString());
                 cardlinkWebsocketClient.sendMessage(jArray.toString());
                 
             } catch (FaultMessage | de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage e) {
