@@ -92,7 +92,7 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
                         String taskId = task.getIdentifier().stream().filter(t -> "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId".equals(t.getSystem())).map(t -> t.getValue()).findAny().orElse(null);
                         String accessCode = task.getIdentifier().stream().filter(t -> "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_AccessCode".equals(t.getSystem())).map(t -> t.getValue()).findAny().orElse(null);
                         log.info("TaskId: "+taskId+" AccessCode: "+accessCode);
-                        Bundle bundleEPrescription = pharmacyService.accept("/Task/"+taskId+"/$accept?ac=", new RuntimeConfig());
+                        Bundle bundleEPrescription = pharmacyService.accept("/Task/"+taskId+"/$accept?ac="+accessCode, new RuntimeConfig());
                         bundles.add(parser.encodeToString(bundleEPrescription));
                     }
                 }
