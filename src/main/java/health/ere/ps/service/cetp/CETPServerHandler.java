@@ -72,7 +72,7 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
                 log.info(jsonMessage);
                 cardlinkWebsocketClient.sendMessage(jsonMessage);
 
-                JsonArrayBuilder bundles = Json.createArrayBuilder().add(j);
+                JsonArrayBuilder bundles = Json.createArrayBuilder();
                 for(BundleEntryComponent entry : bundle.getEntry()) {
                     if(entry.getResource() instanceof org.hl7.fhir.r4.model.Task) {
                         /*
