@@ -17,6 +17,7 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import de.gematik.ws.conn.eventservice.v7.Event;
 import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
+import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.service.cardlink.CardlinkWebsocketClient;
 import health.ere.ps.service.gematik.PharmacyService;
 import io.netty.channel.ChannelHandlerContext;
@@ -91,7 +92,7 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
                         String taskId = task.getIdentifier().stream().filter(t -> "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId".equals(t.getSystem())).map(t -> t.getValue()).findAny().orElse(null);
                         String accessCode = task.getIdentifier().stream().filter(t -> "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_AccessCode".equals(t.getSystem())).map(t -> t.getValue()).findAny().orElse(null);
                         log.info("TaskId: "+taskId+" AccessCode: "+accessCode);
-                        Bundle bundleEPrescription = pharmacyService.accept("/Task/"+taskId+"/$accept?ac=", null);
+                        Bundle bundleEPrescription = pharmacyService.accept("/Task/"+taskId+"/$accept?ac=", new RuntimeConfig());
                         bundles.add(parser.encodeToString(bundleEPrescription));
                     }
                 }
