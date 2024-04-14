@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -41,6 +42,7 @@ import health.ere.ps.config.UserConfig;
 import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.service.cetp.CETPServer;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
+import health.ere.ps.service.connector.cards.ConnectorCardsService.CardHandleType;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 
 @ApplicationScoped
@@ -76,6 +78,9 @@ public class PharmacyService extends BearerTokenManageService {
         }
         runtimeConfig.setSMCBHandle(smcbHandle);
         ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
+        if("".equals(context.getUserId()) || context.getUserId() == null) {
+            context.setUserId(UUID.randomUUID().toString());
+        }
         
         Holder<byte[]> persoenlicheVersichertendaten = new Holder<>();
 			Holder<byte[]> allgemeineVersicherungsdaten = new Holder<>();
@@ -89,8 +94,7 @@ public class PharmacyService extends BearerTokenManageService {
             
         }
         if(smcbHandle == null) {
-            smcbHandle = PrefillPrescriptionService.getFirstCardOfType(eventService, CardTypeType.SMC_B, context);
-            runtimeConfig.setSMCBHandle(smcbHandle);
+            smcbHandle = setAndGetSMCBHandleForPharmacy(runtimeConfig, context, eventService);
         }
         requestNewAccessTokenIfNecessary(runtimeConfig, null, null);
         log.info(egkHandle+" "+smcbHandle);
@@ -115,6 +119,33 @@ public class PharmacyService extends BearerTokenManageService {
         }
     
     }
+
+    public static String setAndGetSMCBHandleForPharmacy(RuntimeConfig runtimeConfig, ContextType context, EventServicePortType eventService)
+            throws FaultMessage, de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
+        String smcbHandle;
+        smcbHandle = getFirstCardWithName(eventService, CardTypeType.SMC_B, context, "Bad ApothekeTEST-ONLY");
+        if(smcbHandle == null) {
+            smcbHandle = PrefillPrescriptionService.getFirstCardOfType(eventService, CardTypeType.SMC_B, context);
+        }
+        runtimeConfig.setSMCBHandle(smcbHandle);
+        return smcbHandle;
+    }
+
+    static String getFirstCardWithName(EventServicePortType eventService, CardTypeType type, ContextType context, String name)
+			throws FaultMessage, de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
+		GetCards parameter = new GetCards();
+		parameter.setContext(context);
+		parameter.setCardType(type);
+		GetCardsResponse getCardsResponse = eventService.getCards(parameter);
+
+		List<CardInfoType> cards = getCardsResponse.getCards().getCard();
+		if (cards.size() > 0) {
+			CardInfoType cardHandleType = cards.stream().filter(card -> card.getCardHolderName().equals(name)).findAny().orElseGet(null);
+			return cardHandleType != null ? cardHandleType.getCardHandle() : null;
+		} else {
+			return null;
+		}
+	}
 
     public Bundle accept(String token, RuntimeConfig runtimeConfig) {
         requestNewAccessTokenIfNecessary(runtimeConfig, null, null);

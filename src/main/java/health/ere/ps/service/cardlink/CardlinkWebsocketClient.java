@@ -12,7 +12,7 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 
-@ClientEndpoint
+@ClientEndpoint(configurator = AddJWTConfigurator.class)
 public class CardlinkWebsocketClient {
 
     private static Logger log = Logger.getLogger(CardlinkWebsocketClient.class.getName());

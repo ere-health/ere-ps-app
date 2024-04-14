@@ -66,7 +66,7 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
             try {
                 Bundle bundle = pharmacyService.getEPrescriptionsForCardHandle(cardHandle, null, null);
                 String xml = parser.encodeToString(bundle);
-                JsonObject j = Json.createObjectBuilder().add("type", "ERezeptTokensFromAVS").add("SlotId", SlotID).add("CtID", CtID).add("tokens", xml).build();
+                JsonObject j = Json.createObjectBuilder().add("type", "eRezeptTokensFromAVS").add("SlotId", SlotID).add("CtID", CtID).add("tokens", xml).build();
                 JsonArray jArray = Json.createArrayBuilder().add(j).build();
                 String jsonMessage = jArray.toString();
                 log.info(jsonMessage);
@@ -103,7 +103,7 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
                     }
                 }
 
-                JsonObject eRezeptBundlesFromAVS = Json.createObjectBuilder().add("type", "ERezeptBundlesFromAVS").add("SlotId", SlotID).add("CtID", CtID).add("bundles", bundles).build();
+                JsonObject eRezeptBundlesFromAVS = Json.createObjectBuilder().add("type", "eRezeptBundlesFromAVS").add("SlotId", SlotID).add("CtID", CtID).add("bundles", bundles).build();
 
                 jArray = Json.createArrayBuilder().add(eRezeptBundlesFromAVS).build();
                 log.info(jArray.toString());
