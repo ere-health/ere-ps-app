@@ -24,9 +24,12 @@ import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Task;
 
 import ca.uhn.fhir.context.FhirContext;
+import de.gematik.ws.conn.cardservice.v8.CardInfoType;
 import de.gematik.ws.conn.cardservicecommon.v2.CardTypeType;
 import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
+import de.gematik.ws.conn.eventservice.v7.GetCards;
+import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
 import de.gematik.ws.conn.eventservice.v7.SubscriptionType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
@@ -37,7 +40,6 @@ import health.ere.ps.config.UserConfig;
 import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.service.cetp.CETPServer;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
-import health.ere.ps.service.connector.cards.ConnectorCardsService.CardHandleType;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 
 @ApplicationScoped
