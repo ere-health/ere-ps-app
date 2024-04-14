@@ -32,16 +32,20 @@ public class AddJWTConfigurator extends ClientEndpointConfig.Configurator {
     @Override
     public void beforeRequest(Map<String, List<String>> headers) {
         RuntimeConfig runtimeConfig = new RuntimeConfig();
-        ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
-        EventServicePortType eventServicePortType = connectorServicesProvider.getEventServicePortType(runtimeConfig);
-        try {
-            PharmacyService.setAndGetSMCBHandleForPharmacy(runtimeConfig, context, eventServicePortType);
-        } catch (FaultMessage | de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage e) {
-            log.log(Level.SEVERE, "Could not get SMC-B for pharmacy", e);
-        }
+        if(connectorServicesProvider != null && bearerTokenManageService != null) {
+            ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
+            EventServicePortType eventServicePortType = connectorServicesProvider.getEventServicePortType(runtimeConfig);
+            try {
+                PharmacyService.setAndGetSMCBHandleForPharmacy(runtimeConfig, context, eventServicePortType);
+            } catch (FaultMessage | de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage e) {
+                log.log(Level.SEVERE, "Could not get SMC-B for pharmacy", e);
+            }
 
-        bearerTokenManageService.requestNewAccessTokenIfNecessary(runtimeConfig, null, null);
-        headers.put("Authorization", Arrays.asList("Bearer "+bearerTokenManageService.getBearerToken(runtimeConfig)));
+            bearerTokenManageService.requestNewAccessTokenIfNecessary(runtimeConfig, null, null);
+            headers.put("Authorization", Arrays.asList("Bearer "+bearerTokenManageService.getBearerToken(runtimeConfig)));
+        } else {
+            log.log(Level.SEVERE, "Could not get bearer token or connector services provider, won't add JWT to websocket connection.");
+        }
     }
 
     @Override
