@@ -9,6 +9,7 @@ import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
+import javax.xml.bind.DatatypeConverter;
 
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
@@ -66,7 +67,10 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
             try {
                 Bundle bundle = pharmacyService.getEPrescriptionsForCardHandle(cardHandle, null, null);
                 String xml = parser.encodeToString(bundle);
-                JsonObject j = Json.createObjectBuilder().add("type", "eRezeptTokensFromAVS").add("SlotId", SlotID).add("CtID", CtID).add("tokens", xml).build();
+
+                String payloadString = Json.createObjectBuilder().add("slotId", SlotID).add("ctID", CtID).add("tokens", xml).build().toString();
+
+                JsonObject j = Json.createObjectBuilder().add("type", "eRezeptTokensFromAVS").add("payload", DatatypeConverter.printBase64Binary(payloadString.getBytes())).build();
                 JsonArray jArray = Json.createArrayBuilder().add(j).build();
                 String jsonMessage = jArray.toString();
                 log.info(jsonMessage);
@@ -103,7 +107,8 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
                     }
                 }
 
-                JsonObject eRezeptBundlesFromAVS = Json.createObjectBuilder().add("type", "eRezeptBundlesFromAVS").add("SlotId", SlotID).add("CtID", CtID).add("bundles", bundles).build();
+                payloadString = Json.createObjectBuilder().add("slotId", SlotID).add("ctID", CtID).add("bundles", bundles).build().toString();
+                JsonObject eRezeptBundlesFromAVS = Json.createObjectBuilder().add("type", "eRezeptBundlesFromAVS").add("payload", DatatypeConverter.printBase64Binary(payloadString.getBytes())).build();
 
                 jArray = Json.createArrayBuilder().add(eRezeptBundlesFromAVS).build();
                 log.info(jArray.toString());
