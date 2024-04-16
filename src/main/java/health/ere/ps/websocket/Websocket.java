@@ -277,7 +277,7 @@ public class Websocket {
             } else if ("XMLBundle".equals(object.getString("type"))) {
                 Bundle[] bundles = XmlPrescriptionProcessor.parseFromString(object.getString("payload"));
                 if(appConfig.getXmlBundleDirectProcess()) {
-                    SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(bundles, senderSession, messageId);
+                    SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(bundles, object, senderSession, messageId);
                     signAndUploadBundlesEvent.fireAsync(event);   
                 }
                 onFhirBundle(new BundlesEvent(Arrays.asList(bundles), null, messageId));

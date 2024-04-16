@@ -77,7 +77,8 @@ public class SignAndUploadBundlesEvent extends AbstractEvent {
         listOfListOfBundles.add(bundles);
     }
 
-    public SignAndUploadBundlesEvent(Bundle[] bundles, Session senderSession, String id) {
+    public SignAndUploadBundlesEvent(Bundle[] bundles, JsonObject jsonObject, Session senderSession, String id) {
+        parseRuntimeConfig(jsonObject);
         this.replyTo = senderSession;
         this.id = id;
         listOfListOfBundles.add(Arrays.asList(bundles));
