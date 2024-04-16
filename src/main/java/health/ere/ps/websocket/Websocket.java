@@ -281,6 +281,8 @@ public class Websocket {
                     signAndUploadBundlesEvent.fireAsync(event);   
                 }
                 onFhirBundle(new BundlesEvent(Arrays.asList(bundles), null, messageId));
+            } else if ("PreviewOnly".equals(object.getString("type"))) {
+                readyToSignBundlesEvent.fireAsync(new ReadyToSignBundlesEvent(object, senderSession, messageId));
             } else if ("AbortTasks".equals(object.getString("type"))) {
                 abortTasksEvent.fireAsync(new AbortTasksEvent(object, senderSession, messageId));
             } else if ("ErixaEvent".equals(object.getString("type"))) {
