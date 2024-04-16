@@ -1,15 +1,12 @@
-# GetSignatureMode example messages
-# required as mandatory elements: MandantId, ClientSystemId, WorkplaceId
-# Optional element (but required for session info): CardHandle to address (only eHBA supported) and userId
-# If the userId is missing / wrong and comfort sig active: Exception (card has elevated security level with other userId)
-### GetSignatureMode Example
+# DeactivateComfortSignature example messages
+### DeactivateComfortSignature Example2
 WEBSOCKET ws://{{baseURL}}/websocket
 Content-Type: application/json
 
 {
-    "type": "GetSignatureMode",
-    "id": "{{$random.uuid}}",
-    "runtimeConfig": {
+  "type": "DeactivateComfortSignature",
+  "id": "{{$random.uuid}}",
+  "runtimeConfig": {
         "eHBAHandle": "{{eHBAHandle}}",
         "SMCBHandle": "{{SMCBHandle}}",
         "connector.user-id": "{{userId}}",
@@ -22,5 +19,5 @@ Content-Type: application/json
         "connector.version": "{{connector.version}}",
         "connector.basic-auth-username": null,
         "connector.basic-auth-password": null
-    }
+        }
 }
