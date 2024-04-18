@@ -138,7 +138,7 @@ public class PharmacyService extends BearerTokenManageService {
 
 		List<CardInfoType> cards = getCardsResponse.getCards().getCard();
 		if (cards.size() > 0) {
-			CardInfoType cardHandleType = cards.stream().filter(card -> card.getCardHolderName().equals(name)).findAny().orElseGet(null);
+			CardInfoType cardHandleType = cards.stream().filter(card -> card.getCardHolderName().equals(name)).findAny().orElse(null);
 			return cardHandleType != null ? cardHandleType.getCardHandle() : null;
 		} else {
 			return null;
