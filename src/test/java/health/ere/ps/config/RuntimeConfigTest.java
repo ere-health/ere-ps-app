@@ -17,7 +17,7 @@ import health.ere.ps.model.config.UserConfigurations;
 public class RuntimeConfigTest {
     @Test
     public void testUserConfigurations() throws FileNotFoundException {
-        JsonObject messageWithRuntimeConfig = Json.createReader(new FileInputStream("src/test/resources/websocket-messages/AbortTasks-With-RuntimeConfig.json")).readObject();
+        JsonObject messageWithRuntimeConfig = Json.createReader(new FileInputStream("./../src/test/resources/websocket-messages/AbortTasks-With-RuntimeConfig.json")).readObject();
         AbortTasksEvent abortTasksEvent = new AbortTasksEvent(messageWithRuntimeConfig, null, null);
         assertEquals("HBA-1", abortTasksEvent.getRuntimeConfig().getEHBAHandle());
         assertEquals("SMCB-1", abortTasksEvent.getRuntimeConfig().getSMCBHandle());

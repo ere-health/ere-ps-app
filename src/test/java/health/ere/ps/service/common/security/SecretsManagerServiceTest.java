@@ -73,7 +73,7 @@ class SecretsManagerServiceTest {
             KeyStoreException, NoSuchAlgorithmException {
         int ksSize;
 
-        try(InputStream is = getClass().getResourceAsStream("/certs/" + TITUS_IDP_TRUST_STORE)) {
+        try(InputStream is = getClass().getResourceAsStream("/test-classes/certs/" + TITUS_IDP_TRUST_STORE)) {
             KeyStore ks =
                     secretsManagerService.initializeTrustStoreFromInputStream(is,
                             SecretsManagerService.KeyStoreType.PKCS12, "00".toCharArray());

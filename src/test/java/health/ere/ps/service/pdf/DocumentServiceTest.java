@@ -42,7 +42,7 @@ import io.quarkus.test.junit.TestProfile;
 public class DocumentServiceTest {
 
     private final static List<Bundle> testBundles = new ArrayList<>();
-    private final static String TARGET_PATH = "target/test_Erezepten/";
+    private final static String TARGET_PATH = "./test_Erezepten/";
     private final static FhirContext ctx = FhirContext.forR4();
 
     @Inject
@@ -76,7 +76,7 @@ public class DocumentServiceTest {
             // https://community.oracle.com/thread/1307033?start=0&tstart=0
             LogManager.getLogManager().readConfiguration(
                 DocumentServiceTest.class
-                            .getResourceAsStream("/logging.properties"));
+                            .getResourceAsStream("/test-classes/logging.properties"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -209,11 +209,11 @@ public class DocumentServiceTest {
     @Test
     @Disabled("Running the pdf generation tests takes a lot of time, run them manually")
     public void generateAllKBVPdf() throws IOException {
-        String dir = "src/test/resources/examples-kbv-fhir-erp-v1-0-2";
+        String dir = "./../src/test/resources/examples-kbv-fhir-erp-v1-0-2"; //todo: write to src? in a test? shouldn't this be a .gitignore test-result like folder?
         String prefix = "1_0_2";
         generatePdfsForAllFilesInFolder(dir, prefix);
 
-        dir = "src/test/resources/examples-kbv-fhir-erp-v1-1-0";
+        dir = "./../src/test/resources/examples-kbv-fhir-erp-v1-1-0"; //todo: write to src? in a test? shouldn't this be a .gitignore test-result like folder?
         prefix = "1_1_0";
         generatePdfsForAllFilesInFolder(dir, prefix);
     }
@@ -221,7 +221,7 @@ public class DocumentServiceTest {
     @Test
     @Disabled("Running the pdf generation tests takes a lot of time, run them manually")
     public void generatePdfsForTestingBundleFoldersViaHelperFunction() throws IOException {
-        String dir = "src/test/resources/secret/bundles-v1-1-0";
+        String dir = "./../src/test/resources/secret/bundles-v1-1-0"; //todo: write to src? in a test? shouldn't this be a .gitignore test-result like folder?
         String prefix = "test_v1_1_0";
         generatePdfsForAllFilesInFolder(dir, prefix);
     }
