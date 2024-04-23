@@ -7,7 +7,7 @@
   <version>1.0.0-SNAPSHOT</version>
   <properties>
     <compiler-plugin.version>3.8.1</compiler-plugin.version>
-    <hapi.version>6.8.3</hapi.version>
+    <hapi.version>7.0.2</hapi.version>
     <maven.compiler.parameters>true</maven.compiler.parameters>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
@@ -31,6 +31,27 @@
     </dependencies>
   </dependencyManagement>
   <dependencies>
+	<dependency>
+	    <groupId>ca.uhn.hapi.fhir</groupId>
+	    <artifactId>hapi-fhir-caching-caffeine</artifactId>
+	    <version>${hapi.version}</version>
+	</dependency>
+    <dependency>
+    	<groupId>ca.uhn.hapi.fhir</groupId>
+    	<artifactId>org.hl7.fhir.r4</artifactId>
+    	<version>6.1.2.2</version>
+    </dependency>
+	<dependency>
+	    <groupId>ca.uhn.hapi.fhir</groupId>
+	    <artifactId>org.hl7.fhir.r5</artifactId>
+	    <version>6.1.2.2</version>
+	</dependency>
+	<dependency>
+	    <groupId>ca.uhn.hapi.fhir</groupId>
+	    <artifactId>org.hl7.fhir.utilities</artifactId>
+	    <version>6.1.2.2</version>
+	</dependency>
+
     <dependency>
       <groupId>com.sun.mail</groupId>
       <artifactId>javax.mail</artifactId>
@@ -78,19 +99,24 @@
     </dependency>
     <dependency>
       <groupId>ca.uhn.hapi.fhir</groupId>
+      <artifactId>hapi-fhir-structures-r5</artifactId>
+      <version>${hapi.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>ca.uhn.hapi.fhir</groupId>
       <artifactId>hapi-fhir-validation</artifactId>
       <version>${hapi.version}</version>
       <exclusions>
         <exclusion>
-          <artifactId>xpp3</artifactId>
-          <groupId>xpp3</groupId>
+        	<groupId>org.ogce</groupId>
+        	<artifactId>xpp3</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
     <dependency>
       <groupId>ca.uhn.hapi.fhir</groupId>
       <artifactId>hapi-fhir-validation-resources-r4</artifactId>
-      <version>5.4.1</version>
+      <version>${hapi.version}</version>
     </dependency>
     <dependency>
       <groupId>com.hp.jipp</groupId>
@@ -276,6 +302,17 @@
       <groupId>com.cronutils</groupId>
       <artifactId>cron-utils</artifactId>
       <version>9.2.1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.xml.bind</groupId>
+      <artifactId>jaxb-impl</artifactId>
+      <version>2.3.9</version>
+    </dependency>
+    
+    <dependency>
+        <groupId>com.sun.xml.bind</groupId>
+        <artifactId>jaxb-core</artifactId>
+        <version>2.3.0.1</version>
     </dependency>
   </dependencies>
   <repositories>

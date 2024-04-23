@@ -38,6 +38,10 @@ public class BearerTokenManageService {
      * Requests a new userConfig if the current one is expired
      */
     public void requestNewAccessTokenIfNecessary(RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId) {
+        requestNewAccessTokenIfNecessary(runtimeConfig, bearerToken, bearerTokenService, replyTo, replyToMessageId);
+    }
+
+    public static void requestNewAccessTokenIfNecessary(RuntimeConfig runtimeConfig, Map<RuntimeConfig, String> bearerToken, BearerTokenService bearerTokenService, Session replyTo, String replyToMessageId) {
         int hashCode = runtimeConfig.hashCode();
         boolean containsKey = false;
         int i = 0;
@@ -51,7 +55,7 @@ public class BearerTokenManageService {
             }
             i++;
         }
-        if (StringUtils.isEmpty(getBearerToken(runtimeConfig)) || isExpired(bearerToken.get(runtimeConfig))) {
+        if (StringUtils.isEmpty(bearerToken.get(runtimeConfig)) || isExpired(bearerToken.get(runtimeConfig))) {
             log.info("Request new bearer token.");
             String bearerTokenString = bearerTokenService.requestBearerToken(runtimeConfig, replyTo, replyToMessageId);
             bearerToken.put(runtimeConfig, bearerTokenString);
@@ -76,7 +80,7 @@ public class BearerTokenManageService {
      * Checks if the given bearer token is expired.
      * @param bearerToken2 the bearer token to check
      */
-    boolean isExpired(String bearerToken2) {
+    static boolean isExpired(String bearerToken2) {
         JwtConsumer consumer = new JwtConsumerBuilder()
                 .setDisableRequireSignature()
                 .setSkipSignatureVerification()

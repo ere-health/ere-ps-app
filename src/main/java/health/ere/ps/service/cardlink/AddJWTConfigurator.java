@@ -1,12 +1,13 @@
 package health.ere.ps.service.cardlink;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.inject.Inject;
+import javax.enterprise.context.Dependent;
 import javax.websocket.ClientEndpointConfig;
 import javax.websocket.HandshakeResponse;
 
@@ -17,22 +18,34 @@ import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import health.ere.ps.service.gematik.BearerTokenManageService;
 import health.ere.ps.service.gematik.PharmacyService;
+import health.ere.ps.service.idp.BearerTokenService;
+import io.quarkus.arc.Arc;
 
+@Dependent
 public class AddJWTConfigurator extends ClientEndpointConfig.Configurator {
 
     private static final Logger log = Logger.getLogger(AddJWTConfigurator.class.getName());
     
-    @Inject
-    BearerTokenManageService bearerTokenManageService;
+    BearerTokenService bearerTokenService;
 
-    @Inject
+    //In the future it should be managed automatically by the webclient, including its renewal
+    Map<RuntimeConfig, String> bearerToken = new HashMap<>();
+
     MultiConnectorServicesProvider connectorServicesProvider;
 
 
     @Override
     public void beforeRequest(Map<String, List<String>> headers) {
+
+        if(bearerTokenService == null) {
+            bearerTokenService = Arc.container().select(BearerTokenService.class).get();
+        }
+        if(connectorServicesProvider == null) {
+            connectorServicesProvider = Arc.container().select(MultiConnectorServicesProvider.class).get();
+        }
+
         RuntimeConfig runtimeConfig = new RuntimeConfig();
-        if(connectorServicesProvider != null && bearerTokenManageService != null) {
+        if(connectorServicesProvider != null && bearerTokenService != null) {
             ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
             EventServicePortType eventServicePortType = connectorServicesProvider.getEventServicePortType(runtimeConfig);
             try {
@@ -41,8 +54,8 @@ public class AddJWTConfigurator extends ClientEndpointConfig.Configurator {
                 log.log(Level.SEVERE, "Could not get SMC-B for pharmacy", e);
             }
 
-            bearerTokenManageService.requestNewAccessTokenIfNecessary(runtimeConfig, null, null);
-            headers.put("Authorization", Arrays.asList("Bearer "+bearerTokenManageService.getBearerToken(runtimeConfig)));
+            BearerTokenManageService.requestNewAccessTokenIfNecessary(runtimeConfig, bearerToken, bearerTokenService, null, null);
+            headers.put("Authorization", Arrays.asList("Bearer "+bearerToken.get(runtimeConfig)));
         } else {
             log.log(Level.SEVERE, "Could not get bearer token or connector services provider, won't add JWT to websocket connection.");
         }
@@ -52,4 +65,5 @@ public class AddJWTConfigurator extends ClientEndpointConfig.Configurator {
     public void afterResponse(HandshakeResponse handshakeResponse) {
 
     }
+    
 }
