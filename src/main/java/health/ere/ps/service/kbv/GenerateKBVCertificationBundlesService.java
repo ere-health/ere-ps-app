@@ -24,6 +24,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
+import health.ere.ps.service.fhir.FHIRService;
 import org.hl7.fhir.r4.model.Annotation;
 import org.hl7.fhir.r4.model.BooleanType;
 import org.hl7.fhir.r4.model.Bundle;
@@ -59,7 +60,7 @@ public class GenerateKBVCertificationBundlesService {
 
     private static Logger log = Logger.getLogger(GenerateKBVCertificationBundlesService.class.getName());
 
-    private final FhirContext fhirContext = FhirContext.forR4();
+    private static final FhirContext fhirContext = FHIRService.getFhirContext();
 
     static JAXBContext jaxbContext; 
 

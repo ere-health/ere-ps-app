@@ -17,7 +17,7 @@ import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
 import health.ere.ps.service.idp.client.IdpClient;
 import health.ere.ps.service.idp.client.IdpHttpClientService;
-import health.ere.ps.websocket.ExceptionWithReplyToExcetion;
+import health.ere.ps.websocket.ExceptionWithReplyToException;
 import io.quarkus.runtime.Startup;
 
 @ApplicationScoped
@@ -72,7 +72,7 @@ public class BearerTokenService {
             return idpTokenResult.getAccessToken().getRawString();
         } catch (Exception e) {
             log.log(Level.WARNING, "Idp login did not work, couldn't request bearer token", e);
-            exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, replyTo, replyToMessageId));
+            exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, replyTo, replyToMessageId));
             throw new RuntimeException(e);
         }
     }

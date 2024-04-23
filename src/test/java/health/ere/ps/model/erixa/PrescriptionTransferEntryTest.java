@@ -22,7 +22,7 @@ public class PrescriptionTransferEntryTest {
 	@BeforeAll
 	public static void init() throws FileNotFoundException, ParseException
 	{
-		JsonObject messageWithPrescriptionTransferEntry = Json.createReader(new FileInputStream("src/test/resources/erixa/PrescriptionTest.json")).readObject();
+		JsonObject messageWithPrescriptionTransferEntry = Json.createReader(new FileInputStream("../src/test/resources/erixa/PrescriptionTest.json")).readObject();
 		prescriptionTransferEntry.setFirstName(messageWithPrescriptionTransferEntry.getString("firstName"));
 		prescriptionTransferEntry.setLastName(messageWithPrescriptionTransferEntry.getString("lastName"));
 		prescriptionTransferEntry.setSalutation(messageWithPrescriptionTransferEntry.getString("salutation"));

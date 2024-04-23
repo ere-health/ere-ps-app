@@ -45,7 +45,7 @@ public class PkiKeyResolver implements ParameterResolver {
 
     private PkiIdentity retrieveIdentityFromFileSystem(final String fileFilter)
             throws IdpCryptoException {
-        try (Stream<Path> pathStream = Files.find(Paths.get("src", "test",
+        try (Stream<Path> pathStream = Files.find(Paths.get(".", "..", "src", "test",
                 "resources", "certs"), 128,
                 (p, a) -> p.toString().endsWith(".p12")
                         && p.getFileName().toString().toLowerCase().contains(

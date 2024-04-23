@@ -47,7 +47,7 @@ import health.ere.ps.event.VZDSearchResultEvent;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.service.common.security.SSLSocketFactory;
 import health.ere.ps.service.common.security.SecretsManagerService;
-import health.ere.ps.websocket.ExceptionWithReplyToExcetion;
+import health.ere.ps.websocket.ExceptionWithReplyToException;
 
 @ApplicationScoped
 public class KIMFlowtype169Service {
@@ -191,7 +191,7 @@ public class KIMFlowtype169Service {
             }
         } catch (Exception e) {
             log.log(Level.WARNING, "Could not send kim E-Mail", e);
-            exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, bundlesWithAccessCodeEvent.getReplyTo(), bundlesWithAccessCodeEvent.getId()));
+            exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, bundlesWithAccessCodeEvent.getReplyTo(), bundlesWithAccessCodeEvent.getId()));
         }
     }
 
@@ -202,7 +202,7 @@ public class KIMFlowtype169Service {
             vZDSearchResultEvent.fireAsync(searchResultEvent);
         } catch (Exception e) {
             log.log(Level.WARNING, "Could not search VZD", e);
-            exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, vZDSearchEvent.getReplyTo(), vZDSearchEvent.getId()));
+            exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, vZDSearchEvent.getReplyTo(), vZDSearchEvent.getId()));
         }
     }
 

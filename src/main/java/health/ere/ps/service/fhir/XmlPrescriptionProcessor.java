@@ -34,7 +34,7 @@ public class XmlPrescriptionProcessor {
     // Get <Bundle> tag including content
     private static final Pattern GET_BUNDLE = Pattern.compile("(<Bundle[^>]*>.*?</Bundle>)", Pattern.DOTALL);
     private static final Pattern GET_UUID = Pattern.compile("^urn:uuid:(.*)");
-    private static final FhirContext fhirContext = FhirContext.forR4();
+    private static final FhirContext fhirContext = FHIRService.getFhirContext();
 
     public static Bundle[] parseFromString(String xml) {
         List<Bundle> bundles = new ArrayList<>();

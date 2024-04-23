@@ -18,11 +18,15 @@ import org.hl7.fhir.r4.model.Bundle;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 
+import health.ere.ps.service.fhir.FHIRService;
+
+
 @Provider
 @Produces(MediaType.APPLICATION_JSON)
 public class JSONBundleMessageBodyWriter implements MessageBodyWriter<Bundle> {
 
-    static IParser jsonParser = FhirContext.forR4().newJsonParser();
+    private static final FhirContext fhirContext = FHIRService.getFhirContext();
+    static IParser jsonParser = fhirContext.newJsonParser();
 
     @Override
     public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {

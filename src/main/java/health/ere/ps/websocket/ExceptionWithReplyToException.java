@@ -2,13 +2,13 @@ package health.ere.ps.websocket;
 
 import javax.websocket.Session;
 
-public class ExceptionWithReplyToExcetion extends Exception {
+public class ExceptionWithReplyToException extends Exception {
 
     protected Exception exception;
     protected Session replyTo;
     protected String messageId;
 
-    public ExceptionWithReplyToExcetion(Exception exception, Session replyTo, String messageId) {
+    public ExceptionWithReplyToException(Exception exception, Session replyTo, String messageId) {
         this.exception = exception;
         this.replyTo = replyTo;
         this.messageId = messageId;

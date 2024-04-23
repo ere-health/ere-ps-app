@@ -25,7 +25,7 @@ import health.ere.ps.model.erixa.api.mapping.PrescriptionData;
 import health.ere.ps.model.erixa.api.mapping.PrescriptionDoctorData;
 import health.ere.ps.model.erixa.api.mapping.Role;
 import health.ere.ps.model.erixa.api.mapping.UserDetails;
-import health.ere.ps.websocket.ExceptionWithReplyToExcetion;
+import health.ere.ps.websocket.ExceptionWithReplyToException;
 
 @ApplicationScoped
 public class ErixaUploadService {
@@ -58,7 +58,7 @@ public class ErixaUploadService {
                 uploadPrescriptionToDrugstore(event);
             } catch (IOException e) {
                 log.log(Level.WARNING, "Problem during uploading to pharmacy", e);
-                exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, erixaEvent.getReplyTo(), erixaEvent.getReplyToMessageId()));
+                exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, erixaEvent.getReplyTo(), erixaEvent.getReplyToMessageId()));
             }
         }
     }

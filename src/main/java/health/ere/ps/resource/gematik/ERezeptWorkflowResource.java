@@ -1,5 +1,9 @@
 package health.ere.ps.resource.gematik;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.security.cert.CertificateEncodingException;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
@@ -7,6 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.naming.InvalidNameException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -18,9 +23,12 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.xml.bind.JAXBException;
+import javax.xml.transform.TransformerException;
 
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Task;
+import org.apache.fop.apps.FOPException;
+import org.bouncycastle.crypto.CryptoException;
+import org.hl7.fhir.r4.model.*;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.DataFormatException;
@@ -28,10 +36,15 @@ import ca.uhn.fhir.parser.IParser;
 import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
 import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
 import de.gematik.ws.conn.signatureservice.v7.SignResponse;
+
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.config.UserConfig;
 import health.ere.ps.exception.gematik.ERezeptWorkflowException;
 import health.ere.ps.service.gematik.ERezeptWorkflowService;
+import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
+import health.ere.ps.service.fhir.FHIRService;
+import health.ere.ps.service.gematik.PrefillPrescriptionService;
+import health.ere.ps.service.pdf.DocumentService;
 
 @Path("/workflow")
 public class ERezeptWorkflowResource {
@@ -39,8 +52,15 @@ public class ERezeptWorkflowResource {
     @Inject
     ERezeptWorkflowService eRezeptWorkflowService;
 
-    static IParser jsonParser = FhirContext.forR4().newJsonParser();
-    static IParser xmlParser = FhirContext.forR4().newXmlParser();
+    @Inject
+    PrefillPrescriptionService prefillPrescriptionService;
+
+    @Inject
+    DocumentService documentService;
+
+    private final FhirContext fhirContext = FHIRService.getFhirContext();
+    IParser jsonParser = fhirContext.newJsonParser();
+    IParser xmlParser = fhirContext.newXmlParser();
 
     @Context
     HttpServletRequest httpServletRequest;
@@ -63,7 +83,7 @@ public class ERezeptWorkflowResource {
         }
     }
 
-    static RuntimeConfig extractRuntimeConfigFromHeaders(HttpServletRequest httpServletRequest, UserConfig userConfig) {
+    public static RuntimeConfig extractRuntimeConfigFromHeaders(HttpServletRequest httpServletRequest, UserConfig userConfig) {
         for(Object name : Collections.list(httpServletRequest.getHeaderNames())) {
             if(name.toString().startsWith("X-")) {
                 RuntimeConfig runtimeConfig = new RuntimeConfig();
@@ -88,7 +108,7 @@ public class ERezeptWorkflowResource {
         return new String(Base64.getEncoder().encode(signResponse.getSignatureObject().getBase64Signature().getValue()));
     }
 
-    static Bundle string2bundle(String contentType, String bundle) {
+    Bundle string2bundle(String contentType, String bundle) {
         Bundle bundleObject = "application/xml".equals(contentType) ? xmlParser.parseResource(Bundle.class, bundle) : jsonParser.parseResource(Bundle.class, bundle);
         return bundleObject;
     }
@@ -159,5 +179,37 @@ public class ERezeptWorkflowResource {
         RuntimeConfig runtimeConfig = extractRuntimeConfigFromHeaders(httpServletRequest, userConfig);
         eRezeptWorkflowService.requestNewAccessTokenIfNecessary(runtimeConfig, null, null);
         return eRezeptWorkflowService.getBearerToken(runtimeConfig);
+    }
+
+    @POST
+    @Path("test-prescription")
+    public Response testConfigurationsByCreatingTestPrescription() throws
+            FaultMessage, de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage, InvalidNameException,
+            CertificateEncodingException, IOException, CryptoException, ParseException, ERezeptWorkflowException,
+            FOPException, TransformerException {
+
+        RuntimeConfig runtimeConfig = extractRuntimeConfigFromHeaders(httpServletRequest, userConfig);
+        Bundle bundle = prefillPrescriptionService.getTestPrescriptionBundle(runtimeConfig);
+
+        Task task = eRezeptWorkflowService.createERezeptTask(true, runtimeConfig, "160");
+        String taskId = null;
+        String accessCode = null;
+        for (Identifier identifier : task.getIdentifier()) {
+            if (identifier.getSystem().equals("https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId")) {
+                taskId = identifier.getValue();
+            } else if (identifier.getSystem().equals("https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_AccessCode")) {
+                accessCode = identifier.getValue();
+            }
+        };
+        bundle.getIdentifier().setValue(taskId);
+        SignResponse signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundle, false, runtimeConfig);
+        String base64String = signResponse2base64String(signResponse);
+
+        eRezeptWorkflowService.updateERezeptTask(taskId, accessCode, Base64.getDecoder().decode(base64String), runtimeConfig);
+
+        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = new BundleWithAccessCodeOrThrowable(bundle, accessCode);
+        List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowableList = Arrays.asList(bundleWithAccessCodeOrThrowable);
+        ByteArrayOutputStream baos = documentService.generateERezeptPdf(bundleWithAccessCodeOrThrowableList);
+        return Response.ok().entity(baos.toByteArray()).type("application/pdf").build();
     }
 }

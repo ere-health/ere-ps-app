@@ -41,6 +41,7 @@ import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.service.cetp.CETPServer;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
+import health.ere.ps.service.fhir.FHIRService;
 
 @ApplicationScoped
 public class PharmacyService extends BearerTokenManageService {
@@ -57,7 +58,7 @@ public class PharmacyService extends BearerTokenManageService {
     @Inject
     ConnectorCardsService connectorCardsService;
 
-    private static final FhirContext fhirContext = FhirContext.forR4();
+    private static final FhirContext fhirContext = FHIRService.getFhirContext();
 
     Client client;
 
@@ -185,6 +186,8 @@ public class PharmacyService extends BearerTokenManageService {
                     response2.close();
                 }
 
+            // todo: print bundle to pdf if configured
+
             return fhirContext.newXmlParser().parseResource(Bundle.class, new String(data));
         } catch(Throwable t) {
             log.log(Level.SEVERE, "Could not process "+token+"prescriptionId: "+prescriptionId+" secret: "+secret+" ", t);
@@ -229,5 +232,4 @@ public class PharmacyService extends BearerTokenManageService {
         }
         subscriptionsIds.clear();
     }
-    
 }

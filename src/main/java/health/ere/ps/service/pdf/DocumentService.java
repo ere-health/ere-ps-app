@@ -52,14 +52,15 @@ import health.ere.ps.event.BundlesWithAccessCodeEvent;
 import health.ere.ps.event.ERezeptWithDocumentsEvent;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.model.pdf.ERezeptDocument;
-import health.ere.ps.websocket.ExceptionWithReplyToExcetion;
+import health.ere.ps.service.fhir.FHIRService;
+import health.ere.ps.websocket.ExceptionWithReplyToException;
 
 @ApplicationScoped
 public class DocumentService {
 
     private static final Logger log = Logger.getLogger(DocumentService.class.getName());
     private static final int MAX_NUMBER_OF_MEDICINES_PER_PRESCRIPTIONS = 9;
-    private final FhirContext ctx = FhirContext.forR4();
+    private static final FhirContext fhirContext = FHIRService.getFhirContext();
 
     @Inject
     Event<ERezeptWithDocumentsEvent> eRezeptDocumentsEvent;
@@ -186,7 +187,7 @@ public class DocumentService {
                             boas = generateERezeptPdf(subList);
                         } catch (IOException | FOPException | TransformerException e) {
                             log.severe("Could not generate ERezept PDF:" + e);
-                            exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, bundlesWithAccessCodeEvent.getReplyTo(), bundlesWithAccessCodeEvent.getReplyToMessageId()));
+                            exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, bundlesWithAccessCodeEvent.getReplyTo(), bundlesWithAccessCodeEvent.getReplyToMessageId()));
                             boas = new ByteArrayOutputStream();
                         }
                     }
@@ -199,7 +200,7 @@ public class DocumentService {
                     log.info("Sending prescription receipts results.");
                 }
             } catch (Exception ex) {
-                exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(ex, bundlesWithAccessCodeEvent.getReplyTo(), bundlesWithAccessCodeEvent.getReplyToMessageId()));
+                exceptionEvent.fireAsync(new ExceptionWithReplyToException(ex, bundlesWithAccessCodeEvent.getReplyTo(), bundlesWithAccessCodeEvent.getReplyToMessageId()));
             }
         });
     }
@@ -222,7 +223,7 @@ public class DocumentService {
                 bundles.stream().filter(bundle -> bundle.getBundle() != null).map(bundle ->
                         "    <bundle>\n" +
                                 "        <accessCode>" + bundle.getAccessCode() + "</accessCode>\n" +
-                                "        " + ctx.newXmlParser().encodeResourceToString(bundle.getBundle()) + "\n" +
+                                "        " + fhirContext.newXmlParser().encodeResourceToString(bundle.getBundle()) + "\n" +
                                 "    </bundle>")
                         .collect(Collectors.joining("\n")) +
                 "\n</root>";
@@ -242,7 +243,7 @@ public class DocumentService {
         // Step 3: Construct fop with desired output format
         Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, out);
 
-        // Step 4: Setup JAXP using identity transformer
+        // Step 4: Setup JAXP using identity transformer | todo: shouldn't the factory go to the service init? and just create a transformer here? (like the fopFactory)
         TransformerFactory factory = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
         factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
         factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");

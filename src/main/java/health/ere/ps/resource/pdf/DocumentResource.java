@@ -18,6 +18,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.xml.transform.TransformerException;
 
+import health.ere.ps.service.fhir.FHIRService;
 import org.apache.fop.apps.FOPException;
 import org.hl7.fhir.r4.model.Bundle;
 
@@ -31,8 +32,9 @@ public class DocumentResource {
     @Inject
     DocumentService documentService;
 
-    IParser jsonParser = FhirContext.forR4().newJsonParser();
-    IParser xmlParser = FhirContext.forR4().newXmlParser();
+    private static final FhirContext fhirContext = FHIRService.getFhirContext();
+    IParser jsonParser = fhirContext.newJsonParser();
+    IParser xmlParser = fhirContext.newXmlParser();
 
     @POST
     @Path("bundles")

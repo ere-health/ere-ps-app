@@ -141,7 +141,7 @@ public class SVGExtractor {
     }
 
     private void saveDebugFile(PDDocument document) throws IOException {
-        final File file = new File("target/SVGExtractor-" + configuration.NAME + ".pdf");
+        final File file = new File("./SVGExtractor-" + configuration.NAME + ".pdf");
         document.save(file);
         document.close();
     }

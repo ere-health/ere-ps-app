@@ -22,7 +22,7 @@ import health.ere.ps.config.UserConfig;
 import health.ere.ps.service.connector.provider.SingleConnectorServicesProvider;
 
 public class SingleConnectorServicesProviderTest {
-    private String keystoreFileName = "src/test/resources/certs/keystore.p12";
+    private String keystoreFileName = "./../src/test/resources/certs/keystore.p12";
     private String keystoreFilePass = "123456";
     
     @Test

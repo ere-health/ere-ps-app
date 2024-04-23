@@ -61,7 +61,7 @@ public class IdpClientTest {
             // https://community.oracle.com/thread/1307033?start=0&tstart=0
             LogManager.getLogManager().readConfiguration(
                     IdpClientTest.class
-                            .getResourceAsStream("/logging.properties"));
+                            .getResourceAsStream("/test-classes/logging.properties"));
         } catch (IOException e) {
             e.printStackTrace();
         }

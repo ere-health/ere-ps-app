@@ -271,9 +271,9 @@ public class EndpointDiscoveryService {
             if (location.startsWith(userConfig.getConnectorBaseURL())) {
                 return location;
             } else {
-	        log.warning("Invalid service node. Maybe location: "+location+" does not start with: "+userConfig.getConnectorBaseURL());
-		return location;
-	    }
+                log.warning("Invalid service node. Maybe location: "+location+" does not start with: "+userConfig.getConnectorBaseURL());
+                return location;
+            }
         }
         throw new IllegalArgumentException("Invalid service node. Maybe location: "+location+" does not start with: "+userConfig.getConnectorBaseURL());
     }

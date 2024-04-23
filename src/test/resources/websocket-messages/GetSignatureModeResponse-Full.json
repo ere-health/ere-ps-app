@@ -1,0 +1,16 @@
+{"type": "GetSignatureModeResponse", "payload":
+{
+  "answertToActivateComfortSignature": false,
+  "comfortSignatureMax": 250,
+  "comfortSignatureStatus": "ENABLED",
+  "comfortSignatureTimer": "PT0H0M0S",
+  "sessionInfo": {
+    "countRemaining": 250,
+    "signatureMode": "COMFORT",
+    "timeRemaining": "PT23H49M9S"
+  },
+  "status": {
+    "result": "OK"
+  },
+  "userId": "1bb01080-c0ad-4ed3-816f-76a4cdf823ce"
+}, "replyToMessageId": "2da86eb7-57a3-4df2-83d3-5f9715e8ae09"}

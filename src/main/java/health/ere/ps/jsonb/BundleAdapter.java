@@ -9,9 +9,13 @@ import javax.json.JsonObject;
 import javax.json.bind.adapter.JsonbAdapter;
 import java.io.StringReader;
 
+import health.ere.ps.service.fhir.FHIRService;
+
+
 public class BundleAdapter implements JsonbAdapter<Bundle, JsonObject> {
 
-    IParser iParser = FhirContext.forR4().newJsonParser();
+    private static final FhirContext fhirContext = FHIRService.getFhirContext();
+    IParser iParser = fhirContext.newJsonParser();
     
     @Override
     public JsonObject adaptToJson(Bundle b) {
