@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 
 import jakarta.json.JsonObject;
 import jakarta.json.bind.annotation.JsonbProperty;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 public class UserConfigurations {
 

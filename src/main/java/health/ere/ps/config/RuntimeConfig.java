@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 import jakarta.enterprise.inject.Alternative;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.json.JsonObject;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import health.ere.ps.model.config.UserConfigurations;
 

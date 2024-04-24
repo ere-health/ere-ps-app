@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
 import javax.naming.InvalidNameException;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
