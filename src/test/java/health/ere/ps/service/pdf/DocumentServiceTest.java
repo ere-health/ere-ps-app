@@ -16,8 +16,8 @@ import java.util.Objects;
 import java.util.logging.LogManager;
 import java.util.stream.Collectors;
 
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
 import javax.xml.transform.TransformerException;
 
 import org.apache.fop.apps.FOPException;

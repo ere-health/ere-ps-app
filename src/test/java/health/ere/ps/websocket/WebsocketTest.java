@@ -15,11 +15,11 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.enterprise.event.Event;
-import javax.json.Json;
-import javax.websocket.RemoteEndpoint.Async;
-import javax.websocket.SendHandler;
-import javax.websocket.Session;
+import jakarta.enterprise.event.Event;
+import jakarta.json.Json;
+import jakarta.websocket.RemoteEndpoint.Async;
+import jakarta.websocket.SendHandler;
+import jakarta.websocket.Session;
 
 import org.hl7.fhir.r4.model.Bundle;
 import org.junit.jupiter.api.Disabled;
@@ -87,7 +87,7 @@ class WebsocketTest {
     verify(mockedAsync).sendObject(exceptionMessageCaptor.capture(), sendHandlerCaptor.capture());
     String exception = exceptionMessageCaptor.getValue();
 
-    javax.json.JsonObject exceptionObject = Json.createReader(new StringReader(exception)).readObject();
+    jakarta.json.JsonObject exceptionObject = Json.createReader(new StringReader(exception)).readObject();
 
     assertEquals("Exception", exceptionObject.getString("type"));
 

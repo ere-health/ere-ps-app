@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.security.cert.CertificateEncodingException;
 import java.util.logging.LogManager;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.naming.InvalidNameException;
 import javax.xml.bind.JAXBException;
 

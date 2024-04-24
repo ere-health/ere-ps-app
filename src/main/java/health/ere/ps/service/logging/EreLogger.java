@@ -10,8 +10,8 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.enterprise.event.Event;
-import javax.enterprise.inject.spi.CDI;
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.inject.spi.CDI;
 
 import health.ere.ps.event.EreLogNotificationEvent;
 import health.ere.ps.service.common.util.BundleJsonInfoExtractor;

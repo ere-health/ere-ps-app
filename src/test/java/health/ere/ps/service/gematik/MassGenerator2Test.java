@@ -27,7 +27,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.gradle.internal.impldep.com.google.common.collect.Lists;
 import org.hl7.fhir.r4.model.Bundle;

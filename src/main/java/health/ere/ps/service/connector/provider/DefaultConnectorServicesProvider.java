@@ -1,8 +1,8 @@
 package health.ere.ps.service.connector.provider;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import health.ere.ps.config.UserConfig;
 

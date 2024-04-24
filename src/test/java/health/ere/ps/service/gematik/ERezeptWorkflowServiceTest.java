@@ -27,7 +27,7 @@ import java.util.NoSuchElementException;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 

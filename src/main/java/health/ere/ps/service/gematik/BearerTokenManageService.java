@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import javax.inject.Inject;
-import javax.websocket.Session;
+import jakarta.inject.Inject;
+import jakarta.websocket.Session;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jose4j.jwt.consumer.InvalidJwtException;

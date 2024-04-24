@@ -1,11 +1,11 @@
 package health.ere.ps.resource.gematik;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Context;
 
 import org.hl7.fhir.r4.model.Bundle;
 

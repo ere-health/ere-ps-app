@@ -8,10 +8,10 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.enterprise.event.ObservesAsync;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.event.ObservesAsync;
+import jakarta.inject.Inject;
 
 import health.ere.ps.event.SaveSettingsEvent;
 import health.ere.ps.event.SaveSettingsResponseEvent;

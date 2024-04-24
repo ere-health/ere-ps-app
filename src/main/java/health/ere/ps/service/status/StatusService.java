@@ -4,11 +4,11 @@ import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.enterprise.event.ObservesAsync;
-import javax.inject.Inject;
-import javax.websocket.Session;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.event.ObservesAsync;
+import jakarta.inject.Inject;
+import jakarta.websocket.Session;
 
 import de.gematik.ws.conn.eventservice.v7.GetCards;
 import health.ere.ps.config.AppConfig;

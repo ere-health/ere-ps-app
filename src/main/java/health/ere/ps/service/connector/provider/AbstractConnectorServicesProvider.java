@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.net.ssl.SSLContext;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.ws.BindingProvider;

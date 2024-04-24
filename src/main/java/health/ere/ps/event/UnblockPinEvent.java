@@ -2,8 +2,8 @@ package health.ere.ps.event;
 
 import java.util.Objects;
 
-import javax.json.JsonObject;
-import javax.websocket.Session;
+import jakarta.json.JsonObject;
+import jakarta.websocket.Session;
 
 public class UnblockPinEvent extends AbstractEvent {
     

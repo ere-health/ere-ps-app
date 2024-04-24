@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 

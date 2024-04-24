@@ -7,10 +7,10 @@ import health.ere.ps.model.muster16.Muster16PrescriptionForm;
 import health.ere.ps.service.muster16.parser.IMuster16FormParser;
 import health.ere.ps.service.muster16.parser.rgxer.Muster16SvgRegexParser;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.enterprise.event.ObservesAsync;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.event.ObservesAsync;
+import jakarta.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

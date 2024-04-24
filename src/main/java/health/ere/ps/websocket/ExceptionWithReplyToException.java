@@ -1,6 +1,6 @@
 package health.ere.ps.websocket;
 
-import javax.websocket.Session;
+import jakarta.websocket.Session;
 
 public class ExceptionWithReplyToException extends Exception {
 

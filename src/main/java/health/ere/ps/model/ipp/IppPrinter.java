@@ -3,7 +3,7 @@ package health.ere.ps.model.ipp;
 import com.hp.jipp.encoding.Attribute;
 import com.hp.jipp.model.*;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;

@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.collections4.CollectionUtils;

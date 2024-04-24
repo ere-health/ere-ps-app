@@ -1,7 +1,7 @@
 package health.ere.ps.config.interceptor;
 
 
-import javax.interceptor.InterceptorBinding;
+import jakarta.interceptor.InterceptorBinding;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 

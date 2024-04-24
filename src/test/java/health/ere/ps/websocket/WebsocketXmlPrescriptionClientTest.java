@@ -9,11 +9,11 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.UUID;
 
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.json.JsonString;
-import javax.json.JsonValue;
+import jakarta.json.Json;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonString;
+import jakarta.json.JsonValue;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;

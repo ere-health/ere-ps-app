@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.hl7.fhir.r4.model.Bundle;
 import org.junit.jupiter.api.Assertions;
