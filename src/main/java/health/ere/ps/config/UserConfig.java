@@ -5,7 +5,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.ObservesAsync;
 import jakarta.inject.Inject;
