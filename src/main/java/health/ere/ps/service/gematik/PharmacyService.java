@@ -1,5 +1,7 @@
 package health.ere.ps.service.gematik;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -104,17 +106,20 @@ public class PharmacyService extends BearerTokenManageService {
 
         try (Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task")
                 .queryParam("pnw", pnw).request()
-                .header("Content-Type", "application/fhir+xml; charset=UTF-8")
+                .header("Content-Type", "application/fhir+xml")
                 .header("User-Agent", appConfig.getUserAgent())
                 .header("Authorization", "Bearer " + bearerToken.get(runtimeConfig))
                 .get()) {
 
-            String bundleString = response.readEntity(String.class);
+            String bundleString = new String(response.readEntity(InputStream.class).readAllBytes(), "ISO-8859-15");
             
             if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
                 throw new WebApplicationException("Error on "+appConfig.getPrescriptionServiceURL()+" "+bundleString, response.getStatus());
             }
             return fhirContext.newXmlParser().parseResource(Bundle.class, bundleString);
+        } catch (IOException e) {
+            log.log(Level.SEVERE, "Could not read response from Fachdienst", e);
+            throw new WebApplicationException("Could not read response from Fachdienst", e);
         }
     
     }
@@ -151,12 +156,12 @@ public class PharmacyService extends BearerTokenManageService {
         String secret = "";
         String prescriptionId = "";
         try (Response response = client.target(appConfig.getPrescriptionServiceURL()+token).request()
-                .header("Content-Type", "application/fhir+xml; charset=UTF-8")
+                .header("Content-Type", "application/fhir+xml")
                 .header("User-Agent", appConfig.getUserAgent())
                 .header("Authorization", "Bearer " + bearerToken.get(runtimeConfig))
-                .post(Entity.entity("", "application/fhir+xml; charset=UTF-8"))) {
+                .post(Entity.entity("", "application/fhir+xml"))) {
 
-            String bundleString = response.readEntity(String.class);
+            String bundleString = new String(response.readEntity(InputStream.class).readAllBytes(), "ISO-8859-15");
             
             if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
                 throw new WebApplicationException("Error on "+appConfig.getPrescriptionServiceURL()+" "+bundleString, response.getStatus());
@@ -178,8 +183,8 @@ public class PharmacyService extends BearerTokenManageService {
                 .queryParam("secret", secret).request()
                 .header("User-Agent", appConfig.getUserAgent())
                 .header("Authorization", "Bearer " + bearerToken.get(runtimeConfig))
-                .post(Entity.entity("", "application/fhir+xml; charset=UTF-8"))) {
-                    String rejectResponse = response2.readEntity(String.class);
+                .post(Entity.entity("", "application/fhir+xml"))) {
+                    String rejectResponse = new String(response2.readEntity(InputStream.class).readAllBytes(), "ISO-8859-15");;
                     if (Response.Status.Family.familyOf(response2.getStatus()) != Response.Status.Family.SUCCESSFUL) {
                         log.warning("Could not reject "+token+"prescriptionId: "+prescriptionId+" secret: "+secret+" "+rejectResponse);
                     }
