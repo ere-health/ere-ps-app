@@ -86,10 +86,10 @@ The ere-health application read configuration is the following order from most i
 ### Running the ERE-PS-App Application
 
 * #### Software Requirements
-  1. Download and install the latest version of the OpenJDK 11 SDK. You can use your preferred 
+  1. Download and install the latest version of the OpenJDK 17 SDK. You can use your preferred 
      package manager software on your computer to handle this, or simply download an archive or 
      installer from a publishing site such as AdoptOpenJDK (https://adoptopenjdk.net/).  Make sure 
-     to choose OpenJDK 11 (LTS) and the HotSpot version of the JVM.
+     to choose OpenJDK 17 (LTS) and the HotSpot version of the JVM.
      
   2. Download and install the latest version of Apache Maven (https://maven.apache.org/). 
     
