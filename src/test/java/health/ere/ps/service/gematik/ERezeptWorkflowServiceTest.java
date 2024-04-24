@@ -62,12 +62,9 @@ import health.ere.ps.service.connector.endpoint.SSLUtilities;
 import health.ere.ps.service.extractor.SVGExtractor;
 import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
 import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilder;
-import health.ere.ps.service.fhir.bundle.PrescriptionBundlesBuilderTest;
 import health.ere.ps.service.idp.BearerTokenService;
 import health.ere.ps.service.idp.client.IdpClient;
 import health.ere.ps.service.idp.client.IdpHttpClientService;
-import health.ere.ps.service.muster16.Muster16FormDataExtractorService;
-import health.ere.ps.service.muster16.parser.Muster16SvgExtractorParser;
 import health.ere.ps.service.pdf.DocumentService;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
@@ -396,50 +393,6 @@ public class ERezeptWorkflowServiceTest {
                 .withZone(ZoneOffset.UTC)
                 .format(Instant.now());
         Files.write(Paths.get("target/E-Rezept-" + thisMoment + ".pdf"), a.toByteArray());
-    }
-
-    @Test
-    @Disabled
-    void testCreateERezeptWithPrescriptionBuilderOnPrescriptionServer() throws ParseException {
-        List<Bundle> bundles = new PrescriptionBundlesBuilder(
-                PrescriptionBundlesBuilderTest.getMuster16PrescriptionFormForTests()).createBundles();
-
-        bundles.forEach(bundle -> {
-            log.info(iParser.encodeResourceToString(bundle));
-            try {
-                eRezeptWorkflowService.createERezeptOnPrescriptionServer(bundle);
-            } catch (ERezeptWorkflowException e) {
-                e.printStackTrace();
-            }
-        });
-    }
-
-    @Disabled
-    @Test
-        // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
-    void testCreateERezeptFromPdfOnPrescriptionServer() throws URISyntaxException,
-            IOException, ParseException, ERezeptWorkflowException, XMLStreamException {
-        SVGExtractor svgExtractor = new SVGExtractor(CGM_TURBO_MED.configuration, true);
-
-        try (PDDocument pdDocument = PDDocument.load(getClass().getResourceAsStream(
-                "/muster-16-print-samples/test1.pdf"))) {
-            Map<String, String> map = svgExtractor.extract(pdDocument);
-            Muster16SvgExtractorParser muster16Parser = new Muster16SvgExtractorParser(map);
-
-            Muster16PrescriptionForm muster16PrescriptionForm = Muster16FormDataExtractorService.fillForm(muster16Parser);
-            PrescriptionBundlesBuilder bundleBuilder =
-                    new PrescriptionBundlesBuilder(muster16PrescriptionForm);
-
-            List<Bundle> bundles = bundleBuilder.createBundles();
-            bundles.forEach(bundle -> {
-                log.info(iParser.encodeResourceToString(bundle));
-                try {
-                    eRezeptWorkflowService.createERezeptOnPrescriptionServer(bundle);
-                } catch (ERezeptWorkflowException e) {
-                    e.printStackTrace();
-                }
-            });
-        }
     }
 
     @Test

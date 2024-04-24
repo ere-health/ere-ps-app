@@ -9,9 +9,6 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 @ApplicationScoped
 public class AppConfig {
 
-    @ConfigProperty(name = "directory-watcher.dir")
-    String directoryWatcherDir;
-
     @ConfigProperty(name = "ere.workflow-service.prescription.server.url")
     String prescriptionServiceURL;
 
@@ -56,10 +53,6 @@ public class AppConfig {
 
     @ConfigProperty(name = "connector.cert.auth.store.file.password")
     Optional<String> certAuthStoreFilePassword;
-
-    public String getDirectoryWatcherDir() {
-        return directoryWatcherDir;
-    }
 
     public String getPrescriptionServiceURL() {
         return prescriptionServiceURL;
