@@ -86,7 +86,7 @@
             <version>${hapi.version}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>xpp3</groupId>
+                    <groupId>org.ogce</groupId>
                     <artifactId>xpp3</artifactId>
                 </exclusion>
             </exclusions>
