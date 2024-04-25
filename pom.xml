@@ -55,9 +55,9 @@
             <version>1.8</version>
         </dependency>
         <dependency>
-            <artifactId>bcpkix-jdk15on</artifactId>
             <groupId>org.bouncycastle</groupId>
-            <version>1.70</version>
+            <artifactId>bcpkix-jdk18on</artifactId>
+            <version>1.78.1</version>
         </dependency>
         <dependency>
             <groupId>org.bitbucket.b_c</groupId>
