@@ -289,7 +289,7 @@ public class KBVFHIRUtil {
 	    composition.getMeta().addProfile(
 	            "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Composition|1.1.0");
 	
-	    Coding valueCoding = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_STATUSKENNZEICHEN", asvAusuebungRoleId != null ? "01" : "00", null);
+	    Coding valueCoding = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_STATUSKENNZEICHEN", asvAusuebungRoleId != null ? "01" : "00", null); //todo add 04 Entlassmanagement, 07 TSS Kennzeichen, 10 nur Ersatzverordnungskennzeichen, 11 ASV+Ersatzverordnung, 14 Entlass+Ersatz, 17 TSS+Ersatz
 	    Extension legalBasis = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Legal_basis", valueCoding);
 	    composition.addExtension(legalBasis);
 	

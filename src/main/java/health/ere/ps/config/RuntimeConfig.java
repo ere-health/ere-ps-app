@@ -22,6 +22,7 @@ public class RuntimeConfig extends UserConfig {
     protected String eHBAHandle = null;
     protected String SMCBHandle = null;
 
+    //todo: shouldn't idp parameter and prescriptionServerURL be part of UserConfig?
     protected String idpBaseURL = null;
     protected String idpAuthRequestRedirectURL = null;
     protected String idpClientId = null;

@@ -83,6 +83,7 @@ public class ERezeptWorkflowResource {
         }
     }
 
+    //todo: refactor - move to RuntimeConfig? (there is already the updateConfigurationsWithHttpServletRequest)
     public static RuntimeConfig extractRuntimeConfigFromHeaders(HttpServletRequest httpServletRequest, UserConfig userConfig) {
         for(Object name : Collections.list(httpServletRequest.getHeaderNames())) {
             if(name.toString().startsWith("X-")) {

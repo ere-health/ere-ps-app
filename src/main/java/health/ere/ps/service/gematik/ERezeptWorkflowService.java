@@ -962,7 +962,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
     public GetCardsResponse getCards(RuntimeConfig runtimeConfig) throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         GetCards parameter = new GetCards();
         parameter.setContext(connectorServicesProvider.getContextType(runtimeConfig));
-        EventServicePortType eventServicePortType = connectorServicesProvider.getEventServicePortType(runtimeConfig);
+        EventServicePortType eventServicePortType = connectorServicesProvider.getEventServicePortType(runtimeConfig); // todo: if runtimeconfig without userid/hba/smcb: connectorBaseURL ignored ! request to http://ti-konnektor/eventservice
         if(eventServicePortType == null) {
             throw new RuntimeException("EventServicePortType is null. This normally means that the connector configuration is not correct.");
         } else {

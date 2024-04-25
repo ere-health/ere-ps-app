@@ -36,6 +36,7 @@ public class UserConfig {
     @ConfigProperty(name = "connector.client-system-id")
     String defaultClientSystemId;
 
+    //todo: shouldn't user-id be part of runtime-config? (comfortSignature!)
     @ConfigProperty(name = "connector.user-id")
     Optional<String> defaultUserId;
 
