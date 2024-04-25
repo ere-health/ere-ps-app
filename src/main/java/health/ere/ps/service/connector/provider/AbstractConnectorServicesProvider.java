@@ -5,9 +5,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import jakarta.inject.Inject;
+import jakarta.xml.ws.BindingProvider;
 import javax.net.ssl.SSLContext;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.ws.BindingProvider;
 
 import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureService;
 import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureServicePortType;
