@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 import jakarta.inject.Inject;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonObjectBuilder;
@@ -12,8 +13,6 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
-
-import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 
 @Path("/validate")
 public class PrescriptionBundleValidatorResource {
@@ -34,7 +33,7 @@ public class PrescriptionBundleValidatorResource {
         List<String> errorsList = new ArrayList<>();
 
         if (!prescriptionBundleValidator.validateResource(bundle,
-            true, errorsList).isSuccessful()) {
+            true, errorsList).isValid()) {
             return Response.status(Status.BAD_REQUEST).entity(getXmlForErrorsList(errorsList)).build();
         } else {
             return Response.ok().build();
