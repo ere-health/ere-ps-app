@@ -394,7 +394,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
                 .post(Entity.entity(fhirContext.newXmlParser().encodeResourceToString(parameters),
                         "application/fhir+xml; charset=utf-8"))) {
 
-            String taskString = response.readEntity(String.class);
+            String taskString = new String(response.readEntity(java.io.InputStream.class).readAllBytes(), "ISO-8859-1");
             log.info("Response when trying to activate the task:" + taskString);
 
             if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
@@ -404,10 +404,14 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
                 } else {
                     Response.ResponseBuilder responseBuilder = Response.status(response.getStatus());
                     responseBuilder.entity(taskString);
-                    throw new WebApplicationException(responseBuilder.build());
+                    Response responseError = responseBuilder.build();
+                    throw new WebApplicationException(responseError);
+                    
                 }
             }
             log.info("Task $activate Response: " + taskString);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

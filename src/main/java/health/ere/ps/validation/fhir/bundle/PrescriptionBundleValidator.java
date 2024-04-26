@@ -1,10 +1,12 @@
 package health.ere.ps.validation.fhir.bundle;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import ca.uhn.fhir.rest.api.Constants;
 import ca.uhn.fhir.validation.SingleValidationMessage;
 import de.gematik.refv.SupportedValidationModule;
 import de.gematik.refv.ValidationModuleFactory;
@@ -35,6 +37,7 @@ public class PrescriptionBundleValidator {
     public void init() {
         try {
             erpModule = new ValidationModuleFactory().createValidationModule(SupportedValidationModule.ERP);
+            erpModule.getConfiguration().setAcceptedEncodings(Arrays.asList(Constants.FORMAT_XML, Constants.FORMAT_JSON));
         } catch (IllegalArgumentException | ValidationModuleInitializationException e) {
             log.log(Level.SEVERE, "Could not init validator", e);
         }
