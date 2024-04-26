@@ -19,18 +19,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Event;
-import jakarta.enterprise.event.ObservesAsync;
-import jakarta.inject.Inject;
-import jakarta.websocket.Session;
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.client.Entity;
-import jakarta.ws.rs.core.Response;
-import jakarta.xml.ws.Holder;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 
@@ -86,6 +74,18 @@ import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import health.ere.ps.service.fhir.FHIRService;
 import health.ere.ps.vau.VAUEngine;
 import health.ere.ps.websocket.ExceptionWithReplyToException;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.event.ObservesAsync;
+import jakarta.inject.Inject;
+import jakarta.websocket.Session;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.Response;
+import jakarta.xml.ws.Holder;
 import oasis.names.tc.dss._1_0.core.schema.Base64Data;
 
 @ApplicationScoped
@@ -846,15 +846,20 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
      * Reacts to the event the GetSignatureMode Event
      */
     public void onGetSignatureModeEvent(GetSignatureModeEvent getSignatureModeEvent, String userId, boolean answertToActivateComfortSignature) {
-        GetSignatureModeResponseEvent getSignatureModeResponseEvent = getSignatureMode(getSignatureModeEvent.getRuntimeConfig(), getSignatureModeEvent.getReplyTo(), getSignatureModeEvent.getId());
-        if(getSignatureModeResponseEvent != null) {
-            if(getSignatureModeEvent != null) {
-                getSignatureModeResponseEvent.setReplyTo(getSignatureModeEvent.getReplyTo());
-                getSignatureModeResponseEvent.setReplyToMessageId(getSignatureModeEvent.getId());
+        try {
+            GetSignatureModeResponseEvent getSignatureModeResponseEvent = getSignatureMode(getSignatureModeEvent.getRuntimeConfig(), getSignatureModeEvent.getReplyTo(), getSignatureModeEvent.getId());
+            if(getSignatureModeResponseEvent != null) {
+                if(getSignatureModeEvent != null) {
+                    getSignatureModeResponseEvent.setReplyTo(getSignatureModeEvent.getReplyTo());
+                    getSignatureModeResponseEvent.setReplyToMessageId(getSignatureModeEvent.getId());
+                }
+                getSignatureModeResponseEvent.setUserId(userId != null ? userId : (getSignatureModeEvent.getRuntimeConfig() != null ? getSignatureModeEvent.getRuntimeConfig().getUserId() : null));
+                getSignatureModeResponseEvent.setAnswertToActivateComfortSignature(answertToActivateComfortSignature);
+                this.getSignatureModeResponseEvent.fireAsync(getSignatureModeResponseEvent);
             }
-            getSignatureModeResponseEvent.setUserId(userId != null ? userId : (getSignatureModeEvent.getRuntimeConfig() != null ? getSignatureModeEvent.getRuntimeConfig().getUserId() : null));
-            getSignatureModeResponseEvent.setAnswertToActivateComfortSignature(answertToActivateComfortSignature);
-            this.getSignatureModeResponseEvent.fireAsync(getSignatureModeResponseEvent);
+        } catch (Exception e) {
+            log.log(Level.WARNING, "Could not GetSignatureModeEvent", e);
+            exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, getSignatureModeEvent.getReplyTo(), getSignatureModeEvent.getReplyToMessageId()));
         }
     }
 
@@ -866,7 +871,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
      *
      */
     public GetSignatureModeResponseEvent getSignatureMode(RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId) {
-        if(userIdForComfortSignature == null && (runtimeConfig.getUserId() == null || runtimeConfig.getUserId().isEmpty())) {
+        if(userIdForComfortSignature == null && (runtimeConfig == null || (runtimeConfig.getUserId() == null || runtimeConfig.getUserId().isEmpty()))) {
             Status status = new Status();
             status.setResult("OK");
             ComfortSignatureStatusEnum comfortSignatureStatus = ComfortSignatureStatusEnum.DISABLED;
