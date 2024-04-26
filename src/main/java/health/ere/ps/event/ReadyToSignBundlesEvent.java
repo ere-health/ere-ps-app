@@ -3,10 +3,10 @@ package health.ere.ps.event;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.json.JsonValue;
-import javax.websocket.Session;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonValue;
+import jakarta.websocket.Session;
 
 import ca.uhn.fhir.context.FhirContext;
 import org.hl7.fhir.r4.model.Bundle;

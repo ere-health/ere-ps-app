@@ -1,7 +1,7 @@
 package health.ere.ps.event;
 
 
-import javax.websocket.Session;
+import jakarta.websocket.Session;
 
 import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
 

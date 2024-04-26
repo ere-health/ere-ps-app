@@ -10,9 +10,9 @@ import java.util.Base64;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-import javax.xml.ws.Holder;
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
+import jakarta.xml.ws.Holder;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.jose4j.jws.JsonWebSignature;

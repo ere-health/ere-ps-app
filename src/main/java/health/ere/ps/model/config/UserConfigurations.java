@@ -16,9 +16,9 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.json.JsonObject;
-import javax.json.bind.annotation.JsonbProperty;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.json.JsonObject;
+import jakarta.json.bind.annotation.JsonbProperty;
+import jakarta.servlet.http.HttpServletRequest;
 
 public class UserConfigurations {
 

@@ -7,10 +7,10 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.enterprise.inject.Alternative;
-import javax.enterprise.inject.spi.CDI;
-import javax.json.JsonObject;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.enterprise.inject.Alternative;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.json.JsonObject;
+import jakarta.servlet.http.HttpServletRequest;
 
 import health.ere.ps.model.config.UserConfigurations;
 
@@ -22,6 +22,7 @@ public class RuntimeConfig extends UserConfig {
     protected String eHBAHandle = null;
     protected String SMCBHandle = null;
 
+    //todo: shouldn't idp parameter and prescriptionServerURL be part of UserConfig?
     protected String idpBaseURL = null;
     protected String idpAuthRequestRedirectURL = null;
     protected String idpClientId = null;

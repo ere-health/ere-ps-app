@@ -1,6 +1,6 @@
 package health.ere.ps.event;
 
-import javax.json.JsonObject;
+import jakarta.json.JsonObject;
 
 public class AbortTaskEntry {
     private String accessCode;

@@ -5,7 +5,7 @@ import health.ere.ps.service.idp.BearerTokenService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.websocket.Session;
+import jakarta.websocket.Session;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.HashMap;

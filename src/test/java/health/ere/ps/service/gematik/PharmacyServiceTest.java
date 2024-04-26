@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;

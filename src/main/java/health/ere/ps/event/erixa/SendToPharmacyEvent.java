@@ -1,8 +1,8 @@
 package health.ere.ps.event.erixa;
 
 
-import javax.json.JsonObject;
-import javax.websocket.Session;
+import jakarta.json.JsonObject;
+import jakarta.websocket.Session;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
