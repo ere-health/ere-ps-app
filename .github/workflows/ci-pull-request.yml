@@ -11,9 +11,9 @@ jobs:
       ERE_CONNECTOR_TLS_CERT_TRUST_STORE_PWD: "00"
       ERE_VALIDATOR_VALIDATE_SIGN_REQUEST_BUNDLES_ENABLED: false
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set up JDK 17
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'adopt'
