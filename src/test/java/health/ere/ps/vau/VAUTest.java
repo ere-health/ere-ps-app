@@ -10,11 +10,11 @@ import java.security.KeyPair;
 import java.security.KeyStore;
 import java.util.logging.LogManager;
 
+import jakarta.xml.bind.DatatypeConverter;
 import jakarta.xml.ws.BindingProvider;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
-import javax.xml.bind.DatatypeConverter;
 
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.bouncycastle.crypto.params.ECDomainParameters;

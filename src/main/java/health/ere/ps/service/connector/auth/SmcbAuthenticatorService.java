@@ -12,7 +12,7 @@ import java.util.Set;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
-import javax.xml.ws.Holder;
+import jakarta.xml.ws.Holder;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.jose4j.jws.JsonWebSignature;

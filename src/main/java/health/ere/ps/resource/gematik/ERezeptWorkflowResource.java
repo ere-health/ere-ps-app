@@ -23,7 +23,7 @@ import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 import javax.xml.transform.TransformerException;
 
 import org.apache.fop.apps.FOPException;

@@ -3,7 +3,7 @@ package health.ere.ps.config.interceptor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.annotation.Priority;
+import jakarta.annotation.Priority;
 import jakarta.inject.Inject;
 import jakarta.interceptor.AroundInvoke;
 import jakarta.interceptor.Interceptor;

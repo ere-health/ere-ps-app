@@ -11,7 +11,7 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.Response;
-import javax.xml.ws.Holder;
+import jakarta.xml.ws.Holder;
 
 import org.bouncycastle.cms.CMSProcessableByteArray;
 import org.bouncycastle.cms.CMSSignedData;

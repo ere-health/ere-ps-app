@@ -11,7 +11,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.enterprise.event.ObservesAsync;
 import jakarta.inject.Inject;
-import javax.xml.ws.Holder;
+import jakarta.xml.ws.Holder;
 
 import org.apache.commons.collections4.CollectionUtils;
 

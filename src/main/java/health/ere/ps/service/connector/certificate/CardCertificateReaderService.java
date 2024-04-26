@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import javax.xml.ws.Holder;
+import jakarta.xml.ws.Holder;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;

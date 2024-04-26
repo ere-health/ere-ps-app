@@ -20,7 +20,7 @@ public interface IdpHttpClientService {
     String DISCOVERY_DOCUMENT_URI = "/.well-known/openid-configuration";
 
 
-    String USER_AGENT = "ere.health/1.0.0 IncentergyGmbH/GEMIncenereS2QmFN83P";
+    String USER_AGENT = "ere.health/1.0.0 IncentergyGmbH/GEMIncenereS2QmFN83P"; //todo: hardcoded PU !?
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)

@@ -25,9 +25,9 @@ import jakarta.enterprise.event.Event;
 import jakarta.enterprise.event.ObservesAsync;
 import jakarta.inject.Inject;
 import javax.naming.InvalidNameException;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.ws.Holder;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.ws.Holder;
 
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
