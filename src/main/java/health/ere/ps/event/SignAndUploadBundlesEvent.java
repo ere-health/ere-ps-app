@@ -78,7 +78,7 @@ public class SignAndUploadBundlesEvent extends AbstractEvent {
     }
 
     public SignAndUploadBundlesEvent(Bundle[] bundles, JsonObject jsonObject, Session senderSession, String id) {
-        parseRuntimeConfig(jsonObject);
+        parseRuntimeConfig(jsonObject); //todo: here the keys from above (flowtype etc) are ignored - refactor & include (probably own process json method?)
         this.replyTo = senderSession;
         this.id = id;
         listOfListOfBundles.add(Arrays.asList(bundles));
