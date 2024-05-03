@@ -22,6 +22,7 @@ import jakarta.websocket.SendHandler;
 import jakarta.websocket.Session;
 
 import org.hl7.fhir.r4.model.Bundle;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -43,6 +44,8 @@ class WebsocketTest {
       verify(websocket.signAndUploadBundlesEvent, times(1)).fireAsync(any());
   }
 
+  // todo: just passing because of missing validator: integration test with prescriptionValidator / remove / extend
+  @Disabled
   @Test
   void testSignAndUploadBundlesMessageWithInvalidBundleWontFire() throws IOException {
     Websocket websocket = new Websocket();
