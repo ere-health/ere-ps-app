@@ -183,6 +183,10 @@ public class KIMFlowtype169Service {
         try {
             if("169".equals(bundlesWithAccessCodeEvent.getFlowtype())) {
                 Map<String,String> kimConfigMap = bundlesWithAccessCodeEvent.getKimConfigMap();
+		if("true".equals(kimConfigMap.get("preventKIMMail"))) {
+		    log.info("Please do not send a KIM E-Mail");
+		    return;
+		}
                 for(List<BundleWithAccessCodeOrThrowable> list : bundlesWithAccessCodeEvent.getBundleWithAccessCodeOrThrowable()) {
                     for(BundleWithAccessCodeOrThrowable bundle : list) {
                         sendERezeptToKIMAddress(kimConfigMap.get("fromKimAddress"), bundlesWithAccessCodeEvent.getToKimAddress(), bundlesWithAccessCodeEvent.getNoteToPharmacy(), kimConfigMap.get("smtpHostServer"), getSmtpUser(kimConfigMap), kimConfigMap.get("smtpPassword"), getERezeptToken(bundle.getBundle(), bundle.getAccessCode()));
