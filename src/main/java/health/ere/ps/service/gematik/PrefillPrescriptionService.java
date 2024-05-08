@@ -20,14 +20,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Event;
-import jakarta.enterprise.event.ObservesAsync;
-import jakarta.inject.Inject;
 import javax.naming.InvalidNameException;
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
-import jakarta.xml.ws.Holder;
 
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -83,6 +76,13 @@ import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import health.ere.ps.service.idp.crypto.CryptoLoader;
 import health.ere.ps.service.kbv.KBVFHIRUtil;
 import health.ere.ps.websocket.ExceptionWithReplyToException;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.event.ObservesAsync;
+import jakarta.inject.Inject;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.ws.Holder;
 
 @ApplicationScoped
 public class PrefillPrescriptionService {
@@ -121,8 +121,8 @@ public class PrefillPrescriptionService {
 		EventServicePortType eventService = connectorServicesProvider.getEventServicePortType(runtimeConfig);
 
 		String egkHandle = getFirstCardOfType(eventService, CardTypeType.EGK, context);
-		String smcbHandle = (runtimeConfig.getSMCBHandle() != null) ? runtimeConfig.getSMCBHandle() : getFirstCardOfType(eventService, CardTypeType.SMC_B, context);
-		String hbaHandle = (runtimeConfig.getEHBAHandle() != null) ? runtimeConfig.getEHBAHandle() : getFirstCardOfType(eventService, CardTypeType.HBA, context);
+		String smcbHandle = (runtimeConfig != null && runtimeConfig.getSMCBHandle() != null) ? runtimeConfig.getSMCBHandle() : getFirstCardOfType(eventService, CardTypeType.SMC_B, context);
+		String hbaHandle = (runtimeConfig != null && runtimeConfig.getEHBAHandle() != null) ? runtimeConfig.getEHBAHandle() : getFirstCardOfType(eventService, CardTypeType.HBA, context);
 
 		Patient patient = null;
 		Coverage coverage = null;
