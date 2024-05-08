@@ -281,7 +281,7 @@ public class Websocket {
                     signAndUploadBundlesEvent.fireAsync(event);   
                 }
                 onFhirBundle(new BundlesEvent(Arrays.asList(bundles), null, messageId));
-            } else if ("PreviewOnly".equals(object.getString("type"))) {
+            } else if ("PreviewOnly".equals(object.getString("type"))) { // todo: not final access-code and eRz-Id in here, just a preview!
                 readyToSignBundlesEvent.fireAsync(new ReadyToSignBundlesEvent(object, senderSession, messageId));
             } else if ("AbortTasks".equals(object.getString("type"))) {
                 abortTasksEvent.fireAsync(new AbortTasksEvent(object, senderSession, messageId));

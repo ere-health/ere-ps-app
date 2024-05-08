@@ -498,7 +498,9 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
 
         List<SignResponse> signResponses = null;
 
-        readyToSignBundlesEvent.fireAsync(new ReadyToSignBundlesEvent(bundles, replyTo, replyToMessageId));
+        if (runtimeConfig.isSendPreview()) {
+            readyToSignBundlesEvent.fireAsync(new ReadyToSignBundlesEvent(bundles, replyTo, replyToMessageId));
+        }
 
         try {
             OptionalInputs optionalInputs = new OptionalInputs();

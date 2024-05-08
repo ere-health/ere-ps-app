@@ -6,6 +6,7 @@ Content-Type: application/json // Content highlighting only
   "runtimeConfig": {
         "eHBAHandle": "{{eHBAHandle}}",
         "SMCBHandle": "{{SMCBHandle}}",
+        "sendPreview": false,
         "connector.user-id": "{{userId}}",
         "connector.base-url": "{{connector.base-url}}",
         "connector.client-certificate": "{{connector.client-certificate}}",

@@ -33,16 +33,28 @@ import health.ere.ps.model.pdf.ERezeptDocument;
 
 class WebsocketTest {
 
-  @Disabled("Currently failing since the introduction of the validation checks in the websocket.")
   @Test
-  void testMessage() throws IOException {
+  void testSignAndUploadBundlesMessageWithInvalidBundleWithoutValidationFires() throws IOException {
       Websocket websocket = new Websocket();
       websocket.signAndUploadBundlesEvent = mock(Event.class);
       String signAndUploadBundles = new String(getClass().getResourceAsStream("/websocket" +
-              "-messages/SignAndUploadBundles.json").readAllBytes(), StandardCharsets.UTF_8);
+              "-messages/SignAndUploadBundles-Without-Validation.json").readAllBytes(), StandardCharsets.UTF_8);
 
       websocket.onMessage(signAndUploadBundles, null);
       verify(websocket.signAndUploadBundlesEvent, times(1)).fireAsync(any());
+  }
+
+  // todo: just passing because of missing validator: integration test with prescriptionValidator / remove / extend
+  @Disabled
+  @Test
+  void testSignAndUploadBundlesMessageWithInvalidBundleWontFire() throws IOException {
+    Websocket websocket = new Websocket();
+    websocket.signAndUploadBundlesEvent = mock(Event.class);
+    String signAndUploadBundles = new String(getClass().getResourceAsStream("/websocket" +
+            "-messages/SignAndUploadBundles.json").readAllBytes(), StandardCharsets.UTF_8);
+
+    websocket.onMessage(signAndUploadBundles, null);
+    verify(websocket.signAndUploadBundlesEvent, times(0)).fireAsync(any());
   }
 
   // Passing but also generating LogManager errors since the introduction of the validation checks

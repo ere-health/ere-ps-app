@@ -21,6 +21,7 @@ public class RuntimeConfig extends UserConfig {
     
     protected String eHBAHandle = null;
     protected String SMCBHandle = null;
+    protected boolean sendPreview = true;
 
     //todo: shouldn't idp parameter and prescriptionServerURL be part of UserConfig?
     protected String idpBaseURL = null;
@@ -91,6 +92,11 @@ public class RuntimeConfig extends UserConfig {
         this.idpClientId = httpServletRequest.getHeader("X-idpClientId");
         this.idpAuthRequestRedirectURL = httpServletRequest.getHeader("X-idpAuthRequestRedirectURL");
         this.prescriptionServerURL = httpServletRequest.getHeader("X-prescriptionServerURL");
+
+        if (httpServletRequest.getHeader("X-sendPreview") != null) {
+            this.sendPreview = !httpServletRequest.getHeader("X-sendPreview").equalsIgnoreCase("false");
+        }
+
         this.updateProperties(this.getConfigurations().updateWithRequest(httpServletRequest));
     }
 
@@ -106,6 +112,7 @@ public class RuntimeConfig extends UserConfig {
             this.idpClientId = jsonObject.getString("idp.client.id", null);
             this.idpAuthRequestRedirectURL = jsonObject.getString("idp.auth.request.redirect.url", null);
             this.prescriptionServerURL = jsonObject.getString("ere.workflow-service.prescription.server.url", null);
+            this.sendPreview = jsonObject.getBoolean("sendPreview", true);
             this.updateProperties(new UserConfigurations(jsonObject));
         }
     }
@@ -124,6 +131,14 @@ public class RuntimeConfig extends UserConfig {
 
     public void setSMCBHandle(String SMCBHandle) {
         this.SMCBHandle = SMCBHandle;
+    }
+
+    public boolean isSendPreview() {
+        return sendPreview;
+    }
+
+    public void setSendPreview(boolean sendPreview) {
+        this.sendPreview = sendPreview;
     }
 
     public String getIdpBaseURL() {

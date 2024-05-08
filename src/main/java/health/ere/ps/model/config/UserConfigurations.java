@@ -114,7 +114,7 @@ public class UserConfigurations {
         Enumeration<String> enumeration = httpServletRequest.getHeaderNames();
         List<String> list = Collections.list(enumeration);
         for(String headerName : list) {
-            if(headerName.startsWith("X-") && !"X-eHBAHandle".equals(headerName) && !"X-SMCBHandle".equals(headerName)) {
+            if(headerName.startsWith("X-") && !"X-eHBAHandle".equals(headerName) && !"X-SMCBHandle".equals(headerName) && !"X-sendPreview".equals(headerName)) {
                 String propertyName = headerName.substring(2);
                 Field field;
                 try {
