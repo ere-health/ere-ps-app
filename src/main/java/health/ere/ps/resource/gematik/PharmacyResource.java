@@ -1,7 +1,11 @@
 package health.ere.ps.resource.gematik;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
+import health.ere.ps.config.RuntimeConfig;
+import health.ere.ps.config.UserConfig;
+import health.ere.ps.service.gematik.PharmacyService;
+import org.apache.commons.lang3.tuple.Pair;
+import org.hl7.fhir.r4.model.Bundle;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -10,12 +14,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-
-import org.hl7.fhir.r4.model.Bundle;
-
-import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
-import health.ere.ps.config.UserConfig;
-import health.ere.ps.service.gematik.PharmacyService;
 
 @Path("/pharmacy")
 public class PharmacyResource {
@@ -47,7 +45,9 @@ public class PharmacyResource {
     @GET
     @Path("Task")
     public Bundle task(@QueryParam("egkHandle") String egkHandle, @QueryParam("smcbHandle") String smcbHandle) throws FaultMessage, de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
-        return pharmacyService.getEPrescriptionsForCardHandle(egkHandle, smcbHandle, ERezeptWorkflowResource.extractRuntimeConfigFromHeaders(httpServletRequest, userConfig));
+        RuntimeConfig runtimeConfig = ERezeptWorkflowResource.extractRuntimeConfigFromHeaders(httpServletRequest, userConfig);
+        Pair<Bundle, String> pair = pharmacyService.getEPrescriptionsForCardHandle(egkHandle, smcbHandle, runtimeConfig);
+        return pair.getKey();
     }
 
     @GET

@@ -1,34 +1,29 @@
 package health.ere.ps.service.gematik;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.zip.GZIPInputStream;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.enterprise.event.ObservesAsync;
-import javax.inject.Inject;
-import javax.naming.InvalidNameException;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.ws.Holder;
-
+import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
+import de.gematik.ws.conn.cardservice.v8.CardInfoType;
+import de.gematik.ws.conn.cardservicecommon.v2.CardTypeType;
+import de.gematik.ws.conn.certificateservice.v6.ReadCardCertificate;
+import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateServicePortType;
+import de.gematik.ws.conn.certificateservicecommon.v2.CertRefEnum;
+import de.gematik.ws.conn.certificateservicecommon.v2.X509DataInfoListType;
+import de.gematik.ws.conn.connectorcommon.v5.Status;
+import de.gematik.ws.conn.connectorcontext.v2.ContextType;
+import de.gematik.ws.conn.eventservice.v7.GetCards;
+import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
+import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
+import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
+import de.gematik.ws.conn.vsds.vsdservice.v5.VSDStatusType;
+import de.gematik.ws.fa.vsdm.vsd.v5.UCAllgemeineVersicherungsdatenXML;
+import de.gematik.ws.fa.vsdm.vsd.v5.UCGeschuetzteVersichertendatenXML;
+import de.gematik.ws.fa.vsdm.vsd.v5.UCPersoenlicheVersichertendatenXML;
+import health.ere.ps.config.RuntimeConfig;
+import health.ere.ps.event.BundlesEvent;
+import health.ere.ps.event.PrefillBundleEvent;
+import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
+import health.ere.ps.service.idp.crypto.CryptoLoader;
+import health.ere.ps.service.kbv.KBVFHIRUtil;
+import health.ere.ps.websocket.ExceptionWithReplyToException;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
@@ -59,30 +54,33 @@ import org.hl7.fhir.r4.model.Practitioner.PractitionerQualificationComponent;
 import org.hl7.fhir.r4.model.Quantity;
 import org.hl7.fhir.r4.model.StringType;
 
-import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
-import de.gematik.ws.conn.cardservice.v8.CardInfoType;
-import de.gematik.ws.conn.cardservicecommon.v2.CardTypeType;
-import de.gematik.ws.conn.certificateservice.v6.ReadCardCertificate;
-import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateServicePortType;
-import de.gematik.ws.conn.certificateservicecommon.v2.CertRefEnum;
-import de.gematik.ws.conn.certificateservicecommon.v2.X509DataInfoListType;
-import de.gematik.ws.conn.connectorcommon.v5.Status;
-import de.gematik.ws.conn.connectorcontext.v2.ContextType;
-import de.gematik.ws.conn.eventservice.v7.GetCards;
-import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
-import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
-import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
-import de.gematik.ws.conn.vsds.vsdservice.v5.VSDStatusType;
-import de.gematik.ws.fa.vsdm.vsd.v5.UCAllgemeineVersicherungsdatenXML;
-import de.gematik.ws.fa.vsdm.vsd.v5.UCGeschuetzteVersichertendatenXML;
-import de.gematik.ws.fa.vsdm.vsd.v5.UCPersoenlicheVersichertendatenXML;
-import health.ere.ps.config.RuntimeConfig;
-import health.ere.ps.event.BundlesEvent;
-import health.ere.ps.event.PrefillBundleEvent;
-import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
-import health.ere.ps.service.idp.crypto.CryptoLoader;
-import health.ere.ps.service.kbv.KBVFHIRUtil;
-import health.ere.ps.websocket.ExceptionWithReplyToException;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.enterprise.event.ObservesAsync;
+import javax.inject.Inject;
+import javax.naming.InvalidNameException;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.ws.Holder;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.zip.GZIPInputStream;
 
 @ApplicationScoped
 public class PrefillPrescriptionService {
@@ -332,20 +330,18 @@ public class PrefillPrescriptionService {
 				certHolder.value.getX509DataInfo().get(0).getX509Data().getX509Certificate());
 	}
 
-	static String getFirstCardOfType(EventServicePortType eventService, CardTypeType type, ContextType context)
-			throws FaultMessage {
+	static String getFirstCardOfType(
+		EventServicePortType eventService,
+		CardTypeType type,
+		ContextType context
+	) throws FaultMessage {
 		GetCards parameter = new GetCards();
 		parameter.setContext(context);
 		parameter.setCardType(type);
 		GetCardsResponse getCardsResponse = eventService.getCards(parameter);
 
 		List<CardInfoType> cards = getCardsResponse.getCards().getCard();
-		if (cards.size() > 0) {
-			String ehcHandle = cards.get(0).getCardHandle();
-			return ehcHandle;
-		} else {
-			return null;
-		}
+		return cards.isEmpty() ? null : cards.get(0).getCardHandle();
 	}
 
 	private Medication createMedicationResource() {
