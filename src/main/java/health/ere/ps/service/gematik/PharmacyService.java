@@ -184,7 +184,11 @@ public class PharmacyService extends BearerTokenManageService {
                 .header("User-Agent", appConfig.getUserAgent())
                 .header("Authorization", "Bearer " + bearerToken.get(runtimeConfig))
                 .post(Entity.entity("", "application/fhir+xml"))) {
-                    String rejectResponse = new String(response2.readEntity(InputStream.class).readAllBytes(), "ISO-8859-15");;
+                    InputStream is = response2.readEntity(InputStream.class);
+                    String rejectResponse = "";
+                    if(is != null) {
+                        rejectResponse = new String(is.readAllBytes(), "ISO-8859-15");
+                    }
                     if (Response.Status.Family.familyOf(response2.getStatus()) != Response.Status.Family.SUCCESSFUL) {
                         log.warning("Could not reject "+token+"prescriptionId: "+prescriptionId+" secret: "+secret+" "+rejectResponse);
                     }
