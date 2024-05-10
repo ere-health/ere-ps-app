@@ -1,8 +1,5 @@
 package health.ere.ps.service.cardlink;
 
-import java.net.URI;
-import java.util.logging.Logger;
-
 import javax.websocket.ClientEndpoint;
 import javax.websocket.CloseReason;
 import javax.websocket.ContainerProvider;
@@ -11,18 +8,16 @@ import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
+import java.net.URI;
+import java.util.logging.Logger;
 
 @ClientEndpoint(configurator = AddJWTConfigurator.class)
 public class CardlinkWebsocketClient {
 
-    private static Logger log = Logger.getLogger(CardlinkWebsocketClient.class.getName());
+    private static final Logger log = Logger.getLogger(CardlinkWebsocketClient.class.getName());
+    
     URI endpointURI;
     Session userSession;
-
-
-    public CardlinkWebsocketClient() {
-        
-    }
 
     public CardlinkWebsocketClient(URI endpointURI) {
         try {
@@ -66,15 +61,13 @@ public class CardlinkWebsocketClient {
         log.info(message);
     }
 
-
-
     /**
      * Send a message.
      *
-     * @param message
+     * @param message String
      */
     public void sendMessage(String message) {
+        log.info(message);
         this.userSession.getAsyncRemote().sendText(message);
     }
-
 }

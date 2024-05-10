@@ -1,17 +1,7 @@
 package health.ere.ps.service.cetp;
 
-import java.net.InetAddress;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
-import javax.net.ssl.SSLContext;
-
-import org.wildfly.common.net.Inet;
-
 import health.ere.ps.config.AppConfig;
+import health.ere.ps.service.cardlink.CardlinkWebsocketClient;
 import health.ere.ps.service.cetp.codec.CETPDecoder;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.gematik.PharmacyService;
@@ -28,9 +18,16 @@ import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.util.SelfSignedCertificate;
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @ApplicationScoped
 public class CETPServer {
@@ -63,7 +60,21 @@ public class CETPServer {
         if(bossGroup != null) {
             bossGroup.shutdownGracefully();
         }
+    }
 
+    private URI getCardLinkURI() {
+        URI cardLinkURI = null;
+        try {
+            String cardLinkServer = appConfig
+                .getCardLinkServer()
+                .orElse("wss://cardlink.service-health.de:8444/websocket/80276003650110006580-20230112");
+            
+            log.info("Starting websocket connection to: " + cardLinkServer);
+            cardLinkURI = new URI(cardLinkServer);
+        } catch (URISyntaxException e) {
+            log.log(Level.WARNING, "Could not connect to card link", e);
+        }
+        return cardLinkURI;
     }
 
     public void run() {
@@ -87,7 +98,7 @@ public class CETPServer {
                         ch.pipeline()
                             .addLast("ssl", sslContext.newHandler(ch.alloc()))
                             .addLast(new CETPDecoder())
-                            .addLast(new CETPServerHandler(pharmacyService, appConfig.getCardLinkServer().orElse("wss://cardlink.service-health.de:8444/websocket/80276003650110006580-20230112")));
+                            .addLast(new CETPServerHandler(pharmacyService, new CardlinkWebsocketClient(getCardLinkURI())));
                     } catch (Exception e) {
                         log.log(Level.WARNING, "Failed to create SSL context", e);
                     }

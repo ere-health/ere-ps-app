@@ -1,19 +1,5 @@
 package health.ere.ps.service.cetp;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
-import javax.xml.bind.DatatypeConverter;
-
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
-
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import de.gematik.ws.conn.eventservice.v7.Event;
@@ -23,104 +9,133 @@ import health.ere.ps.service.cardlink.CardlinkWebsocketClient;
 import health.ere.ps.service.gematik.PharmacyService;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import org.apache.commons.lang3.tuple.Pair;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import javax.xml.bind.DatatypeConverter;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class CETPServerHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger log = Logger.getLogger(CETPServerHandler.class.getName());
-    
+
     PharmacyService pharmacyService;
 
     CardlinkWebsocketClient cardlinkWebsocketClient;
 
     IParser parser = FhirContext.forR4().newXmlParser();
-    
-    public CETPServerHandler(PharmacyService pharmacyService, String cardLinkServer) {
+
+    public CETPServerHandler(PharmacyService pharmacyService, CardlinkWebsocketClient cardlinkWebsocketClient) {
         this.pharmacyService = pharmacyService;
-        try {
-            log.info("Starting websocket connection to: "+cardLinkServer);
-            cardlinkWebsocketClient = new CardlinkWebsocketClient(new URI(cardLinkServer));
-        } catch (URISyntaxException e) {
-            log.log(Level.WARNING, "Could not connect to card link", e);
-        }
+        this.cardlinkWebsocketClient = cardlinkWebsocketClient;
     }
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) {
     }
-    
+
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) {
     }
-    
+
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         Event event = (Event) msg;
 
-        if(event.getTopic().equals("CARD/INSERTED")) {
+        if (event.getTopic().equals("CARD/INSERTED")) {
             log.info("Card inserted");
             String cardHandle = event.getMessage().getParameter().stream().filter(p -> p.getKey().equals("CardHandle")).map(p -> p.getValue()).findFirst().get();
 
-            int SlotID = Integer.parseInt(event.getMessage().getParameter().stream().filter(p -> p.getKey().equals("SlotID")).map(p -> p.getValue()).findFirst().get());
-            String CtID = event.getMessage().getParameter().stream().filter(p -> p.getKey().equals("CtID")).map(p -> p.getValue()).findFirst().get();
+            Integer slotId = Integer.parseInt(event.getMessage().getParameter().stream().filter(p -> p.getKey().equals("SlotID")).map(p -> p.getValue()).findFirst().get());
+            String ctId = event.getMessage().getParameter().stream().filter(p -> p.getKey().equals("CtID")).map(p -> p.getValue()).findFirst().get();
 
+            Long endTime = System.currentTimeMillis();
+            Pair<Bundle, String> pair;
             try {
-                Bundle bundle = pharmacyService.getEPrescriptionsForCardHandle(cardHandle, null, null);
+                pair = pharmacyService.getEPrescriptionsForCardHandle(cardHandle, null, null);
+                Bundle bundle = pair.getKey();
+                String eventId = pair.getValue();
                 String xml = parser.encodeToString(bundle);
+                sendCardLinkMessage("eRezeptTokensFromAVS", Map.of("slotId", slotId, "ctId", ctId, "tokens", xml));
 
-                String payloadString = Json.createObjectBuilder().add("slotId", SlotID).add("ctID", CtID).add("tokens", xml).build().toString();
+                JsonArrayBuilder bundles = prepareBundles(bundle);
+                sendCardLinkMessage("eRezeptBundlesFromAVS", Map.of("slotId", slotId, "ctId", ctId, "bundles", bundles));
 
-                JsonObject j = Json.createObjectBuilder().add("type", "eRezeptTokensFromAVS").add("payload", DatatypeConverter.printBase64Binary(payloadString.getBytes())).build();
-                JsonArray jArray = Json.createArrayBuilder().add(j).build();
-                String jsonMessage = jArray.toString();
-                log.info(jsonMessage);
-                cardlinkWebsocketClient.sendMessage(jsonMessage);
+                sendCardLinkMessage("vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "eventId", eventId));
 
-                JsonArrayBuilder bundles = Json.createArrayBuilder();
-                for(BundleEntryComponent entry : bundle.getEntry()) {
-                    if(entry.getResource() instanceof org.hl7.fhir.r4.model.Task) {
-                        /*
-                         * <identifier>
-                         *    <use value="official"/>
-                         *    <system value="https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId"/>
-                         *    <value value="160.000.187.347.039.26"/>
-                         *    </identifier>
-                         *    <identifier>
-                         *    <use value="official"/>
-                         *    <system value="https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_AccessCode"/>
-                         *    <value value="e624d3e6980e73d397517d0f2219aad553a11c9a8194fca04354eb346edbb266"/>
-                         * </identifier>
-                         */
-
-                        org.hl7.fhir.r4.model.Task task = (org.hl7.fhir.r4.model.Task) entry.getResource();
-                        String taskId = task.getIdentifier().stream().filter(t -> "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId".equals(t.getSystem())).map(t -> t.getValue()).findAny().orElse(null);
-                        String accessCode = task.getIdentifier().stream().filter(t -> "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_AccessCode".equals(t.getSystem())).map(t -> t.getValue()).findAny().orElse(null);
-                        log.info("TaskId: "+taskId+" AccessCode: "+accessCode);
-                        String token = "/Task/"+taskId+"/$accept?ac="+accessCode;
-                        try {
-                            Bundle bundleEPrescription = pharmacyService.accept(token, new RuntimeConfig());
-                            bundles.add(parser.encodeToString(bundleEPrescription));
-                            
-                        } catch (Exception e) {
-                            bundles.add("Error for "+token+" "+e.getMessage());
-                        }
-                    }
-                }
-
-                payloadString = Json.createObjectBuilder().add("slotId", SlotID).add("ctID", CtID).add("bundles", bundles).build().toString();
-                JsonObject eRezeptBundlesFromAVS = Json.createObjectBuilder().add("type", "eRezeptBundlesFromAVS").add("payload", DatatypeConverter.printBase64Binary(payloadString.getBytes())).build();
-
-                jArray = Json.createArrayBuilder().add(eRezeptBundlesFromAVS).build();
-                log.info(jArray.toString());
-                cardlinkWebsocketClient.sendMessage(jArray.toString());
-                
             } catch (FaultMessage | de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage e) {
                 log.log(Level.WARNING, "Could not get prescription for Bundle", e);
+                String code = e instanceof FaultMessage
+                    ? ((FaultMessage) e).getFaultInfo().getTrace().get(0).getCode().toString()
+                    : ((de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage) e).getFaultInfo().getTrace().get(0).getCode().toString();
+                sendCardLinkMessage("vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "err", code));
             }
         }
-        
     }
     
+    private JsonArrayBuilder prepareBundles(Bundle bundle) {
+        JsonArrayBuilder bundles = Json.createArrayBuilder();
+        for (BundleEntryComponent entry : bundle.getEntry()) {
+            if (entry.getResource() instanceof org.hl7.fhir.r4.model.Task) {
+                /*
+                 * <identifier>
+                 *    <use value="official"/>
+                 *    <system value="https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId"/>
+                 *    <value value="160.000.187.347.039.26"/>
+                 *    </identifier>
+                 *    <identifier>
+                 *    <use value="official"/>
+                 *    <system value="https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_AccessCode"/>
+                 *    <value value="e624d3e6980e73d397517d0f2219aad553a11c9a8194fca04354eb346edbb266"/>
+                 * </identifier>
+                 */
+
+                org.hl7.fhir.r4.model.Task task = (org.hl7.fhir.r4.model.Task) entry.getResource();
+                String taskId = task.getIdentifier().stream().filter(t -> "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId".equals(t.getSystem())).map(t -> t.getValue()).findAny().orElse(null);
+                String accessCode = task.getIdentifier().stream().filter(t -> "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_AccessCode".equals(t.getSystem())).map(t -> t.getValue()).findAny().orElse(null);
+                log.info("TaskId: " + taskId + " AccessCode: " + accessCode);
+                String token = "/Task/" + taskId + "/$accept?ac=" + accessCode;
+                try {
+                    Bundle bundleEPrescription = pharmacyService.accept(token, new RuntimeConfig());
+                    bundles.add(parser.encodeToString(bundleEPrescription));
+                } catch (Exception e) {
+                    bundles.add("Error for " + token + " " + e.getMessage());
+                }
+            }
+        }
+        return bundles;
+    }
+
+    private void sendCardLinkMessage(String type, Map<String, ?> payloadMap) {
+        JsonObjectBuilder builder = Json.createObjectBuilder();
+        for (Map.Entry<String, ?> entry : payloadMap.entrySet()) {
+            if (entry.getValue() instanceof Integer) {
+                builder.add(entry.getKey(), (Integer) entry.getValue());
+            } else if (entry.getValue() instanceof Long) {
+                builder.add(entry.getKey(), (Long) entry.getValue());
+            } else if (entry.getValue() instanceof String) {
+                builder.add(entry.getKey(), (String) entry.getValue());
+            } else if (entry.getValue() instanceof JsonArrayBuilder) {
+                builder.add(entry.getKey(), (JsonArrayBuilder) entry.getValue());
+            }
+        }
+        String payload = builder.build().toString();
+        JsonObject jsonObject = Json.createObjectBuilder()
+            .add("type", type)
+            .add("payload", DatatypeConverter.printBase64Binary(payload.getBytes()))
+            .build();
+        JsonArray jsonArray = Json.createArrayBuilder().add(jsonObject).build();
+        cardlinkWebsocketClient.sendMessage(jsonArray.toString());
+    }
+
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         cause.printStackTrace();
