@@ -20,20 +20,20 @@ public class XSLTServiceTest {
 
     @Test
     public void testGenerateHTMLForPF01() throws IOException, TransformerException {
-        Bundle bundle = parser.parseResource(Bundle.class, getXmlString("./../src/test/resources/kbv-zip/PF01.xml"));
+        Bundle bundle = parser.parseResource(Bundle.class, getXmlString("./src/test/resources/kbv-zip/PF01.xml"));
         XSLTService xsltService = new XSLTService();
         xsltService.init();
         String result = xsltService.generateHtmlForBundle(bundle);
 
-        Files.write(Paths.get("./../src/test/resources/kbv-xslt/PF01.html"), result.getBytes()); //todo: write to src? in a test? shouldn't this be a .gitignore test-result like folder?
+        Files.write(Paths.get("./src/test/resources/kbv-xslt/PF01.html"), result.getBytes()); //todo: write to src? in a test? shouldn't this be a .gitignore test-result like folder?
     }
 
     @Test
     public void testGenerateHTMLForPF08() throws IOException, TransformerException {
         List<Bundle> bundles = new ArrayList<>();
-        bundles.add(parser.parseResource(Bundle.class, getXmlString("./../src/test/resources/kbv-zip/PF08_1.xml")));
-        bundles.add(parser.parseResource(Bundle.class, getXmlString("./../src/test/resources/kbv-zip/PF08_2.xml")));
-        bundles.add(parser.parseResource(Bundle.class, getXmlString("./../src/test/resources/kbv-zip/PF08_3.xml")));
+        bundles.add(parser.parseResource(Bundle.class, getXmlString("./src/test/resources/kbv-zip/PF08_1.xml")));
+        bundles.add(parser.parseResource(Bundle.class, getXmlString("./src/test/resources/kbv-zip/PF08_2.xml")));
+        bundles.add(parser.parseResource(Bundle.class, getXmlString("./src/test/resources/kbv-zip/PF08_3.xml")));
         XSLTService xsltService = new XSLTService();
         xsltService.init();
         List<String> result = bundles.stream().map(bundle -> {
@@ -45,9 +45,9 @@ public class XSLTServiceTest {
             }
         }).collect(Collectors.toList());
 
-        Files.write(Paths.get("./../src/test/resources/kbv-xslt/PF08_1.html"), result.get(0).getBytes()); //todo: write to src? in a test? shouldn't this be a .gitignore test-result like folder?
-        Files.write(Paths.get("./../src/test/resources/kbv-xslt/PF08_2.html"), result.get(1).getBytes()); //todo: write to src? in a test? shouldn't this be a .gitignore test-result like folder?
-        Files.write(Paths.get("./../src/test/resources/kbv-xslt/PF08_3.html"), result.get(2).getBytes()); //todo: write to src? in a test? shouldn't this be a .gitignore test-result like folder?
+        Files.write(Paths.get("./src/test/resources/kbv-xslt/PF08_1.html"), result.get(0).getBytes()); //todo: write to src? in a test? shouldn't this be a .gitignore test-result like folder?
+        Files.write(Paths.get("./src/test/resources/kbv-xslt/PF08_2.html"), result.get(1).getBytes()); //todo: write to src? in a test? shouldn't this be a .gitignore test-result like folder?
+        Files.write(Paths.get("./src/test/resources/kbv-xslt/PF08_3.html"), result.get(2).getBytes()); //todo: write to src? in a test? shouldn't this be a .gitignore test-result like folder?
     }
 
     @Test
@@ -56,12 +56,12 @@ public class XSLTServiceTest {
         XSLTService xsltService = new XSLTService();
         xsltService.init();
         for (Integer number : otherPF) {
-            String filename = String.format("./../src/test/resources/kbv-zip/PF%02d.xml", number);
+            String filename = String.format("./src/test/resources/kbv-zip/PF%02d.xml", number);
             System.out.println(filename);
             Bundle bundle = parser.parseResource(Bundle.class, getXmlString(filename));
             String result = xsltService.generateHtmlForBundle(bundle);
 
-            filename = String.format("./../src/test/resources/kbv-xslt/PF%02d.html", number);
+            filename = String.format("./src/test/resources/kbv-xslt/PF%02d.html", number);
             Files.write(Paths.get(filename), result.getBytes()); //todo: write to src? in a test? shouldn't this be a .gitignore test-result like folder?
         }
     }

@@ -11,8 +11,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 
-import jakarta.inject.Inject;
-
 import org.jboss.logging.Logger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -27,6 +25,7 @@ import health.ere.ps.model.idp.crypto.PkiKeyResolver;
 import health.ere.ps.profile.TitusTestProfile;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
+import jakarta.inject.Inject;
 
 @QuarkusTest
 @TestProfile(TitusTestProfile.class)
@@ -73,7 +72,7 @@ class SecretsManagerServiceTest {
             KeyStoreException, NoSuchAlgorithmException {
         int ksSize;
 
-        try(InputStream is = getClass().getResourceAsStream("/test-classes/certs/" + TITUS_IDP_TRUST_STORE)) {
+        try(InputStream is = getClass().getResourceAsStream("/certs/" + TITUS_IDP_TRUST_STORE)) {
             KeyStore ks =
                     secretsManagerService.initializeTrustStoreFromInputStream(is,
                             SecretsManagerService.KeyStoreType.PKCS12, "00".toCharArray());

@@ -1,15 +1,16 @@
 package health.ere.ps.service.cardlink;
 
-import javax.websocket.ClientEndpoint;
-import javax.websocket.CloseReason;
-import javax.websocket.ContainerProvider;
-import javax.websocket.OnClose;
-import javax.websocket.OnMessage;
-import javax.websocket.OnOpen;
-import javax.websocket.Session;
-import javax.websocket.WebSocketContainer;
 import java.net.URI;
 import java.util.logging.Logger;
+
+import jakarta.websocket.ClientEndpoint;
+import jakarta.websocket.CloseReason;
+import jakarta.websocket.ContainerProvider;
+import jakarta.websocket.OnClose;
+import jakarta.websocket.OnMessage;
+import jakarta.websocket.OnOpen;
+import jakarta.websocket.Session;
+import jakarta.websocket.WebSocketContainer;
 
 @ClientEndpoint(configurator = AddJWTConfigurator.class)
 public class CardlinkWebsocketClient {
@@ -18,6 +19,9 @@ public class CardlinkWebsocketClient {
     
     URI endpointURI;
     Session userSession;
+
+    public CardlinkWebsocketClient() {
+    }
 
     public CardlinkWebsocketClient(URI endpointURI) {
         try {

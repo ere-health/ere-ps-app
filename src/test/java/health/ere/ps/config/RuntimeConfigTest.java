@@ -6,18 +6,17 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Optional;
 
-import jakarta.json.Json;
-import jakarta.json.JsonObject;
-
 import org.junit.jupiter.api.Test;
 
 import health.ere.ps.event.AbortTasksEvent;
 import health.ere.ps.model.config.UserConfigurations;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
 
 public class RuntimeConfigTest {
     @Test
     public void testUserConfigurations() throws FileNotFoundException {
-        JsonObject messageWithRuntimeConfig = Json.createReader(new FileInputStream("./../src/test/resources/websocket-messages/AbortTasks-With-RuntimeConfig.json")).readObject();
+        JsonObject messageWithRuntimeConfig = Json.createReader(new FileInputStream("./src/test/resources/websocket-messages/AbortTasks-With-RuntimeConfig.json")).readObject();
         AbortTasksEvent abortTasksEvent = new AbortTasksEvent(messageWithRuntimeConfig, null, null);
         assertEquals("HBA-1", abortTasksEvent.getRuntimeConfig().getEHBAHandle());
         assertEquals("SMCB-1", abortTasksEvent.getRuntimeConfig().getSMCBHandle());

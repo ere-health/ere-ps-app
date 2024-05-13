@@ -65,10 +65,10 @@ class WebsocketTest {
     Bundle bundle = (Bundle) FhirContext.forR4().newXmlParser().parseResource(
 				getClass().getResourceAsStream("/examples_erezept/Erezept_template_2.xml"));
     list.add(new BundleWithAccessCodeOrThrowable(bundle, "MOCK_ACCESS_CODE"));
-    ERezeptDocument eRezeptDocument = new ERezeptDocument(list, Files.readAllBytes(Paths.get("./../src/test/resources/document-service/0428d416-149e-48a4-977c-394887b3d85c.pdf")));
+    ERezeptDocument eRezeptDocument = new ERezeptDocument(list, Files.readAllBytes(Paths.get("./src/test/resources/document-service/0428d416-149e-48a4-977c-394887b3d85c.pdf")));
       String json = websocket.generateJson(new ERezeptWithDocumentsEvent(List.of(eRezeptDocument)));
 
-    Files.writeString(Paths.get("./../src/test/resources/websocket-messages/ERezeptDocuments.json"), json); // todo: write to src? in a test? shouldn't this be a .gitignore test-result like folder?
+    Files.writeString(Paths.get("./src/test/resources/websocket-messages/ERezeptDocuments.json"), json); // todo: write to src? in a test? shouldn't this be a .gitignore test-result like folder?
   }
   @Test
   void testOnMessageNull() {

@@ -6,14 +6,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-
-import jakarta.json.Json;
-import jakarta.json.JsonObject;
+import java.util.Date;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.util.Date;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
 
 public class PrescriptionTransferEntryTest {
 	
@@ -22,7 +21,7 @@ public class PrescriptionTransferEntryTest {
 	@BeforeAll
 	public static void init() throws FileNotFoundException, ParseException
 	{
-		JsonObject messageWithPrescriptionTransferEntry = Json.createReader(new FileInputStream("../src/test/resources/erixa/PrescriptionTest.json")).readObject();
+		JsonObject messageWithPrescriptionTransferEntry = Json.createReader(new FileInputStream("src/test/resources/erixa/PrescriptionTest.json")).readObject();
 		prescriptionTransferEntry.setFirstName(messageWithPrescriptionTransferEntry.getString("firstName"));
 		prescriptionTransferEntry.setLastName(messageWithPrescriptionTransferEntry.getString("lastName"));
 		prescriptionTransferEntry.setSalutation(messageWithPrescriptionTransferEntry.getString("salutation"));

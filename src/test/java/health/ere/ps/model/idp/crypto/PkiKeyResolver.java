@@ -1,22 +1,28 @@
 package health.ere.ps.model.idp.crypto;
 
-import com.diffplug.common.base.Errors;
-import com.diffplug.common.base.Throwing;
-import health.ere.ps.exception.idp.crypto.IdpCryptoException;
-import health.ere.ps.service.idp.crypto.CryptoLoader;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.stream.Stream;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolver;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.lang.annotation.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.stream.Stream;
+import com.diffplug.common.base.Errors;
+import com.diffplug.common.base.Throwing;
+
+import health.ere.ps.exception.idp.crypto.IdpCryptoException;
+import health.ere.ps.service.idp.crypto.CryptoLoader;
 
 public class PkiKeyResolver implements ParameterResolver {
 
@@ -45,7 +51,7 @@ public class PkiKeyResolver implements ParameterResolver {
 
     private PkiIdentity retrieveIdentityFromFileSystem(final String fileFilter)
             throws IdpCryptoException {
-        try (Stream<Path> pathStream = Files.find(Paths.get(".", "..", "src", "test",
+        try (Stream<Path> pathStream = Files.find(Paths.get(".", "src", "test",
                 "resources", "certs"), 128,
                 (p, a) -> p.toString().endsWith(".p12")
                         && p.getFileName().toString().toLowerCase().contains(

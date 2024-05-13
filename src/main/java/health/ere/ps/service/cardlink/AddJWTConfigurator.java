@@ -7,10 +7,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.enterprise.context.Dependent;
-import javax.websocket.ClientEndpointConfig;
-import javax.websocket.HandshakeResponse;
-
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
@@ -20,7 +16,12 @@ import health.ere.ps.service.gematik.BearerTokenManageService;
 import health.ere.ps.service.gematik.PharmacyService;
 import health.ere.ps.service.idp.BearerTokenService;
 import io.quarkus.arc.Arc;
+import io.quarkus.arc.Unremovable;
+import jakarta.enterprise.context.Dependent;
+import jakarta.websocket.ClientEndpointConfig;
+import jakarta.websocket.HandshakeResponse;
 
+@Unremovable
 @Dependent
 public class AddJWTConfigurator extends ClientEndpointConfig.Configurator {
 
