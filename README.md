@@ -3,7 +3,7 @@ ERE Primary System Desktop Client Application for the Gematik TI
 
 ### The ere-ps-app comprises two main components.
 
-* The ere-ps-app back-end which is a Java 11 Quarkus (https://quarkus.io/) application.
+* The ere-ps-app back-end which is a Java 17 Quarkus (https://quarkus.io/) application.
 * The ere-ps-app front-end UI, which is a browser based HTML, CSS and JavaScript application.
 
 The repository for the front-end UI can be found [here](https://github.com/ere-health/front-end-ere.health)
@@ -86,10 +86,10 @@ The ere-health application read configuration is the following order from most i
 ### Running the ERE-PS-App Application
 
 * #### Software Requirements
-  1. Download and install the latest version of the OpenJDK 11 SDK. You can use your preferred 
+  1. Download and install the latest version of the OpenJDK 17 SDK. You can use your preferred 
      package manager software on your computer to handle this, or simply download an archive or 
      installer from a publishing site such as AdoptOpenJDK (https://adoptopenjdk.net/).  Make sure 
-     to choose OpenJDK 11 (LTS) and the HotSpot version of the JVM.
+     to choose OpenJDK 17 (LTS) and the HotSpot version of the JVM.
      
   2. Download and install the latest version of Apache Maven (https://maven.apache.org/). 
     

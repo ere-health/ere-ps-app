@@ -2,15 +2,12 @@ package health.ere.ps.config;
 
 import java.util.Optional;
 
-import javax.enterprise.context.ApplicationScoped;
-
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class AppConfig {
-
-    @ConfigProperty(name = "directory-watcher.dir")
-    String directoryWatcherDir;
 
     @ConfigProperty(name = "ere.workflow-service.prescription.server.url")
     String prescriptionServiceURL;
@@ -66,10 +63,6 @@ public class AppConfig {
 
     public void setCardLinkServer(Optional<String> cardLinkServer) {
         this.cardLinkServer = cardLinkServer;
-    }
-
-    public String getDirectoryWatcherDir() {
-        return directoryWatcherDir;
     }
 
     public String getPrescriptionServiceURL() {

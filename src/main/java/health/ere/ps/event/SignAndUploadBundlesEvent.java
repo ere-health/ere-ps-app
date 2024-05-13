@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.json.JsonString;
-import javax.json.JsonValue;
-import javax.websocket.Session;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonString;
+import jakarta.json.JsonValue;
+import jakarta.websocket.Session;
 
 import health.ere.ps.service.fhir.FHIRService;
 import org.hl7.fhir.r4.model.Bundle;
@@ -78,7 +78,7 @@ public class SignAndUploadBundlesEvent extends AbstractEvent {
     }
 
     public SignAndUploadBundlesEvent(Bundle[] bundles, JsonObject jsonObject, Session senderSession, String id) {
-        parseRuntimeConfig(jsonObject);
+        parseRuntimeConfig(jsonObject); //todo: here the keys from above (flowtype etc) are ignored - refactor & include (probably own process json method?)
         this.replyTo = senderSession;
         this.id = id;
         listOfListOfBundles.add(Arrays.asList(bundles));

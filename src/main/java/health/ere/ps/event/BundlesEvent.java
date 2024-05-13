@@ -2,7 +2,7 @@ package health.ere.ps.event;
 
 import java.util.List;
 
-import javax.websocket.Session;
+import jakarta.websocket.Session;
 
 import org.hl7.fhir.r4.model.Bundle;
 

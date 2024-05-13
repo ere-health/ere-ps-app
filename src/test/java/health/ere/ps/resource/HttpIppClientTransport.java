@@ -11,7 +11,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import com.hp.jipp.encoding.IppInputStream;
 import com.hp.jipp.trans.IppClientTransport;

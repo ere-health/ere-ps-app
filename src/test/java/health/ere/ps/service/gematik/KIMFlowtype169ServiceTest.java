@@ -12,7 +12,7 @@ import java.security.cert.CertificateException;
 import java.util.List;
 import java.util.Map;
 
-import javax.json.bind.JsonbBuilder;
+import jakarta.json.bind.JsonbBuilder;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;

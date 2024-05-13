@@ -2,9 +2,9 @@ package health.ere.ps.websocket.encoder;
 
 import java.io.Serializable;
 
-import javax.websocket.EncodeException;
-import javax.websocket.Encoder;
-import javax.websocket.EndpointConfig;
+import jakarta.websocket.EncodeException;
+import jakarta.websocket.Encoder;
+import jakarta.websocket.EndpointConfig;
 
 import health.ere.ps.event.ReplyableEvent;
 import health.ere.ps.websocket.Websocket;

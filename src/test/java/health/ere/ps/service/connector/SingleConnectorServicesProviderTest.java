@@ -39,7 +39,7 @@ public class SingleConnectorServicesProviderTest {
 
     @Test
     public void testConstructorWithMultiKeyWithoutPassword() {
-        javax.enterprise.event.Event<Exception> exceptionEvent = mock(javax.enterprise.event.Event.class);
+        jakarta.enterprise.event.Event<Exception> exceptionEvent = mock(jakarta.enterprise.event.Event.class);
         UserConfig runtimeConfig = new RuntimeConfig();
         runtimeConfig.getConfigurations().setClientCertificate(new File(keystoreFileName).toURI().toString()+"?alias=key2");
         new SingleConnectorServicesProvider(runtimeConfig, exceptionEvent);
@@ -48,7 +48,7 @@ public class SingleConnectorServicesProviderTest {
 
     @Test
     public void testConstructorWithMultiKeyWithPassword() {
-        javax.enterprise.event.Event<Exception> exceptionEvent = mock(javax.enterprise.event.Event.class);
+        jakarta.enterprise.event.Event<Exception> exceptionEvent = mock(jakarta.enterprise.event.Event.class);
         UserConfig runtimeConfig = new RuntimeConfig();
         runtimeConfig.getConfigurations().setClientCertificate(new File(keystoreFileName).toURI().toString()+"?alias=key2");
         runtimeConfig.getConfigurations().setClientCertificatePassword(keystoreFilePass);

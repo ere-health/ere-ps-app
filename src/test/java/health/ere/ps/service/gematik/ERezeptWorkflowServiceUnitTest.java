@@ -10,9 +10,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import javax.enterprise.event.Event;
-import javax.json.Json;
-import javax.json.JsonObject;
+import jakarta.enterprise.event.Event;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
 
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Identifier;

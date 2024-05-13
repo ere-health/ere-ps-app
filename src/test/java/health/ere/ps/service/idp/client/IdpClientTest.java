@@ -6,7 +6,7 @@ import java.security.cert.X509Certificate;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.Assertions;

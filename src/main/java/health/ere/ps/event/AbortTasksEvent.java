@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.websocket.Session;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonObject;
+import jakarta.websocket.Session;
 
 public class AbortTasksEvent extends AbstractEvent {
 

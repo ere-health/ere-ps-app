@@ -2,7 +2,7 @@ package health.ere.ps.service.connector.endpoint;
 
 import java.util.logging.Logger;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
