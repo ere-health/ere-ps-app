@@ -6,7 +6,10 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import de.gematik.ws.conn.eventservice.v7.Event;
+import health.ere.ps.model.config.UserConfigurations;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
@@ -26,6 +29,15 @@ public class CETPDecoder extends ByteToMessageDecoder {
             log.log(Level.SEVERE, "Failed to create JAXB context", e);
         }
     }
+    UserConfigurations userConfigurations;
+
+    public CETPDecoder() {
+
+    }
+
+    public CETPDecoder(UserConfigurations userConfigurations) {
+        this.userConfigurations = userConfigurations;
+    }
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) { // (2)
@@ -44,7 +56,7 @@ public class CETPDecoder extends ByteToMessageDecoder {
 
         try {
             Event eventType = (Event) jaxbContext.createUnmarshaller().unmarshal(new StringReader(message));
-            out.add(eventType);
+            out.add(Pair.of(eventType, userConfigurations));
         } catch (JAXBException e) {
             log.log(Level.SEVERE, "Failed to unmarshal CETP message", e);
         }

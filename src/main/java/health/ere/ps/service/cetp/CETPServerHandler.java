@@ -13,6 +13,7 @@ import ca.uhn.fhir.parser.IParser;
 import de.gematik.ws.conn.eventservice.v7.Event;
 import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
 import health.ere.ps.config.RuntimeConfig;
+import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.service.cardlink.CardlinkWebsocketClient;
 import health.ere.ps.service.gematik.PharmacyService;
 import io.netty.channel.ChannelHandlerContext;
@@ -49,7 +50,9 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
-        Event event = (Event) msg;
+        @SuppressWarnings("unchecked")
+        Pair<Event, UserConfigurations> input = (Pair<Event, UserConfigurations>) msg;
+        Event event = (Event) input.getKey();
 
         if (event.getTopic().equals("CARD/INSERTED")) {
             log.info("Card inserted");

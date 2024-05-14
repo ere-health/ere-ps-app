@@ -7,12 +7,11 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import health.ere.ps.model.config.UserConfigurations;
 import jakarta.enterprise.inject.Alternative;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.json.JsonObject;
 import jakarta.servlet.http.HttpServletRequest;
-
-import health.ere.ps.model.config.UserConfigurations;
 
 @Alternative
 public class RuntimeConfig extends UserConfig {
@@ -39,6 +38,11 @@ public class RuntimeConfig extends UserConfig {
         } catch(IllegalStateException ex) {
             log.log(Level.SEVERE, "Was not able to copy values from user config", ex);
         }
+    }
+
+    public RuntimeConfig(UserConfigurations userConfigurations) {
+        this();
+        this.updateProperties(userConfigurations);
     }
 
     // for unit test

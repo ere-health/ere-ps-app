@@ -17,10 +17,6 @@ import java.security.cert.CertificateException;
 import java.util.Base64;
 import java.util.logging.Logger;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Event;
-import jakarta.inject.Inject;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -31,6 +27,10 @@ import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.service.config.UserConfigurationService;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class SecretsManagerService {
@@ -69,10 +69,7 @@ public class SecretsManagerService {
     }
 
     public SSLContext createSSLContext(UserConfigurations userConfigurations) {
-        String base64UrlCertificate = userConfigurations.getClientCertificate();
-        String clientCertificateString = base64UrlCertificate.split(",")[1];
-        log.fine("Using certifcate: "+clientCertificateString);
-        byte[] clientCertificateBytes = Base64.getDecoder().decode(clientCertificateString);
+        byte[] clientCertificateBytes = getClientCertificateBytes(userConfigurations);
         try (ByteArrayInputStream certificateInputStream = new ByteArrayInputStream(clientCertificateBytes)) {
             return createSSLContext(userConfigurations.getClientCertificatePassword(), certificateInputStream);
         } catch (NoSuchAlgorithmException | KeyStoreException | CertificateException | IOException
@@ -82,6 +79,14 @@ public class SecretsManagerService {
             exceptionEvent.fireAsync(e);
             return null;
         }
+    }
+
+    public static byte[] getClientCertificateBytes(UserConfigurations userConfigurations) {
+        String base64UrlCertificate = userConfigurations.getClientCertificate();
+        String clientCertificateString = base64UrlCertificate.split(",")[1];
+        log.fine("Using certifcate: "+clientCertificateString);
+        byte[] clientCertificateBytes = Base64.getDecoder().decode(clientCertificateString);
+        return clientCertificateBytes;
     }
 
     public void acceptAllCertificates() {

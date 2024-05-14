@@ -1,14 +1,30 @@
 package health.ere.ps.service.cetp;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.net.ssl.KeyManagerFactory;
+
 import health.ere.ps.config.AppConfig;
+import health.ere.ps.config.UserConfig;
 import health.ere.ps.service.cardlink.CardlinkWebsocketClient;
 import health.ere.ps.service.cetp.codec.CETPDecoder;
+import health.ere.ps.service.cetp.config.KonnektorConfig;
 import health.ere.ps.service.common.security.SecretsManagerService;
+import health.ere.ps.service.common.security.SecretsManagerService.KeyStoreType;
 import health.ere.ps.service.gematik.PharmacyService;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -34,8 +50,8 @@ public class CETPServer {
     public static final int PORT = 8585;
     private static Logger log = Logger.getLogger(CETPServer.class.getName());
 
-    EventLoopGroup bossGroup; // (1)
-    EventLoopGroup workerGroup;
+    List<EventLoopGroup> bossGroups = new ArrayList<>(); // (1)
+    List<EventLoopGroup> workerGroups = new ArrayList<>();
 
     @Inject
     PharmacyService pharmacyService;
@@ -46,6 +62,9 @@ public class CETPServer {
     @Inject
     AppConfig appConfig;
 
+    @Inject
+    UserConfig userConfig;
+
     void onStart(@Observes StartupEvent ev) {               
         log.info("Running CETP Server on port "+PORT);
         run();
@@ -54,11 +73,11 @@ public class CETPServer {
 
     void onShutdown(@Observes ShutdownEvent ev) {               
         log.info("Shutdown CETP Server on port "+PORT);
-        if(workerGroup != null) {
-            workerGroup.shutdownGracefully();
+        if(workerGroups != null) {
+            workerGroups.stream().filter(Objects::nonNull).forEach(c -> c.shutdownGracefully());
         }
-        if(bossGroup != null) {
-            bossGroup.shutdownGracefully();
+        if(bossGroups != null) {
+            bossGroups.stream().filter(Objects::nonNull).forEach(c -> c.shutdownGracefully());
         }
     }
 
@@ -78,8 +97,25 @@ public class CETPServer {
     }
 
     public void run() {
-        bossGroup = new NioEventLoopGroup(); // (1)
-        workerGroup = new NioEventLoopGroup();
+        List<KonnektorConfig> configs = new ArrayList<>();
+        var konnektorConfig = new File("config/konnektoren");
+        if(konnektorConfig.exists()) {
+            configs = KonnektorConfig.readFromFolder(konnektorConfig.getAbsolutePath());
+        } else {
+            configs.add(new KonnektorConfig(PORT, userConfig.getConfigurations(), getCardLinkURI()));
+        }
+        
+        for(KonnektorConfig config : configs) {
+            runServer(config);
+        }
+
+    }
+
+    private void runServer(KonnektorConfig config) {
+        NioEventLoopGroup bossGroup = new NioEventLoopGroup(); // (1)
+        bossGroups.add(bossGroup);
+        NioEventLoopGroup workerGroup = new NioEventLoopGroup();
+        workerGroups.add(workerGroup);
         try {
             ServerBootstrap b = new ServerBootstrap(); // (2)
             b.group(bossGroup, workerGroup)
@@ -91,24 +127,25 @@ public class CETPServer {
                     try {
 
                         SslContext sslContext = SslContextBuilder
-                            .forServer(secretsManagerService.getKeyManagerFactory())
+                            .forServer(getKeyFactoryManager(config))
                             .clientAuth(ClientAuth.NONE)
                             .build();
 
                         ch.pipeline()
                             .addLast("ssl", sslContext.newHandler(ch.alloc()))
-                            .addLast(new CETPDecoder())
-                            .addLast(new CETPServerHandler(pharmacyService, new CardlinkWebsocketClient(getCardLinkURI())));
+                            .addLast(new CETPDecoder(config.getUserConfigurations()))
+                            .addLast(new CETPServerHandler(pharmacyService, new CardlinkWebsocketClient(config.getCardlinkEndpoint())));
                     } catch (Exception e) {
                         log.log(Level.WARNING, "Failed to create SSL context", e);
                     }
                  }
+
              })
              .option(ChannelOption.SO_BACKLOG, 128)          // (5)
              .childOption(ChannelOption.SO_KEEPALIVE, true); // (6)
     
             // Bind and start to accept incoming connections.
-            ChannelFuture f = b.bind(PORT).sync(); // (7)
+            ChannelFuture f = b.bind(config.getPort()).sync(); // (7)
     
             // Wait until the server socket is closed.
             // In this example, this does not happen, but you can do that to gracefully
@@ -117,5 +154,26 @@ public class CETPServer {
         } catch (InterruptedException e) {
             log.log(Level.WARNING, "CETP Server interrupted", e);
         }
+    }
+
+
+    private KeyManagerFactory getKeyFactoryManager(KonnektorConfig config) {
+        if(config.getUserConfigurations().getClientCertificate() == null) {
+            return secretsManagerService.getKeyManagerFactory();
+        } else {
+            String connectorTlsCertAuthStorePwd = config.getUserConfigurations().getClientCertificatePassword();
+            byte[] clientCertificateBytes = SecretsManagerService.getClientCertificateBytes(config.getUserConfigurations());
+            try (ByteArrayInputStream certificateInputStream = new ByteArrayInputStream(clientCertificateBytes)) {
+                KeyStore ks = KeyStore.getInstance(KeyStoreType.PKCS12.getKeyStoreType());
+                ks.load(certificateInputStream, connectorTlsCertAuthStorePwd.toCharArray());
+
+                KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+                keyManagerFactory.init(ks, connectorTlsCertAuthStorePwd.toCharArray());
+                return keyManagerFactory;
+            } catch (UnrecoverableKeyException | KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
+                log.log(Level.SEVERE, "Could not create keyManagerFactory", e);
+            }
+        }
+        return null;
     }
 }
