@@ -39,7 +39,7 @@ public class ThrowableAdapter implements JsonbAdapter<Throwable, JsonObject> {
         return builder.build();
     }
 
-    private BigInteger extractErrorCode(Throwable e) {
+    public static BigInteger extractErrorCode(Throwable e) {
         BigInteger errorCode = BigInteger.ZERO;
         do {
             if(e instanceof de.gematik.ws.conn.authsignatureservice.wsdl.v7.FaultMessage) {
