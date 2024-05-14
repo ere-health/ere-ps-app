@@ -17,6 +17,7 @@ import java.io.StringReader;
 import java.math.BigInteger;
 import java.util.List;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -24,6 +25,7 @@ import de.gematik.ws.conn.eventservice.v7.Event;
 import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
 import de.gematik.ws.tel.error.v2.Error;
 import health.ere.ps.config.AppConfig;
+import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.service.cardlink.CardlinkWebsocketClient;
 import health.ere.ps.service.cetp.CETPServerHandler;
 import io.netty.channel.embedded.EmbeddedChannel;
@@ -140,7 +142,7 @@ public class CardInsertedTest {
         return holder;
     }
 
-    private Event prepareEvent(String slotIdValue, String ctIdValue) {
+    private Pair<Event,UserConfigurations> prepareEvent(String slotIdValue, String ctIdValue) {
         Event event = new Event();
         event.setTopic("CARD/INSERTED");
         Event.Message message = new Event.Message();
@@ -158,6 +160,6 @@ public class CardInsertedTest {
         message.getParameter().add(parameterSlotId);
         message.getParameter().add(parameterCtId);
         event.setMessage(message);
-        return event;
+        return Pair.of(event, new UserConfigurations());
     }
 }
