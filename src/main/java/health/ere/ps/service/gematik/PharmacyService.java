@@ -80,6 +80,10 @@ public class PharmacyService extends BearerTokenManageService {
         String smcbHandle,
         RuntimeConfig runtimeConfig
     ) throws FaultMessage, de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
+        if (runtimeConfig == null) {
+            runtimeConfig = new RuntimeConfig();
+        }
+        runtimeConfig.setSMCBHandle(smcbHandle);
         Holder<byte[]> pruefungsnachweis = readVSD(egkHandle, smcbHandle, runtimeConfig);
         String pnw = Base64.getEncoder().encodeToString(pruefungsnachweis.value);
         try (Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task")
@@ -107,10 +111,6 @@ public class PharmacyService extends BearerTokenManageService {
         String smcbHandle,
         RuntimeConfig runtimeConfig
     ) throws FaultMessage, de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
-        if (runtimeConfig == null) {
-            runtimeConfig = new RuntimeConfig();
-        }
-        runtimeConfig.setSMCBHandle(smcbHandle);
         ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
         if ("".equals(context.getUserId()) || context.getUserId() == null) {
             context.setUserId(UUID.randomUUID().toString());
