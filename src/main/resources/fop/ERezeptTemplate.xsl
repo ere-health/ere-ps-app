@@ -306,7 +306,7 @@
                                         </fo:block>
                                     </fo:table-cell>
                                     <fo:table-cell>
-                                        <fo:block margin-top="3mm" margin-right="3mm">
+                                        <fo:block margin-top="3mm" margin-right="3mm" margin-left="1mm">
                                             <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:extension[@url='https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription']/fhir:extension[@url='Kennzeichen']/fhir:valueBoolean/@value = 'true' or string-length(fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:text/@value) &gt; 40 or string-length(fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:dosageInstruction/fhir:text/@value) &gt; 10">
                                                 <xsl:attribute name="font-size">10pt</xsl:attribute>
                                             </xsl:if>
