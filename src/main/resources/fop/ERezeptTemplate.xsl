@@ -372,7 +372,7 @@
                                                     
                                                 </xsl:if>
                                                 <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:extension[@url='http://fhir.de/StructureDefinition/normgroesse']">
-                                                    <xsl:text> / </xsl:text>
+                                                    <xsl:text> </xsl:text>
                                                     <xsl:value-of
                                                             select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:extension[@url='http://fhir.de/StructureDefinition/normgroesse']/fhir:valueCode/@value"/>
                                                 </xsl:if>
