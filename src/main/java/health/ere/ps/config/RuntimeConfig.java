@@ -7,12 +7,11 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import health.ere.ps.model.config.UserConfigurations;
 import jakarta.enterprise.inject.Alternative;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.json.JsonObject;
 import jakarta.servlet.http.HttpServletRequest;
-
-import health.ere.ps.model.config.UserConfigurations;
 
 @Alternative
 public class RuntimeConfig extends UserConfig {
@@ -30,7 +29,6 @@ public class RuntimeConfig extends UserConfig {
 
     protected String prescriptionServerURL = null;
 
-    
     public RuntimeConfig() {
         this.updateProperties(new UserConfigurations());
         try {
@@ -175,7 +173,28 @@ public class RuntimeConfig extends UserConfig {
 
     @Override
     public int hashCode() {
-        return Objects.hash(eHBAHandle, SMCBHandle, idpBaseURL, idpAuthRequestRedirectURL, idpClientId, prescriptionServerURL, this.getConfigurations(), super.hashCode());
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + Objects.hash(SMCBHandle, eHBAHandle, idpAuthRequestRedirectURL, idpBaseURL,
+                idpClientId, prescriptionServerURL, sendPreview);
+        return result;
+    }
+    
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        RuntimeConfig other = (RuntimeConfig) obj;
+        return Objects.equals(SMCBHandle, other.SMCBHandle) && Objects.equals(eHBAHandle, other.eHBAHandle)
+                && Objects.equals(idpAuthRequestRedirectURL, other.idpAuthRequestRedirectURL)
+                && Objects.equals(idpBaseURL, other.idpBaseURL) && Objects.equals(idpClientId, other.idpClientId)
+                && Objects.equals(prescriptionServerURL, other.prescriptionServerURL)
+                && sendPreview == other.sendPreview;
     }
 
     public String getConnectorAddress() {

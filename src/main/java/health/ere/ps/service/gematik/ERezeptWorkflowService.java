@@ -498,7 +498,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
 
         List<SignResponse> signResponses = null;
 
-        if (runtimeConfig.isSendPreview()) {
+        if (runtimeConfig != null && runtimeConfig.isSendPreview()) {
             readyToSignBundlesEvent.fireAsync(new ReadyToSignBundlesEvent(bundles, replyTo, replyToMessageId));
         }
 
