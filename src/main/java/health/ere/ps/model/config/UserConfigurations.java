@@ -1,5 +1,9 @@
 package health.ere.ps.model.config;
 
+import jakarta.json.JsonObject;
+import jakarta.json.bind.annotation.JsonbNillable;
+import jakarta.json.bind.annotation.JsonbProperty;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -16,66 +20,80 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import jakarta.json.JsonObject;
-import jakarta.json.bind.annotation.JsonbProperty;
-import jakarta.servlet.http.HttpServletRequest;
-
 public class UserConfigurations {
 
-    private static Logger log = Logger.getLogger(UserConfigurations.class.getName());
+    private static final Logger log = Logger.getLogger(UserConfigurations.class.getName());
 
-    @JsonbProperty(value="erixa.hotfolder", nillable=true)
+    @JsonbProperty(value = "erixa.hotfolder")
+    @JsonbNillable
     private String erixaHotfolder;
 
-    @JsonbProperty(value="erixa.drugstore.email", nillable=true)
+    @JsonbProperty(value = "erixa.drugstore.email")
+    @JsonbNillable
     private String erixaDrugstoreEmail;
 
-    @JsonbProperty(value="erixa.user.email", nillable=true)
+    @JsonbProperty(value = "erixa.user.email")
+    @JsonbNillable
     private String erixaUserEmail;
 
-    @JsonbProperty(value="erixa.user.password", nillable=true)
+    @JsonbProperty(value = "erixa.user.password")
+    @JsonbNillable
     private String erixaUserPassword;
 
-    @JsonbProperty(value="erixa.api.key", nillable=true)
+    @JsonbProperty(value = "erixa.api.key")
+    @JsonbNillable
     private String erixaApiKey;
 
-    @JsonbProperty(value="extractor.template.profile", nillable=true)
+    @JsonbProperty(value = "extractor.template.profile")
+    @JsonbNillable
     private String muster16TemplateProfile;
 
-    @JsonbProperty(value="connector.base-url", nillable=true)
+    @JsonbProperty(value = "connector.base-url")
+    @JsonbNillable
     private String connectorBaseURL;
 
-    @JsonbProperty(value="connector.mandant-id", nillable=true)
+    @JsonbProperty(value = "connector.mandant-id")
+    @JsonbNillable
     private String mandantId;
 
-    @JsonbProperty(value="connector.workplace-id", nillable=true)
+    @JsonbProperty(value = "connector.workplace-id")
+    @JsonbNillable
     private String workplaceId;
 
-    @JsonbProperty(value="connector.client-system-id", nillable=true)
+    @JsonbProperty(value = "connector.client-system-id")
+    @JsonbNillable
     private String clientSystemId;
 
-    @JsonbProperty(value="connector.user-id", nillable=true)
+    @JsonbProperty(value = "connector.user-id")
+    @JsonbNillable
     private String userId;
 
-    @JsonbProperty(value="connector.version", nillable=true)
+    @JsonbProperty(value = "connector.version")
+    @JsonbNillable
     private String version;
 
-    @JsonbProperty(value="connector.tvMode", nillable=true)
+    @JsonbProperty(value = "connector.tvMode")
+    @JsonbNillable
     private String tvMode;
 
-    @JsonbProperty(value="connector.client-certificate", nillable=true)
+    @JsonbProperty(value = "connector.client-certificate")
+    @JsonbNillable
     private String clientCertificate;
 
-    @JsonbProperty(value="connector.client-certificate-password", nillable=true)
+    @JsonbProperty(value = "connector.client-certificate-password")
+    @JsonbNillable
     private String clientCertificatePassword;
 
-    @JsonbProperty(value="connector.basic-auth-username", nillable=true)
+    @JsonbProperty(value = "connector.basic-auth-username")
+    @JsonbNillable
     private String basicAuthUsername;
 
-    @JsonbProperty(value="connector.basic-auth-password", nillable=true)
+    @JsonbProperty(value = "connector.basic-auth-password")
+    @JsonbNillable
     private String basicAuthPassword;
 
-    @JsonbProperty(value="kbv.pruefnummer", nillable=true)
+    @JsonbProperty(value = "kbv.pruefnummer")
+    @JsonbNillable
     private String pruefnummer;
 
     static BeanInfo beanInfo;
@@ -92,7 +110,7 @@ public class UserConfigurations {
     }
 
     public UserConfigurations(Properties properties) {
-        fillValues((s) -> properties.getProperty(s));
+        fillValues(properties::getProperty);
     }
 
     public UserConfigurations(JsonObject jsonObject) {
@@ -113,16 +131,17 @@ public class UserConfigurations {
     public UserConfigurations updateWithRequest(HttpServletRequest httpServletRequest) {
         Enumeration<String> enumeration = httpServletRequest.getHeaderNames();
         List<String> list = Collections.list(enumeration);
-        for(String headerName : list) {
-            if(headerName.startsWith("X-") && !"X-eHBAHandle".equals(headerName) && !"X-SMCBHandle".equals(headerName) && !"X-sendPreview".equals(headerName)) {
+        for (String headerName : list) {
+            if (headerName.startsWith("X-") && !"X-eHBAHandle".equals(headerName) && !"X-SMCBHandle".equals(headerName) && !"X-sendPreview".equals(headerName)) {
                 String propertyName = headerName.substring(2);
                 Field field;
                 try {
                     field = UserConfigurations.class.getDeclaredField(propertyName);
-                    if(field != null) {
+                    if (field != null) {
                         field.set(this, httpServletRequest.getHeader(headerName));
                     }
-                } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+                } catch (NoSuchFieldException | SecurityException | IllegalArgumentException |
+                         IllegalAccessException e) {
                     log.log(Level.WARNING, "Could not extract values from header", e);
                 }
             }
@@ -131,14 +150,14 @@ public class UserConfigurations {
     }
 
     private void fillValues(Function<String, Object> getValue) {
-        for(PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
+        for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
             try {
                 Method writeMethod = pd.getWriteMethod();
-                if(writeMethod != null) {
+                if (writeMethod != null) {
                     writeMethod.invoke(this, getValue.apply(pd.getName()));
                 } else {
-                    if(!"class".equals(pd.getName())) {
-                        log.warning("No write method for: "+pd.getName());
+                    if (!"class".equals(pd.getName())) {
+                        log.warning("No write method for: " + pd.getName());
                     }
                 }
             } catch (Exception e) {
@@ -149,12 +168,10 @@ public class UserConfigurations {
 
     public Properties properties() {
         Properties properties = new Properties();
-        for(PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
+        for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
             try {
-                Object o =  pd.getReadMethod().invoke(this);
-                if(o instanceof String) {
-                    String value = (String) o;
-                    properties.setProperty(pd.getName(), value == null ? "" : value);
+                if (pd.getReadMethod().invoke(this) instanceof String str) {
+                    properties.setProperty(pd.getName(), str);
                 }
             } catch (Exception e) {
                 log.log(Level.SEVERE, "Could not process user configurations", e);
@@ -312,7 +329,40 @@ public class UserConfigurations {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj instanceof UserConfigurations userConfigurations) {
+            return Objects.equals(erixaHotfolder, userConfigurations.erixaHotfolder)
+                && Objects.equals(erixaDrugstoreEmail, userConfigurations.erixaDrugstoreEmail)
+                && Objects.equals(erixaUserEmail, userConfigurations.erixaUserEmail)
+                && Objects.equals(erixaUserPassword, userConfigurations.erixaUserPassword)
+                && Objects.equals(erixaApiKey, userConfigurations.erixaApiKey)
+                && Objects.equals(muster16TemplateProfile, userConfigurations.muster16TemplateProfile)
+                && Objects.equals(connectorBaseURL, userConfigurations.connectorBaseURL)
+                && Objects.equals(mandantId, userConfigurations.mandantId)
+                && Objects.equals(workplaceId, userConfigurations.workplaceId)
+                && Objects.equals(clientSystemId, userConfigurations.clientSystemId)
+                && Objects.equals(userId, userConfigurations.userId)
+                && Objects.equals(version, userConfigurations.version)
+                && Objects.equals(tvMode, userConfigurations.tvMode)
+                && Objects.equals(clientCertificate, userConfigurations.clientCertificate)
+                && Objects.equals(clientCertificatePassword, userConfigurations.clientCertificatePassword)
+                && Objects.equals(basicAuthUsername, userConfigurations.basicAuthUsername)
+                && Objects.equals(basicAuthPassword, userConfigurations.basicAuthPassword)
+                && Objects.equals(pruefnummer, userConfigurations.pruefnummer);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public int hashCode() {
-        return Objects.hash(erixaHotfolder, erixaDrugstoreEmail, erixaUserEmail, erixaUserPassword, erixaApiKey, muster16TemplateProfile, connectorBaseURL, mandantId, workplaceId, clientSystemId, userId, version, tvMode, clientCertificate, clientCertificatePassword, basicAuthUsername, basicAuthPassword, pruefnummer);
+        return Objects.hash(
+            erixaHotfolder, erixaDrugstoreEmail, erixaUserEmail, erixaUserPassword, erixaApiKey, muster16TemplateProfile,
+            connectorBaseURL, mandantId, workplaceId, clientSystemId, userId, version, tvMode, clientCertificate,
+            clientCertificatePassword, basicAuthUsername, basicAuthPassword, pruefnummer
+        );
     }
 }

@@ -1,18 +1,18 @@
 package health.ere.ps.validation.fhir.bundle;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import ca.uhn.fhir.context.FhirContext;
 import de.gematik.refv.commons.validation.ValidationResult;
 import health.ere.ps.profile.TitusTestProfile;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import jakarta.inject.Inject;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 @QuarkusTest
 @TestProfile(TitusTestProfile.class)
@@ -22,7 +22,6 @@ public class PrescriptionBundleValidatorTest {
     PrescriptionBundleValidator prescriptionBundleValidator;
 
     FhirContext fhirContext = FhirContext.forR4();
-
 
     @Test
     public void testKBV() throws IOException {

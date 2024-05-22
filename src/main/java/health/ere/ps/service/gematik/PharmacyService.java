@@ -1,45 +1,17 @@
 package health.ere.ps.service.gematik;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.zip.GZIPInputStream;
-
-import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.apache.commons.lang3.tuple.Pair;
-import org.bouncycastle.cms.CMSProcessableByteArray;
-import org.bouncycastle.cms.CMSSignedData;
-import org.hl7.fhir.r4.model.Binary;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Task;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-
 import ca.uhn.fhir.context.FhirContext;
 import de.gematik.ws.conn.cardservice.v8.CardInfoType;
 import de.gematik.ws.conn.cardservicecommon.v2.CardTypeType;
-import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.v7.GetCards;
 import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
-import de.gematik.ws.conn.eventservice.v7.SubscriptionType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
 import de.gematik.ws.conn.vsds.vsdservice.v5.VSDStatusType;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.exception.common.security.SecretsManagerException;
-import health.ere.ps.service.cetp.CETPServer;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import health.ere.ps.service.fhir.FHIRService;
 import jakarta.annotation.PostConstruct;
@@ -50,6 +22,27 @@ import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.Response;
 import jakarta.xml.ws.Holder;
+import org.apache.commons.lang3.tuple.Pair;
+import org.bouncycastle.cms.CMSProcessableByteArray;
+import org.bouncycastle.cms.CMSSignedData;
+import org.hl7.fhir.r4.model.Binary;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Task;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Base64;
+import java.util.List;
+import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.zip.GZIPInputStream;
 
 @ApplicationScoped
 public class PharmacyService extends BearerTokenManageService {
@@ -65,8 +58,6 @@ public class PharmacyService extends BearerTokenManageService {
     private static final FhirContext fhirContext = FHIRService.getFhirContext();
 
     Client client;
-
-    List<String> subscriptionsIds = new ArrayList<>();
 
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
@@ -232,42 +223,5 @@ public class PharmacyService extends BearerTokenManageService {
             log.log(Level.SEVERE, "Could not process " + token + "prescriptionId: " + prescriptionId + " secret: " + secret + " ", t);
             return null;
         }
-    }
-
-    public String subscribe(RuntimeConfig runtimeConfig, String host) throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
-        if (runtimeConfig == null) {
-            runtimeConfig = new RuntimeConfig();
-        }
-        ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
-
-        EventServicePortType eventService = connectorServicesProvider.getEventServicePortType(runtimeConfig);
-        SubscriptionType subscriptionType = new SubscriptionType();
-
-        subscriptionType.setEventTo("cetp://" + host + ":" + CETPServer.PORT);
-        subscriptionType.setTopic("CARD/INSERTED");
-        Holder<Status> status = new Holder<>();
-        Holder<String> subscriptionId = new Holder<>();
-        Holder<XMLGregorianCalendar> terminationTime = new Holder<>();
-        eventService.subscribe(context, subscriptionType, status, subscriptionId, terminationTime);
-        subscriptionsIds.add(subscriptionId.value);
-        return status.value.getResult() + " " + subscriptionId.value + " " + terminationTime.value.toString();
-    }
-
-    public void unsubscribeAll(RuntimeConfig runtimeConfig, String host) throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
-        if (runtimeConfig == null) {
-            runtimeConfig = new RuntimeConfig();
-        }
-        ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
-
-        EventServicePortType eventService = connectorServicesProvider.getEventServicePortType(runtimeConfig);
-
-        for (String subscriptionId : subscriptionsIds) {
-            try {
-                eventService.unsubscribe(context, subscriptionId, "cetp://" + host + ":" + CETPServer.PORT);
-            } catch (Throwable t) {
-                log.log(Level.WARNING, "Could not unsubscribe " + subscriptionId, t);
-            }
-        }
-        subscriptionsIds.clear();
     }
 }
