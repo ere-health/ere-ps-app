@@ -41,8 +41,6 @@ import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static health.ere.ps.service.cetp.config.KonnektorConfig.DEFAULT_SUBSCRIPTION;
-
 @ApplicationScoped
 public class SubscriptionManager {
 
@@ -90,18 +88,14 @@ public class SubscriptionManager {
     }
 
     public List<String> manage(RuntimeConfig runtimeConfig, String host, String eventToHost, boolean subscribe) {
-        Optional<KonnektorConfig> kcOpt = getKonnektorConfig(host);
-        List<String> statuses = new ArrayList<>();
-        if (kcOpt.isPresent()) {
-            KonnektorConfig kc = kcOpt.get();
-            statuses.add(process(kc, runtimeConfig, host, eventToHost, subscribe));
-        } else {
-            Collection<KonnektorConfig> konnektorConfigs = getKonnektorConfigs();
-            statuses.addAll(konnektorConfigs.stream()
-                .map(kc -> process(kc, runtimeConfig, host, eventToHost, subscribe))
-                .filter(Objects::nonNull)
-                .toList()
-            );
+        Collection<KonnektorConfig> konnektorConfigs = getKonnektorConfigs(host);
+        List<String> statuses = konnektorConfigs.stream()
+            .map(kc -> process(kc, runtimeConfig, host, eventToHost, subscribe))
+            .filter(Objects::nonNull)
+            .toList();
+
+        if (statuses.isEmpty()) {
+            return List.of(String.format("No configuration is found for the given host: %s", host));
         }
         return statuses;
     }
@@ -122,7 +116,7 @@ public class SubscriptionManager {
                 String status = unsubscribeFromKonnektor(config, subscriptionId, port, eventToHost);
                 log.info(String.format("Unsubscribe status for subscriptionId=%s: %s", subscriptionId, status));
                 if (subscribe) {
-                    Pair<String, String> pair = subscribeToKonnektor(kc, config, subscriptionId, port, eventToHost);
+                    Pair<String, String> pair = subscribeToKonnektor(kc, config, port, eventToHost);
                     status = pair.getValue();
                     log.info(String.format("Subscribe status for subscriptionId=%s: %s", pair.getKey(), status));
                 }
@@ -133,6 +127,11 @@ public class SubscriptionManager {
         } else {
             return String.format("[%s] Host subscription is in progress, try later", host);
         }
+    }
+
+    private String getConnectorBaseURL(KonnektorConfig config) {
+        String connectorBaseURL = config.getUserConfigurations().getConnectorBaseURL();
+        return connectorBaseURL == null ? appConfig.getConnectorBaseURL() : connectorBaseURL;
     }
 
     private void loadKonnektorConfigs() {
@@ -149,9 +148,7 @@ public class SubscriptionManager {
                 appConfig.getCardLinkURI())
             );
         }
-        configs.forEach(config ->
-            hostToKonnektorConfig.put(config.getUserConfigurations().getConnectorBaseURL(), config)
-        );
+        configs.forEach(config -> hostToKonnektorConfig.put(getConnectorBaseURL(config), config));
         configsLoaded = true;
     }
 
@@ -159,22 +156,13 @@ public class SubscriptionManager {
         this.configFolder = configFolder;
     }
 
-    public Collection<KonnektorConfig> getKonnektorConfigs() {
-        return hostToKonnektorConfig.values();
-    }
-
-    public Optional<KonnektorConfig> getKonnektorConfig(String host) {
+    public Collection<KonnektorConfig> getKonnektorConfigs(String host) {
         if (!configsLoaded) {
             loadKonnektorConfigs();
         }
         return host == null
-            ? Optional.empty()
-            : Optional.ofNullable(hostToKonnektorConfig.get(findHostKey(host)));
-    }
-
-    private String findHostKey(String host) {
-        Optional<String> keyOpt = hostToKonnektorConfig.keySet().stream().filter(s -> s.contains(host)).findFirst();
-        return keyOpt.orElse("");
+            ? hostToKonnektorConfig.values()
+            : hostToKonnektorConfig.entrySet().stream().filter(entry -> entry.getKey().contains(host)).map(Map.Entry::getValue).toList();
     }
 
     private RuntimeConfig getRuntimeConfig(RuntimeConfig runtimeConfig, KonnektorConfig konnektorConfig) {
@@ -189,7 +177,6 @@ public class SubscriptionManager {
     private Pair<String, String> subscribeToKonnektor(
         KonnektorConfig konnektorConfig,
         RuntimeConfig runtimeConfig,
-        String prevSubscriptionId,
         Integer port,
         String eventToHost
     ) {
@@ -208,9 +195,8 @@ public class SubscriptionManager {
             eventService.subscribe(context, subscriptionType, status, subscriptionId, terminationTime);
 
             try {
-                KonnektorConfig.recreateSubscriptionProperties(
+                KonnektorConfig.createNewSubscriptionIdFile(
                     konnektorConfig.getFolder(),
-                    prevSubscriptionId,
                     subscriptionId.value
                 );
                 konnektorConfig.setSubscriptionId(subscriptionId.value + ".properties");
@@ -235,7 +221,7 @@ public class SubscriptionManager {
         Integer port,
         String eventToHost
     ) {
-        if (DEFAULT_SUBSCRIPTION.equals(subscriptionId)) {
+        if (subscriptionId == null) {
             return null;
         }
         try {

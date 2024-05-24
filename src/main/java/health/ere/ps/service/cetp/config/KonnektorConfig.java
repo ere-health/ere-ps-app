@@ -21,9 +21,11 @@ import java.util.stream.Collectors;
 
 public class KonnektorConfig {
 
-    public static final String DEFAULT_SUBSCRIPTION = "default.properties";
+    public static final String PROPERTIES_EXT = ".properties";
+    public static final String DEFAULT_SUBSCRIPTION = "default" + PROPERTIES_EXT;
 
     private static final Logger log = Logger.getLogger(KonnektorConfig.class.getName());
+
 
     Integer port;
     UserConfigurations userConfigurations;
@@ -47,7 +49,7 @@ public class KonnektorConfig {
         this.userConfigurations = userConfigurations;
         this.cardlinkEndpoint = cardlinkEndpoint;
 
-        subscriptionId = DEFAULT_SUBSCRIPTION;
+        subscriptionId = null;
     }
 
     public static List<KonnektorConfig> readFromFolder(String folder) {
@@ -67,13 +69,18 @@ public class KonnektorConfig {
     }
 
     public static KonnektorConfig generateKonnektorConfig(File folder) {
-        Optional<File> actualOpt = Arrays.stream(folder.listFiles())
-            .filter(f -> f.getName().endsWith(".properties"))
+        Optional<File> userPropertiesOpt = Arrays.stream(folder.listFiles())
+            .filter(f -> f.getName().endsWith(PROPERTIES_EXT))
             .max(Comparator.comparingLong(File::lastModified));
-        if (actualOpt.isPresent()) {
-            File actualSubscription = actualOpt.get();
+        
+        Optional<File> subscriptionFileOpt = Arrays.stream(folder.listFiles())
+            .filter(f -> !f.getName().endsWith(PROPERTIES_EXT))
+            .max(Comparator.comparingLong(File::lastModified));
+
+        if (userPropertiesOpt.isPresent()) {
+            File actualSubscription = userPropertiesOpt.get();
             if (actualSubscription.exists()) {
-                String subscriptionId = actualSubscription.getName();
+                String subscriptionId = subscriptionFileOpt.map(File::getName).orElse(null);
                 try (var fis = new FileInputStream(actualSubscription)) {
                     Properties properties = new Properties();
                     properties.load(fis);
@@ -95,32 +102,13 @@ public class KonnektorConfig {
         return null;
     }
 
-    private static String preparePropertiesPath(String folderPath, String file) {
-        return folderPath + "/" + file + ".properties";
-    }
-
-    public static void recreateSubscriptionProperties(
-        File folder,
-        String prevSubscriptionId,
-        String subscriptionId
-    ) throws IOException {
+    public static void createNewSubscriptionIdFile(File folder, String subscriptionId) throws IOException {
         String folderPath = folder.getAbsolutePath();
-        String prevSubscriptionPath = folderPath + "/" + prevSubscriptionId;
-        File prevPropertiesFile = new File(prevSubscriptionPath);
-        if (prevPropertiesFile.exists()) {
-            try (FileInputStream is = new FileInputStream(prevSubscriptionPath)) {
-                try (FileOutputStream os = new FileOutputStream(preparePropertiesPath(folderPath, subscriptionId))) {
-                    is.transferTo(os);
-                }
-            }
-        } else {
-            try (FileOutputStream os = new FileOutputStream(preparePropertiesPath(folderPath, subscriptionId))) {
-                // TODO confirm which properties to write for default KonnektorConfig when user.properties is empty
-                os.flush();
-            }
+        try (FileOutputStream os = new FileOutputStream(folderPath + "/" + subscriptionId)) {
+            os.flush();
         }
         Arrays.stream(folder.listFiles())
-            .filter(file -> !file.getName().contains(subscriptionId))
+            .filter(file -> !file.getName().equals(subscriptionId) && !file.getName().endsWith(PROPERTIES_EXT))
             .forEach(file -> {
                 boolean deleted = file.delete();
                 if (!deleted) {
