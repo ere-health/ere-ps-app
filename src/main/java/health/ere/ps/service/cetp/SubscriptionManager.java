@@ -4,25 +4,34 @@ import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.v7.SubscriptionType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
-import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
 import de.gematik.ws.tel.error.v2.Error;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.config.UserConfig;
+import health.ere.ps.jmx.PsMXBeanManager;
+import health.ere.ps.jmx.SubscriptionsMXBean;
+import health.ere.ps.jmx.SubscriptionsMXBeanImpl;
 import health.ere.ps.service.cetp.config.KonnektorConfig;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import io.quarkus.runtime.StartupEvent;
+import io.quarkus.scheduler.Scheduled;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.xml.ws.Holder;
 import org.apache.commons.lang3.tuple.Pair;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.File;
 import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -43,6 +52,9 @@ public class SubscriptionManager {
 
     private final Map<String, KonnektorConfig> hostToKonnektorConfig = new ConcurrentHashMap<>();
 
+    @ConfigProperty(name = "konnektor.subscription.eventToHost")
+    Optional<String> eventToHostProperty;
+
     @Inject
     AppConfig appConfig;
 
@@ -54,11 +66,27 @@ public class SubscriptionManager {
 
     private String configFolder = CONFIG_KONNEKTOREN_FOLDER;
 
+    private final String eventToHost = getEventToHost();
+
+    private volatile boolean configsLoaded = false;
+
     void onStart(@Observes StartupEvent ev) {
-        Collection<KonnektorConfig> konnektorConfigs = loadKonnektorConfigs();
-        konnektorConfigs.forEach(config ->
-            hostToKonnektorConfig.put(config.getUserConfigurations().getConnectorBaseURL(), config)
-        );
+        loadKonnektorConfigs();
+
+        SubscriptionsMXBeanImpl subscriptionsMXBean = new SubscriptionsMXBeanImpl(hostToKonnektorConfig.size());
+        PsMXBeanManager.registerMXBean(SubscriptionsMXBean.OBJECT_NAME, subscriptionsMXBean);
+
+        renewSubscriptions();
+    }
+
+    @Scheduled(cron = "{konnektor.subscription.renew.cron}")
+    void cronJobWithExpressionInConfig() {
+        renewSubscriptions();
+    }
+
+    private void renewSubscriptions() {
+        String eventHost = eventToHostProperty.orElse(eventToHost);
+        manage(new RuntimeConfig(userConfig.getConfigurations()), null, eventHost, true);
     }
 
     public List<String> manage(RuntimeConfig runtimeConfig, String host, String eventToHost, boolean subscribe) {
@@ -107,7 +135,7 @@ public class SubscriptionManager {
         }
     }
 
-    private Collection<KonnektorConfig> loadKonnektorConfigs() {
+    private void loadKonnektorConfigs() {
         List<KonnektorConfig> configs = new ArrayList<>();
         var konnektorConfigFolder = new File(configFolder);
         if (konnektorConfigFolder.exists()) {
@@ -121,7 +149,10 @@ public class SubscriptionManager {
                 appConfig.getCardLinkURI())
             );
         }
-        return configs;
+        configs.forEach(config ->
+            hostToKonnektorConfig.put(config.getUserConfigurations().getConnectorBaseURL(), config)
+        );
+        configsLoaded = true;
     }
 
     public void setConfigFolder(String configFolder) {
@@ -133,6 +164,9 @@ public class SubscriptionManager {
     }
 
     public Optional<KonnektorConfig> getKonnektorConfig(String host) {
+        if (!configsLoaded) {
+            loadKonnektorConfigs();
+        }
         return host == null
             ? Optional.empty()
             : Optional.ofNullable(hostToKonnektorConfig.get(findHostKey(host)));
@@ -190,8 +224,8 @@ public class SubscriptionManager {
 
             String fullStatus = status.value.getResult() + " " + subscriptionId.value + " " + terminationTime.value.toString();
             return Pair.of(subscriptionId.value, fullStatus);
-        } catch (FaultMessage fm) {
-            return Pair.of(null, fm.getMessage());
+        } catch (Exception e) {
+            return Pair.of(null, e.getMessage());
         }
     }
 
@@ -211,9 +245,29 @@ public class SubscriptionManager {
             Status status = eventService.unsubscribe(context, subscriptionId, "cetp://" + eventToHost + ":" + port);
             Error error = status.getError();
             return error == null ? status.getResult() : error.toString();
-        } catch (FaultMessage fm) {
-            log.log(Level.WARNING, "Could not unsubscribe " + subscriptionId, fm);
-            return fm.getMessage();
+        } catch (Exception e) {
+            log.log(Level.WARNING, "Could not unsubscribe " + subscriptionId, e);
+            return e.getMessage();
         }
+    }
+
+    private String getEventToHost() {
+        Inet4Address localAddress = null;
+        try {
+            Enumeration<NetworkInterface> e = NetworkInterface.getNetworkInterfaces();
+            while (e.hasMoreElements()) {
+                NetworkInterface n = e.nextElement();
+                Enumeration<InetAddress> ee = n.getInetAddresses();
+                while (ee.hasMoreElements()) {
+                    InetAddress i = ee.nextElement();
+                    if (i instanceof Inet4Address && i.getAddress()[0] != 127) {
+                        localAddress = (Inet4Address) i;
+                        break;
+                    }
+                }
+            }
+        } catch (SocketException ignored) {
+        }
+        return localAddress == null ? "localhost" : localAddress.getHostAddress();
     }
 }
