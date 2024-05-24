@@ -1,24 +1,23 @@
 package health.ere.ps.service.connector.certificate;
 
-import java.io.IOException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.logging.LogManager;
-
-import jakarta.inject.Inject;
-
-import org.bouncycastle.crypto.CryptoException;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
-
 import health.ere.ps.exception.connector.ConnectorCardCertificateReadException;
 import health.ere.ps.exception.connector.ConnectorCardsException;
 import health.ere.ps.profile.TitusTestProfile;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
+import jakarta.inject.Inject;
+import org.bouncycastle.crypto.CryptoException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.logging.LogManager;
 
 @QuarkusTest
 @TestProfile(TitusTestProfile.class)

@@ -1,11 +1,12 @@
 package health.ere.ps.service.connector;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import health.ere.ps.config.RuntimeConfig;
+import health.ere.ps.config.UserConfig;
+import health.ere.ps.service.connector.provider.SingleConnectorServicesProvider;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
+import javax.net.ssl.KeyManager;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -13,13 +14,11 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 
-import javax.net.ssl.KeyManager;
-
-import org.junit.jupiter.api.Test;
-
-import health.ere.ps.config.RuntimeConfig;
-import health.ere.ps.config.UserConfig;
-import health.ere.ps.service.connector.provider.SingleConnectorServicesProvider;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class SingleConnectorServicesProviderTest {
     private String keystoreFileName = "./src/test/resources/certs/keystore.p12";

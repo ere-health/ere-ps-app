@@ -1,13 +1,18 @@
 package health.ere.ps.config;
 
-import java.util.Optional;
-
+import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import jakarta.enterprise.context.ApplicationScoped;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @ApplicationScoped
 public class AppConfig {
+
+    private static final Logger log = Logger.getLogger(AppConfig.class.getName());
 
     @ConfigProperty(name = "ere.workflow-service.prescription.server.url")
     String prescriptionServiceURL;
@@ -124,9 +129,21 @@ public class AppConfig {
     public boolean getWriteSignatureFile() {
         return this.writeSignatureFile;
     }
-    
+
     public boolean getXmlBundleDirectProcess() {
         return this.xmlBundleDirectProcess;
     }
 
+    public URI getCardLinkURI() {
+        try {
+            String cardLinkServer = getCardLinkServer().orElse(
+                "wss://cardlink.service-health.de:8444/websocket/80276003650110006580-20230112"
+            );
+            log.info("Starting websocket connection to: " + cardLinkServer);
+            return new URI(cardLinkServer);
+        } catch (URISyntaxException e) {
+            log.log(Level.WARNING, "Could not connect to card link", e);
+            return null;
+        }
+    }
 }

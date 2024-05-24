@@ -1,20 +1,5 @@
 package health.ere.ps.service.idp.client;
 
-import java.io.IOException;
-import java.security.Security;
-import java.security.cert.X509Certificate;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
-
-import jakarta.inject.Inject;
-
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
-
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.exception.connector.ConnectorCardCertificateReadException;
@@ -29,6 +14,20 @@ import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
+import jakarta.inject.Inject;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.security.Security;
+import java.security.cert.X509Certificate;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 @QuarkusTest
 @TestProfile(TitusTestProfile.class)

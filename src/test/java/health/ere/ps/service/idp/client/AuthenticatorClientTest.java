@@ -1,18 +1,5 @@
 package health.ere.ps.service.idp.client;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import jakarta.inject.Inject;
-import jakarta.ws.rs.core.Response;
-
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.jboss.logging.Logger;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
-
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.exception.idp.IdpClientException;
 import health.ere.ps.exception.idp.IdpException;
@@ -26,6 +13,18 @@ import health.ere.ps.model.idp.client.token.JsonWebToken;
 import health.ere.ps.profile.TitusTestProfile;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.logging.Logger;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @QuarkusTest
 @TestProfile(TitusTestProfile.class)
