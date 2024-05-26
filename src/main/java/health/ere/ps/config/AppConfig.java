@@ -62,6 +62,9 @@ public class AppConfig {
     @ConfigProperty(name = "cardlink.server.url")
     Optional<String> cardLinkServer;
 
+    @ConfigProperty(name = "connector.base.url")
+    String connectorBaseURL;
+
     public Optional<String> getCardLinkServer() {
         return cardLinkServer;
     }
@@ -108,6 +111,10 @@ public class AppConfig {
 
     public String getUserAgent() {
         return userAgent;
+    }
+
+    public String getConnectorBaseURL() {
+        return connectorBaseURL;
     }
 
     public String getConnectorCrypt() {

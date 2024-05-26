@@ -119,7 +119,7 @@ public class KonnektorSubscriptionTest {
     }
 
     @Test
-    public void fakeFolderConfigKonnektorSubscriptionReloaded() {
+    public void fakeFolderConfigKonnektorSubscriptionReloadedWhenHostMatchesAppConfig() {
         File tempConfig = new File(TEMP_CONFIG);
         boolean ready = true;
         if (!tempConfig.exists()) {
@@ -136,6 +136,31 @@ public class KonnektorSubscriptionTest {
             List<String> responseBody = response.jsonPath().getList("$");
             assertThat(responseBody.size(), equalTo(1));
             assertThat(responseBody.get(0), containsString(String.format("Subscribed %s", uuid)));
+        } else {
+            fail("can't create tmp config folder");
+        }
+    }
+
+    @Test
+    public void fakeFolderConfigKonnektorSubscriptionNotReloadedWhenHostDoesntMatchAppConfig() {
+        File tempConfig = new File(TEMP_CONFIG);
+        boolean ready = true;
+        if (!tempConfig.exists()) {
+            ready = tempConfig.mkdir();
+        }
+        if (ready) {
+            subscriptionManager.setConfigFolder(tempConfig.getAbsolutePath());
+            String host = "192.168.178.52";
+            Response response = given()
+                .queryParam("host", host)
+                .when()
+                .get("/pharmacy/Subscribe");
+
+            response.then().statusCode(200);
+            List<String> responseBody = response.jsonPath().getList("$");
+            assertThat(responseBody.size(), equalTo(1));
+            String msg = String.format("No configuration is found for the given host: %s", host);
+            assertThat(responseBody.get(0), equalTo(msg));
         } else {
             fail("can't create tmp config folder");
         }

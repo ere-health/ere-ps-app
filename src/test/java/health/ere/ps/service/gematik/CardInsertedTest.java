@@ -1,5 +1,30 @@
 package health.ere.ps.service.gematik;
 
+import de.gematik.ws.conn.eventservice.v7.Event;
+import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
+import de.gematik.ws.tel.error.v2.Error;
+import health.ere.ps.config.AppConfig;
+import health.ere.ps.model.config.UserConfigurations;
+import health.ere.ps.service.cardlink.CardlinkWebsocketClient;
+import health.ere.ps.service.cetp.CETPServerHandler;
+import io.netty.channel.embedded.EmbeddedChannel;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.Invocation;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Response;
+import jakarta.xml.bind.DatatypeConverter;
+import jakarta.xml.ws.Holder;
+import org.apache.commons.lang3.tuple.Pair;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+
+import java.io.InputStream;
+import java.math.BigInteger;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -11,31 +36,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.io.InputStream;
-import java.io.StringReader;
-import java.math.BigInteger;
-import java.util.List;
-
-import org.apache.commons.lang3.tuple.Pair;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-
-import de.gematik.ws.conn.eventservice.v7.Event;
-import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
-import de.gematik.ws.tel.error.v2.Error;
-import health.ere.ps.config.AppConfig;
-import health.ere.ps.model.config.UserConfigurations;
-import health.ere.ps.service.cardlink.CardlinkWebsocketClient;
-import health.ere.ps.service.cetp.CETPServerHandler;
-import io.netty.channel.embedded.EmbeddedChannel;
-import jakarta.json.Json;
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.Invocation;
-import jakarta.ws.rs.client.WebTarget;
-import jakarta.ws.rs.core.Response;
-import jakarta.xml.bind.DatatypeConverter;
-import jakarta.xml.ws.Holder;
 
 public class CardInsertedTest {
 
@@ -57,25 +57,23 @@ public class CardInsertedTest {
         channel.writeOneInbound(prepareEvent(slotIdValue, ctIdValue));
         channel.pipeline().fireChannelReadComplete();
 
-        ArgumentCaptor<String> messageCaptor = ArgumentCaptor.forClass(String.class);
-        verify(cardlinkWebsocketClient, times(3)).sendMessage(messageCaptor.capture());
+        ArgumentCaptor<String> messageTypeCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<Map<String, Object>> mapCaptor = ArgumentCaptor.forClass(Map.class);
+        verify(cardlinkWebsocketClient, times(3)).sendJson(messageTypeCaptor.capture(), mapCaptor.capture());
 
-        List<String> capturedMessages = messageCaptor.getAllValues();
+        List<String> capturedMessages = messageTypeCaptor.getAllValues();
 
         assertTrue(capturedMessages.get(0).contains("eRezeptTokensFromAVS"));
         assertTrue(capturedMessages.get(1).contains("eRezeptBundlesFromAVS"));
         assertTrue(capturedMessages.get(2).contains("vsdmSensorData"));
 
-        String vsdmSensorData = capturedMessages.get(2);
+        List<Map<String, Object>> maps = mapCaptor.getAllValues();
+        Map<String, Object> vsdmSensorData = maps.get(2);
 
-        String payloadBase64 = Json.createReader(new StringReader(vsdmSensorData)).readArray().get(0).asJsonObject().get("payload").toString();
-        String payload = new String(DatatypeConverter.parseBase64Binary(payloadBase64));
-
-        assertTrue(payload.contains(slotIdValue));
-        assertTrue(payload.contains(ctIdValue));
-        assertTrue(payload.contains("endTime"));
-        assertTrue(payload.contains("eventId"));
-        assertTrue(payload.contains("2"));
+        assertEquals((Integer) vsdmSensorData.get("slotId"), Integer.parseInt(slotIdValue));
+        assertEquals(vsdmSensorData.get("ctId"), ctIdValue);
+        assertEquals(vsdmSensorData.get("eventId"), "2");
+        assertNotNull(vsdmSensorData.get("endTime"));
     }
 
     @Test
@@ -93,28 +91,25 @@ public class CardInsertedTest {
         EmbeddedChannel channel = new EmbeddedChannel(cetpServerHandler);
 
         String slotIdValue = "3";
-        String ctIdValue = "CtIDValue";
+        String ctIdValue = "9";
 
         channel.writeOneInbound(prepareEvent(slotIdValue, ctIdValue));
         channel.pipeline().fireChannelReadComplete();
 
-        ArgumentCaptor<String> messageCaptor = ArgumentCaptor.forClass(String.class);
-        verify(cardlinkWebsocketClient).sendMessage(messageCaptor.capture());
+        ArgumentCaptor<String> messageTypeCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<Map<String, Object>> mapCaptor = ArgumentCaptor.forClass(Map.class);
+        verify(cardlinkWebsocketClient).sendJson(messageTypeCaptor.capture(), mapCaptor.capture());
 
-        List<String> capturedMessages = messageCaptor.getAllValues();
-
+        List<String> capturedMessages = messageTypeCaptor.getAllValues();
         assertTrue(capturedMessages.get(0).contains("vsdmSensorData"));
 
-        String vsdmSensorData = capturedMessages.get(0);
+        List<Map<String, Object>> maps = mapCaptor.getAllValues();
+        Map<String, Object> vsdmSensorData = maps.get(0);
 
-        String payloadBase64 = Json.createReader(new StringReader(vsdmSensorData)).readArray().get(0).asJsonObject().get("payload").toString();
-        String payload = new String(DatatypeConverter.parseBase64Binary(payloadBase64));
-
-        assertTrue(payload.contains(slotIdValue));
-        assertTrue(payload.contains(ctIdValue));
-        assertTrue(payload.contains("endTime"));
-        assertTrue(payload.contains("err"));
-        assertTrue(payload.contains("10"));
+        assertEquals((Integer) vsdmSensorData.get("slotId"), Integer.parseInt(slotIdValue));
+        assertEquals(vsdmSensorData.get("ctId"), ctIdValue);
+        assertEquals(vsdmSensorData.get("err"), "10");
+        assertNotNull(vsdmSensorData.get("endTime"));
     }
 
     private Holder<byte[]> prepareHolder(PharmacyService pharmacyService) {

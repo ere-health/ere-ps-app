@@ -75,7 +75,7 @@ public class CETPServer {
     }
 
     public void run() {
-        for (KonnektorConfig config : subscriptionManager.getKonnektorConfigs()) {
+        for (KonnektorConfig config : subscriptionManager.getKonnektorConfigs(null)) {
             runServer(config);
         }
     }
