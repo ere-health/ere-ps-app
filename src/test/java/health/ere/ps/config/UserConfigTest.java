@@ -1,14 +1,13 @@
 package health.ere.ps.config;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
+import health.ere.ps.model.config.UserConfigurations;
+import health.ere.ps.service.config.UserConfigurationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import health.ere.ps.model.config.UserConfigurations;
-import health.ere.ps.service.config.UserConfigurationService;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class UserConfigTest {
 

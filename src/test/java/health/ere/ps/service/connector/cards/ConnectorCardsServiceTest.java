@@ -1,17 +1,16 @@
 package health.ere.ps.service.connector.cards;
 
-import jakarta.inject.Inject;
-
-import org.apache.commons.lang3.StringUtils;
-import org.jboss.logging.Logger;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
-
 import health.ere.ps.exception.connector.ConnectorCardsException;
 import health.ere.ps.profile.TitusTestProfile;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
+import jakarta.inject.Inject;
+import org.apache.commons.lang3.StringUtils;
+import org.jboss.logging.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 @QuarkusTest
 @TestProfile(TitusTestProfile.class)

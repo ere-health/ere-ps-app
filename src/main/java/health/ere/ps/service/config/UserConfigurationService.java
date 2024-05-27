@@ -1,5 +1,13 @@
 package health.ere.ps.service.config;
 
+import health.ere.ps.event.SaveSettingsEvent;
+import health.ere.ps.event.SaveSettingsResponseEvent;
+import health.ere.ps.event.config.UserConfigurationsUpdateEvent;
+import health.ere.ps.model.config.UserConfigurations;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.event.ObservesAsync;
+import jakarta.inject.Inject;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -7,16 +15,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.logging.Logger;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Event;
-import jakarta.enterprise.event.ObservesAsync;
-import jakarta.inject.Inject;
-
-import health.ere.ps.event.SaveSettingsEvent;
-import health.ere.ps.event.SaveSettingsResponseEvent;
-import health.ere.ps.event.config.UserConfigurationsUpdateEvent;
-import health.ere.ps.model.config.UserConfigurations;
 
 @ApplicationScoped
 public class UserConfigurationService {
@@ -88,8 +86,7 @@ public class UserConfigurationService {
 
     public UserConfigurations getConfig() {
         Properties properties = getProperties();
-        UserConfigurations config = new UserConfigurations(properties);
-        return config;
+        return new UserConfigurations(properties);
     }
 
     public void onSaveSettingsEvent(@ObservesAsync SaveSettingsEvent saveSettingsEvent) {
@@ -99,6 +96,4 @@ public class UserConfigurationService {
         message.setReplyToMessageId(saveSettingsEvent.getId());
         saveSettingsResponseEvent.fireAsync(message);
     }
-
-
 }

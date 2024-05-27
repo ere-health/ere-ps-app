@@ -44,9 +44,6 @@ yarn-error.log
 /launcher/windows-installer/
 /launcher/target/
 
-# Test generated file
-user.properties
-
 # Generate secrets folder, but don't commit files
 src/test/resources/secret/*
 !src/test/resources/secret/.gitkeep

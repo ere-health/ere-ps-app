@@ -1,24 +1,22 @@
 package health.ere.ps.resource.gematik;
 
+import health.ere.ps.config.RuntimeConfig;
+import health.ere.ps.config.UserConfig;
+import health.ere.ps.service.gematik.ERezeptWorkflowService;
+import jakarta.servlet.http.HttpServletRequest;
+import org.junit.jupiter.api.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
+import java.util.Arrays;
+import java.util.Collections;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.util.Arrays;
-import java.util.Collections;
-
-import jakarta.servlet.http.HttpServletRequest;
-
-import org.junit.jupiter.api.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-
-import health.ere.ps.config.RuntimeConfig;
-import health.ere.ps.config.UserConfig;
-import health.ere.ps.service.gematik.ERezeptWorkflowService;
 
 public class ERezeptWorkflowResourceTest {
     @Test

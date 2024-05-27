@@ -1,11 +1,9 @@
 package health.ere.ps.resource.gematik;
 
-import org.apache.commons.lang3.tuple.Pair;
-import org.hl7.fhir.r4.model.Bundle;
-
 import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.config.UserConfig;
+import health.ere.ps.service.cetp.SubscriptionManager;
 import health.ere.ps.service.gematik.PharmacyService;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,33 +11,38 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.Response;
+import org.apache.commons.lang3.tuple.Pair;
+import org.hl7.fhir.r4.model.Bundle;
+
+import java.util.List;
 
 @Path("/pharmacy")
 public class PharmacyResource {
 
     @Inject
+    UserConfig userConfig;
+
+    @Inject
     PharmacyService pharmacyService;
+
+    @Inject
+    SubscriptionManager subscriptionManager;
 
     @Context
     HttpServletRequest httpServletRequest;
 
-    @Inject
-    UserConfig userConfig;
-
     @GET
     @Path("Subscribe")
-    public String subscribe() throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
-        return pharmacyService.subscribe(ERezeptWorkflowResource.extractRuntimeConfigFromHeaders(httpServletRequest, userConfig), httpServletRequest.getServerName());
-        
+    public List<String> subscribe(@QueryParam("host") String host) {
+        RuntimeConfig runtimeConfig = ERezeptWorkflowResource.extractRuntimeConfigFromHeaders(httpServletRequest, userConfig);
+        return subscriptionManager.manage(runtimeConfig, host, httpServletRequest.getServerName(), true);
     }
 
     @GET
     @Path("Unsubscribe")
-    public Response unsubscribe() throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
-        pharmacyService.unsubscribeAll(ERezeptWorkflowResource.extractRuntimeConfigFromHeaders(httpServletRequest, userConfig), httpServletRequest.getServerName());
-        return Response.ok(httpServletRequest.getServerName()).build();
-        
+    public List<String> unsubscribe(@QueryParam("host") String host) {
+        RuntimeConfig runtimeConfig = ERezeptWorkflowResource.extractRuntimeConfigFromHeaders(httpServletRequest, userConfig);
+        return subscriptionManager.manage(runtimeConfig, host, httpServletRequest.getServerName(), false);
     }
  
     @GET
@@ -55,5 +58,4 @@ public class PharmacyResource {
     public Bundle ePrescription(@QueryParam("token") String token) throws FaultMessage, de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         return pharmacyService.accept(token, ERezeptWorkflowResource.extractRuntimeConfigFromHeaders(httpServletRequest, userConfig));
     }
-
 }

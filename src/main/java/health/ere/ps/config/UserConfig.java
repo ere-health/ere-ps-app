@@ -1,25 +1,19 @@
 package health.ere.ps.config;
 
-
-import java.util.Objects;
-import java.util.Optional;
-import java.util.logging.Logger;
-
+import health.ere.ps.event.config.UserConfigurationsUpdateEvent;
+import health.ere.ps.model.config.UserConfigurations;
+import health.ere.ps.service.config.UserConfigurationService;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.ObservesAsync;
 import jakarta.inject.Inject;
-
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import health.ere.ps.event.config.UserConfigurationsUpdateEvent;
-import health.ere.ps.model.config.UserConfigurations;
-import health.ere.ps.service.config.UserConfigurationService;
+import java.util.Objects;
+import java.util.Optional;
 
 @ApplicationScoped
 public class UserConfig {
-
-    private final static Logger log = Logger.getLogger(UserConfig.class.getName());
 
     @Inject
     UserConfigurationService configurationManagementService;
@@ -36,7 +30,7 @@ public class UserConfig {
     @ConfigProperty(name = "connector.client-system-id")
     String defaultClientSystemId;
 
-    //todo: shouldn't user-id be part of runtime-config? (comfortSignature!)
+    // todo: shouldn't user-id be part of runtime-config? (comfortSignature!)
     @ConfigProperty(name = "connector.user-id")
     Optional<String> defaultUserId;
 
@@ -57,7 +51,7 @@ public class UserConfig {
     void init() {
         updateProperties();
     }
-    
+
     public UserConfig() {
     }
 
@@ -104,7 +98,7 @@ public class UserConfig {
     public String getTvMode() {
         return getConfigOrDefault(getConfigurations().getTvMode(), defaultTvMode);
     }
-    
+
     public String getConnectorVersion() {
         return getConfigOrDefault(getConfigurations().getVersion(), defaultConnectorVersion);
     }
@@ -134,28 +128,35 @@ public class UserConfig {
     }
 
     private String getConfigOrDefault(String value, String defaultValue) {
-        if (value != null)
-            return value;
-        else if (defaultValue != null)
-            return defaultValue;
-        else {
-            return null;
-        }
+        return value != null ? value : defaultValue;
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (o == this)
+    public boolean equals(Object obj) {
+        if (obj == this) {
             return true;
-        if (!(o instanceof UserConfig)) {
+        }
+        if (obj instanceof UserConfig userConfig) {
+            return Objects.equals(defaultConnectorBaseURI, userConfig.defaultConnectorBaseURI)
+                && Objects.equals(defaultMandantId, userConfig.defaultMandantId)
+                && Objects.equals(defaultWorkplaceId, userConfig.defaultWorkplaceId)
+                && Objects.equals(defaultClientSystemId, userConfig.defaultClientSystemId)
+                && Objects.equals(defaultUserId, userConfig.defaultUserId)
+                && Objects.equals(defaultTvMode, userConfig.defaultTvMode)
+                && Objects.equals(defaultConnectorVersion, userConfig.defaultConnectorVersion)
+                && Objects.equals(defaultPruefnummer, userConfig.defaultPruefnummer)
+                && Objects.equals(defaultMuster16TemplateProfile, userConfig.defaultMuster16TemplateProfile)
+                && Objects.equals(configurations, userConfig.configurations);
+        } else {
             return false;
         }
-        UserConfig userConfig = (UserConfig) o;
-        return Objects.equals(defaultConnectorBaseURI, userConfig.defaultConnectorBaseURI) && Objects.equals(defaultMandantId, userConfig.defaultMandantId) && Objects.equals(defaultWorkplaceId, userConfig.defaultWorkplaceId) && Objects.equals(defaultClientSystemId, userConfig.defaultClientSystemId) && Objects.equals(defaultUserId, userConfig.defaultUserId) && Objects.equals(defaultTvMode, userConfig.defaultTvMode) && Objects.equals(defaultConnectorVersion, userConfig.defaultConnectorVersion) && Objects.equals(defaultPruefnummer, userConfig.defaultPruefnummer) && Objects.equals(defaultMuster16TemplateProfile, userConfig.defaultMuster16TemplateProfile) && Objects.equals(configurations, userConfig.configurations);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(defaultConnectorBaseURI, defaultMandantId, defaultWorkplaceId, defaultClientSystemId, defaultUserId, defaultTvMode, defaultConnectorVersion, defaultPruefnummer, defaultMuster16TemplateProfile, configurations);
+        return Objects.hash(
+            defaultConnectorBaseURI, defaultMandantId, defaultWorkplaceId, defaultClientSystemId, defaultUserId,
+            defaultTvMode, defaultConnectorVersion, defaultPruefnummer, defaultMuster16TemplateProfile, configurations
+        );
     }
 }
