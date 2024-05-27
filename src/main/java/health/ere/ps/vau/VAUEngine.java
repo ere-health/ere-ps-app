@@ -48,7 +48,7 @@ public class VAUEngine extends ApacheHttpClient43Engine {
     private static final String responsePattern = "1 ([A-Fa-f0-9]{32}) (.*?)\r?\n\r?\n(.*)";
     private static final Pattern RESPONSE_PATTERN = Pattern.compile(responsePattern, Pattern.DOTALL);
     private final String fachdienstUrl;
-    private ThreadLocal<String> requestidThreadLocal = new ThreadLocal<>();
+    ThreadLocal<String> requestidThreadLocal = new ThreadLocal<>();
     String userpseudonym = "0";
     private VAU vau;
     private ThreadLocal<byte[]> aeskeyThreadLocal = new ThreadLocal<>();
