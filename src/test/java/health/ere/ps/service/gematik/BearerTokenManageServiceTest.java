@@ -81,4 +81,25 @@ public class BearerTokenManageServiceTest {
         assertEquals(bearerTokenMap.size(), 1);
         assertEquals(bearerTokenMap.get(mockRuntimeConfig), encodedValidToken);
     }
+    
+    @Test
+    public void testRuntimeConfig() {
+        Map<RuntimeConfig, String> bearerTokenMap = bearerTokenManageService.bearerToken;
+
+        assertEquals(bearerTokenMap.size(), 0);
+        RuntimeConfig runtimeConfig = new RuntimeConfig();
+        runtimeConfig.setEHBAHandle("HBA-1");
+        bearerTokenManageService.requestNewAccessTokenIfNecessary(runtimeConfig, mockSession, "someId");
+
+        assertEquals(1, bearerTokenMap.size());
+        assertEquals(MOCK_JWT, bearerTokenMap.get(runtimeConfig));
+        
+        RuntimeConfig runtimeConfig2 = new RuntimeConfig();
+        runtimeConfig2.setEHBAHandle("HBA-1");
+        bearerTokenManageService.requestNewAccessTokenIfNecessary(runtimeConfig2, mockSession, "someId");
+
+        assertEquals(runtimeConfig, runtimeConfig2);
+        assertEquals(1, bearerTokenMap.size());
+        assertEquals(MOCK_JWT, bearerTokenMap.get(runtimeConfig2));
+    }
 }

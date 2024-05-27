@@ -4,9 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import jakarta.inject.Inject;
-import jakarta.websocket.Session;
-
 import org.apache.commons.lang3.StringUtils;
 import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.jose4j.jwt.consumer.JwtConsumer;
@@ -14,6 +11,8 @@ import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.service.idp.BearerTokenService;
+import jakarta.inject.Inject;
+import jakarta.websocket.Session;
 
 public class BearerTokenManageService {
 
@@ -38,24 +37,7 @@ public class BearerTokenManageService {
      * Requests a new userConfig if the current one is expired
      */
     public void requestNewAccessTokenIfNecessary(RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId) {
-        requestNewAccessTokenIfNecessary(runtimeConfig, bearerToken, bearerTokenService, replyTo, replyToMessageId);
-    }
-
-    public static void requestNewAccessTokenIfNecessary(RuntimeConfig runtimeConfig, Map<RuntimeConfig, String> bearerToken, BearerTokenService bearerTokenService, Session replyTo, String replyToMessageId) {
-        int hashCode = runtimeConfig.hashCode();
-        boolean containsKey = false;
-        int i = 0;
-        while(i < bearerToken.size() && !containsKey){
-            RuntimeConfig runtimeConfig2 = (RuntimeConfig) bearerToken.keySet().toArray()[i];
-            if(runtimeConfig2 != null && runtimeConfig2.hashCode() == hashCode) {
-                if(!isExpired(bearerToken.get(runtimeConfig2))) {
-                    bearerToken.put(runtimeConfig, bearerToken.get(runtimeConfig2));
-                }
-                containsKey = true;
-            }
-            i++;
-        }
-        if (StringUtils.isEmpty(bearerToken.get(runtimeConfig)) || isExpired(bearerToken.get(runtimeConfig))) {
+        if (StringUtils.isEmpty(getBearerToken(runtimeConfig)) || isExpired(bearerToken.get(runtimeConfig))) {
             log.info("Request new bearer token.");
             String bearerTokenString = bearerTokenService.requestBearerToken(runtimeConfig, replyTo, replyToMessageId);
             bearerToken.put(runtimeConfig, bearerTokenString);
@@ -67,12 +49,6 @@ public class BearerTokenManageService {
     }
 
     public String getBearerToken(RuntimeConfig runtimeConfig) {
-        int hashCode = runtimeConfig.hashCode();
-        for(RuntimeConfig runtimeConfig2 : bearerToken.keySet()) {
-            if(runtimeConfig2 != null && runtimeConfig2.hashCode() == hashCode) {
-                runtimeConfig = runtimeConfig2;
-            }
-        }
         return bearerToken.get(runtimeConfig);
     }
 

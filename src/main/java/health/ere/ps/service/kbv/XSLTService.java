@@ -95,6 +95,10 @@ public class XSLTService {
 
     public String generateHtmlForBundle(Bundle bundle) throws IOException, TransformerException {
         String xmlString = fhirContext.newXmlParser().encodeResourceToString(bundle);
+        return generateHtmlForString(xmlString);
+    }
+
+    public String generateHtmlForString(String xmlString) throws IOException, TransformerException {
         File xml = Files.createTempFile("bundle-", ".xml").toFile();
         Files.write(xml.toPath(), xmlString.getBytes(StandardCharsets.UTF_8));
 

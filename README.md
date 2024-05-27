@@ -116,23 +116,28 @@ The ere-health application read configuration is the following order from most i
   At this point, the application should be running as highlighted below.
   
   ```shell
-      __  ____  __  _____   ___  __ ____  ______ 
-      --/ __ \/ / / / _ | / _ \/ //_/ / / / __/
-      -/ /_/ / /_/ / __ |/ , _/ ,< / /_/ /\ \   
-      --\___\_\____/_/ |_/_/|_/_/|_|\____/___/   
-      2021-06-08 15:45:41,324 INFO  [ca.uhn.fhi.uti.VersionUtil] (Quarkus Main Thread) HAPI FHIR version 5.3.0 - Rev 919c1dbddc
-      2021-06-08 15:45:41,325 INFO  [ca.uhn.fhi.con.FhirContext] (Quarkus Main Thread) Creating new FHIR context for FHIR version [R4]
-      2021-06-08 15:45:41,571 INFO  [io.und.websockets] (Quarkus Main Thread) UT026003: Adding annotated server endpoint class health.ere.ps.websocket.Websocket for path /websocket
-      2021-06-08 15:45:41,665 INFO  [hea.ere.ps.ser.fs.DirectoryWatcher] (Quarkus Main Thread) Watching directory: /Users/douglas/my-indie-projects-work-area/ere-ps-app/watch-pdf
-      2021-06-08 15:45:41,758 INFO  [io.quarkus] (Quarkus Main Thread) ere-ps-app 1.0.0-SNAPSHOT on JVM (powered by Quarkus 1.13.1.Final) started in 2.158s. Listening on: http://0.0.0.0:8080
-      2021-06-08 15:45:41,760 INFO  [io.quarkus] (Quarkus Main Thread) Profile dev activated. Live Coding activated.
-      2021-06-08 15:45:41,761 INFO  [io.quarkus] (Quarkus Main Thread) Installed features: [cdi, rest-client, resteasy, resteasy-jsonb, scheduler, servlet, websockets]
+  Listening for transport dt_socket at address: 43411
+  __  ____  __  _____   ___  __ ____  ______ 
+   --/ __ \/ / / / _ | / _ \/ //_/ / / / __/ 
+   -/ /_/ / /_/ / __ |/ , _/ ,< / /_/ /\ \   
+  --\___\_\____/_/ |_/_/|_/_/|_|\____/___/   
+  2024-05-14 17:26:26,620 INFO  [ca.uhn.fhi.uti.VersionUtil] (Quarkus Main Thread) HAPI FHIR version 7.0.2 - Rev 95beaec894
+  2024-05-14 17:26:26,623 INFO  [ca.uhn.fhi.con.FhirContext] (Quarkus Main Thread) Creating new FHIR context for FHIR version [R4]
+  2024-05-14 17:26:26,647 INFO  [io.und.websockets] (Quarkus Main Thread) UT026003: Adding annotated server endpoint class health.ere.ps.websocket.Websocket for path /websocket
+  2024-05-14 17:26:26,954 INFO  [io.qua.sch.run.SimpleScheduler] (Quarkus Main Thread) No scheduled business methods found - Simple scheduler will not be started
+  2024-05-14 17:26:27,053 INFO  [hea.ere.ps.ser.idp.cli.IdpClient] (Quarkus Main Thread) Initializing using url: https://idp-ref.zentral.idp.splitdns.ti-dienste.de//.well-known/openid-configuration
+  2024-05-14 17:26:28,270 INFO  [ca.uhn.fhi.con.FhirContext] (Quarkus Main Thread) Creating new FHIR context for FHIR version [R4]
+  2024-05-14 17:26:29,012 INFO  [io.quarkus] (Quarkus Main Thread) ere-ps-app 1.0.0-SNAPSHOT on JVM (powered by Quarkus 3.9.4) started in 5.855s. Listening on: http://0.0.0.0:8080 and https://0.0.0.0:8443
+  2024-05-14 17:26:29,013 INFO  [io.quarkus] (Quarkus Main Thread) Profile RU activated. Live Coding activated.
+  2024-05-14 17:26:29,014 INFO  [io.quarkus] (Quarkus Main Thread) Installed features: [cdi, resteasy, resteasy-client, resteasy-jsonb, scheduler, servlet, smallrye-context-propagation, smallrye-openapi, swagger-ui, vertx, websockets, websockets-client]
   ```
   You can access the front-end UI of the application by making reference to the following URL
   
   > http://localhost:8080/frontend/app/src/index.html
   
+  To use the swagger ui go to:
 
+  http://localhost:8080/q/swagger-ui/
   
 #### Verify Correct Reference to the Latest Front-End UI Version
 
@@ -156,6 +161,13 @@ revision number:
 
 #### REST
 
+[Example with JavaScript](src/test/resources/javascript/create-e-prescription-with-runtime-config.js)
+
+Use the swagger UI:
+http://localhost:8080/q/swagger-ui/
+
+![](img/Swagger-UI.png?raw=true)
+
 
 ##### ... with comfort signature
 
@@ -169,7 +181,11 @@ revision number:
 
 #### Frontend 
 
+ 
+
 ##### ... with comfort signature
+
+
 
 
 ### For pharmacies

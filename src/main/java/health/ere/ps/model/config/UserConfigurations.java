@@ -1,10 +1,5 @@
 package health.ere.ps.model.config;
 
-import jakarta.json.JsonObject;
-import jakarta.json.bind.annotation.JsonbNillable;
-import jakarta.json.bind.annotation.JsonbProperty;
-import jakarta.servlet.http.HttpServletRequest;
-
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -19,6 +14,11 @@ import java.util.Properties;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import jakarta.json.JsonObject;
+import jakarta.json.bind.annotation.JsonbNillable;
+import jakarta.json.bind.annotation.JsonbProperty;
+import jakarta.servlet.http.HttpServletRequest;
 
 public class UserConfigurations {
 
@@ -359,10 +359,10 @@ public class UserConfigurations {
 
     @Override
     public int hashCode() {
-        return Objects.hash(
-            erixaHotfolder, erixaDrugstoreEmail, erixaUserEmail, erixaUserPassword, erixaApiKey, muster16TemplateProfile,
-            connectorBaseURL, mandantId, workplaceId, clientSystemId, userId, version, tvMode, clientCertificate,
-            clientCertificatePassword, basicAuthUsername, basicAuthPassword, pruefnummer
-        );
+        return Objects.hash(basicAuthPassword, basicAuthUsername, clientCertificate, clientCertificatePassword,
+                clientSystemId, connectorBaseURL, erixaApiKey, erixaDrugstoreEmail, erixaHotfolder, erixaUserEmail,
+                erixaUserPassword, mandantId, muster16TemplateProfile, pruefnummer, tvMode, userId, version,
+                workplaceId);
     }
+
 }
