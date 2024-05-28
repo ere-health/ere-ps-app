@@ -50,7 +50,7 @@ public class SubscriptionManager {
 
     private final Map<String, KonnektorConfig> hostToKonnektorConfig = new ConcurrentHashMap<>();
 
-    @ConfigProperty(name = "konnektor.subscription.eventToHost")
+    @ConfigProperty(name = "konnektor.subscription.event.to.host")
     Optional<String> eventToHostProperty;
 
     @Inject
@@ -63,8 +63,6 @@ public class SubscriptionManager {
     MultiConnectorServicesProvider connectorServicesProvider;
 
     private String configFolder = CONFIG_KONNEKTOREN_FOLDER;
-
-    private final String eventToHost = getEventToHost();
 
     private volatile boolean configsLoaded = false;
 
@@ -83,7 +81,7 @@ public class SubscriptionManager {
     }
 
     private void renewSubscriptions() {
-        String eventHost = eventToHostProperty.orElse(eventToHost);
+        String eventHost = eventToHostProperty.orElse(getEventToHost());
         manage(new RuntimeConfig(userConfig.getConfigurations()), null, eventHost, true);
     }
 
