@@ -87,8 +87,13 @@ public class SubscriptionManager {
     }
 
     private void renewSubscriptions() {
-        String eventHost = eventToHostProperty.orElse(getEventToHost());
-        manage(new RuntimeConfig(userConfig.getConfigurations()), null, eventHost, false, true);
+        String eventToHost = getHostFromNetworkInterfaces();
+        if (eventToHost == null) {
+            eventToHost = eventToHostProperty.orElseThrow(() ->
+                new IllegalStateException("eventToHost property is not found")
+            );
+        }
+        manage(new RuntimeConfig(userConfig.getConfigurations()), null, eventToHost, false, true);
     }
 
     public List<String> manage(
@@ -286,7 +291,7 @@ public class SubscriptionManager {
         }
     }
 
-    private String getEventToHost() {
+    private String getHostFromNetworkInterfaces() {
         Inet4Address localAddress = null;
         try {
             Enumeration<NetworkInterface> e = NetworkInterface.getNetworkInterfaces();
@@ -303,6 +308,6 @@ public class SubscriptionManager {
             }
         } catch (SocketException ignored) {
         }
-        return localAddress == null ? "localhost" : localAddress.getHostAddress();
+        return localAddress == null ? null : localAddress.getHostAddress();
     }
 }
