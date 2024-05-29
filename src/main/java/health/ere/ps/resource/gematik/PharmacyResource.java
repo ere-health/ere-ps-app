@@ -1,13 +1,6 @@
 package health.ere.ps.resource.gematik;
 
 
-import static health.ere.ps.resource.gematik.Extractors.extractRuntimeConfigFromHeaders;
-
-import java.util.List;
-
-import org.apache.commons.lang3.tuple.Pair;
-import org.hl7.fhir.r4.model.Bundle;
-
 import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.config.UserConfig;
@@ -19,6 +12,12 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
+import org.apache.commons.lang3.tuple.Pair;
+import org.hl7.fhir.r4.model.Bundle;
+
+import java.util.List;
+
+import static health.ere.ps.resource.gematik.Extractors.extractRuntimeConfigFromHeaders;
 
 @Path("/pharmacy")
 public class PharmacyResource {
@@ -37,16 +36,24 @@ public class PharmacyResource {
 
     @GET
     @Path("Subscribe")
-    public List<String> subscribe(@QueryParam("host") String host) {
+    public List<String> subscribe(
+        @QueryParam("host") String host,
+        @QueryParam("useCetp") Boolean useCetp
+    ) {
+        boolean forceCetp = useCetp != null && useCetp;
         RuntimeConfig runtimeConfig = extractRuntimeConfigFromHeaders(httpServletRequest, userConfig);
-        return subscriptionManager.manage(runtimeConfig, host, httpServletRequest.getServerName(), true);
+        return subscriptionManager.manage(runtimeConfig, host, httpServletRequest.getServerName(), forceCetp, true);
     }
 
     @GET
     @Path("Unsubscribe")
-    public List<String> unsubscribe(@QueryParam("host") String host) {
+    public List<String> unsubscribe(
+        @QueryParam("host") String host,
+        @QueryParam("useCetp") Boolean useCetp
+    ) {
+        boolean forceCetp = useCetp != null && useCetp;
         RuntimeConfig runtimeConfig = extractRuntimeConfigFromHeaders(httpServletRequest, userConfig);
-        return subscriptionManager.manage(runtimeConfig, host, httpServletRequest.getServerName(), false);
+        return subscriptionManager.manage(runtimeConfig, host, httpServletRequest.getServerName(), forceCetp, false);
     }
  
     @GET
