@@ -3,6 +3,8 @@ package health.ere.ps.service.cetp;
 import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
+import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
+import de.gematik.ws.tel.error.v2.Error;
 import health.ere.ps.profile.RUTestProfile;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import io.quarkus.test.junit.QuarkusMock;
@@ -13,7 +15,6 @@ import jakarta.inject.Inject;
 import jakarta.xml.ws.Holder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
@@ -21,20 +22,18 @@ import org.mockito.stubbing.Answer;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
 
+import static health.ere.ps.service.cetp.config.KonnektorConfig.PROPERTIES_EXT;
+import static health.ere.ps.utils.Utils.deleteFiles;
+import static health.ere.ps.utils.Utils.writeFile;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -42,12 +41,10 @@ import static org.mockito.Mockito.when;
 @SuppressWarnings("unchecked")
 @QuarkusTest
 @TestProfile(RUTestProfile.class)
-public class KonnektorSubscriptionTest {
+public class KonnektorFailedUnsubscriptionTest {
 
     public static final String TEMP_CONFIG = "temp-config";
     private static String uuid;
-
-    private final ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(4);
 
     @Inject
     SubscriptionManager subscriptionManager;
@@ -79,9 +76,10 @@ public class KonnektorSubscriptionTest {
             return null;
         }).when(eventService).subscribe(any(), any(), any(), any(), any());
 
-        Status status = new Status();
-        status.setResult("Unsubscribed");
-        when(eventService.unsubscribe(any(), any(), any())).thenReturn(status);
+
+        Error faultInfo = new Error();
+        faultInfo.setMessageID("MessageID");
+        Mockito.doThrow(new FaultMessage("Syntaxfehler", faultInfo)).when(eventService).unsubscribe(any(), any(), any());
 
         MultiConnectorServicesProvider connectorServicesProvider = mock(MultiConnectorServicesProvider.class);
         when(connectorServicesProvider.getContextType(any())).thenReturn(new ContextType());
@@ -98,82 +96,25 @@ public class KonnektorSubscriptionTest {
     }
 
     @Test
-    @Disabled
-    public void defaultFolderConfigKonnektorSubscriptionReloadedInSync() throws Exception {
+    public void subscriptionWasReloadedAndFileIsCreated() throws Exception {
         subscriptionManager.setConfigFolder(SubscriptionManager.CONFIG_KONNEKTOREN_FOLDER);
-        int cnt = 4;
-        List<Future<String>> futures = new ArrayList<>();
-        for (int i = 0; i < cnt; i++) {
-            futures.add(scheduledThreadPool.submit(() -> {
-                Response response = given()
-                    .queryParam("host", "192.168.178.42")
-                    .when()
-                    .get("/pharmacy/Subscribe");
+        File config8585 = new File(SubscriptionManager.CONFIG_KONNEKTOREN_FOLDER + "/8585");
+        deleteFiles(config8585, file -> !file.getName().endsWith(PROPERTIES_EXT));
 
-                response.then().statusCode(200);
-                List<String> responseBody = response.jsonPath().getList("$");
-                assertThat(responseBody.size(), equalTo(1));
-                return responseBody.get(0);
-            }));
-        }
-        List<String> statuses = new ArrayList<>();
-        for (int i = 0; i < cnt; i++) {
-            statuses.add(futures.get(i).get());
-        }
-        assertThat(statuses.stream().anyMatch(s -> s.contains("later")), equalTo(true));
+        subscribeSucceeded(config8585);
     }
 
     @Test
-    public void fakeFolderConfigKonnektorSubscriptionReloadedWhenHostMatchesAppConfig() {
-        File tempConfig = new File(TEMP_CONFIG);
-        boolean ready = true;
-        if (!tempConfig.exists()) {
-            ready = tempConfig.mkdir();
-        }
-        if (ready) {
-            subscriptionManager.setConfigFolder(tempConfig.getAbsolutePath());
-            Response response = given()
-                .queryParam("host", "192.168.178.42")
-                .when()
-                .get("/pharmacy/Subscribe");
-
-            response.then().statusCode(200);
-            List<String> responseBody = response.jsonPath().getList("$");
-            assertThat(responseBody.size(), equalTo(1));
-            assertThat(responseBody.get(0), containsString(String.format("Subscribed %s", uuid)));
-        } else {
-            fail("can't create tmp config folder");
-        }
-    }
-
-    @Test
-    public void fakeFolderConfigKonnektorSubscriptionNotReloadedWhenHostDoesntMatchAppConfig() {
-        File tempConfig = new File(TEMP_CONFIG);
-        boolean ready = true;
-        if (!tempConfig.exists()) {
-            ready = tempConfig.mkdir();
-        }
-        if (ready) {
-            subscriptionManager.setConfigFolder(tempConfig.getAbsolutePath());
-            String host = "192.168.178.52";
-            Response response = given()
-                .queryParam("host", host)
-                .when()
-                .get("/pharmacy/Subscribe");
-
-            response.then().statusCode(200);
-            List<String> responseBody = response.jsonPath().getList("$");
-            assertThat(responseBody.size(), equalTo(1));
-            String msg = String.format("No configuration is found for the given host: %s", host);
-            assertThat(responseBody.get(0), equalTo(msg));
-        } else {
-            fail("can't create tmp config folder");
-        }
-    }
-
-    @Test
-    public void defaultFolderConfigKonnektorSubscriptionReloaded() {
+    public void subscriptionWasNotReloadedDueToUnsubscribeError() throws Exception {
         subscriptionManager.setConfigFolder(SubscriptionManager.CONFIG_KONNEKTOREN_FOLDER);
+        File config8585 = new File(SubscriptionManager.CONFIG_KONNEKTOREN_FOLDER + "/8585");
+        writeFile(config8585.getAbsolutePath() + "/" + UUID.randomUUID(), null);
+
+        subscribeFailed(config8585);
+        subscribeSucceeded(config8585);
+    }
+
+    private void subscribeSucceeded(File config8585) {
         Response response = given()
             .queryParam("host", "192.168.178.42")
             .when()
@@ -182,18 +123,26 @@ public class KonnektorSubscriptionTest {
         response.then().statusCode(200);
         List<String> responseBody = response.jsonPath().getList("$");
         assertThat(responseBody.size(), equalTo(1));
-        assertThat(responseBody.get(0), containsString(String.format("Subscribed %s", uuid)));
+        assertThat(responseBody.get(0), containsString("Subscribed"));
+
+        File[] files = config8585.listFiles((dir, name) -> !name.endsWith(".properties"));
+        assertThat(files.length, equalTo(1));
+        assertThat(files[0].getName().length(), equalTo(36));
     }
 
-    @Test
-    public void defaultFolderConfigKonnektorThreeSubscriptionsReloaded() {
-        subscriptionManager.setConfigFolder(SubscriptionManager.CONFIG_KONNEKTOREN_FOLDER);
+    private void subscribeFailed(File config8585) {
         Response response = given()
+            .queryParam("host", "192.168.178.42")
             .when()
             .get("/pharmacy/Subscribe");
 
         response.then().statusCode(200);
         List<String> responseBody = response.jsonPath().getList("$");
-        assertThat(responseBody.size(), equalTo(3));
+        assertThat(responseBody.size(), equalTo(1));
+        assertThat(responseBody.get(0), equalTo("Syntaxfehler"));
+
+        File[] files = config8585.listFiles((dir, name) -> !name.endsWith(".properties"));
+        assertThat(files.length, equalTo(1));
+        assertThat(files[0].getName(), containsString("failed-unsubscription"));
     }
 }
