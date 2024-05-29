@@ -4,6 +4,7 @@ import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.v7.SubscriptionType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
+import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
 import de.gematik.ws.tel.error.v2.Error;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.RuntimeConfig;
@@ -19,12 +20,14 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.xml.ws.Holder;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -40,6 +43,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static health.ere.ps.service.cetp.config.KonnektorConfig.FAILED;
 
 @ApplicationScoped
 public class SubscriptionManager {
@@ -99,31 +104,85 @@ public class SubscriptionManager {
     }
 
     private String process(
-        KonnektorConfig kc,
+        KonnektorConfig konnektorConfig,
         RuntimeConfig runtimeConfig,
         String host,
         String eventToHost,
         boolean subscribe
     ) {
-        Semaphore semaphore = kc.getSemaphore();
+        Semaphore semaphore = konnektorConfig.getSemaphore();
         if (semaphore.tryAcquire()) {
             try {
-                Integer port = kc.getPort();
-                RuntimeConfig config = getRuntimeConfig(runtimeConfig, kc);
-                String subscriptionId = kc.getSubscriptionId();
-                String status = unsubscribeFromKonnektor(config, subscriptionId, port, eventToHost);
-                log.info(String.format("Unsubscribe status for subscriptionId=%s: %s", subscriptionId, status));
-                if (subscribe) {
-                    Pair<String, String> pair = subscribeToKonnektor(kc, config, port, eventToHost);
-                    status = pair.getValue();
-                    log.info(String.format("Subscribe status for subscriptionId=%s: %s", pair.getKey(), status));
+                Integer port = konnektorConfig.getPort();
+                RuntimeConfig config = getRuntimeConfig(runtimeConfig, konnektorConfig);
+                String subscriptionId = konnektorConfig.getSubscriptionId();
+                String failedUnsubscriptionFileName = subscriptionId != null && subscriptionId.startsWith(FAILED)
+                    ? subscriptionId
+                    : String.format("%s-unsubscription-%s", FAILED, subscriptionId);
+                
+                String failedSubscriptionFileName = String.format("%s-subscription", FAILED);
+
+                String statusResult;
+                boolean unsubscribed = false;
+                try {
+                    Status status = unsubscribeFromKonnektor(config, subscriptionId);
+                    Error error = status.getError();
+                    if (error == null) {
+                        unsubscribed = true;
+                        statusResult = status.getResult();
+                        log.info(String.format("Unsubscribe status for subscriptionId=%s: %s", subscriptionId, statusResult));
+                        if (subscribe) {
+                            Triple<Status, String, String> triple = subscribeToKonnektor(config, port, eventToHost);
+                            status = triple.getLeft();
+                            error = status.getError();
+                            if (error == null) {
+                                String newSubscriptionId = triple.getMiddle();
+                                statusResult =  status.getResult() + " " + newSubscriptionId + " " + triple.getRight();
+                                saveFile(konnektorConfig, newSubscriptionId, null);
+                                log.info(String.format("Subscribe status for subscriptionId=%s: %s", newSubscriptionId, status.getResult()));
+                            } else {
+                                statusResult = error.toString();
+                                saveFile(konnektorConfig, failedSubscriptionFileName, statusResult);
+                                log.log(Level.WARNING, String.format("Could not subscribe -> %s", error));
+                            }
+                        }
+                    } else {
+                        statusResult = error.toString();
+                        saveFile(konnektorConfig, failedUnsubscriptionFileName, statusResult);
+                        log.log(Level.WARNING, String.format("Could not unsubscribe from %s -> %s", subscriptionId, error));
+                    }
+                } catch (Exception e) {
+                    String fileName = unsubscribed ? failedSubscriptionFileName : failedUnsubscriptionFileName;
+                    saveFile(konnektorConfig, fileName, printException(e));
+                    log.log(Level.WARNING, "Error: " + fileName, e);
+                    statusResult = e.getMessage();
                 }
-                return status;
+                return statusResult;
             } finally {
                 semaphore.release();
             }
         } else {
             return String.format("[%s] Host subscription is in progress, try later", host);
+        }
+    }
+
+    private String printException(Throwable e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        String stacktrace = sw.toString();
+        return e.getMessage() + " -> " + stacktrace;
+    }
+
+    private void saveFile(KonnektorConfig konnektorConfig, String subscriptionId, String error) {
+        try {
+            KonnektorConfig.createNewSubscriptionIdFile(konnektorConfig.getFolder(), subscriptionId, error);
+            konnektorConfig.setSubscriptionId(subscriptionId);
+        } catch (IOException e) {
+            String msg = String.format(
+                "Error while recreating subscription properties in folder: %s",
+                konnektorConfig.getFolder().getAbsolutePath()
+            );
+            log.log(Level.SEVERE, msg, e);
         }
     }
 
@@ -172,67 +231,40 @@ public class SubscriptionManager {
         }
     }
 
-    private Pair<String, String> subscribeToKonnektor(
-        KonnektorConfig konnektorConfig,
+    private Triple<Status, String, String> subscribeToKonnektor(
         RuntimeConfig runtimeConfig,
         Integer port,
         String eventToHost
-    ) {
-        try {
-            ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
+    ) throws FaultMessage {
+        ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
 
-            EventServicePortType eventService = connectorServicesProvider.getEventServicePortType(runtimeConfig);
-            SubscriptionType subscriptionType = new SubscriptionType();
+        EventServicePortType eventService = connectorServicesProvider.getEventServicePortType(runtimeConfig);
+        SubscriptionType subscriptionType = new SubscriptionType();
 
-            subscriptionType.setEventTo("cetp://" + eventToHost + ":" + port);
-            subscriptionType.setTopic("CARD/INSERTED");
-            Holder<Status> status = new Holder<>();
-            Holder<String> subscriptionId = new Holder<>();
-            Holder<XMLGregorianCalendar> terminationTime = new Holder<>();
+        subscriptionType.setEventTo("cetp://" + eventToHost + ":" + port);
+        subscriptionType.setTopic("CARD/INSERTED");
+        Holder<Status> status = new Holder<>();
+        Holder<String> subscriptionId = new Holder<>();
+        Holder<XMLGregorianCalendar> terminationTime = new Holder<>();
 
-            eventService.subscribe(context, subscriptionType, status, subscriptionId, terminationTime);
+        eventService.subscribe(context, subscriptionType, status, subscriptionId, terminationTime);
 
-            try {
-                KonnektorConfig.createNewSubscriptionIdFile(
-                    konnektorConfig.getFolder(),
-                    subscriptionId.value
-                );
-                konnektorConfig.setSubscriptionId(subscriptionId.value + ".properties");
-            } catch (IOException e) {
-                String msg = String.format(
-                    "Error while recreating subscription properties in folder: %s",
-                    konnektorConfig.getFolder().getAbsolutePath()
-                );
-                log.log(Level.SEVERE, msg, e);
-            }
-
-            String fullStatus = status.value.getResult() + " " + subscriptionId.value + " " + terminationTime.value.toString();
-            return Pair.of(subscriptionId.value, fullStatus);
-        } catch (Exception e) {
-            return Pair.of(null, e.getMessage());
-        }
+        return Triple.of(status.value, subscriptionId.value, terminationTime.value.toString());
     }
 
-    private String unsubscribeFromKonnektor(
+    private Status unsubscribeFromKonnektor(
         RuntimeConfig runtimeConfig,
-        String subscriptionId,
-        Integer port,
-        String eventToHost
-    ) {
-        if (subscriptionId == null) {
-            return null;
+        String subscriptionId
+    ) throws FaultMessage {
+        if (subscriptionId == null || subscriptionId.startsWith(FAILED)) {
+            Status status = new Status();
+            status.setResult("Previous subscription is not found");
+            return status;
         }
-        try {
-            ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
-            EventServicePortType eventService = connectorServicesProvider.getEventServicePortType(runtimeConfig);
+        ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
+        EventServicePortType eventService = connectorServicesProvider.getEventServicePortType(runtimeConfig);
 
-            Status status = eventService.unsubscribe(context, subscriptionId, "cetp://" + eventToHost + ":" + port);
-            Error error = status.getError();
-            return error == null ? status.getResult() : error.toString();
-        } catch (Exception e) {
-            log.log(Level.WARNING, "Could not unsubscribe " + subscriptionId, e);
-            return e.getMessage();
-        }
+        return eventService.unsubscribe(context, subscriptionId, null); // TODO rebuild api-telematik-service.jar
     }
 
     private String getEventToHost() {
