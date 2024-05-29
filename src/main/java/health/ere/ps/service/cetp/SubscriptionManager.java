@@ -52,6 +52,7 @@ public class SubscriptionManager {
     private final static Logger log = Logger.getLogger(SubscriptionManager.class.getName());
 
     public static final String CONFIG_KONNEKTOREN_FOLDER = "config/konnektoren";
+    public static final String CARD_INSERTED_TOPIC = "CARD/INSERTED";
 
     private final Map<String, KonnektorConfig> hostToKonnektorConfig = new ConcurrentHashMap<>();
 
@@ -87,13 +88,35 @@ public class SubscriptionManager {
 
     private void renewSubscriptions() {
         String eventHost = eventToHostProperty.orElse(getEventToHost());
-        manage(new RuntimeConfig(userConfig.getConfigurations()), null, eventHost, true);
+        manage(new RuntimeConfig(userConfig.getConfigurations()), null, eventHost, false, true);
     }
 
-    public List<String> manage(RuntimeConfig runtimeConfig, String host, String eventToHost, boolean subscribe) {
+    public List<String> manage(
+        RuntimeConfig runtimeConfig,
+        String host,
+        String eventToHost,
+        boolean forceCetp,
+        boolean subscribe
+    ) {
         Collection<KonnektorConfig> konnektorConfigs = getKonnektorConfigs(host);
-        List<String> statuses = konnektorConfigs.stream()
-            .map(kc -> process(kc, runtimeConfig, host, eventToHost, subscribe))
+        List<String> statuses = konnektorConfigs.stream().map(kc -> {
+                Semaphore semaphore = kc.getSemaphore();
+                if (semaphore.tryAcquire()) {
+                    try {
+                        return process(kc, getRuntimeConfig(runtimeConfig, kc), eventToHost, forceCetp, subscribe);
+                    } finally {
+                        semaphore.release();
+                    }
+                } else {
+                    try {
+                        String h = host == null ? kc.getUserConfigurations().getConnectorBaseURL().split("//")[1] : host;
+                        String s = subscribe ? "subscription" : "unsubscription";
+                        return String.format("[%s] Host %s is in progress, try later", h, s);
+                    } catch (Exception e) {
+                        return e.getMessage();
+                    }
+                }
+            })
             .filter(Objects::nonNull)
             .toList();
 
@@ -106,64 +129,56 @@ public class SubscriptionManager {
     private String process(
         KonnektorConfig konnektorConfig,
         RuntimeConfig runtimeConfig,
-        String host,
         String eventToHost,
+        boolean forceCetp,
         boolean subscribe
     ) {
-        Semaphore semaphore = konnektorConfig.getSemaphore();
-        if (semaphore.tryAcquire()) {
-            try {
-                Integer port = konnektorConfig.getPort();
-                RuntimeConfig config = getRuntimeConfig(runtimeConfig, konnektorConfig);
-                String subscriptionId = konnektorConfig.getSubscriptionId();
-                String failedUnsubscriptionFileName = subscriptionId != null && subscriptionId.startsWith(FAILED)
-                    ? subscriptionId
-                    : String.format("%s-unsubscription-%s", FAILED, subscriptionId);
-                
-                String failedSubscriptionFileName = String.format("%s-subscription", FAILED);
+        String subscriptionId = konnektorConfig.getSubscriptionId();
+        String failedUnsubscriptionFileName = subscriptionId != null && subscriptionId.startsWith(FAILED)
+            ? subscriptionId
+            : String.format("%s-unsubscription-%s", FAILED, subscriptionId);
 
-                String statusResult;
-                boolean unsubscribed = false;
-                try {
-                    Status status = unsubscribeFromKonnektor(config, subscriptionId);
-                    Error error = status.getError();
+        String failedSubscriptionFileName = String.format("%s-subscription", FAILED);
+        String cetpHost = "cetp://" + eventToHost + ":" + konnektorConfig.getPort();
+
+        String statusResult;
+        boolean unsubscribed = false;
+        try {
+            Status status = unsubscribeFromKonnektor(runtimeConfig, subscriptionId, cetpHost, forceCetp);
+            Error error = status.getError();
+            if (error == null) {
+                unsubscribed = true;
+                statusResult = status.getResult();
+                log.info(String.format("Unsubscribe status for subscriptionId=%s: %s", subscriptionId, statusResult));
+                if (subscribe) {
+                    Triple<Status, String, String> triple = subscribeToKonnektor(runtimeConfig, cetpHost);
+                    status = triple.getLeft();
+                    error = status.getError();
                     if (error == null) {
-                        unsubscribed = true;
-                        statusResult = status.getResult();
-                        log.info(String.format("Unsubscribe status for subscriptionId=%s: %s", subscriptionId, statusResult));
-                        if (subscribe) {
-                            Triple<Status, String, String> triple = subscribeToKonnektor(config, port, eventToHost);
-                            status = triple.getLeft();
-                            error = status.getError();
-                            if (error == null) {
-                                String newSubscriptionId = triple.getMiddle();
-                                statusResult =  status.getResult() + " " + newSubscriptionId + " " + triple.getRight();
-                                saveFile(konnektorConfig, newSubscriptionId, null);
-                                log.info(String.format("Subscribe status for subscriptionId=%s: %s", newSubscriptionId, status.getResult()));
-                            } else {
-                                statusResult = error.toString();
-                                saveFile(konnektorConfig, failedSubscriptionFileName, statusResult);
-                                log.log(Level.WARNING, String.format("Could not subscribe -> %s", error));
-                            }
-                        }
+                        String newSubscriptionId = triple.getMiddle();
+                        statusResult = status.getResult() + " " + newSubscriptionId + " " + triple.getRight();
+                        saveFile(konnektorConfig, newSubscriptionId, null);
+                        log.info(String.format("Subscribe status for subscriptionId=%s: %s", newSubscriptionId, status.getResult()));
                     } else {
                         statusResult = error.toString();
-                        saveFile(konnektorConfig, failedUnsubscriptionFileName, statusResult);
-                        log.log(Level.WARNING, String.format("Could not unsubscribe from %s -> %s", subscriptionId, error));
+                        saveFile(konnektorConfig, failedSubscriptionFileName, statusResult);
+                        log.log(Level.WARNING, String.format("Could not subscribe -> %s", error));
                     }
-                } catch (Exception e) {
-                    String fileName = unsubscribed ? failedSubscriptionFileName : failedUnsubscriptionFileName;
-                    saveFile(konnektorConfig, fileName, printException(e));
-                    log.log(Level.WARNING, "Error: " + fileName, e);
-                    statusResult = e.getMessage();
+                } else {
+                    KonnektorConfig.cleanUp(konnektorConfig.getFolder(), null);
                 }
-                return statusResult;
-            } finally {
-                semaphore.release();
+            } else {
+                statusResult = error.toString();
+                saveFile(konnektorConfig, failedUnsubscriptionFileName, statusResult);
+                log.log(Level.WARNING, String.format("Could not unsubscribe from %s -> %s", subscriptionId, error));
             }
-        } else {
-            return String.format("[%s] Host subscription is in progress, try later", host);
+        } catch (Exception e) {
+            String fileName = unsubscribed ? failedSubscriptionFileName : failedUnsubscriptionFileName;
+            saveFile(konnektorConfig, fileName, printException(e));
+            log.log(Level.WARNING, "Error: " + fileName, e);
+            statusResult = e.getMessage();
         }
+        return statusResult;
     }
 
     private String printException(Throwable e) {
@@ -233,16 +248,15 @@ public class SubscriptionManager {
 
     private Triple<Status, String, String> subscribeToKonnektor(
         RuntimeConfig runtimeConfig,
-        Integer port,
-        String eventToHost
+        String cetpHost
     ) throws FaultMessage {
         ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
 
         EventServicePortType eventService = connectorServicesProvider.getEventServicePortType(runtimeConfig);
         SubscriptionType subscriptionType = new SubscriptionType();
 
-        subscriptionType.setEventTo("cetp://" + eventToHost + ":" + port);
-        subscriptionType.setTopic("CARD/INSERTED");
+        subscriptionType.setEventTo(cetpHost);
+        subscriptionType.setTopic(CARD_INSERTED_TOPIC);
         Holder<Status> status = new Holder<>();
         Holder<String> subscriptionId = new Holder<>();
         Holder<XMLGregorianCalendar> terminationTime = new Holder<>();
@@ -254,17 +268,22 @@ public class SubscriptionManager {
 
     private Status unsubscribeFromKonnektor(
         RuntimeConfig runtimeConfig,
-        String subscriptionId
+        String subscriptionId,
+        String cetpHost,
+        boolean forceCetp
     ) throws FaultMessage {
-        if (subscriptionId == null || subscriptionId.startsWith(FAILED)) {
-            Status status = new Status();
-            status.setResult("Previous subscription is not found");
-            return status;
-        }
         ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
         EventServicePortType eventService = connectorServicesProvider.getEventServicePortType(runtimeConfig);
-
-        return eventService.unsubscribe(context, subscriptionId, null); // TODO rebuild api-telematik-service.jar
+        if (forceCetp) {
+            return eventService.unsubscribe(context, null, cetpHost);
+        } else {
+            if (subscriptionId == null || subscriptionId.startsWith(FAILED)) {
+                Status status = new Status();
+                status.setResult("Previous subscription is not found");
+                return status;
+            }
+            return eventService.unsubscribe(context, subscriptionId, null);
+        }
     }
 
     private String getEventToHost() {

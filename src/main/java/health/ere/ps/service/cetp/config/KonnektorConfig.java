@@ -104,6 +104,10 @@ public class KonnektorConfig {
 
     public static void createNewSubscriptionIdFile(File folder, String subscriptionId, String error) throws IOException {
         writeFile(folder.getAbsolutePath() + "/" + subscriptionId, error);
+        cleanUp(folder, subscriptionId);
+    }
+
+    public static void cleanUp(File folder, String subscriptionId) {
         Arrays.stream(folder.listFiles())
             .filter(file -> !file.getName().equals(subscriptionId) && !file.getName().endsWith(PROPERTIES_EXT))
             .forEach(file -> {
