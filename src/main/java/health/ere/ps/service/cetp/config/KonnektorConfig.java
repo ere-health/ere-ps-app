@@ -1,12 +1,14 @@
 package health.ere.ps.service.cetp.config;
 
 import health.ere.ps.model.config.UserConfigurations;
+import health.ere.ps.service.cetp.CETPServer;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -102,7 +104,20 @@ public class KonnektorConfig {
         return null;
     }
 
-    public static void createNewSubscriptionIdFile(File folder, String subscriptionId, String error) throws IOException {
+    public static void saveFile(KonnektorConfig konnektorConfig, String subscriptionId, String error) {
+        try {
+            createNewSubscriptionIdFile(konnektorConfig.getFolder(), subscriptionId, error);
+            konnektorConfig.setSubscriptionId(subscriptionId);
+        } catch (IOException e) {
+            String msg = String.format(
+                "Error while recreating subscription properties in folder: %s",
+                konnektorConfig.getFolder().getAbsolutePath()
+            );
+            log.log(Level.SEVERE, msg, e);
+        }
+    }
+
+    private static void createNewSubscriptionIdFile(File folder, String subscriptionId, String error) throws IOException {
         writeFile(folder.getAbsolutePath() + "/" + subscriptionId, error);
         cleanUp(folder, subscriptionId);
     }
