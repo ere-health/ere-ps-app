@@ -6,6 +6,7 @@ import health.ere.ps.service.cetp.config.KonnektorConfig;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.common.security.SecretsManagerService.KeyStoreType;
 import health.ere.ps.service.gematik.PharmacyService;
+import health.ere.ps.service.health.check.CardlinkWebsocketCheck;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -35,7 +36,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -50,6 +53,8 @@ public class CETPServer {
     List<EventLoopGroup> bossGroups = new ArrayList<>();
     List<EventLoopGroup> workerGroups = new ArrayList<>();
 
+    private Map<String, String> startedOnPorts = new HashMap<>();
+
     @Inject
     PharmacyService pharmacyService;
 
@@ -58,6 +63,9 @@ public class CETPServer {
 
     @Inject
     SubscriptionManager subscriptionManager;
+
+    @Inject
+    CardlinkWebsocketCheck cardlinkWebsocketCheck;
 
     void onStart(@Observes StartupEvent ev) {
         log.info("Running CETP Server on port " + PORT);
@@ -74,6 +82,10 @@ public class CETPServer {
         }
     }
 
+    public Map<String, String> getStartedOnPorts() {
+        return startedOnPorts;
+    }
+
     public void run() {
         for (KonnektorConfig config : subscriptionManager.getKonnektorConfigs(null)) {
             runServer(config);
@@ -85,6 +97,7 @@ public class CETPServer {
         bossGroups.add(bossGroup);
         NioEventLoopGroup workerGroup = new NioEventLoopGroup();
         workerGroups.add(workerGroup);
+        Integer port = config.getPort();
         try {
             ServerBootstrap b = new ServerBootstrap(); // (2)
             b.group(bossGroup, workerGroup)
@@ -99,7 +112,10 @@ public class CETPServer {
                                 .clientAuth(ClientAuth.NONE)
                                 .build();
 
-                            CardlinkWebsocketClient websocketClient = new CardlinkWebsocketClient(config.getCardlinkEndpoint());
+                            CardlinkWebsocketClient websocketClient = new CardlinkWebsocketClient(
+                                config.getCardlinkEndpoint(),
+                                cardlinkWebsocketCheck
+                            );
                             ch.pipeline()
                                 .addLast("ssl", sslContext.newHandler(ch.alloc()))
                                 .addLast(new CETPDecoder(config.getUserConfigurations()))
@@ -113,13 +129,16 @@ public class CETPServer {
                 .childOption(ChannelOption.SO_KEEPALIVE, true); // (6)
 
             // Bind and start to accept incoming connections.
-            ChannelFuture f = b.bind(config.getPort()).sync(); // (7)
+
+            ChannelFuture f = b.bind(port).sync(); // (7)
+            startedOnPorts.put(port.toString(), "STARTED");
 
             // Wait until the server socket is closed.
             // In this example, this does not happen, but you can do that to gracefully
             // shut down your server.
             f.channel().closeFuture(); //.sync();
         } catch (InterruptedException e) {
+            startedOnPorts.put(port.toString(), String.format("FAILED: %s", e.getMessage()));
             log.log(Level.WARNING, "CETP Server interrupted", e);
         }
     }

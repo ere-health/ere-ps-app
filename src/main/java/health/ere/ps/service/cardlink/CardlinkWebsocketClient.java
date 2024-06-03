@@ -1,5 +1,6 @@
 package health.ere.ps.service.cardlink;
 
+import health.ere.ps.service.health.check.CardlinkWebsocketCheck;
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonArrayBuilder;
@@ -28,11 +29,15 @@ public class CardlinkWebsocketClient {
     URI endpointURI;
     Session userSession;
 
+    private CardlinkWebsocketCheck cardlinkWebsocketCheck;
+
     public CardlinkWebsocketClient() {
     }
 
-    public CardlinkWebsocketClient(URI endpointURI) {
+    public CardlinkWebsocketClient(URI endpointURI, CardlinkWebsocketCheck cardlinkWebsocketCheck) {
         try {
+            this.cardlinkWebsocketCheck = cardlinkWebsocketCheck;
+            this.cardlinkWebsocketCheck.setConnected(false);
             this.endpointURI = endpointURI;
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             container.connectToServer(this, endpointURI);
@@ -50,6 +55,7 @@ public class CardlinkWebsocketClient {
     public void onOpen(Session userSession) {
         log.info("opening websocket to "+endpointURI);
         this.userSession = userSession;
+        cardlinkWebsocketCheck.setConnected(true);
 
         sendJson("registerSMCB", Map.of());
     }
@@ -63,6 +69,7 @@ public class CardlinkWebsocketClient {
     @OnClose
     public void onClose(Session userSession, CloseReason reason) {
         log.info("closing websocket "+endpointURI);
+        cardlinkWebsocketCheck.setConnected(false);
     }
 
     /**

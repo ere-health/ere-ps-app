@@ -1,12 +1,12 @@
 package health.ere.ps.event;
 
-import java.io.Serializable;
-
 import jakarta.websocket.Session;
 
+import java.io.Serializable;
+
 public class StatusResponseEvent extends AbstractEvent implements ReplyableEvent {
-    private String type = "StatusResponse";
-    private Serializable payload;
+
+    private final Serializable payload;
 
     public StatusResponseEvent(Serializable status, Session replyTo, String id){
         this.payload = status;
@@ -15,11 +15,10 @@ public class StatusResponseEvent extends AbstractEvent implements ReplyableEvent
     }
 
     public String getType() {
-        return this.type;
+        return "StatusResponse";
     }
 
     public Serializable getPayload() {
         return this.payload;
     }
-
 }
