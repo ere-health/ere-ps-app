@@ -102,7 +102,7 @@ public class CardInsertedTest {
 
         List<String> capturedMessages = messageTypeCaptor.getAllValues();
         assertTrue(capturedMessages.get(0).contains("vsdmSensorData"));
-        assertTrue(capturedMessages.get(1).contains("eRezeptError"));
+        assertTrue(capturedMessages.get(1).contains("eRezeptTokensFromAVS"));
 
         List<Map<String, Object>> maps = mapCaptor.getAllValues();
         Map<String, Object> vsdmSensorData = maps.get(0);
@@ -112,12 +112,11 @@ public class CardInsertedTest {
         assertEquals(vsdmSensorData.get("err"), "10");
         assertNotNull(vsdmSensorData.get("endTime"));
 
-        Map<String, Object> eRezeptError = maps.get(1);
+        Map<String, Object> eRezeptTokensError = maps.get(1);
 
-        assertEquals((Integer) eRezeptError.get("slotId"), Integer.parseInt(slotIdValue));
-        assertEquals(eRezeptError.get("ctId"), ctIdValue);
-        assertEquals(eRezeptError.get("error"), "de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage: Fault");
-        assertTrue(((String) eRezeptError.get("stacktrace")).contains("health.ere.ps.service.gematik.PharmacyService.getEPrescriptionsForCardHandle(PharmacyService.java"));
+        assertEquals((Integer) eRezeptTokensError.get("slotId"), Integer.parseInt(slotIdValue));
+        assertEquals(eRezeptTokensError.get("ctId"), ctIdValue);
+        assertTrue(((String) eRezeptTokensError.get("tokens")).startsWith("ERROR: "));
     }
 
     private Holder<byte[]> prepareHolder(PharmacyService pharmacyService) {

@@ -1,7 +1,5 @@
 package health.ere.ps.service.cetp;
 
-import static health.ere.ps.utils.Utils.getThrowableDetails;
-
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -23,6 +21,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import jakarta.json.Json;
 import jakarta.json.JsonArrayBuilder;
+
+import static health.ere.ps.utils.Utils.printException;
 
 public class CETPServerHandler extends ChannelInboundHandlerAdapter {
 
@@ -96,11 +96,8 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
                         : ((de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage) e).getFaultInfo().getTrace().get(0).getCode().toString();
                     cardlinkWebsocketClient.sendJson("vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "err", code));
 
-                    Pair<String, String> details = getThrowableDetails(e);
-                    cardlinkWebsocketClient.sendJson(
-                        "eRezeptError",
-                        Map.of("slotId", slotId, "ctId", ctId, "error", details.getKey(), "stacktrace", details.getValue())
-                    );
+                    String error = "ERROR: " + printException(e);
+                    cardlinkWebsocketClient.sendJson("eRezeptTokensFromAVS", Map.of("slotId", slotId, "ctId", ctId, "tokens", error));
                 }
             } else {
                 String msgFormat = "Error while handling \"CARD/INSERTED\" event=%s: cardHandle=%s, slotId=%s, ctId=%s";

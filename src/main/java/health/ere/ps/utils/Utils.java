@@ -42,14 +42,6 @@ public class Utils {
         return e.getMessage() + " -> " + stacktrace;
     }
 
-    public static Pair<String, String> getThrowableDetails(Throwable t) {
-        StringWriter sw = new StringWriter();
-        t.printStackTrace(new PrintWriter(sw));
-        String stacktrace = sw.toString();
-        String error = t.getClass().getName() + ": " + t.getMessage();
-        return Pair.of(error, stacktrace);
-    }
-
     public static String getHostFromNetworkInterfaces() {
         Inet4Address localAddress = null;
         try {
