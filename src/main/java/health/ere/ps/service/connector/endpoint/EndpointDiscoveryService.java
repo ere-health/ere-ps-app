@@ -146,9 +146,11 @@ public class EndpointDiscoveryService {
                     }
                     case "SignatureService": {
                         signatureServiceEndpointAddress = getEndpoint(node, "PTV4+".equals(userConfig.getConnectorVersion()) ? "7.5" : null);
+                        break;
                     }
                     case "VSDService": {
                     	vsdServiceEndpointAddress = getEndpoint(node);
+                        break;
                     }
                 }
             }

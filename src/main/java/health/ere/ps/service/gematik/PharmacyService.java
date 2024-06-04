@@ -8,6 +8,7 @@ import de.gematik.ws.conn.eventservice.v7.GetCards;
 import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
+import de.gematik.ws.conn.vsds.vsdservice.v5.VSDServicePortType;
 import de.gematik.ws.conn.vsds.vsdservice.v5.VSDStatusType;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.RuntimeConfig;
@@ -123,7 +124,8 @@ public class PharmacyService extends BearerTokenManageService {
         }
         requestNewAccessTokenIfNecessary(runtimeConfig, null, null);
         log.info(egkHandle + " " + smcbHandle);
-        connectorServicesProvider.getVSDServicePortType(runtimeConfig).readVSD(
+        VSDServicePortType vsdServicePortType = connectorServicesProvider.getVSDServicePortType(runtimeConfig);
+        vsdServicePortType.readVSD(
             egkHandle, smcbHandle, true, true, context,
             persoenlicheVersichertendaten,
             allgemeineVersicherungsdaten,
