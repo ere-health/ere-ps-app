@@ -1,5 +1,14 @@
 package health.ere.ps.service.cetp;
 
+import java.util.Map;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.apache.commons.lang3.tuple.Pair;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
+
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import de.gematik.ws.conn.eventservice.v7.Event;
@@ -12,14 +21,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import jakarta.json.Json;
 import jakarta.json.JsonArrayBuilder;
-import org.apache.commons.lang3.tuple.Pair;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
-
-import java.util.Map;
-import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static health.ere.ps.utils.Utils.printException;
 
@@ -76,13 +77,14 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
                 Long endTime = System.currentTimeMillis();
                 Pair<Bundle, String> pair;
                 try {
-                    pair = pharmacyService.getEPrescriptionsForCardHandle(cardHandle, null, null);
+                    RuntimeConfig runtimeConfig = new RuntimeConfig(input.getValue());
+                    pair = pharmacyService.getEPrescriptionsForCardHandle(cardHandle, null, runtimeConfig);
                     Bundle bundle = pair.getKey();
                     String eventId = pair.getValue();
                     String xml = parser.encodeToString(bundle);
                     cardlinkWebsocketClient.sendJson("eRezeptTokensFromAVS", Map.of("slotId", slotId, "ctId", ctId, "tokens", xml));
 
-                    JsonArrayBuilder bundles = prepareBundles(bundle);
+                    JsonArrayBuilder bundles = prepareBundles(bundle, runtimeConfig);
                     cardlinkWebsocketClient.sendJson("eRezeptBundlesFromAVS", Map.of("slotId", slotId, "ctId", ctId, "bundles", bundles));
 
                     cardlinkWebsocketClient.sendJson("vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "eventId", eventId));
@@ -104,7 +106,7 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
         }
     }
     
-    private JsonArrayBuilder prepareBundles(Bundle bundle) {
+    private JsonArrayBuilder prepareBundles(Bundle bundle, RuntimeConfig runtimeConfig) {
         JsonArrayBuilder bundles = Json.createArrayBuilder();
         for (BundleEntryComponent entry : bundle.getEntry()) {
             if (entry.getResource() instanceof org.hl7.fhir.r4.model.Task) {
@@ -127,7 +129,7 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
                 log.info("TaskId: " + taskId + " AccessCode: " + accessCode);
                 String token = "/Task/" + taskId + "/$accept?ac=" + accessCode;
                 try {
-                    Bundle bundleEPrescription = pharmacyService.accept(token, new RuntimeConfig());
+                    Bundle bundleEPrescription = pharmacyService.accept(token, runtimeConfig);
                     bundles.add(parser.encodeToString(bundleEPrescription));
                 } catch (Exception e) {
                     bundles.add("Error for " + token + " " + e.getMessage());

@@ -120,7 +120,7 @@ public class CETPServer {
                             );
                             ch.pipeline()
                                 .addLast("ssl", sslContext.newHandler(ch.alloc()))
-                                .addLast("logging", new LoggingHandler(LogLevel.INFO))
+                                .addLast("logging", new LoggingHandler(LogLevel.DEBUG))
                                 .addLast(new LengthFieldBasedFrameDecoder(65536, 4, 4, 0, 0))
                                 .addLast(new CETPDecoder(config.getUserConfigurations()))
                                 .addLast(new CETPServerHandler(pharmacyService, websocketClient));
