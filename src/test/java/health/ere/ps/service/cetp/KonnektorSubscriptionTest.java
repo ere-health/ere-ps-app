@@ -11,10 +11,11 @@ import io.quarkus.test.junit.TestProfile;
 import io.restassured.response.Response;
 import jakarta.inject.Inject;
 import jakarta.xml.ws.Holder;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -34,9 +36,12 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SuppressWarnings("unchecked")
@@ -52,9 +57,14 @@ public class KonnektorSubscriptionTest {
     @Inject
     SubscriptionManager subscriptionManager;
 
-    @BeforeAll
-    public static void beforeAll() throws Exception {
-        EventServicePortType eventService = mock(EventServicePortType.class);
+    @Inject
+    MultiConnectorServicesProvider multiConnectorServicesProvider;
+
+    EventServicePortType eventService;
+
+    @BeforeEach
+    public void beforeEach() throws Exception {
+        eventService = mock(EventServicePortType.class);
         Mockito.doAnswer((Answer<Void>) invocation -> {
             final Object[] args = invocation.getArguments();
 
@@ -72,7 +82,7 @@ public class KonnektorSubscriptionTest {
             GregorianCalendar c = new GregorianCalendar();
             c.setTime(new Date());
             terminationTime.value = DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
-            
+
             return null;
         }).when(eventService).subscribe(any(), any(), any(), any(), any());
 
@@ -85,11 +95,13 @@ public class KonnektorSubscriptionTest {
         when(connectorServicesProvider.getEventServicePortType(any())).thenReturn(eventService);
 
         QuarkusMock.installMockForType(connectorServicesProvider, MultiConnectorServicesProvider.class);
+
+        new File(TEMP_CONFIG).delete();
     }
 
-    @BeforeEach
-    public void beforeEach() {
-        new File(TEMP_CONFIG).delete();
+    @AfterEach
+    public void afterAll() {
+        QuarkusMock.installMockForType(multiConnectorServicesProvider, MultiConnectorServicesProvider.class);
     }
 
     @Test
@@ -181,7 +193,7 @@ public class KonnektorSubscriptionTest {
     }
 
     @Test
-    public void defaultFolderConfigKonnektorThreeSubscriptionsReloaded() {
+    public void threeSubscriptionsReloaded() {
         subscriptionManager.setConfigFolder(SubscriptionManager.CONFIG_KONNEKTOREN_FOLDER);
         Response response = given()
             .when()
@@ -190,5 +202,32 @@ public class KonnektorSubscriptionTest {
         response.then().statusCode(200);
         List<String> responseBody = response.jsonPath().getList("$");
         assertThat(responseBody.size(), equalTo(3));
+    }
+
+    @Test
+    public void subscriptionUnsubscribedByCetp() throws Exception {
+        subscriptionManager.setConfigFolder(SubscriptionManager.CONFIG_KONNEKTOREN_FOLDER);
+        Response response = given()
+            .when()
+            .get("/pharmacy/Unsubscribe?useCetp=true");
+
+        response.then().statusCode(200);
+        List<String> responseBody = response.jsonPath().getList("$");
+        assertThat(responseBody.size(), equalTo(3));
+
+        ArgumentCaptor<String> subscriptionIdCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> cetpCaptor = ArgumentCaptor.forClass(String.class);
+        verify(eventService, times(3)).unsubscribe(any(), subscriptionIdCaptor.capture(), cetpCaptor.capture());
+        assertTrue(subscriptionIdCaptor.getAllValues().stream().allMatch(Objects::isNull));
+        assertTrue(cetpCaptor.getAllValues().stream().allMatch(s -> s.startsWith("cetp://")));
+
+        File config8585 = new File(SubscriptionManager.CONFIG_KONNEKTOREN_FOLDER + "/8585");
+        assertThat(config8585.listFiles().length, equalTo(1));
+
+        File config8586 = new File(SubscriptionManager.CONFIG_KONNEKTOREN_FOLDER + "/8586");
+        assertThat(config8586.listFiles().length, equalTo(1));
+
+        File config8587 = new File(SubscriptionManager.CONFIG_KONNEKTOREN_FOLDER + "/8587");
+        assertThat(config8587.listFiles().length, equalTo(1));
     }
 }

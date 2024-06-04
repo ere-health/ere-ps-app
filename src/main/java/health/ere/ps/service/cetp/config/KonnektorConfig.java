@@ -1,13 +1,14 @@
 package health.ere.ps.service.cetp.config;
 
 import health.ere.ps.model.config.UserConfigurations;
+import health.ere.ps.service.cetp.CETPServer;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -19,13 +20,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class KonnektorConfig {
+import static health.ere.ps.utils.Utils.writeFile;
 
-    public static final String PROPERTIES_EXT = ".properties";
-    public static final String DEFAULT_SUBSCRIPTION = "default" + PROPERTIES_EXT;
+public class KonnektorConfig {
 
     private static final Logger log = Logger.getLogger(KonnektorConfig.class.getName());
 
+    public static final String FAILED = "failed";
+    public static final String PROPERTIES_EXT = ".properties";
 
     Integer port;
     UserConfigurations userConfigurations;
@@ -74,7 +76,7 @@ public class KonnektorConfig {
             .max(Comparator.comparingLong(File::lastModified));
         
         Optional<File> subscriptionFileOpt = Arrays.stream(folder.listFiles())
-            .filter(f -> !f.getName().endsWith(PROPERTIES_EXT))
+            .filter(f -> !f.getName().startsWith(FAILED) && !f.getName().endsWith(PROPERTIES_EXT))
             .max(Comparator.comparingLong(File::lastModified));
 
         if (userPropertiesOpt.isPresent()) {
@@ -102,11 +104,25 @@ public class KonnektorConfig {
         return null;
     }
 
-    public static void createNewSubscriptionIdFile(File folder, String subscriptionId) throws IOException {
-        String folderPath = folder.getAbsolutePath();
-        try (FileOutputStream os = new FileOutputStream(folderPath + "/" + subscriptionId)) {
-            os.flush();
+    public static void saveFile(KonnektorConfig konnektorConfig, String subscriptionId, String error) {
+        try {
+            createNewSubscriptionIdFile(konnektorConfig.getFolder(), subscriptionId, error);
+            konnektorConfig.setSubscriptionId(subscriptionId);
+        } catch (IOException e) {
+            String msg = String.format(
+                "Error while recreating subscription properties in folder: %s",
+                konnektorConfig.getFolder().getAbsolutePath()
+            );
+            log.log(Level.SEVERE, msg, e);
         }
+    }
+
+    private static void createNewSubscriptionIdFile(File folder, String subscriptionId, String error) throws IOException {
+        writeFile(folder.getAbsolutePath() + "/" + subscriptionId, error);
+        cleanUp(folder, subscriptionId);
+    }
+
+    public static void cleanUp(File folder, String subscriptionId) {
         Arrays.stream(folder.listFiles())
             .filter(file -> !file.getName().equals(subscriptionId) && !file.getName().endsWith(PROPERTIES_EXT))
             .forEach(file -> {
@@ -114,7 +130,7 @@ public class KonnektorConfig {
                 if (!deleted) {
                     String msg = String.format("Unable to delete previous subscription file: %s", file.getName());
                     log.log(Level.SEVERE, msg);
-                    file.renameTo(new File("failed_" + file.getAbsolutePath()));
+                    file.renameTo(new File(String.format("%s_%s", FAILED, file.getAbsolutePath())));
                 }
             });
     }

@@ -1,6 +1,6 @@
 #!/bin/bash
 mkdir /opt/ere-health/
-cp -r ../target/quarkus-app /opt/ere-health/
+cp -r ../target/quarkus-app/* /opt/ere-health/
 mkdir /opt/ere-health/config
 cp ../src/main/resources/application.properties /opt/ere-health/config
 cp run.sh /opt/ere-health/

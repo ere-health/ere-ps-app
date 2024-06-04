@@ -126,7 +126,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
 
     private Client client;
     private String userIdForComfortSignature;
-    
+
 
     public String getUserIdForComfortSignature() {
         return this.userIdForComfortSignature;
@@ -141,9 +141,9 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
      */
     static String getAccessCode(Task task) {
         return task.getIdentifier().stream()
-                .filter(id -> id.getSystem().equals(EREZEPT_ACCESS_CODE_SYSTEM)
+            .filter(id -> id.getSystem().equals(EREZEPT_ACCESS_CODE_SYSTEM)
                 || id.getSystem().equals(EREZEPT_ACCESS_CODE_SYSTEM_GEM)).findFirst()
-                .orElse(new Identifier()).getValue();
+            .orElse(new Identifier()).getValue();
     }
 
     @PostConstruct
@@ -162,7 +162,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
                 ((ResteasyClientBuilderImpl) clientBuilder).httpEngine(new VAUEngine(appConfig.getPrescriptionServiceURL()));
             } catch (Exception ex) {
                 log.log(Level.SEVERE, "Could not enable VAU", ex);
-                if(exceptionEvent != null) {
+                if (exceptionEvent != null) {
                     exceptionEvent.fireAsync(ex);
                 }
             }
@@ -187,30 +187,30 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
 
         List<List<BundleWithAccessCodeOrThrowable>> bundleWithAccessCodeOrThrowable = new ArrayList<>();
         List<Bundle> bundles = signAndUploadBundlesEvent.listOfListOfBundles.stream().flatMap(b -> b.stream()).collect(Collectors.toList());
-        if(bundles.size() == 0) {
+        if (bundles.size() == 0) {
             log.warning("No bundles to sign. Returning.");
             exceptionEvent.fireAsync(new ArrayIndexOutOfBoundsException("No bundles to sign. Returning. Please see https://github.com/ere-health/ere-ps-app/blob/main/src/test/resources/websocket-messages/SignAndUploadBundles.json for an example message"));
             return;
         }
         log.info(String.format("Getting access codes for %d bundles.",
-                bundles.size()));
+            bundles.size()));
 
         List<BundleWithAccessCodeOrThrowable> unflatten = createMultipleERezeptsOnPrescriptionServer(bundles, signAndUploadBundlesEvent.getFlowtype(), signAndUploadBundlesEvent.getRuntimeConfig(), signAndUploadBundlesEvent.getReplyTo(), signAndUploadBundlesEvent.getId());
         Iterator<BundleWithAccessCodeOrThrowable> it = unflatten.iterator();
         // unflatten bundles again
-        for(int i = 0;i<listOfListOfBundles.size();i++) {
+        for (int i = 0; i < listOfListOfBundles.size(); i++) {
             List<BundleWithAccessCodeOrThrowable> unflattenBundles = new ArrayList<>();
-            for(int j=0;j<listOfListOfBundles.get(i).size(); j++) {
+            for (int j = 0; j < listOfListOfBundles.get(i).size(); j++) {
                 unflattenBundles.add(it.next());
             }
             bundleWithAccessCodeOrThrowable
-                    .add(unflattenBundles);
+                .add(unflattenBundles);
         }
 
         log.info(String.format("Firing event to create prescription receipts for %d bundles.",
-                bundleWithAccessCodeOrThrowable.size()));
+            bundleWithAccessCodeOrThrowable.size()));
         BundlesWithAccessCodeEvent bundleWithAccessCode = new BundlesWithAccessCodeEvent(bundleWithAccessCodeOrThrowable, signAndUploadBundlesEvent.getReplyTo(), signAndUploadBundlesEvent.getId());
-        if("169".equals(signAndUploadBundlesEvent.getFlowtype())) {
+        if ("169".equals(signAndUploadBundlesEvent.getFlowtype())) {
             bundleWithAccessCode.setFlowtype(signAndUploadBundlesEvent.getFlowtype());
             bundleWithAccessCode.setToKimAddress(signAndUploadBundlesEvent.getToKimAddress());
             bundleWithAccessCode.setKimConfigMap(signAndUploadBundlesEvent.getKimConfigMap());
@@ -238,7 +238,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
     }
 
     public List<BundleWithAccessCodeOrThrowable> createMultipleERezeptsOnPrescriptionServer(List<Bundle> bundles,
-        String flowtype, RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId) {
+                                                                                            String flowtype, RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId) {
         List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodes = new ArrayList<>();
         List<Task> tasks = new ArrayList<>();
         for (Bundle bundle : bundles) {
@@ -246,14 +246,14 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
             try {
                 try {
                     // We have a PKV prescription
-                    if(flowtype.equals("160") &&
+                    if (flowtype.equals("160") &&
                         bundle.getEntry().stream().filter(be -> be.getResource() instanceof Coverage)
-                            .map(be -> (Coverage)be.getResource())
-                                .filter(c -> c.getType().getCoding().stream()
-                                    .filter(coding -> coding.getCode().equals("PKV")).count() > 0).count() > 0) {
+                            .map(be -> (Coverage) be.getResource())
+                            .filter(c -> c.getType().getCoding().stream()
+                                .filter(coding -> coding.getCode().equals("PKV")).count() > 0).count() > 0) {
                         flowtype = "200";
                     }
-                } catch(Exception ex) {
+                } catch (Exception ex) {
                     log.log(Level.WARNING, "Could not determine flowtype", ex);
                 }
                 Task task = createERezeptTask(true, runtimeConfig, flowtype);
@@ -268,16 +268,16 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
         for (Task task : tasks) {
             // Example:
             // src/test/resources/gematik/Bundle-4fe2013d-ae94-441a-a1b1-78236ae65680.xml
-            if(task != null) {
+            if (task != null) {
                 try {
                     BundleWithAccessCodeOrThrowable bundleWithAccessCode = updateBundleWithTask(task, bundles.get(i));
                     bundleWithAccessCodes.get(i).setBundle(bundleWithAccessCode.getBundle());
                     bundleWithAccessCodes.get(i).setAccessCode(bundleWithAccessCode.getAccessCode());
-                } catch(Throwable t) {
+                } catch (Throwable t) {
                     bundleWithAccessCodes.get(i).setThrowable(t);
                 }
             } else {
-                if(bundleWithAccessCodes.get(i).getThrowable() == null) {
+                if (bundleWithAccessCodes.get(i).getThrowable() == null) {
                     bundleWithAccessCodes.get(i).setThrowable(new ERezeptWorkflowException("Task is null please check log for errors."));
                 }
             }
@@ -286,22 +286,22 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
         try {
             List<SignResponse> signedDocuments = signBundleWithIdentifiers(bundles, false, runtimeConfig, replyTo, replyToMessageId);
             i = 0;
-            for(SignResponse signedDocument : signedDocuments) {
+            for (SignResponse signedDocument : signedDocuments) {
                 BundleWithAccessCodeOrThrowable bundleWithAccessCode = bundleWithAccessCodes.get(i);
                 try {
                     Task task = tasks.get(i);
-                    if(task != null) {
+                    if (task != null) {
                         byte[] signedBundle = signedDocument.getSignatureObject().getBase64Signature().getValue();
                         bundleWithAccessCode.setSignedBundle(signedBundle);
                         updateERezeptTask(task, bundleWithAccessCode.getAccessCode(),
                             signedBundle, runtimeConfig);
                     }
-                } catch(Throwable t) {
+                } catch (Throwable t) {
                     bundleWithAccessCode.setThrowable(t);
                 }
                 i++;
             }
-        } catch(Throwable t) {
+        } catch (Throwable t) {
             bundleWithAccessCodes.stream().forEach(bundleWithAccessCode -> bundleWithAccessCode.setThrowable(t));
         }
 
@@ -309,12 +309,12 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
     }
 
     public BundleWithAccessCodeOrThrowable createERezeptOnPrescriptionServer(Bundle bundle)
-            throws ERezeptWorkflowException {
+        throws ERezeptWorkflowException {
         return createERezeptOnPrescriptionServer(bundle, null, null, null);
     }
-    
+
     public BundleWithAccessCodeOrThrowable createERezeptOnPrescriptionServer(Bundle bundle, RuntimeConfig runtimeConfig)
-            throws ERezeptWorkflowException {
+        throws ERezeptWorkflowException {
         return createERezeptOnPrescriptionServer(bundle, runtimeConfig, null, null);
     }
 
@@ -329,9 +329,9 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
      * @throws ERezeptWorkflowException
      */
     public BundleWithAccessCodeOrThrowable createERezeptOnPrescriptionServer(Bundle bundle, RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId)
-            throws ERezeptWorkflowException {
+        throws ERezeptWorkflowException {
         requestNewAccessTokenIfNecessary(runtimeConfig, replyTo, replyToMessageId);
-        
+
         log.fine("Bearer Token: " + bearerToken.get(runtimeConfig));
 
         // Example: src/test/resources/gematik/Task-4711.xml
@@ -342,7 +342,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
         BundleWithAccessCodeOrThrowable bundleWithAccessCode = updateBundleWithTask(task, bundle);
         SignResponse signedDocument = signBundleWithIdentifiers(bundleWithAccessCode.getBundle(), runtimeConfig, replyTo, replyToMessageId);
         try {
-            if(signedDocument == null) {
+            if (signedDocument == null) {
                 bundleWithAccessCode.setThrowable(new RuntimeException("Could not get signed document. Please check the logs."));
             } else {
                 byte[] signedBundle = signedDocument.getSignatureObject().getBase64Signature().getValue();
@@ -350,14 +350,14 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
                 updateERezeptTask(task.getIdElement().getIdPart(), bundleWithAccessCode.getAccessCode(),
                     signedBundle, true, runtimeConfig, replyTo, replyToMessageId);
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             bundleWithAccessCode.setThrowable(e);
         }
 
         return bundleWithAccessCode;
     }
 
-    public void updateERezeptTask(Task task, String accessCode, byte[] signedBytes){
+    public void updateERezeptTask(Task task, String accessCode, byte[] signedBytes) {
         updateERezeptTask(task.getIdElement().getIdPart(), accessCode, signedBytes, null);
     }
 
@@ -388,25 +388,25 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
         parameters.addParameter(ePrescriptionParameter);
 
         try (Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task")
-                .path("/" + taskId).path("/$activate").request()
-                .header("User-Agent", appConfig.getUserAgent())
-                .header("Authorization", "Bearer " + bearerToken.get(runtimeConfig)).header("X-AccessCode", accessCode)
-                .post(Entity.entity(fhirContext.newXmlParser().encodeResourceToString(parameters),
-                        "application/fhir+xml; charset=utf-8"))) {
+            .path("/" + taskId).path("/$activate").request()
+            .header("User-Agent", appConfig.getUserAgent())
+            .header("Authorization", "Bearer " + bearerToken.get(runtimeConfig)).header("X-AccessCode", accessCode)
+            .post(Entity.entity(fhirContext.newXmlParser().encodeResourceToString(parameters),
+                "application/fhir+xml; charset=utf-8"))) {
 
             String taskString = new String(response.readEntity(java.io.InputStream.class).readAllBytes(), "ISO-8859-1");
             log.info("Response when trying to activate the task:" + taskString);
 
             if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
-                if(firstTry) {
-                    log.warning("Was not able to $activate on first try. Status:" +response.getStatus()+" Response: " + taskString);
+                if (firstTry) {
+                    log.warning("Was not able to $activate on first try. Status:" + response.getStatus() + " Response: " + taskString);
                     updateERezeptTask(taskId, accessCode, signedBytes, false, runtimeConfig, replyTo, replyToMessageId);
                 } else {
                     Response.ResponseBuilder responseBuilder = Response.status(response.getStatus());
                     responseBuilder.entity(taskString);
                     Response responseError = responseBuilder.build();
                     throw new WebApplicationException(responseError);
-                    
+
                 }
             }
             log.info("Task $activate Response: " + taskString);
@@ -427,10 +427,10 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
         identifier.setUse(null);
         try {
             // This bundle uses the old KBV profile
-            if(bundle.getMeta() != null && bundle.getMeta().getProfile() != null && bundle.getMeta().getProfile().stream().filter(pf -> pf.getValue().equals("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle|1.0.2")).count() > 0) {
+            if (bundle.getMeta() != null && bundle.getMeta().getProfile() != null && bundle.getMeta().getProfile().stream().filter(pf -> pf.getValue().equals("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle|1.0.2")).count() > 0) {
                 identifier.setSystem(EREZEPT_IDENTIFIER_SYSTEM);
             }
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             log.log(Level.WARNING, "Could not identify profile", ex);
         }
         bundle.setIdentifier(identifier);
@@ -446,7 +446,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
 
     static Identifier getPrescriptionIdentifier(Task task) {
         return task.getIdentifier().stream()
-                .filter(id -> id.getSystem().equals(EREZEPT_IDENTIFIER_SYSTEM) ||
+            .filter(id -> id.getSystem().equals(EREZEPT_IDENTIFIER_SYSTEM) ||
                 id.getSystem().equals(ERezeptWorkflowService.EREZEPT_IDENTIFIER_SYSTEM_GEM)).findFirst().orElse(new Identifier());
     }
 
@@ -462,30 +462,31 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
         return signBundleWithIdentifiers(bundle, wait10secondsAfterJobNumber, null);
     }
 
-    public SignResponse signBundleWithIdentifiers(Bundle bundle, boolean wait10secondsAfterJobNumber, RuntimeConfig runtimeConfig) throws ERezeptWorkflowException  {
+    public SignResponse signBundleWithIdentifiers(Bundle bundle, boolean wait10secondsAfterJobNumber, RuntimeConfig runtimeConfig) throws ERezeptWorkflowException {
         return signBundleWithIdentifiers(bundle, wait10secondsAfterJobNumber, runtimeConfig, null, null);
     }
 
     public SignResponse signBundleWithIdentifiers(Bundle bundle, boolean wait10secondsAfterJobNumber, RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId)
-            throws ERezeptWorkflowException {
+        throws ERezeptWorkflowException {
         return signBundleWithIdentifiers(Arrays.asList(bundle), wait10secondsAfterJobNumber, runtimeConfig, replyTo, replyToMessageId).get(0);
     }
 
     public List<SignResponse> signBundleWithIdentifiers(List<Bundle> bundles, boolean wait10secondsAfterJobNumber)
-        throws ERezeptWorkflowException{
+        throws ERezeptWorkflowException {
         return signBundleWithIdentifiers(bundles, wait10secondsAfterJobNumber, null);
     }
 
     public List<SignResponse> signBundleWithIdentifiers(List<Bundle> bundles, boolean wait10secondsAfterJobNumber, RuntimeConfig runtimeConfig)
-            throws ERezeptWorkflowException {
+        throws ERezeptWorkflowException {
         return signBundleWithIdentifiers(bundles, wait10secondsAfterJobNumber, runtimeConfig, null, null);
     }
 
 
     public List<SignResponse> signBundleWithIdentifiers(List<Bundle> bundles, boolean wait10secondsAfterJobNumber, RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId)
-            throws ERezeptWorkflowException {
+        throws ERezeptWorkflowException {
         return signBundleWithIdentifiers(bundles, wait10secondsAfterJobNumber, runtimeConfig, replyTo, replyToMessageId, true);
     }
+
     /**
      * This function signs the bundle with the signatureService.signDocument from
      * the connector.
@@ -494,7 +495,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
      * @throws ERezeptWorkflowException
      */
     public List<SignResponse> signBundleWithIdentifiers(List<Bundle> bundles, boolean wait10secondsAfterJobNumber, RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId, boolean firstTry)
-            throws ERezeptWorkflowException {
+        throws ERezeptWorkflowException {
 
         List<SignResponse> signResponses = null;
 
@@ -512,7 +513,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
                 try {
                     canonXmlBytes = getCanonicalXmlBytes(bundle);
                 } catch (InvalidCanonicalizerException | XMLParserException | CanonicalizationException
-                        | IOException e) {
+                         | IOException e) {
                     log.log(Level.SEVERE, "Could not get canonical XML", e);
                     exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, replyTo, replyToMessageId));
                     return null;
@@ -534,7 +535,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
             if (wait10secondsAfterJobNumber) {
                 // Wait 10 seconds to start titus test case
                 log.info(
-                        "Waiting 10 seconds. Please enable titus test case on https://frontend.titus.ti-dienste.de/#/erezept/vps/testsuiterun");
+                    "Waiting 10 seconds. Please enable titus test case on https://frontend.titus.ti-dienste.de/#/erezept/vps/testsuiterun");
                 try {
                     Thread.sleep(1000 * 10);
                 } catch (InterruptedException e) {
@@ -560,32 +561,32 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
 
                 List<de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse> signResponsesV755;
                 ContextType contextType = connectorServicesProvider.getContextType(runtimeConfig);
-                if(runtimeConfig != null && runtimeConfig.getUserId() != null && !"".equals(runtimeConfig.getUserId())) {
+                if (runtimeConfig != null && runtimeConfig.getUserId() != null && !"".equals(runtimeConfig.getUserId())) {
                     contextType.setUserId(runtimeConfig.getUserId());
                 } else {
-                    if(userIdForComfortSignature != null) {
+                    if (userIdForComfortSignature != null) {
                         contextType.setUserId(userIdForComfortSignature);
                     }
                 }
                 // if we don't have a user id, generate one
-                if(contextType.getUserId() == null || "".equals(contextType.getUserId())) {
+                if (contextType.getUserId() == null || "".equals(contextType.getUserId())) {
                     contextType.setUserId(UUID.randomUUID().toString());
                 }
-                if(appConfig.enableBatchSign()) {
+                if (appConfig.enableBatchSign()) {
                     String jobNumber = connectorServicesProvider.getSignatureServicePortTypeV755(runtimeConfig).getJobNumber(connectorServicesProvider.getContextType(runtimeConfig));
-            
+
                     signResponsesV755 = connectorServicesProvider.getSignatureServicePortTypeV755(runtimeConfig).signDocument(signatureServiceCardHandle,
-                            appConfig.getConnectorCrypt(),contextType, (runtimeConfig != null && runtimeConfig.getTvMode() != null) ? runtimeConfig.getTvMode() : userConfig.getTvMode(),
-                            jobNumber, signRequestsV755);
+                        appConfig.getConnectorCrypt(), contextType, (runtimeConfig != null && runtimeConfig.getTvMode() != null) ? runtimeConfig.getTvMode() : userConfig.getTvMode(),
+                        jobNumber, signRequestsV755);
                 } else {
                     signResponsesV755 = signRequestsV755.stream().map(signRequestV755 -> {
                         String jobNumber;
                         try {
                             jobNumber = connectorServicesProvider.getSignatureServicePortTypeV755(runtimeConfig).getJobNumber(connectorServicesProvider.getContextType(runtimeConfig));
-                            
+
                             List<de.gematik.ws.conn.signatureservice.v7_5_5.SignResponse> list = connectorServicesProvider.getSignatureServicePortTypeV755(runtimeConfig).signDocument(signatureServiceCardHandle,
-                            appConfig.getConnectorCrypt(), contextType, (runtimeConfig != null && runtimeConfig.getTvMode() != null) ? runtimeConfig.getTvMode() : userConfig.getTvMode(),
-                            jobNumber, Arrays.asList(signRequestV755));
+                                appConfig.getConnectorCrypt(), contextType, (runtimeConfig != null && runtimeConfig.getTvMode() != null) ? runtimeConfig.getTvMode() : userConfig.getTvMode(),
+                                jobNumber, Arrays.asList(signRequestV755));
                             return list.get(0);
                         } catch (FaultMessage e) {
                             exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, replyTo, replyToMessageId));
@@ -595,7 +596,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
                 }
 
                 List<SignResponse> signResponses744 = signResponsesV755.stream().map(signResponseV755 -> {
-                    if(signResponseV755 != null) {
+                    if (signResponseV755 != null) {
                         SignResponse signResponse744 = new SignResponse();
                         signResponse744.setSignatureObject(signResponseV755.getSignatureObject());
                         signResponse744.setStatus(signResponseV755.getStatus());
@@ -607,27 +608,27 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
                 signResponses = signResponses744;
                 // PTV4, could be PTV3 as well, to be refactored in a future task
             } else {
-                if(appConfig.enableBatchSign()) {
+                if (appConfig.enableBatchSign()) {
                     signResponses = connectorServicesProvider.getSignatureServicePortType(runtimeConfig).signDocument(signatureServiceCardHandle,
-                            connectorServicesProvider.getContextType(runtimeConfig), (runtimeConfig != null && runtimeConfig.getTvMode() != null) ? runtimeConfig.getTvMode() : userConfig.getTvMode(),
-                            connectorServicesProvider.getSignatureServicePortType(runtimeConfig).getJobNumber(connectorServicesProvider.getContextType(runtimeConfig)), signRequests);
-                 } else {
-                    signResponses = signRequests.stream().map(signRequest-> {
+                        connectorServicesProvider.getContextType(runtimeConfig), (runtimeConfig != null && runtimeConfig.getTvMode() != null) ? runtimeConfig.getTvMode() : userConfig.getTvMode(),
+                        connectorServicesProvider.getSignatureServicePortType(runtimeConfig).getJobNumber(connectorServicesProvider.getContextType(runtimeConfig)), signRequests);
+                } else {
+                    signResponses = signRequests.stream().map(signRequest -> {
                         List<SignResponse> list;
                         try {
                             list = connectorServicesProvider.getSignatureServicePortType(runtimeConfig).signDocument(signatureServiceCardHandle,
-                            connectorServicesProvider.getContextType(runtimeConfig), (runtimeConfig != null && runtimeConfig.getTvMode() != null) ? runtimeConfig.getTvMode() : userConfig.getTvMode(),
-                            connectorServicesProvider.getSignatureServicePortType(runtimeConfig).getJobNumber(connectorServicesProvider.getContextType(runtimeConfig)), Arrays.asList(signRequest));
+                                connectorServicesProvider.getContextType(runtimeConfig), (runtimeConfig != null && runtimeConfig.getTvMode() != null) ? runtimeConfig.getTvMode() : userConfig.getTvMode(),
+                                connectorServicesProvider.getSignatureServicePortType(runtimeConfig).getJobNumber(connectorServicesProvider.getContextType(runtimeConfig)), Arrays.asList(signRequest));
                         } catch (FaultMessage e) {
                             exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, replyTo, replyToMessageId));
                             return null;
                         }
                         return list.get(0);
                     }).collect(Collectors.toList());
-                 } 
+                }
             }
         } catch (ConnectorCardsException | FaultMessage e) {
-            if(firstTry) {
+            if (firstTry) {
                 log.log(Level.WARNING, "Exception signing bundles with identifiers on first try.", e);
                 return signBundleWithIdentifiers(bundles, wait10secondsAfterJobNumber, runtimeConfig, replyTo, replyToMessageId, false);
             } else {
@@ -635,15 +636,15 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
             }
         }
 
-        if(appConfig.isWriteSignatureFile()) {
+        if (appConfig.isWriteSignatureFile()) {
             String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
-                                .withZone(ZoneOffset.UTC)
-                                .format(Instant.now());
-            for(int i = 0; i<signResponses.size();i++) {
+                .withZone(ZoneOffset.UTC)
+                .format(Instant.now());
+            for (int i = 0; i < signResponses.size(); i++) {
                 byte[] sig = signResponses.get(i).getSignatureObject().getBase64Signature().getValue();
                 try {
-                    Path path = Paths.get(thisMoment+"-"+i+".p7s");
-                    log.info("Generating "+path.toAbsolutePath().toString());
+                    Path path = Paths.get(thisMoment + "-" + i + ".p7s");
+                    log.info("Generating " + path.toAbsolutePath().toString());
                     Files.write(path, sig);
                 } catch (IOException e) {
                     log.log(Level.SEVERE, "Could not generate signature files", e);
@@ -655,7 +656,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
 
     /**
      * Gets the canonical XML for the bundle using ALGO_ID_C14N11_OMIT_COMMENTS.
-     * 
+     *
      * @param bundle
      * @return
      * @throws InvalidCanonicalizerException
@@ -664,7 +665,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
      * @throws CanonicalizationException
      */
     public static byte[] getCanonicalXmlBytes(Bundle bundle)
-            throws InvalidCanonicalizerException, XMLParserException, IOException, CanonicalizationException {
+        throws InvalidCanonicalizerException, XMLParserException, IOException, CanonicalizationException {
         String bundleXml = fhirContext.newXmlParser().encodeResourceToString(bundle);
 
         log.fine(bundleXml);
@@ -720,14 +721,14 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
         log.fine("Parameter String: " + parameterString);
 
         try (Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task/$create").request()
-                .header("User-Agent", appConfig.getUserAgent())
-                .header("Authorization", "Bearer " + bearerToken.get(runtimeConfig))
-                .post(Entity.entity(parameterString, "application/fhir+xml; charset=utf-8"))) {
+            .header("User-Agent", appConfig.getUserAgent())
+            .header("Authorization", "Bearer " + bearerToken.get(runtimeConfig))
+            .post(Entity.entity(parameterString, "application/fhir+xml; charset=utf-8"))) {
 
             String taskString = response.readEntity(String.class);
 
             // if this was the first try, try again, this will request a new bearer token
-            if(firstTry && response.getStatus() == 401) {
+            if (firstTry && response.getStatus() == 401) {
                 log.warning("401 when trying to create e prescription. Retrying.");
                 return createERezeptTask(false, runtimeConfig, flowtype);
             }
@@ -755,8 +756,8 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
     public void abortERezeptTask(RuntimeConfig runtimeConfig, String taskId, String accessCode) {
         requestNewAccessTokenIfNecessary(runtimeConfig, null, null);
         try (Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task").path("/" + taskId).path("/$abort")
-                .request().header("User-Agent", appConfig.getUserAgent()).header("Authorization", "Bearer " + bearerToken.get(runtimeConfig)).header("X-AccessCode", accessCode)
-                .post(Entity.entity("", "application/fhir+xml; charset=utf-8"))) {
+            .request().header("User-Agent", appConfig.getUserAgent()).header("Authorization", "Bearer " + bearerToken.get(runtimeConfig)).header("X-AccessCode", accessCode)
+            .post(Entity.entity("", "application/fhir+xml; charset=utf-8"))) {
             String taskString = response.readEntity(String.class);
             // if it is not successful
             if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
@@ -764,13 +765,14 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
                 responseBuilder.entity(taskString);
                 throw new WebApplicationException(responseBuilder.build());
             }
-            
+
             log.info("Task $abort Response: " + taskString);
         }
     }
 
     /**
      * Is executed when an abortTasksEvent is received
+     *
      * @param abortTasksEvent event that contains the task to abort
      */
     public void onAbortTasksEvent(@ObservesAsync AbortTasksEvent abortTasksEvent) {
@@ -811,6 +813,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
     public String activateComfortSignature(RuntimeConfig runtimeConfig) {
         return activateComfortSignature(runtimeConfig, null, null);
     }
+
     /**
      * Activate comfort signature
      */
@@ -825,7 +828,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
             contextType.setUserId(userIdForComfortSignature);
             signatureServiceCardHandle = getSignatureServiceCardHandle(runtimeConfig);
             connectorServicesProvider.getSignatureServicePortTypeV755(runtimeConfig).activateComfortSignature(signatureServiceCardHandle, contextType,
-                    status, signatureMode);
+                status, signatureMode);
         } catch (Exception e) {
             log.log(Level.WARNING, "Could not enable comfort signature", e);
             exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, replyTo, replyToMessageId));
@@ -835,8 +838,8 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
 
     private String getSignatureServiceCardHandle(RuntimeConfig runtimeConfig) throws ConnectorCardsException {
         String signatureServiceCardHandle;
-        signatureServiceCardHandle = (runtimeConfig != null && runtimeConfig.getEHBAHandle() != null) ? runtimeConfig.getEHBAHandle() : connectorCardsService.getConnectorCardHandle( 
-                ConnectorCardsService.CardHandleType.HBA, runtimeConfig);
+        signatureServiceCardHandle = (runtimeConfig != null && runtimeConfig.getEHBAHandle() != null) ? runtimeConfig.getEHBAHandle() : connectorCardsService.getConnectorCardHandle(
+            ConnectorCardsService.CardHandleType.HBA, runtimeConfig);
         return signatureServiceCardHandle;
     }
 
@@ -854,8 +857,8 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
     public void onGetSignatureModeEvent(GetSignatureModeEvent getSignatureModeEvent, String userId, boolean answertToActivateComfortSignature) {
         try {
             GetSignatureModeResponseEvent getSignatureModeResponseEvent = getSignatureMode(getSignatureModeEvent.getRuntimeConfig(), getSignatureModeEvent.getReplyTo(), getSignatureModeEvent.getId());
-            if(getSignatureModeResponseEvent != null) {
-                if(getSignatureModeEvent != null) {
+            if (getSignatureModeResponseEvent != null) {
+                if (getSignatureModeEvent != null) {
                     getSignatureModeResponseEvent.setReplyTo(getSignatureModeEvent.getReplyTo());
                     getSignatureModeResponseEvent.setReplyToMessageId(getSignatureModeEvent.getId());
                 }
@@ -877,7 +880,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
      *
      */
     public GetSignatureModeResponseEvent getSignatureMode(RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId) {
-        if(userIdForComfortSignature == null && (runtimeConfig == null || (runtimeConfig.getUserId() == null || runtimeConfig.getUserId().isEmpty()))) {
+        if (userIdForComfortSignature == null && (runtimeConfig == null || (runtimeConfig.getUserId() == null || runtimeConfig.getUserId().isEmpty()))) {
             Status status = new Status();
             status.setResult("OK");
             ComfortSignatureStatusEnum comfortSignatureStatus = ComfortSignatureStatusEnum.DISABLED;
@@ -898,15 +901,16 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
 
         String signatureServiceCardHandle;
         try {
-            signatureServiceCardHandle = getSignatureServiceCardHandle(runtimeConfig);;
+            signatureServiceCardHandle = getSignatureServiceCardHandle(runtimeConfig);
+            ;
             ContextType contextType = connectorServicesProvider.getContextType(runtimeConfig);
-            if(runtimeConfig != null && runtimeConfig.getUserId() != null && !"".equals(runtimeConfig.getUserId())) {
+            if (runtimeConfig != null && runtimeConfig.getUserId() != null && !"".equals(runtimeConfig.getUserId())) {
                 contextType.setUserId(runtimeConfig.getUserId());
             } else {
                 contextType.setUserId(userIdForComfortSignature);
             }
             connectorServicesProvider.getSignatureServicePortTypeV755(runtimeConfig).getSignatureMode(signatureServiceCardHandle, contextType, status, comfortSignatureStatus,
-                    comfortSignatureMax, comfortSignatureTimer, sessionInfo);
+                comfortSignatureMax, comfortSignatureTimer, sessionInfo);
             return new GetSignatureModeResponseEvent(status.value, comfortSignatureStatus.value, comfortSignatureMax.value, comfortSignatureTimer.value, sessionInfo.value);
         } catch (ConnectorCardsException | FaultMessage e) {
             log.log(Level.WARNING, "Could not get signature signature", e);
@@ -939,12 +943,12 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
         try {
             signatureServiceCardHandle = getSignatureServiceCardHandle(runtimeConfig);
             ContextType contextType = connectorServicesProvider.getContextType(runtimeConfig);
-            if(runtimeConfig != null && runtimeConfig.getUserId() != null && !"".equals(runtimeConfig.getUserId())) {
+            if (runtimeConfig != null && runtimeConfig.getUserId() != null && !"".equals(runtimeConfig.getUserId())) {
                 contextType.setUserId(runtimeConfig.getUserId());
             } else {
                 contextType.setUserId(userIdForComfortSignature);
             }
-            
+
             connectorServicesProvider.getSignatureServicePortTypeV755(runtimeConfig).deactivateComfortSignature(Arrays.asList(signatureServiceCardHandle));
             userIdForComfortSignature = null;
         } catch (ConnectorCardsException | FaultMessage e) {
@@ -963,7 +967,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
         }
     }
 
-    public GetCardsResponse getCards()throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
+    public GetCardsResponse getCards() throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         return getCards(null);
     }
 
@@ -974,7 +978,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
         GetCards parameter = new GetCards();
         parameter.setContext(connectorServicesProvider.getContextType(runtimeConfig));
         EventServicePortType eventServicePortType = connectorServicesProvider.getEventServicePortType(runtimeConfig); // todo: if runtimeconfig without userid/hba/smcb: connectorBaseURL ignored ! request to http://ti-konnektor/eventservice
-        if(eventServicePortType == null) {
+        if (eventServicePortType == null) {
             throw new RuntimeException("EventServicePortType is null. This normally means that the connector configuration is not correct.");
         } else {
             return eventServicePortType.getCards(parameter);
@@ -985,24 +989,23 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
      * Checks if ERezeptService is reachable
      */
     public boolean isERezeptServiceReachable(RuntimeConfig runtimeConfig, String parameterBearerToken) {
-        String prescriptionServiceURL = (runtimeConfig != null && runtimeConfig.getPrescriptionServerURL() != null) ? runtimeConfig.getPrescriptionServerURL() : appConfig.getPrescriptionServiceURL();
-        if (prescriptionServiceURL==null) return false;
+        String prescriptionServiceURL = (runtimeConfig != null && runtimeConfig.getPrescriptionServerURL() != null)
+            ? runtimeConfig.getPrescriptionServerURL()
+            : appConfig.getPrescriptionServiceURL();
+        if (prescriptionServiceURL == null) {
+            return false;
+        }
         // use a http client that does not use a VAU implementation
-        Client testClient = ClientBuilder.newBuilder()
-            .readTimeout(3, TimeUnit.SECONDS).connectTimeout(3, TimeUnit.SECONDS).build();
+        Client testClient = ClientBuilder.newBuilder().readTimeout(3, TimeUnit.SECONDS).connectTimeout(3, TimeUnit.SECONDS).build();
         try (Response response = testClient
-                                 .target(prescriptionServiceURL)
-                                 .request()
-                                 .header("User-Agent", appConfig.getUserAgent())
-                                 .header("Authorization", "Bearer " + parameterBearerToken)
-                                 .get()
-            ) {
-            if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-                return true;
-            } else {
-                return false;
-            }
-        } catch(Exception ex) {
+            .target(prescriptionServiceURL)
+            .request()
+            .header("User-Agent", appConfig.getUserAgent())
+            .header("Authorization", "Bearer " + parameterBearerToken)
+            .get()
+        ) {
+            return response.getStatus() == Response.Status.OK.getStatusCode();
+        } catch (Exception ex) {
             return false;
         }
     }

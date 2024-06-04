@@ -10,7 +10,6 @@ import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
-import health.ere.ps.service.gematik.BearerTokenManageService;
 import health.ere.ps.service.gematik.PharmacyService;
 import io.quarkus.arc.Arc;
 import io.quarkus.arc.Unremovable;
@@ -24,7 +23,7 @@ public class AddJWTConfigurator extends ClientEndpointConfig.Configurator {
 
     private static final Logger log = Logger.getLogger(AddJWTConfigurator.class.getName());
 
-    BearerTokenManageService bearerTokenService;
+    PharmacyService bearerTokenService;
 
     MultiConnectorServicesProvider connectorServicesProvider;
 
@@ -32,7 +31,7 @@ public class AddJWTConfigurator extends ClientEndpointConfig.Configurator {
     public void beforeRequest(Map<String, List<String>> headers) {
 
         if (bearerTokenService == null) {
-            bearerTokenService = Arc.container().select(BearerTokenManageService.class).get();
+            bearerTokenService = Arc.container().select(PharmacyService.class).get();
         }
         if (connectorServicesProvider == null) {
             connectorServicesProvider = Arc.container().select(MultiConnectorServicesProvider.class).get();

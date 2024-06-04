@@ -41,7 +41,10 @@ public class CETPDecoder extends ByteToMessageDecoder {
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) { // (2)
-        byte[] header = new byte[4];
+        if(!in.isReadable(4)) {
+	    return;
+	}
+	byte[] header = new byte[4];
         in.readBytes(header);
 
         if(header[0] != 'C' || header[1] != 'E' || header[2] != 'T' || header[3] != 'P') {
