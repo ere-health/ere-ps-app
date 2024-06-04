@@ -1,5 +1,11 @@
 package health.ere.ps.service.cardlink;
 
+import java.io.IOException;
+import java.net.URI;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import health.ere.ps.service.health.check.CardlinkWebsocketCheck;
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
@@ -15,10 +21,6 @@ import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 import jakarta.websocket.WebSocketContainer;
 import jakarta.xml.bind.DatatypeConverter;
-
-import java.net.URI;
-import java.util.Map;
-import java.util.logging.Logger;
 
 @SuppressWarnings("unused")
 @ClientEndpoint(configurator = AddJWTConfigurator.class)
@@ -111,6 +113,10 @@ public class CardlinkWebsocketClient {
      */
     public void sendMessage(String message) {
         log.info(message);
-        this.userSession.getAsyncRemote().sendText(message);
+        try {
+            this.userSession.getBasicRemote().sendText(message);
+        } catch (IOException e) {
+            log.log(Level.WARNING, "Could not send websocket message to cardlink", e);
+        }
     }
 }
