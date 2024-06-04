@@ -1,5 +1,7 @@
 package health.ere.ps.utils;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -38,6 +40,14 @@ public class Utils {
         e.printStackTrace(new PrintWriter(sw));
         String stacktrace = sw.toString();
         return e.getMessage() + " -> " + stacktrace;
+    }
+
+    public static Pair<String, String> getThrowableDetails(Throwable t) {
+        StringWriter sw = new StringWriter();
+        t.printStackTrace(new PrintWriter(sw));
+        String stacktrace = sw.toString();
+        String error = t.getClass().getName() + ": " + t.getMessage();
+        return Pair.of(error, stacktrace);
     }
 
     public static String getHostFromNetworkInterfaces() {
