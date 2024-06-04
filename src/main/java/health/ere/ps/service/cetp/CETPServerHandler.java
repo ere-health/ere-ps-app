@@ -17,8 +17,11 @@ import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static health.ere.ps.utils.Utils.getThrowableDetails;
 
 public class CETPServerHandler extends ChannelInboundHandlerAdapter {
 
@@ -47,35 +50,59 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         @SuppressWarnings("unchecked")
         Pair<Event, UserConfigurations> input = (Pair<Event, UserConfigurations>) msg;
-        Event event = (Event) input.getKey();
+        Event event = input.getKey();
 
         if (event.getTopic().equals("CARD/INSERTED")) {
             log.info("Card inserted");
-            String cardHandle = event.getMessage().getParameter().stream().filter(p -> p.getKey().equals("CardHandle")).map(p -> p.getValue()).findFirst().get();
+            Optional<String> cardHandleOpt = event.getMessage().getParameter().stream()
+                .filter(p -> p.getKey().equals("CardHandle"))
+                .map(Event.Message.Parameter::getValue)
+                .findFirst();
 
-            Integer slotId = Integer.parseInt(event.getMessage().getParameter().stream().filter(p -> p.getKey().equals("SlotID")).map(p -> p.getValue()).findFirst().get());
-            String ctId = event.getMessage().getParameter().stream().filter(p -> p.getKey().equals("CtID")).map(p -> p.getValue()).findFirst().get();
+            Optional<String> slotIdOpt = event.getMessage().getParameter().stream()
+                .filter(p -> p.getKey().equals("SlotID"))
+                .map(Event.Message.Parameter::getValue)
+                .findFirst();
 
-            Long endTime = System.currentTimeMillis();
-            Pair<Bundle, String> pair;
-            try {
-                pair = pharmacyService.getEPrescriptionsForCardHandle(cardHandle, null, null);
-                Bundle bundle = pair.getKey();
-                String eventId = pair.getValue();
-                String xml = parser.encodeToString(bundle);
-                cardlinkWebsocketClient.sendJson("eRezeptTokensFromAVS", Map.of("slotId", slotId, "ctId", ctId, "tokens", xml));
+            Optional<String> ctIdOpt = event.getMessage().getParameter().stream()
+                .filter(p -> p.getKey().equals("CtID"))
+                .map(Event.Message.Parameter::getValue)
+                .findFirst();
 
-                JsonArrayBuilder bundles = prepareBundles(bundle);
-                cardlinkWebsocketClient.sendJson("eRezeptBundlesFromAVS", Map.of("slotId", slotId, "ctId", ctId, "bundles", bundles));
+            if (cardHandleOpt.isPresent() && slotIdOpt.isPresent() && ctIdOpt.isPresent()) {
+                String cardHandle = cardHandleOpt.get();
+                Integer slotId = Integer.parseInt(slotIdOpt.get());
+                String ctId = ctIdOpt.get();
+                Long endTime = System.currentTimeMillis();
+                Pair<Bundle, String> pair;
+                try {
+                    pair = pharmacyService.getEPrescriptionsForCardHandle(cardHandle, null, null);
+                    Bundle bundle = pair.getKey();
+                    String eventId = pair.getValue();
+                    String xml = parser.encodeToString(bundle);
+                    cardlinkWebsocketClient.sendJson("eRezeptTokensFromAVS", Map.of("slotId", slotId, "ctId", ctId, "tokens", xml));
 
-                cardlinkWebsocketClient.sendJson("vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "eventId", eventId));
+                    JsonArrayBuilder bundles = prepareBundles(bundle);
+                    cardlinkWebsocketClient.sendJson("eRezeptBundlesFromAVS", Map.of("slotId", slotId, "ctId", ctId, "bundles", bundles));
 
-            } catch (FaultMessage | de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage e) {
-                log.log(Level.WARNING, "Could not get prescription for Bundle", e);
-                String code = e instanceof FaultMessage
-                    ? ((FaultMessage) e).getFaultInfo().getTrace().get(0).getCode().toString()
-                    : ((de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage) e).getFaultInfo().getTrace().get(0).getCode().toString();
-                cardlinkWebsocketClient.sendJson("vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "err", code));
+                    cardlinkWebsocketClient.sendJson("vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "eventId", eventId));
+
+                } catch (FaultMessage | de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage e) {
+                    log.log(Level.WARNING, "Could not get prescription for Bundle", e);
+                    String code = e instanceof FaultMessage
+                        ? ((FaultMessage) e).getFaultInfo().getTrace().get(0).getCode().toString()
+                        : ((de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage) e).getFaultInfo().getTrace().get(0).getCode().toString();
+                    cardlinkWebsocketClient.sendJson("vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "err", code));
+
+                    Pair<String, String> details = getThrowableDetails(e);
+                    cardlinkWebsocketClient.sendJson(
+                        "eRezeptError",
+                        Map.of("slotId", slotId, "ctId", ctId, "error", details.getKey(), "stacktrace", details.getValue())
+                    );
+                }
+            } else {
+                String msgFormat = "Error while handling \"CARD/INSERTED\" event=%s: cardHandle=%s, slotId=%s, ctId=%s";
+                log.log(Level.SEVERE, String.format(msgFormat, event.getMessage(), cardHandleOpt, slotIdOpt, ctIdOpt));
             }
         }
     }
