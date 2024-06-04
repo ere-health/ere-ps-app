@@ -1,5 +1,20 @@
 package health.ere.ps.service.cetp;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.net.ssl.KeyManagerFactory;
+
 import health.ere.ps.service.cardlink.CardlinkWebsocketClient;
 import health.ere.ps.service.cetp.codec.CETPDecoder;
 import health.ere.ps.service.cetp.config.KonnektorConfig;
@@ -14,6 +29,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.ClientAuth;
@@ -25,20 +41,6 @@ import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
-
-import javax.net.ssl.KeyManagerFactory;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @ApplicationScoped
 public class CETPServer {
@@ -102,6 +104,8 @@ public class CETPServer {
                             CardlinkWebsocketClient websocketClient = new CardlinkWebsocketClient(config.getCardlinkEndpoint());
                             ch.pipeline()
                                 .addLast("ssl", sslContext.newHandler(ch.alloc()))
+                                .addLast("logging", new LoggingHandler(LogLevel.INFO))
+                                .addLast(new LengthFieldBasedFrameDecoder(65536, 4, 4, 0, 0))
                                 .addLast(new CETPDecoder(config.getUserConfigurations()))
                                 .addLast(new CETPServerHandler(pharmacyService, websocketClient));
                         } catch (Exception e) {
