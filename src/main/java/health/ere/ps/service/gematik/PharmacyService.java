@@ -159,11 +159,6 @@ public class PharmacyService extends BearerTokenManageService {
 
     static String getFirstCardWithName(EventServicePortType eventService, CardTypeType type, ContextType context, String name)
         throws FaultMessage, de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
-        if (eventService == null) {
-            log.warning("eventService is null");
-            return null;
-        }
-
         GetCards parameter = new GetCards();
         parameter.setContext(context);
         parameter.setCardType(type);
