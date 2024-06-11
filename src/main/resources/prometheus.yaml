@@ -1,0 +1,9 @@
+startDelaySeconds: 0
+httpServer:
+  ssl:
+    keyStore:
+      filename: prometheus/prometheus.jks
+      password: 7PgiiD8Q2qir
+    certificate:
+      alias: selfsigned
+attrNameSnakeCase: false
