@@ -1,5 +1,7 @@
 package health.ere.ps.service.cetp;
 
+import static health.ere.ps.utils.Utils.printException;
+
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -21,8 +23,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import jakarta.json.Json;
 import jakarta.json.JsonArrayBuilder;
-
-import static health.ere.ps.utils.Utils.printException;
 
 public class CETPServerHandler extends ChannelInboundHandlerAdapter {
 
@@ -49,6 +49,8 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
+        cardlinkWebsocketClient.connect();
+        
         @SuppressWarnings("unchecked")
         Pair<Event, UserConfigurations> input = (Pair<Event, UserConfigurations>) msg;
         Event event = input.getKey();
@@ -104,6 +106,7 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
                 log.log(Level.SEVERE, String.format(msgFormat, event.getMessage(), cardHandleOpt, slotIdOpt, ctIdOpt));
             }
         }
+        cardlinkWebsocketClient.close();
     }
     
     private JsonArrayBuilder prepareBundles(Bundle bundle, RuntimeConfig runtimeConfig) {

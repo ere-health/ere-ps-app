@@ -15,6 +15,7 @@ import jakarta.json.JsonObjectBuilder;
 import jakarta.websocket.ClientEndpoint;
 import jakarta.websocket.CloseReason;
 import jakarta.websocket.ContainerProvider;
+import jakarta.websocket.DeploymentException;
 import jakarta.websocket.OnClose;
 import jakarta.websocket.OnMessage;
 import jakarta.websocket.OnOpen;
@@ -30,6 +31,7 @@ public class CardlinkWebsocketClient {
     
     URI endpointURI;
     Session userSession;
+    WebSocketContainer container;
 
     private CardlinkWebsocketCheck cardlinkWebsocketCheck;
 
@@ -41,9 +43,16 @@ public class CardlinkWebsocketClient {
             this.cardlinkWebsocketCheck = cardlinkWebsocketCheck;
             this.cardlinkWebsocketCheck.setConnected(false);
             this.endpointURI = endpointURI;
-            WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-            container.connectToServer(this, endpointURI);
+            container = ContainerProvider.getWebSocketContainer();
         } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void connect() {
+        try {
+            container.connectToServer(this, endpointURI);
+        } catch (DeploymentException | IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -117,6 +126,14 @@ public class CardlinkWebsocketClient {
             this.userSession.getBasicRemote().sendText(message);
         } catch (IOException e) {
             log.log(Level.WARNING, "Could not send websocket message to cardlink", e);
+        }
+    }
+
+    public void close() {
+        try {
+            userSession.close();
+        } catch (IOException e) {
+            log.log(Level.WARNING, "Could not close websocket session", e);
         }
     }
 }
