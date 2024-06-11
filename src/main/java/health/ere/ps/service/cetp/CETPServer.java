@@ -101,10 +101,6 @@ public class CETPServer {
         workerGroups.add(workerGroup);
         Integer port = config.getPort();
         try {
-            CardlinkWebsocketClient websocketClient = new CardlinkWebsocketClient(
-                config.getCardlinkEndpoint(),
-                cardlinkWebsocketCheck
-            );
             ServerBootstrap b = new ServerBootstrap(); // (2)
             b.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class) // (3)
@@ -118,7 +114,10 @@ public class CETPServer {
                                 .clientAuth(ClientAuth.NONE)
                                 .build();
 
-                            
+                            CardlinkWebsocketClient websocketClient = new CardlinkWebsocketClient(
+                                config.getCardlinkEndpoint(),
+                                cardlinkWebsocketCheck
+                            );
                             ch.pipeline()
                                 .addLast("ssl", sslContext.newHandler(ch.alloc()))
                                 .addLast("logging", new LoggingHandler(LogLevel.DEBUG))
