@@ -3,6 +3,7 @@ package health.ere.ps.service.cardlink;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -12,6 +13,7 @@ import jakarta.json.JsonArray;
 import jakarta.json.JsonArrayBuilder;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonObjectBuilder;
+import jakarta.json.JsonValue;
 import jakarta.websocket.ClientEndpoint;
 import jakarta.websocket.CloseReason;
 import jakarta.websocket.ContainerProvider;
@@ -67,8 +69,6 @@ public class CardlinkWebsocketClient {
         log.info("opening websocket to "+endpointURI);
         this.userSession = userSession;
         cardlinkWebsocketCheck.setConnected(true);
-
-        sendJson("registerSMCB", Map.of());
     }
 
     /**
@@ -111,8 +111,13 @@ public class CardlinkWebsocketClient {
             .add("type", type)
             .add("payload", DatatypeConverter.printBase64Binary(payload.getBytes()))
             .build();
-        JsonArray jsonArray = Json.createArrayBuilder().add(jsonObject).build();
-        sendMessage(jsonArray.toString());
+        String correlationId = UUID.randomUUID().toString();
+        JsonArray jsonArray = Json.createArrayBuilder()
+            .add(jsonObject)
+            .add(JsonValue.NULL)
+            .add(correlationId)
+            .build();
+        sendMessage(jsonArray.toString(), correlationId);
     }
 
     /**
@@ -120,12 +125,12 @@ public class CardlinkWebsocketClient {
      *
      * @param message String
      */
-    public void sendMessage(String message) {
-        log.info(message);
+    public void sendMessage(String message, String correlationId) {
         try {
             this.userSession.getBasicRemote().sendText(message);
-        } catch (IOException e) {
-            log.log(Level.WARNING, "Could not send websocket message to cardlink", e);
+            log.info(String.format("[%s] WS message is sent to cardlink: %s", correlationId, message));
+        } catch (Throwable e) {
+            log.log(Level.WARNING, String.format("[%s] Could not send WS message to cardlink: %s", correlationId, message), e);
         }
     }
 
