@@ -17,6 +17,12 @@ public class PsMXBeanManager {
         register(server, name, mbean);
     }
 
+    public static void registerMXBean(Object mbean) {
+        String objectName = "health.ere.ps:type="+mbean.getClass().getSimpleName();
+        MBeanServer server = ManagementFactory.getPlatformMBeanServer();
+        register(server, objectName, mbean);
+    }
+
     public static void unregisterMXBean(String name) {
         MBeanServer server = ManagementFactory.getPlatformMBeanServer();
         try {

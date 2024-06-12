@@ -13,6 +13,7 @@ import de.gematik.ws.conn.vsds.vsdservice.v5.VSDStatusType;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.exception.common.security.SecretsManagerException;
+import health.ere.ps.jmx.ReadEPrescriptionsMXBean;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import health.ere.ps.service.fhir.FHIRService;
 import jakarta.annotation.PostConstruct;
@@ -48,13 +49,16 @@ import java.util.zip.GZIPInputStream;
 @ApplicationScoped
 public class PharmacyService extends BearerTokenManageService {
 
-    private final static Logger log = Logger.getLogger(PharmacyService.class.getName());
+    private static final Logger log = Logger.getLogger(PharmacyService.class.getName());
 
     @Inject
     AppConfig appConfig;
 
     @Inject
     MultiConnectorServicesProvider connectorServicesProvider;
+
+    @Inject
+    ReadEPrescriptionsMXBean readEPrescriptionsMXBean;
 
     private static final FhirContext fhirContext = FHIRService.getFhirContext();
 
@@ -89,11 +93,14 @@ public class PharmacyService extends BearerTokenManageService {
             String bundleString = new String(response.readEntity(InputStream.class).readAllBytes(), "ISO-8859-15");
 
             if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
+                readEPrescriptionsMXBean.increaseNumberEPrescriptionReadFailed();
                 throw new WebApplicationException("Error on " + appConfig.getPrescriptionServiceURL() + " " + bundleString, response.getStatus());
             }
+            readEPrescriptionsMXBean.increaseNumberEPrescriptionRead();
             return Pair.of(fhirContext.newXmlParser().parseResource(Bundle.class, bundleString), event);
         } catch (IOException | ParserConfigurationException | SAXException e) {
             log.log(Level.SEVERE, "Could not read response from Fachdienst", e);
+            readEPrescriptionsMXBean.increaseNumberEPrescriptionReadFailed();
             throw new WebApplicationException("Could not read response from Fachdienst", e);
         }
     }
@@ -125,15 +132,20 @@ public class PharmacyService extends BearerTokenManageService {
         requestNewAccessTokenIfNecessary(runtimeConfig, null, null);
         log.info(egkHandle + " " + smcbHandle);
         VSDServicePortType vsdServicePortType = connectorServicesProvider.getVSDServicePortType(runtimeConfig);
-        vsdServicePortType.readVSD(
-            egkHandle, smcbHandle, true, true, context,
-            persoenlicheVersichertendaten,
-            allgemeineVersicherungsdaten,
-            geschuetzteVersichertendaten,
-            vSD_Status,
-            pruefungsnachweis
-        );
-
+        try {
+            vsdServicePortType.readVSD(
+                    egkHandle, smcbHandle, true, true, context,
+                    persoenlicheVersichertendaten,
+                    allgemeineVersicherungsdaten,
+                    geschuetzteVersichertendaten,
+                    vSD_Status,
+                    pruefungsnachweis
+            );
+            readEPrescriptionsMXBean.increaseNumberEPrescriptionRead();
+        } catch (Throwable t){
+            readEPrescriptionsMXBean.increaseNumberEPrescriptionReadFailed();
+            throw t;
+        }
         return pruefungsnachweis;
     }
 
