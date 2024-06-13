@@ -59,7 +59,7 @@ public class CardInsertedTest {
 
         ArgumentCaptor<String> messageTypeCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<Map<String, Object>> mapCaptor = ArgumentCaptor.forClass(Map.class);
-        verify(cardlinkWebsocketClient, times(3)).sendJson(messageTypeCaptor.capture(), mapCaptor.capture());
+        verify(cardlinkWebsocketClient, times(3)).sendJson(any(), messageTypeCaptor.capture(), mapCaptor.capture());
 
         List<String> capturedMessages = messageTypeCaptor.getAllValues();
 
@@ -98,7 +98,7 @@ public class CardInsertedTest {
 
         ArgumentCaptor<String> messageTypeCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<Map<String, Object>> mapCaptor = ArgumentCaptor.forClass(Map.class);
-        verify(cardlinkWebsocketClient, times(2)).sendJson(messageTypeCaptor.capture(), mapCaptor.capture());
+        verify(cardlinkWebsocketClient, times(2)).sendJson(any(), messageTypeCaptor.capture(), mapCaptor.capture());
 
         List<String> capturedMessages = messageTypeCaptor.getAllValues();
         assertTrue(capturedMessages.get(0).contains("vsdmSensorData"));

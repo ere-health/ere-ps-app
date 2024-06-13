@@ -93,7 +93,7 @@ public class CardlinkWebsocketClient {
         log.info(message);
     }
 
-    public void sendJson(String type, Map<String, Object> payloadMap) {
+    public void sendJson(String correlationId, String type, Map<String, Object> payloadMap) {
         JsonObjectBuilder builder = Json.createObjectBuilder();
         for (Map.Entry<String, ?> entry : payloadMap.entrySet()) {
             if (entry.getValue() instanceof Integer) {
@@ -111,7 +111,6 @@ public class CardlinkWebsocketClient {
             .add("type", type)
             .add("payload", DatatypeConverter.printBase64Binary(payload.getBytes()))
             .build();
-        String correlationId = UUID.randomUUID().toString();
         JsonArray jsonArray = Json.createArrayBuilder()
             .add(jsonObject)
             .add(JsonValue.NULL)

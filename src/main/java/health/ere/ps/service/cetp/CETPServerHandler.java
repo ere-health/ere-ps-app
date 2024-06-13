@@ -4,6 +4,7 @@ import static health.ere.ps.utils.Utils.printException;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -78,28 +79,29 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
                 String ctId = ctIdOpt.get();
                 Long endTime = System.currentTimeMillis();
                 Pair<Bundle, String> pair;
+                String correlationId = UUID.randomUUID().toString();
                 try {
                     RuntimeConfig runtimeConfig = new RuntimeConfig(input.getValue());
                     pair = pharmacyService.getEPrescriptionsForCardHandle(cardHandle, null, runtimeConfig);
                     Bundle bundle = pair.getKey();
                     String eventId = pair.getValue();
                     String xml = parser.encodeToString(bundle);
-                    cardlinkWebsocketClient.sendJson("eRezeptTokensFromAVS", Map.of("slotId", slotId, "ctId", ctId, "tokens", xml));
+                    cardlinkWebsocketClient.sendJson(correlationId, "eRezeptTokensFromAVS", Map.of("slotId", slotId, "ctId", ctId, "tokens", xml));
 
                     JsonArrayBuilder bundles = prepareBundles(bundle, runtimeConfig);
-                    cardlinkWebsocketClient.sendJson("eRezeptBundlesFromAVS", Map.of("slotId", slotId, "ctId", ctId, "bundles", bundles));
+                    cardlinkWebsocketClient.sendJson(correlationId, "eRezeptBundlesFromAVS", Map.of("slotId", slotId, "ctId", ctId, "bundles", bundles));
 
-                    cardlinkWebsocketClient.sendJson("vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "eventId", eventId));
+                    cardlinkWebsocketClient.sendJson(correlationId, "vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "eventId", eventId));
 
                 } catch (FaultMessage | de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage e) {
                     log.log(Level.WARNING, "Could not get prescription for Bundle", e);
                     String code = e instanceof FaultMessage
                         ? ((FaultMessage) e).getFaultInfo().getTrace().get(0).getCode().toString()
                         : ((de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage) e).getFaultInfo().getTrace().get(0).getCode().toString();
-                    cardlinkWebsocketClient.sendJson("vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "err", code));
+                    cardlinkWebsocketClient.sendJson(correlationId, "vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "err", code));
 
                     String error = "ERROR: " + printException(e);
-                    cardlinkWebsocketClient.sendJson("eRezeptTokensFromAVS", Map.of("slotId", slotId, "ctId", ctId, "tokens", error));
+                    cardlinkWebsocketClient.sendJson(correlationId, "eRezeptTokensFromAVS", Map.of("slotId", slotId, "ctId", ctId, "tokens", error));
                 }
             } else {
                 String msgFormat = "Error while handling \"CARD/INSERTED\" event=%s: cardHandle=%s, slotId=%s, ctId=%s";
