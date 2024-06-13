@@ -1,10 +1,11 @@
 package health.ere.ps.jmx;
 
-import io.quarkus.runtime.Startup;
-import jakarta.annotation.PostConstruct;
-import jakarta.enterprise.context.ApplicationScoped;
-
 import java.util.concurrent.atomic.LongAdder;
+
+import io.quarkus.runtime.Startup;
+import io.quarkus.runtime.StartupEvent;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
 
 @ApplicationScoped
 @Startup
@@ -12,8 +13,7 @@ public class ReadEPrescriptionsMXBeanImpl implements ReadEPrescriptionsMXBean {
     private final LongAdder numberReads = new LongAdder();
     private final LongAdder numberReadsFailed = new LongAdder();
 
-    @PostConstruct
-    public void init() {
+    void onStart(@Observes StartupEvent ev) {
         PsMXBeanManager.registerMXBean(this);
     }
 
