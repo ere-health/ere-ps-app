@@ -7,6 +7,7 @@ import java.lang.management.ManagementFactory;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 public class PsMXBeanManager {
 
@@ -18,8 +19,14 @@ public class PsMXBeanManager {
     }
 
     public static void registerMXBean(Object mbean) {
-        String objectName = "health.ere.ps:type="+mbean.getClass().getSimpleName();
-        MBeanServer server = ManagementFactory.getPlatformMBeanServer();
+        var interfaces = mbean.getClass().getInterfaces();
+        var mXBeanInterface = Stream.of(interfaces)
+                .filter(interfaceClass ->
+                        interfaceClass.getPackageName().startsWith("health.ere") &&
+                                interfaceClass.getSimpleName().endsWith("MXBean")
+                ).findAny().orElseThrow();
+        var objectName = "health.ere.ps:type=" + mXBeanInterface.getSimpleName();
+        var server = ManagementFactory.getPlatformMBeanServer();
         register(server, objectName, mbean);
     }
 

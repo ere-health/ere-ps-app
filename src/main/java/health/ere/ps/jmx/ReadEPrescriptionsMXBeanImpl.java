@@ -1,15 +1,14 @@
 package health.ere.ps.jmx;
 
-import health.ere.ps.exception.common.security.SecretsManagerException;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.LongAdder;
 
 @ApplicationScoped
 public class ReadEPrescriptionsMXBeanImpl implements ReadEPrescriptionsMXBean {
-    private final AtomicLong numberReads = new AtomicLong();
-    private final AtomicLong numberReadsFailed = new AtomicLong();
+    private final LongAdder numberReads = new LongAdder();
+    private final LongAdder numberReadsFailed = new LongAdder();
 
     @PostConstruct
     public void init() {
@@ -18,21 +17,21 @@ public class ReadEPrescriptionsMXBeanImpl implements ReadEPrescriptionsMXBean {
 
     @Override
     public long getNumberEPrescriptionRead() {
-        return numberReads.get();
+        return numberReads.sum();
     }
 
     @Override
     public void increaseNumberEPrescriptionRead() {
-        numberReads.incrementAndGet();
+        numberReads.increment();
     }
 
     @Override
     public long getNumberEPrescriptionReadFailed() {
-        return numberReadsFailed.get();
+        return numberReadsFailed.sum();
     }
 
     @Override
     public void increaseNumberEPrescriptionReadFailed() {
-        numberReadsFailed.incrementAndGet();
+        numberReadsFailed.increment();
     }
 }
