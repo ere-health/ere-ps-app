@@ -4,7 +4,6 @@ package health.ere.ps.jmx;
 
 public interface ReadEPrescriptionsMXBean {
     long getNumberEPrescriptionRead();
-    void increaseNumberEPrescriptionRead();
+
     long getNumberEPrescriptionReadFailed();
-    void increaseNumberEPrescriptionReadFailed();
 }

@@ -1,17 +1,17 @@
 package health.ere.ps.jmx;
 
-import java.util.concurrent.atomic.LongAdder;
-import java.util.logging.Logger;
-
 import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 
+import java.util.concurrent.atomic.LongAdder;
+import java.util.logging.Logger;
+
 @ApplicationScoped
 public class ReadEPrescriptionsMXBeanImpl implements ReadEPrescriptionsMXBean {
-    
+
     private static final Logger log = Logger.getLogger(ReadEPrescriptionsMXBeanImpl.class.getName());
-    
+
     private final LongAdder numberReads = new LongAdder();
     private final LongAdder numberReadsFailed = new LongAdder();
 
@@ -25,7 +25,6 @@ public class ReadEPrescriptionsMXBeanImpl implements ReadEPrescriptionsMXBean {
         return numberReads.sum();
     }
 
-    @Override
     public void increaseNumberEPrescriptionRead() {
         numberReads.increment();
     }
@@ -35,7 +34,6 @@ public class ReadEPrescriptionsMXBeanImpl implements ReadEPrescriptionsMXBean {
         return numberReadsFailed.sum();
     }
 
-    @Override
     public void increaseNumberEPrescriptionReadFailed() {
         numberReadsFailed.increment();
     }
