@@ -1,11 +1,13 @@
 package health.ere.ps.jmx;
 
+import io.quarkus.runtime.Startup;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.concurrent.atomic.LongAdder;
 
 @ApplicationScoped
+@Startup
 public class ReadEPrescriptionsMXBeanImpl implements ReadEPrescriptionsMXBean {
     private final LongAdder numberReads = new LongAdder();
     private final LongAdder numberReadsFailed = new LongAdder();
