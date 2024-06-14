@@ -80,7 +80,7 @@ public class SubscriptionManager {
                 new IllegalStateException("eventToHost property is not found")
             );
         }
-        manage(new RuntimeConfig(userConfig.getConfigurations()), null, eventToHost, false, true);
+        manage(new RuntimeConfig(userConfig.getConfigurations()), null, eventToHost, true, true);
     }
 
     public void setConfigFolder(String configFolder) {
