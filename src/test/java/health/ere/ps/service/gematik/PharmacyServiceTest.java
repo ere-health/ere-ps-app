@@ -1,6 +1,7 @@
 package health.ere.ps.service.gematik;
 
 import java.io.IOException;
+import java.util.UUID;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
@@ -54,7 +55,8 @@ public class PharmacyServiceTest {
     @Test
     @Disabled
     void testGetEPrescriptionsForCardHandle() throws FaultMessage, de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
-        pharmacyService.getEPrescriptionsForCardHandle(null, null, null);
+        String correlationId = UUID.randomUUID().toString();
+        pharmacyService.getEPrescriptionsForCardHandle(correlationId, null, null, null);
     }
 
 }

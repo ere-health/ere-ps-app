@@ -16,6 +16,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.hl7.fhir.r4.model.Bundle;
 
 import java.util.List;
+import java.util.UUID;
 
 import static health.ere.ps.resource.gematik.Extractors.extractRuntimeConfigFromHeaders;
 
@@ -60,13 +61,15 @@ public class PharmacyResource {
     @Path("Task")
     public Bundle task(@QueryParam("egkHandle") String egkHandle, @QueryParam("smcbHandle") String smcbHandle) throws FaultMessage, de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         RuntimeConfig runtimeConfig = extractRuntimeConfigFromHeaders(httpServletRequest, userConfig);
-        Pair<Bundle, String> pair = pharmacyService.getEPrescriptionsForCardHandle(egkHandle, smcbHandle, runtimeConfig);
+        String correlationId = UUID.randomUUID().toString();
+        Pair<Bundle, String> pair = pharmacyService.getEPrescriptionsForCardHandle(correlationId, egkHandle, smcbHandle, runtimeConfig);
         return pair.getKey();
     }
 
     @GET
     @Path("Accept")
     public Bundle ePrescription(@QueryParam("token") String token) throws FaultMessage, de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
-        return pharmacyService.accept(token, extractRuntimeConfigFromHeaders(httpServletRequest, userConfig));
+        String correlationId = UUID.randomUUID().toString();
+        return pharmacyService.accept(correlationId, token, extractRuntimeConfigFromHeaders(httpServletRequest, userConfig));
     }
 }
