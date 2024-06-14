@@ -95,7 +95,7 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
                     cardlinkWebsocketClient.sendJson(correlationId, "vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "eventId", eventId));
 
                 } catch (FaultMessage | de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage e) {
-                    log.log(Level.WARNING, "Could not get prescription for Bundle", e);
+                    log.log(Level.WARNING, String.format("[%s] Could not get prescription for Bundle", correlationId), e);
                     String code = e instanceof FaultMessage
                         ? ((FaultMessage) e).getFaultInfo().getTrace().get(0).getCode().toString()
                         : ((de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage) e).getFaultInfo().getTrace().get(0).getCode().toString();
