@@ -1,13 +1,7 @@
 package health.ere.ps.service.cardlink;
 
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
-import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import health.ere.ps.service.gematik.PharmacyService;
@@ -16,6 +10,11 @@ import io.quarkus.arc.Unremovable;
 import jakarta.enterprise.context.Dependent;
 import jakarta.websocket.ClientEndpointConfig;
 import jakarta.websocket.HandshakeResponse;
+
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Unremovable
 @Dependent
@@ -43,7 +42,7 @@ public class AddJWTConfigurator extends ClientEndpointConfig.Configurator {
             EventServicePortType eventServicePortType = connectorServicesProvider.getEventServicePortType(runtimeConfig);
             try {
                 PharmacyService.setAndGetSMCBHandleForPharmacy(runtimeConfig, context, eventServicePortType);
-            } catch (FaultMessage | de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage e) {
+            } catch (de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage e) {
                 log.log(Level.SEVERE, "Could not get SMC-B for pharmacy", e);
             }
 

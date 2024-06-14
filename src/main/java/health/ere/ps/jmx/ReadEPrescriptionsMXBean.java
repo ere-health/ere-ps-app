@@ -3,7 +3,19 @@ package health.ere.ps.jmx;
 @SuppressWarnings("unused")
 
 public interface ReadEPrescriptionsMXBean {
-    long getNumberEPrescriptionRead();
+    long getVSDRead();
 
-    long getNumberEPrescriptionReadFailed();
+    long getVSDReadFailed();
+
+    long getTaskCalled();
+
+    long getTaskCalledFailed();
+
+    long getAccept();
+
+    long getAcceptFailed();
+
+    long getReject();
+
+    long getRejectFailed();
 }

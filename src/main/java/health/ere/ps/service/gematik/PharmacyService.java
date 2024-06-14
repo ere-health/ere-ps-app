@@ -12,7 +12,6 @@ import de.gematik.ws.conn.vsds.vsdservice.v5.VSDServicePortType;
 import de.gematik.ws.conn.vsds.vsdservice.v5.VSDStatusType;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.RuntimeConfig;
-import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.jmx.ReadEPrescriptionsMXBeanImpl;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import health.ere.ps.service.fhir.FHIRService;
@@ -67,15 +66,15 @@ public class PharmacyService extends BearerTokenManageService {
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
     @PostConstruct
-    public void init() throws SecretsManagerException {
+    public void init() {
         client = ERezeptWorkflowService.initClientWithVAU(appConfig);
     }
 
     public Pair<Bundle, String> getEPrescriptionsForCardHandle(
-        String correlationId,
-        String egkHandle,
-        String smcbHandle,
-        RuntimeConfig runtimeConfig
+            String correlationId,
+            String egkHandle,
+            String smcbHandle,
+            RuntimeConfig runtimeConfig
     ) throws FaultMessage, de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         if (runtimeConfig == null) {
             runtimeConfig = new RuntimeConfig();
@@ -84,44 +83,32 @@ public class PharmacyService extends BearerTokenManageService {
         Holder<byte[]> pruefungsnachweis = readVSD(egkHandle, smcbHandle, runtimeConfig);
         String pnw = Base64.getEncoder().encodeToString(pruefungsnachweis.value);
         try (Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task")
-            .queryParam("pnw", pnw).request()
-            .header("Content-Type", "application/fhir+xml")
-            .header("User-Agent", appConfig.getUserAgent())
-            .header("Authorization", "Bearer " + bearerToken.get(runtimeConfig))
-            .get()) {
+                .queryParam("pnw", pnw).request()
+                .header("Content-Type", "application/fhir+xml")
+                .header("User-Agent", appConfig.getUserAgent())
+                .header("Authorization", "Bearer " + bearerToken.get(runtimeConfig))
+                .get()) {
 
             String event = getEvent(factory.newDocumentBuilder(), pruefungsnachweis.value);
             String bundleString = new String(response.readEntity(InputStream.class).readAllBytes(), "ISO-8859-15");
 
             if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
-                if (readEPrescriptionsMXBean != null) {
-                    readEPrescriptionsMXBean.increaseNumberEPrescriptionReadFailed();
-                } else {
-                    log.warning("readEPrescriptionsMXBean is null");
-                }
+                readEPrescriptionsMXBean.increaseTasksFailed();
                 throw new WebApplicationException("Error on " + appConfig.getPrescriptionServiceURL() + " " + bundleString, response.getStatus());
             }
-            if (readEPrescriptionsMXBean != null) {
-                readEPrescriptionsMXBean.increaseNumberEPrescriptionRead();
-            } else {
-                log.warning("readEPrescriptionsMXBean is null");
-            }
+            readEPrescriptionsMXBean.increaseTasks();
             return Pair.of(fhirContext.newXmlParser().parseResource(Bundle.class, bundleString), event);
         } catch (IOException | ParserConfigurationException | SAXException e) {
             log.log(Level.SEVERE, String.format("[%s] Could not read response from Fachdienst", correlationId), e);
-            if (readEPrescriptionsMXBean != null) {
-                readEPrescriptionsMXBean.increaseNumberEPrescriptionReadFailed();
-            } else {
-                log.warning("readEPrescriptionsMXBean is null");
-            }
+            readEPrescriptionsMXBean.increaseTasksFailed();
             throw new WebApplicationException("Could not read response from Fachdienst", e);
         }
     }
 
     public Holder<byte[]> readVSD(
-        String egkHandle,
-        String smcbHandle,
-        RuntimeConfig runtimeConfig
+            String egkHandle,
+            String smcbHandle,
+            RuntimeConfig runtimeConfig
     ) throws FaultMessage, de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
         if ("".equals(context.getUserId()) || context.getUserId() == null) {
@@ -147,24 +134,16 @@ public class PharmacyService extends BearerTokenManageService {
         VSDServicePortType vsdServicePortType = connectorServicesProvider.getVSDServicePortType(runtimeConfig);
         try {
             vsdServicePortType.readVSD(
-                egkHandle, smcbHandle, true, true, context,
-                persoenlicheVersichertendaten,
-                allgemeineVersicherungsdaten,
-                geschuetzteVersichertendaten,
-                vSD_Status,
-                pruefungsnachweis
+                    egkHandle, smcbHandle, true, true, context,
+                    persoenlicheVersichertendaten,
+                    allgemeineVersicherungsdaten,
+                    geschuetzteVersichertendaten,
+                    vSD_Status,
+                    pruefungsnachweis
             );
-            if (readEPrescriptionsMXBean != null) {
-                readEPrescriptionsMXBean.increaseNumberEPrescriptionRead();
-            } else {
-                log.warning("readEPrescriptionsMXBean is null");
-            }
+            readEPrescriptionsMXBean.increaseVSDRead();
         } catch (Throwable t) {
-            if (readEPrescriptionsMXBean != null) {
-                readEPrescriptionsMXBean.increaseNumberEPrescriptionReadFailed();
-            } else {
-                log.warning("readEPrescriptionsMXBean is null");
-            }
+            readEPrescriptionsMXBean.increaseVSDFailed();
             throw t;
         }
         return pruefungsnachweis;
@@ -177,10 +156,10 @@ public class PharmacyService extends BearerTokenManageService {
     }
 
     public static String setAndGetSMCBHandleForPharmacy(
-        RuntimeConfig runtimeConfig,
-        ContextType context,
-        EventServicePortType eventService
-    ) throws FaultMessage, de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
+            RuntimeConfig runtimeConfig,
+            ContextType context,
+            EventServicePortType eventService
+    ) throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         String smcbHandle;
         smcbHandle = getFirstCardWithName(eventService, CardTypeType.SMC_B, context, "Bad ApothekeTEST-ONLY");
         if (smcbHandle == null) {
@@ -191,7 +170,7 @@ public class PharmacyService extends BearerTokenManageService {
     }
 
     static String getFirstCardWithName(EventServicePortType eventService, CardTypeType type, ContextType context, String name)
-        throws FaultMessage, de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
+            throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         GetCards parameter = new GetCards();
         parameter.setContext(context);
         parameter.setCardType(type);
@@ -209,56 +188,71 @@ public class PharmacyService extends BearerTokenManageService {
     public Bundle accept(String correlationId, String token, RuntimeConfig runtimeConfig) {
         requestNewAccessTokenIfNecessary(runtimeConfig, null, null);
         String secret = "";
-        String prescriptionId = "";
+        byte[] data;
+        Task task;
         try (Response response = client.target(appConfig.getPrescriptionServiceURL() + token).request()
-            .header("Content-Type", "application/fhir+xml")
-            .header("User-Agent", appConfig.getUserAgent())
-            .header("Authorization", "Bearer " + bearerToken.get(runtimeConfig))
-            .post(Entity.entity("", "application/fhir+xml"))) {
+                .header("Content-Type", "application/fhir+xml")
+                .header("User-Agent", appConfig.getUserAgent())
+                .header("Authorization", "Bearer " + bearerToken.get(runtimeConfig))
+                .post(Entity.entity("", "application/fhir+xml"))) {
 
             String bundleString = new String(response.readEntity(InputStream.class).readAllBytes(), "ISO-8859-15");
 
             if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
+                readEPrescriptionsMXBean.increaseAcceptFailed();
                 throw new WebApplicationException("Error on " + appConfig.getPrescriptionServiceURL() + " " + bundleString, response.getStatus());
             }
             Bundle bundle = fhirContext.newXmlParser().parseResource(Bundle.class, bundleString);
-            Task task = (Task) bundle.getEntry().get(0).getResource();
+            task = (Task) bundle.getEntry().get(0).getResource();
             secret = task.getIdentifier().stream().filter(t -> "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_Secret".equals(t.getSystem())).map(t -> t.getValue()).findAny().orElse(null);
             Binary binary = (Binary) bundle.getEntry().get(1).getResource();
             byte[] pkcs7Data = binary.getData();
             CMSSignedData signedData = new CMSSignedData(pkcs7Data);
             CMSProcessableByteArray signedContent = (CMSProcessableByteArray) signedData.getSignedContent();
-            byte[] data = (byte[]) signedContent.getContent();
+            data = (byte[]) signedContent.getContent();
+            readEPrescriptionsMXBean.increaseAccept();
+        } catch (Throwable t) {
+            readEPrescriptionsMXBean.increaseAcceptFailed();
+            String msg = String.format("[%s] Could not process %s secret: %s", correlationId, token, secret);
+            log.log(Level.SEVERE, msg, t);
+            return null;
+        }
 
-            response.close();
+        String prescriptionId = task.getIdentifier().stream().filter(t -> "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId".equals(t.getSystem())).map(t -> t.getValue()).findAny().orElse(null);
 
-            prescriptionId = task.getIdentifier().stream().filter(t -> "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId".equals(t.getSystem())).map(t -> t.getValue()).findAny().orElse(null);
-
-            try (Response response2 = client.target(appConfig.getPrescriptionServiceURL()).path("/Task/" + prescriptionId + "/$reject")
+        try (Response response2 = client.target(appConfig.getPrescriptionServiceURL()).path("/Task/" + prescriptionId + "/$reject")
                 .queryParam("secret", secret).request()
                 .header("User-Agent", appConfig.getUserAgent())
                 .header("Authorization", "Bearer " + bearerToken.get(runtimeConfig))
                 .post(Entity.entity("", "application/fhir+xml"))) {
 
-                InputStream is = response2.readEntity(InputStream.class);
-                String rejectResponse = "";
-                if (is != null) {
-                    rejectResponse = new String(is.readAllBytes(), "ISO-8859-15");
-                }
-                if (Response.Status.Family.familyOf(response2.getStatus()) != Response.Status.Family.SUCCESSFUL) {
-                    log.warning("Could not reject " + token + "prescriptionId: " + prescriptionId + " secret: " + secret + " " + rejectResponse);
-                }
+            InputStream is = response2.readEntity(InputStream.class);
+            String rejectResponse = "";
+            if (is != null) {
+                rejectResponse = new String(is.readAllBytes(), "ISO-8859-15");
             }
+            if (Response.Status.Family.familyOf(response2.getStatus()) != Response.Status.Family.SUCCESSFUL) {
+                log.warning("Could not reject " + token + "prescriptionId: " + prescriptionId + " secret: " + secret + " " + rejectResponse);
+            }
+            readEPrescriptionsMXBean.increaseReject();
 
             // todo: print bundle to pdf if configured
 
             return fhirContext.newXmlParser().parseResource(Bundle.class, new String(data));
         } catch (Throwable t) {
+            readEPrescriptionsMXBean.increaseRejectFailed();
             String msg = String.format(
-                "[%s] Could not process %s prescriptionId: %s secret: %s", correlationId, token, prescriptionId, secret
+                    "[%s] Could not process %s prescriptionId: %s secret: %s", correlationId, token, prescriptionId, secret
             );
             log.log(Level.SEVERE, msg, t);
             return null;
         }
+    }
+
+    /**
+     * for tests without cdi
+     */
+    public void setReadEPrescriptionsMXBean(ReadEPrescriptionsMXBeanImpl readEPrescriptionsMXBean) {
+        this.readEPrescriptionsMXBean = readEPrescriptionsMXBean;
     }
 }

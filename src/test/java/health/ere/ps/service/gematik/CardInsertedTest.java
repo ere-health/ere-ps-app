@@ -4,6 +4,7 @@ import de.gematik.ws.conn.eventservice.v7.Event;
 import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
 import de.gematik.ws.tel.error.v2.Error;
 import health.ere.ps.config.AppConfig;
+import health.ere.ps.jmx.ReadEPrescriptionsMXBeanImpl;
 import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.service.cardlink.CardlinkWebsocketClient;
 import health.ere.ps.service.cetp.CETPServerHandler;
@@ -29,21 +30,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class CardInsertedTest {
 
     private static final String READ_VSD_RESPONSE = "H4sIAAAAAAAA/w2M3QqCMBhAXyV8AL+5oj/mQNyKgk3ROaKbKLT8T1L8e/q8OReHwyG+XLlMPDQPwosnbcMykYmM1ViVdWsbadc1R4ChNT9J9eyywowTeD+hb+MKmnqAfukNSlRIMcJrtMN7tMW7zYHAoginmACnxL9TzZxJsGgtcmeWjGNPOZbIIyzzVGt2fo1zVvIrFEqq7BZZwVd7Z81+vSsmfzgVNoFlskDSP8uj5+izAAAA";
 
     @Test
-    public void vsdmSensorDataWithEventIdIsSentOnCardInsertedEvent() throws Exception {
-        PharmacyService pharmacyService = spy(new PharmacyService());
+    void vsdmSensorDataWithEventIdIsSentOnCardInsertedEvent() throws Exception {
+        PharmacyService pharmacyService = spy(createPharmacyService());
         Holder<byte[]> holder = prepareHolder(pharmacyService);
         doReturn(holder).when(pharmacyService).readVSD(any(), any(), any());
 
@@ -77,8 +72,8 @@ public class CardInsertedTest {
     }
 
     @Test
-    public void vsdmSensorDataWithErrorIsSentOnCardInsertedEvent() throws Exception {
-        PharmacyService pharmacyService = spy(new PharmacyService());
+    void vsdmSensorDataWithErrorIsSentOnCardInsertedEvent() throws Exception {
+        PharmacyService pharmacyService = spy(createPharmacyService());
         prepareHolder(pharmacyService);
         Error faultInfo = new Error();
         Error.Trace trace = new Error.Trace();
@@ -144,7 +139,7 @@ public class CardInsertedTest {
         return holder;
     }
 
-    private Pair<Event,UserConfigurations> prepareEvent(String slotIdValue, String ctIdValue) {
+    private Pair<Event, UserConfigurations> prepareEvent(String slotIdValue, String ctIdValue) {
         Event event = new Event();
         event.setTopic("CARD/INSERTED");
         Event.Message message = new Event.Message();
@@ -157,11 +152,17 @@ public class CardInsertedTest {
         Event.Message.Parameter parameterCtId = new Event.Message.Parameter();
         parameterCtId.setKey("CtID");
         parameterCtId.setValue(ctIdValue);
-        
+
         message.getParameter().add(parameter);
         message.getParameter().add(parameterSlotId);
         message.getParameter().add(parameterCtId);
         event.setMessage(message);
         return Pair.of(event, new UserConfigurations());
+    }
+
+    private static PharmacyService createPharmacyService() {
+        var pharmacyService = new PharmacyService();
+        pharmacyService.setReadEPrescriptionsMXBean(new ReadEPrescriptionsMXBeanImpl());    //normally done by CDI
+        return pharmacyService;
     }
 }

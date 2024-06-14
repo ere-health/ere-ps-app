@@ -25,7 +25,7 @@ class ReadEPrescriptionsMXBeanImplTest {
         int numOfCores = Runtime.getRuntime().availableProcessors() / 2;
         ExecutorService pool = Executors.newFixedThreadPool(numOfCores);
         for (int i = 0; i < nrTasks; i++) {
-            var future = pool.submit(bean::increaseNumberEPrescriptionRead);
+            var future = pool.submit(bean::increaseVSDRead);
             tasks.add(future);
         }
         for (var t : tasks) {
@@ -33,7 +33,7 @@ class ReadEPrescriptionsMXBeanImplTest {
         }
         pool.shutdownNow(); //autocloseable with java 21+
 
-        Assertions.assertTrue(bean.getNumberEPrescriptionRead() >= nrTasks);
+        Assertions.assertTrue(bean.getVSDRead() >= nrTasks);
         var platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
         Assertions.assertNotNull(platformMBeanServer.getObjectInstance(new ObjectName("health.ere.ps:type=ReadEPrescriptionsMXBean")));
     }
