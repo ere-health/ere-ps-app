@@ -78,17 +78,18 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
                 Integer slotId = Integer.parseInt(slotIdOpt.get());
                 String ctId = ctIdOpt.get();
                 Long endTime = System.currentTimeMillis();
-                Pair<Bundle, String> pair;
                 String correlationId = UUID.randomUUID().toString();
                 try {
                     RuntimeConfig runtimeConfig = new RuntimeConfig(input.getValue());
-                    pair = pharmacyService.getEPrescriptionsForCardHandle(cardHandle, null, runtimeConfig);
+                    Pair<Bundle, String> pair = pharmacyService.getEPrescriptionsForCardHandle(
+                        correlationId, cardHandle, null, runtimeConfig
+                    );
                     Bundle bundle = pair.getKey();
                     String eventId = pair.getValue();
                     String xml = parser.encodeToString(bundle);
                     cardlinkWebsocketClient.sendJson(correlationId, "eRezeptTokensFromAVS", Map.of("slotId", slotId, "ctId", ctId, "tokens", xml));
 
-                    JsonArrayBuilder bundles = prepareBundles(bundle, runtimeConfig);
+                    JsonArrayBuilder bundles = prepareBundles(correlationId, bundle, runtimeConfig);
                     cardlinkWebsocketClient.sendJson(correlationId, "eRezeptBundlesFromAVS", Map.of("slotId", slotId, "ctId", ctId, "bundles", bundles));
 
                     cardlinkWebsocketClient.sendJson(correlationId, "vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "eventId", eventId));
@@ -111,7 +112,7 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
         cardlinkWebsocketClient.close();
     }
     
-    private JsonArrayBuilder prepareBundles(Bundle bundle, RuntimeConfig runtimeConfig) {
+    private JsonArrayBuilder prepareBundles(String correlationId, Bundle bundle, RuntimeConfig runtimeConfig) {
         JsonArrayBuilder bundles = Json.createArrayBuilder();
         for (BundleEntryComponent entry : bundle.getEntry()) {
             if (entry.getResource() instanceof org.hl7.fhir.r4.model.Task) {
@@ -134,10 +135,10 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
                 log.info("TaskId: " + taskId + " AccessCode: " + accessCode);
                 String token = "/Task/" + taskId + "/$accept?ac=" + accessCode;
                 try {
-                    Bundle bundleEPrescription = pharmacyService.accept(token, runtimeConfig);
+                    Bundle bundleEPrescription = pharmacyService.accept(correlationId, token, runtimeConfig);
                     bundles.add(parser.encodeToString(bundleEPrescription));
                 } catch (Exception e) {
-                    bundles.add("Error for " + token + " " + e.getMessage());
+                    bundles.add(String.format("[%s] Error for %s -> %s", correlationId, token, e.getMessage()));
                 }
             }
         }
