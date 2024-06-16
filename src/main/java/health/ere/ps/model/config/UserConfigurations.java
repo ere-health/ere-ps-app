@@ -365,4 +365,27 @@ public class UserConfigurations {
                 workplaceId);
     }
 
+    @Override
+    public String toString() {
+        return "UserConfigurations{" +
+               "erixaHotfolder='" + erixaHotfolder + '\'' +
+               ", erixaDrugstoreEmail='" + erixaDrugstoreEmail + '\'' +
+               ", erixaUserEmail='" + erixaUserEmail + '\'' +
+               ", erixaUserPassword='" + erixaUserPassword + '\'' +
+               ", erixaApiKey='" + erixaApiKey + '\'' +
+               ", muster16TemplateProfile='" + muster16TemplateProfile + '\'' +
+               ", connectorBaseURL='" + connectorBaseURL + '\'' +
+               ", mandantId='" + mandantId + '\'' +
+               ", workplaceId='" + workplaceId + '\'' +
+               ", clientSystemId='" + clientSystemId + '\'' +
+               ", userId='" + userId + '\'' +
+               ", version='" + version + '\'' +
+               ", tvMode='" + tvMode + '\'' +
+               ", clientCertificate='" + clientCertificate + '\'' +
+               ", clientCertificatePassword='" + clientCertificatePassword + '\'' +
+               ", basicAuthUsername='" + basicAuthUsername + '\'' +
+               ", basicAuthPassword='" + basicAuthPassword + '\'' +
+               ", pruefnummer='" + pruefnummer + '\'' +
+               '}';
+    }
 }

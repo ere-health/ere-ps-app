@@ -210,4 +210,16 @@ public class RuntimeConfig extends UserConfig {
         }
     }
 
+    @Override
+    public String toString() {
+        return "RuntimeConfig{" +
+               "eHBAHandle='" + eHBAHandle + '\'' +
+               ", SMCBHandle='" + SMCBHandle + '\'' +
+               ", sendPreview=" + sendPreview +
+               ", idpBaseURL='" + idpBaseURL + '\'' +
+               ", idpAuthRequestRedirectURL='" + idpAuthRequestRedirectURL + '\'' +
+               ", idpClientId='" + idpClientId + '\'' +
+               ", prescriptionServerURL='" + prescriptionServerURL + '\'' +
+               "}, parent: " + super.toString();
+    }
 }

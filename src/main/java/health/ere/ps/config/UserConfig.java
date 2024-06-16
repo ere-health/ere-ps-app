@@ -159,4 +159,20 @@ public class UserConfig {
             defaultTvMode, defaultConnectorVersion, defaultPruefnummer, defaultMuster16TemplateProfile, configurations
         );
     }
+
+    @Override
+    public String toString() {
+        return "UserConfig{" +
+               "defaultConnectorBaseURI='" + defaultConnectorBaseURI + '\'' +
+               ", defaultMandantId='" + defaultMandantId + '\'' +
+               ", defaultWorkplaceId='" + defaultWorkplaceId + '\'' +
+               ", defaultClientSystemId='" + defaultClientSystemId + '\'' +
+               ", defaultUserId=" + defaultUserId +
+               ", defaultTvMode='" + defaultTvMode + '\'' +
+               ", defaultConnectorVersion='" + defaultConnectorVersion + '\'' +
+               ", defaultPruefnummer='" + defaultPruefnummer + '\'' +
+               ", defaultMuster16TemplateProfile='" + defaultMuster16TemplateProfile + '\'' +
+               ", configurations=" + configurations +
+               '}';
+    }
 }

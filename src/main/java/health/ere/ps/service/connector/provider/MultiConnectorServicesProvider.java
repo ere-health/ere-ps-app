@@ -15,9 +15,13 @@ import jakarta.inject.Inject;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 @ApplicationScoped
 public class MultiConnectorServicesProvider {
+
+    private static final Logger log = Logger.getLogger(MultiConnectorServicesProvider.class.getName());
 
     @Inject
     DefaultConnectorServicesProvider defaultConnectorServicesProvider;
@@ -25,14 +29,16 @@ public class MultiConnectorServicesProvider {
     @Inject
     Event<Exception> eventException;
 
-    Map<UserConfig, SingleConnectorServicesProvider> singleConnectorServicesProvider = new HashMap<>();
+    Map<UserConfig, SingleConnectorServicesProvider> singleConnectorServicesProvider = new ConcurrentHashMap<>();
 
     public AbstractConnectorServicesProvider getSingleConnectorServicesProvider(UserConfig userConfig) {
         if (userConfig == null) {
             return defaultConnectorServicesProvider;
         } else {
-            return singleConnectorServicesProvider.computeIfAbsent(userConfig, config ->
-                new SingleConnectorServicesProvider(config, eventException)
+            return singleConnectorServicesProvider.computeIfAbsent(userConfig, config -> {
+                        log.info("Insert new single connector service provider for user: " + userConfig);
+                        return new SingleConnectorServicesProvider(config, eventException);
+                    }
             );
         }
     }
