@@ -1,0 +1,32 @@
+- job_name: avs
+  static_configs:
+    - targets:
+        - localhost
+      labels:
+        job: avs
+        __path__: /opt/ere-health/logs/quarkus*.log*
+  pipeline_stages:
+    - multiline:
+        firstline: '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}'
+        max_wait_time: 5s
+    - regex:
+        expression: '(?m)(?P<time>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}) (?P<host>[-a-zA-Z0-9]+).*?\[\d+\] (?P<level>\w+) *\[(?P<logger>.*)\] \((?P<thread>.*)\).*?(?P<msg>(FaultMessage|([a-zA-Z]+Exception))?.*)(?:(?:\r\n|[\r\n]).+)*'
+    - labels:
+        time: time
+        host: host
+        level: level
+        logger: logger
+        thread: thread
+        msg: msg
+    - template:
+        source: err
+        template: '{{ if regexMatch ".*(FaultMessage|([a-zA-Z]+Exception)).*" .msg }}{{ regexReplaceAll "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}" (regexReplaceAll "ac=[a-f0-9]{64} *prescriptionId" (Trim .msg " \n\r\t")  "ac=*** ")  "uuid" }} {{ else }}{{ "e" }}{{ end }}'
+    - labels:
+        err: err
+    - timestamp:
+        source: time
+        format: "2006-01-02 15:04:05,000"
+        location: Europe/Berlin
+    - labeldrop:
+        - msg
+        - time

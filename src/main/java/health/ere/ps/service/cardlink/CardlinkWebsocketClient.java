@@ -131,6 +131,15 @@ public class CardlinkWebsocketClient {
         } catch (Throwable e) {
             log.log(Level.WARNING, String.format("[%s] Could not send WS message to cardlink: %s", correlationId, message), e);
         }
+
+        // TODO
+
+        /*
+        Jun 15 21:39:16 manuel-System-Product-Name promtail[275518]: level=error ts=2024-06-15T19:39:16.292577252Z
+        caller=client.go:430 component=client host=localhost:3100 msg="final error sending batch" status=400
+        tenant= error="server returned HTTP status 400 Bad Request (400): stream '
+        {err=\"[uuid] Could not send WS message to cardlink: [{\\\"type\\\":\\\"eRezeptTokensFromAVS\\\",\\\"payload\\\":\\\"eyJjdElkIjoiZTdhOGEwOTUtMTYxMy00YmZmLWE3MTQtMjEyYjcyYWRmZGFkIiwidG9rZW5zIjoiRVJST1I6IEZlaGxlciBiZWkgZGVyIEMyQy1BdXRoZW50aXNpZXJ1bmcgLT4gZGUuZ2VtYXRpay53cy5jb25uLnZzZHMudnNkc2VydmljZS52NS5GYXVsdE1lc3NhZ2U6IEZlaGxlciBiZWkgZGVyIEMyQy1BdXRoZW50aXNpZXJ1bmdcblx0YXQgamF2YS5iYXNlL2pkay5pbnRlcm5hbC5yZWZsZWN0LkRpcmVjdENvbnN0cnVjdG9ySGFuZGxlQWNjZXNzb3IubmV3SW5zdGFuY2UoRGlyZWN0Q29uc3RydWN0b3JIYW5kbGVBY2Nlc3Nvci5qYXZhOjYyKVxuXHRhdCBqYXZhLmJhc2UvamF2YS5sYW5nLnJlZmxlY3QuQ29uc3RydWN0b3IubmV3SW5zdGFuY2VXaXRoQ2FsbGVyKENvbnN0cnVjdG9yLmphdmE6NTAyKVxuXHRhdCBqYXZhLmJhc2UvamF2YS5sYW5nLnJlZmxlY3QuQ29uc3RydWN0b3IubmV3SW5zdGFuY2UoQ29uc3RydWN0b3IuamF2YTo0ODYpXG5cdGF0IGNvbS5zdW4ueG1sLndzLmZhdWx0LlNPQVBGYXVsdEJ1aWxkZXIuY3JlYXRlRXhjZXB0aW9uKFNPQVBGYXVsdEJ1aWxkZXIuamF2YToxMjMpXG5cdGF0IGNvbS5zdW4ueG1sLndzLmNsaWVudC5zZWkuU3R1YkhhbmRsZXIucmVhZFJlc3BvbnNlKFN0dWJIYW5kbGVyLmphdmE6MjI1KVxuXHRhdCBjb20uc3VuLnhtbC53cy5kYi5EYXRhYmluZGluZ0ltcG"
+         */
     }
 
     public void close() {
