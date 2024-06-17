@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Serializable;
 
 public class OutgoingPayload<T extends Serializable> implements Serializable {
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     private String type;
     private T payload;
 
@@ -35,19 +37,14 @@ public class OutgoingPayload<T extends Serializable> implements Serializable {
 
     @Override
     public String toString() {
-        ObjectMapper mapper = new ObjectMapper();
-        String json = "{}";
-
-        if(payload == null) {
-            return json;
+        if (payload == null) {
+            return "{}";
         }
 
         try {
-            json = mapper.writeValueAsString( this );
+            return OBJECT_MAPPER.writeValueAsString(this);
         } catch (JsonProcessingException e) {
-
+            return "{}";
         }
-
-        return json;
     }
 }

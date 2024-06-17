@@ -1,17 +1,16 @@
 package health.ere.ps.event.erixa;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import health.ere.ps.event.AbstractEvent;
+import health.ere.ps.model.erixa.PrescriptionTransferEntry;
 import jakarta.json.JsonObject;
 import jakarta.websocket.Session;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import health.ere.ps.event.AbstractEvent;
-import health.ere.ps.model.erixa.PrescriptionTransferEntry;
-
 
 public class SendToPharmacyEvent extends AbstractEvent {
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private final String document;
     private final PrescriptionTransferEntry details;
@@ -29,8 +28,7 @@ public class SendToPharmacyEvent extends AbstractEvent {
     }
 
     private PrescriptionTransferEntry parseDetails(JsonObject jsonObject) throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(jsonObject.toString(), PrescriptionTransferEntry.class);
+        return OBJECT_MAPPER.readValue(jsonObject.toString(), PrescriptionTransferEntry.class);
     }
 
     public String getDocument() {

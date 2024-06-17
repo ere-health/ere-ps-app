@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 public class EreLogNotificationEvent implements Serializable {
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     private List<String> systemContextList;
     private String simpleLogMessage;
     private String status;
@@ -33,16 +35,11 @@ public class EreLogNotificationEvent implements Serializable {
 
     @Override
     public String toString() {
-        ObjectMapper mapper = new ObjectMapper();
-        String json = "{}";
-
         try {
-            json = mapper.writeValueAsString( this );
+            return OBJECT_MAPPER.writeValueAsString(this);
         } catch (JsonProcessingException e) {
-
+            return "{}";
         }
-
-        return json;
     }
 
 

@@ -5,7 +5,8 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import health.ere.ps.exception.idp.crypto.IdpCryptoException;
+import health.ere.ps.model.idp.client.brainPoolExtension.BrainpoolCurves;
 import org.jose4j.json.internal.json_simple.JSONAware;
 import org.jose4j.jwk.EllipticCurveJsonWebKey;
 import org.jose4j.jwk.RsaJsonWebKey;
@@ -17,12 +18,16 @@ import java.util.Base64;
 import java.util.Objects;
 import java.util.Optional;
 
-import health.ere.ps.exception.idp.crypto.IdpCryptoException;
-import health.ere.ps.model.idp.client.brainPoolExtension.BrainpoolCurves;
-
 import static health.ere.ps.service.idp.crypto.KeyAnalysis.isEcKey;
 
 public class IdpKeyDescriptor implements JSONAware {
+    private static final ObjectMapper OBJECT_MAPPER;
+
+    static {
+        OBJECT_MAPPER = new ObjectMapper();
+        OBJECT_MAPPER.setSerializationInclusion(Include.NON_NULL);
+    }
+
 
     @JsonInclude(Include.NON_NULL)
     private String[] x5c;
@@ -69,8 +74,8 @@ public class IdpKeyDescriptor implements JSONAware {
     public static String[] getCertArray(final X509Certificate certificate) throws IdpCryptoException {
         try {
             return new String[]{
-                Base64.getEncoder().encodeToString(
-                    certificate.getEncoded())};
+                    Base64.getEncoder().encodeToString(
+                            certificate.getEncoded())};
         } catch (final CertificateEncodingException e) {
             throw new IdpCryptoException("Error while retrieving key information", e);
         }
@@ -81,13 +86,13 @@ public class IdpKeyDescriptor implements JSONAware {
     }
 
     public static IdpKeyDescriptor constructFromX509Certificate(final X509Certificate certificate,
-        final Optional<String> keyId, final boolean addX5C) {
+                                                                final Optional<String> keyId, final boolean addX5C) {
         if (isEcKey(certificate.getPublicKey())) {
             return IdpEccKeyDescriptor.constructFromX509Certificate(certificate,
-                keyId.orElse(certificate.getSerialNumber().toString()), addX5C);
+                    keyId.orElse(certificate.getSerialNumber().toString()), addX5C);
         } else {
             return IdpRsaKeyDescriptor.constructFromX509Certificate(certificate,
-                keyId.orElse(certificate.getSerialNumber().toString()), addX5C);
+                    keyId.orElse(certificate.getSerialNumber().toString()), addX5C);
         }
     }
 
@@ -102,10 +107,7 @@ public class IdpKeyDescriptor implements JSONAware {
     @Override
     public String toJSONString() {
         try {
-            final ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.setSerializationInclusion(Include.NON_NULL);
-            return objectMapper
-                .writeValueAsString(this);
+            return OBJECT_MAPPER.writeValueAsString(this);
         } catch (final JsonProcessingException e) {
             throw new IllegalStateException("Error during Claim serialization", e);
         }
