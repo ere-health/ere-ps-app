@@ -27,9 +27,10 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,7 +39,7 @@ public class StatusService {
 
     private static final Logger log = Logger.getLogger(StatusService.class.getName());
 
-    private final ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(5);
+    private final ExecutorService scheduledThreadPool = Executors.newFixedThreadPool(5);
 
     @Inject
     MultiConnectorServicesProvider connectorServicesProvider;
@@ -60,7 +61,7 @@ public class StatusService {
 
     @Inject
     CardCertificateReaderService cardCertificateReaderService;
-        
+
     @Inject
     ERezeptWorkflowService eRezeptWorkflowService;
 
@@ -124,9 +125,9 @@ public class StatusService {
                 status.setConnectorReachable(true, connectorBaseURL);
             } catch (Exception ex) {
                 status.setConnectorReachable(false, connectorBaseURL + ", "
-                    + clientCertificate + ":" + clientCertificatePassword + ", "
-                    + basicAuthUsername + ":" + basicAuthPassword + ", " +
-                    secretsManagerService.getSslContext());
+                        + clientCertificate + ":" + clientCertificatePassword + ", "
+                        + basicAuthUsername + ":" + basicAuthPassword + ", " +
+                        secretsManagerService.getSslContext());
             }
         }));
 
@@ -209,7 +210,7 @@ public class StatusService {
 
         for (Future<?> future : futures) {
             try {
-                future.get();
+                future.get(10, TimeUnit.SECONDS);
             } catch (Exception e) {
                 log.log(Level.SEVERE, "Error while building status", e);
             }
