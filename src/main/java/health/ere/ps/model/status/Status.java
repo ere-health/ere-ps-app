@@ -2,24 +2,24 @@ package health.ere.ps.model.status;
 
 import java.io.Serializable;
 
-public class Status implements Serializable{
-    private boolean connectorReachable;
-    private String connectorInformation;
-    private boolean idpReachable;
-    private String idpInformation;
-    private String bearerToken;
-    private boolean idpaccesstokenObtainable;
-    private String idpaccesstokenInformation;
-    private boolean smcbAvailable;
-    private String smcbInformation;
-    private boolean cautReadable;
-    private String cautInformation;
-    private boolean ehbaAvailable;
-    private String ehbaInformation;
-    private boolean comfortsignatureAvailable;
-    private String comfortsignatureInformation;
-    private boolean fachdienstReachable;
-    private String fachdienstInformation;
+public class Status implements Serializable {
+    private volatile boolean connectorReachable;
+    private volatile String connectorInformation;
+    private volatile boolean idpReachable;
+    private volatile String idpInformation;
+    private volatile String bearerToken;
+    private volatile boolean idpaccesstokenObtainable;
+    private volatile String idpaccesstokenInformation;
+    private volatile boolean smcbAvailable;
+    private volatile String smcbInformation;
+    private volatile boolean cautReadable;
+    private volatile String cautInformation;
+    private volatile boolean ehbaAvailable;
+    private volatile String ehbaInformation;
+    private volatile boolean comfortsignatureAvailable;
+    private volatile String comfortsignatureInformation;
+    private volatile boolean fachdienstReachable;
+    private volatile String fachdienstInformation;
 
     public void setConnectorReachable(boolean isOK, String statusDescription) {
         this.connectorReachable = isOK;
@@ -71,6 +71,7 @@ public class Status implements Serializable{
     public boolean getConnectorReachable() {
         return this.connectorReachable;
     }
+
     public String getConnectorInformation() {
         return this.connectorInformation;
     }
@@ -78,6 +79,7 @@ public class Status implements Serializable{
     public boolean getIdpReachable() {
         return this.idpReachable;
     }
+
     public String getIdpInformation() {
         return this.idpInformation;
     }
@@ -86,6 +88,7 @@ public class Status implements Serializable{
     public boolean getIdpaccesstokenObtainable() {
         return this.idpaccesstokenObtainable;
     }
+
     public String getIdpaccesstokenInformation() {
         return this.idpaccesstokenInformation;
     }
@@ -93,6 +96,7 @@ public class Status implements Serializable{
     public boolean getSmcbAvailable() {
         return this.smcbAvailable;
     }
+
     public String getSmcbInformation() {
         return this.smcbInformation;
     }
@@ -100,6 +104,7 @@ public class Status implements Serializable{
     public boolean getCautReadable() {
         return this.cautReadable;
     }
+
     public String getCautInformation() {
         return this.cautInformation;
     }
@@ -107,6 +112,7 @@ public class Status implements Serializable{
     public boolean getEhbaAvailable() {
         return this.ehbaAvailable;
     }
+
     public String getEhbaInformation() {
         return this.ehbaInformation;
     }
@@ -114,6 +120,7 @@ public class Status implements Serializable{
     public boolean getComfortsignatureAvailable() {
         return this.comfortsignatureAvailable;
     }
+
     public String getComfortsignatureInformation() {
         return this.comfortsignatureInformation;
     }
@@ -121,9 +128,11 @@ public class Status implements Serializable{
     public boolean getFachdienstReachable() {
         return this.fachdienstReachable;
     }
+
     public String getFachdienstInformation() {
         return this.fachdienstInformation;
     }
+
     public String getBearerToken() {
         return this.bearerToken;
     }
