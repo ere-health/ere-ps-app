@@ -1,7 +1,6 @@
 package health.ere.ps.jmx;
 
-@SuppressWarnings("unused")
-
+@SuppressWarnings("unused") //used by jmx
 public interface ReadEPrescriptionsMXBean {
     long getVSDRead();
 
