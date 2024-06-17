@@ -8,11 +8,13 @@ import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV740;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
 import de.gematik.ws.conn.vsds.vsdservice.v5.VSDServicePortType;
+import health.ere.ps.config.SimpleUserConfig;
 import health.ere.ps.config.UserConfig;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,17 +31,20 @@ public class MultiConnectorServicesProvider {
     @Inject
     Event<Exception> eventException;
 
-    Map<UserConfig, SingleConnectorServicesProvider> singleConnectorServicesProvider = new ConcurrentHashMap<>();
+    //Map<UserConfig, SingleConnectorServicesProvider> singleConnectorServicesProvider = new ConcurrentHashMap<>();
+    Map<SimpleUserConfig, SingleConnectorServicesProvider> singleConnectorServicesProvider = Collections.synchronizedMap(new HashMap<SimpleUserConfig, SingleConnectorServicesProvider>());
 
     public AbstractConnectorServicesProvider getSingleConnectorServicesProvider(UserConfig userConfig) {
         if (userConfig == null) {
             return defaultConnectorServicesProvider;
         } else {
-            return singleConnectorServicesProvider.computeIfAbsent(userConfig, config -> {
-                        log.info("Insert new single connector service provider for user: " + userConfig);
-                        return new SingleConnectorServicesProvider(config, eventException);
-                    }
-            );
+        	SimpleUserConfig simpleUserConfig = new SimpleUserConfig(userConfig);
+        	if(!singleConnectorServicesProvider.containsKey(simpleUserConfig)) {
+        		log.info("This key is not present in the map and will be inserted: " + simpleUserConfig.toString());
+        		log.info("The hashkey for it is: " + simpleUserConfig.hashCode());
+        		singleConnectorServicesProvider.put(simpleUserConfig, new SingleConnectorServicesProvider(userConfig, eventException));
+            }
+            return singleConnectorServicesProvider.get(simpleUserConfig);
         }
     }
 
@@ -84,6 +89,6 @@ public class MultiConnectorServicesProvider {
     }
 
     public void clearAll() {
-        singleConnectorServicesProvider = new HashMap<>();
+    	singleConnectorServicesProvider = Collections.synchronizedMap(new HashMap<SimpleUserConfig, SingleConnectorServicesProvider>());
     }
 }
