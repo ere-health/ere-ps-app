@@ -7,9 +7,7 @@ import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.model.status.Status;
 import health.ere.ps.service.cetp.SubscriptionManager;
 import health.ere.ps.service.status.StatusService;
-import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 
 import java.util.logging.Logger;
@@ -28,9 +26,9 @@ public class StatusMXBeanImpl implements StatusMXBean {
         this.subscriptionManager = subscriptionManager;
     }
 
-    void onStart(@Observes StartupEvent ev) {
-        PsMXBeanManager.registerMXBean(this);
-    }
+//    void onStart(@Observes StartupEvent ev) {
+//        PsMXBeanManager.registerMXBean(this);
+//    }
 
     public String getStatus() {
         var konnektorConfigs = subscriptionManager.getKonnektorConfigs(null);
