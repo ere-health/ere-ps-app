@@ -1,11 +1,59 @@
 package health.ere.ps.websocket;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.hl7.fhir.r4.model.Bundle;
+
 import ca.uhn.fhir.context.FhirContext;
 import de.gematik.ws.conn.cardservice.wsdl.v8.FaultMessage;
 import de.gematik.ws.tel.error.v2.Error;
 import de.gematik.ws.tel.error.v2.Error.Trace;
 import health.ere.ps.config.AppConfig;
-import health.ere.ps.event.*;
+import health.ere.ps.event.AbortTasksEvent;
+import health.ere.ps.event.AbortTasksStatusEvent;
+import health.ere.ps.event.ActivateComfortSignatureEvent;
+import health.ere.ps.event.BundlesEvent;
+import health.ere.ps.event.ChangePinEvent;
+import health.ere.ps.event.ChangePinResponseEvent;
+import health.ere.ps.event.DeactivateComfortSignatureEvent;
+import health.ere.ps.event.ERezeptWithDocumentsEvent;
+import health.ere.ps.event.EreLogNotificationEvent;
+import health.ere.ps.event.GetCardsEvent;
+import health.ere.ps.event.GetCardsResponseEvent;
+import health.ere.ps.event.GetPinStatusEvent;
+import health.ere.ps.event.GetPinStatusResponseEvent;
+import health.ere.ps.event.GetSignatureModeEvent;
+import health.ere.ps.event.GetSignatureModeResponseEvent;
+import health.ere.ps.event.HTMLBundlesEvent;
+import health.ere.ps.event.PrefillBundleEvent;
+import health.ere.ps.event.ReadyToSignBundlesEvent;
+import health.ere.ps.event.RequestStatusEvent;
+import health.ere.ps.event.SaveSettingsEvent;
+import health.ere.ps.event.SaveSettingsResponseEvent;
+import health.ere.ps.event.SignAndUploadBundlesEvent;
+import health.ere.ps.event.StatusResponseEvent;
+import health.ere.ps.event.UnblockPinEvent;
+import health.ere.ps.event.UnblockPinResponseEvent;
+import health.ere.ps.event.VZDSearchEvent;
+import health.ere.ps.event.VZDSearchResultEvent;
+import health.ere.ps.event.VerifyPinEvent;
+import health.ere.ps.event.VerifyPinResponseEvent;
 import health.ere.ps.event.erixa.ErixaEvent;
 import health.ere.ps.jsonb.BundleAdapter;
 import health.ere.ps.jsonb.ByteAdapter;
@@ -31,30 +79,19 @@ import jakarta.json.JsonReader;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.json.bind.JsonbConfig;
-import jakarta.websocket.*;
+import jakarta.websocket.OnClose;
+import jakarta.websocket.OnError;
+import jakarta.websocket.OnMessage;
+import jakarta.websocket.OnOpen;
+import jakarta.websocket.Session;
 import jakarta.websocket.server.ServerEndpoint;
 import message.processor.incoming.IncomingBundleMessageProcessor;
 import message.processor.incoming.IncomingMessageProcessor;
 import message.processor.outgoing.OutgoingMessageProcessor;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.hl7.fhir.r4.model.Bundle;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.math.BigInteger;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @ServerEndpoint(
-        value = "/websocket",
-        encoders = {ResponseEventEncoder.class})
+    value="/websocket",
+    encoders={ResponseEventEncoder.class})
 @ApplicationScoped
 public class Websocket {
     @Inject
@@ -92,7 +129,7 @@ public class Websocket {
 
     @Inject
     Event<PrefillBundleEvent> prefillBundleEvent;
-
+    
     @Inject
     Event<VerifyPinEvent> verifyPinEvent;
 
@@ -104,7 +141,7 @@ public class Websocket {
 
     @Inject
     Event<VZDSearchEvent> vZDSearchEvent;
-
+    
     @Inject
     PrescriptionBundleValidator prescriptionBundleValidator;
     @Inject
@@ -137,7 +174,7 @@ public class Websocket {
     }
 
     void sendAllKBVExamples(String folder, Session senderSession) {
-        if (folder.equals("src/test/resources/kbv-zip")) {
+        if(folder.equals("src/test/resources/kbv-zip")) {
             try {
                 Bundle bundle = fhirContext.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF01.xml"));
                 bundle.setId(UUID.randomUUID().toString());
@@ -172,7 +209,7 @@ public class Websocket {
                 bundle08_3.setId(UUID.randomUUID().toString());
 
                 onFhirBundle(new BundlesEvent(Arrays.asList(bundle08_1, bundle08_2, bundle08_3), senderSession, ""));
-            } catch (IOException ex) {
+            } catch(IOException ex) {
                 ereLog.warn("Could read all files", ex);
             }
         } else {
@@ -217,7 +254,7 @@ public class Websocket {
     @OnMessage
     public void onMessage(String message, Session senderSession) {
         ereLog.info("Message: " + message);
-        if (message == null) {
+        if(message == null) {
             ereLog.warn("null given as message");
             return;
         }
@@ -225,88 +262,87 @@ public class Websocket {
         try (JsonReader jsonReader = Json.createReader(new StringReader(message))) {
             JsonObject object = jsonReader.readObject();
             messageId = object.getString("id", null);
-            String type = object.getString("type");
-            if ("SignAndUploadBundles".equals(type)) {
+            if ("SignAndUploadBundles".equals(object.getString("type"))) {
                 processSignAndUploadBundles(senderSession, messageId, object);
-            } else if ("ValidateBundles".equals(type)) {
+            } else if ("ValidateBundles".equals(object.getString("type"))) {
                 JsonObject bundlesValidationResultMessage = prescriptionBundleValidator.bundlesValidationResult(object);
                 senderSession.getAsyncRemote().sendObject(
-                        bundlesValidationResultMessage.toString(),
-                        result -> {
-                            if (!result.isOK()) {
-                                ereLog.fatal("Unable to sent bundlesValidationResult event: " + result.getException());
-                            }
-                        });
-            } else if ("XMLBundle".equals(type)) {
+                    bundlesValidationResultMessage.toString(),
+                    result -> {
+                        if (!result.isOK()) {
+                            ereLog.fatal("Unable to sent bundlesValidationResult event: " + result.getException());
+                        }
+                    });
+            } else if ("XMLBundle".equals(object.getString("type"))) {
                 Bundle[] bundles = XmlPrescriptionProcessor.parseFromString(object.getString("payload"));
-                if (appConfig.getXmlBundleDirectProcess()) {
+                if(appConfig.getXmlBundleDirectProcess()) {
                     SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(bundles, object, senderSession, messageId);
-                    signAndUploadBundlesEvent.fireAsync(event);
+                    signAndUploadBundlesEvent.fireAsync(event);   
                 }
                 onFhirBundle(new BundlesEvent(Arrays.asList(bundles), null, messageId));
-            } else if ("PreviewOnly".equals(type)) { // todo: not final access-code and eRz-Id in here, just a preview!
+            } else if ("PreviewOnly".equals(object.getString("type"))) { // todo: not final access-code and eRz-Id in here, just a preview!
                 readyToSignBundlesEvent.fireAsync(new ReadyToSignBundlesEvent(object, senderSession, messageId));
-            } else if ("AbortTasks".equals(type)) {
+            } else if ("AbortTasks".equals(object.getString("type"))) {
                 abortTasksEvent.fireAsync(new AbortTasksEvent(object, senderSession, messageId));
-            } else if ("ErixaEvent".equals(type)) {
+            } else if ("ErixaEvent".equals(object.getString("type"))) {
                 ErixaEvent event = new ErixaEvent(object, senderSession, messageId);
                 erixaEvent.fireAsync(event);
-            } else if ("DeactivateComfortSignature".equals(type)) {
+            } else if ("DeactivateComfortSignature".equals(object.getString("type"))) {
                 DeactivateComfortSignatureEvent event = new DeactivateComfortSignatureEvent(object, senderSession, messageId);
                 deactivateComfortSignatureEvent.fireAsync(event);
-            } else if ("ActivateComfortSignature".equals(type)) {
+            } else if ("ActivateComfortSignature".equals(object.getString("type"))) {
                 ActivateComfortSignatureEvent event = new ActivateComfortSignatureEvent(object, senderSession, messageId);
                 activateComfortSignatureEvent.fireAsync(event);
-            } else if ("GetSignatureMode".equals(type)) {
+            } else if ("GetSignatureMode".equals(object.getString("type"))) {
                 GetSignatureModeEvent event = new GetSignatureModeEvent(object, senderSession, messageId);
                 getSignatureModeEvent.fireAsync(event);
-            } else if ("GetCards".equals(type)) {
+            } else if ("GetCards".equals(object.getString("type"))) {
                 GetCardsEvent event = new GetCardsEvent(object, senderSession, messageId);
                 getCardsEvent.fireAsync(event);
-            } else if ("ChangePin".equals(type)) {
+            } else if ("ChangePin".equals(object.getString("type"))) {
                 ChangePinEvent event = new ChangePinEvent(object, senderSession, messageId);
                 changePinEvent.fireAsync(event);
-            } else if ("VerifyPin".equals(type)) {
+            } else if ("VerifyPin".equals(object.getString("type"))) {
                 VerifyPinEvent event = new VerifyPinEvent(object, senderSession, messageId);
                 verifyPinEvent.fireAsync(event);
-            } else if ("UnblockPin".equals(type)) {
+            } else if ("UnblockPin".equals(object.getString("type"))) {
                 UnblockPinEvent event = new UnblockPinEvent(object, senderSession, messageId);
                 unblockPinEvent.fireAsync(event);
-            } else if ("GetPinStatus".equals(type)) {
+            } else if ("GetPinStatus".equals(object.getString("type"))) {
                 GetPinStatusEvent event = new GetPinStatusEvent(object, senderSession, messageId);
                 getPinStatusEvent.fireAsync(event);
-            } else if ("PrefillBundle".equals(type)) {
+            } else if ("PrefillBundle".equals(object.getString("type"))) {
                 PrefillBundleEvent event = new PrefillBundleEvent(object, senderSession, messageId);
                 prefillBundleEvent.fireAsync(event);
-            } else if ("VZDSearch".equals(type)) {
+            } else if("VZDSearch".equals(object.getString("type"))) {
                 VZDSearchEvent event = new VZDSearchEvent(object, senderSession, messageId);
                 vZDSearchEvent.fireAsync(event);
-            } else if ("RequestSettings".equals(type)) {
+            }  else if ("RequestSettings".equals(object.getString("type"))) {
                 UserConfigurations userConfigurations = userConfigurationService.getConfig();
                 String payload = jsonbFactory.toJson(userConfigurations);
                 senderSession.getAsyncRemote().sendObject(
-                        "{\"type\": \"Settings\", \"payload\": " + payload + ", \"replyToMessageId\": \"" + messageId + "\"}",
-                        result -> {
-                            if (!result.isOK()) {
-                                ereLog.fatal("Unable to send settings event: " + result.getException());
-                            }
-                        });
-            } else if ("SaveSettings".equals(type)) {
+                    "{\"type\": \"Settings\", \"payload\": " + payload + ", \"replyToMessageId\": \""+messageId+"\"}",
+                    result -> {
+                        if (!result.isOK()) {
+                            ereLog.fatal("Unable to send settings event: " + result.getException());
+                        }
+                    });
+            } else if("SaveSettings".equals(object.getString("type"))) {
                 String userConfiguration = object.getJsonObject("payload").toString();
                 UserConfigurations userConfigurations = jsonbFactory.fromJson(userConfiguration, UserConfigurations.class);
                 saveSettingsEvent.fireAsync(new SaveSettingsEvent(userConfigurations, senderSession, messageId));
-            } else if ("RequestStatus".equals(type)) {
+            } else if("RequestStatus".equals(object.getString("type"))) {
                 requestStatusEvent.fireAsync(new RequestStatusEvent(object, senderSession, messageId));
-            } else if ("Publish".equals(type)) {
+            } else if ("Publish".equals(object.getString("type"))) {
                 sendMessage(object.getString("payload"), "Unable to publish event");
-            } else if ("AllKBVExamples".equals(type)) {
+            } else if ("AllKBVExamples".equals(object.getString("type"))) {
                 sendAllKBVExamples(object.getString("folder", "src/test/resources/examples-kbv-fhir-erp-v1-0-2"), senderSession);
-            } else if ("SimulateException".equals(type)) {
+            } else if ("SimulateException".equals(object.getString("type"))) {
                 onException(simulateException(object));
             } else {
                 processIncomingMessage(object, senderSession);
             }
-        } catch (Exception ex) {
+        } catch(Exception ex) {
             ereLog.warn("Could not process message", ex);
             onException(new ExceptionWithReplyToException(ex, senderSession, messageId));
         }
@@ -315,26 +351,26 @@ public class Websocket {
     private void processSignAndUploadBundles(Session senderSession, String messageId, JsonObject object) {
         boolean bundlesValid = true;
         JsonObject bundlesValidationResultMessage = null;
-        if (!object.getBoolean("ignoreValidation", false)) {
+        if(!object.getBoolean("ignoreValidation", false)) {
             bundlesValidationResultMessage = prescriptionBundleValidator.bundlesValidationResult(object);
-
+            
             bundlesValid = bundlesValidationResultMessage.getJsonArray("payload")
-                    .stream().filter(jo -> jo instanceof JsonObject)
-                    .map(jo -> ((JsonObject) jo).getBoolean("valid"))
-                    .filter(b -> !b)
-                    .count() == 0;
+            .stream().filter(jo -> jo instanceof JsonObject)
+                .map(jo -> ((JsonObject) jo).getBoolean("valid"))
+                .filter(b -> !b)
+                .count() == 0;
         }
-        if (bundlesValid) {
+        if(bundlesValid) {
             SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(object, senderSession, messageId);
             signAndUploadBundlesEvent.fireAsync(event);
         } else {
             senderSession.getAsyncRemote().sendObject(
-                    bundlesValidationResultMessage == null ? "{}" : bundlesValidationResultMessage.toString(),
-                    result -> {
-                        if (!result.isOK()) {
-                            ereLog.fatal("Unable to send bundlesValidationResult event: " + result.getException());
-                        }
-                    });
+                bundlesValidationResultMessage == null ? "{}" : bundlesValidationResultMessage.toString(),
+                result -> {
+                    if (!result.isOK()) {
+                        ereLog.fatal("Unable to send bundlesValidationResult event: " + result.getException());
+                    }
+                });
         }
     }
 
@@ -351,13 +387,13 @@ public class Websocket {
     public void onFhirBundle(@ObservesAsync BundlesEvent bundlesEvent) {
         String bundlesString = generateJson(bundlesEvent);
         Set<Session> localSessions = new HashSet<>();
-        if (bundlesEvent.getReplyTo() != null) {
+        if(bundlesEvent.getReplyTo() != null) {
             localSessions.add(bundlesEvent.getReplyTo());
         } else {
             localSessions = sessions;
         }
         localSessions.forEach(session -> session.getAsyncRemote().sendObject(
-                "{\"type\": \"Bundles\", \"payload\": " + bundlesString + ", \"replyToMessageId\": \"" + bundlesEvent.getReplyToMessageId() + "\"}",
+                "{\"type\": \"Bundles\", \"payload\": " + bundlesString + ", \"replyToMessageId\": \""+bundlesEvent.getReplyToMessageId()+"\"}",
                 result -> {
                     if (!result.isOK()) {
                         ereLog.fatal("Unable to send bundlesEvent: " + result.getException());
@@ -366,11 +402,11 @@ public class Websocket {
     }
 
     public void onAbortTasksStatusEvent(@ObservesAsync AbortTasksStatusEvent abortTasksStatusEvent) {
-
+        
         String abortTasksStatusString = generateJson(abortTasksStatusEvent);
-
+        
         abortTasksStatusEvent.getReplyTo().getAsyncRemote().sendObject(
-                "{\"type\": \"AbortTasksStatus\", \"payload\": " + abortTasksStatusString + ", \"replyToMessageId\": \"" + abortTasksStatusEvent.getReplyToMessageId() + "\"}",
+                "{\"type\": \"AbortTasksStatus\", \"payload\": " + abortTasksStatusString + ", \"replyToMessageId\": \""+abortTasksStatusEvent.getReplyToMessageId()+"\"}",
                 result -> {
                     if (!result.isOK()) {
                         ereLog.fatal("Unable to send bundlesEvent: " + result.getException());
@@ -379,11 +415,11 @@ public class Websocket {
     }
 
     public void onGetCardsResponseEvent(@ObservesAsync GetCardsResponseEvent getCardsResponseEvent) {
-
+        
         String abortTasksStatusString = generateJson(getCardsResponseEvent);
-
+        
         getCardsResponseEvent.getReplyTo().getAsyncRemote().sendObject(
-                "{\"type\": \"GetCardsResponse\", \"payload\": " + abortTasksStatusString + ", \"replyToMessageId\": \"" + getCardsResponseEvent.getReplyToMessageId() + "\"}",
+                "{\"type\": \"GetCardsResponse\", \"payload\": " + abortTasksStatusString + ", \"replyToMessageId\": \""+getCardsResponseEvent.getReplyToMessageId()+"\"}",
                 result -> {
                     if (!result.isOK()) {
                         ereLog.fatal("Unable to get cards response: " + result.getException());
@@ -392,10 +428,10 @@ public class Websocket {
     }
 
     public void onGetSignatureModeResponseEvent(@ObservesAsync GetSignatureModeResponseEvent getSignatureModeResponseEvent) {
-
+        
         String abortTasksStatusString = generateJson(getSignatureModeResponseEvent);
         getSignatureModeResponseEvent.getReplyTo().getAsyncRemote().sendObject(
-                "{\"type\": \"GetSignatureModeResponse\", \"payload\": " + abortTasksStatusString + ", \"replyToMessageId\": \"" + getSignatureModeResponseEvent.getReplyToMessageId() + "\"}",
+                "{\"type\": \"GetSignatureModeResponse\", \"payload\": " + abortTasksStatusString + ", \"replyToMessageId\": \""+getSignatureModeResponseEvent.getReplyToMessageId()+"\"}",
                 result -> {
                     if (!result.isOK()) {
                         ereLog.fatal("Unable to send getSignatureModeResponseEvent: " + result.getException());
@@ -404,10 +440,10 @@ public class Websocket {
     }
 
     public void onChangePinResponseEvent(@ObservesAsync ChangePinResponseEvent changePinResponseEvent) {
-
+        
         String changePinResponseString = generateJson(changePinResponseEvent);
         changePinResponseEvent.getReplyTo().getAsyncRemote().sendObject(
-                "{\"type\": \"ChangePinResponse\", \"payload\": " + changePinResponseString + ", \"replyToMessageId\": \"" + changePinResponseEvent.getReplyToMessageId() + "\"}",
+                "{\"type\": \"ChangePinResponse\", \"payload\": " + changePinResponseString + ", \"replyToMessageId\": \""+changePinResponseEvent.getReplyToMessageId()+"\"}",
                 result -> {
                     if (!result.isOK()) {
                         ereLog.fatal("Unable to send changePinResponseEvent: " + result.getException());
@@ -416,7 +452,7 @@ public class Websocket {
     }
 
     public void onStatusResponseEvent(@ObservesAsync StatusResponseEvent statusResponseEvent) {
-
+        
         statusResponseEvent.getReplyTo().getAsyncRemote().sendObject(statusResponseEvent,
                 result -> {
                     if (!result.isOK()) {
@@ -426,7 +462,7 @@ public class Websocket {
     }
 
     public void onVZDSearchResultEvent(@ObservesAsync VZDSearchResultEvent vZDSearchResultEvent) {
-
+        
         vZDSearchResultEvent.getReplyTo().getAsyncRemote().sendObject(vZDSearchResultEvent,
                 result -> {
                     if (!result.isOK()) {
@@ -436,7 +472,7 @@ public class Websocket {
     }
 
     public void onVerifyPinResponseEvent(@ObservesAsync VerifyPinResponseEvent verifyPinResponseEvent) {
-
+        
         verifyPinResponseEvent.getReplyTo().getAsyncRemote().sendObject(verifyPinResponseEvent,
                 result -> {
                     if (!result.isOK()) {
@@ -446,7 +482,7 @@ public class Websocket {
     }
 
     public void onUnblockPinResponseEvent(@ObservesAsync UnblockPinResponseEvent unblockPinResponseEvent) {
-
+        
         unblockPinResponseEvent.getReplyTo().getAsyncRemote().sendObject(unblockPinResponseEvent,
                 result -> {
                     if (!result.isOK()) {
@@ -456,7 +492,7 @@ public class Websocket {
     }
 
     public void onGetPinStatusResponseEvent(@ObservesAsync GetPinStatusResponseEvent getPinStatusResponseEvent) {
-
+        
         getPinStatusResponseEvent.getReplyTo().getAsyncRemote().sendObject(getPinStatusResponseEvent,
                 result -> {
                     if (!result.isOK()) {
@@ -467,7 +503,7 @@ public class Websocket {
 
     public void onSaveSettingsResponseEvent(@ObservesAsync SaveSettingsResponseEvent saveSettingsResponseEvent) {
         saveSettingsResponseEvent.getReplyTo().getAsyncRemote().sendObject(
-                "{\"type\": \"SaveSettingsResponseEvent\", \"payload\": " + jsonbFactory.toJson(saveSettingsResponseEvent) + ", \"replyToMessageId\": \"" + saveSettingsResponseEvent.getReplyToMessageId() + "\"}",
+        "{\"type\": \"SaveSettingsResponseEvent\", \"payload\": " + jsonbFactory.toJson(saveSettingsResponseEvent) + ", \"replyToMessageId\": \""+saveSettingsResponseEvent.getReplyToMessageId()+"\"}",
                 result -> {
                     if (!result.isOK()) {
                         ereLog.fatal("Unable to send SaveSettingsResponseEvent: " + result.getException());
@@ -508,8 +544,8 @@ public class Websocket {
         ereLog.info("Sending prescription receipt payload to front-end: " +
                 jsonPayload);
 
-        Set<Session> localSessions = new HashSet<>();
-        if (eRezeptDocumentsEvent.getReplyTo() != null && !erezeptdocumentsReplyToAll) {
+                Set<Session> localSessions = new HashSet<>();
+        if(eRezeptDocumentsEvent.getReplyTo() != null && !erezeptdocumentsReplyToAll) {
             localSessions.add(eRezeptDocumentsEvent.getReplyTo());
         } else {
             localSessions = sessions;
@@ -517,25 +553,25 @@ public class Websocket {
         localSessions.forEach(session -> {
 
             session.getAsyncRemote().sendObject(
-                    jsonPayload,
-                    result -> {
-                        if (!result.isOK()) {
-                            ereLog.fatal("Unable to send eRezeptWithDocumentsEvent: " +
-                                    result.getException());
-                        }
-                    });
+                jsonPayload,
+                result -> {
+                    if (!result.isOK()) {
+                        ereLog.fatal("Unable to send eRezeptWithDocumentsEvent: " +
+                                result.getException());
+                    }
+                });
         });
     }
 
     public String generateJson(ERezeptWithDocumentsEvent eRezeptDocumentsEvent) {
-        if (removeSignatureFromMessage) {
+        if(removeSignatureFromMessage) {
             eRezeptDocumentsEvent.getERezeptWithDocuments().stream()
-                    .flatMap(ezd -> ezd.getBundleWithAccessCodeOrThrowables().stream())
-                    .forEach(bundleWithAccessCodeOrThrowables -> bundleWithAccessCodeOrThrowables.setSignedBundle(null));
+                .flatMap(ezd -> ezd.getBundleWithAccessCodeOrThrowables().stream())
+                .forEach(bundleWithAccessCodeOrThrowables -> bundleWithAccessCodeOrThrowables.setSignedBundle(null));
         }
 
         return "{\"type\": \"ERezeptWithDocuments\", \"payload\": " +
-                jsonbFactory.toJson(eRezeptDocumentsEvent.getERezeptWithDocuments()) + ", \"replyToMessageId\": \"" + eRezeptDocumentsEvent.getReplyToMessageId() + "\"}";
+                jsonbFactory.toJson(eRezeptDocumentsEvent.getERezeptWithDocuments()) + ", \"replyToMessageId\": \""+eRezeptDocumentsEvent.getReplyToMessageId()+"\"}";
     }
 
     String generateJson(BundlesEvent bundlesEvent) {
@@ -566,13 +602,13 @@ public class Websocket {
         Set<Session> localSessions = sessions;
 
         Exception exceptionFromReplyTo = null;
-        String replyToMessageIdFromException = null;
+        String replyToMessageIdFromException = null; 
 
         // only send the exception to the session that provoked it
-        if (exceptionParam instanceof ExceptionWithReplyToException) {
+        if(exceptionParam instanceof ExceptionWithReplyToException) {
             ExceptionWithReplyToException exceptionWithReplyToExcetion = (ExceptionWithReplyToException) exceptionParam;
             localSessions = new HashSet<>();
-            if (exceptionWithReplyToExcetion.getReplyTo() != null) {
+            if(exceptionWithReplyToExcetion.getReplyTo() != null) {
                 localSessions.add(exceptionWithReplyToExcetion.getReplyTo());
                 exceptionFromReplyTo = exceptionWithReplyToExcetion.getException();
                 replyToMessageIdFromException = exceptionWithReplyToExcetion.getMessageId();
@@ -584,11 +620,11 @@ public class Websocket {
 
         localSessions.forEach(session -> {
             session.getAsyncRemote()
-                    .sendObject("{\"type\": \"Exception\", \"payload\": " + jsonbFactory.toJson(exception) + ", \"replyToMessageId\": \"" + replyToMessageId + "\"}", result -> {
-                        if (result.getException() != null) {
-                            ereLog.fatal("Unable to send message: " + result.getException());
-                        }
-                    });
+                .sendObject("{\"type\": \"Exception\", \"payload\": "+jsonbFactory.toJson(exception)+", \"replyToMessageId\": \""+replyToMessageId+"\"}", result -> {
+                    if (result.getException() != null) {
+                        ereLog.fatal("Unable to send message: " + result.getException());
+                    }
+                });
         });
     }
 
@@ -609,12 +645,12 @@ public class Websocket {
 
     public void onHTMLBundlesEvent(@ObservesAsync HTMLBundlesEvent event) {
         event.getReplyTo().getAsyncRemote()
-                .sendObject("{\"type\": \"HTMLBundles\", \"payload\": " +
-                        jsonbFactory.toJson(event.getBundles()) + ", \"replyToMessageId\": \"" + event.getReplyToMessageId() + "\"}", result -> {
-                    if (result.getException() != null) {
-                        ereLog.fatal("Unable to send message: " + result.getException());
-                    }
-                });
+        .sendObject("{\"type\": \"HTMLBundles\", \"payload\": " +
+        jsonbFactory.toJson(event.getBundles()) + ", \"replyToMessageId\": \""+event.getReplyToMessageId()+"\"}", result -> {
+            if (result.getException() != null) {
+                ereLog.fatal("Unable to send message: " + result.getException());
+            }
+        });
     }
 
     private void processIncomingMessage(JsonObject object, Session senderSession) {
