@@ -25,7 +25,11 @@ public class ThrowableAdapter implements JsonbAdapter<Throwable, JsonObject> {
         e.printStackTrace(pw);
         String message = e.getMessage() != null ? e.getMessage() : "null";
         if(e.getCause() != null && e.getCause().getMessage() != null) {
-            message = e.getCause().getMessage();
+            if(e.getCause().getCause() != null && e.getCause().getCause().getMessage() != null) {
+                message = e.getCause().getCause().getMessage();
+            } else {
+                message = e.getCause().getMessage();
+            }
         }
         JsonObjectBuilder builder = Json.createObjectBuilder()
             .add("class", e.getClass().getName())
