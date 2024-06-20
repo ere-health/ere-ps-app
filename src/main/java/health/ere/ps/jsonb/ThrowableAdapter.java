@@ -23,9 +23,13 @@ public class ThrowableAdapter implements JsonbAdapter<Throwable, JsonObject> {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         e.printStackTrace(pw);
+        String message = e.getMessage() != null ? e.getMessage() : "null";
+        if(e.getCause() != null && e.getCause().getMessage() != null) {
+            message = e.getCause().getMessage();
+        }
         JsonObjectBuilder builder = Json.createObjectBuilder()
             .add("class", e.getClass().getName())
-            .add("message", e.getMessage() != null ? e.getMessage() : "null")
+            .add("message", message)
             .add("errorCode", extractErrorCode(e))
             .add("stacktrace", sw.toString());
         try {
