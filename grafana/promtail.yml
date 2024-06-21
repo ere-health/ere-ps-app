@@ -1,3 +1,41 @@
+- job_name: cardlink-json
+  static_configs:
+  - targets:
+      - localhost
+    labels:
+      job: cardlink-json
+      __path__: /opt/cardlink/log/json/sicct0.log*
+  pipeline_stages:
+    - json:
+        expressions:
+          time: '"@timestamp"'
+          logger: logger_name
+          level: level
+          thread: thread_name
+          class:
+          method:
+          message:
+          exception:
+    - json:
+        expressions:
+          exception_class:
+        source: exception
+    - labels:
+        time:
+        logger:
+        level:
+        thread:
+        class:
+        method:
+        message:
+        exception_class:
+    - timestamp:
+        format: RFC3339
+        source: time
+        location: Europe/Berlin
+    - labeldrop:
+      - time
+        
 - job_name: avs
   static_configs:
     - targets:
