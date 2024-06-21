@@ -9,32 +9,24 @@
     - json:
         expressions:
           time: '"@timestamp"'
-          logger: logger_name
           level: level
-          thread: thread_name
-          class:
-          method:
-          message:
           exception:
     - json:
         expressions:
           exception_class:
         source: exception
+    - template:
+        source: level
+        template: '{{ if eq .Value "FINER" }}TRACE{{ else if eq .Value "FINE" }}DEBUG{{ else if eq .Value "INFO" }}INFO{{ else if eq .Value "WARNING" }}WARN{{ else if eq .Value "SEVERE" }}ERROR{{ else }}{{ .Value }}{{ end }}'
     - labels:
-        time:
-        logger:
         level:
-        thread:
-        class:
-        method:
-        message:
-        exception_class:
+        exceptionClass: exception_class
     - timestamp:
         format: RFC3339
         source: time
         location: Europe/Berlin
     - labeldrop:
-      - time
+        - time
         
 - job_name: avs
   static_configs:
