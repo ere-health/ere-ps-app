@@ -20,13 +20,13 @@
         template: '{{ if eq .Value "FINER" }}TRACE{{ else if eq .Value "FINE" }}DEBUG{{ else if eq .Value "INFO" }}INFO{{ else if eq .Value "WARNING" }}WARN{{ else if eq .Value "SEVERE" }}ERROR{{ else }}{{ .Value }}{{ end }}'
     - labels:
         level:
-        exceptionClass: exception_class
+        exception_class:
     - timestamp:
         format: RFC3339
         source: time
         location: Europe/Berlin
     - labeldrop:
-        - time
+      - time
         
 - job_name: avs
   static_configs:
