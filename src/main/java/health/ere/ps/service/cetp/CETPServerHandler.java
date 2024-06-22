@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static health.ere.ps.utils.Utils.printException;
 
@@ -78,9 +79,10 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
                 Long endTime = System.currentTimeMillis();
                 String correlationId = UUID.randomUUID().toString();
 
-                log.info(String.format(
-                    "Card inserted: cardHandle=%s, slotId=%s, ctId=%s, correlationId:%s", cardHandle, slotId, ctId, correlationId
-                ));
+                String paramsStr = event.getMessage().getParameter().stream()
+                    .map(p -> String.format("key=%s value=%s", p.getKey(), p.getValue())).collect(Collectors.joining(", "));
+
+                log.info(String.format("[%s] Card inserted: params: %s", correlationId, paramsStr));
                 try {
                     RuntimeConfig runtimeConfig = new RuntimeConfig(input.getValue());
                     Pair<Bundle, String> pair = pharmacyService.getEPrescriptionsForCardHandle(
