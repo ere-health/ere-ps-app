@@ -80,6 +80,7 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
                 String correlationId = UUID.randomUUID().toString();
 
                 String paramsStr = event.getMessage().getParameter().stream()
+                    .filter(p -> !p.getKey().equals("CardHolderName"))
                     .map(p -> String.format("key=%s value=%s", p.getKey(), p.getValue())).collect(Collectors.joining(", "));
 
                 log.info(String.format("[%s] Card inserted: params: %s", correlationId, paramsStr));
