@@ -28,8 +28,10 @@ public class KonnektorClient {
     MultiConnectorServicesProvider connectorServicesProvider;
 
     public List<SubscriptionType> getSubscriptions(RuntimeConfig runtimeConfig) throws FaultMessage {
+        ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
         EventServicePortType eventService = connectorServicesProvider.getEventServicePortType(runtimeConfig);
         GetSubscription getSubscriptionRequest = new GetSubscription();
+        getSubscriptionRequest.setContext(context);
         getSubscriptionRequest.setMandantWide(false);
         GetSubscriptionResponse subscriptionResponse = eventService.getSubscription(getSubscriptionRequest);
         return subscriptionResponse.getSubscriptions().getSubscription();
