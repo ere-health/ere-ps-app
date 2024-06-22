@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -30,7 +31,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class CardInsertedTest {
 
@@ -40,7 +47,7 @@ public class CardInsertedTest {
     void vsdmSensorDataWithEventIdIsSentOnCardInsertedEvent() throws Exception {
         PharmacyService pharmacyService = spy(createPharmacyService());
         Holder<byte[]> holder = prepareHolder(pharmacyService);
-        doReturn(holder).when(pharmacyService).readVSD(any(), any(), any());
+        doReturn(holder).when(pharmacyService).readVSD(any(), any(), any(), any());
 
         CardlinkWebsocketClient cardlinkWebsocketClient = mock(CardlinkWebsocketClient.class);
         CETPServerHandler cetpServerHandler = new CETPServerHandler(pharmacyService, cardlinkWebsocketClient);
@@ -79,7 +86,7 @@ public class CardInsertedTest {
         Error.Trace trace = new Error.Trace();
         trace.setCode(BigInteger.TEN);
         faultInfo.getTrace().add(trace);
-        doThrow(new FaultMessage("Fault", faultInfo)).when(pharmacyService).readVSD(any(), any(), any());
+        doThrow(new FaultMessage("Fault", faultInfo)).when(pharmacyService).readVSD(any(), any(), any(), any());
 
         CardlinkWebsocketClient cardlinkWebsocketClient = mock(CardlinkWebsocketClient.class);
         CETPServerHandler cetpServerHandler = new CETPServerHandler(pharmacyService, cardlinkWebsocketClient);

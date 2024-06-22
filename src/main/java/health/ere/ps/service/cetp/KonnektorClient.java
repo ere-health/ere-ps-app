@@ -2,6 +2,8 @@ package health.ere.ps.service.cetp;
 
 import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
+import de.gematik.ws.conn.eventservice.v7.GetSubscription;
+import de.gematik.ws.conn.eventservice.v7.GetSubscriptionResponse;
 import de.gematik.ws.conn.eventservice.v7.SubscriptionType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
@@ -13,6 +15,7 @@ import jakarta.xml.ws.Holder;
 import org.apache.commons.lang3.tuple.Triple;
 
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.util.List;
 
 import static health.ere.ps.service.cetp.config.KonnektorConfig.FAILED;
 
@@ -23,6 +26,14 @@ public class KonnektorClient {
 
     @Inject
     MultiConnectorServicesProvider connectorServicesProvider;
+
+    public List<SubscriptionType> getSubscriptions(RuntimeConfig runtimeConfig) throws FaultMessage {
+        EventServicePortType eventService = connectorServicesProvider.getEventServicePortType(runtimeConfig);
+        GetSubscription getSubscriptionRequest = new GetSubscription();
+        getSubscriptionRequest.setMandantWide(false);
+        GetSubscriptionResponse subscriptionResponse = eventService.getSubscription(getSubscriptionRequest);
+        return subscriptionResponse.getSubscriptions().getSubscription();
+    }
 
     public Triple<Status, String, String> subscribeToKonnektor(
         RuntimeConfig runtimeConfig,

@@ -1,17 +1,5 @@
 package health.ere.ps.service.cetp;
 
-import static health.ere.ps.utils.Utils.printException;
-
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import org.apache.commons.lang3.tuple.Pair;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
-
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import de.gematik.ws.conn.eventservice.v7.Event;
@@ -24,6 +12,17 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import jakarta.json.Json;
 import jakarta.json.JsonArrayBuilder;
+import org.apache.commons.lang3.tuple.Pair;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
+
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static health.ere.ps.utils.Utils.printException;
 
 public class CETPServerHandler extends ChannelInboundHandlerAdapter {
 
@@ -57,7 +56,6 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
         Event event = input.getKey();
 
         if (event.getTopic().equals("CARD/INSERTED")) {
-            log.info("Card inserted");
             Optional<String> cardHandleOpt = event.getMessage().getParameter().stream()
                 .filter(p -> p.getKey().equals("CardHandle"))
                 .map(Event.Message.Parameter::getValue)
@@ -79,6 +77,10 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
                 String ctId = ctIdOpt.get();
                 Long endTime = System.currentTimeMillis();
                 String correlationId = UUID.randomUUID().toString();
+
+                log.info(String.format(
+                    "Card inserted: cardHandle=%s, slotId=%s, ctId=%s, correlationId:%s", cardHandle, slotId, ctId, correlationId
+                ));
                 try {
                     RuntimeConfig runtimeConfig = new RuntimeConfig(input.getValue());
                     Pair<Bundle, String> pair = pharmacyService.getEPrescriptionsForCardHandle(

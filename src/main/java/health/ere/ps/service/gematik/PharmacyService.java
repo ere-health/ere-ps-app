@@ -6,6 +6,7 @@ import de.gematik.ws.conn.cardservicecommon.v2.CardTypeType;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.v7.GetCards;
 import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
+import de.gematik.ws.conn.eventservice.v7.SubscriptionType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
 import de.gematik.ws.conn.vsds.vsdservice.v5.VSDServicePortType;
@@ -13,6 +14,7 @@ import de.gematik.ws.conn.vsds.vsdservice.v5.VSDStatusType;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.jmx.ReadEPrescriptionsMXBeanImpl;
+import health.ere.ps.service.cetp.KonnektorClient;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import health.ere.ps.service.fhir.FHIRService;
 import jakarta.annotation.PostConstruct;
@@ -43,6 +45,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 @ApplicationScoped
@@ -52,6 +55,9 @@ public class PharmacyService extends BearerTokenManageService {
 
     @Inject
     AppConfig appConfig;
+
+    @Inject
+    KonnektorClient konnektorClient;
 
     @Inject
     MultiConnectorServicesProvider connectorServicesProvider;
@@ -71,23 +77,23 @@ public class PharmacyService extends BearerTokenManageService {
     }
 
     public Pair<Bundle, String> getEPrescriptionsForCardHandle(
-            String correlationId,
-            String egkHandle,
-            String smcbHandle,
-            RuntimeConfig runtimeConfig
+        String correlationId,
+        String egkHandle,
+        String smcbHandle,
+        RuntimeConfig runtimeConfig
     ) throws FaultMessage, de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         if (runtimeConfig == null) {
             runtimeConfig = new RuntimeConfig();
         }
         runtimeConfig.setSMCBHandle(smcbHandle);
-        Holder<byte[]> pruefungsnachweis = readVSD(egkHandle, smcbHandle, runtimeConfig);
+        Holder<byte[]> pruefungsnachweis = readVSD(correlationId, egkHandle, smcbHandle, runtimeConfig);
         String pnw = Base64.getEncoder().encodeToString(pruefungsnachweis.value);
         try (Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task")
-                .queryParam("pnw", pnw).request()
-                .header("Content-Type", "application/fhir+xml")
-                .header("User-Agent", appConfig.getUserAgent())
-                .header("Authorization", "Bearer " + bearerToken.get(runtimeConfig))
-                .get()) {
+            .queryParam("pnw", pnw).request()
+            .header("Content-Type", "application/fhir+xml")
+            .header("User-Agent", appConfig.getUserAgent())
+            .header("Authorization", "Bearer " + bearerToken.get(runtimeConfig))
+            .get()) {
 
             String event = getEvent(factory.newDocumentBuilder(), pruefungsnachweis.value);
             String bundleString = new String(response.readEntity(InputStream.class).readAllBytes(), "ISO-8859-15");
@@ -106,9 +112,10 @@ public class PharmacyService extends BearerTokenManageService {
     }
 
     public Holder<byte[]> readVSD(
-            String egkHandle,
-            String smcbHandle,
-            RuntimeConfig runtimeConfig
+        String correlationId,
+        String egkHandle,
+        String smcbHandle,
+        RuntimeConfig runtimeConfig
     ) throws FaultMessage, de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
         if ("".equals(context.getUserId()) || context.getUserId() == null) {
@@ -133,13 +140,27 @@ public class PharmacyService extends BearerTokenManageService {
         log.info(egkHandle + " " + smcbHandle);
         VSDServicePortType vsdServicePortType = connectorServicesProvider.getVSDServicePortType(runtimeConfig);
         try {
+            String listString;
+            try {
+                List<SubscriptionType> subscriptions = konnektorClient.getSubscriptions(runtimeConfig);
+                listString = subscriptions.stream()
+                    .map(s -> String.format("[id=%s eventTo=%s topic=%s]", s.getSubscriptionID(), s.getEventTo(), s.getTopic()))
+                    .collect(Collectors.joining(","));
+            } catch (Throwable e) {
+                String msg = String.format("[%s] Could not get active getSubscriptions", correlationId);
+                log.log(Level.SEVERE, msg, e);
+                listString = "not available";
+            }
+            log.info(String.format(
+                "[%s] readVSD for cardHandle=%s, smcbHandle=%s, subscriptions: %s", correlationId, egkHandle, smcbHandle, listString
+            ));
             vsdServicePortType.readVSD(
-                    egkHandle, smcbHandle, true, true, context,
-                    persoenlicheVersichertendaten,
-                    allgemeineVersicherungsdaten,
-                    geschuetzteVersichertendaten,
-                    vSD_Status,
-                    pruefungsnachweis
+                egkHandle, smcbHandle, true, true, context,
+                persoenlicheVersichertendaten,
+                allgemeineVersicherungsdaten,
+                geschuetzteVersichertendaten,
+                vSD_Status,
+                pruefungsnachweis
             );
             readEPrescriptionsMXBean.increaseVSDRead();
         } catch (Throwable t) {
@@ -156,9 +177,9 @@ public class PharmacyService extends BearerTokenManageService {
     }
 
     public static String setAndGetSMCBHandleForPharmacy(
-            RuntimeConfig runtimeConfig,
-            ContextType context,
-            EventServicePortType eventService
+        RuntimeConfig runtimeConfig,
+        ContextType context,
+        EventServicePortType eventService
     ) throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         String smcbHandle;
         smcbHandle = getFirstCardWithName(eventService, CardTypeType.SMC_B, context, "Bad ApothekeTEST-ONLY");
@@ -170,7 +191,7 @@ public class PharmacyService extends BearerTokenManageService {
     }
 
     static String getFirstCardWithName(EventServicePortType eventService, CardTypeType type, ContextType context, String name)
-            throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
+        throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         GetCards parameter = new GetCards();
         parameter.setContext(context);
         parameter.setCardType(type);
@@ -191,10 +212,10 @@ public class PharmacyService extends BearerTokenManageService {
         byte[] data;
         Task task;
         try (Response response = client.target(appConfig.getPrescriptionServiceURL() + token).request()
-                .header("Content-Type", "application/fhir+xml")
-                .header("User-Agent", appConfig.getUserAgent())
-                .header("Authorization", "Bearer " + bearerToken.get(runtimeConfig))
-                .post(Entity.entity("", "application/fhir+xml"))) {
+            .header("Content-Type", "application/fhir+xml")
+            .header("User-Agent", appConfig.getUserAgent())
+            .header("Authorization", "Bearer " + bearerToken.get(runtimeConfig))
+            .post(Entity.entity("", "application/fhir+xml"))) {
 
             String bundleString = new String(response.readEntity(InputStream.class).readAllBytes(), "ISO-8859-15");
 
@@ -221,10 +242,10 @@ public class PharmacyService extends BearerTokenManageService {
         String prescriptionId = task.getIdentifier().stream().filter(t -> "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId".equals(t.getSystem())).map(t -> t.getValue()).findAny().orElse(null);
 
         try (Response response2 = client.target(appConfig.getPrescriptionServiceURL()).path("/Task/" + prescriptionId + "/$reject")
-                .queryParam("secret", secret).request()
-                .header("User-Agent", appConfig.getUserAgent())
-                .header("Authorization", "Bearer " + bearerToken.get(runtimeConfig))
-                .post(Entity.entity("", "application/fhir+xml"))) {
+            .queryParam("secret", secret).request()
+            .header("User-Agent", appConfig.getUserAgent())
+            .header("Authorization", "Bearer " + bearerToken.get(runtimeConfig))
+            .post(Entity.entity("", "application/fhir+xml"))) {
 
             InputStream is = response2.readEntity(InputStream.class);
             String rejectResponse = "";
@@ -242,7 +263,7 @@ public class PharmacyService extends BearerTokenManageService {
         } catch (Throwable t) {
             readEPrescriptionsMXBean.increaseRejectFailed();
             String msg = String.format(
-                    "[%s] Could not process %s prescriptionId: %s secret: %s", correlationId, token, prescriptionId, secret
+                "[%s] Could not process %s prescriptionId: %s secret: %s", correlationId, token, prescriptionId, secret
             );
             log.log(Level.SEVERE, msg, t);
             return null;
