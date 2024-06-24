@@ -10,6 +10,7 @@ import health.ere.ps.service.status.StatusService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @ApplicationScoped
@@ -41,8 +42,7 @@ public class StatusMXBeanImpl implements StatusMXBean {
                 var childNode = mapToJson(status);  //gives each node a name so it can be displayed in grafana
                 rootNode.set(konnektorConfig.getSubscriptionId(), childNode);
             } catch (Exception e) {
-                LOG.severe("Error while retrieving app status for " + konnektorConfig.getSubscriptionId() + " : " + e.getMessage());
-                e.printStackTrace();
+                LOG.log(Level.SEVERE, "Error while retrieving app status for " + konnektorConfig.getSubscriptionId() + " : " + e.getMessage(), e);
                 return null;
             }
         }

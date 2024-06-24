@@ -63,8 +63,7 @@ public enum ThirdPartySoftwaresInstaller {
             Files.createFile(startupScriptPath);
             Files.write(startupScriptPath, scriptContent, StandardCharsets.UTF_8);
         } catch (IOException e) {
-            log.log(System.Logger.Level.ERROR, "Could not create startup script:");
-            e.printStackTrace();
+            log.log(System.Logger.Level.ERROR, "Could not create startup script:", e);
         }
     }
 }

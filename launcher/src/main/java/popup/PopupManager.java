@@ -50,8 +50,7 @@ public enum PopupManager {
         try {
             icon = new ImageIcon(ImageIO.read(resourceAsStream));
         } catch (IOException e) {
-            log.log(System.Logger.Level.ERROR, "Could not load the ERE logo");
-            e.printStackTrace();
+            log.log(System.Logger.Level.ERROR, "Could not load the ERE logo", e);
         }
 
         JLabel iconLabel = new JLabel(icon);

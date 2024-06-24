@@ -15,6 +15,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Base64;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.net.ssl.KeyManager;
@@ -74,8 +75,7 @@ public class SecretsManagerService {
             return createSSLContext(userConfigurations.getClientCertificatePassword(), certificateInputStream);
         } catch (NoSuchAlgorithmException | KeyStoreException | CertificateException | IOException
                 | UnrecoverableKeyException | KeyManagementException e) {
-            log.severe("There was a problem when creating the SSLContext:");
-            e.printStackTrace();
+            log.log(Level.SEVERE, "There was a problem when creating the SSLContext:", e);
             exceptionEvent.fireAsync(e);
             return null;
         }
@@ -96,8 +96,7 @@ public class SecretsManagerService {
             sslContext.init(null, new TrustManager[]{new SSLUtilities.FakeX509TrustManager()},
                 null);
         } catch (NoSuchAlgorithmException | KeyManagementException e) {
-            log.severe("There was a problem when creating the SSLContext:");
-            e.printStackTrace();
+            log.log(Level.SEVERE,"There was a problem when creating the SSLContext:", e);
             exceptionEvent.fireAsync(e);
         }
     }
@@ -110,8 +109,7 @@ public class SecretsManagerService {
             sslContext = createSSLContext(connectorTlsCertAuthStorePwd, certificateInputStream);
         } catch (NoSuchAlgorithmException | KeyStoreException | CertificateException | IOException
                 | UnrecoverableKeyException | KeyManagementException e) {
-            log.severe("There was a problem when creating the SSLContext:");
-            e.printStackTrace();
+            log.log(Level.SEVERE, "There was a problem when creating the SSLContext:", e);
             exceptionEvent.fireAsync(e);
         }
     }

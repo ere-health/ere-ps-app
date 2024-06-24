@@ -43,7 +43,7 @@ public class ErixaAPIInterface {
             HttpResponse response = httpClient.sendGetRequest(userUserDataURL);
             return parseUserDetails(response);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.log(Level.SEVERE, "Wasn't able to get user details", e);
             eventException.fireAsync(e);
             return null;
         }
@@ -58,7 +58,7 @@ public class ErixaAPIInterface {
             }
             return parseDrugstoreUploadResult(response);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.log(Level.SEVERE, "Wasn't able to upload to drugstore", e);
             eventException.fireAsync(e);
             return null;
         }
@@ -77,7 +77,7 @@ public class ErixaAPIInterface {
             content = EntityUtils.toString(entity);
             return objectMapper.readValue(content, UserDetails.class);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.log(Level.SEVERE, "Caught an IO exception when parsing user details", e);
             eventException.fireAsync(e);
         }
         return null;

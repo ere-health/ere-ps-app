@@ -59,8 +59,7 @@ public class CustomUpdateHandler implements UpdateHandler {
         try {
             extractArchiveToApplicationFolder();
         } catch (IOException e) {
-            log.log(System.Logger.Level.ERROR, "There was an error during the extraction of the archive:");
-            e.printStackTrace();
+            log.log(System.Logger.Level.ERROR, "There was an error during the extraction of the archive:", e);
         }
     }
 

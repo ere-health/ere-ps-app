@@ -29,8 +29,7 @@ public enum ApplicationConfig {
             try {
                 properties.load(inputStream);
             } catch (IOException e) {
-                logger.log(System.Logger.Level.ERROR, "Could not parse application configuration:");
-                e.printStackTrace();
+                logger.log(System.Logger.Level.ERROR, "Could not parse application configuration:", e);
             }
         } else {
             logger.log(System.Logger.Level.ERROR, "Property file " + DEFAULT_APPLICATION_CONFIG +
@@ -46,7 +45,7 @@ public enum ApplicationConfig {
         try {
             Objects.requireNonNull(inputStream).close();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(System.Logger.Level.ERROR, "Failed closing inputStream", e);
         }
     }
 

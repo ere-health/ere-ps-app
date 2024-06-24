@@ -1,10 +1,10 @@
 package health.ere.ps.validation.fhir.hook;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.jboss.logging.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import ca.uhn.fhir.interceptor.api.Hook;
@@ -22,7 +22,7 @@ import ca.uhn.fhir.validation.ValidationResult;
 @Interceptor
 public class EreValidationHook {
 
-    private final static Logger logger = Logger.getLogger(EreValidationHook.class);
+    private final static Logger logger = Logger.getLogger(EreValidationHook.class.getName());
 
     /**
      * This method intercepts the validation result object from the validator and overrides its
@@ -88,9 +88,8 @@ public class EreValidationHook {
             ).collect(Collectors.toList()));
         }
 
-        possibleAmbiguousValidationMessages.stream().forEach(valMsg -> logger.infof("Filtered " +
-                "results message = " +
-                "%s", valMsg.getMessage()));
+        possibleAmbiguousValidationMessages.stream().forEach(valMsg -> logger.info("Filtered " +
+                "results message = " + valMsg.getMessage()));
 
         if(CollectionUtils.isNotEmpty(possibleAmbiguousValidationMessages) &&
                 possibleAmbiguousValidationMessages.size() % 2 == 0) {

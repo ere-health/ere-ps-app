@@ -18,10 +18,10 @@ import jakarta.ws.rs.core.Response;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.jboss.logging.Logger;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+
+import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -33,8 +33,7 @@ class AuthenticatorClientTest {
     @Inject
     AuthenticatorClient authenticatorClient;
 
-    @Inject
-    Logger logger;
+    private static final Logger logger = Logger.getLogger(AuthenticatorClientTest.class.getName());
 
     @Inject
     AppConfig appConfig;

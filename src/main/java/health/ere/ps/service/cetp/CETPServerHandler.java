@@ -152,7 +152,7 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        cause.printStackTrace();
+        log.log(Level.SEVERE, "Caught an exception handling CETP input", cause);
         ctx.close();
     }
 }

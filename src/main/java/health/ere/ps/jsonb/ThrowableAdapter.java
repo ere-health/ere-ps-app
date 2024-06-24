@@ -36,6 +36,7 @@ public class ThrowableAdapter implements JsonbAdapter<Throwable, JsonObject> {
         } catch(Exception ex) {
             log.log(Level.SEVERE, "Error during response generation", ex);
         }
+        log.log(Level.FINE, "Going to deliver error-response to client due to given exception", e);
         return builder.build();
     }
 

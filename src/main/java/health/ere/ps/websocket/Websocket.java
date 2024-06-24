@@ -246,9 +246,7 @@ public class Websocket {
     public void onError(Session session, Throwable throwable) {
         sessions.remove(session);
 
-        throwable.printStackTrace();
-
-        ereLog.info("Websocket error: " + throwable);
+        ereLog.info("Websocket error ", throwable);
     }
 
     @OnMessage

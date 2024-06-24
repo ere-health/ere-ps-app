@@ -31,8 +31,7 @@ public class EreHealthApplicationLauncher implements Launcher {
         try {
             builder.start();
         } catch (IOException e) {
-            logger.log(System.Logger.Level.ERROR, "Could not launch ere-health application due to:");
-            e.printStackTrace();
+            logger.log(System.Logger.Level.ERROR, "Could not launch ere-health application due to:", e);
         }
 
         try {
@@ -40,8 +39,7 @@ public class EreHealthApplicationLauncher implements Launcher {
             popupManager.closePopup();
             startWebappInChrome();
         } catch (InterruptedException | IOException e) {
-            logger.log(System.Logger.Level.ERROR, "Could not start the webapp in Chrome due to:");
-            e.printStackTrace();
+            logger.log(System.Logger.Level.ERROR, "Could not start the webapp in Chrome due to:", e);
         }
 
     }

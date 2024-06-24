@@ -55,3 +55,6 @@ src/test/resources/secret/bundles-multiples-v1-1-0/*
 # Log folder
 logs/*
 !logs/.gitkeep
+
+# For local testings within the project but not meant for version control
+tmp/

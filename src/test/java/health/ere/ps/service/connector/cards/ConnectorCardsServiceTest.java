@@ -6,18 +6,18 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import jakarta.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
-import org.jboss.logging.Logger;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+
+import java.util.logging.Logger;
 
 @QuarkusTest
 @TestProfile(TitusTestProfile.class)
 class ConnectorCardsServiceTest {
 
-    @Inject
-    Logger logger;
+    private static final Logger logger = Logger.getLogger(ConnectorCardsServiceTest.class.getName());
+
     @Inject
     ConnectorCardsService connectorCardsService;
 

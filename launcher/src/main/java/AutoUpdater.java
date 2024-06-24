@@ -32,8 +32,7 @@ public class AutoUpdater {
                 RemoteConfigCreator.createRemoteConfigurationFile();
                 System.exit(0);
             } catch (IOException e) {
-                log.log(System.Logger.Level.ERROR, "Error when creating the new remote configuration file");
-                e.printStackTrace();
+                log.log(System.Logger.Level.ERROR, "Error when creating the new remote configuration file", e);
             }
         } else {
             if (!System.getProperty("os.name").toLowerCase().contains("windows")) {
@@ -76,8 +75,7 @@ public class AutoUpdater {
             remoteConfigurationFileInputStream = new InputStreamReader(new URL(remoteConfigurationFileUrl).openStream());
         } catch (IOException e) {
             log.log(System.Logger.Level.ERROR, "Remote configuration file not found at url:" +
-                    remoteConfigurationFileUrl);
-            e.printStackTrace();
+                    remoteConfigurationFileUrl, e);
         }
 
         Configuration config = null;
@@ -86,8 +84,7 @@ public class AutoUpdater {
             log.log(System.Logger.Level.DEBUG, "Using config:" + config);
         } catch (IOException e) {
             log.log(System.Logger.Level.ERROR,
-                    "Configuration file could not be read, is the remote configuration valid?");
-            e.printStackTrace();
+                    "Configuration file could not be read, is the remote configuration valid?", e);
         }
         return config;
     }
@@ -99,8 +96,7 @@ public class AutoUpdater {
                 Files.createDirectory(Path.of(applicationConfig.getApplicationPath()));
             } catch (IOException e) {
                 log.log(System.Logger.Level.ERROR, "Could not create application folder:" +
-                        applicationConfig.getApplicationPath());
-                e.printStackTrace();
+                        applicationConfig.getApplicationPath(), e);
             }
         }
     }

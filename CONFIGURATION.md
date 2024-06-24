@@ -19,8 +19,13 @@ If you started the application with `mvn quarkus:dev` you can access the quarkus
 If you want to use a special profile ("%RU." prefix in files for "RU" profile) use:
 > mvn -Dquarkus.profile=RU quarkus:dev
 
-- If you want to see the SOAP message between ere-ps-app and the konnektor use:
-> mvn -Djvm.args="-Dcom.sun.xml.ws.transport.http.client.HttpTransportPipe.dump=true -Dcom.sun.xml.internal.ws.transport.http.client.HttpTransportPipe.dump=true -Dcom.sun.xml.ws.transport.http.HttpAdapter.dump=true -Dcom.sun.xml.internal.ws.transport.http.HttpAdapter.dump=true -Dcom.sun.xml.ws.transport.http.HttpAdapter.dumpTreshold=999999" quarkus:dev
+- If you want to see the SOAP message between ere-ps-app and the konnektor use, upgrade application.properties for loglevel configuration like so:
+```
+quarkus.log.category."com.sun.xml.ws.transport.http.client.HttpTransportPipe".level=TRACE
+quarkus.log.category."com.sun.xml.internal.ws.transport.http.client.HttpTransportPipe".level=TRACE
+quarkus.log.category."com.sun.xml.ws.transport.http.HttpAdapter".level=TRACE
+quarkus.log.category."com.sun.xml.internal.ws.transport.http.HttpAdapter".level=TRACE
+```
 
 - If you want so see the SSL Handshake use:
 > mvn -Djvm.args="-Djavax.net.debug=ssl:handshake" quarkus:dev

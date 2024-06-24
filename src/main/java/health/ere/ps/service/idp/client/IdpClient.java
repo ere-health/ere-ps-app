@@ -1,46 +1,15 @@
 package health.ere.ps.service.idp.client;
 
-import static org.jose4j.jws.AlgorithmIdentifiers.RSA_PSS_USING_SHA256;
-
-import java.security.PublicKey;
-import java.security.Security;
-import java.security.cert.X509Certificate;
-import java.util.Base64;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-
-import jakarta.enterprise.context.Dependent;
-import jakarta.inject.Inject;
-
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.jboss.logging.Logger;
-import org.jose4j.jws.JsonWebSignature;
-import org.jose4j.jwt.JwtClaims;
-import org.jose4j.lang.JoseException;
-
 import com.diffplug.common.base.Errors;
 import com.diffplug.common.base.Throwing;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.exception.idp.IdpClientException;
 import health.ere.ps.exception.idp.IdpException;
 import health.ere.ps.exception.idp.IdpJoseException;
-import health.ere.ps.model.idp.client.AuthenticationRequest;
-import health.ere.ps.model.idp.client.AuthenticationResponse;
-import health.ere.ps.model.idp.client.AuthorizationRequest;
-import health.ere.ps.model.idp.client.AuthorizationResponse;
-import health.ere.ps.model.idp.client.DiscoveryDocumentResponse;
-import health.ere.ps.model.idp.client.IdpTokenResult;
-import health.ere.ps.model.idp.client.TokenRequest;
+import health.ere.ps.model.idp.client.*;
 import health.ere.ps.model.idp.client.brainPoolExtension.BrainpoolAlgorithmSuiteIdentifiers;
 import health.ere.ps.model.idp.client.field.ClaimName;
 import health.ere.ps.model.idp.client.field.CodeChallengeMethod;
@@ -51,6 +20,29 @@ import health.ere.ps.model.idp.crypto.PkiIdentity;
 import health.ere.ps.service.connector.auth.SmcbAuthenticatorService;
 import health.ere.ps.service.idp.client.authentication.UriUtils;
 import health.ere.ps.service.idp.crypto.KeyAnalysis;
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jose4j.jws.JsonWebSignature;
+import org.jose4j.jwt.JwtClaims;
+import org.jose4j.lang.JoseException;
+
+import java.security.PublicKey;
+import java.security.Security;
+import java.security.cert.X509Certificate;
+import java.util.Base64;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static org.jose4j.jws.AlgorithmIdentifiers.RSA_PSS_USING_SHA256;
 
 @Dependent
 public class IdpClient implements IIdpClient {
@@ -72,8 +64,8 @@ public class IdpClient implements IIdpClient {
     AuthenticatorClient authenticatorClient;
     @Inject
     SmcbAuthenticatorService smcbAuthenticatorService;
-    @Inject
-    Logger logger;
+
+    private static final Logger logger = Logger.getLogger(IdpClient.class.getName());
 
     private String clientId;
     private String redirectUrl;
@@ -170,8 +162,7 @@ public class IdpClient implements IIdpClient {
 
         // Authorization
         final String state = RandomStringUtils.randomAlphanumeric(20);
-        logger.debug("Performing Authorization with remote-URL: " +
-                discoveryDocumentResponse.getAuthorizationEndpoint());
+        logger.log(Level.FINE, "Performing Authorization with remote-URL: " + discoveryDocumentResponse.getAuthorizationEndpoint());
         final AuthorizationResponse authorizationResponse =
                 authenticatorClient
                         .doAuthorizationRequest(AuthorizationRequest.builder()
@@ -190,7 +181,7 @@ public class IdpClient implements IIdpClient {
                 certificate, contentSigner));
 
         // Authentication
-        logger.debug("Performing Authentication with remote-URL: " +
+        logger.log(Level.FINE, "Performing Authentication with remote-URL: " +
                 discoveryDocumentResponse.getAuthorizationEndpoint());
         final AuthenticationResponse authenticationResponse =
                 authenticatorClient
@@ -208,7 +199,7 @@ public class IdpClient implements IIdpClient {
         }
 
         // get Token
-        logger.debug("Performing getToken with remote-URL: " +
+        logger.log(Level.FINE, "Performing getToken with remote-URL: " +
                 discoveryDocumentResponse.getTokenEndpoint());
         return authenticatorClient.retrieveAccessToken(TokenRequest.builder()
                 .tokenUrl(discoveryDocumentResponse.getTokenEndpoint())
@@ -227,7 +218,7 @@ public class IdpClient implements IIdpClient {
     }
 
     private void assertThatClientIsInitialized() throws IdpClientException {
-        logger.debug("Verifying IDP-Client initialization...");
+        logger.log(Level.FINE, "Verifying IDP-Client initialization...");
 
         if (discoveryDocumentResponse == null ||
                 StringUtils.isEmpty(discoveryDocumentResponse.getAuthorizationEndpoint()) ||

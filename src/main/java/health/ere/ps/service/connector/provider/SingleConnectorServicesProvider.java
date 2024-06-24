@@ -50,8 +50,7 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
                 this.secretsManagerService.setUpSSLContext(keyManager);
             } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException
             | URISyntaxException | IOException | UnrecoverableKeyException | KeyManagementException e) {
-                log.severe("There was a problem when unpacking key from ClientCertificateKeyStore:");
-                e.printStackTrace();
+                log.log(Level.SEVERE, "There was a problem when unpacking key from ClientCertificateKeyStore:", e);
                 exceptionEvent.fireAsync(e);
             }
         // if non is given try to load the certificates from the AppConfig
@@ -66,11 +65,10 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
                     this.secretsManagerService.acceptAllCertificates();
                 }
             } catch(Exception e) {
-                log.severe("There was a problem when using default certificate");
-                        e.printStackTrace();
-                        if(exceptionEvent != null) {
-                            exceptionEvent.fireAsync(e);
-                        }
+                log.log(Level.SEVERE, "There was a problem when using default certificate", e);
+                if(exceptionEvent != null) {
+                    exceptionEvent.fireAsync(e);
+                }
             }
         }
         

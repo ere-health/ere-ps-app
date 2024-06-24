@@ -1,6 +1,13 @@
 package health.ere.ps.service.common.security;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import health.ere.ps.exception.common.security.SecretsManagerException;
+import health.ere.ps.model.idp.crypto.PkiKeyResolver;
+import health.ere.ps.profile.TitusTestProfile;
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
+import jakarta.inject.Inject;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,28 +18,12 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 
-import org.jboss.logging.Logger;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-
-import health.ere.ps.exception.common.security.SecretsManagerException;
-import health.ere.ps.model.idp.crypto.PkiKeyResolver;
-import health.ere.ps.profile.TitusTestProfile;
-import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.TestProfile;
-import jakarta.inject.Inject;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @QuarkusTest
 @TestProfile(TitusTestProfile.class)
 @ExtendWith(PkiKeyResolver.class)
 class SecretsManagerServiceTest {
-    @Inject
-    Logger log;
 
     @Inject
     SecretsManagerService secretsManagerService;

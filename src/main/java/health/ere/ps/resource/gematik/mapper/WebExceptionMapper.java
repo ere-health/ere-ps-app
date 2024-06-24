@@ -35,6 +35,7 @@ public class WebExceptionMapper implements ExceptionMapper<Throwable> {
         } catch(Exception ex) {
             log.log(Level.SEVERE, "Error during response generation", ex);
         }
+        log.log(Level.FINE, "Going to deliver error-response to client due to given exception", e);
         return Response.serverError().entity(builder.build()).build();
     }
 

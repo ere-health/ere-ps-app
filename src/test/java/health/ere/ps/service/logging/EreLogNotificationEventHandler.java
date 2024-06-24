@@ -1,17 +1,15 @@
 package health.ere.ps.service.logging;
 
-import org.jboss.logging.Logger;
-
+import health.ere.ps.event.EreLogNotificationEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.ObservesAsync;
-import jakarta.inject.Inject;
 
-import health.ere.ps.event.EreLogNotificationEvent;
+import java.util.logging.Logger;
 
 @ApplicationScoped
 public class EreLogNotificationEventHandler {
-    @Inject
-    Logger logger;
+
+    private static final Logger logger = Logger.getLogger(EreLogNotificationEventHandler.class.getName());
 
     void logEventHandler(@ObservesAsync EreLogNotificationEvent ereLogNotificationEvent) {
 

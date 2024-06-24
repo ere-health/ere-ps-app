@@ -1,11 +1,12 @@
 package health.ere.ps.service.common.util;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jboss.logging.Logger;
 
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
@@ -16,7 +17,7 @@ import jakarta.json.JsonReader;
  * A Utility class used to extract information of particular importance from a bundle json string.
  */
 public class BundleJsonInfoExtractor {
-    private static final Logger logger = Logger.getLogger(BundleJsonInfoExtractor.class);
+    private static final Logger logger = Logger.getLogger(BundleJsonInfoExtractor.class.getName());
 
     /**
      * Returns a map of info contained in a bundle json string with the following map keys:
@@ -83,7 +84,7 @@ public class BundleJsonInfoExtractor {
                 }
             }
         } catch (Throwable e) {
-            logger.error("Error occurred while extracting bundle ID information", e);
+            logger.log(Level.SEVERE, "Error occurred while extracting bundle ID information", e);
         }
 
         return bundleInfoMap;

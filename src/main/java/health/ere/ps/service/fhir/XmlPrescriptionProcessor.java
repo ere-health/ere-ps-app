@@ -1,36 +1,23 @@
 package health.ere.ps.service.fhir;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response.Status;
+import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
+import org.hl7.fhir.r4.model.Practitioner.PractitionerQualificationComponent;
+import org.jboss.logmanager.Level;
+
+import java.util.*;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Response.Status;
-
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
-import org.hl7.fhir.r4.model.CodeType;
-import org.hl7.fhir.r4.model.CodeableConcept;
-import org.hl7.fhir.r4.model.Coding;
-import org.hl7.fhir.r4.model.Composition;
-import org.hl7.fhir.r4.model.Coverage;
-import org.hl7.fhir.r4.model.Extension;
-import org.hl7.fhir.r4.model.HumanName;
-import org.hl7.fhir.r4.model.Medication;
-import org.hl7.fhir.r4.model.MedicationRequest;
-import org.hl7.fhir.r4.model.Patient;
-import org.hl7.fhir.r4.model.Practitioner;
-import org.hl7.fhir.r4.model.Practitioner.PractitionerQualificationComponent;
-import org.hl7.fhir.r4.model.Quantity;
-
-import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
-
 public class XmlPrescriptionProcessor {
+
+    private static Logger log = Logger.getLogger(XmlPrescriptionProcessor.class.getName());
+
     // Get <Bundle> tag including content
     private static final Pattern GET_BUNDLE = Pattern.compile("(<Bundle[^>]*>.*?</Bundle>)", Pattern.DOTALL);
     private static final Pattern GET_UUID = Pattern.compile("^urn:uuid:(.*)");
@@ -118,7 +105,7 @@ public class XmlPrescriptionProcessor {
         try {
             patient.getName().get(0).setFamily(patient.getName().get(0).getFamily().replace(patient.getName().get(0).getGiven().get(0).getValue()+" ", ""));
         } catch(Exception e) {
-            e.printStackTrace();
+            log.log(Level.SEVERE, "Wasn't able to remove first name from family name", e);
         }
         // Next issue WARNING - Bundle.entry[1].resource.ofType(MedicationRequest).subject - URN reference ist nicht lokal innerhalb des Bundles contained urn:uuid:91c0f8d8-8af1-467f-8d09-0c8a406b0127
         medicationRequest.getSubject().setReference("Patient/"+patient.getIdElement().getIdPart());
@@ -177,7 +164,7 @@ public class XmlPrescriptionProcessor {
                 String newFullUrl = "http://pvs.praxis.local/fhir/" + bundleEntryComponent.getResource().getResourceType().name() + "/" + uuid;
                 bundleEntryComponent.setFullUrl(newFullUrl);
                 bundleEntryComponent.getResource().setId(uuid);
-                e.printStackTrace();
+                log.log(Level.SEVERE, "Wasn't able to fix full urls!", e);
             }
         }
     }
