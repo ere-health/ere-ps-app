@@ -16,7 +16,7 @@ import jakarta.websocket.Session;
 
 public class BearerTokenManageService {
 
-    private static Logger log = Logger.getLogger(BearerTokenManageService.class.getName());
+    private static final Logger log = Logger.getLogger(BearerTokenManageService.class.getName());
 
     @Inject
     BearerTokenService bearerTokenService;

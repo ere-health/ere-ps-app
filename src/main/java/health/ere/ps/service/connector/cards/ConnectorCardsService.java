@@ -1,20 +1,5 @@
 package health.ere.ps.service.connector.cards;
 
-import java.math.BigInteger;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Predicate;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Event;
-import jakarta.enterprise.event.ObservesAsync;
-import jakarta.inject.Inject;
-import jakarta.xml.ws.Holder;
-
-import org.apache.commons.collections4.CollectionUtils;
-
 import de.gematik.ws.conn.cardservice.v8.CardInfoType;
 import de.gematik.ws.conn.cardservice.v8.Cards;
 import de.gematik.ws.conn.cardservice.v8.PinStatusEnum;
@@ -40,6 +25,20 @@ import health.ere.ps.model.gematik.UnblockPinResponse;
 import health.ere.ps.model.gematik.VerifyPinResponse;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import health.ere.ps.websocket.ExceptionWithReplyToException;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.event.ObservesAsync;
+import jakarta.inject.Inject;
+import jakarta.xml.ws.Holder;
+import org.apache.commons.collections4.CollectionUtils;
+
+import java.math.BigInteger;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 
 @ApplicationScoped
@@ -71,7 +70,6 @@ public class ConnectorCardsService {
     private GetCardsResponse getConnectorCards(RuntimeConfig runtimeConfig) throws ConnectorCardsException {
         GetCards parameter = new GetCards();
         parameter.setContext(connectorServicesProvider.getContextType(runtimeConfig));
-
         try {
             return connectorServicesProvider.getEventServicePortType(runtimeConfig).getCards(parameter);
         } catch (FaultMessage e) {
@@ -82,29 +80,26 @@ public class ConnectorCardsService {
     private Optional<List<CardInfoType>> getConnectorCardsInfo(RuntimeConfig runtimeConfig) throws ConnectorCardsException {
         GetCardsResponse response = getConnectorCards(runtimeConfig);
         List<CardInfoType> cardHandleTypeList = null;
-
         if (response != null) {
             Cards cards = response.getCards();
             cardHandleTypeList = cards.getCard();
-
             if (CollectionUtils.isEmpty(cardHandleTypeList)) {
                 throw new ConnectorCardsException("Error. Did not receive and card handle data.");
             }
         }
-
         return Optional.ofNullable(cardHandleTypeList);
     }
 
-    public String getConnectorCardHandle(CardHandleType cardHandleType)
-            throws ConnectorCardsException {
+    public String getConnectorCardHandle(CardHandleType cardHandleType) throws ConnectorCardsException {
         return getConnectorCardHandle(cardHandleType, null);
     }
 
-    public String getConnectorCardHandle(CardHandleType cardHandleType, RuntimeConfig runtimeConfig)
-            throws ConnectorCardsException {
-        return getConnectorCardHandle(ch ->
-                            ch.getCardType().value().equalsIgnoreCase(
-                                    cardHandleType.getCardHandleType()), runtimeConfig);
+    public String getConnectorCardHandle(
+        CardHandleType cardHandleType,
+        RuntimeConfig runtimeConfig
+    ) throws ConnectorCardsException {
+        Predicate<CardInfoType> predicate = ch -> ch.getCardType().value().equalsIgnoreCase(cardHandleType.getCardHandleType());
+        return getConnectorCardHandle(predicate, runtimeConfig);
     }
 
     public String getConnectorCardHandle(String cardHolderName, RuntimeConfig runtimeConfig)
@@ -113,22 +108,30 @@ public class ConnectorCardsService {
             cardHolderName.equals(ch.getCardHolderName()), runtimeConfig);
     }
 
-    public String  getConnectorCardHandle(Predicate<? super CardInfoType> filter, RuntimeConfig runtimeConfig)
-            throws ConnectorCardsException {
-        Optional<List<CardInfoType>> cardsInfoList = getConnectorCardsInfo(runtimeConfig);
+    public String  getConnectorCardHandle(
+        Predicate<? super CardInfoType> filter,
+        RuntimeConfig runtimeConfig
+    ) throws ConnectorCardsException {
+        Optional<List<CardInfoType>> cardsInfoListOpt = getConnectorCardsInfo(runtimeConfig);
         String cardHandle = null;
-
-        if (cardsInfoList.isPresent()) {
-            Optional<CardInfoType> cardHndl =
-                    cardsInfoList.get().stream().filter(filter).findFirst();
-            if (cardHndl.isPresent()) {
-                cardHandle = cardHndl.get().getCardHandle();
+        if (cardsInfoListOpt.isPresent()) {
+            List<CardInfoType> typeList = cardsInfoListOpt.get();
+            log.info(String.format("ConnectorCardsInfo: %s", print(typeList)));
+            Optional<CardInfoType> cardHandleOpt = typeList.stream().filter(filter).findFirst();
+            if (cardHandleOpt.isPresent()) {
+                cardHandle = cardHandleOpt.get().getCardHandle();
             } else {
-                throw new ConnectorCardsException(String.format("No card handle found for card."));
+                throw new ConnectorCardsException("No card handle found for card.");
             }
         }
-
         return cardHandle;
+    }
+
+    public static String print(List<CardInfoType> typeList) {
+        return typeList.stream().map(t -> String.format(
+            "CardInfoType [cardHandle=%s, cardType=%s, ctId=%s, ICCSN=%s, slotId=%s, insertTime=%s]",
+            t.getCardHandle(), t.getCardType(), t.getCtId(), t.getIccsn(), t.getSlotId(), t.getInsertTime()
+        )).collect(Collectors.joining(", "));
     }
 
 
