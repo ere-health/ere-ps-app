@@ -1,6 +1,5 @@
 package health.ere.ps.resource.gematik;
 
-
 import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.config.UserConfig;

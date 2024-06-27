@@ -3,6 +3,7 @@ package health.ere.ps.service.idp;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.model.idp.client.IdpTokenResult;
+import health.ere.ps.retry.Retrier;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
 import health.ere.ps.service.idp.client.IdpClient;
@@ -16,6 +17,7 @@ import jakarta.inject.Inject;
 import jakarta.websocket.Session;
 
 import java.security.cert.X509Certificate;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -37,15 +39,30 @@ public class BearerTokenService {
     @Inject
     Event<Exception> exceptionEvent;
 
-
     @PostConstruct
-    public void init() {
+    public void init() throws Exception {
+        Thread thread = new Thread(() -> {
+            List<Integer> retryMillis = appConfig.getIdpInitializationRetriesMillis();
+            int retryPeriodMs = appConfig.getIdpInitializationPeriodMs();
+            boolean initialized = Retrier.callAndRetry(retryMillis, retryPeriodMs, this::initializeIdp, bool -> bool);
+            if (!initialized) {
+                String msg = String.format("Failed to init IDP client within %d seconds", retryPeriodMs / 1000);
+                throw new RuntimeException(msg);
+            }
+        });
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    private Boolean initializeIdp() {
         String discoveryDocumentUrl = appConfig.getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
         try {
             idpClient.init(appConfig.getIdpClientId(), appConfig.getIdpAuthRequestRedirectURL(), discoveryDocumentUrl, true);
             idpClient.initializeClient();
+            return true;
         } catch (Exception e) {
-            log.log(Level.WARNING, "Idp init did not work", e);
+            log.log(Level.WARNING, "IDP client initialization error: ", e);
+            return false;
         }
     }
 

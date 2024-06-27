@@ -5,6 +5,9 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,6 +28,21 @@ public class AppConfig {
 
     @ConfigProperty(name = "idp.auth.request.redirect.url")
     String idpAuthRequestRedirectURL;
+
+    @ConfigProperty(name = "idp.initialization.retries.seconds")
+    Optional<String> idpInitializationRetriesSeconds;
+
+    @ConfigProperty(name = "idp.initialization.period.seconds")
+    Optional<Integer> idpInitializationPeriodSeconds;
+
+    @ConfigProperty(name = "cetp.subscriptions.renewal.safe.period.seconds")
+    Optional<Integer> cetpSubscriptionsRenewalSafePeriodSeconds;
+
+    @ConfigProperty(name = "cetp.subscriptions.maintenance.retry.interval.ms")
+    Optional<Integer> subscriptionsMaintenanceRetryIntervalMs;
+
+    @ConfigProperty(name = "cetp.subscriptions.event-to-host")
+    Optional<String> eventToHost;
 
     @ConfigProperty(name = "idp.auth.request.url")
     String idpAuthRequestURL;
@@ -62,8 +80,8 @@ public class AppConfig {
     @ConfigProperty(name = "cardlink.server.url")
     Optional<String> cardLinkServer;
 
-    @ConfigProperty(name = "connector.base.url")
-    String connectorBaseURL;
+    @ConfigProperty(name = "connector.host")
+    String konnectorHost;
 
     public Optional<String> getCardLinkServer() {
         return cardLinkServer;
@@ -87,6 +105,33 @@ public class AppConfig {
 
     public String getIdpAuthRequestRedirectURL() {
         return idpAuthRequestRedirectURL;
+    }
+
+    public List<Integer> getIdpInitializationRetriesMillis() {
+        String seconds = idpInitializationRetriesSeconds.orElse("5,10,50");
+        return Arrays.stream(seconds.split(",")).map(String::trim).map(s -> {
+            try {
+                return Integer.parseInt(s) * 1000;
+            } catch (Exception e) {
+                return null;
+            }
+        }).filter(Objects::nonNull).toList();
+    }
+
+    public int getIdpInitializationPeriodMs() {
+        return idpInitializationPeriodSeconds.orElse(180) * 1000;
+    }
+
+    public int getCetpSubscriptionsRenewalSafePeriodMs() {
+        return cetpSubscriptionsRenewalSafePeriodSeconds.orElse(600) * 1000;
+    }
+
+    public int getSubscriptionsMaintenanceRetryIntervalMs() {
+        return subscriptionsMaintenanceRetryIntervalMs.orElse(5000);
+    }
+
+    public Optional<String> getEventToHost() {
+        return eventToHost;
     }
 
     public String getIdpAuthRequestURL() {
@@ -113,8 +158,8 @@ public class AppConfig {
         return userAgent;
     }
 
-    public String getConnectorBaseURL() {
-        return connectorBaseURL;
+    public String getKonnectorHost() {
+        return konnectorHost;
     }
 
     public String getConnectorCrypt() {

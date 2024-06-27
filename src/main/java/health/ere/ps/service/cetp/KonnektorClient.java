@@ -4,6 +4,7 @@ import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.v7.GetSubscription;
 import de.gematik.ws.conn.eventservice.v7.GetSubscriptionResponse;
+import de.gematik.ws.conn.eventservice.v7.RenewSubscriptionsResponse;
 import de.gematik.ws.conn.eventservice.v7.SubscriptionType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
@@ -12,6 +13,7 @@ import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.xml.ws.Holder;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -35,6 +37,18 @@ public class KonnektorClient {
         getSubscriptionRequest.setMandantWide(false);
         GetSubscriptionResponse subscriptionResponse = eventService.getSubscription(getSubscriptionRequest);
         return subscriptionResponse.getSubscriptions().getSubscription();
+    }
+
+    public Pair<Status, String> renewSubscription(RuntimeConfig runtimeConfig, String subscriptionId) throws FaultMessage {
+        ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
+        EventServicePortType eventService = connectorServicesProvider.getEventServicePortType(runtimeConfig);
+
+        Holder<Status> statusHolder = new Holder<>();
+        Holder<RenewSubscriptionsResponse.SubscribeRenewals> renewalHolder = new Holder<>();
+        List<String> subscriptions = List.of(subscriptionId);
+
+        eventService.renewSubscriptions(context, subscriptions, statusHolder, renewalHolder);
+        return Pair.of(statusHolder.value, renewalHolder.value.getSubscriptionRenewal().get(0).getSubscriptionID());
     }
 
     public Triple<Status, String, String> subscribeToKonnektor(
