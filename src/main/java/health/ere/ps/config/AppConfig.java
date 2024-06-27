@@ -5,6 +5,9 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,6 +28,12 @@ public class AppConfig {
 
     @ConfigProperty(name = "idp.auth.request.redirect.url")
     String idpAuthRequestRedirectURL;
+
+    @ConfigProperty(name = "idp.initialization.retries.seconds")
+    Optional<String> idpInitializationRetriesSeconds;
+
+    @ConfigProperty(name = "idp.initialization.period.seconds")
+    Optional<Integer> idpInitializationPeriodSeconds;
 
     @ConfigProperty(name = "idp.auth.request.url")
     String idpAuthRequestURL;
@@ -87,6 +96,21 @@ public class AppConfig {
 
     public String getIdpAuthRequestRedirectURL() {
         return idpAuthRequestRedirectURL;
+    }
+
+    public List<Integer> getIdpInitializationRetriesSeconds() {
+        String seconds = idpInitializationRetriesSeconds.orElse("5,10,50");
+        return Arrays.stream(seconds.split(",")).map(String::trim).map(s -> {
+            try {
+                return Integer.parseInt(s);
+            } catch (Exception e) {
+                return null;
+            }
+        }).filter(Objects::nonNull).toList();
+    }
+
+    public int getIdpInitializationPeriodMs() {
+        return idpInitializationPeriodSeconds.orElse(180) * 1000;
     }
 
     public String getIdpAuthRequestURL() {
