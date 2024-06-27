@@ -1,9 +1,13 @@
 
 package health.ere.ps.exception.idp;
 
+import java.io.Serial;
+
 public class IdpJoseException extends Exception {
 
+    @Serial
     private static final long serialVersionUID = -838371828368858466L;
+    
     private final boolean containsSensitiveInformation;
 
     public IdpJoseException(final Exception e) {
