@@ -13,6 +13,7 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
@@ -42,7 +43,7 @@ public class Utils {
         return e.getMessage() + " -> " + stacktrace;
     }
 
-    public static String getHostFromNetworkInterfaces() {
+    public static Optional<String> getHostFromNetworkInterfaces() {
         Inet4Address localAddress = null;
         try {
             Enumeration<NetworkInterface> e = NetworkInterface.getNetworkInterfaces();
@@ -59,6 +60,8 @@ public class Utils {
             }
         } catch (SocketException ignored) {
         }
-        return localAddress == null ? null : localAddress.getHostAddress();
+        return localAddress == null
+            ? Optional.empty()
+            : Optional.of(localAddress.getHostAddress());
     }
 }

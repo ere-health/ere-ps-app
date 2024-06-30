@@ -1,14 +1,12 @@
 package health.ere.ps.service.cetp.config;
 
 import health.ere.ps.model.config.UserConfigurations;
-import health.ere.ps.service.cetp.CETPServer;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -130,7 +128,7 @@ public class KonnektorConfig {
                 if (!deleted) {
                     String msg = String.format("Unable to delete previous subscription file: %s", file.getName());
                     log.log(Level.SEVERE, msg);
-                    file.renameTo(new File(String.format("%s_%s", FAILED, file.getAbsolutePath())));
+                    file.renameTo(new File(String.format("%s_DELETING", file.getAbsolutePath())));
                 }
             });
     }
@@ -145,6 +143,11 @@ public class KonnektorConfig {
 
     public UserConfigurations getUserConfigurations() {
         return userConfigurations;
+    }
+
+    public String getHost() {
+        String connectorBaseURL = userConfigurations.getConnectorBaseURL();
+        return connectorBaseURL == null ? null : connectorBaseURL.split("//")[1];
     }
 
     public URI getCardlinkEndpoint() {
