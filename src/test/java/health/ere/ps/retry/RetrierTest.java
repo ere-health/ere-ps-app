@@ -12,11 +12,11 @@ import static org.mockito.Mockito.when;
 public class RetrierTest {
 
     @Test
-    public void actionWasExecutedCorrectNumberOfTimes() {
+    public void actionWasExecutedCorrectNumberOfTimes() throws Exception {
         RetryAction<Boolean> action = mock(RetryAction.class);
         when(action.execute()).thenReturn(false);
         long start = System.currentTimeMillis();
-        Retrier.callAndRetry(List.of(1,1,2), 5000, action, bool -> bool);
+        Retrier.callAndRetry(List.of(1000, 1000, 2000), 5000, action, bool -> bool);
         long delta = System.currentTimeMillis() - start;
         System.out.println("Took " + delta + "ms");
         verify(action, times(4)).execute();

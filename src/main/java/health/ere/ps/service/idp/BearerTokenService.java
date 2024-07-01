@@ -39,13 +39,12 @@ public class BearerTokenService {
     @Inject
     Event<Exception> exceptionEvent;
 
-
     @PostConstruct
     public void init() throws Exception {
         Thread thread = new Thread(() -> {
-            List<Integer> retrySeconds = appConfig.getIdpInitializationRetriesSeconds();
+            List<Integer> retryMillis = appConfig.getIdpInitializationRetriesMillis();
             int retryPeriodMs = appConfig.getIdpInitializationPeriodMs();
-            boolean initialized = Retrier.callAndRetry(retrySeconds, retryPeriodMs, this::initializeIdp, bool -> bool);
+            boolean initialized = Retrier.callAndRetry(retryMillis, retryPeriodMs, this::initializeIdp, bool -> bool);
             if (!initialized) {
                 String msg = String.format("Failed to init IDP client within %d seconds", retryPeriodMs / 1000);
                 throw new RuntimeException(msg);

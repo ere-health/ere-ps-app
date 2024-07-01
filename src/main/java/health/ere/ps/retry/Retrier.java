@@ -16,7 +16,7 @@ public class Retrier {
     }
 
     public static <T> T callAndRetry(
-        List<Integer> retrySeconds,
+        List<Integer> retryMillis,
         int retryPeriodMs,
         RetryAction<T> action,
         Predicate<T> predicate
@@ -25,21 +25,21 @@ public class Retrier {
         if (result != null && predicate.test(result)) {
             return result;
         }
-        List<Integer> retries = retrySeconds.stream().filter(Objects::nonNull).sorted().toList();
+        List<Integer> retries = retryMillis.stream().filter(Objects::nonNull).sorted().toList();
         if (!retries.isEmpty()) {
             int k = 0;
             long start = System.currentTimeMillis();
             while (result == null || !predicate.test(result)) {
-                Integer timeoutSec = retries.get(k++);
+                Integer timeoutMs = retries.get(k++);
                 if (k >= retries.size()) {
                     k = retries.size() - 1;
                 }
                 long delta = System.currentTimeMillis() - start;
-                if (delta + timeoutSec * 1000 > retryPeriodMs) {
+                if (delta + timeoutMs > retryPeriodMs) {
                     break;
                 }
                 try {
-                    TimeUnit.SECONDS.sleep(timeoutSec);
+                    TimeUnit.MILLISECONDS.sleep(timeoutMs);
                 } catch (InterruptedException ignored) {
                 }
                 result = safeExecute(action);
