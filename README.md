@@ -171,7 +171,9 @@ http://localhost:8080/q/swagger-ui/
 
 ##### ... with comfort signature
 
+The comfort signature can be enabled by sending an [ActivateComfortSignature](src/test/resources/websocket-messages/ActivateComfortSignature-2-With-EHBA.json) message through the websocket. The [response](src/test/resources/websocket-messages/ActivateComfortSignature-2-Response.json) will contain a userId that has to be used afterwards in the userId field to enable the usage of the comfort signature.
 
+Another way of enabling the comfort signature is posting to the workflow/comfortsignature/activate endpoint with passing the ehba card handle in the header "X-eHBAHandle". The endpoint will return the userId.
 
 #### Websocket
 
