@@ -6,6 +6,7 @@ import ca.uhn.fhir.parser.DataFormatException;
 import ca.uhn.fhir.parser.IParser;
 import de.gematik.ws.conn.signatureservice.v7.SignResponse;
 import health.ere.ps.config.AppConfig;
+import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.exception.gematik.ERezeptWorkflowException;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.model.idp.client.IdpTokenResult;
@@ -22,29 +23,18 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import jakarta.inject.Inject;
 import org.apache.fop.apps.FOPException;
-import org.hl7.fhir.r4.model.BooleanType;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.DateTimeType;
-import org.hl7.fhir.r4.model.Extension;
-import org.hl7.fhir.r4.model.Medication;
-import org.hl7.fhir.r4.model.MedicationRequest;
-import org.hl7.fhir.r4.model.Task;
+import org.hl7.fhir.r4.model.*;
+import org.jose4j.jwt.consumer.InvalidJwtException;
+import org.jose4j.jwt.consumer.JwtConsumer;
+import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import javax.xml.transform.TransformerException;
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.nio.file.DirectoryIteratorException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.*;
+import java.nio.file.*;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -137,18 +127,18 @@ public class ERezeptWorkflowServiceTest {
 
         String testBearerToken = idpTokenResult.getAccessToken().getRawString();
 
-        eRezeptWorkflowService.setBearerToken(testBearerToken);
+        eRezeptWorkflowService.bearerTokenService.addBearerToken(null, testBearerToken);
 
         int i = 0;
         DocumentService documentService = new DocumentService();
-                documentService.init();
-                
+        documentService.init();
+
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get("src/test/resources/pilotregion/"), "*.{xml}")) {
             for (Path entry : stream) {
                 Bundle bundle = iParser.parseResource(Bundle.class, new FileInputStream(entry.toFile()));
                 try {
-                    ((MedicationRequest)bundle.getEntry().stream().filter(e -> e.getResource() instanceof MedicationRequest).findAny().get().getResource()).setAuthoredOnElement(new DateTimeType(new Date(), TemporalPrecisionEnum.DAY));
-                } catch(NoSuchElementException ex) {
+                    ((MedicationRequest) bundle.getEntry().stream().filter(e -> e.getResource() instanceof MedicationRequest).findAny().get().getResource()).setAuthoredOnElement(new DateTimeType(new Date(), TemporalPrecisionEnum.DAY));
+                } catch (NoSuchElementException ex) {
                     ex.printStackTrace();
                 }
                 //try {
@@ -161,7 +151,7 @@ public class ERezeptWorkflowServiceTest {
                 String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
                         .withZone(ZoneOffset.UTC)
                         .format(Instant.now());
-                if(bundleWithAccessCodeOrThrowable.getThrowable() != null) {
+                if (bundleWithAccessCodeOrThrowable.getThrowable() != null) {
                     StringWriter sw = new StringWriter();
                     PrintWriter pw = new PrintWriter(sw);
                     bundleWithAccessCodeOrThrowable.getThrowable().printStackTrace(pw);
@@ -169,7 +159,7 @@ public class ERezeptWorkflowServiceTest {
                 } else {
                     ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
                     Files.write(Paths.get("target/E-Rezept-" + thisMoment + ".pdf"), a.toByteArray());
-                    log.info("Time: "+thisMoment);
+                    log.info("Time: " + thisMoment);
                 }
                 i++;
                 //if (i == 1) {
@@ -178,8 +168,8 @@ public class ERezeptWorkflowServiceTest {
             }
         } catch (DirectoryIteratorException | ERezeptWorkflowException ex) {
             // I/O error encounted during the iteration, the cause is an IOException
-            log.info("Exception: "+ex);
-                
+            log.info("Exception: " + ex);
+
             ex.printStackTrace();
         }
     }
@@ -204,41 +194,41 @@ public class ERezeptWorkflowServiceTest {
 
         int i = 0;
         DocumentService documentService = new DocumentService();
-                documentService.init();
+        documentService.init();
         eRezeptWorkflowService.activateComfortSignature();
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get("src/test/resources/simplifier_erezept/"), "*.{xml}")) {
             for (Path entry : stream) {
                 Bundle bundle = iParser.parseResource(Bundle.class, new FileInputStream(entry.toFile()));
-                
-                Medication medication = ((Medication)bundle.getEntry().stream().filter(e -> e.getResource() instanceof Medication).findAny().get().getResource());
+
+                Medication medication = ((Medication) bundle.getEntry().stream().filter(e -> e.getResource() instanceof Medication).findAny().get().getResource());
                 // PZN, FreeText, Ingredient, Compounding
                 String medicationProfile = medication.getMeta().getProfile().get(0).getValue();
                 String type;
-                if(medicationProfile.equals("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.0.2")) {
+                if (medicationProfile.equals("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.0.2")) {
                     type = "PZN";
-                } else if(medicationProfile.equals("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_FreeText|1.0.2")) {
+                } else if (medicationProfile.equals("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_FreeText|1.0.2")) {
                     type = "FreeText";
-                } else if(medicationProfile.equals("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Ingredient|1.0.2")) {
+                } else if (medicationProfile.equals("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Ingredient|1.0.2")) {
                     type = "Ingredient";
-                } else if(medicationProfile.equals("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Compounding|1.0.2")) {
+                } else if (medicationProfile.equals("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Compounding|1.0.2")) {
                     type = "Compounding";
                 } else {
                     type = "Unknown";
                 }
 
                 try {
-                    MedicationRequest medicationRequest = ((MedicationRequest)bundle.getEntry().stream().filter(e -> e.getResource() instanceof MedicationRequest).findAny().get().getResource());
+                    MedicationRequest medicationRequest = ((MedicationRequest) bundle.getEntry().stream().filter(e -> e.getResource() instanceof MedicationRequest).findAny().get().getResource());
                     medicationRequest.setAuthoredOnElement(new DateTimeType(new Date(), TemporalPrecisionEnum.DAY));
                     Extension multiplePrescription = medicationRequest.getExtensionByUrl("https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription");
-                    BooleanType multiplePrescriptionBoolean = (BooleanType)multiplePrescription.getExtensionByUrl("Kennzeichen").getValue();
-                    if(multiplePrescriptionBoolean.booleanValue()) {
+                    BooleanType multiplePrescriptionBoolean = (BooleanType) multiplePrescription.getExtensionByUrl("Kennzeichen").getValue();
+                    if (multiplePrescriptionBoolean.booleanValue()) {
                         // do not generate multiplePrescription
                         continue;
                     }
-                } catch(NoSuchElementException ex) {
+                } catch (NoSuchElementException ex) {
                     ex.printStackTrace();
                 }
-                
+
                 //try {
                 //    Patient patient = ((Patient)bundle.getEntry().stream().filter(e -> e.getResource() instanceof Patient).findAny().get().getResource());
                 //    patient.getIdentifier().get(0).setValue("X110490897");
@@ -249,15 +239,15 @@ public class ERezeptWorkflowServiceTest {
                 String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
                         .withZone(ZoneOffset.UTC)
                         .format(Instant.now());
-                if(bundleWithAccessCodeOrThrowable.getThrowable() != null) {
+                if (bundleWithAccessCodeOrThrowable.getThrowable() != null) {
                     StringWriter sw = new StringWriter();
                     PrintWriter pw = new PrintWriter(sw);
                     bundleWithAccessCodeOrThrowable.getThrowable().printStackTrace(pw);
-                    Files.write(Paths.get("target/E-Rezept-"+type+"-" + thisMoment + ".txt"), sw.toString().getBytes());
+                    Files.write(Paths.get("target/E-Rezept-" + type + "-" + thisMoment + ".txt"), sw.toString().getBytes());
                 } else {
                     ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
-                    Files.write(Paths.get("target/E-Rezept-"+type+"-"  + thisMoment + ".pdf"), a.toByteArray());
-                    log.info("Time: "+thisMoment);
+                    Files.write(Paths.get("target/E-Rezept-" + type + "-" + thisMoment + ".pdf"), a.toByteArray());
+                    log.info("Time: " + thisMoment);
                 }
                 i++;
                 //if (i == 1) {
@@ -266,8 +256,8 @@ public class ERezeptWorkflowServiceTest {
             }
         } catch (DirectoryIteratorException | ERezeptWorkflowException ex) {
             // I/O error encounted during the iteration, the cause is an IOException
-            log.info("Exception: "+ex);
-                
+            log.info("Exception: " + ex);
+
             ex.printStackTrace();
         }
 
@@ -277,7 +267,27 @@ public class ERezeptWorkflowServiceTest {
     @Test
         // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testIsExired() {
-        assertTrue(eRezeptWorkflowService.isExpired("eyJhbGciOiJCUDI1NlIxIiwidHlwIjoiYXQrSldUIiwia2lkIjoicHVrX2lkcF9zaWcifQ.eyJzdWIiOiJNU1lXUGYxVlJfaXdlNzFGQVBMVzJJY0YwemNlQTVqa0x2V1piWFlmSms0IiwicHJvZmVzc2lvbk9JRCI6IjEuMi4yNzYuMC43Ni40LjUwIiwib3JnYW5pemF0aW9uTmFtZSI6IjIwMjExMDEyMiBOT1QtVkFMSUQiLCJpZE51bW1lciI6IjEtMi1BUlpULVdhbHRyYXV0RHJvbWJ1c2NoMDEiLCJhbXIiOlsibWZhIiwic2MiLCJwaW4iXSwiaXNzIjoiaHR0cHM6Ly9pZHAuZXJlemVwdC1pbnN0YW56MS50aXR1cy50aS1kaWVuc3RlLmRlIiwiZ2l2ZW5fbmFtZSI6IldhbHRyYXV0IiwiY2xpZW50X2lkIjoiZ2VtYXRpa1Rlc3RQcyIsImFjciI6ImdlbWF0aWstZWhlYWx0aC1sb2EtaGlnaCIsImF1ZCI6Imh0dHBzOi8vZXJwLXRlc3QuemVudHJhbC5lcnAuc3BsaXRkbnMudGktZGllbnN0ZS5kZS8iLCJhenAiOiJnZW1hdGlrVGVzdFBzIiwic2NvcGUiOiJvcGVuaWQgZS1yZXplcHQiLCJhdXRoX3RpbWUiOjE2MjU1MjA2ODMsImV4cCI6MTYyNTUyMDk4MywiZmFtaWx5X25hbWUiOiJEcm9tYnVzY2giLCJpYXQiOjE2MjU1MjA2ODMsImp0aSI6ImI4MmMyMzgxYjQ1MTFjZGEifQ.K4qiZS6oSEe5izDiaIN-rBjcXzJM_y6HYUOpIEUKK-9evxEXco8BB4RJhfkagQJKwCgi11pctShMOs5seN1mOw"));
+        assertTrue(isExpired("eyJhbGciOiJCUDI1NlIxIiwidHlwIjoiYXQrSldUIiwia2lkIjoicHVrX2lkcF9zaWcifQ.eyJzdWIiOiJNU1lXUGYxVlJfaXdlNzFGQVBMVzJJY0YwemNlQTVqa0x2V1piWFlmSms0IiwicHJvZmVzc2lvbk9JRCI6IjEuMi4yNzYuMC43Ni40LjUwIiwib3JnYW5pemF0aW9uTmFtZSI6IjIwMjExMDEyMiBOT1QtVkFMSUQiLCJpZE51bW1lciI6IjEtMi1BUlpULVdhbHRyYXV0RHJvbWJ1c2NoMDEiLCJhbXIiOlsibWZhIiwic2MiLCJwaW4iXSwiaXNzIjoiaHR0cHM6Ly9pZHAuZXJlemVwdC1pbnN0YW56MS50aXR1cy50aS1kaWVuc3RlLmRlIiwiZ2l2ZW5fbmFtZSI6IldhbHRyYXV0IiwiY2xpZW50X2lkIjoiZ2VtYXRpa1Rlc3RQcyIsImFjciI6ImdlbWF0aWstZWhlYWx0aC1sb2EtaGlnaCIsImF1ZCI6Imh0dHBzOi8vZXJwLXRlc3QuemVudHJhbC5lcnAuc3BsaXRkbnMudGktZGllbnN0ZS5kZS8iLCJhenAiOiJnZW1hdGlrVGVzdFBzIiwic2NvcGUiOiJvcGVuaWQgZS1yZXplcHQiLCJhdXRoX3RpbWUiOjE2MjU1MjA2ODMsImV4cCI6MTYyNTUyMDk4MywiZmFtaWx5X25hbWUiOiJEcm9tYnVzY2giLCJpYXQiOjE2MjU1MjA2ODMsImp0aSI6ImI4MmMyMzgxYjQ1MTFjZGEifQ.K4qiZS6oSEe5izDiaIN-rBjcXzJM_y6HYUOpIEUKK-9evxEXco8BB4RJhfkagQJKwCgi11pctShMOs5seN1mOw"));
+    }
+
+    /**
+     * Checks if the given bearer token is expired.
+     *
+     * @param bearerToken the bearer token to check
+     */
+    private static boolean isExpired(String bearerToken) {
+        JwtConsumer consumer = new JwtConsumerBuilder()
+                .setDisableRequireSignature()
+                .setSkipSignatureVerification()
+                .setSkipDefaultAudienceValidation()
+                .setRequireExpirationTime()
+                .build();
+        try {
+            consumer.process(bearerToken);
+            return false;
+        } catch (InvalidJwtException e) {
+            return true;
+        }
     }
 
     @Test
@@ -397,14 +407,14 @@ public class ERezeptWorkflowServiceTest {
     @Test
     @Disabled
         // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
-    void testActivateComfortSignature() throws ERezeptWorkflowException {
+    void testActivateComfortSignature() {
         eRezeptWorkflowService.activateComfortSignature();
     }
 
     @Test
     @Disabled
         // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
-    void testGetSignatureMode() throws ERezeptWorkflowException {
+    void testGetSignatureMode() {
         eRezeptWorkflowService.getSignatureMode();
     }
 
@@ -424,7 +434,7 @@ public class ERezeptWorkflowServiceTest {
     @Test
     @Disabled
         // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
-    void testSignDocument() throws IOException, ERezeptWorkflowException {
+    void testSignDocument() throws ERezeptWorkflowException {
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/examples_erezept/Erezept_template_3.xml"));
 
         Task task = new Task();
@@ -435,7 +445,7 @@ public class ERezeptWorkflowServiceTest {
     @Test
     @Disabled
         // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
-    void testSignBatchDocument() throws IOException, ERezeptWorkflowException {
+    void testSignBatchDocument() throws ERezeptWorkflowException {
         Bundle bundle1 = new Bundle();
         Bundle bundle2 = new Bundle();
 
@@ -464,14 +474,14 @@ public class ERezeptWorkflowServiceTest {
     @Test
     @Disabled
         // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
-    void testDeactivateComfortSignature() throws ERezeptWorkflowException {
+    void testDeactivateComfortSignature() {
         eRezeptWorkflowService.deactivateComfortSignature();
     }
 
     @Test
     @Tag("titus")
         // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
-    void testToggleComfortSignature() throws ERezeptWorkflowException {
+    void testToggleComfortSignature() {
         eRezeptWorkflowService.activateComfortSignature();
         eRezeptWorkflowService.getSignatureMode();
         eRezeptWorkflowService.deactivateComfortSignature();
@@ -480,8 +490,9 @@ public class ERezeptWorkflowServiceTest {
     @Test
     @Tag("titus")
         // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
-    void testIsERezeptServiceReachable() throws ERezeptWorkflowException {
-        String parameterBearerToken = bearerTokenService.requestBearerToken();
+    void testIsERezeptServiceReachable() {
+        RuntimeConfig runtimeConfig = new RuntimeConfig();
+        String parameterBearerToken = bearerTokenService.getBearerToken(runtimeConfig);
         assertTrue(eRezeptWorkflowService.isERezeptServiceReachable(null, parameterBearerToken));
     }
 

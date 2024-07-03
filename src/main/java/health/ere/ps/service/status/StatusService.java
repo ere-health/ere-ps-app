@@ -71,6 +71,8 @@ public class StatusService {
     @Inject
     Event<StatusResponseEvent> statusResponseEvent;
 
+    @Inject
+    IdpClient idpClient;
 
     public void onRequestStatus(@ObservesAsync RequestStatusEvent requestStatusEvent) {
         try {
@@ -135,7 +137,6 @@ public class StatusService {
             // IdpReachable
             String discoveryUrl = "Not given";
             try {
-                IdpClient idpClient = bearerTokenService.getIdpClient(runtimeConfig);
                 idpClient.initializeClient();
                 discoveryUrl = idpClient.getDiscoveryDocumentUrl();
                 status.setIdpReachable(true, discoveryUrl);
@@ -148,7 +149,7 @@ public class StatusService {
             String discoveryUrl = "Not given";
             try {
                 // IdpaccesstokenObtainable
-                String bearerToken = bearerTokenService.requestBearerToken(runtimeConfig);
+                String bearerToken = bearerTokenService.getBearerToken(runtimeConfig);
                 if (bearerToken != null && !bearerToken.isEmpty()) {
                     status.setIdpaccesstokenObtainable(true, "Bearer Token: " + bearerToken, bearerToken);
                     // FachdienstReachable

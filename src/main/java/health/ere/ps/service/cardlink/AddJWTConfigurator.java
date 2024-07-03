@@ -22,22 +22,22 @@ public class AddJWTConfigurator extends ClientEndpointConfig.Configurator {
 
     private static final Logger log = Logger.getLogger(AddJWTConfigurator.class.getName());
 
-    PharmacyService bearerTokenService;
+    PharmacyService pharmacyService;
 
     MultiConnectorServicesProvider connectorServicesProvider;
 
     @Override
     public void beforeRequest(Map<String, List<String>> headers) {
 
-        if (bearerTokenService == null) {
-            bearerTokenService = Arc.container().select(PharmacyService.class).get();
+        if (pharmacyService == null) {
+            pharmacyService = Arc.container().select(PharmacyService.class).get();
         }
         if (connectorServicesProvider == null) {
             connectorServicesProvider = Arc.container().select(MultiConnectorServicesProvider.class).get();
         }
 
         RuntimeConfig runtimeConfig = new RuntimeConfig();
-        if (connectorServicesProvider != null && bearerTokenService != null) {
+        if (connectorServicesProvider != null && pharmacyService != null) {
             ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
             EventServicePortType eventServicePortType = connectorServicesProvider.getEventServicePortType(runtimeConfig);
             try {
@@ -46,8 +46,7 @@ public class AddJWTConfigurator extends ClientEndpointConfig.Configurator {
                 log.log(Level.SEVERE, "Could not get SMC-B for pharmacy", e);
             }
 
-            bearerTokenService.requestNewAccessTokenIfNecessary(runtimeConfig, null, null);
-            headers.put("Authorization", List.of("Bearer " + bearerTokenService.getBearerToken(runtimeConfig)));
+            headers.put("Authorization", List.of("Bearer " + pharmacyService.getBearerTokenService().getBearerToken(runtimeConfig)));
         } else {
             log.log(Level.SEVERE, "Could not get bearer token or connector services provider, won't add JWT to websocket connection.");
         }
