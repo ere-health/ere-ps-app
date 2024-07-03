@@ -49,10 +49,12 @@ public class BearerTokenManageService {
     }
 
     public String getBearerToken(RuntimeConfig runtimeConfig) {
-        int hashCode = runtimeConfig.hashCode();
-        for(RuntimeConfig runtimeConfig2 : bearerToken.keySet()) {
-            if(runtimeConfig2 != null && runtimeConfig2.hashCode() == hashCode) {
-                runtimeConfig = runtimeConfig2;
+        if(runtimeConfig != null) {
+            int hashCode = runtimeConfig.hashCode();
+            for(RuntimeConfig runtimeConfig2 : bearerToken.keySet()) {
+                if(runtimeConfig2 != null && runtimeConfig2.hashCode() == hashCode) {
+                    runtimeConfig = runtimeConfig2;
+                }
             }
         }
         return bearerToken.get(runtimeConfig);
