@@ -22,14 +22,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.net.*;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -42,8 +36,7 @@ import java.util.stream.Collectors;
 
 import static health.ere.ps.service.cetp.config.KonnektorConfig.FAILED;
 import static health.ere.ps.service.cetp.config.KonnektorConfig.saveFile;
-import static health.ere.ps.utils.Utils.getHostFromNetworkInterfaces;
-import static health.ere.ps.utils.Utils.printException;
+import static health.ere.ps.utils.Utils.*;
 
 @ApplicationScoped
 public class SubscriptionManager {
@@ -83,16 +76,19 @@ public class SubscriptionManager {
         concurrentExecution = Scheduled.ConcurrentExecution.SKIP
     )
     void subscriptionsMaintenance() {
-        Optional<String> eventToHostOpt = getHostFromNetworkInterfaces();
-        if (eventToHostOpt.isEmpty()) {
-            eventToHostOpt = appConfig.getEventToHost();
+        String defaultSender = appConfig.getEventToHost().orElse(null);
+        if (defaultSender == null) {
+            log.log(Level.WARNING, "You did not set 'cetp.subscriptions.event-to-host' property. Will have no fallback if Konnektor is not found to be in the same subnet");
         }
-        final String eventToHost = eventToHostOpt.orElseThrow(() ->
-            new IllegalStateException("'cetp.subscriptions.event-to-host' property is not found")
-        );
         List<Integer> retryMillis = List.of(200);
         int intervalMs = appConfig.getSubscriptionsMaintenanceRetryIntervalMs();
         List<Future<Boolean>> futures = getKonnektorConfigs(null).stream().map(kc -> threadPool.submit(() -> {
+            Inet4Address meInSameSubnet = LocalAddressInSameSubnetFinder.findLocalIPinSameSubnet(konnektorToIp4(kc.getHost()));
+            String eventToHost = (meInSameSubnet != null) ? meInSameSubnet.getHostAddress() : defaultSender;
+            if (eventToHost == null) {
+                log.log(Level.INFO, "Can't maintain subscription. Don't know my own address to tell konnektor about it");
+                return null;
+            }
             Boolean result = Retrier.callAndRetry(
                 retryMillis,
                 intervalMs,
@@ -387,5 +383,18 @@ public class SubscriptionManager {
         }
         configs.forEach(config -> hostToKonnektorConfig.put(getKonnectorHost(config), config));
         configsLoaded = true;
+    }
+
+    private Inet4Address konnektorToIp4(String host) {
+        try {
+            InetAddress inetAddress = InetAddress.getByName(host);
+            if (inetAddress instanceof Inet4Address addr) {
+                return addr;
+            } else {
+                return null;
+            }
+        } catch (UnknownHostException e) {
+            return null;
+        }
     }
 }
