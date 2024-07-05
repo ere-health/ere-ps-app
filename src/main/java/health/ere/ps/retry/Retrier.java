@@ -1,11 +1,10 @@
 package health.ere.ps.retry;
 
-import org.jboss.logmanager.Level;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Retrier {
