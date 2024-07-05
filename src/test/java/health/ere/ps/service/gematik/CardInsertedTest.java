@@ -8,7 +8,9 @@ import health.ere.ps.jmx.ReadEPrescriptionsMXBeanImpl;
 import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.service.cardlink.CardlinkWebsocketClient;
 import health.ere.ps.service.cetp.CETPServerHandler;
+import health.ere.ps.service.idp.BearerTokenService;
 import io.netty.channel.embedded.EmbeddedChannel;
+import io.quarkus.test.junit.QuarkusTest;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.client.WebTarget;
@@ -23,7 +25,6 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -31,15 +32,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-public class CardInsertedTest {
+@QuarkusTest
+class CardInsertedTest {
 
     private static final String READ_VSD_RESPONSE = "H4sIAAAAAAAA/w2M3QqCMBhAXyV8AL+5oj/mQNyKgk3ROaKbKLT8T1L8e/q8OReHwyG+XLlMPDQPwosnbcMykYmM1ViVdWsbadc1R4ChNT9J9eyywowTeD+hb+MKmnqAfukNSlRIMcJrtMN7tMW7zYHAoginmACnxL9TzZxJsGgtcmeWjGNPOZbIIyzzVGt2fo1zVvIrFEqq7BZZwVd7Z81+vSsmfzgVNoFlskDSP8uj5+izAAAA";
 
@@ -170,6 +166,9 @@ public class CardInsertedTest {
     private static PharmacyService createPharmacyService() {
         var pharmacyService = new PharmacyService();
         pharmacyService.setReadEPrescriptionsMXBean(new ReadEPrescriptionsMXBeanImpl());    //normally done by CDI
+        BearerTokenService tokenService = mock(BearerTokenService.class);
+        pharmacyService.bearerTokenService = tokenService;
+        when(tokenService.getBearerToken(any())).thenReturn("this_is_a_test_jwt_token");
         return pharmacyService;
     }
 }

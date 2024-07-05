@@ -1,25 +1,5 @@
 package health.ere.ps.resource.gematik;
 
-import static health.ere.ps.resource.gematik.Extractors.extractRuntimeConfigFromHeaders;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.security.cert.CertificateEncodingException;
-import java.text.ParseException;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.naming.InvalidNameException;
-import javax.xml.transform.TransformerException;
-
-import org.apache.fop.apps.FOPException;
-import org.bouncycastle.crypto.CryptoException;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Identifier;
-import org.hl7.fhir.r4.model.Task;
-
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.DataFormatException;
 import ca.uhn.fhir.parser.IParser;
@@ -37,16 +17,29 @@ import health.ere.ps.service.gematik.PrefillPrescriptionService;
 import health.ere.ps.service.pdf.DocumentService;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.HeaderParam;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.apache.fop.apps.FOPException;
+import org.bouncycastle.crypto.CryptoException;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Identifier;
+import org.hl7.fhir.r4.model.Task;
+
+import javax.naming.InvalidNameException;
+import javax.xml.transform.TransformerException;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.security.cert.CertificateEncodingException;
+import java.text.ParseException;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static health.ere.ps.resource.gematik.Extractors.extractRuntimeConfigFromHeaders;
 
 @Path("/workflow")
 public class ERezeptWorkflowResource {
@@ -74,11 +67,11 @@ public class ERezeptWorkflowResource {
     @Path("task")
     public Response createERezeptTask(@HeaderParam("accept") String accept, @QueryParam("flowtype") String flowtype) {
 
-	if(flowtype == null) {
-	    flowtype = "160";
-	}
+        if (flowtype == null) {
+            flowtype = "160";
+        }
         Task task = eRezeptWorkflowService.createERezeptTask(true, extractRuntimeConfigFromHeaders(httpServletRequest, userConfig), flowtype);
-        if("application/xml".equals(accept)) {
+        if ("application/xml".equals(accept)) {
             return Response.ok().entity(xmlParser.encodeResourceToString(task)).type(MediaType.APPLICATION_XML).build();
         } else {
             return Response.ok().entity(jsonParser.encodeResourceToString(task)).type(MediaType.APPLICATION_JSON).build();
@@ -106,7 +99,7 @@ public class ERezeptWorkflowResource {
     @POST
     @Path("batch-sign")
     public Response signBundlesWithIdentifiers(@HeaderParam("Content-Type") String contentType, String bundles) throws DataFormatException, ERezeptWorkflowException {
-        List<Bundle> bundlesList = Arrays.asList(bundles.split("\\r?\\n")).stream().map((bundle) ->  string2bundle(contentType, bundle)).collect(Collectors.toList());
+        List<Bundle> bundlesList = Arrays.asList(bundles.split("\\r?\\n")).stream().map((bundle) -> string2bundle(contentType, bundle)).collect(Collectors.toList());
         List<SignResponse> signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundlesList, false, extractRuntimeConfigFromHeaders(httpServletRequest, userConfig));
         String responses = signResponse.stream().map(ERezeptWorkflowResource::signResponse2base64String).collect(Collectors.joining("\n"));
         return Response.ok().entity(responses).type(MediaType.TEXT_PLAIN).build();
@@ -167,8 +160,7 @@ public class ERezeptWorkflowResource {
     @Path("idp-token")
     public String idpToken() {
         RuntimeConfig runtimeConfig = extractRuntimeConfigFromHeaders(httpServletRequest, userConfig);
-        eRezeptWorkflowService.requestNewAccessTokenIfNecessary(runtimeConfig, null, null);
-        return eRezeptWorkflowService.getBearerToken(runtimeConfig);
+        return eRezeptWorkflowService.bearerTokenService.getBearerToken(runtimeConfig);
     }
 
     @GET
@@ -177,7 +169,6 @@ public class ERezeptWorkflowResource {
         RuntimeConfig runtimeConfig = extractRuntimeConfigFromHeaders(httpServletRequest, userConfig);
         return eRezeptWorkflowService.getSignatureMode(runtimeConfig, null, null);
     }
-
 
 
     @POST
@@ -199,7 +190,8 @@ public class ERezeptWorkflowResource {
             } else if (identifier.getSystem().equals("https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_AccessCode")) {
                 accessCode = identifier.getValue();
             }
-        };
+        }
+
         bundle.getIdentifier().setValue(taskId);
         SignResponse signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundle, false, runtimeConfig);
         String base64String = signResponse2base64String(signResponse);
