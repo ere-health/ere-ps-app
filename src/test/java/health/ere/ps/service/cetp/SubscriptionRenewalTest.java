@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import static health.ere.ps.utils.Utils.getHostFromNetworkInterfaces;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -123,7 +124,7 @@ public class SubscriptionRenewalTest {
         detail.setValue("Detail");
         trace.setDetail(detail);
         error.getTrace().add(trace);
-        Status subscribeStatus = prepareStatus("Subscribed", error);
+        Status subscribeStatus = prepareStatus("Subscribed", null);
         Status renewalStatus = prepareStatus("Renewed", error);
         Status unsubscribeStatus = prepareStatus("Unsubscribed", error);
         int subscribedCount = 2;
@@ -135,6 +136,17 @@ public class SubscriptionRenewalTest {
         verify(eventService).subscribe(any(), any(), any(), any(), any());
         verify(eventService, never()).renewSubscriptions(any(), any(), any(), any());
         verify(eventService, times(subscribedCount)).unsubscribe(any(), any(), any());
+
+        TimeUnit.SECONDS.sleep(1);
+
+        // force subscribe
+        unsubscribeStatus = prepareStatus("Unsubscribed", null);
+        eventService = setupRenewal(1, 60000, subscribeStatus, renewalStatus, unsubscribeStatus);
+        result = subscriptionManager.renewSubscriptions(eventToHost, kc);
+        assertTrue(result);
+        verify(eventService).subscribe(any(), any(), any(), any(), any());
+        verify(eventService, never()).renewSubscriptions(any(), any(), any(), any());
+        verify(eventService).unsubscribe(any(), any(), any());
     }
 
     private Status prepareStatus(String result, de.gematik.ws.tel.error.v2.Error error) {

@@ -7,6 +7,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -32,6 +35,7 @@ public class KonnektorConfig {
     URI cardlinkEndpoint;
     String subscriptionId;
     File folder;
+    OffsetDateTime subscriptionTime;
 
     private final Semaphore semaphore = new Semaphore(1);
 
@@ -50,6 +54,7 @@ public class KonnektorConfig {
         this.cardlinkEndpoint = cardlinkEndpoint;
 
         subscriptionId = null;
+        subscriptionTime = OffsetDateTime.now().minusDays(30);
     }
 
     public static List<KonnektorConfig> readFromFolder(String folder) {
@@ -81,6 +86,9 @@ public class KonnektorConfig {
             File actualSubscription = userPropertiesOpt.get();
             if (actualSubscription.exists()) {
                 String subscriptionId = subscriptionFileOpt.map(File::getName).orElse(null);
+                OffsetDateTime subscriptionTime = subscriptionFileOpt
+                    .map(f -> OffsetDateTime.ofInstant(Instant.ofEpochMilli(f.lastModified()), ZoneId.systemDefault()))
+                    .orElse(OffsetDateTime.now()).minusDays(30); // force subscribe if no subscription is found
                 try (var fis = new FileInputStream(actualSubscription)) {
                     Properties properties = new Properties();
                     properties.load(fis);
@@ -89,6 +97,7 @@ public class KonnektorConfig {
                     konnektorConfig.userConfigurations = new UserConfigurations(properties);
                     konnektorConfig.cardlinkEndpoint = new URI(properties.getProperty("cardlinkServerURL"));
                     konnektorConfig.subscriptionId = subscriptionId;
+                    konnektorConfig.subscriptionTime = subscriptionTime;
                     konnektorConfig.folder = folder;
                     return konnektorConfig;
                 } catch (URISyntaxException | IOException e) {
@@ -106,6 +115,7 @@ public class KonnektorConfig {
         try {
             createNewSubscriptionIdFile(konnektorConfig.getFolder(), subscriptionId, error);
             konnektorConfig.setSubscriptionId(subscriptionId);
+            konnektorConfig.setSubscriptionTime(OffsetDateTime.now());
         } catch (IOException e) {
             String msg = String.format(
                 "Error while recreating subscription properties in folder: %s",
@@ -164,5 +174,13 @@ public class KonnektorConfig {
 
     public File getFolder() {
         return folder;
+    }
+
+    public OffsetDateTime getSubscriptionTime() {
+        return subscriptionTime;
+    }
+
+    public void setSubscriptionTime(OffsetDateTime subscriptionTime) {
+        this.subscriptionTime = subscriptionTime;
     }
 }

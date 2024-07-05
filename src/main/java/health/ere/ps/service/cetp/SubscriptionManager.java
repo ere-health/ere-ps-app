@@ -22,8 +22,18 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 
 import java.io.File;
-import java.net.*;
-import java.util.*;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -36,7 +46,7 @@ import java.util.stream.Collectors;
 
 import static health.ere.ps.service.cetp.config.KonnektorConfig.FAILED;
 import static health.ere.ps.service.cetp.config.KonnektorConfig.saveFile;
-import static health.ere.ps.utils.Utils.*;
+import static health.ere.ps.utils.Utils.printException;
 
 @ApplicationScoped
 public class SubscriptionManager {
@@ -102,7 +112,7 @@ public class SubscriptionManager {
             }
             return result;
         })).toList();
-        for (Future<Boolean> future: futures) {
+        for (Future<Boolean> future : futures) {
             try {
                 future.get();
             } catch (Throwable e) {
@@ -130,8 +140,15 @@ public class SubscriptionManager {
                     SubscriptionType newest = newestOpt.get();
                     Date expireDate = newest.getTerminationTime().toGregorianCalendar().getTime();
                     Date now = new Date();
-                    if (now.getTime() >= expireDate.getTime()) {
+                    boolean expired = now.getTime() >= expireDate.getTime();
+
+                    int periodSeconds = appConfig.getForceResubscribePeriodSeconds();
+                    boolean forceSubscribe = kc.getSubscriptionTime().plusSeconds(periodSeconds).isBefore(OffsetDateTime.now());
+                    if (expired || forceSubscribe) {
                         boolean subscribed = subscribe(kc, runtimeConfig, cetpHost, resultHolder);
+                        if (forceSubscribe && subscribed) {
+                            log.info(String.format("Force subscribed to %s: %s", kc.getHost(), resultHolder.value));
+                        }
                         // all are expired, drop them
                         boolean dropped = drop(runtimeConfig, subscriptions).isEmpty();
                         return subscribed && dropped;
@@ -210,7 +227,10 @@ public class SubscriptionManager {
         );
     }
 
-    public List<String> drop(RuntimeConfig runtimeConfig, List<SubscriptionType> subscriptions) throws FaultMessage {
+    public List<String> drop(
+        RuntimeConfig runtimeConfig,
+        List<SubscriptionType> subscriptions
+    ) throws FaultMessage {
         return subscriptions.stream().map(s -> {
             try {
                 Status status = konnektorClient.unsubscribeFromKonnektor(runtimeConfig, s.getSubscriptionID(), null, false);
@@ -374,11 +394,13 @@ public class SubscriptionManager {
             configs = KonnektorConfig.readFromFolder(konnektorConfigFolder.getAbsolutePath());
         }
         if (configs.isEmpty()) {
-            configs.add(new KonnektorConfig(
-                konnektorConfigFolder,
-                CETPServer.PORT,
-                userConfig.getConfigurations(),
-                appConfig.getCardLinkURI())
+            configs.add(
+                new KonnektorConfig(
+                    konnektorConfigFolder,
+                    CETPServer.PORT,
+                    userConfig.getConfigurations(),
+                    appConfig.getCardLinkURI()
+                )
             );
         }
         configs.forEach(config -> hostToKonnektorConfig.put(getKonnectorHost(config), config));
