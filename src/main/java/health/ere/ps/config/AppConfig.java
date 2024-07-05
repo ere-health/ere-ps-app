@@ -41,6 +41,9 @@ public class AppConfig {
     @ConfigProperty(name = "cetp.subscriptions.maintenance.retry.interval.ms")
     Optional<Integer> subscriptionsMaintenanceRetryIntervalMs;
 
+    @ConfigProperty(name = "cetp.subscriptions.force.resubscribe.period.seconds")
+    Optional<Integer> forceResubscribePeriodSeconds;
+
     @ConfigProperty(name = "cetp.subscriptions.event-to-host")
     Optional<String> eventToHost;
 
@@ -128,6 +131,10 @@ public class AppConfig {
 
     public int getSubscriptionsMaintenanceRetryIntervalMs() {
         return subscriptionsMaintenanceRetryIntervalMs.orElse(5000);
+    }
+
+    public int getForceResubscribePeriodSeconds() {
+        return forceResubscribePeriodSeconds.orElse(43200);
     }
 
     public Optional<String> getEventToHost() {
