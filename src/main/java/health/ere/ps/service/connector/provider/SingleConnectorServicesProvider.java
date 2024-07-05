@@ -1,35 +1,28 @@
 package health.ere.ps.service.connector.provider;
 
+import health.ere.ps.config.AppConfig;
+import health.ere.ps.config.UserConfig;
+import health.ere.ps.service.common.security.SecretsManagerService;
+import health.ere.ps.service.connector.endpoint.EndpointDiscoveryService;
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.inject.spi.CDI;
+
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.X509KeyManager;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.Principal;
-import java.security.PrivateKey;
-import java.security.UnrecoverableKeyException;
+import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.PatternSyntaxException;
-
-import jakarta.enterprise.event.Event;
-import jakarta.enterprise.inject.spi.CDI;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.X509KeyManager;
-
-import health.ere.ps.config.AppConfig;
-import health.ere.ps.config.UserConfig;
-import health.ere.ps.service.common.security.SecretsManagerService;
-import health.ere.ps.service.connector.endpoint.EndpointDiscoveryService;
 
 public class SingleConnectorServicesProvider extends AbstractConnectorServicesProvider {
     private final static Logger log = Logger.getLogger(SingleConnectorServicesProvider.class.getName());
@@ -39,24 +32,24 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
     public SingleConnectorServicesProvider(UserConfig userConfig, Event<Exception> exceptionEvent) {
         this.userConfig = userConfig;
         this.secretsManagerService = new SecretsManagerService();
-        
+
         // Try to read SSL Certificates from the userConfig (this can also be the runtime config)
         String configKeystoreUri = userConfig.getConfigurations().getClientCertificate();
         String configKeystorePass = userConfig.getConfigurations().getClientCertificatePassword();
-        
+
         if (configKeystoreUri != null && !configKeystoreUri.isEmpty()) {
             try {
                 KeyManager keyManager = getKeyFromKeyStoreUri(configKeystoreUri, configKeystorePass);
                 this.secretsManagerService.setUpSSLContext(keyManager);
             } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException
-            | URISyntaxException | IOException | UnrecoverableKeyException | KeyManagementException e) {
+                     | URISyntaxException | IOException | UnrecoverableKeyException | KeyManagementException e) {
                 log.log(Level.SEVERE, "There was a problem when unpacking key from ClientCertificateKeyStore:", e);
                 exceptionEvent.fireAsync(e);
             }
-        // if non is given try to load the certificates from the AppConfig
+            // if non is given try to load the certificates from the AppConfig
         } else {
             try {
-                AppConfig appConfig = CDI.current().select( AppConfig.class ).get();
+                AppConfig appConfig = CDI.current().select(AppConfig.class).get();
                 if (appConfig.getCertAuthStoreFile().isPresent() && appConfig.getCertAuthStoreFilePassword().isPresent()) {
                     this.secretsManagerService.appConfig = appConfig;
                     this.secretsManagerService.initFromAppConfig();
@@ -64,21 +57,21 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
                     this.secretsManagerService.appConfig = appConfig;
                     this.secretsManagerService.acceptAllCertificates();
                 }
-            } catch(Exception e) {
+            } catch (Exception e) {
                 log.log(Level.SEVERE, "There was a problem when using default certificate", e);
-                if(exceptionEvent != null) {
+                if (exceptionEvent != null) {
                     exceptionEvent.fireAsync(e);
                 }
             }
         }
-        
+
         this.endpointDiscoveryService = new EndpointDiscoveryService(userConfig, this.secretsManagerService);
 
         initializeServices();
     }
 
     public static KeyManager getKeyFromKeyStoreUri(String keystoreUri, String keystorePassword) throws URISyntaxException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
-        if(keystorePassword== null) {
+        if (keystorePassword == null) {
             keystorePassword = "";
         }
         String keyAlias = null;
@@ -87,14 +80,14 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
         URI uriParser = new URI(keystoreUri);
         String scheme = uriParser.getScheme();
 
-        if (scheme.equalsIgnoreCase("data")){
+        if (scheme.equalsIgnoreCase("data")) {
             // example: "data:application/x-pkcs12;base64,MIACAQMwgAY...gtc/qoCAwGQAAAA"
             String[] schemeSpecificParts = uriParser.getSchemeSpecificPart().split(";");
             String contentType = schemeSpecificParts[0];
-            if (contentType.equalsIgnoreCase("application/x-pkcs12") || contentType.equalsIgnoreCase("application/octet-stream")){
+            if (contentType.equalsIgnoreCase("application/pkcs12") || contentType.equalsIgnoreCase("application/x-pkcs12") || contentType.equalsIgnoreCase("application/octet-stream")) {
                 String[] dataParts = schemeSpecificParts[1].split(",");
                 String encodingType = dataParts[0];
-                if (encodingType.equalsIgnoreCase("base64")){
+                if (encodingType.equalsIgnoreCase("base64")) {
                     String keystoreBase64 = dataParts[1];
                     ByteArrayInputStream keystoreInputStream = new ByteArrayInputStream(Base64.getDecoder().decode(keystoreBase64));
                     store.load(keystoreInputStream, keystorePassword.toCharArray());
@@ -107,7 +100,7 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
                 String[] queryParts = query.split("=");
                 String parameterName = queryParts[0];
                 String parameterValue = queryParts[1];
-                if (parameterName.equalsIgnoreCase("alias")){
+                if (parameterName.equalsIgnoreCase("alias")) {
                     // example: "file:src/test/resources/certs/keystore.p12?alias=key2"
                     keyAlias = parameterValue;
                 }
@@ -122,13 +115,13 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         try {
             kmf.init(store, keystorePassword.toCharArray());
-            final X509KeyManager origKm = (X509KeyManager)kmf.getKeyManagers()[0];
-            if(keyAlias == null) {
+            final X509KeyManager origKm = (X509KeyManager) kmf.getKeyManagers()[0];
+            if (keyAlias == null) {
                 return origKm;
             } else {
                 final String finalKeyAlias = keyAlias;
                 return new X509KeyManager() {
-                    
+
                     @Override
                     public String chooseClientAlias(String[] arg0, Principal[] arg1, Socket arg2) {
                         return finalKeyAlias;
