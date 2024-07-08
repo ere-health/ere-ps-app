@@ -46,7 +46,7 @@ public class BearerTokenService {
     private final CardCertificateReaderService cardCertificateReaderService;
     private final ConnectorCardsService connectorCardsService;
     private final Event<Exception> exceptionEvent;
-    private final LoadingCache<RuntimeConfig, String> tokenCache;
+    private LoadingCache<RuntimeConfig, String> tokenCache;
     private final int refreshDurationInMinutes;
 
     private ScheduledExecutorService emergencyExecutor;
@@ -67,15 +67,18 @@ public class BearerTokenService {
         this.connectorCardsService = connectorCardsService;
         this.exceptionEvent = exceptionEvent;
         this.refreshDurationInMinutes = refreshDurationInMinutes;
-        tokenCache = Caffeine.newBuilder()
-                .refreshAfterWrite(Duration.ofMinutes(refreshDurationInMinutes))
-                .expireAfterAccess(Duration.ofMinutes(refreshDurationInMinutes * 2L))   //auto refresh stops after 10 minutes no access
-                .executor(managedExecutor)
-                .build(this::requestBearerToken);
+      
     }
 
     @PostConstruct
     public void init() {
+
+        tokenCache = Caffeine.newBuilder()
+            .refreshAfterWrite(Duration.ofMinutes(refreshDurationInMinutes))
+            .expireAfterAccess(Duration.ofMinutes(refreshDurationInMinutes * 2L))   //auto refresh stops after 10 minutes no access
+            .executor(managedExecutor)
+            .build(this::requestBearerToken);
+
         Thread thread = new Thread(() -> {
             List<Integer> retryMillis = appConfig.getIdpInitializationRetriesMillis();
             int retryPeriodMs = appConfig.getIdpInitializationPeriodMs();
