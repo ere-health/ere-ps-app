@@ -1,8 +1,24 @@
 package health.ere.ps.service.idp;
 
+import static health.ere.ps.service.connector.cards.ConnectorCardsService.CardHandleType.SMC_B;
+
+import java.security.cert.X509Certificate;
+import java.time.Duration;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.context.ManagedExecutor;
+
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.google.common.annotations.VisibleForTesting;
+
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.model.idp.client.IdpTokenResult;
@@ -19,19 +35,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 import jakarta.websocket.Session;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
-import java.security.cert.X509Certificate;
-import java.time.Duration;
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static health.ere.ps.service.connector.cards.ConnectorCardsService.CardHandleType.SMC_B;
 
 @ApplicationScoped
 @Startup
@@ -49,6 +52,9 @@ public class BearerTokenService {
     private ScheduledExecutorService emergencyExecutor;
 
     @Inject
+    ManagedExecutor managedExecutor;
+
+    @Inject
     public BearerTokenService(AppConfig appConfig,
                               IdpClient idpClient,
                               CardCertificateReaderService cardCertificateReaderService,
@@ -64,6 +70,7 @@ public class BearerTokenService {
         tokenCache = Caffeine.newBuilder()
                 .refreshAfterWrite(Duration.ofMinutes(refreshDurationInMinutes))
                 .expireAfterAccess(Duration.ofMinutes(refreshDurationInMinutes * 2L))   //auto refresh stops after 10 minutes no access
+                .executor(managedExecutor)
                 .build(this::requestBearerToken);
     }
 
