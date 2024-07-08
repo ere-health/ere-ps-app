@@ -228,6 +228,11 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-resteasy-client</artifactId>
         </dependency>
+        <!-- https://incentergy.atlassian.net/browse/NFCKT-927 -->
+	<dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-client</artifactId>
+	</dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-undertow</artifactId>
