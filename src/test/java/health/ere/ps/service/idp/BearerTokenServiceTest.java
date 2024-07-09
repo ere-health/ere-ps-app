@@ -11,12 +11,15 @@ import org.jose4j.jws.AlgorithmIdentifiers;
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.keys.HmacKey;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -28,11 +31,17 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class BearerTokenServiceTest {
+    private static final ExecutorService pool = Executors.newSingleThreadExecutor();
+
+    @AfterAll
+    public static void tearDown() {
+        pool.shutdownNow();
+    }
 
     @Test
     void testParallelAccess() throws InterruptedException {
         var mockjwt = "this is a jwt";
-        var bearerTokenService = new BearerTokenService(null, null, null, null, null, 4) {
+        var bearerTokenService = new BearerTokenService(null, null, null, null, null, pool, 5, 6) {
             @Override
             String requestBearerToken(RuntimeConfig runtimeConfig) {
                 return mockjwt;
@@ -71,7 +80,7 @@ class BearerTokenServiceTest {
     @SuppressWarnings("unchecked")
     void testError() {
         Event<Exception> mockEvent = mock(Event.class);
-        var bearerTokenService = new BearerTokenService(null, null, null, null, mockEvent, 4) {
+        var bearerTokenService = new BearerTokenService(null, null, null, null, mockEvent, pool, 4, 5) {
             @Override
             String requestBearerToken(RuntimeConfig runtimeConfig) {
                 throw new RuntimeException("This Test is supposed to throw an exception");
@@ -102,7 +111,7 @@ class BearerTokenServiceTest {
         when(idpClient.login(any(), any())).thenReturn(idpTokenResult);
 
         var counter = new AtomicInteger();
-        var bearerTokenService = new BearerTokenService(null, idpClient, cardCertificateReaderService, connectorCardsService, mockEvent, 4) {
+        var bearerTokenService = new BearerTokenService(null, idpClient, cardCertificateReaderService, connectorCardsService, mockEvent, pool, 60, 70) {
             @Override
             void evictCacheEntryAt(RuntimeConfig runtimeConfig, ZonedDateTime targetTime) {
                 counter.incrementAndGet();

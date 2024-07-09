@@ -1,24 +1,8 @@
 package health.ere.ps.service.idp;
 
-import static health.ere.ps.service.connector.cards.ConnectorCardsService.CardHandleType.SMC_B;
-
-import java.security.cert.X509Certificate;
-import java.time.Duration;
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.context.ManagedExecutor;
-
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.google.common.annotations.VisibleForTesting;
-
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.model.idp.client.IdpTokenResult;
@@ -35,6 +19,20 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 import jakarta.websocket.Session;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+import java.security.cert.X509Certificate;
+import java.time.Duration;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static health.ere.ps.service.connector.cards.ConnectorCardsService.CardHandleType.SMC_B;
 
 @ApplicationScoped
 @Startup
@@ -46,13 +44,10 @@ public class BearerTokenService {
     private final CardCertificateReaderService cardCertificateReaderService;
     private final ConnectorCardsService connectorCardsService;
     private final Event<Exception> exceptionEvent;
-    private LoadingCache<RuntimeConfig, String> tokenCache;
-    private final int refreshDurationInMinutes;
+    private final LoadingCache<RuntimeConfig, String> tokenCache;
+    private final int refreshDurationInSeconds;
 
     private ScheduledExecutorService emergencyExecutor;
-
-    @Inject
-    ManagedExecutor managedExecutor;
 
     @Inject
     public BearerTokenService(AppConfig appConfig,
@@ -60,25 +55,27 @@ public class BearerTokenService {
                               CardCertificateReaderService cardCertificateReaderService,
                               ConnectorCardsService connectorCardsService,
                               Event<Exception> exceptionEvent,
-                              @ConfigProperty(name = "BearerTokenService.refreshDurationInMinutes", defaultValue = "4") int refreshDurationInMinutes) {
+                              ExecutorService managedExecutor,
+                              @ConfigProperty(name = "BearerTokenService.refreshDurationInSeconds", defaultValue = "240") int refreshDurationInSeconds,
+                              @ConfigProperty(name = "BearerTokenService.expireDurationInSeconds", defaultValue = "290") int expireDurationInSeconds) {
         this.appConfig = appConfig;
         this.idpClient = idpClient;
         this.cardCertificateReaderService = cardCertificateReaderService;
         this.connectorCardsService = connectorCardsService;
         this.exceptionEvent = exceptionEvent;
-        this.refreshDurationInMinutes = refreshDurationInMinutes;
-      
+        this.refreshDurationInSeconds = refreshDurationInSeconds;
+        if (expireDurationInSeconds < 1) throw new IllegalArgumentException("expireDurationInSeconds must be positive");
+        if (refreshDurationInSeconds >= expireDurationInSeconds)
+            throw new IllegalArgumentException("refreshDurationInSeconds must be less then expireDurationInSeconds");
+        tokenCache = Caffeine.newBuilder()
+                .refreshAfterWrite(Duration.ofSeconds(refreshDurationInSeconds))
+                .expireAfterAccess(Duration.ofSeconds(expireDurationInSeconds))
+                .executor(managedExecutor)
+                .build(this::requestBearerToken);
     }
 
     @PostConstruct
     public void init() {
-
-        tokenCache = Caffeine.newBuilder()
-            .refreshAfterWrite(Duration.ofMinutes(refreshDurationInMinutes))
-            .expireAfterAccess(Duration.ofMinutes(refreshDurationInMinutes * 2L))   //auto refresh stops after 10 minutes no access
-            .executor(managedExecutor)
-            .build(this::requestBearerToken);
-
         Thread thread = new Thread(() -> {
             List<Integer> retryMillis = appConfig.getIdpInitializationRetriesMillis();
             int retryPeriodMs = appConfig.getIdpInitializationPeriodMs();
@@ -120,7 +117,7 @@ public class BearerTokenService {
 
             JsonWebToken accessToken = idpTokenResult.getAccessToken();
             ZonedDateTime expiresAt = accessToken.getExpiresAt();
-            ZonedDateTime refreshAt = ZonedDateTime.now().plusMinutes(refreshDurationInMinutes);
+            ZonedDateTime refreshAt = ZonedDateTime.now().plusSeconds(refreshDurationInSeconds);
             if (expiresAt.isBefore(refreshAt)) {
                 //we expect a fix expiry duration of the jwt. This is a backup strategy if somebody changes the expiry but this is not supposed to happen
                 log.severe(() -> "Bearer token expires before it is refreshed! Please change config 'BearerTokenService.refreshDurationInMinutes' to a value less then " + Duration.between(accessToken.getIssuedAt(), expiresAt));
