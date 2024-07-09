@@ -97,8 +97,8 @@ public class KonnektorFailedUnsubscriptionTest {
 
     @Test
     public void subscriptionWasReloadedAndFileIsCreated() throws Exception {
-        subscriptionManager.setConfigFolder(SubscriptionManager.CONFIG_KONNEKTOREN_FOLDER);
-        File config8585 = new File(SubscriptionManager.CONFIG_KONNEKTOREN_FOLDER + "/8585");
+        subscriptionManager.setConfigFolder("config/konnektoren");
+        File config8585 = new File("config/konnektoren/8585");
         deleteFiles(config8585, file -> !file.getName().endsWith(PROPERTIES_EXT));
 
         subscribeSucceeded(config8585);
@@ -106,8 +106,8 @@ public class KonnektorFailedUnsubscriptionTest {
 
     @Test
     public void subscriptionWasNotReloadedDueToUnsubscribeError() throws Exception {
-        subscriptionManager.setConfigFolder(SubscriptionManager.CONFIG_KONNEKTOREN_FOLDER);
-        File config8585 = new File(SubscriptionManager.CONFIG_KONNEKTOREN_FOLDER + "/8585");
+        subscriptionManager.setConfigFolder("config/konnektoren");
+        File config8585 = new File("config/konnektoren/8585");
         writeFile(config8585.getAbsolutePath() + "/" + UUID.randomUUID(), null);
 
         subscribeFailed(config8585);

@@ -107,7 +107,7 @@ public class KonnektorSubscriptionTest {
     @Test
     @Disabled
     public void defaultFolderConfigKonnektorSubscriptionReloadedInSync() throws Exception {
-        subscriptionManager.setConfigFolder(SubscriptionManager.CONFIG_KONNEKTOREN_FOLDER);
+        subscriptionManager.setConfigFolder("config/konnektoren");
         int cnt = 4;
         List<Future<String>> futures = new ArrayList<>();
         for (int i = 0; i < cnt; i++) {
@@ -180,7 +180,7 @@ public class KonnektorSubscriptionTest {
 
     @Test
     public void defaultFolderConfigKonnektorSubscriptionReloaded() {
-        subscriptionManager.setConfigFolder(SubscriptionManager.CONFIG_KONNEKTOREN_FOLDER);
+        subscriptionManager.setConfigFolder("config/konnektoren");
         Response response = given()
             .queryParam("host", "192.168.178.42")
             .when()
@@ -194,7 +194,7 @@ public class KonnektorSubscriptionTest {
 
     @Test
     public void threeSubscriptionsReloaded() {
-        subscriptionManager.setConfigFolder(SubscriptionManager.CONFIG_KONNEKTOREN_FOLDER);
+        subscriptionManager.setConfigFolder("config/konnektoren");
         Response response = given()
             .when()
             .get("/pharmacy/Subscribe");
@@ -206,7 +206,7 @@ public class KonnektorSubscriptionTest {
 
     @Test
     public void subscriptionUnsubscribedByCetp() throws Exception {
-        subscriptionManager.setConfigFolder(SubscriptionManager.CONFIG_KONNEKTOREN_FOLDER);
+        subscriptionManager.setConfigFolder("config/konnektoren");
         Response response = given()
             .when()
             .get("/pharmacy/Unsubscribe?useCetp=true");
@@ -221,13 +221,13 @@ public class KonnektorSubscriptionTest {
         assertTrue(subscriptionIdCaptor.getAllValues().stream().allMatch(Objects::isNull));
         assertTrue(cetpCaptor.getAllValues().stream().allMatch(s -> s.startsWith("cetp://")));
 
-        File config8585 = new File(SubscriptionManager.CONFIG_KONNEKTOREN_FOLDER + "/8585");
+        File config8585 = new File("config/konnektoren/8585");
         assertThat(config8585.listFiles().length, equalTo(1));
 
-        File config8586 = new File(SubscriptionManager.CONFIG_KONNEKTOREN_FOLDER + "/8586");
+        File config8586 = new File("config/konnektoren/8586");
         assertThat(config8586.listFiles().length, equalTo(1));
 
-        File config8587 = new File(SubscriptionManager.CONFIG_KONNEKTOREN_FOLDER + "/8587");
+        File config8587 = new File("config/konnektoren/8587");
         assertThat(config8587.listFiles().length, equalTo(1));
     }
 }

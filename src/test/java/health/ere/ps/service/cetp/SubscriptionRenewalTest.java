@@ -62,7 +62,7 @@ public class SubscriptionRenewalTest {
 
     @Test
     public void subscribeWasCalledForAbsentSubscriptions() throws Exception {
-        subscriptionManager.setConfigFolder(SubscriptionManager.CONFIG_KONNEKTOREN_FOLDER);
+        subscriptionManager.setConfigFolder("config/konnektoren");
         Status subscribeStatus = prepareStatus("Subscribed", null);
         Status renewalStatus = prepareStatus("Renewed", null);
         Status unsubscribeStatus = prepareStatus("Unsubscribed", null);
@@ -79,7 +79,7 @@ public class SubscriptionRenewalTest {
 
     @Test
     public void renewAndUnsubscribesWereCalledForExpiringSubscriptions() throws Exception {
-        subscriptionManager.setConfigFolder(SubscriptionManager.CONFIG_KONNEKTOREN_FOLDER);
+        subscriptionManager.setConfigFolder("config/konnektoren");
         Status subscribeStatus = prepareStatus("Subscribed", null);
         Status renewalStatus = prepareStatus("Renewed", null);
         Status unsubscribeStatus = prepareStatus("Unsubscribed", null);
@@ -96,7 +96,7 @@ public class SubscriptionRenewalTest {
 
     @Test
     public void subscribeAndUnsubscribesWereCalledForExpiredSubscriptions() throws Exception {
-        subscriptionManager.setConfigFolder(SubscriptionManager.CONFIG_KONNEKTOREN_FOLDER);
+        subscriptionManager.setConfigFolder("config/konnektoren");
         Status subscribeStatus = prepareStatus("Subscribed", null);
         Status renewalStatus = prepareStatus("Renewed", null);
         Status unsubscribeStatus = prepareStatus("Unsubscribed", null);
@@ -113,7 +113,7 @@ public class SubscriptionRenewalTest {
 
     @Test
     public void subscribeAndUnsubscribesFailedForExpiredSubscriptions() throws Exception {
-        subscriptionManager.setConfigFolder(SubscriptionManager.CONFIG_KONNEKTOREN_FOLDER);
+        subscriptionManager.setConfigFolder("config/konnektoren");
         Error error = new Error();
         error.setMessageID(UUID.randomUUID().toString());
         error.setTimestamp(DatatypeFactory.newInstance().newXMLGregorianCalendar("2024-06-30T14:30:00"));

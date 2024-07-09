@@ -20,6 +20,7 @@ import jakarta.inject.Inject;
 import jakarta.xml.ws.Holder;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.io.File;
 import java.net.Inet4Address;
@@ -53,8 +54,6 @@ public class SubscriptionManager {
 
     private final static Logger log = Logger.getLogger(SubscriptionManager.class.getName());
 
-    public static final String CONFIG_KONNEKTOREN_FOLDER = "config/konnektoren";
-
     private final Map<String, KonnektorConfig> hostToKonnektorConfig = new ConcurrentHashMap<>();
 
     @Inject
@@ -66,7 +65,8 @@ public class SubscriptionManager {
     @Inject
     KonnektorClient konnektorClient;
 
-    private String configFolder = CONFIG_KONNEKTOREN_FOLDER;
+    @ConfigProperty(name = "ere.per.konnektor.config.folder")
+    String configFolder;
 
     private volatile boolean configsLoaded = false;
 
