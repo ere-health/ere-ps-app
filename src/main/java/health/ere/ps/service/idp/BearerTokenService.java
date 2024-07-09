@@ -128,6 +128,7 @@ public class BearerTokenService {
             }
             return accessToken.getRawString();
         } catch (Exception e) {
+            log.log(Level.SEVERE, "Bearer token could not be obtained for IDP login", e);
             exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, null, null));
             throw new RuntimeException("Idp login did not work, couldn't request bearer token", e);
         }
