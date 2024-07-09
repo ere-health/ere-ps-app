@@ -15,9 +15,9 @@ import jakarta.json.JsonArrayBuilder;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
+import org.jboss.logging.MDC;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -51,43 +51,36 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         cardlinkWebsocketClient.connect();
-        
+
         @SuppressWarnings("unchecked")
         Pair<Event, UserConfigurations> input = (Pair<Event, UserConfigurations>) msg;
         Event event = input.getKey();
 
         if (event.getTopic().equals("CARD/INSERTED")) {
-            Optional<String> cardHandleOpt = event.getMessage().getParameter().stream()
-                .filter(p -> p.getKey().equals("CardHandle"))
-                .map(Event.Message.Parameter::getValue)
-                .findFirst();
+            final Map<String, String> eventMap = event.getMessage().getParameter().stream()
+                    .collect(Collectors.toMap(Event.Message.Parameter::getKey, Event.Message.Parameter::getValue));
 
-            Optional<String> slotIdOpt = event.getMessage().getParameter().stream()
-                .filter(p -> p.getKey().equals("SlotID"))
-                .map(Event.Message.Parameter::getValue)
-                .findFirst();
+            log.fine("CARD/INSERTED event received with the following payload: %s".formatted(eventMap));
+            MDC.put("ICCSN", eventMap.get("ICCSN"));
+            MDC.put("CtID", eventMap.get("CtID"));
+            MDC.put("SlotID", eventMap.get("SlotID"));
 
-            Optional<String> ctIdOpt = event.getMessage().getParameter().stream()
-                .filter(p -> p.getKey().equals("CtID"))
-                .map(Event.Message.Parameter::getValue)
-                .findFirst();
-
-            if (cardHandleOpt.isPresent() && slotIdOpt.isPresent() && ctIdOpt.isPresent()) {
-                String cardHandle = cardHandleOpt.get();
-                Integer slotId = Integer.parseInt(slotIdOpt.get());
-                String ctId = ctIdOpt.get();
+            if ("EGK".equalsIgnoreCase(eventMap.get("CardType"))  && eventMap.containsKey("CardHandle") && eventMap.containsKey("SlotID") && eventMap.containsKey("CtID")) {
+                String cardHandle = eventMap.get("CardHandle");
+                Integer slotId = Integer.parseInt(eventMap.get("SlotID"));
+                String ctId = eventMap.get("CtID");
                 Long endTime = System.currentTimeMillis();
                 String correlationId = UUID.randomUUID().toString();
 
                 String paramsStr = event.getMessage().getParameter().stream()
-                    .filter(p -> !p.getKey().equals("CardHolderName"))
-                    .map(p -> String.format("key=%s value=%s", p.getKey(), p.getValue())).collect(Collectors.joining(", "));
+                        .filter(p -> !p.getKey().equals("CardHolderName"))
+                        .map(p -> String.format("key=%s value=%s", p.getKey(), p.getValue())).collect(Collectors.joining(", "));
 
                 log.info(String.format("[%s] Card inserted: params: %s", correlationId, paramsStr));
                 try {
                     RuntimeConfig runtimeConfig = new RuntimeConfig(input.getValue());
                     Pair<Bundle, String> pair = pharmacyService.getEPrescriptionsForCardHandle(
-                        correlationId, cardHandle, null, runtimeConfig
+                            correlationId, cardHandle, null, runtimeConfig
                     );
                     Bundle bundle = pair.getKey();
                     String eventId = pair.getValue();
@@ -102,21 +95,22 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
                 } catch (FaultMessage | de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage e) {
                     log.log(Level.WARNING, String.format("[%s] Could not get prescription for Bundle", correlationId), e);
                     String code = e instanceof FaultMessage
-                        ? ((FaultMessage) e).getFaultInfo().getTrace().get(0).getCode().toString()
-                        : ((de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage) e).getFaultInfo().getTrace().get(0).getCode().toString();
+                            ? ((FaultMessage) e).getFaultInfo().getTrace().get(0).getCode().toString()
+                            : ((de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage) e).getFaultInfo().getTrace().get(0).getCode().toString();
                     cardlinkWebsocketClient.sendJson(correlationId, "vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "err", code));
 
                     String error = "ERROR: " + printException(e);
                     cardlinkWebsocketClient.sendJson(correlationId, "eRezeptTokensFromAVS", Map.of("slotId", slotId, "ctId", ctId, "tokens", error));
                 }
             } else {
-                String msgFormat = "Error while handling \"CARD/INSERTED\" event=%s: cardHandle=%s, slotId=%s, ctId=%s";
-                log.log(Level.SEVERE, String.format(msgFormat, event.getMessage(), cardHandleOpt, slotIdOpt, ctIdOpt));
+                String msgFormat = "Ignored \"CARD/INSERTED\" event=%s: values=%s";
+                log.log(Level.INFO, String.format(msgFormat, event.getMessage(), eventMap));
             }
+            MDC.clear();
         }
         cardlinkWebsocketClient.close();
     }
-    
+
     private JsonArrayBuilder prepareBundles(String correlationId, Bundle bundle, RuntimeConfig runtimeConfig) {
         JsonArrayBuilder bundles = Json.createArrayBuilder();
         for (BundleEntryComponent entry : bundle.getEntry()) {
