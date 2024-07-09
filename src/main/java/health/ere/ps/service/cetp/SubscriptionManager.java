@@ -80,7 +80,7 @@ public class SubscriptionManager {
     }
 
     @Scheduled(
-        every = "3s",
+        every = "${quarkus.scheduler.cetp.subscription.renewal.interval}",
         delay = 5,
         delayUnit = TimeUnit.SECONDS,
         concurrentExecution = Scheduled.ConcurrentExecution.SKIP
