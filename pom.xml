@@ -106,7 +106,7 @@
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>hapi-fhir-validation-resources-r4</artifactId>
-            <version>5.4.1</version>
+            <version>5.7.9</version>
         </dependency>
         <dependency>
             <groupId>com.hp.jipp</groupId>
