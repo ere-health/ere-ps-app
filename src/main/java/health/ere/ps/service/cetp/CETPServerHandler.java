@@ -61,9 +61,9 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
                     .collect(Collectors.toMap(Event.Message.Parameter::getKey, Event.Message.Parameter::getValue));
 
             log.fine("CARD/INSERTED event received with the following payload: %s".formatted(eventMap));
-            MDC.put("ICCSN", eventMap.get("ICCSN"));
-            MDC.put("CtID", eventMap.get("CtID"));
-            MDC.put("SlotID", eventMap.get("SlotID"));
+            MDC.put("ICCSN", eventMap.getOrDefault("ICCSN", "NoICCSNProvided"));
+            MDC.put("CtID", eventMap.getOrDefault("CtID", "NoCtIDProvided"));
+            MDC.put("SlotID", eventMap.getOrDefault("SlotID", "NoSlotIDProvided"));
 
             if ("EGK".equalsIgnoreCase(eventMap.get("CardType"))  && eventMap.containsKey("CardHandle") && eventMap.containsKey("SlotID") && eventMap.containsKey("CtID")) {
                 String cardHandle = eventMap.get("CardHandle");
