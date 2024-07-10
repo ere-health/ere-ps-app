@@ -16,7 +16,6 @@ import org.apache.xml.security.c14n.CanonicalizationException;
 import org.apache.xml.security.c14n.InvalidCanonicalizerException;
 import org.apache.xml.security.parser.XMLParserException;
 import org.hl7.fhir.r4.model.Bundle;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import ca.uhn.fhir.context.FhirContext;
@@ -33,7 +32,7 @@ import io.quarkus.test.junit.TestProfile;
 import jakarta.inject.Inject;
 
 @QuarkusTest
-@Disabled
+// @Disabled
 @TestProfile(TitusTestProfile.class)
 public class GenerateKBVCertificationBundlesServiceTest {
 

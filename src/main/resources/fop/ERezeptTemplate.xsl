@@ -24,12 +24,12 @@
                 <fo:simple-page-master master-name="DIN-A5" column-count="2"
                                        page-width="210mm" page-height="148mm"
                                        margin-top="5mm" margin-bottom="0mm"
-                                       margin-left="8mm" margin-right="5mm">
+                                       margin-left="10mm" margin-right="5mm">
                     <fo:region-body region-name="body"
                                     margin-top="60mm" margin-bottom="0mm"
-                                    margin-left="2mm" margin-right="5mm"/>
-                    <fo:region-before region-name="header" extent="55mm"/>
-                    <fo:region-after region-name="footer" extent="50mm"/>
+                                    margin-left="2mm" margin-right="5mm" />
+                    <fo:region-before region-name="header" extent="70mm" />
+                    <fo:region-after region-name="footer" extent="50mm" />
                 </fo:simple-page-master>
             </fo:layout-master-set>
             <fo:declarations>
@@ -78,30 +78,30 @@
 
     <xsl:template name="footer">
         <fo:block text-align="end">
-            <fo:external-graphic content-height="41mm" content-width="scale-to-fit"
+            <fo:external-graphic content-height="40mm" content-width="scale-to-fit"
                                  src="classpath:/fop/img/erezept-app-note.svg"/>
         </fo:block>
     </xsl:template>
 
     <xsl:template name="header">
         <fo:table>
-            <fo:table-column column-number="1" column-width="70%"/>
+            <fo:table-column column-number="1" column-width="69%"/>
             <fo:table-column column-number="2" column-width="2%"/>
-            <fo:table-column column-number="3" column-width="28%"/>
+            <fo:table-column column-number="3" column-width="29%"/>
             <fo:table-body>
                 <fo:table-cell>
-                    <fo:table border-separation="1mm" fox:border-radius="3mm"
+                    <fo:table border-separation="1mm"
                               border-collapse="separate">
                         <fo:table-body>
                             <fo:table-row height="5mm">
                                 <fo:table-cell number-columns-spanned="2">
-                                    <fo:block font-family="Liberation Sans" font-weight="bold" font-size="12pt">
+                                    <fo:block font-family="Liberation Sans" font-weight="bold" font-size="13pt" margin-bottom="1mm">
                                         Ausdruck zur Einlösung Ihres E-Rezeptes
                                     </fo:block>
                                 </fo:table-cell>
                             </fo:table-row>
                             <fo:table-row>
-                                <fo:table-cell number-columns-spanned="2" fox:border-radius="1mm"
+                                <fo:table-cell number-columns-spanned="2" fox:border-radius="2mm"
                                                border="solid 0.5pt black">
                                     <fo:table>
                                         <fo:table-column/>
@@ -171,7 +171,7 @@
                                 </fo:table-cell>
                             </fo:table-row>
                             <fo:table-row>
-                                <fo:table-cell number-columns-spanned="2" fox:border-radius="1mm"
+                                <fo:table-cell number-columns-spanned="2" fox:border-radius="2mm"
                                                border="solid 0.5pt black">
                                     <fo:table>
                                         <fo:table-column/>
@@ -256,7 +256,7 @@
                     </fo:block-container>
                 </fo:table-cell>
                 <fo:table-cell display-align="after">
-                    <fo:block margin-left="2.5mm">
+                    <fo:block margin-left="3mm">
                         <fo:instream-foreign-object>
                             <barcode:barcode>
                                 <xsl:attribute name="message"><xsl:variable name="bundles" select="fhir:bundle"/>{"urls":[<xsl:for-each select="fhir:bundle"><xsl:variable name="qrPos" select="position()"/><xsl:variable name="bundlesCount" select="count($bundles)"/>"Task/<xsl:value-of
@@ -282,7 +282,7 @@
             <fo:table-body>
                 <xsl:for-each select="fhir:bundle">
                     <xsl:variable name="pos" select="position()"/>
-                    <fo:table-cell>
+                    <fo:table-cell margin-bottom="2mm">
                         <xsl:if test="not(($pos mod 3) mod 2) or not(($pos mod 3) mod 3)">
                             <xsl:attribute name="ends-row">true</xsl:attribute>
                         </xsl:if>
