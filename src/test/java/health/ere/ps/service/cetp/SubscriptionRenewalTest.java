@@ -8,7 +8,7 @@ import de.gematik.ws.conn.eventservice.v7.SubscriptionRenewal;
 import de.gematik.ws.conn.eventservice.v7.SubscriptionType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.tel.error.v2.Error;
-import health.ere.ps.profile.RUTestProfile;
+import health.ere.ps.profile.RUDevTestProfile;
 import health.ere.ps.service.cetp.config.KonnektorConfig;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import io.quarkus.test.junit.QuarkusMock;
@@ -42,7 +42,7 @@ import static org.mockito.Mockito.when;
 
 @SuppressWarnings({"unchecked", "OptionalGetWithoutIsPresent"})
 @QuarkusTest
-@TestProfile(RUTestProfile.class)
+@TestProfile(RUDevTestProfile.class)
 public class SubscriptionRenewalTest {
 
     private static String uuid;

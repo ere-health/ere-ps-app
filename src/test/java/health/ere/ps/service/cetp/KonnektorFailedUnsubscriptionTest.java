@@ -5,7 +5,7 @@ import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
 import de.gematik.ws.tel.error.v2.Error;
-import health.ere.ps.profile.RUTestProfile;
+import health.ere.ps.profile.RUDevTestProfile;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -40,7 +40,7 @@ import static org.mockito.Mockito.when;
 
 @SuppressWarnings("unchecked")
 @QuarkusTest
-@TestProfile(RUTestProfile.class)
+@TestProfile(RUDevTestProfile.class)
 public class KonnektorFailedUnsubscriptionTest {
 
     public static final String TEMP_CONFIG = "temp-config";

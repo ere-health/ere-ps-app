@@ -3,7 +3,7 @@ package health.ere.ps.service.cetp;
 import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
-import health.ere.ps.profile.RUTestProfile;
+import health.ere.ps.profile.RUDevTestProfile;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -46,7 +46,7 @@ import static org.mockito.Mockito.when;
 
 @SuppressWarnings("unchecked")
 @QuarkusTest
-@TestProfile(RUTestProfile.class)
+@TestProfile(RUDevTestProfile.class)
 public class KonnektorSubscriptionTest {
 
     public static final String TEMP_CONFIG = "temp-config";

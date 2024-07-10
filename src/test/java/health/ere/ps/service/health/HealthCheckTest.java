@@ -3,7 +3,7 @@ package health.ere.ps.service.health;
 import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateServicePortType;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
-import health.ere.ps.profile.RUTestProfile;
+import health.ere.ps.profile.RUDevTestProfile;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import health.ere.ps.service.idp.BearerTokenService;
 import io.quarkus.test.junit.QuarkusMock;
@@ -35,7 +35,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
-@TestProfile(RUTestProfile.class)
+@TestProfile(RUDevTestProfile.class)
 class HealthCheckTest {
 
     @Inject
