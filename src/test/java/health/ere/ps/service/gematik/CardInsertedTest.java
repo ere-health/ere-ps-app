@@ -155,10 +155,14 @@ class CardInsertedTest {
         Event.Message.Parameter parameterCtId = new Event.Message.Parameter();
         parameterCtId.setKey("CtID");
         parameterCtId.setValue(ctIdValue);
+        Event.Message.Parameter parameterCardType = new Event.Message.Parameter();
+        parameterCardType.setKey("CardType");
+        parameterCardType.setValue("EGK");
 
         message.getParameter().add(parameter);
         message.getParameter().add(parameterSlotId);
         message.getParameter().add(parameterCtId);
+        message.getParameter().add(parameterCardType);
         event.setMessage(message);
         return Pair.of(event, new UserConfigurations());
     }
