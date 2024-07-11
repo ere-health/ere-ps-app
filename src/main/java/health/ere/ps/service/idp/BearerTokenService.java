@@ -69,7 +69,7 @@ public class BearerTokenService {
             throw new IllegalArgumentException("refreshDurationInSeconds must be less then expireDurationInSeconds");
         tokenCache = Caffeine.newBuilder()
                 .refreshAfterWrite(Duration.ofSeconds(refreshDurationInSeconds))
-                .expireAfterAccess(Duration.ofSeconds(expireDurationInSeconds))
+                .expireAfterWrite(Duration.ofSeconds(expireDurationInSeconds))
                 .executor(managedExecutor)
                 .build(this::requestBearerToken);
     }
