@@ -50,8 +50,13 @@ public class Retrier {
     private static <T> T safeExecute(RetryAction<T> action) {
         try {
             return action.execute();
-        } catch (Throwable t) {
+        } catch (Exception t) {
             log.log(Level.SEVERE, "Error while executing retryable action", t);
+        } catch (Throwable t) {
+            // Log in case that happens in an unchecked executor task
+            // to not miss something like an OutOfMemoryError
+            log.log(Level.SEVERE, "Caught throwable!!! Panic!", t);
+            throw t;
         }
         return null;
     }

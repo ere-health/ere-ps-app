@@ -50,65 +50,71 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
-        cardlinkWebsocketClient.connect();
+        try {
+            String correlationId = UUID.randomUUID().toString();
+            MDC.put("correlationId", correlationId);
+            cardlinkWebsocketClient.connect();
 
-        @SuppressWarnings("unchecked")
-        Pair<Event, UserConfigurations> input = (Pair<Event, UserConfigurations>) msg;
-        Event event = input.getKey();
+            @SuppressWarnings("unchecked")
+            Pair<Event, UserConfigurations> input = (Pair<Event, UserConfigurations>) msg;
+            Event event = input.getKey();
 
-        if (event.getTopic().equals("CARD/INSERTED")) {
-            final Map<String, String> eventMap = event.getMessage().getParameter().stream()
-                    .collect(Collectors.toMap(Event.Message.Parameter::getKey, Event.Message.Parameter::getValue));
+            if (event.getTopic().equals("CARD/INSERTED")) {
+                final Map<String, String> eventMap = event.getMessage().getParameter().stream()
+                        .collect(Collectors.toMap(Event.Message.Parameter::getKey, Event.Message.Parameter::getValue));
 
-            log.fine("CARD/INSERTED event received with the following payload: %s".formatted(eventMap));
-            MDC.put("ICCSN", eventMap.getOrDefault("ICCSN", "NoICCSNProvided"));
-            MDC.put("CtID", eventMap.getOrDefault("CtID", "NoCtIDProvided"));
-            MDC.put("SlotID", eventMap.getOrDefault("SlotID", "NoSlotIDProvided"));
+                MDC.put("ICCSN", eventMap.getOrDefault("ICCSN", "NoICCSNProvided"));
+                MDC.put("CtID", eventMap.getOrDefault("CtID", "NoCtIDProvided"));
+                MDC.put("SlotID", eventMap.getOrDefault("SlotID", "NoSlotIDProvided"));
+                log.fine("CARD/INSERTED event received with the following payload: %s".formatted(eventMap));
 
-            if ("EGK".equalsIgnoreCase(eventMap.get("CardType"))  && eventMap.containsKey("CardHandle") && eventMap.containsKey("SlotID") && eventMap.containsKey("CtID")) {
-                String cardHandle = eventMap.get("CardHandle");
-                Integer slotId = Integer.parseInt(eventMap.get("SlotID"));
-                String ctId = eventMap.get("CtID");
-                Long endTime = System.currentTimeMillis();
-                String correlationId = UUID.randomUUID().toString();
+                if ("EGK".equalsIgnoreCase(eventMap.get("CardType")) && eventMap.containsKey("CardHandle") && eventMap.containsKey("SlotID") && eventMap.containsKey("CtID")) {
+                    String cardHandle = eventMap.get("CardHandle");
+                    Integer slotId = Integer.parseInt(eventMap.get("SlotID"));
+                    String ctId = eventMap.get("CtID");
+                    Long endTime = System.currentTimeMillis();
 
-                String paramsStr = event.getMessage().getParameter().stream()
-                        .filter(p -> !p.getKey().equals("CardHolderName"))
-                        .map(p -> String.format("key=%s value=%s", p.getKey(), p.getValue())).collect(Collectors.joining(", "));
 
-                log.info(String.format("[%s] Card inserted: params: %s", correlationId, paramsStr));
-                try {
-                    RuntimeConfig runtimeConfig = new RuntimeConfig(input.getValue());
-                    Pair<Bundle, String> pair = pharmacyService.getEPrescriptionsForCardHandle(
-                            correlationId, cardHandle, null, runtimeConfig
-                    );
-                    Bundle bundle = pair.getKey();
-                    String eventId = pair.getValue();
-                    String xml = parser.encodeToString(bundle);
-                    cardlinkWebsocketClient.sendJson(correlationId, "eRezeptTokensFromAVS", Map.of("slotId", slotId, "ctId", ctId, "tokens", xml));
+                    String paramsStr = event.getMessage().getParameter().stream()
+                            .filter(p -> !p.getKey().equals("CardHolderName"))
+                            .map(p -> String.format("key=%s value=%s", p.getKey(), p.getValue())).collect(Collectors.joining(", "));
 
-                    JsonArrayBuilder bundles = prepareBundles(correlationId, bundle, runtimeConfig);
-                    cardlinkWebsocketClient.sendJson(correlationId, "eRezeptBundlesFromAVS", Map.of("slotId", slotId, "ctId", ctId, "bundles", bundles));
+                    log.info(String.format("[%s] Card inserted: params: %s", correlationId, paramsStr));
+                    try {
+                        RuntimeConfig runtimeConfig = new RuntimeConfig(input.getValue());
+                        Pair<Bundle, String> pair = pharmacyService.getEPrescriptionsForCardHandle(
+                                correlationId, cardHandle, null, runtimeConfig
+                        );
+                        Bundle bundle = pair.getKey();
+                        String eventId = pair.getValue();
+                        String xml = parser.encodeToString(bundle);
+                        cardlinkWebsocketClient.sendJson(correlationId, "eRezeptTokensFromAVS", Map.of("slotId", slotId, "ctId", ctId, "tokens", xml));
 
-                    cardlinkWebsocketClient.sendJson(correlationId, "vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "eventId", eventId));
+                        JsonArrayBuilder bundles = prepareBundles(correlationId, bundle, runtimeConfig);
+                        cardlinkWebsocketClient.sendJson(correlationId, "eRezeptBundlesFromAVS", Map.of("slotId", slotId, "ctId", ctId, "bundles", bundles));
 
-                } catch (FaultMessage | de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage e) {
-                    log.log(Level.WARNING, String.format("[%s] Could not get prescription for Bundle", correlationId), e);
-                    String code = e instanceof FaultMessage
-                            ? ((FaultMessage) e).getFaultInfo().getTrace().get(0).getCode().toString()
-                            : ((de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage) e).getFaultInfo().getTrace().get(0).getCode().toString();
-                    cardlinkWebsocketClient.sendJson(correlationId, "vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "err", code));
+                        cardlinkWebsocketClient.sendJson(correlationId, "vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "eventId", eventId));
 
-                    String error = "ERROR: " + printException(e);
-                    cardlinkWebsocketClient.sendJson(correlationId, "eRezeptTokensFromAVS", Map.of("slotId", slotId, "ctId", ctId, "tokens", error));
+                    } catch (FaultMessage | de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage e) {
+                        log.log(Level.WARNING, String.format("[%s] Could not get prescription for Bundle", correlationId), e);
+                        String code = e instanceof FaultMessage
+                                ? ((FaultMessage) e).getFaultInfo().getTrace().get(0).getCode().toString()
+                                : ((de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage) e).getFaultInfo().getTrace().get(0).getCode().toString();
+                        cardlinkWebsocketClient.sendJson(correlationId, "vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "err", code));
+
+                        String error = "ERROR: " + printException(e);
+                        cardlinkWebsocketClient.sendJson(correlationId, "eRezeptTokensFromAVS", Map.of("slotId", slotId, "ctId", ctId, "tokens", error));
+                    }
+                } else {
+                    String msgFormat = "Ignored \"CARD/INSERTED\" event=%s: values=%s";
+                    log.log(Level.INFO, String.format(msgFormat, event.getMessage(), eventMap));
                 }
-            } else {
-                String msgFormat = "Ignored \"CARD/INSERTED\" event=%s: values=%s";
-                log.log(Level.INFO, String.format(msgFormat, event.getMessage(), eventMap));
             }
+
+        } finally {
+            cardlinkWebsocketClient.close();
             MDC.clear();
         }
-        cardlinkWebsocketClient.close();
     }
 
     private JsonArrayBuilder prepareBundles(String correlationId, Bundle bundle, RuntimeConfig runtimeConfig) {
