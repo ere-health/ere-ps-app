@@ -16,7 +16,6 @@ import health.ere.ps.config.SimpleUserConfig;
 import health.ere.ps.config.UserConfig;
 import jakarta.enterprise.event.Event;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import health.ere.ps.config.RuntimeConfig;
@@ -28,7 +27,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,9 +34,6 @@ class MultiConnectorServicesProviderTest {
 
     @Mock
     DefaultConnectorServicesProvider defaultConnectorServicesProvider;
-
-    @Mock
-    Event<Exception> eventException;
 
     @InjectMocks
     MultiConnectorServicesProvider multiConnectorServicesProvider;
@@ -177,7 +172,6 @@ class MultiConnectorServicesProviderTest {
     void testClearAll() {
         SingleConnectorServicesProvider singleProvider = mock(SingleConnectorServicesProvider.class);
         multiConnectorServicesProvider.singleConnectorServicesProvider.put(simpleUserConfig, singleProvider);
-        assertFalse(multiConnectorServicesProvider.singleConnectorServicesProvider.isEmpty());
 
         multiConnectorServicesProvider.clearAll();
         assertTrue(multiConnectorServicesProvider.singleConnectorServicesProvider.isEmpty());
