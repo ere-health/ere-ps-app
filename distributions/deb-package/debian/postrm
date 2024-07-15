@@ -1,0 +1,13 @@
+#!/bin/bash
+set -e 
+echo 'Post-remove script running...'
+user="ere-health"
+# delete cardlink user if exists
+if id -u "$user" >/dev/null 2>&1; then
+    deluser "$user"
+fi
+if [ $(getent group $user) ]; then
+  delgroup $user;
+fi
+echo "ere-health successfully uninstalled"
+#DEBHELPER#

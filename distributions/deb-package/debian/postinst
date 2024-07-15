@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+echo 'Post-install script running...'
+echo 'Add ere-health user'
+adduser --home /opt/ere-health --gecos "" --disabled-password  ere-health
+echo 'Set user of /opt/ere-health to ere-health'
+chown -R ere-health:ere-health /opt/ere-health
+#DEBHELPER#

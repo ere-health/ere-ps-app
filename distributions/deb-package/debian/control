@@ -1,0 +1,13 @@
+Source: ere-health
+Section: misc
+Priority: optional
+Maintainer: Manuel Blechschmidt <manuel.blechschmidt@service-health.de>
+Homepage: https://ere.health
+Standards-Version: 4.5.0
+Build-Depends: debhelper (>= 10), maven
+
+Package: ere-health
+Architecture: all
+Depends: openjdk-21-jdk-headless, systemd, adduser, ${shlibs:Depends}, ${misc:Depends}
+Description: This package installs the ere-health software on your system.
+ It is a software to create and accept e-prescriptions.

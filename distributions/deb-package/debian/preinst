@@ -1,0 +1,4 @@
+#!/bin/bash
+set -e
+echo 'Pre-install script running...'
+#DEBHELPER#
