@@ -1,7 +1,7 @@
 package health.ere.ps.service.cetp.codec;
 
 import java.io.StringReader;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -53,7 +53,7 @@ public class CETPDecoder extends ByteToMessageDecoder {
 
         int lengthOfMessage = in.readInt();
 
-        String message = in.readCharSequence(lengthOfMessage, Charset.defaultCharset()).toString();
+        String message = in.readCharSequence(lengthOfMessage, StandardCharsets.UTF_8).toString();
 
         log.info(message);
 

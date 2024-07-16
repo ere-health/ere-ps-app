@@ -26,12 +26,15 @@ import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.Response;
 import jakarta.xml.ws.Holder;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.http.entity.ContentType;
 import org.bouncycastle.cms.CMSProcessableByteArray;
 import org.bouncycastle.cms.CMSSignedData;
 import org.hl7.fhir.r4.model.Binary;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Task;
+import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -41,6 +44,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
@@ -100,7 +105,7 @@ public class PharmacyService {
                 .get()) {
 
             String event = getEvent(factory.newDocumentBuilder(), pruefungsnachweis.value);
-            String bundleString = new String(response.readEntity(InputStream.class).readAllBytes(), "ISO-8859-15");
+            String bundleString = new String(response.readEntity(InputStream.class).readAllBytes(), getCharset(response));
 
             if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
                 readEPrescriptionsMXBean.increaseTasksFailed();
@@ -219,7 +224,7 @@ public class PharmacyService {
                 .header("Authorization", "Bearer " + bearerTokenService.getBearerToken(runtimeConfig))
                 .post(Entity.entity("", "application/fhir+xml"))) {
 
-            String bundleString = new String(response.readEntity(InputStream.class).readAllBytes(), "ISO-8859-15");
+            String bundleString = new String(response.readEntity(InputStream.class).readAllBytes(), getCharset(response));
 
             if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
                 readEPrescriptionsMXBean.increaseAcceptFailed();
@@ -252,7 +257,7 @@ public class PharmacyService {
             InputStream is = response2.readEntity(InputStream.class);
             String rejectResponse = "";
             if (is != null) {
-                rejectResponse = new String(is.readAllBytes(), "ISO-8859-15");
+                rejectResponse = new String(is.readAllBytes(), getCharset(response2));
             }
             if (Response.Status.Family.familyOf(response2.getStatus()) != Response.Status.Family.SUCCESSFUL) {
                 log.warning("Could not reject " + token + "prescriptionId: " + prescriptionId + " secret: " + secret + " " + rejectResponse);
@@ -271,6 +276,16 @@ public class PharmacyService {
             return null;
         }
     }
+
+    private static @NotNull Charset getCharset(Response response) {
+        String contentTypeHeader = response.getHeaderString("Content-Type");
+        if (StringUtils.isEmpty(contentTypeHeader)) {
+            log.warning("No content-type header found in response, using UTF-8");
+            return StandardCharsets.UTF_8;
+        }
+        return ContentType.parse(contentTypeHeader).getCharset();
+    }
+
 
     /**
      * for tests without cdi
