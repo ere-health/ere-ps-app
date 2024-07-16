@@ -84,7 +84,7 @@ public class SecretsManagerService {
     public static byte[] getClientCertificateBytes(UserConfigurations userConfigurations) {
         String base64UrlCertificate = userConfigurations.getClientCertificate();
         String clientCertificateString = base64UrlCertificate.split(",")[1];
-        log.fine("Using certifcate: "+clientCertificateString);
+        log.fine("Using certificate: "+clientCertificateString);
         byte[] clientCertificateBytes = Base64.getDecoder().decode(clientCertificateString);
         return clientCertificateBytes;
     }

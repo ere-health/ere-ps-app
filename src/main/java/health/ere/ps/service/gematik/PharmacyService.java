@@ -193,19 +193,28 @@ public class PharmacyService {
         return smcbHandle;
     }
 
-    static String getFirstCardWithName(EventServicePortType eventService, CardTypeType type, ContextType context, String name)
-            throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
-        GetCards parameter = new GetCards();
-        parameter.setContext(context);
-        parameter.setCardType(type);
-        GetCardsResponse getCardsResponse = eventService.getCards(parameter);
+    static String getFirstCardWithName(
+        EventServicePortType eventService,
+        CardTypeType type,
+        ContextType context,
+        String name
+    ) {
+        try {
+            GetCards parameter = new GetCards();
+            parameter.setContext(context);
+            parameter.setCardType(type);
+            GetCardsResponse getCardsResponse = eventService.getCards(parameter);
 
-        List<CardInfoType> cards = getCardsResponse.getCards().getCard();
-        if (cards.isEmpty()) {
+            List<CardInfoType> cards = getCardsResponse.getCards().getCard();
+            if (cards.isEmpty()) {
+                return null;
+            } else {
+                CardInfoType cardHandleType = cards.stream().filter(card -> card.getCardHolderName().equals(name)).findAny().orElse(null);
+                return cardHandleType != null ? cardHandleType.getCardHandle() : null;
+            }
+        } catch (Throwable t) {
+            log.log(Level.SEVERE, "Error while getting cards", t);
             return null;
-        } else {
-            CardInfoType cardHandleType = cards.stream().filter(card -> card.getCardHolderName().equals(name)).findAny().orElse(null);
-            return cardHandleType != null ? cardHandleType.getCardHandle() : null;
         }
     }
 
