@@ -7,6 +7,9 @@ public class FailedRejectEntry {
     private String secret;
     private RuntimeConfig runtimeConfig;
 
+    public FailedRejectEntry() {
+    }
+
     public FailedRejectEntry(String prescriptionId, String secret, RuntimeConfig runtimeConfig) {
         this.prescriptionId = prescriptionId;
         this.secret = secret;

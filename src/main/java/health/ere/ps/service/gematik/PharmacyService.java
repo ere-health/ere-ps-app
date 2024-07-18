@@ -1,7 +1,41 @@
 package health.ere.ps.service.gematik;
 
-import ca.uhn.fhir.context.FhirContext;
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.Base64;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.zip.GZIPInputStream;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.commons.lang3.tuple.Pair;
+import org.bouncycastle.cms.CMSProcessableByteArray;
+import org.bouncycastle.cms.CMSSignedData;
+import org.hl7.fhir.r4.model.Binary;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Task;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import ca.uhn.fhir.context.FhirContext;
 import de.gematik.ws.conn.cardservice.v8.CardInfoType;
 import de.gematik.ws.conn.cardservicecommon.v2.CardTypeType;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
@@ -28,39 +62,17 @@ import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.Response;
 import jakarta.xml.ws.Holder;
-import org.apache.commons.lang3.tuple.Pair;
-import org.bouncycastle.cms.CMSProcessableByteArray;
-import org.bouncycastle.cms.CMSSignedData;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.hl7.fhir.r4.model.Binary;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Task;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.zip.GZIPInputStream;
 
 @ApplicationScoped
 public class PharmacyService {
 
     private static final Logger log = Logger.getLogger(PharmacyService.class.getName());
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-    private static final String FAILED_REJECTS_FILE = "dangling-e-prescriptions.json";
+    static final ObjectMapper objectMapper = new ObjectMapper();
+
+    static {
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    }
+    private static final String FAILED_REJECTS_FILE = "dangling-e-prescriptions.dat";
 
     @Inject
     AppConfig appConfig;
@@ -77,11 +89,18 @@ public class PharmacyService {
     @Inject
     BearerTokenService bearerTokenService;
 
+    /**
+     * By default should be the static file.
+     * A test case can change this to a temporary file.
+     */
+    String failedRejectsFile = FAILED_REJECTS_FILE;
+
     private static final FhirContext fhirContext = FHIRService.getFhirContext();
 
     Client client;
 
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+
 
     @PostConstruct
     public void init() {
@@ -263,7 +282,7 @@ public class PharmacyService {
                 rejectResponse = new String(is.readAllBytes(), "ISO-8859-15");
             }
             if (Response.Status.Family.familyOf(response2.getStatus()) != Response.Status.Family.SUCCESSFUL) {
-                writeFailedRejectToFile(prescriptionId, secret, runtimeConfig);
+                appendFailedRejectToFile(prescriptionId, secret, runtimeConfig);
                 log.warning("Could not reject " + token + "prescriptionId: " + prescriptionId + " secret: " + secret + " " + rejectResponse);
             }
             readEPrescriptionsMXBean.increaseReject();
@@ -273,7 +292,7 @@ public class PharmacyService {
             return fhirContext.newXmlParser().parseResource(Bundle.class, new String(data));
         } catch (Throwable t) {
             readEPrescriptionsMXBean.increaseRejectFailed();
-            writeFailedRejectToFile(prescriptionId, secret, runtimeConfig);
+            appendFailedRejectToFile(prescriptionId, secret, runtimeConfig);
             String msg = String.format(
                     "[%s] Could not process %s prescriptionId: %s secret: %s", correlationId, token, prescriptionId, secret
             );
@@ -282,48 +301,54 @@ public class PharmacyService {
         }
     }
 
-    public void writeFailedRejectToFile(String prescriptionId, String secret, RuntimeConfig runtimeConfig) {
+    public void appendFailedRejectToFile(String prescriptionId, String secret, RuntimeConfig runtimeConfig) {
         try {
-            Path path = Paths.get(FAILED_REJECTS_FILE);
-            List<FailedRejectEntry> failedRejects = new ArrayList<>();
-            if (Files.exists(path)) {
-                try (BufferedReader reader = Files.newBufferedReader(path)) {
-                    FailedRejectEntry[] entries = objectMapper.readValue(reader, FailedRejectEntry[].class);
-                    failedRejects = new ArrayList<>(List.of(entries));
-                }
-            }
-            failedRejects.add(new FailedRejectEntry(prescriptionId, secret, runtimeConfig));
-            try (BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-                objectMapper.writeValue(writer, failedRejects);
+            Path path = Paths.get(failedRejectsFile);
+            try (BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
+                String json = objectMapper.writeValueAsString(new FailedRejectEntry(prescriptionId, secret, runtimeConfig));
+                writer.write(json+System.lineSeparator());
             }
         } catch (IOException e) {
-            log.log(Level.SEVERE, "Failed to write dangling-e-prescriptions.json", e);
+            log.log(Level.SEVERE, "Failed to write "+failedRejectsFile, e);
         }
     }
 
     @Scheduled(every = "5m") // TODO: make configurable
     void retryFailedRejects() {
-        Path path = Paths.get(FAILED_REJECTS_FILE);
+        Path path = Paths.get(failedRejectsFile);
         if (Files.exists(path)) {
             try {
-                List<FailedRejectEntry> failedRejects;
-                List<FailedRejectEntry> remainingRejects = new ArrayList<>();
-                try (BufferedReader reader = Files.newBufferedReader(path)) {
-                    FailedRejectEntry[] entries = objectMapper.readValue(reader, FailedRejectEntry[].class);
-                    failedRejects = new ArrayList<>(List.of(entries));
-                }
-                for (FailedRejectEntry entry : failedRejects) {
-                    if (!attemptReject(entry.getPrescriptionId(), entry.getSecret(), entry.getRuntimeConfig())) {
-                        remainingRejects.add(entry);
+                List<String> lines = Files.readAllLines(path);
+                Stream<FailedRejectEntry> failedRejectEntries = lines.stream().map(s ->  {
+                    try {
+                        return objectMapper.readValue(s, FailedRejectEntry.class);
+                    } catch(JsonProcessingException e) {
+                        log.log(Level.SEVERE, "Failed to deserialize: "+s, e);
+                        return null;
                     }
-                }
-                try (BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-                    objectMapper.writeValue(writer, remainingRejects);
-                }
+                }).filter(Objects::nonNull);
+                List<String> stillFailingEntries = reprocessFailingEntries(failedRejectEntries);
+                Files.write(path, stillFailingEntries, StandardOpenOption.TRUNCATE_EXISTING);            
             } catch (IOException e) {
                 log.log(Level.SEVERE, "Failed to read/write dangling-e-prescriptions.json", e);
             }
         }
+    }
+
+    List<String> reprocessFailingEntries(Stream<FailedRejectEntry> failedRejectEntries) {
+        List<FailedRejectEntry> entries = failedRejectEntries.map(entry -> {
+            return attemptReject(entry.getPrescriptionId(), entry.getSecret(), entry.getRuntimeConfig()) ? null : entry;
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+        
+        List<String> stillFailingEntries = entries.stream().map(o -> {
+            try {
+                return objectMapper.writeValueAsString(o);
+            } catch(JsonProcessingException e) {
+                log.log(Level.SEVERE, "Failed to serialize object", e);
+                return null;
+            }
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+        return stillFailingEntries;
     }
 
     public boolean attemptReject(String prescriptionId, String secret, RuntimeConfig runtimeConfig) {

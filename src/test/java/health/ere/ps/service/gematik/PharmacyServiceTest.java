@@ -1,19 +1,18 @@
 package health.ere.ps.service.gematik;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
+
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-import health.ere.ps.config.RuntimeConfig;
-import io.quarkus.test.junit.QuarkusMock;
-import jakarta.inject.Inject;
-
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.WebTarget;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -21,19 +20,11 @@ import org.junit.jupiter.api.Test;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
-import health.ere.ps.profile.RUTestProfile;
+import health.ere.ps.config.RuntimeConfig;
+import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
-import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.TestProfile;
-import org.mockito.Mockito;
+import jakarta.inject.Inject;
 
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-@QuarkusTest
-@TestProfile(RUTestProfile.class)
-@Disabled
 public class PharmacyServiceTest {
 
     private static final Logger log = Logger.getLogger(ERezeptWorkflowServiceTest.class.getName());
@@ -65,6 +56,79 @@ public class PharmacyServiceTest {
     }
 
     @Test
+    void appendFailedRejectToFile() throws IOException {
+        String testDanglingPrescriptions = "target/test-dangling-e-prescriptions.dat";
+        Path path = Paths.get(testDanglingPrescriptions);
+        File file = path.toFile();
+        if(file.exists()) {
+            file.delete();
+        }
+
+        PharmacyService pharmacyService = new PharmacyService();
+        pharmacyService.failedRejectsFile = testDanglingPrescriptions;
+        RuntimeConfig runtimeConfig = new RuntimeConfig();
+        runtimeConfig.setEHBAHandle("ehba");
+        runtimeConfig.setSMCBHandle("smcb");
+        UserConfigurations userConfigurations = new UserConfigurations();
+        userConfigurations.setMandantId("m");
+        userConfigurations.setClientSystemId("c");
+        userConfigurations.setWorkplaceId("w");
+        userConfigurations.setClientCertificate("ClientCertificate");
+        userConfigurations.setClientCertificatePassword("ClientCertificatePassword");
+        userConfigurations.setConnectorBaseURL("https://192.168.178.42/");
+        runtimeConfig.updateProperties(userConfigurations);
+        pharmacyService.appendFailedRejectToFile("prescriptionId", "secret", runtimeConfig);
+
+        String testDanglingPrescriptionsData = new String(Files.readAllBytes(path));
+        assertEquals("{\"prescriptionId\":\"prescriptionId\",\"secret\":\"secret\",\"runtimeConfig\":{\"configurations\":{\"erixaHotfolder\":null,\"erixaDrugstoreEmail\":null,\"erixaUserEmail\":null,\"erixaUserPassword\":null,\"erixaApiKey\":null,\"muster16TemplateProfile\":null,\"connectorBaseURL\":\"https://192.168.178.42/\",\"mandantId\":\"m\",\"workplaceId\":\"w\",\"clientSystemId\":\"c\",\"userId\":null,\"version\":null,\"tvMode\":null,\"clientCertificate\":\"ClientCertificate\",\"clientCertificatePassword\":\"ClientCertificatePassword\",\"basicAuthUsername\":null,\"basicAuthPassword\":null,\"pruefnummer\":null},\"sendPreview\":true,\"idpBaseURL\":null,\"idpAuthRequestRedirectURL\":null,\"idpClientId\":null,\"prescriptionServerURL\":null,\"ehbahandle\":\"ehba\",\"smcbhandle\":\"smcb\",\"connectorAddress\":\"192.168.178.42\",\"userId\":null,\"erixaHotfolder\":null,\"erixaReceiverEmail\":null,\"erixaUserEmail\":null,\"erixaUserPassword\":null,\"connectorBaseURL\":\"https://192.168.178.42/\",\"mandantId\":\"m\",\"workplaceId\":\"w\",\"clientSystemId\":\"c\",\"tvMode\":null,\"connectorVersion\":null,\"pruefnummer\":null,\"erixaApiKey\":null,\"muster16TemplateConfiguration\":\"DENS\"}}"+System.lineSeparator(), testDanglingPrescriptionsData);
+        file.delete();
+
+        FailedRejectEntry read = PharmacyService.objectMapper.readValue(testDanglingPrescriptionsData, FailedRejectEntry.class);
+        assertEquals("prescriptionId", read.getPrescriptionId());
+        assertEquals("secret", read.getSecret());
+        assertEquals(runtimeConfig, read.getRuntimeConfig());
+        assertEquals(runtimeConfig.getConfigurations(), read.getRuntimeConfig().getConfigurations());
+    }
+
+    @Test
+    void appendFailedRejectToFileNull() throws IOException {
+        String testDanglingPrescriptions = "target/test-dangling-e-prescriptions.dat";
+        Path path = Paths.get(testDanglingPrescriptions);
+        PharmacyService pharmacyService = new PharmacyService();
+        pharmacyService.failedRejectsFile = testDanglingPrescriptions;
+        
+        pharmacyService.appendFailedRejectToFile(null, null, null);
+        path.toFile().delete();
+    }
+
+    @Test
+    void appendFailedRejectToFileTwoLines() throws IOException {
+        String testDanglingPrescriptions = "target/test-dangling-e-prescriptions.dat";
+        Path path = Paths.get(testDanglingPrescriptions);
+        PharmacyService pharmacyService = new PharmacyService();
+        pharmacyService.failedRejectsFile = testDanglingPrescriptions;
+        RuntimeConfig runtimeConfig = new RuntimeConfig();
+        pharmacyService.appendFailedRejectToFile("prescriptionId", "secret", runtimeConfig);
+        pharmacyService.appendFailedRejectToFile("prescriptionId2", "secret2", runtimeConfig);
+
+        List<String> lines = Files.readAllLines(path);
+        
+        FailedRejectEntry read = PharmacyService.objectMapper.readValue(lines.get(0), FailedRejectEntry.class);
+        assertEquals("prescriptionId", read.getPrescriptionId());
+        assertEquals("secret", read.getSecret());
+        assertEquals(runtimeConfig, read.getRuntimeConfig());
+        assertEquals(runtimeConfig.getConfigurations(), read.getRuntimeConfig().getConfigurations());
+
+        FailedRejectEntry read2 = PharmacyService.objectMapper.readValue(lines.get(1), FailedRejectEntry.class);
+        assertEquals("prescriptionId2", read2.getPrescriptionId());
+        assertEquals("secret2", read2.getSecret());
+        assertEquals(runtimeConfig, read2.getRuntimeConfig());
+        assertEquals(runtimeConfig.getConfigurations(), read2.getRuntimeConfig().getConfigurations());
+
+        path.toFile().delete();
+    }
+
+    @Test
     void testRetryFailedRejects() throws IOException {
         String successPrescriptionId = "prescriptionId_success";
         String successSecret = "secret_success";
@@ -79,29 +143,6 @@ public class PharmacyServiceTest {
         // Mock the file content
         when(Files.exists(path)).thenReturn(true);
 
-
-
-        Path path = Paths.get("dangling-e-prescriptions.dat");
-        Files.write(path, "prescriptionId1,secret1\nprescriptionId2,secret2\n".getBytes());
-
-        PharmacyService mockPharmacyService = new PharmacyService();
-        mockPharmacyService.client = mock(Client.class);
-        WebTarget mockWebTarget1 = mock(WebTarget.class);
-        when(mockPharmacyService.client.target(anyString())).thenReturn(mockWebTarget1);
-        when(mockWebTarget1.path("/Task/prescriptionId1/$reject")).thenReturn(mockWebTarget1);
-        WebTarget mockWebTarget2 = mock(WebTarget.class);
-        when(mockWebTarget1.path("/Task/prescriptionId2/$reject")).thenReturn(mockWebTarget2);
-
-
-        Mockito.when(mockPharmacyService.attemptReject("prescriptionId1", "secret1")).thenReturn(true);
-        Mockito.when(mockPharmacyService.attemptReject("prescriptionId2", "secret2")).thenReturn(false);
-        Mockito.doCallRealMethod().when(mockPharmacyService).retryFailedRejects();
-        QuarkusMock.installMockForType(mockPharmacyService, PharmacyService.class);
-
-        mockPharmacyService.retryFailedRejects();
-
-        String content = Files.readString(path);
-        assert content.equals("prescriptionId2,secret2\n");
     }
 
     @Test
