@@ -1,6 +1,9 @@
 package health.ere.ps.service.gematik;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
@@ -10,62 +13,52 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.parser.IParser;
 import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
+import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.RuntimeConfig;
+import health.ere.ps.jmx.ReadEPrescriptionsMXBeanImpl;
 import health.ere.ps.model.config.UserConfigurations;
-import health.ere.ps.service.connector.endpoint.SSLUtilities;
+import health.ere.ps.service.idp.BearerTokenService;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.Invocation.Builder;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Response;
 
 public class PharmacyServiceTest {
 
     private static final Logger log = Logger.getLogger(ERezeptWorkflowServiceTest.class.getName());
-    private final IParser iParser = FhirContext.forR4().newXmlParser();
-    private static final String FAILED_REJECTS_FILE = "dangling-e-prescriptions.json";
+    private static final String FAILED_REJECTS_FILE = "target/test-dangling-e-prescriptions.dat";
+    Path path = Paths.get(FAILED_REJECTS_FILE);
+
 
     @Inject
     PharmacyService pharmacyService;
 
     @BeforeEach
     void init() {
-        try {
-            // https://community.oracle.com/thread/1307033?start=0&tstart=0
-            LogManager.getLogManager().readConfiguration(
-                    ERezeptWorkflowServiceTest.class
-                            .getResourceAsStream("/logging.properties"));
-        } catch (IOException e) {
-            e.printStackTrace();
+        File file = path.toFile();
+        if(file.exists()) {
+            file.delete();
         }
-
-        System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
-        System.setProperty("com.sun.xml.internal.ws.transport.http.client.HttpTransportPipe.dump", "true");
-        System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
-        System.setProperty("com.sun.xml.internal.ws.transport.http.HttpAdapter.dump", "true");
-        System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dumpTreshold", "999999");
-
-        SSLUtilities.trustAllHostnames();
-        SSLUtilities.trustAllHttpsCertificates();
     }
 
     @Test
     void appendFailedRejectToFile() throws IOException {
-        String testDanglingPrescriptions = "target/test-dangling-e-prescriptions.dat";
-        Path path = Paths.get(testDanglingPrescriptions);
         File file = path.toFile();
         if(file.exists()) {
             file.delete();
         }
 
         PharmacyService pharmacyService = new PharmacyService();
-        pharmacyService.failedRejectsFile = testDanglingPrescriptions;
+        pharmacyService.failedRejectsFile = FAILED_REJECTS_FILE;
         RuntimeConfig runtimeConfig = new RuntimeConfig();
         runtimeConfig.setEHBAHandle("ehba");
         runtimeConfig.setSMCBHandle("smcb");
@@ -80,7 +73,8 @@ public class PharmacyServiceTest {
         pharmacyService.appendFailedRejectToFile("prescriptionId", "secret", runtimeConfig);
 
         String testDanglingPrescriptionsData = new String(Files.readAllBytes(path));
-        assertEquals("{\"prescriptionId\":\"prescriptionId\",\"secret\":\"secret\",\"runtimeConfig\":{\"configurations\":{\"erixaHotfolder\":null,\"erixaDrugstoreEmail\":null,\"erixaUserEmail\":null,\"erixaUserPassword\":null,\"erixaApiKey\":null,\"muster16TemplateProfile\":null,\"connectorBaseURL\":\"https://192.168.178.42/\",\"mandantId\":\"m\",\"workplaceId\":\"w\",\"clientSystemId\":\"c\",\"userId\":null,\"version\":null,\"tvMode\":null,\"clientCertificate\":\"ClientCertificate\",\"clientCertificatePassword\":\"ClientCertificatePassword\",\"basicAuthUsername\":null,\"basicAuthPassword\":null,\"pruefnummer\":null},\"sendPreview\":true,\"idpBaseURL\":null,\"idpAuthRequestRedirectURL\":null,\"idpClientId\":null,\"prescriptionServerURL\":null,\"ehbahandle\":\"ehba\",\"smcbhandle\":\"smcb\",\"connectorAddress\":\"192.168.178.42\",\"userId\":null,\"erixaHotfolder\":null,\"erixaReceiverEmail\":null,\"erixaUserEmail\":null,\"erixaUserPassword\":null,\"connectorBaseURL\":\"https://192.168.178.42/\",\"mandantId\":\"m\",\"workplaceId\":\"w\",\"clientSystemId\":\"c\",\"tvMode\":null,\"connectorVersion\":null,\"pruefnummer\":null,\"erixaApiKey\":null,\"muster16TemplateConfiguration\":\"DENS\"}}"+System.lineSeparator(), testDanglingPrescriptionsData);
+        assertEquals("{\"prescriptionId\":\"prescriptionId\",\"runtimeConfig\":{\"clientSystemId\":\"c\",\"configurations\":{\"basicAuthPassword\":null,\"basicAuthUsername\":null,\"clientCertificate\":\"ClientCertificate\",\"clientCertificatePassword\":\"ClientCertificatePassword\",\"clientSystemId\":\"c\",\"connectorBaseURL\":\"https://192.168.178.42/\",\"erixaApiKey\":null,\"erixaDrugstoreEmail\":null,\"erixaHotfolder\":null,\"erixaUserEmail\":null,\"erixaUserPassword\":null,\"mandantId\":\"m\",\"muster16TemplateProfile\":null,\"pruefnummer\":null,\"tvMode\":null,\"userId\":null,\"version\":null,\"workplaceId\":\"w\"},\"connectorAddress\":\"192.168.178.42\",\"connectorBaseURL\":\"https://192.168.178.42/\",\"connectorVersion\":null,\"ehbahandle\":\"ehba\",\"erixaApiKey\":null,\"erixaHotfolder\":null,\"erixaReceiverEmail\":null,\"erixaUserEmail\":null,\"erixaUserPassword\":null,\"idpAuthRequestRedirectURL\":null,\"idpBaseURL\":null,\"idpClientId\":null,\"mandantId\":\"m\",\"muster16TemplateConfiguration\":\"DENS\",\"prescriptionServerURL\":null,\"pruefnummer\":null,\"sendPreview\":true,\"smcbhandle\":\"smcb\",\"tvMode\":null,\"userId\":null,\"workplaceId\":\"w\"},\"secret\":\"secret\"}"
+            +System.lineSeparator(), testDanglingPrescriptionsData);
         file.delete();
 
         FailedRejectEntry read = PharmacyService.objectMapper.readValue(testDanglingPrescriptionsData, FailedRejectEntry.class);
@@ -92,10 +86,8 @@ public class PharmacyServiceTest {
 
     @Test
     void appendFailedRejectToFileNull() throws IOException {
-        String testDanglingPrescriptions = "target/test-dangling-e-prescriptions.dat";
-        Path path = Paths.get(testDanglingPrescriptions);
         PharmacyService pharmacyService = new PharmacyService();
-        pharmacyService.failedRejectsFile = testDanglingPrescriptions;
+        pharmacyService.failedRejectsFile = FAILED_REJECTS_FILE;
         
         pharmacyService.appendFailedRejectToFile(null, null, null);
         path.toFile().delete();
@@ -103,10 +95,8 @@ public class PharmacyServiceTest {
 
     @Test
     void appendFailedRejectToFileTwoLines() throws IOException {
-        String testDanglingPrescriptions = "target/test-dangling-e-prescriptions.dat";
-        Path path = Paths.get(testDanglingPrescriptions);
         PharmacyService pharmacyService = new PharmacyService();
-        pharmacyService.failedRejectsFile = testDanglingPrescriptions;
+        pharmacyService.failedRejectsFile = FAILED_REJECTS_FILE;
         RuntimeConfig runtimeConfig = new RuntimeConfig();
         pharmacyService.appendFailedRejectToFile("prescriptionId", "secret", runtimeConfig);
         pharmacyService.appendFailedRejectToFile("prescriptionId2", "secret2", runtimeConfig);
@@ -129,6 +119,24 @@ public class PharmacyServiceTest {
     }
 
     @Test
+    void retryFailedRejects() throws IOException {
+        String FAILED_REJECTS_FILE = "target/test-dangling-e-prescriptions.dat";
+        PharmacyService pharmacyService = getPharmacyServiceWithMocks();
+
+        pharmacyService.failedRejectsFile = FAILED_REJECTS_FILE;
+        
+        pharmacyService.appendFailedRejectToFile("prescriptionId_success", "secret_success", new RuntimeConfig());
+        
+        assertEquals(1, Files.readAllLines(path).size());
+
+        pharmacyService.retryFailedRejects();
+
+        assertEquals(0, Files.readAllLines(path).size());
+
+        path.toFile().delete();
+    }
+
+    @Test
     void testRetryFailedRejects() throws IOException {
         String successPrescriptionId = "prescriptionId_success";
         String successSecret = "secret_success";
@@ -138,11 +146,43 @@ public class PharmacyServiceTest {
         String failedSecret = "secret_failed";
         RuntimeConfig failedConfig = new RuntimeConfig();
         FailedRejectEntry failedEntry = new FailedRejectEntry(failedPrescriptionId, failedSecret, failedConfig);
-        Path path = Paths.get(FAILED_REJECTS_FILE);
+        
+        PharmacyService pharmacyService = getPharmacyServiceWithMocks();
 
-        // Mock the file content
-        when(Files.exists(path)).thenReturn(true);
+        List<String> failedRequests = pharmacyService.reprocessFailingEntries(Stream.of(successEntry, failedEntry));
 
+        assertEquals(1, failedRequests.size());
+        assertEquals("{\"prescriptionId\":\"prescriptionId_failed\",\"runtimeConfig\":{\"clientSystemId\":null,\"configurations\":{\"basicAuthPassword\":null,\"basicAuthUsername\":null,\"clientCertificate\":null,\"clientCertificatePassword\":null,\"clientSystemId\":null,\"connectorBaseURL\":null,\"erixaApiKey\":null,\"erixaDrugstoreEmail\":null,\"erixaHotfolder\":null,\"erixaUserEmail\":null,\"erixaUserPassword\":null,\"mandantId\":null,\"muster16TemplateProfile\":null,\"pruefnummer\":null,\"tvMode\":null,\"userId\":null,\"version\":null,\"workplaceId\":null},\"connectorAddress\":null,\"connectorBaseURL\":null,\"connectorVersion\":null,\"ehbahandle\":null,\"erixaApiKey\":null,\"erixaHotfolder\":null,\"erixaReceiverEmail\":null,\"erixaUserEmail\":null,\"erixaUserPassword\":null,\"idpAuthRequestRedirectURL\":null,\"idpBaseURL\":null,\"idpClientId\":null,\"mandantId\":null,\"muster16TemplateConfiguration\":\"DENS\",\"prescriptionServerURL\":null,\"pruefnummer\":null,\"sendPreview\":true,\"smcbhandle\":null,\"tvMode\":null,\"userId\":null,\"workplaceId\":null},\"secret\":\"secret_failed\"}", failedRequests.get(0));
+        path.toFile().delete();
+    }
+
+    private PharmacyService getPharmacyServiceWithMocks() {
+        Client client = mock(Client.class);
+        WebTarget successTarget = mock(WebTarget.class);
+        WebTarget failedTarget = mock(WebTarget.class);
+        
+        when(successTarget.path("/Task/prescriptionId_success/$reject")).thenReturn(successTarget);
+        when(successTarget.queryParam("secret", "secret_success")).thenReturn(successTarget);
+        Builder successBuilder = mock(Builder.class);
+        when(successTarget.request()).thenReturn(successBuilder);
+        when(successBuilder.header(nullable(String.class), nullable(String.class))).thenReturn(successBuilder);
+        when(successBuilder.post(any())).thenReturn(Response.ok().build());
+
+        when(successTarget.path("/Task/prescriptionId_failed/$reject")).thenReturn(failedTarget);
+        Builder failedBuilder = mock(Builder.class);
+        when(failedTarget.request()).thenReturn(failedBuilder);
+        when(failedBuilder.header(nullable(String.class), nullable(String.class))).thenReturn(failedBuilder);
+        when(failedBuilder.post(any())).thenReturn(Response.serverError().build());
+
+        when(client.target(nullable(String.class))).thenReturn(successTarget);
+
+        PharmacyService pharmacyService = new PharmacyService();
+        pharmacyService.client = client;
+        pharmacyService.appConfig = new AppConfig();
+        pharmacyService.bearerTokenService = mock(BearerTokenService.class);
+        pharmacyService.readEPrescriptionsMXBean = mock(ReadEPrescriptionsMXBeanImpl.class);
+        when(pharmacyService.bearerTokenService.getBearerToken(any())).thenReturn("BearerToken");
+        return pharmacyService;
     }
 
     @Test

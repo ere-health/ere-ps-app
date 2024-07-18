@@ -33,6 +33,7 @@ import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ca.uhn.fhir.context.FhirContext;
@@ -71,6 +72,7 @@ public class PharmacyService {
 
     static {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        objectMapper.configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
     }
     private static final String FAILED_REJECTS_FILE = "dangling-e-prescriptions.dat";
 
@@ -358,10 +360,12 @@ public class PharmacyService {
                 .header("Authorization", "Bearer " + bearerTokenService.getBearerToken(runtimeConfig))
                 .post(Entity.entity("", "application/fhir+xml"))) {
 
-            InputStream is = response.readEntity(InputStream.class);
             String rejectResponse = "";
-            if (is != null) {
-                rejectResponse = new String(is.readAllBytes(), "ISO-8859-15");
+            if(response.hasEntity()) {
+                InputStream is = response.readEntity(InputStream.class);
+                if (is != null) {
+                    rejectResponse = new String(is.readAllBytes(), "ISO-8859-15");
+                }
             }
             if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
                 log.warning("Retry reject failed for prescriptionId: " + prescriptionId + " secret: " + secret + " " + rejectResponse);
