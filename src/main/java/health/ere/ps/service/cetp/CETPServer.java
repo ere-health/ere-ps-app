@@ -55,7 +55,7 @@ public class CETPServer {
     List<EventLoopGroup> bossGroups = new ArrayList<>();
     List<EventLoopGroup> workerGroups = new ArrayList<>();
 
-    private Map<String, String> startedOnPorts = new HashMap<>();
+    private final Map<String, String> startedOnPorts = new HashMap<>();
 
     @Inject
     AppConfig appConfig;

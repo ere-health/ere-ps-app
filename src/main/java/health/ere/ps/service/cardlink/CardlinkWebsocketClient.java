@@ -1,12 +1,5 @@
 package health.ere.ps.service.cardlink;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.Map;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import health.ere.ps.service.health.check.CardlinkWebsocketCheck;
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
@@ -24,6 +17,12 @@ import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 import jakarta.websocket.WebSocketContainer;
 import jakarta.xml.bind.DatatypeConverter;
+
+import java.io.IOException;
+import java.net.URI;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @SuppressWarnings("unused")
 @ClientEndpoint(configurator = AddJWTConfigurator.class)
@@ -94,23 +93,24 @@ public class CardlinkWebsocketClient {
     }
 
     public void sendJson(String correlationId, String type, Map<String, Object> payloadMap) {
-        JsonObjectBuilder builder = Json.createObjectBuilder();
-        for (Map.Entry<String, ?> entry : payloadMap.entrySet()) {
-            if (entry.getValue() instanceof Integer) {
-                builder.add(entry.getKey(), (Integer) entry.getValue());
-            } else if (entry.getValue() instanceof Long) {
-                builder.add(entry.getKey(), (Long) entry.getValue());
-            } else if (entry.getValue() instanceof String) {
-                builder.add(entry.getKey(), (String) entry.getValue());
-            } else if (entry.getValue() instanceof JsonArrayBuilder) {
-                builder.add(entry.getKey(), (JsonArrayBuilder) entry.getValue());
+        JsonObjectBuilder objectBuilder = Json.createObjectBuilder().add("type", type);
+        if (!payloadMap.isEmpty()) {
+            JsonObjectBuilder builder = Json.createObjectBuilder();
+            for (Map.Entry<String, ?> entry : payloadMap.entrySet()) {
+                if (entry.getValue() instanceof Integer) {
+                    builder.add(entry.getKey(), (Integer) entry.getValue());
+                } else if (entry.getValue() instanceof Long) {
+                    builder.add(entry.getKey(), (Long) entry.getValue());
+                } else if (entry.getValue() instanceof String) {
+                    builder.add(entry.getKey(), (String) entry.getValue());
+                } else if (entry.getValue() instanceof JsonArrayBuilder) {
+                    builder.add(entry.getKey(), (JsonArrayBuilder) entry.getValue());
+                }
             }
+            String payload = builder.build().toString();
+            objectBuilder.add("payload", DatatypeConverter.printBase64Binary(payload.getBytes()));
         }
-        String payload = builder.build().toString();
-        JsonObject jsonObject = Json.createObjectBuilder()
-            .add("type", type)
-            .add("payload", DatatypeConverter.printBase64Binary(payload.getBytes()))
-            .build();
+        JsonObject jsonObject = objectBuilder.build();
         JsonArray jsonArray = Json.createArrayBuilder()
             .add(jsonObject)
             .add(JsonValue.NULL)
