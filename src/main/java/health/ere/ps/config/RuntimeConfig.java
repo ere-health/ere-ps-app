@@ -204,6 +204,9 @@ public class RuntimeConfig extends UserConfig {
 
     public String getConnectorAddress() {
         try {
+            if(getConnectorBaseURL() == null) {
+                return null;
+            }
             return new URL(getConnectorBaseURL()).getHost();
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
