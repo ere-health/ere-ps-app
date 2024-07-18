@@ -23,5 +23,5 @@ tar czf ${DPKG_BUILD_PACKAGE}_${DEB_VERSION}.orig.tar.gz ${DPKG_BUILD_PACKAGE}_$
 cd deb-package
 debuild -us -uc
 cd ..
-dpkg-sig --sign builder ${DPKG_BUILD_PACKAGE}_${DEB_VERSION}-1_all.deb
-# reprepro -V --basedir ~/public_html/apt/ includedeb jammy ${DPKG_BUILD_PACKAGE}_${DEB_VERSION}-1_all.deb
+dpkg-sig --sign builder ${DPKG_BUILD_PACKAGE}_${DEB_VERSION}-2_all.deb
+# reprepro -V --basedir ~/public_html/apt/ includedeb jammy ${DPKG_BUILD_PACKAGE}_${DEB_VERSION}-2_all.deb
