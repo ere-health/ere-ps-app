@@ -1,6 +1,7 @@
 package health.ere.ps.service.gematik;
 
 import ca.uhn.fhir.context.FhirContext;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.gematik.ws.conn.cardservice.v8.CardInfoType;
 import de.gematik.ws.conn.cardservicecommon.v2.CardTypeType;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
@@ -18,6 +19,7 @@ import health.ere.ps.service.cetp.KonnektorClient;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import health.ere.ps.service.fhir.FHIRService;
 import health.ere.ps.service.idp.BearerTokenService;
+import io.quarkus.scheduler.Scheduled;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -29,6 +31,7 @@ import jakarta.xml.ws.Holder;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bouncycastle.cms.CMSProcessableByteArray;
 import org.bouncycastle.cms.CMSSignedData;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.hl7.fhir.r4.model.Binary;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Task;
@@ -38,9 +41,12 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
@@ -53,6 +59,8 @@ import java.util.zip.GZIPInputStream;
 public class PharmacyService {
 
     private static final Logger log = Logger.getLogger(PharmacyService.class.getName());
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final String FAILED_REJECTS_FILE = "dangling-e-prescriptions.json";
 
     @Inject
     AppConfig appConfig;
@@ -255,6 +263,7 @@ public class PharmacyService {
                 rejectResponse = new String(is.readAllBytes(), "ISO-8859-15");
             }
             if (Response.Status.Family.familyOf(response2.getStatus()) != Response.Status.Family.SUCCESSFUL) {
+                writeFailedRejectToFile(prescriptionId, secret, runtimeConfig);
                 log.warning("Could not reject " + token + "prescriptionId: " + prescriptionId + " secret: " + secret + " " + rejectResponse);
             }
             readEPrescriptionsMXBean.increaseReject();
@@ -264,11 +273,81 @@ public class PharmacyService {
             return fhirContext.newXmlParser().parseResource(Bundle.class, new String(data));
         } catch (Throwable t) {
             readEPrescriptionsMXBean.increaseRejectFailed();
+            writeFailedRejectToFile(prescriptionId, secret, runtimeConfig);
             String msg = String.format(
                     "[%s] Could not process %s prescriptionId: %s secret: %s", correlationId, token, prescriptionId, secret
             );
             log.log(Level.SEVERE, msg, t);
             return null;
+        }
+    }
+
+    public void writeFailedRejectToFile(String prescriptionId, String secret, RuntimeConfig runtimeConfig) {
+        try {
+            Path path = Paths.get(FAILED_REJECTS_FILE);
+            List<FailedRejectEntry> failedRejects = new ArrayList<>();
+            if (Files.exists(path)) {
+                try (BufferedReader reader = Files.newBufferedReader(path)) {
+                    FailedRejectEntry[] entries = objectMapper.readValue(reader, FailedRejectEntry[].class);
+                    failedRejects = new ArrayList<>(List.of(entries));
+                }
+            }
+            failedRejects.add(new FailedRejectEntry(prescriptionId, secret, runtimeConfig));
+            try (BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+                objectMapper.writeValue(writer, failedRejects);
+            }
+        } catch (IOException e) {
+            log.log(Level.SEVERE, "Failed to write dangling-e-prescriptions.json", e);
+        }
+    }
+
+    @Scheduled(every = "5m") // TODO: make configurable
+    void retryFailedRejects() {
+        Path path = Paths.get(FAILED_REJECTS_FILE);
+        if (Files.exists(path)) {
+            try {
+                List<FailedRejectEntry> failedRejects;
+                List<FailedRejectEntry> remainingRejects = new ArrayList<>();
+                try (BufferedReader reader = Files.newBufferedReader(path)) {
+                    FailedRejectEntry[] entries = objectMapper.readValue(reader, FailedRejectEntry[].class);
+                    failedRejects = new ArrayList<>(List.of(entries));
+                }
+                for (FailedRejectEntry entry : failedRejects) {
+                    if (!attemptReject(entry.getPrescriptionId(), entry.getSecret(), entry.getRuntimeConfig())) {
+                        remainingRejects.add(entry);
+                    }
+                }
+                try (BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+                    objectMapper.writeValue(writer, remainingRejects);
+                }
+            } catch (IOException e) {
+                log.log(Level.SEVERE, "Failed to read/write dangling-e-prescriptions.json", e);
+            }
+        }
+    }
+
+    public boolean attemptReject(String prescriptionId, String secret, RuntimeConfig runtimeConfig) {
+        try (Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task/" + prescriptionId + "/$reject")
+                .queryParam("secret", secret).request()
+                .header("User-Agent", appConfig.getUserAgent())
+                .header("Authorization", "Bearer " + bearerTokenService.getBearerToken(runtimeConfig))
+                .post(Entity.entity("", "application/fhir+xml"))) {
+
+            InputStream is = response.readEntity(InputStream.class);
+            String rejectResponse = "";
+            if (is != null) {
+                rejectResponse = new String(is.readAllBytes(), "ISO-8859-15");
+            }
+            if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
+                log.warning("Retry reject failed for prescriptionId: " + prescriptionId + " secret: " + secret + " " + rejectResponse);
+                return false;
+            } else {
+                readEPrescriptionsMXBean.increaseReject();
+                return true;
+            }
+        } catch (Throwable t) {
+            log.log(Level.SEVERE, "Retry reject failed for prescriptionId: " + prescriptionId + " secret: " + secret, t);
+            return false;
         }
     }
 
