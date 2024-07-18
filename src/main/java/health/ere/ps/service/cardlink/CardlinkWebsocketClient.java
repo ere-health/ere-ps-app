@@ -144,7 +144,10 @@ public class CardlinkWebsocketClient {
 
     public void close() {
         try {
-            userSession.close();
+            // Close might be called even before @onOpen was called, hence userSession might be null.
+            if (this.userSession != null) {
+                userSession.close();
+            }
         } catch (IOException e) {
             log.log(Level.WARNING, "Could not close websocket session", e);
         }
