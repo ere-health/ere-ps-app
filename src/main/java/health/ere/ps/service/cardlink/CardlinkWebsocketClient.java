@@ -92,7 +92,7 @@ public class CardlinkWebsocketClient {
         log.info(message);
     }
 
-    public void sendJson(String correlationId, String type, Map<String, Object> payloadMap) {
+    public void sendJson(String correlationId, String iccsn, String type, Map<String, Object> payloadMap) {
         JsonObjectBuilder objectBuilder = Json.createObjectBuilder().add("type", type);
         if (!payloadMap.isEmpty()) {
             JsonObjectBuilder builder = Json.createObjectBuilder();
@@ -115,6 +115,7 @@ public class CardlinkWebsocketClient {
             .add(jsonObject)
             .add(JsonValue.NULL)
             .add(correlationId)
+            .add(iccsn)
             .build();
         sendMessage(jsonArray.toString(), correlationId);
     }

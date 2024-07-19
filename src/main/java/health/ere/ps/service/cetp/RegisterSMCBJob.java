@@ -55,7 +55,7 @@ public class RegisterSMCBJob {
         cardlinkWebsocketClients.forEach(client -> {
             try {
                 client.connect();
-                client.sendJson(correlationId, "registerSMCB", Map.of());
+                client.sendJson(correlationId, null,"registerSMCB", Map.of());
             } catch (Exception e) {
                 log.log(Level.SEVERE, "Error while sending registerSMCB", e);
             } finally {

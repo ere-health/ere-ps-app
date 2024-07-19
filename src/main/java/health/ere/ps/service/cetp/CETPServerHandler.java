@@ -72,6 +72,7 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
                     String cardHandle = eventMap.get("CardHandle");
                     Integer slotId = Integer.parseInt(eventMap.get("SlotID"));
                     String ctId = eventMap.get("CtID");
+                    String iccsn = eventMap.get("ICCSN");
                     Long endTime = System.currentTimeMillis();
 
 
@@ -88,22 +89,22 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
                         Bundle bundle = pair.getKey();
                         String eventId = pair.getValue();
                         String xml = parser.encodeToString(bundle);
-                        cardlinkWebsocketClient.sendJson(correlationId, "eRezeptTokensFromAVS", Map.of("slotId", slotId, "ctId", ctId, "tokens", xml));
+                        cardlinkWebsocketClient.sendJson(correlationId, iccsn, "eRezeptTokensFromAVS", Map.of("slotId", slotId, "ctId", ctId, "tokens", xml));
 
                         JsonArrayBuilder bundles = prepareBundles(correlationId, bundle, runtimeConfig);
-                        cardlinkWebsocketClient.sendJson(correlationId, "eRezeptBundlesFromAVS", Map.of("slotId", slotId, "ctId", ctId, "bundles", bundles));
+                        cardlinkWebsocketClient.sendJson(correlationId, iccsn, "eRezeptBundlesFromAVS", Map.of("slotId", slotId, "ctId", ctId, "bundles", bundles));
 
-                        cardlinkWebsocketClient.sendJson(correlationId, "vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "eventId", eventId));
+                        cardlinkWebsocketClient.sendJson(correlationId, iccsn, "vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "eventId", eventId));
 
                     } catch (FaultMessage | de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage e) {
                         log.log(Level.WARNING, String.format("[%s] Could not get prescription for Bundle", correlationId), e);
                         String code = e instanceof FaultMessage
                                 ? ((FaultMessage) e).getFaultInfo().getTrace().get(0).getCode().toString()
                                 : ((de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage) e).getFaultInfo().getTrace().get(0).getCode().toString();
-                        cardlinkWebsocketClient.sendJson(correlationId, "vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "err", code));
+                        cardlinkWebsocketClient.sendJson(correlationId, iccsn, "vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "err", code));
 
                         String error = "ERROR: " + printException(e);
-                        cardlinkWebsocketClient.sendJson(correlationId, "eRezeptTokensFromAVS", Map.of("slotId", slotId, "ctId", ctId, "tokens", error));
+                        cardlinkWebsocketClient.sendJson(correlationId, iccsn, "eRezeptTokensFromAVS", Map.of("slotId", slotId, "ctId", ctId, "tokens", error));
                     }
                 } else {
                     String msgFormat = "Ignored \"CARD/INSERTED\" event=%s: values=%s";
