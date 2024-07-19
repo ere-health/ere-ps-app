@@ -26,9 +26,9 @@ import java.util.logging.Logger;
 public class AddJWTConfigurator extends ClientEndpointConfig.Configurator {
 
     private static final Logger log = Logger.getLogger(AddJWTConfigurator.class.getName());
+    private static final String ORIGIN_HEADER = "origin";
 
     PharmacyService pharmacyService;
-
     MultiConnectorServicesProvider connectorServicesProvider;
 
     private static final Map<String, RuntimeConfig> configMap = new HashMap<>();
@@ -39,34 +39,52 @@ public class AddJWTConfigurator extends ClientEndpointConfig.Configurator {
         );
     }
 
-    @Override
-    public void beforeRequest(Map<String, List<String>> headers) {
+    private boolean checkServicesAreValid() {
         if (pharmacyService == null) {
             pharmacyService = Arc.container().select(PharmacyService.class).get();
         }
         if (connectorServicesProvider == null) {
             connectorServicesProvider = Arc.container().select(MultiConnectorServicesProvider.class).get();
         }
-        String originHeader = headers.get("origin").get(0);
-        try {
-            String originHost = new URI(originHeader).getHost();
-            RuntimeConfig runtimeConfig = configMap.get(originHost);
-            if (connectorServicesProvider != null && pharmacyService != null) {
-                ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
-                EventServicePortType eventServicePortType = connectorServicesProvider.getEventServicePortType(runtimeConfig);
-                try {
-                    PharmacyService.setAndGetSMCBHandleForPharmacy(runtimeConfig, context, eventServicePortType);
-                } catch (FaultMessage e) {
-                    log.log(Level.SEVERE, "Could not get SMC-B for pharmacy", e);
-                }
+        return pharmacyService != null && connectorServicesProvider != null;
+    }
 
-                String bearerToken = pharmacyService.getBearerTokenService().getBearerToken(runtimeConfig);
-                headers.put("Authorization", List.of("Bearer " + bearerToken));
-            } else {
-                log.log(Level.SEVERE, "Could not get bearer token or connector services provider, won't add JWT to websocket connection.");
+    private RuntimeConfig buildRuntimeConfig(Map<String, List<String>> headers) {
+        String origin = null;
+        RuntimeConfig runtimeConfig = null;
+        List<String> originHeaderValues = headers.get(ORIGIN_HEADER);
+        if (!originHeaderValues.isEmpty()) {
+            origin = originHeaderValues.get(0);
+            try {
+                runtimeConfig = configMap.get(new URI(origin).getHost());
+            } catch (URISyntaxException e) {
+                String msg = String.format("Origin header is wrong URI: %s", origin);
+                log.log(Level.SEVERE, msg, e);
             }
-        } catch (URISyntaxException e) {
-            log.log(Level.SEVERE, String.format("Could not get bearer token or connector, origin header is wrong URI: %s", originHeader), e);
+        }
+        if (runtimeConfig == null) {
+            log.warning(String.format("No KonnektorConfig is found for origin=%s, using random config", origin));
+            runtimeConfig = new RuntimeConfig();
+        }
+        return runtimeConfig;
+    }
+
+    @Override
+    public void beforeRequest(Map<String, List<String>> headers) {
+        if (checkServicesAreValid()) {
+            RuntimeConfig runtimeConfig = buildRuntimeConfig(headers);
+            ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
+            EventServicePortType eventServicePortType = connectorServicesProvider.getEventServicePortType(runtimeConfig);
+            try {
+                PharmacyService.setAndGetSMCBHandleForPharmacy(runtimeConfig, context, eventServicePortType);
+            } catch (FaultMessage e) {
+                log.log(Level.SEVERE, "Could not get SMC-B for pharmacy", e);
+            }
+            String bearerToken = pharmacyService.getBearerTokenService().getBearerToken(runtimeConfig);
+            headers.put("Authorization", List.of("Bearer " + bearerToken));
+        } else {
+            String msg = "Could not get pharmacyService or connectorServicesProvider, won't add JWT to websocket connection";
+            log.log(Level.SEVERE, msg);
         }
     }
 }
