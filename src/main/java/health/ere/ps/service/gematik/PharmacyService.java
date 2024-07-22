@@ -1,47 +1,10 @@
 package health.ere.ps.service.gematik;
 
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.Base64;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.zip.GZIPInputStream;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.http.entity.ContentType;
-import org.bouncycastle.cms.CMSProcessableByteArray;
-import org.bouncycastle.cms.CMSSignedData;
-import org.hl7.fhir.r4.model.Binary;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Task;
-import org.jetbrains.annotations.NotNull;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-
+import ca.uhn.fhir.context.FhirContext;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import ca.uhn.fhir.context.FhirContext;
 import de.gematik.ws.conn.cardservice.v8.CardInfoType;
 import de.gematik.ws.conn.cardservicecommon.v2.CardTypeType;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
@@ -59,8 +22,8 @@ import health.ere.ps.service.cetp.KonnektorClient;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import health.ere.ps.service.fhir.FHIRService;
 import health.ere.ps.service.idp.BearerTokenService;
-import io.quarkus.scheduler.Scheduled;
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
@@ -68,9 +31,49 @@ import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.Response;
 import jakarta.xml.ws.Holder;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.http.entity.ContentType;
+import org.bouncycastle.cms.CMSProcessableByteArray;
+import org.bouncycastle.cms.CMSSignedData;
+import org.hl7.fhir.r4.model.Binary;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Task;
+import org.jetbrains.annotations.NotNull;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.Base64;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.zip.GZIPInputStream;
+
+
+/* Note: reading, writing and resending of failed rejects are done by one Thread (see scheduledExecutorService), no additional synchronization for retrying reject is need */
 @ApplicationScoped
-public class PharmacyService {
+public class PharmacyService implements AutoCloseable {
 
     private static final Logger log = Logger.getLogger(PharmacyService.class.getName());
     static final ObjectMapper objectMapper = new ObjectMapper();
@@ -79,6 +82,7 @@ public class PharmacyService {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         objectMapper.configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
     }
+
     private static final String FAILED_REJECTS_FILE = "dangling-e-prescriptions.dat";
 
     @Inject
@@ -100,18 +104,30 @@ public class PharmacyService {
      * By default should be the static file.
      * A test case can change this to a temporary file.
      */
-    String failedRejectsFile = FAILED_REJECTS_FILE;
+    Path failedRejectsFile = Paths.get(FAILED_REJECTS_FILE);
 
     private static final FhirContext fhirContext = FHIRService.getFhirContext();
 
     Client client;
 
-    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-
+    private final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 
     @PostConstruct
     public void init() {
         client = ERezeptWorkflowService.initClientWithVAU(appConfig);
+        int retryInterval = 1;  //TODO: make configurable
+        scheduledExecutorService.scheduleAtFixedRate(this::retryFailedRejects, retryInterval, retryInterval, TimeUnit.MINUTES);
+    }
+
+    @PreDestroy
+    @Override
+    public void close() throws Exception {
+        scheduledExecutorService.shutdown();
+        var isTerminated = scheduledExecutorService.awaitTermination(1, TimeUnit.MINUTES);
+        if (!isTerminated) {
+            log.severe("Reject scheduledExecutorService did not shutdown!");
+        }
     }
 
     public Pair<Bundle, String> getEPrescriptionsForCardHandle(
@@ -228,10 +244,10 @@ public class PharmacyService {
     }
 
     static String getFirstCardWithName(
-        EventServicePortType eventService,
-        CardTypeType type,
-        ContextType context,
-        String name
+            EventServicePortType eventService,
+            CardTypeType type,
+            ContextType context,
+            String name
     ) {
         try {
             GetCards parameter = new GetCards();
@@ -326,54 +342,50 @@ public class PharmacyService {
         return ContentType.parse(contentTypeHeader).getCharset();
     }
 
-    public void appendFailedRejectToFile(String prescriptionId, String secret, RuntimeConfig runtimeConfig) {
-        try {
-            Path path = Paths.get(failedRejectsFile);
-            try (BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
-                String json = objectMapper.writeValueAsString(new FailedRejectEntry(prescriptionId, secret, runtimeConfig));
-                writer.write(json+System.lineSeparator());
+    Future<?> appendFailedRejectToFile(String prescriptionId, String secret, RuntimeConfig runtimeConfig) {
+        return scheduledExecutorService.submit(() -> {
+            try {
+                try (BufferedWriter writer = Files.newBufferedWriter(failedRejectsFile, StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
+                    String json = objectMapper.writeValueAsString(new FailedRejectEntry(prescriptionId, secret, runtimeConfig));
+                    writer.write(json + System.lineSeparator());
+                }
+            } catch (IOException e) {
+                log.log(Level.SEVERE, "Failed to write " + failedRejectsFile, e);
             }
-        } catch (IOException e) {
-            log.log(Level.SEVERE, "Failed to write "+failedRejectsFile, e);
-        }
+        });
     }
 
-    @Scheduled(every = "5m") // TODO: make configurable
     void retryFailedRejects() {
-        Path path = Paths.get(failedRejectsFile);
-        if (Files.exists(path)) {
-            try {
-                List<String> lines = Files.readAllLines(path);
-                Stream<FailedRejectEntry> failedRejectEntries = lines.stream().map(s ->  {
-                    try {
-                        return objectMapper.readValue(s, FailedRejectEntry.class);
-                    } catch(JsonProcessingException e) {
-                        log.log(Level.SEVERE, "Failed to deserialize: "+s, e);
-                        return null;
-                    }
-                }).filter(Objects::nonNull);
-                List<String> stillFailingEntries = reprocessFailingEntries(failedRejectEntries);
-                Files.write(path, stillFailingEntries, StandardOpenOption.TRUNCATE_EXISTING);            
-            } catch (IOException e) {
-                log.log(Level.SEVERE, "Failed to read/write dangling-e-prescriptions.json", e);
-            }
+        if (Files.notExists(failedRejectsFile))
+            return;
+        try {
+            List<String> lines = Files.readAllLines(failedRejectsFile);
+            Stream<FailedRejectEntry> failedRejectEntries = lines.stream().map(s -> {
+                try {
+                    return objectMapper.readValue(s, FailedRejectEntry.class);
+                } catch (JsonProcessingException e) {
+                    log.log(Level.SEVERE, "Failed to deserialize FailedRejectEntry: " + s, e);
+                    return null;
+                }
+            }).filter(Objects::nonNull);
+            List<String> stillFailingEntries = reprocessFailingEntries(failedRejectEntries);
+            Files.write(failedRejectsFile, stillFailingEntries, StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (IOException e) {
+            log.log(Level.SEVERE, "Failed to read/write dangling-e-prescriptions.json", e);
         }
     }
 
     List<String> reprocessFailingEntries(Stream<FailedRejectEntry> failedRejectEntries) {
-        List<FailedRejectEntry> entries = failedRejectEntries.map(entry -> {
-            return attemptReject(entry.getPrescriptionId(), entry.getSecret(), entry.getRuntimeConfig()) ? null : entry;
-        }).filter(Objects::nonNull).collect(Collectors.toList());
-        
-        List<String> stillFailingEntries = entries.stream().map(o -> {
-            try {
-                return objectMapper.writeValueAsString(o);
-            } catch(JsonProcessingException e) {
-                log.log(Level.SEVERE, "Failed to serialize object", e);
-                return null;
-            }
-        }).filter(Objects::nonNull).collect(Collectors.toList());
-        return stillFailingEntries;
+        return failedRejectEntries.filter(entry -> !attemptReject(entry.getPrescriptionId(), entry.getSecret(), entry.getRuntimeConfig()))
+                .map(o -> {
+                    try {
+                        return objectMapper.writeValueAsString(o);
+                    } catch (JsonProcessingException e) {
+                        log.log(Level.SEVERE, "Failed to serialize object", e);
+                        return null;
+                    }
+                }).filter(Objects::nonNull)
+                .toList();
     }
 
     public boolean attemptReject(String prescriptionId, String secret, RuntimeConfig runtimeConfig) {
@@ -384,7 +396,7 @@ public class PharmacyService {
                 .post(Entity.entity("", "application/fhir+xml"))) {
 
             String rejectResponse = "";
-            if(response.hasEntity()) {
+            if (response.hasEntity()) {
                 InputStream is = response.readEntity(InputStream.class);
                 if (is != null) {
                     rejectResponse = new String(is.readAllBytes(), "ISO-8859-15");
