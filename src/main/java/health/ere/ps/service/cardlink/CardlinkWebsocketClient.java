@@ -1,5 +1,11 @@
 package health.ere.ps.service.cardlink;
 
+import java.io.IOException;
+import java.net.URI;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import health.ere.ps.service.health.check.CardlinkWebsocketCheck;
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
@@ -17,12 +23,6 @@ import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 import jakarta.websocket.WebSocketContainer;
 import jakarta.xml.bind.DatatypeConverter;
-
-import java.io.IOException;
-import java.net.URI;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @SuppressWarnings("unused")
 @ClientEndpoint(configurator = AddJWTConfigurator.class)
@@ -111,11 +111,15 @@ public class CardlinkWebsocketClient {
             objectBuilder.add("payload", DatatypeConverter.printBase64Binary(payload.getBytes()));
         }
         JsonObject jsonObject = objectBuilder.build();
-        JsonArray jsonArray = Json.createArrayBuilder()
+        JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder()
             .add(jsonObject)
             .add(JsonValue.NULL)
-            .add(correlationId)
-            .add(iccsn)
+            .add(correlationId);
+        if(iccsn != null) {
+            jsonArrayBuilder
+                .add(iccsn);
+        }
+        JsonArray jsonArray = jsonArrayBuilder
             .build();
         sendMessage(jsonArray.toString(), correlationId);
     }
