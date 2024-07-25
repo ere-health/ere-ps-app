@@ -5,11 +5,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.gematik.ws.conn.cardservice.v8.CardInfoType;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import de.gematik.ws.conn.cardservicecommon.v2.CardTypeType;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
-import de.gematik.ws.conn.eventservice.v7.GetCards;
-import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
 import de.gematik.ws.conn.eventservice.v7.SubscriptionType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
@@ -36,6 +35,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.entity.ContentType;
 import org.bouncycastle.cms.CMSProcessableByteArray;
 import org.bouncycastle.cms.CMSSignedData;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.hl7.fhir.r4.model.Binary;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Task;
@@ -56,10 +56,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.Base64;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.time.Duration;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -99,6 +97,9 @@ public class PharmacyService implements AutoCloseable {
 
     @Inject
     BearerTokenService bearerTokenService;
+
+    @ConfigProperty(name = "preferred.smcb")
+    Optional<String> preferredSmcb;
 
     /**
      * By default should be the static file.
@@ -184,7 +185,7 @@ public class PharmacyService implements AutoCloseable {
 
         EventServicePortType eventService = connectorServicesProvider.getEventServicePortType(runtimeConfig);
         if (egkHandle == null) {
-            egkHandle = PrefillPrescriptionService.getFirstCardOfType(eventService, CardTypeType.EGK, context);
+            egkHandle = PrefillPrescriptionService.getFirstCardOfType(eventService, CardTypeType.EGK, context, null);
 
         }
         if (smcbHandle == null) {
@@ -229,43 +230,14 @@ public class PharmacyService implements AutoCloseable {
         return doc.getElementsByTagName("E").item(0).getTextContent();
     }
 
-    public static String setAndGetSMCBHandleForPharmacy(
+    public String setAndGetSMCBHandleForPharmacy(
             RuntimeConfig runtimeConfig,
             ContextType context,
             EventServicePortType eventService
     ) throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
-        String smcbHandle;
-        smcbHandle = getFirstCardWithName(eventService, CardTypeType.SMC_B, context, "Bad ApothekeTEST-ONLY");
-        if (smcbHandle == null) {
-            smcbHandle = PrefillPrescriptionService.getFirstCardOfType(eventService, CardTypeType.SMC_B, context);
-        }
+        String smcbHandle = PrefillPrescriptionService.getFirstCardOfType(eventService, CardTypeType.SMC_B, context, preferredSmcb.orElse(null));
         runtimeConfig.setSMCBHandle(smcbHandle);
         return smcbHandle;
-    }
-
-    static String getFirstCardWithName(
-            EventServicePortType eventService,
-            CardTypeType type,
-            ContextType context,
-            String name
-    ) {
-        try {
-            GetCards parameter = new GetCards();
-            parameter.setContext(context);
-            parameter.setCardType(type);
-            GetCardsResponse getCardsResponse = eventService.getCards(parameter);
-
-            List<CardInfoType> cards = getCardsResponse.getCards().getCard();
-            if (cards.isEmpty()) {
-                return null;
-            } else {
-                CardInfoType cardHandleType = cards.stream().filter(card -> card.getCardHolderName().equals(name)).findAny().orElse(null);
-                return cardHandleType != null ? cardHandleType.getCardHandle() : null;
-            }
-        } catch (Throwable t) {
-            log.log(Level.SEVERE, "Error while getting cards", t);
-            return null;
-        }
     }
 
     public Bundle accept(String correlationId, String token, RuntimeConfig runtimeConfig) {

@@ -7,9 +7,9 @@ import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.service.cetp.config.KonnektorConfig;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import health.ere.ps.service.gematik.PharmacyService;
-import io.quarkus.arc.Arc;
 import io.quarkus.arc.Unremovable;
 import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
 import jakarta.websocket.ClientEndpointConfig;
 
 import java.net.URI;
@@ -28,24 +28,20 @@ public class AddJWTConfigurator extends ClientEndpointConfig.Configurator {
     private static final Logger log = Logger.getLogger(AddJWTConfigurator.class.getName());
     private static final String ORIGIN_HEADER = "origin";
 
+    @Inject
     PharmacyService pharmacyService;
+    @Inject
     MultiConnectorServicesProvider connectorServicesProvider;
 
     private static final Map<String, RuntimeConfig> configMap = new HashMap<>();
 
     public static void initConfigs(Collection<KonnektorConfig> konnektorConfigs) {
         konnektorConfigs.forEach(kc ->
-            configMap.put(kc.getCardlinkEndpoint().getHost(), new RuntimeConfig(kc.getUserConfigurations()))
+                configMap.put(kc.getCardlinkEndpoint().getHost(), new RuntimeConfig(kc.getUserConfigurations()))
         );
     }
 
     private boolean checkServicesAreValid() {
-        if (pharmacyService == null) {
-            pharmacyService = Arc.container().select(PharmacyService.class).get();
-        }
-        if (connectorServicesProvider == null) {
-            connectorServicesProvider = Arc.container().select(MultiConnectorServicesProvider.class).get();
-        }
         return pharmacyService != null && connectorServicesProvider != null;
     }
 
@@ -76,7 +72,7 @@ public class AddJWTConfigurator extends ClientEndpointConfig.Configurator {
             ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
             EventServicePortType eventServicePortType = connectorServicesProvider.getEventServicePortType(runtimeConfig);
             try {
-                PharmacyService.setAndGetSMCBHandleForPharmacy(runtimeConfig, context, eventServicePortType);
+                pharmacyService.setAndGetSMCBHandleForPharmacy(runtimeConfig, context, eventServicePortType);
             } catch (FaultMessage e) {
                 log.log(Level.SEVERE, "Could not get SMC-B for pharmacy", e);
             }
