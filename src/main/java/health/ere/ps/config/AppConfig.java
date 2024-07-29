@@ -1,13 +1,21 @@
 package health.ere.ps.config;
 
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
-
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @ApplicationScoped
 public class AppConfig {
+
+    private static final Logger log = Logger.getLogger(AppConfig.class.getName());
 
     @ConfigProperty(name = "ere.workflow-service.prescription.server.url")
     String prescriptionServiceURL;
@@ -20,6 +28,12 @@ public class AppConfig {
 
     @ConfigProperty(name = "idp.auth.request.redirect.url")
     String idpAuthRequestRedirectURL;
+
+    @ConfigProperty(name = "idp.initialization.retries.seconds")
+    Optional<String> idpInitializationRetriesSeconds;
+
+    @ConfigProperty(name = "idp.initialization.period.seconds")
+    Optional<Integer> idpInitializationPeriodSeconds;
 
     @ConfigProperty(name = "idp.auth.request.url")
     String idpAuthRequestURL;
@@ -54,6 +68,9 @@ public class AppConfig {
     @ConfigProperty(name = "connector.cert.auth.store.file.password")
     Optional<String> certAuthStoreFilePassword;
 
+    @ConfigProperty(name = "connector.base.url")
+    String connectorBaseURL;
+
     public String getPrescriptionServiceURL() {
         return prescriptionServiceURL;
     }
@@ -68,6 +85,21 @@ public class AppConfig {
 
     public String getIdpAuthRequestRedirectURL() {
         return idpAuthRequestRedirectURL;
+    }
+
+    public List<Integer> getIdpInitializationRetriesSeconds() {
+        String seconds = idpInitializationRetriesSeconds.orElse("5,10,50");
+        return Arrays.stream(seconds.split(",")).map(String::trim).map(s -> {
+            try {
+                return Integer.parseInt(s);
+            } catch (Exception e) {
+                return null;
+            }
+        }).filter(Objects::nonNull).toList();
+    }
+
+    public int getIdpInitializationPeriodMs() {
+        return idpInitializationPeriodSeconds.orElse(180) * 1000;
     }
 
     public String getIdpAuthRequestURL() {
@@ -94,6 +126,10 @@ public class AppConfig {
         return userAgent;
     }
 
+    public String getConnectorBaseURL() {
+        return connectorBaseURL;
+    }
+
     public String getConnectorCrypt() {
         return connectorCrypt;
     }
@@ -113,7 +149,7 @@ public class AppConfig {
     public boolean getWriteSignatureFile() {
         return this.writeSignatureFile;
     }
-    
+
     public boolean getXmlBundleDirectProcess() {
         return this.xmlBundleDirectProcess;
     }
