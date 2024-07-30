@@ -106,7 +106,8 @@ public class PrescriptionBundleValidator {
     }
 
     public JsonObjectBuilder validateBundle(JsonValue singleBundle) {
-        log.info("Now validating incoming sign and upload bundle:\n" +
+        log.info("Now validating incoming sign and upload bundle.");
+        log.fine("Bundle for Validation:\n" +
                     singleBundle.toString());
         JsonObjectBuilder singleBundleResults = Json.createObjectBuilder();
         String bundleJson = singleBundle.toString();
@@ -120,8 +121,8 @@ public class PrescriptionBundleValidator {
             singleBundleResults.add("valid", false);
         } else {
             singleBundleResults.add("valid", true);
-            log.info("Validation for the following incoming sign and " +
-            "upload bundle passed:\n" +
+            log.info("Validation passed.");
+            log.fine("Valid incoming sign and upload bundle:\n" +
             singleBundle.toString());
         }
         return singleBundleResults;
