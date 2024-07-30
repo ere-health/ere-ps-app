@@ -51,7 +51,7 @@ public class ErixaAPIInterface {
 
     public Object uploadToDrugstore(String json) {
         try {
-            log.info("Post: "+uploadToDrugstoreURL+" "+json);
+            log.fine("Post: "+uploadToDrugstoreURL+" "+json);
             HttpResponse response = httpClient.sendPostRequest(uploadToDrugstoreURL, json);
             if(response.getStatusLine().getStatusCode() != 200) {
                 log.log(Level.WARNING, "Could not upload prescription to eRiXa: "+response.getStatusLine().getStatusCode()+" "+new String(response.getEntity().getContent().readAllBytes()));
