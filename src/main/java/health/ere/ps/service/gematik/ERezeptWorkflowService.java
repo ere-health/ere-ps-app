@@ -179,10 +179,10 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
 
         List<List<Bundle>> listOfListOfBundles = signAndUploadBundlesEvent.listOfListOfBundles;
         log.info(String.format("Received %d bundles to sign ", listOfListOfBundles.size()));
-        log.info("Contents of list of bundles to sign are as follows:");
+        log.fine("Contents of list of bundles to sign are as follows:");
         listOfListOfBundles.forEach(bundlesList -> {
-            log.info("Bundles list contents is:");
-            bundlesList.forEach(bundle -> log.info("Bundle content: " + bundle.toString()));
+            log.fine("Bundles list contents is:");
+            bundlesList.forEach(bundle -> log.fine("Bundle content: " + bundle.toString()));
         });
 
         List<List<BundleWithAccessCodeOrThrowable>> bundleWithAccessCodeOrThrowable = new ArrayList<>();
@@ -395,7 +395,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
                         "application/fhir+xml; charset=utf-8"))) {
 
             String taskString = new String(response.readEntity(java.io.InputStream.class).readAllBytes(), "ISO-8859-1");
-            log.info("Response when trying to activate the task:" + taskString);
+            log.fine("Response when trying to activate the task: " + taskString);
 
             if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
                 if(firstTry) {
@@ -409,7 +409,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
                     
                 }
             }
-            log.info("Task $activate Response: " + taskString);
+            log.fine("Task $activate Response: " + taskString);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
