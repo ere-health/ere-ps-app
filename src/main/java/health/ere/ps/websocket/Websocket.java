@@ -254,8 +254,8 @@ public class Websocket {
 
     @OnMessage
     public void onMessage(String message, Session senderSession) {
-        ereLog.info("Message received for Session " + senderSession.getId());
-        ereLog.trace("Message received for Session " + senderSession.getId() +" : " + message);
+        ereLog.info("Message received.");
+        ereLog.trace("Message received: " + message);
         if(message == null) {
             ereLog.warn("null given as message");
             return;
