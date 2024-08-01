@@ -19,7 +19,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.List;
 
-import static health.ere.ps.service.cetp.config.KonnektorConfig.FAILED;
+import static health.ere.ps.service.cetp.SubscriptionManager.FAILED;
 
 @ApplicationScoped
 public class KonnektorClient {
