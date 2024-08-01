@@ -60,6 +60,9 @@ public class AppConfig {
     @ConfigProperty(name = "ere-workflow-service.batch-sign.enable")
     boolean enableBatchSign;
 
+    @ConfigProperty(name = "trigger.smcb.pin.verification", defaultValue = "true")
+    boolean triggerSmcbPinVerification;
+
     @ConfigProperty(name = "ere-workflow-service.includeRevocationInfo.enable", defaultValue = "true")
     boolean includeRevocationInfo;
 
@@ -159,6 +162,10 @@ public class AppConfig {
 
     public boolean enableBatchSign() {
         return enableBatchSign;
+    }
+
+    public boolean triggerSmcbPinVerification() {
+        return triggerSmcbPinVerification;
     }
 
     public boolean includeRevocationInfoEnabled() {
