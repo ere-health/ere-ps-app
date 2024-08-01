@@ -1,15 +1,30 @@
 package health.ere.ps.service.cetp;
 
-import static health.ere.ps.service.cetp.config.KonnektorConfig.FAILED;
-import static health.ere.ps.service.cetp.config.KonnektorConfig.saveFile;
-import static health.ere.ps.utils.Utils.printException;
+import de.gematik.ws.conn.connectorcommon.v5.Status;
+import de.gematik.ws.conn.eventservice.v7.SubscriptionType;
+import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
+import de.gematik.ws.tel.error.v2.Error;
+import health.ere.ps.config.AppConfig;
+import health.ere.ps.config.RuntimeConfig;
+import health.ere.ps.jmx.PsMXBeanManager;
+import health.ere.ps.jmx.SubscriptionsMXBean;
+import health.ere.ps.jmx.SubscriptionsMXBeanImpl;
+import health.ere.ps.retry.Retrier;
+import health.ere.ps.service.cetp.config.KonnektorConfig;
+import health.ere.ps.service.cetp.config.KonnektorConfigService;
+import io.quarkus.runtime.StartupEvent;
+import io.quarkus.scheduler.Scheduled;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
+import jakarta.xml.ws.Holder;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 
-import java.io.File;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
@@ -27,54 +42,36 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
-import de.gematik.ws.conn.connectorcommon.v5.Status;
-import de.gematik.ws.conn.eventservice.v7.SubscriptionType;
-import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
-import de.gematik.ws.tel.error.v2.Error;
-import health.ere.ps.config.AppConfig;
-import health.ere.ps.config.RuntimeConfig;
-import health.ere.ps.config.UserConfig;
-import health.ere.ps.jmx.PsMXBeanManager;
-import health.ere.ps.jmx.SubscriptionsMXBean;
-import health.ere.ps.jmx.SubscriptionsMXBeanImpl;
-import health.ere.ps.retry.Retrier;
-import health.ere.ps.service.cetp.config.KonnektorConfig;
-import io.quarkus.runtime.StartupEvent;
-import io.quarkus.scheduler.Scheduled;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Observes;
-import jakarta.inject.Inject;
-import jakarta.xml.ws.Holder;
+import static health.ere.ps.utils.Utils.printException;
 
 @ApplicationScoped
 public class SubscriptionManager {
 
     private final static Logger log = Logger.getLogger(SubscriptionManager.class.getName());
 
+    public static final String FAILED = "failed";
+
     private final Map<String, KonnektorConfig> hostToKonnektorConfig = new ConcurrentHashMap<>();
 
-    @Inject
     AppConfig appConfig;
-
-    @Inject
-    UserConfig userConfig;
-
-    @Inject
     KonnektorClient konnektorClient;
-
-    @ConfigProperty(name = "ere.per.konnektor.config.folder")
-    String configFolder;
-
-    private volatile boolean configsLoaded = false;
+    KonnektorConfigService kcService;
 
     private ExecutorService threadPool;
 
-    void onStart(@Observes StartupEvent ev) {
-        loadKonnektorConfigs();
+    @Inject
+    public SubscriptionManager(
+        AppConfig appConfig,
+        KonnektorClient konnektorClient,
+        KonnektorConfigService kcService
+    ) {
+        this.appConfig = appConfig;
+        this.konnektorClient = konnektorClient;
+        this.kcService = kcService;
+    }
+
+    public void onStart(@Observes StartupEvent ev) {
+        hostToKonnektorConfig.putAll(kcService.loadConfigs());
         threadPool = Executors.newFixedThreadPool(hostToKonnektorConfig.size());
         SubscriptionsMXBeanImpl subscriptionsMXBean = new SubscriptionsMXBeanImpl(hostToKonnektorConfig.size());
         PsMXBeanManager.registerMXBean(SubscriptionsMXBean.OBJECT_NAME, subscriptionsMXBean);
@@ -127,7 +124,7 @@ public class SubscriptionManager {
         if (semaphore.tryAcquire()) {
             try {
                 RuntimeConfig runtimeConfig = modifyRuntimeConfig(null, kc);
-                String cetpHost = "cetp://" + eventToHost + ":" + kc.getPort();
+                String cetpHost = "cetp://" + eventToHost + ":" + kc.getCetpPort();
                 List<SubscriptionType> subscriptions = konnektorClient.getSubscriptions(runtimeConfig)
                     .stream().filter(st -> st.getEventTo().contains(eventToHost)).toList();
 
@@ -143,6 +140,7 @@ public class SubscriptionManager {
                     Date now = new Date();
                     boolean expired = now.getTime() >= expireDate.getTime();
 
+                    // force re-subscribe every 12 hours
                     int periodSeconds = appConfig.getForceResubscribePeriodSeconds();
                     boolean forceSubscribe = kc.getSubscriptionTime().plusSeconds(periodSeconds).isBefore(OffsetDateTime.now());
                     if (expired || forceSubscribe) {
@@ -191,7 +189,7 @@ public class SubscriptionManager {
                 expireDate
             );
             log.warning(msg);
-            saveFile(konnektorConfig, newestSubscriptionId, null);
+            kcService.saveSubscription(konnektorConfig, newestSubscriptionId, null);
         }
         int safePeriod = appConfig.getCetpSubscriptionsRenewalSafePeriodMs();
         if (now.getTime() + safePeriod >= expireDate.getTime()) {
@@ -209,7 +207,7 @@ public class SubscriptionManager {
                     renewedSubscriptionId
                 );
                 log.fine(msg);
-                saveFile(konnektorConfig, renewedSubscriptionId, null);
+                kcService.saveSubscription(konnektorConfig, renewedSubscriptionId, null);
             }
             return error == null;
         } else {
@@ -251,14 +249,7 @@ public class SubscriptionManager {
         }).filter(p -> !p.getKey()).map(Pair::getValue).toList();
     }
 
-    public void setConfigFolder(String configFolder) {
-        this.configFolder = configFolder;
-    }
-
     public Collection<KonnektorConfig> getKonnektorConfigs(String host) {
-        if (!configsLoaded) {
-            loadKonnektorConfigs();
-        }
         return host == null
             ? hostToKonnektorConfig.values()
             : hostToKonnektorConfig.entrySet().stream().filter(entry -> entry.getKey().contains(host)).map(Map.Entry::getValue).toList();
@@ -285,7 +276,7 @@ public class SubscriptionManager {
                 Semaphore semaphore = kc.getSemaphore();
                 if (semaphore.tryAcquire()) {
                     try {
-                        String cetpHost = "cetp://" + eventToHost + ":" + kc.getPort();
+                        String cetpHost = "cetp://" + eventToHost + ":" + kc.getCetpPort();
                         return process(kc, modifyRuntimeConfig(runtimeConfig, kc), cetpHost, forceCetp, subscribe);
                     } finally {
                         semaphore.release();
@@ -321,7 +312,7 @@ public class SubscriptionManager {
         if (error == null) {
             String newSubscriptionId = triple.getMiddle();
             resultHolder.value = status.getResult() + " " + newSubscriptionId + " " + triple.getRight();
-            saveFile(konnektorConfig, newSubscriptionId, null);
+            kcService.saveSubscription(konnektorConfig, newSubscriptionId, null);
             log.info(String.format("Subscribe status for subscriptionId=%s: %s", newSubscriptionId, status.getResult()));
             return true;
         } else {
@@ -332,7 +323,7 @@ public class SubscriptionManager {
                 ? subscriptionId
                 : String.format("%s-%s", FAILED, subscriptionId);
 
-            saveFile(konnektorConfig, fileName, statusResult);
+            kcService.saveSubscription(konnektorConfig, fileName, statusResult);
             log.log(Level.WARNING, String.format("Could not subscribe -> %s", statusResult));
             return false;
         }
@@ -366,46 +357,21 @@ public class SubscriptionManager {
                     subscribe(konnektorConfig, runtimeConfig, cetpHost, resultHolder);
                     statusResult = resultHolder.value;
                 } else {
-                    KonnektorConfig.cleanUp(konnektorConfig.getFolder(), null);
+                    kcService.cleanUp(konnektorConfig, null);
                 }
             } else {
                 statusResult = printError(error);
-                saveFile(konnektorConfig, failedUnsubscriptionFileName, statusResult);
+                kcService.saveSubscription(konnektorConfig, failedUnsubscriptionFileName, statusResult);
                 String msg = String.format("Could not unsubscribe from %s -> %s", subscriptionId, printError(error));
                 log.log(Level.WARNING, msg);
             }
         } catch (Exception e) {
             String fileName = unsubscribed ? failedSubscriptionFileName : failedUnsubscriptionFileName;
-            saveFile(konnektorConfig, fileName, printException(e));
+            kcService.saveSubscription(konnektorConfig, fileName, printException(e));
             log.log(Level.WARNING, "Error: " + fileName, e);
             statusResult = e.getMessage();
         }
         return statusResult;
-    }
-
-    private String getKonnectorHost(KonnektorConfig config) {
-        String konnectorHost = config.getHost();
-        return konnectorHost == null ? appConfig.getKonnectorHost() : konnectorHost;
-    }
-
-    private void loadKonnektorConfigs() {
-        List<KonnektorConfig> configs = new ArrayList<>();
-        var konnektorConfigFolder = new File(configFolder);
-        if (konnektorConfigFolder.exists()) {
-            configs = KonnektorConfig.readFromFolder(konnektorConfigFolder.getAbsolutePath());
-        }
-        if (configs.isEmpty()) {
-            configs.add(
-                new KonnektorConfig(
-                    konnektorConfigFolder,
-                    CETPServer.PORT,
-                    userConfig.getConfigurations(),
-                    appConfig.getCardLinkURI()
-                )
-            );
-        }
-        configs.forEach(config -> hostToKonnektorConfig.put(getKonnectorHost(config), config));
-        configsLoaded = true;
     }
 
     private Inet4Address konnektorToIp4(String host) {

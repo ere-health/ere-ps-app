@@ -1,9 +1,12 @@
-package health.ere.ps.service.cetp;
+package health.ere.ps.service.cetp.config;
 
 import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import health.ere.ps.profile.RUDevTestProfile;
+import health.ere.ps.service.cetp.SubscriptionManager;
+import health.ere.ps.service.cetp.config.FSConfigService;
+import health.ere.ps.service.cetp.config.KonnektorConfigService;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -11,6 +14,7 @@ import io.quarkus.test.junit.TestProfile;
 import io.restassured.response.Response;
 import jakarta.inject.Inject;
 import jakarta.xml.ws.Holder;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -58,6 +62,9 @@ public class KonnektorSubscriptionTest {
     SubscriptionManager subscriptionManager;
 
     @Inject
+    KonnektorConfigService konnektorConfigService;
+
+    @Inject
     MultiConnectorServicesProvider multiConnectorServicesProvider;
 
     EventServicePortType eventService;
@@ -97,6 +104,10 @@ public class KonnektorSubscriptionTest {
         QuarkusMock.installMockForType(connectorServicesProvider, MultiConnectorServicesProvider.class);
 
         new File(TEMP_CONFIG).delete();
+
+        if (konnektorConfigService instanceof FSConfigService fsConfigService) {
+            fsConfigService.configFolder = "config/konnektoren";
+        }
     }
 
     @AfterEach
@@ -107,7 +118,6 @@ public class KonnektorSubscriptionTest {
     @Test
     @Disabled
     public void defaultFolderConfigKonnektorSubscriptionReloadedInSync() throws Exception {
-        subscriptionManager.setConfigFolder("config/konnektoren");
         int cnt = 4;
         List<Future<String>> futures = new ArrayList<>();
         for (int i = 0; i < cnt; i++) {
@@ -130,15 +140,19 @@ public class KonnektorSubscriptionTest {
         assertThat(statuses.stream().anyMatch(s -> s.contains("later")), equalTo(true));
     }
 
+    private Pair<Boolean, String> prepareTempConfigFolder() {
+        File tempConfig = new File(TEMP_CONFIG);
+        return Pair.of(tempConfig.exists() || tempConfig.mkdir(), tempConfig.getAbsolutePath());
+    }
+
     @Test
     public void fakeFolderConfigKonnektorSubscriptionReloadedWhenHostMatchesAppConfig() {
-        File tempConfig = new File(TEMP_CONFIG);
-        boolean ready = true;
-        if (!tempConfig.exists()) {
-            ready = tempConfig.mkdir();
-        }
-        if (ready) {
-            subscriptionManager.setConfigFolder(tempConfig.getAbsolutePath());
+        Pair<Boolean, String> pair = prepareTempConfigFolder();
+        if (pair.getKey()) {
+            if (konnektorConfigService instanceof FSConfigService fsConfigService) {
+                fsConfigService.configFolder = pair.getValue();
+                subscriptionManager.onStart(null);
+            }
             Response response = given()
                 .queryParam("host", "192.168.178.42")
                 .when()
@@ -155,13 +169,12 @@ public class KonnektorSubscriptionTest {
 
     @Test
     public void fakeFolderConfigKonnektorSubscriptionNotReloadedWhenHostDoesntMatchAppConfig() {
-        File tempConfig = new File(TEMP_CONFIG);
-        boolean ready = true;
-        if (!tempConfig.exists()) {
-            ready = tempConfig.mkdir();
-        }
-        if (ready) {
-            subscriptionManager.setConfigFolder(tempConfig.getAbsolutePath());
+        Pair<Boolean, String> pair = prepareTempConfigFolder();
+        if (pair.getKey()) {
+            if (konnektorConfigService instanceof FSConfigService fsConfigService) {
+                fsConfigService.configFolder = pair.getValue();
+                subscriptionManager.onStart(null);
+            }
             String host = "192.168.178.52";
             Response response = given()
                 .queryParam("host", host)
@@ -180,7 +193,7 @@ public class KonnektorSubscriptionTest {
 
     @Test
     public void defaultFolderConfigKonnektorSubscriptionReloaded() {
-        subscriptionManager.setConfigFolder("config/konnektoren");
+        subscriptionManager.onStart(null);
         Response response = given()
             .queryParam("host", "192.168.178.42")
             .when()
@@ -194,7 +207,7 @@ public class KonnektorSubscriptionTest {
 
     @Test
     public void threeSubscriptionsReloaded() {
-        subscriptionManager.setConfigFolder("config/konnektoren");
+        subscriptionManager.onStart(null);
         Response response = given()
             .when()
             .get("/pharmacy/Subscribe");
@@ -206,7 +219,7 @@ public class KonnektorSubscriptionTest {
 
     @Test
     public void subscriptionUnsubscribedByCetp() throws Exception {
-        subscriptionManager.setConfigFolder("config/konnektoren");
+        subscriptionManager.onStart(null);
         Response response = given()
             .when()
             .get("/pharmacy/Unsubscribe?useCetp=true");

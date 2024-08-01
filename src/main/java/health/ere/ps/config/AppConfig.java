@@ -1,5 +1,6 @@
 package health.ere.ps.config;
 
+import health.ere.ps.service.cetp.CETPServer;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -86,6 +87,9 @@ public class AppConfig {
     @ConfigProperty(name = "connector.host")
     String konnectorHost;
 
+    @ConfigProperty(name = "connector.cetp.port")
+    Optional<Integer> cetpPort;
+
     public Optional<String> getCardLinkServer() {
         return cardLinkServer;
     }
@@ -167,6 +171,10 @@ public class AppConfig {
 
     public String getKonnectorHost() {
         return konnectorHost;
+    }
+
+    public Integer getCetpPort() {
+        return cetpPort.orElse(CETPServer.PORT);
     }
 
     public String getConnectorCrypt() {

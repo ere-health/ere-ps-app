@@ -6,6 +6,7 @@ import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
 import de.gematik.ws.tel.error.v2.Error;
 import health.ere.ps.profile.RUDevTestProfile;
+import health.ere.ps.service.cetp.config.FSConfigService;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -27,7 +28,6 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.UUID;
 
-import static health.ere.ps.service.cetp.config.KonnektorConfig.PROPERTIES_EXT;
 import static health.ere.ps.utils.Utils.deleteFiles;
 import static health.ere.ps.utils.Utils.writeFile;
 import static io.restassured.RestAssured.given;
@@ -97,19 +97,19 @@ public class KonnektorFailedUnsubscriptionTest {
 
     @Test
     public void subscriptionWasReloadedAndFileIsCreated() throws Exception {
-        subscriptionManager.setConfigFolder("config/konnektoren");
         File config8585 = new File("config/konnektoren/8585");
-        deleteFiles(config8585, file -> !file.getName().endsWith(PROPERTIES_EXT));
+        deleteFiles(config8585, file -> !file.getName().endsWith(FSConfigService.PROPERTIES_EXT));
 
+        subscriptionManager.onStart(null);
         subscribeSucceeded(config8585);
     }
 
     @Test
     public void subscriptionWasNotReloadedDueToUnsubscribeError() throws Exception {
-        subscriptionManager.setConfigFolder("config/konnektoren");
         File config8585 = new File("config/konnektoren/8585");
         writeFile(config8585.getAbsolutePath() + "/" + UUID.randomUUID(), null);
 
+        subscriptionManager.onStart(null);
         subscribeFailed(config8585);
         subscribeSucceeded(config8585);
     }
