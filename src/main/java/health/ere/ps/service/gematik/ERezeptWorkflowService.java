@@ -468,7 +468,8 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
 
     public SignResponse signBundleWithIdentifiers(Bundle bundle, boolean wait10secondsAfterJobNumber, RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId)
             throws ERezeptWorkflowException {
-        return signBundleWithIdentifiers(Arrays.asList(bundle), wait10secondsAfterJobNumber, runtimeConfig, replyTo, replyToMessageId).get(0);
+        List<SignResponse> signResponses = signBundleWithIdentifiers(Arrays.asList(bundle), wait10secondsAfterJobNumber, runtimeConfig, replyTo, replyToMessageId);
+        return signResponses.get(0);
     }
 
     public List<SignResponse> signBundleWithIdentifiers(List<Bundle> bundles, boolean wait10secondsAfterJobNumber)
