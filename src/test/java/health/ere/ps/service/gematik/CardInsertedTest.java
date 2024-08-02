@@ -100,7 +100,7 @@ class CardInsertedTest {
 
         List<String> capturedMessages = messageTypeCaptor.getAllValues();
         assertTrue(capturedMessages.get(0).contains("vsdmSensorData"));
-        assertTrue(capturedMessages.get(1).contains("eRezeptTokensFromAVS"));
+        assertTrue(capturedMessages.get(1).contains("receiveTasklistError"));
 
         List<Map<String, Object>> maps = mapCaptor.getAllValues();
         Map<String, Object> vsdmSensorData = maps.get(0);
@@ -110,11 +110,10 @@ class CardInsertedTest {
         assertEquals(vsdmSensorData.get("err"), "10");
         assertNotNull(vsdmSensorData.get("endTime"));
 
-        Map<String, Object> eRezeptTokensError = maps.get(1);
+        Map<String, Object> receiveTasklistError = maps.get(1);
 
-        assertEquals((Integer) eRezeptTokensError.get("slotId"), Integer.parseInt(slotIdValue));
-        assertEquals(eRezeptTokensError.get("ctId"), ctIdValue);
-        assertTrue(((String) eRezeptTokensError.get("tokens")).startsWith("ERROR: "));
+        assertEquals((Integer) receiveTasklistError.get("status"), 500);
+        assertNotNull(receiveTasklistError.get("errormessage"));
     }
 
     private Holder<byte[]> prepareHolder(PharmacyService pharmacyService) {
