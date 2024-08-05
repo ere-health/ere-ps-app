@@ -103,8 +103,13 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
                                 : ((de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage) e).getFaultInfo().getTrace().get(0).getCode().toString();
                         cardlinkWebsocketClient.sendJson(correlationId, iccsn, "vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "err", code));
 
-                        String error = "ERROR: " + printException(e);
-                        cardlinkWebsocketClient.sendJson(correlationId, iccsn, "eRezeptTokensFromAVS", Map.of("slotId", slotId, "ctId", ctId, "tokens", error));
+                        String error = printException(e);
+                        cardlinkWebsocketClient.sendJson(
+                            correlationId,
+                            iccsn,
+                            "receiveTasklistError",
+                            Map.of("cardSessionId", "null", "status", 500, "tistatus", "500", "errormessage", error)
+                        );
                     }
                 } else {
                     String msgFormat = "Ignored \"CARD/INSERTED\" event=%s: values=%s";
