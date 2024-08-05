@@ -1,5 +1,5 @@
-ere-health (1.0.0-2) stable; urgency=low
+ere-health (1.0.0-4) stable; urgency=low
 
-  * Release Notes: https://incentergy.atlassian.net/wiki/spaces/NFCKT/pages/676134928/Release+Notes+-+E-Rezept+ere.helth+-+cardlink.service-health.de-2024-07-18-97bc28b3+-+Jul+19+00+25
+  * NFCKT-1036 changed log level
 
- -- Manuel Blechschmidt <manuel.blechschmidt@service-health.de>  Fri, 18 Jul 2024 23:30:00 +0000
+ -- Manuel Blechschmidt <manuel.blechschmidt@service-health.de>  Mon, 5 Aug 2024 15:53:00 +0000
