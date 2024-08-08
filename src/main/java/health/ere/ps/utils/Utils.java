@@ -1,7 +1,5 @@
 package health.ere.ps.utils;
 
-import org.apache.commons.lang3.tuple.Pair;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;

@@ -73,12 +73,12 @@ public class CETPServer {
     CardlinkWebsocketCheck cardlinkWebsocketCheck;
 
     void onStart(@Observes StartupEvent ev) {
-        log.info("Running CETP Server on port " + PORT);
+        log.info("Running CETP Server on port " + appConfig.getCetpPort());
         run();
     }
 
     void onShutdown(@Observes ShutdownEvent ev) {
-        log.info("Shutdown CETP Server on port " + PORT);
+        log.info("Shutdown CETP Server on port " + appConfig.getCetpPort());
         if (workerGroups != null) {
             workerGroups.stream().filter(Objects::nonNull).forEach(EventExecutorGroup::shutdownGracefully);
         }
@@ -102,7 +102,7 @@ public class CETPServer {
         bossGroups.add(bossGroup);
         NioEventLoopGroup workerGroup = new NioEventLoopGroup();
         workerGroups.add(workerGroup);
-        Integer port = config.getPort();
+        Integer port = config.getCetpPort();
         try {
             ServerBootstrap b = new ServerBootstrap(); // (2)
             b.group(bossGroup, workerGroup)

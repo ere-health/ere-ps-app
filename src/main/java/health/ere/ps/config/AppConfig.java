@@ -1,5 +1,6 @@
 package health.ere.ps.config;
 
+import health.ere.ps.service.cetp.CETPServer;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -59,6 +60,9 @@ public class AppConfig {
     @ConfigProperty(name = "ere-workflow-service.batch-sign.enable")
     boolean enableBatchSign;
 
+    @ConfigProperty(name = "trigger.smcb.pin.verification", defaultValue = "true")
+    boolean triggerSmcbPinVerification;
+
     @ConfigProperty(name = "ere-workflow-service.includeRevocationInfo.enable", defaultValue = "true")
     boolean includeRevocationInfo;
 
@@ -85,6 +89,9 @@ public class AppConfig {
 
     @ConfigProperty(name = "connector.host")
     String konnectorHost;
+
+    @ConfigProperty(name = "connector.cetp.port")
+    Optional<Integer> cetpPort;
 
     public Optional<String> getCardLinkServer() {
         return cardLinkServer;
@@ -157,6 +164,10 @@ public class AppConfig {
         return enableBatchSign;
     }
 
+    public boolean triggerSmcbPinVerification() {
+        return triggerSmcbPinVerification;
+    }
+
     public boolean includeRevocationInfoEnabled() {
         return includeRevocationInfo;
     }
@@ -167,6 +178,10 @@ public class AppConfig {
 
     public String getKonnectorHost() {
         return konnectorHost;
+    }
+
+    public Integer getCetpPort() {
+        return cetpPort.orElse(CETPServer.PORT);
     }
 
     public String getConnectorCrypt() {

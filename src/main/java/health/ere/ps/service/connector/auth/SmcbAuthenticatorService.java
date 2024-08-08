@@ -1,5 +1,31 @@
 package health.ere.ps.service.connector.auth;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import de.gematik.ws.conn.authsignatureservice.wsdl.v7.FaultMessage;
+import de.gematik.ws.conn.cardservicecommon.v2.PinResultEnum;
+import de.gematik.ws.conn.connectorcommon.v5.Status;
+import de.gematik.ws.conn.connectorcontext.v2.ContextType;
+import de.gematik.ws.conn.signatureservice.v7.BinaryDocumentType;
+import de.gematik.ws.conn.signatureservice.v7.ExternalAuthenticate;
+import de.gematik.ws.conn.signatureservice.v7.ExternalAuthenticateResponse;
+import health.ere.ps.config.AppConfig;
+import health.ere.ps.config.RuntimeConfig;
+import health.ere.ps.exception.connector.ConnectorCardsException;
+import health.ere.ps.service.connector.cards.ConnectorCardsService;
+import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
+import jakarta.xml.ws.Holder;
+import oasis.names.tc.dss._1_0.core.schema.Base64Data;
+import oasis.names.tc.dss._1_0.core.schema.SignatureObject;
+import org.apache.commons.lang3.tuple.Pair;
+import org.jose4j.jws.JsonWebSignature;
+import org.jose4j.jwx.CompactSerializer;
+import org.jose4j.lang.JoseException;
+import org.jose4j.lang.StringUtil;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -10,41 +36,17 @@ import java.util.Base64;
 import java.util.Optional;
 import java.util.Set;
 
-import jakarta.enterprise.context.Dependent;
-import jakarta.inject.Inject;
-import jakarta.xml.ws.Holder;
-
-import org.apache.commons.lang3.tuple.Pair;
-import org.jose4j.jws.JsonWebSignature;
-import org.jose4j.jwx.CompactSerializer;
-import org.jose4j.lang.JoseException;
-import org.jose4j.lang.StringUtil;
-
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
-import de.gematik.ws.conn.authsignatureservice.wsdl.v7.FaultMessage;
-import de.gematik.ws.conn.cardservicecommon.v2.PinResultEnum;
-import de.gematik.ws.conn.connectorcommon.v5.Status;
-import de.gematik.ws.conn.connectorcontext.v2.ContextType;
-import de.gematik.ws.conn.signatureservice.v7.BinaryDocumentType;
-import de.gematik.ws.conn.signatureservice.v7.ExternalAuthenticate;
-import de.gematik.ws.conn.signatureservice.v7.ExternalAuthenticateResponse;
-import health.ere.ps.config.RuntimeConfig;
-import health.ere.ps.exception.connector.ConnectorCardsException;
-import health.ere.ps.service.connector.cards.ConnectorCardsService;
-import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
-import oasis.names.tc.dss._1_0.core.schema.Base64Data;
-import oasis.names.tc.dss._1_0.core.schema.SignatureObject;
-
 @Dependent
 public class SmcbAuthenticatorService {
 
     @Inject
     MultiConnectorServicesProvider connectorServicesProvider;
+    
     @Inject
     ConnectorCardsService connectorCardsService;
+
+    @Inject
+    AppConfig appConfig;
 
     private X509Certificate x509Certificate;
 
@@ -77,7 +79,7 @@ public class SmcbAuthenticatorService {
      * This extension for the jose4j JsonWebSignature signs the payload
      * with the function ExternalAuthenticate from the AuthSignatureServicePortType.
      *
-     * @see https://github.com/gematik/api-telematik/blob/bb3ac703c2df619b54b2fbf4ab91337a66b395b4/conn/AuthSignatureService.wsdl#L44
+     * @see <a href="https://github.com/gematik/api-telematik/blob/bb3ac703c2df619b54b2fbf4ab91337a66b395b4/conn/AuthSignatureService.wsdl#L44">...</a>
      */
     private class JsonWebSignatureWithExternalAuthentication extends JsonWebSignature {
 
@@ -208,7 +210,7 @@ public class SmcbAuthenticatorService {
             boolean code4085 = faultMessage.getFaultInfo().getTrace().stream().anyMatch(t ->
                     t.getCode().equals(BigInteger.valueOf(4085L)));
 
-            if (code4085) {
+            if (code4085 && appConfig.triggerSmcbPinVerification()) {
                 Holder<Status> status = new Holder<>();
                 Holder<PinResultEnum> pinResultEnum = new Holder<>();
                 Holder<BigInteger> error = new Holder<>();

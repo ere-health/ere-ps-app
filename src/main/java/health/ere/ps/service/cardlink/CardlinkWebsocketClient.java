@@ -1,11 +1,5 @@
 package health.ere.ps.service.cardlink;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import health.ere.ps.service.health.check.CardlinkWebsocketCheck;
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
@@ -24,12 +18,18 @@ import jakarta.websocket.Session;
 import jakarta.websocket.WebSocketContainer;
 import jakarta.xml.bind.DatatypeConverter;
 
+import java.io.IOException;
+import java.net.URI;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 @SuppressWarnings("unused")
 @ClientEndpoint(configurator = AddJWTConfigurator.class)
 public class CardlinkWebsocketClient {
 
     private static final Logger log = Logger.getLogger(CardlinkWebsocketClient.class.getName());
-    
+
     URI endpointURI;
     Session userSession;
     WebSocketContainer container;
@@ -65,7 +65,7 @@ public class CardlinkWebsocketClient {
      */
     @OnOpen
     public void onOpen(Session userSession) {
-        log.info("opening websocket to "+endpointURI);
+        log.info("opening websocket to " + endpointURI);
         this.userSession = userSession;
         cardlinkWebsocketCheck.setConnected(true);
     }
@@ -74,11 +74,11 @@ public class CardlinkWebsocketClient {
      * Callback hook for Connection close events.
      *
      * @param userSession the userSession which is getting closed.
-     * @param reason the reason for connection close
+     * @param reason      the reason for connection close
      */
     @OnClose
     public void onClose(Session userSession, CloseReason reason) {
-        log.info("closing websocket "+endpointURI);
+        log.info("closing websocket " + endpointURI);
         cardlinkWebsocketCheck.setConnected(false);
     }
 
@@ -97,14 +97,18 @@ public class CardlinkWebsocketClient {
         if (!payloadMap.isEmpty()) {
             JsonObjectBuilder builder = Json.createObjectBuilder();
             for (Map.Entry<String, ?> entry : payloadMap.entrySet()) {
-                if (entry.getValue() instanceof Integer) {
-                    builder.add(entry.getKey(), (Integer) entry.getValue());
-                } else if (entry.getValue() instanceof Long) {
-                    builder.add(entry.getKey(), (Long) entry.getValue());
-                } else if (entry.getValue() instanceof String) {
-                    builder.add(entry.getKey(), (String) entry.getValue());
-                } else if (entry.getValue() instanceof JsonArrayBuilder) {
-                    builder.add(entry.getKey(), (JsonArrayBuilder) entry.getValue());
+                if (entry.getValue() instanceof Integer intValue) {
+                    builder.add(entry.getKey(), intValue);
+                } else if (entry.getValue() instanceof Long longValue) {
+                    builder.add(entry.getKey(), longValue);
+                } else if (entry.getValue() instanceof String stringValue) {
+                    if (stringValue.equalsIgnoreCase("null")) {
+                        builder.add(entry.getKey(), JsonValue.NULL);
+                    } else {
+                        builder.add(entry.getKey(), stringValue);
+                    }
+                } else if (entry.getValue() instanceof JsonArrayBuilder jsonArrayBuilderValue) {
+                    builder.add(entry.getKey(), jsonArrayBuilderValue);
                 }
             }
             String payload = builder.build().toString();
@@ -115,12 +119,10 @@ public class CardlinkWebsocketClient {
             .add(jsonObject)
             .add(JsonValue.NULL)
             .add(correlationId);
-        if(iccsn != null) {
-            jsonArrayBuilder
-                .add(iccsn);
+        if (iccsn != null) {
+            jsonArrayBuilder.add(iccsn);
         }
-        JsonArray jsonArray = jsonArrayBuilder
-            .build();
+        JsonArray jsonArray = jsonArrayBuilder.build();
         sendMessage(jsonArray.toString(), correlationId);
     }
 
