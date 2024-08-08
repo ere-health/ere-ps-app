@@ -1,5 +1,5 @@
-ere-health (1.0.0-3) stable; urgency=low
+ere-health (1.0.0-5) stable; urgency=low
 
-  * Debian Packages for Release ere-health cardlink.service-health.de-2024-07-25-a5802472
+  * Release Notes: https://incentergy.atlassian.net/wiki/spaces/NFCKT/pages/710246412/Release+Notes+-+E-Rezept+ere.helth+-+cardlink.service-health.de-2024-08-08-e610b552+-+Aug+08+20+28
 
- -- Manuel Blechschmidt <manuel.blechschmidt@service-health.de>  Thu, 25 Jul 2024 14:50:00 +0000
+ -- Manuel Blechschmidt <manuel.blechschmidt@service-health.de>  Thu, 08 Aug 2024 14:50:00 +0000
