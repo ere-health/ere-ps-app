@@ -181,6 +181,23 @@ Another way of enabling the comfort signature is posting to the workflow/comfort
 
 ##### ... with comfort signature
 
+If you want to use the comfort signature you have to pass the user id that you got from the ActivateComfortSignature message in the connector.user-id field e.g.:
+
+```json
+{
+...
+  "runtimeConfig": {
+    ...
+    "connector.user-id": "50aa5d2a-6f14-43bc-85ea-d03f9bd49441"
+    ...
+  }
+...
+}
+
+```
+
+
+
 #### Frontend 
 
  
