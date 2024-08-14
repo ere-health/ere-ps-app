@@ -80,7 +80,7 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
                             .filter(p -> !p.getKey().equals("CardHolderName"))
                             .map(p -> String.format("key=%s value=%s", p.getKey(), p.getValue())).collect(Collectors.joining(", "));
 
-                    log.info(String.format("[%s] Card inserted: params: %s", correlationId, paramsStr));
+                    log.fine(String.format("[%s] Card inserted: params: %s", correlationId, paramsStr));
                     try {
                         RuntimeConfig runtimeConfig = new RuntimeConfig(input.getValue());
                         Pair<Bundle, String> pair = pharmacyService.getEPrescriptionsForCardHandle(
@@ -143,7 +143,7 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
                 org.hl7.fhir.r4.model.Task task = (org.hl7.fhir.r4.model.Task) entry.getResource();
                 String taskId = task.getIdentifier().stream().filter(t -> "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId".equals(t.getSystem())).map(t -> t.getValue()).findAny().orElse(null);
                 String accessCode = task.getIdentifier().stream().filter(t -> "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_AccessCode".equals(t.getSystem())).map(t -> t.getValue()).findAny().orElse(null);
-                log.info("TaskId: " + taskId + " AccessCode: " + accessCode);
+                log.fine("TaskId: " + taskId + " AccessCode: " + accessCode);
                 String token = "/Task/" + taskId + "/$accept?ac=" + accessCode;
                 try {
                     Bundle bundleEPrescription = pharmacyService.accept(correlationId, token, runtimeConfig);
