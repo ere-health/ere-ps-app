@@ -251,7 +251,7 @@ public class Websocket {
 
     @OnMessage
     public void onMessage(String message, Session senderSession) {
-        ereLog.fine("Message: " + message);
+        ereLog.debug("Message: " + message);
         if(message == null) {
             ereLog.warn("null given as message");
             return;
@@ -539,7 +539,7 @@ public class Websocket {
 
     public void onERezeptDocuments(@ObservesAsync ERezeptWithDocumentsEvent eRezeptDocumentsEvent) {
         String jsonPayload = generateJson(eRezeptDocumentsEvent);
-        ereLog.fine("Sending prescription receipt payload to front-end: " +
+        ereLog.debug("Sending prescription receipt payload to front-end: " +
                 jsonPayload);
 
                 Set<Session> localSessions = new HashSet<>();
@@ -576,11 +576,11 @@ public class Websocket {
 
         bundlesEvent.getBundles().forEach(bundle -> {
             if (bundle instanceof EreBundle) {
-                ereLog.fine("Filled bundle json template result shown below. Null value place" +
+                ereLog.debug("Filled bundle json template result shown below. Null value place" +
                         " holders present.");
-                ereLog.fine("==============================================");
+                ereLog.debug("==============================================");
 
-                ereLog.fine(((EreBundle) bundle).encodeToJson());
+                ereLog.debug(((EreBundle) bundle).encodeToJson());
             }
         });
 
