@@ -109,9 +109,9 @@ public class VAUEngine extends ApacheHttpClient43Engine {
                 (accessCode != null ? "X-AccessCode: " + accessCode + "\r\n" : "") +
                 "User-Agent: " + userAgent + "\r\n" +
                 "Accept: application/fhir+xml; charset=utf-8\r\n";
-            log.info(contentType);
+            log.fine(contentType);
             if(httpEntity != null) {
-                    log.info(httpEntity.toString());
+                    log.fine(httpEntity.toString());
                     byte[] postBytes = httpEntity.getContent().readAllBytes();
                     String postBody = new String(postBytes);
                 content += "Content-Type: " + contentType + "\r\n" +
@@ -194,11 +194,11 @@ public class VAUEngine extends ApacheHttpClient43Engine {
             }
         } catch (Exception e) {
             if(responseBytes != null) {
-                log.info("VAU Response Bytes: "+VAU.byteArrayToHexString(responseBytes));
+                log.fine("VAU Response Bytes: "+VAU.byteArrayToHexString(responseBytes));
             }
             byte[] aeskey = aeskeyThreadLocal.get();
             if(aeskey != null) {
-                log.info("VAU AES Key: "+VAU.byteArrayToHexString(aeskey));
+                log.fine("VAU AES Key: "+VAU.byteArrayToHexString(aeskey));
             }
             throw new RuntimeException(e);
         }

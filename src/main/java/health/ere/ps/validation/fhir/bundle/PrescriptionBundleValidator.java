@@ -106,7 +106,7 @@ public class PrescriptionBundleValidator {
     }
 
     public JsonObjectBuilder validateBundle(JsonValue singleBundle) {
-        log.info("Now validating incoming sign and upload bundle:\n" +
+        log.fine("Now validating incoming sign and upload bundle:\n" +
                     singleBundle.toString());
         JsonObjectBuilder singleBundleResults = Json.createObjectBuilder();
         String bundleJson = singleBundle.toString();

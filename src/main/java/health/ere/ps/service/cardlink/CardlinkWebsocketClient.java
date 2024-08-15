@@ -89,7 +89,7 @@ public class CardlinkWebsocketClient {
      */
     @OnMessage
     public void onMessage(String message) {
-        log.info(message);
+        log.fine(message);
     }
 
     public void sendJson(String correlationId, String iccsn, String type, Map<String, Object> payloadMap) {
@@ -134,7 +134,7 @@ public class CardlinkWebsocketClient {
     public void sendMessage(String message, String correlationId) {
         try {
             this.userSession.getBasicRemote().sendText(message);
-            log.info(String.format("[%s] WS message is sent to cardlink: %s", correlationId, message));
+            log.fine(String.format("[%s] WS message is sent to cardlink: %s", correlationId, message));
         } catch (Throwable e) {
             log.log(Level.WARNING, String.format("[%s] Could not send WS message to cardlink: %s", correlationId, message), e);
         }
