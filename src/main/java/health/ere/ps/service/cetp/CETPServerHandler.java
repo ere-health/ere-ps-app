@@ -97,19 +97,24 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
 
                         cardlinkWebsocketClient.sendJson(correlationId, iccsn, "vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "eventId", eventId));
 
-                    } catch (FaultMessage | de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage e) {
+                    } catch (Exception e ) {
                         log.log(Level.WARNING, String.format("[%s] Could not get prescription for Bundle", correlationId), e);
-                        String code = e instanceof FaultMessage
-                                ? ((FaultMessage) e).getFaultInfo().getTrace().get(0).getCode().toString()
-                                : ((de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage) e).getFaultInfo().getTrace().get(0).getCode().toString();
-                        cardlinkWebsocketClient.sendJson(correlationId, iccsn, "vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "err", code));
+
+                        if (e instanceof de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage faultMessage) {
+                            String code = faultMessage.getFaultInfo().getTrace().get(0).getCode().toString();
+                            cardlinkWebsocketClient.sendJson(correlationId, iccsn, "vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "err", code));
+                        }
+                        if (e instanceof de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage faultMessage) {
+                            String code = faultMessage.getFaultInfo().getTrace().get(0).getCode().toString();
+                            cardlinkWebsocketClient.sendJson(correlationId, iccsn, "vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "err", code));
+                        }
 
                         String error = printException(e);
                         cardlinkWebsocketClient.sendJson(
                             correlationId,
                             iccsn,
                             "receiveTasklistError",
-                            Map.of("cardSessionId", "null", "status", 500, "tistatus", "500", "errormessage", error)
+                            Map.of("slotId", slotId, "cardSessionId", "null", "status", 500, "tistatus", "500", "errormessage", error)
                         );
                     }
                 } else {
