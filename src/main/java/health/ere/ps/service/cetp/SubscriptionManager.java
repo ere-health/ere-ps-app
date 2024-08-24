@@ -14,6 +14,7 @@ import health.ere.ps.service.cetp.config.KonnektorConfig;
 import health.ere.ps.service.cetp.config.KonnektorConfigService;
 import io.quarkus.runtime.StartupEvent;
 import io.quarkus.scheduler.Scheduled;
+import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
@@ -70,7 +71,8 @@ public class SubscriptionManager {
         this.kcService = kcService;
     }
 
-    public void onStart(@Observes StartupEvent ev) {
+    // Make sure subscription manager get's onStart first, before CETPServer at least!
+    public void onStart(@Observes @Priority(5100) StartupEvent ev) {
         hostToKonnektorConfig.putAll(kcService.loadConfigs());
         threadPool = Executors.newFixedThreadPool(hostToKonnektorConfig.size());
         SubscriptionsMXBeanImpl subscriptionsMXBean = new SubscriptionsMXBeanImpl(hostToKonnektorConfig.size());

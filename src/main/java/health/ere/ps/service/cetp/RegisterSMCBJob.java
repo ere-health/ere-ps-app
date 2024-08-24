@@ -6,6 +6,7 @@ import health.ere.ps.service.cetp.config.KonnektorConfig;
 import health.ere.ps.service.health.check.CardlinkWebsocketCheck;
 import io.quarkus.runtime.StartupEvent;
 import io.quarkus.scheduler.Scheduled;
+import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
@@ -32,7 +33,8 @@ public class RegisterSMCBJob {
 
     private List<CardlinkWebsocketClient> cardlinkWebsocketClients;
 
-    void onStart(@Observes StartupEvent ev) {
+    // Make sure subscription manager get's onStart first, before RegisterSMCBJob at least!
+    void onStart(@Observes @Priority(5300) StartupEvent ev) {
         log.info("RegisterSMCBJob init onStart");
         Collection<KonnektorConfig> konnektorConfigs = subscriptionManager.getKonnektorConfigs(null);
         cardlinkWebsocketClients = new ArrayList<>();

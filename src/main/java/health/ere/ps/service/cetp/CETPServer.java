@@ -25,6 +25,7 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.util.concurrent.EventExecutorGroup;
 import io.quarkus.runtime.ShutdownEvent;
 import io.quarkus.runtime.StartupEvent;
+import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
@@ -72,8 +73,8 @@ public class CETPServer {
     @Inject
     CardlinkWebsocketCheck cardlinkWebsocketCheck;
 
-    void onStart(@Observes StartupEvent ev) {
-        log.info("Running CETP Server on port " + appConfig.getCetpPort());
+    // Make sure subscription manager get's onStart first, before CETPServer at least!
+    void onStart(@Observes @Priority(5200) StartupEvent ev) {
         run();
     }
 
@@ -93,6 +94,7 @@ public class CETPServer {
 
     public void run() {
         for (KonnektorConfig config : subscriptionManager.getKonnektorConfigs(null)) {
+            log.info("Running CETP Server on port " + config.getCetpPort() + " for cardlink server: " + config.getCardlinkEndpoint());
             runServer(config);
         }
     }

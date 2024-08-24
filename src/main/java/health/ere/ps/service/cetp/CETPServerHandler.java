@@ -3,7 +3,6 @@ package health.ere.ps.service.cetp;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import de.gematik.ws.conn.eventservice.v7.Event;
-import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.service.cardlink.CardlinkWebsocketClient;
@@ -17,6 +16,7 @@ import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.jboss.logging.MDC;
 
+import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -127,6 +127,30 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
             cardlinkWebsocketClient.close();
             MDC.clear();
         }
+    }
+
+    @Override
+    public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+        if (log.isLoggable(Level.FINE)) {
+            String port = "unknown";
+            if (ctx.channel().localAddress() instanceof InetSocketAddress inetSocketAddress) {
+                port = String.valueOf(inetSocketAddress.getPort());
+            }
+            log.fine(String.format("New CETP connection established (on port %s)", port));
+        }
+        super.channelRegistered(ctx);
+    }
+
+    @Override
+    public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
+        if (log.isLoggable(Level.FINE)) {
+            String port = "unknown";
+            if (ctx.channel().localAddress() instanceof InetSocketAddress inetSocketAddress) {
+                port = String.valueOf(inetSocketAddress.getPort());
+            }
+            log.fine(String.format("CETP connection was closed (on port %s)", port));
+        }
+        super.channelUnregistered(ctx);
     }
 
     private JsonArrayBuilder prepareBundles(String correlationId, Bundle bundle, RuntimeConfig runtimeConfig) {
