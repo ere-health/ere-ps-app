@@ -48,6 +48,12 @@ public class AppConfig {
     @ConfigProperty(name = "cetp.subscriptions.event-to-host")
     Optional<String> eventToHost;
 
+    @ConfigProperty(name = "cetp.track.batch.size")
+    Optional<Integer> trackBatch;
+
+    @ConfigProperty(name = "ere.billing.csv.folder")
+    Optional<String> csvFolder;
+
     @ConfigProperty(name = "idp.auth.request.url")
     String idpAuthRequestURL;
 
@@ -142,6 +148,14 @@ public class AppConfig {
 
     public int getForceResubscribePeriodSeconds() {
         return forceResubscribePeriodSeconds.orElse(43200);
+    }
+
+    public int getTrackBatch() {
+        return trackBatch.orElse(100);
+    }
+
+    public String getBillingCsvFolder() {
+        return csvFolder.orElse("billing");
     }
 
     public Optional<String> getEventToHost() {
