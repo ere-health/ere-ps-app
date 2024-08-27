@@ -3,15 +3,10 @@ package health.ere.ps.service.connector.cards;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Event;
-import jakarta.enterprise.event.ObservesAsync;
-import jakarta.inject.Inject;
-import jakarta.xml.ws.Holder;
 
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -20,6 +15,7 @@ import de.gematik.ws.conn.cardservice.v8.Cards;
 import de.gematik.ws.conn.cardservice.v8.PinStatusEnum;
 import de.gematik.ws.conn.cardservicecommon.v2.PinResultEnum;
 import de.gematik.ws.conn.connectorcommon.v5.Status;
+import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.v7.GetCards;
 import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
 import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
@@ -40,6 +36,11 @@ import health.ere.ps.model.gematik.UnblockPinResponse;
 import health.ere.ps.model.gematik.VerifyPinResponse;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import health.ere.ps.websocket.ExceptionWithReplyToException;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.event.ObservesAsync;
+import jakarta.inject.Inject;
+import jakarta.xml.ws.Holder;
 
 
 @ApplicationScoped
@@ -167,7 +168,7 @@ public class ConnectorCardsService {
             GetPinStatusResponse getPinStatusResponse = getPinStatus(getPinStatusEvent.getCardHandle(), getPinStatusEvent.getPinType(), getPinStatusEvent.getRuntimeConfig());
             getPinStatusResponseEvent.fireAsync(new GetPinStatusResponseEvent(getPinStatusResponse, getPinStatusEvent.getReplyTo(), getPinStatusEvent.getId()));
         } catch (Exception e) {
-            log.log(Level.WARNING, "Could not unblock pin for card", e);
+            log.log(Level.WARNING, "Could not get pin status for card", e);
             exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, getPinStatusEvent.getReplyTo(), getPinStatusEvent.getId()));
         }
     }
@@ -212,7 +213,12 @@ public class ConnectorCardsService {
     	Holder<Status> status = new Holder<>();
         Holder<PinStatusEnum> pinResultEnum = new Holder<>();
         Holder<BigInteger> leftTries = new Holder<>();
-        connectorServicesProvider.getCardServicePortType(runtimeConfig).getPinStatus(connectorServicesProvider.getContextType(runtimeConfig), cardHandle, pinType, status, pinResultEnum, leftTries);
+        
+        ContextType contextType = connectorServicesProvider.getContextType(runtimeConfig);
+        if(contextType.getUserId() == null) {
+            contextType.setUserId(UUID.randomUUID().toString());
+        }
+        connectorServicesProvider.getCardServicePortType(runtimeConfig).getPinStatus(contextType, cardHandle, pinType, status, pinResultEnum, leftTries);
         return new GetPinStatusResponse(status.value, pinResultEnum.value, leftTries.value);
     }
 
