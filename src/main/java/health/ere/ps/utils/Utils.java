@@ -1,5 +1,8 @@
 package health.ere.ps.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -12,10 +15,14 @@ import java.net.SocketException;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
 public class Utils {
+
+    private static final Logger log = LoggerFactory.getLogger(Utils.class);
 
     public static void writeFile(String absolutePath, String content) throws IOException {
         try (FileOutputStream os = new FileOutputStream(absolutePath)) {
@@ -61,5 +68,23 @@ public class Utils {
         return localAddress == null
             ? Optional.empty()
             : Optional.of(localAddress.getHostAddress());
+    }
+
+    public static void terminateExecutor(ExecutorService executorService, String executorName, int awaitMillis) {
+        if (executorService != null) {
+            log.info(String.format("[%s] Terminating", executorName));
+            executorService.shutdown();
+            try {
+                if (!executorService.awaitTermination(awaitMillis, TimeUnit.MILLISECONDS)) {
+                    executorService.shutdownNow();
+                    if (!executorService.awaitTermination(awaitMillis, TimeUnit.MILLISECONDS)) {
+                        log.info(String.format("[%s] Is not terminated", executorName));
+                    }
+                }
+            } catch (InterruptedException ex) {
+                executorService.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 }
