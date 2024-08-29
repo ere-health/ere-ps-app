@@ -6,6 +6,7 @@ import de.gematik.ws.conn.eventservice.v7.Event;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.service.cardlink.CardlinkWebsocketClient;
+import health.ere.ps.service.cetp.tracker.TrackerService;
 import health.ere.ps.service.gematik.PharmacyService;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -29,13 +30,18 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger log = Logger.getLogger(CETPServerHandler.class.getName());
 
+    TrackerService trackerService;
     PharmacyService pharmacyService;
-
     CardlinkWebsocketClient cardlinkWebsocketClient;
 
     IParser parser = FhirContext.forR4().newXmlParser();
 
-    public CETPServerHandler(PharmacyService pharmacyService, CardlinkWebsocketClient cardlinkWebsocketClient) {
+    public CETPServerHandler(
+        TrackerService trackerService,
+        PharmacyService pharmacyService,
+        CardlinkWebsocketClient cardlinkWebsocketClient
+    ) {
+        this.trackerService = trackerService;
         this.pharmacyService = pharmacyService;
         this.cardlinkWebsocketClient = cardlinkWebsocketClient;
     }
@@ -83,7 +89,8 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
 
                     log.fine(String.format("[%s] Card inserted: params: %s", correlationId, paramsStr));
                     try {
-                        RuntimeConfig runtimeConfig = new RuntimeConfig(input.getValue());
+                        UserConfigurations uc = input.getValue();
+                        RuntimeConfig runtimeConfig = new RuntimeConfig(uc);
                         Pair<Bundle, String> pair = pharmacyService.getEPrescriptionsForCardHandle(
                                 correlationId, cardHandle, null, runtimeConfig
                         );
@@ -97,6 +104,7 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
 
                         cardlinkWebsocketClient.sendJson(correlationId, iccsn, "vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "eventId", eventId));
 
+                        trackerService.submit(ctId, uc.getMandantId(), uc.getWorkplaceId(), uc.getClientSystemId());
                     } catch (Exception e ) {
                         log.log(Level.WARNING, String.format("[%s] Could not get prescription for Bundle", correlationId), e);
 

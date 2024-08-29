@@ -23,6 +23,6 @@ tar czf ${DPKG_BUILD_PACKAGE}_${DEB_VERSION}.orig.tar.gz ${DPKG_BUILD_PACKAGE}_$
 cd deb-package
 debuild -us -uc
 cd ..
-dpkg-sig --sign builder ${DPKG_BUILD_PACKAGE}_${DEB_VERSION}-5_all.deb
-# reprepro -V --basedir ~/public_html/apt/ includedeb jammy ere-health_1.0.0-5_all.deb
+dpkg-sig --sign builder ${DPKG_BUILD_PACKAGE}_${DEB_VERSION}-7_all.deb
+# reprepro -V --basedir ~/public_html/apt/ includedeb jammy ere-health_1.0.0-7_all.deb
 # rsync -va /home/manuel/public_html/apt/ ec2-user@packages.service-health.de:/srv/www/vhosts/packages.service-health.de

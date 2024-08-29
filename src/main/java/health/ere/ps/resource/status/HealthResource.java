@@ -3,7 +3,6 @@ package health.ere.ps.resource.status;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.service.health.HealthChecker;
 import health.ere.ps.service.health.HealthInfo;
-import io.smallrye.common.annotation.Blocking;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.GET;
@@ -26,10 +25,17 @@ public class HealthResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    // @Blocking
     public Response status() {
         HealthInfo healthInfo = healthChecker.getHealthInfo(extractRuntimeConfigFromHeaders());
         return Response.ok(healthInfo).build();
+    }
+
+    @GET
+    @Path("uptime")
+    public Response uptime() {
+        HealthInfo healthInfo = healthChecker.getHealthInfo(extractRuntimeConfigFromHeaders());
+        Response.Status status = healthInfo.status().equals("UP") ? Response.Status.OK : Response.Status.INTERNAL_SERVER_ERROR;
+        return Response.status(status).build();
     }
 
     RuntimeConfig extractRuntimeConfigFromHeaders() {

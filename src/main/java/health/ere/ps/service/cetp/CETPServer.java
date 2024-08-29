@@ -4,6 +4,7 @@ import health.ere.ps.config.AppConfig;
 import health.ere.ps.service.cardlink.CardlinkWebsocketClient;
 import health.ere.ps.service.cetp.codec.CETPDecoder;
 import health.ere.ps.service.cetp.config.KonnektorConfig;
+import health.ere.ps.service.cetp.tracker.TrackerService;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.common.security.SecretsManagerService.KeyStoreType;
 import health.ere.ps.service.gematik.PharmacyService;
@@ -71,6 +72,9 @@ public class CETPServer {
     SubscriptionManager subscriptionManager;
 
     @Inject
+    TrackerService trackerService;
+
+    @Inject
     CardlinkWebsocketCheck cardlinkWebsocketCheck;
 
     // Make sure subscription manager get's onStart first, before CETPServer at least!
@@ -128,7 +132,11 @@ public class CETPServer {
                                 .addLast("logging", new LoggingHandler(LogLevel.DEBUG))
                                 .addLast(new LengthFieldBasedFrameDecoder(65536, 4, 4, 0, 0))
                                 .addLast(new CETPDecoder(config.getUserConfigurations()))
-                                .addLast(new CETPServerHandler(pharmacyService, websocketClient));
+                                .addLast(new CETPServerHandler(
+                                    trackerService,
+                                    pharmacyService,
+                                    websocketClient)
+                                );
                         } catch (Exception e) {
                             log.log(Level.WARNING, "Failed to create SSL context", e);
                         }

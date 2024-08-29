@@ -8,6 +8,7 @@ import health.ere.ps.jmx.ReadEPrescriptionsMXBeanImpl;
 import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.service.cardlink.CardlinkWebsocketClient;
 import health.ere.ps.service.cetp.CETPServerHandler;
+import health.ere.ps.service.cetp.tracker.TrackerService;
 import health.ere.ps.service.idp.BearerTokenService;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.quarkus.test.junit.QuarkusTest;
@@ -32,7 +33,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @QuarkusTest
 class CardInsertedTest {
@@ -45,8 +53,11 @@ class CardInsertedTest {
         Holder<byte[]> holder = prepareHolder(pharmacyService);
         doReturn(holder).when(pharmacyService).readVSD(any(), any(), any(), any());
 
+        TrackerService trackerService = mock(TrackerService.class);
+        when(trackerService.submit(any(), any(), any(), any())).thenReturn(true);
+
         CardlinkWebsocketClient cardlinkWebsocketClient = mock(CardlinkWebsocketClient.class);
-        CETPServerHandler cetpServerHandler = new CETPServerHandler(pharmacyService, cardlinkWebsocketClient);
+        CETPServerHandler cetpServerHandler = new CETPServerHandler(trackerService, pharmacyService, cardlinkWebsocketClient);
         EmbeddedChannel channel = new EmbeddedChannel(cetpServerHandler);
 
         String slotIdValue = "3";
@@ -64,6 +75,8 @@ class CardInsertedTest {
         assertTrue(capturedMessages.get(0).contains("eRezeptTokensFromAVS"));
         assertTrue(capturedMessages.get(1).contains("eRezeptBundlesFromAVS"));
         assertTrue(capturedMessages.get(2).contains("vsdmSensorData"));
+
+        verify(trackerService).submit(any(), any(), any(), any());
 
         List<Map<String, Object>> maps = mapCaptor.getAllValues();
         Map<String, Object> vsdmSensorData = maps.get(2);
@@ -84,8 +97,11 @@ class CardInsertedTest {
         faultInfo.getTrace().add(trace);
         doThrow(new FaultMessage("Fault", faultInfo)).when(pharmacyService).readVSD(any(), any(), any(), any());
 
+        TrackerService trackerService = mock(TrackerService.class);
+        when(trackerService.submit(any(), any(), any(), any())).thenReturn(true);
+        
         CardlinkWebsocketClient cardlinkWebsocketClient = mock(CardlinkWebsocketClient.class);
-        CETPServerHandler cetpServerHandler = new CETPServerHandler(pharmacyService, cardlinkWebsocketClient);
+        CETPServerHandler cetpServerHandler = new CETPServerHandler(trackerService, pharmacyService, cardlinkWebsocketClient);
         EmbeddedChannel channel = new EmbeddedChannel(cetpServerHandler);
 
         String slotIdValue = "3";
@@ -101,6 +117,8 @@ class CardInsertedTest {
         List<String> capturedMessages = messageTypeCaptor.getAllValues();
         assertTrue(capturedMessages.get(0).contains("vsdmSensorData"));
         assertTrue(capturedMessages.get(1).contains("receiveTasklistError"));
+
+        verify(trackerService, never()).submit(any(), any(), any(), any());
 
         List<Map<String, Object>> maps = mapCaptor.getAllValues();
         Map<String, Object> vsdmSensorData = maps.get(0);
