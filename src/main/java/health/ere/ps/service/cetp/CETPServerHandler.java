@@ -57,7 +57,7 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         try {
             String correlationId = UUID.randomUUID().toString();
-            MDC.put("correlationId", correlationId);
+            MDC.put("requestCorrelationId", correlationId); // Keep MDC name in snyc with virtual-nfc-cardlink
             cardlinkWebsocketClient.connect();
 
             @SuppressWarnings("unchecked")
@@ -68,9 +68,10 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
                 final Map<String, String> eventMap = event.getMessage().getParameter().stream()
                         .collect(Collectors.toMap(Event.Message.Parameter::getKey, Event.Message.Parameter::getValue));
 
-                MDC.put("ICCSN", eventMap.getOrDefault("ICCSN", "NoICCSNProvided"));
-                MDC.put("CtID", eventMap.getOrDefault("CtID", "NoCtIDProvided"));
-                MDC.put("SlotID", eventMap.getOrDefault("SlotID", "NoSlotIDProvided"));
+                // Keep MDC names in sync with virtual-nfc-cardlink
+                MDC.put("iccsn", eventMap.getOrDefault("ICCSN", "NoICCSNProvided"));
+                MDC.put("ctid", eventMap.getOrDefault("CtID", "NoCtIDProvided"));
+                MDC.put("slot", eventMap.getOrDefault("SlotID", "NoSlotIDProvided"));
                 log.fine("CARD/INSERTED event received with the following payload: %s".formatted(eventMap));
 
                 if ("EGK".equalsIgnoreCase(eventMap.get("CardType")) && eventMap.containsKey("CardHandle") && eventMap.containsKey("SlotID") && eventMap.containsKey("CtID")) {

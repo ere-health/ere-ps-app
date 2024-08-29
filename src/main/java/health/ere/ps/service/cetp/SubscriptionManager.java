@@ -95,7 +95,7 @@ public class SubscriptionManager {
             String eventToHost = (meInSameSubnet != null) ? meInSameSubnet.getHostAddress() : defaultSender;
             if (eventToHost == null) {
                 log.log(Level.INFO, "Can't maintain subscription. Don't know my own address to tell konnektor about it");
-                return null;
+                return false;
             }
             Boolean result = Retrier.callAndRetry(
                 retryMillis,
