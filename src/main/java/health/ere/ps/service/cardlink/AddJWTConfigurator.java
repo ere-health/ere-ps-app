@@ -8,12 +8,10 @@ import health.ere.ps.service.cetp.config.KonnektorConfig;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import health.ere.ps.service.gematik.PharmacyService;
 import io.quarkus.arc.Unremovable;
-import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.websocket.ClientEndpointConfig;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -21,15 +19,17 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static io.netty.handler.codec.http.HttpHeaderNames.SEC_WEBSOCKET_PROTOCOL;
+
 @Unremovable
-@Dependent
+@ApplicationScoped
 public class AddJWTConfigurator extends ClientEndpointConfig.Configurator {
 
     private static final Logger log = Logger.getLogger(AddJWTConfigurator.class.getName());
-    private static final String ORIGIN_HEADER = "origin";
 
     @Inject
     PharmacyService pharmacyService;
+
     @Inject
     MultiConnectorServicesProvider connectorServicesProvider;
 
@@ -37,7 +37,10 @@ public class AddJWTConfigurator extends ClientEndpointConfig.Configurator {
 
     public static void initConfigs(Collection<KonnektorConfig> konnektorConfigs) {
         konnektorConfigs.forEach(kc ->
-                configMap.put(kc.getCardlinkEndpoint().getHost(), new RuntimeConfig(kc.getUserConfigurations()))
+            configMap.put(
+                kc.getCardlinkEndpoint().getPath().replace("/websocket/", "").trim(),
+                new RuntimeConfig(kc.getUserConfigurations())
+            )
         );
     }
 
@@ -46,20 +49,16 @@ public class AddJWTConfigurator extends ClientEndpointConfig.Configurator {
     }
 
     private RuntimeConfig buildRuntimeConfig(Map<String, List<String>> headers) {
-        String origin = null;
+        String serialNumber = null;
         RuntimeConfig runtimeConfig = null;
-        List<String> originHeaderValues = headers.get(ORIGIN_HEADER);
-        if (!originHeaderValues.isEmpty()) {
-            origin = originHeaderValues.get(0);
-            try {
-                runtimeConfig = configMap.get(new URI(origin).getHost());
-            } catch (URISyntaxException e) {
-                String msg = String.format("Origin header is wrong URI: %s", origin);
-                log.log(Level.SEVERE, msg, e);
-            }
+        
+        List<String> wsProtocolHeaderValues = headers.get(SEC_WEBSOCKET_PROTOCOL.toString());
+        if (!wsProtocolHeaderValues.isEmpty()) {
+            serialNumber = wsProtocolHeaderValues.get(0);
+            runtimeConfig = configMap.get(serialNumber);
         }
         if (runtimeConfig == null) {
-            log.warning(String.format("No KonnektorConfig is found for origin=%s, using random config", origin));
+            log.warning(String.format("No KonnektorConfig is found for serialNumber=%s, using random config", serialNumber));
             runtimeConfig = new RuntimeConfig();
         }
         return runtimeConfig;
@@ -69,6 +68,7 @@ public class AddJWTConfigurator extends ClientEndpointConfig.Configurator {
     public void beforeRequest(Map<String, List<String>> headers) {
         if (checkServicesAreValid()) {
             RuntimeConfig runtimeConfig = buildRuntimeConfig(headers);
+            headers.remove(SEC_WEBSOCKET_PROTOCOL.toString());
             ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
             EventServicePortType eventServicePortType = connectorServicesProvider.getEventServicePortType(runtimeConfig);
             try {

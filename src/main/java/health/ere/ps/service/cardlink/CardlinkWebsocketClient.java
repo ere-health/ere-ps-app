@@ -1,6 +1,7 @@
 package health.ere.ps.service.cardlink;
 
 import health.ere.ps.service.health.check.CardlinkWebsocketCheck;
+import io.quarkus.arc.Arc;
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonArrayBuilder;
@@ -11,6 +12,8 @@ import jakarta.websocket.ClientEndpoint;
 import jakarta.websocket.CloseReason;
 import jakarta.websocket.ContainerProvider;
 import jakarta.websocket.DeploymentException;
+import jakarta.websocket.Endpoint;
+import jakarta.websocket.EndpointConfig;
 import jakarta.websocket.OnClose;
 import jakarta.websocket.OnMessage;
 import jakarta.websocket.OnOpen;
@@ -26,7 +29,7 @@ import java.util.logging.Logger;
 
 @SuppressWarnings("unused")
 @ClientEndpoint(configurator = AddJWTConfigurator.class)
-public class CardlinkWebsocketClient {
+public class CardlinkWebsocketClient extends Endpoint {
 
     private static final Logger log = Logger.getLogger(CardlinkWebsocketClient.class.getName());
 
@@ -50,9 +53,16 @@ public class CardlinkWebsocketClient {
         }
     }
 
+    @Override
+    public void onOpen(Session session, EndpointConfig config) {
+    }
+
     public void connect() {
         try {
-            container.connectToServer(this, endpointURI);
+            String serialNumber = endpointURI.getPath().replace("/websocket/", "").trim();
+            AddJWTConfigurator jwtConfigurator = Arc.container().select(AddJWTConfigurator.class).get();
+            CardLinkEndpointConfig endpointConfig = new CardLinkEndpointConfig(jwtConfigurator, serialNumber);
+            container.connectToServer(this, endpointConfig, endpointURI);
         } catch (DeploymentException | IOException e) {
             throw new RuntimeException(e);
         }
