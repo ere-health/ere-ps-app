@@ -1,5 +1,14 @@
 package health.ere.ps.service.cetp;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import health.ere.ps.service.cardlink.AddJWTConfigurator;
 import health.ere.ps.service.cardlink.CardlinkWebsocketClient;
 import health.ere.ps.service.cetp.config.KonnektorConfig;
@@ -10,15 +19,6 @@ import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @ApplicationScoped
 public class RegisterSMCBJob {
@@ -31,11 +31,15 @@ public class RegisterSMCBJob {
     @Inject
     SubscriptionManager subscriptionManager;
 
-    private List<CardlinkWebsocketClient> cardlinkWebsocketClients;
+    private List<CardlinkWebsocketClient> cardlinkWebsocketClients = new ArrayList<>();
 
     // Make sure subscription manager get's onStart first, before RegisterSMCBJob at least!
     void onStart(@Observes @Priority(5300) StartupEvent ev) {
         log.info("RegisterSMCBJob init onStart");
+        initWSClients();
+    }
+
+    private void initWSClients() {
         Collection<KonnektorConfig> konnektorConfigs = subscriptionManager.getKonnektorConfigs(null);
         cardlinkWebsocketClients = new ArrayList<>();
         konnektorConfigs.forEach(kc ->
@@ -54,6 +58,10 @@ public class RegisterSMCBJob {
     void registerSmcbMaintenance() {
         String correlationId = UUID.randomUUID().toString();
         log.info(String.format("RegisterSMCBJob started with %s", correlationId));
+        // reload cardlink configs if neccessary
+        if(cardlinkWebsocketClients.isEmpty()) {
+            initWSClients();
+        }
         cardlinkWebsocketClients.forEach(client -> {
             try {
                 client.connect();
