@@ -1,5 +1,11 @@
 package health.ere.ps.service.cardlink;
 
+import java.io.IOException;
+import java.net.URI;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import health.ere.ps.service.health.check.CardlinkWebsocketCheck;
 import io.quarkus.arc.Arc;
 import jakarta.json.Json;
@@ -20,12 +26,6 @@ import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 import jakarta.websocket.WebSocketContainer;
 import jakarta.xml.bind.DatatypeConverter;
-
-import java.io.IOException;
-import java.net.URI;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @SuppressWarnings("unused")
 @ClientEndpoint(configurator = AddJWTConfigurator.class)
@@ -53,8 +53,17 @@ public class CardlinkWebsocketClient extends Endpoint {
         }
     }
 
+    /**
+     * Callback hook for Connection open events.
+     *
+     * @param userSession the userSession which is opened.
+     */
+    @OnOpen
     @Override
-    public void onOpen(Session session, EndpointConfig config) {
+    public void onOpen(Session userSession, EndpointConfig config) {
+        log.info("opening websocket to " + endpointURI);
+        this.userSession = userSession;
+        cardlinkWebsocketCheck.setConnected(true);
     }
 
     public void connect() {
@@ -66,18 +75,6 @@ public class CardlinkWebsocketClient extends Endpoint {
         } catch (DeploymentException | IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    /**
-     * Callback hook for Connection open events.
-     *
-     * @param userSession the userSession which is opened.
-     */
-    @OnOpen
-    public void onOpen(Session userSession) {
-        log.info("opening websocket to " + endpointURI);
-        this.userSession = userSession;
-        cardlinkWebsocketCheck.setConnected(true);
     }
 
     /**
