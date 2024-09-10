@@ -114,7 +114,14 @@ public class PrefillPrescriptionService {
 	@Inject
 	Event<Exception> exceptionEvent;
 
-	public Bundle get(RuntimeConfig runtimeConfig)
+        public Bundle get(RuntimeConfig runtimeConfig)
+			throws FaultMessage, de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage, JAXBException,
+			de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage, CryptoException, IOException,
+			InvalidNameException, CertificateEncodingException {
+                return get(runtimeConfig, null);
+        }
+
+	public Bundle get(RuntimeConfig runtimeConfig, String egkHandleParameter)
 			throws FaultMessage, de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage, JAXBException,
 			de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage, CryptoException, IOException,
 			InvalidNameException, CertificateEncodingException {
@@ -123,7 +130,7 @@ public class PrefillPrescriptionService {
 
 		EventServicePortType eventService = connectorServicesProvider.getEventServicePortType(runtimeConfig);
 
-		String egkHandle = getFirstCardOfType(eventService, CardTypeType.EGK, context);
+		String egkHandle = egkHandleParameter != null ? egkHandleParameter : getFirstCardOfType(eventService, CardTypeType.EGK, context);
 		String smcbHandle = (runtimeConfig != null && runtimeConfig.getSMCBHandle() != null) ? runtimeConfig.getSMCBHandle() : getFirstCardOfType(eventService, CardTypeType.SMC_B, context);
 		String hbaHandle = (runtimeConfig != null && runtimeConfig.getEHBAHandle() != null) ? runtimeConfig.getEHBAHandle() : getFirstCardOfType(eventService, CardTypeType.HBA, context);
 
@@ -455,7 +462,7 @@ public class PrefillPrescriptionService {
 
 	public void onPrefillBundleEvent(@ObservesAsync PrefillBundleEvent prefillBundleEvent) {
 		try {
-			bundleEvent.fireAsync(new BundlesEvent(Arrays.asList(get(prefillBundleEvent.getRuntimeConfig()))));
+			bundleEvent.fireAsync(new BundlesEvent(Arrays.asList(get(prefillBundleEvent.getRuntimeConfig(), prefillBundleEvent.getEgkHandle()))));
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "Could not create bundles", e);
 			exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, prefillBundleEvent.getReplyTo(),
