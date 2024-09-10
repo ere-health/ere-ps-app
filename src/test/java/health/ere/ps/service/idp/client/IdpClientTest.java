@@ -8,6 +8,7 @@ import health.ere.ps.exception.idp.IdpClientException;
 import health.ere.ps.exception.idp.IdpException;
 import health.ere.ps.exception.idp.IdpJoseException;
 import health.ere.ps.model.idp.client.IdpTokenResult;
+import health.ere.ps.profile.RUTestProfile;
 import health.ere.ps.profile.TitusTestProfile;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
@@ -23,14 +24,13 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.security.Security;
 import java.security.cert.X509Certificate;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 @QuarkusTest
-@TestProfile(TitusTestProfile.class)
+@TestProfile(RUTestProfile.class)
+@Disabled
 public class IdpClientTest {
 
     static {
@@ -56,14 +56,14 @@ public class IdpClientTest {
         SSLUtilities.trustAllHostnames();
         SSLUtilities.trustAllHttpsCertificates();
 
-        try {
+        /*try {
             // https://community.oracle.com/thread/1307033?start=0&tstart=0
             LogManager.getLogManager().readConfiguration(
                     IdpClientTest.class
                             .getResourceAsStream("/test-classes/logging.properties"));
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
 
         System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
         System.setProperty("com.sun.xml.internal.ws.transport.http.client.HttpTransportPipe.dump", "true");
@@ -79,7 +79,6 @@ public class IdpClientTest {
     }
 
     @Test
-    @Tag("titus")
     public void test_Successful_Idp_Login_With_Connector_Smcb() throws IdpJoseException,
             IdpClientException, IdpException, ConnectorCardCertificateReadException, ConnectorCardsException {
 

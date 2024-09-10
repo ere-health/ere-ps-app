@@ -1,8 +1,29 @@
 package health.ere.ps.service.connector.auth;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Optional;
+import java.util.Set;
+
+import org.apache.commons.lang3.tuple.Pair;
+import org.bouncycastle.crypto.signers.StandardDSAEncoding;
+import org.bouncycastle.jce.ECNamedCurveTable;
+import org.jose4j.jws.JsonWebSignature;
+import org.jose4j.jwx.CompactSerializer;
+import org.jose4j.lang.JoseException;
+import org.jose4j.lang.StringUtil;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
 import de.gematik.ws.conn.authsignatureservice.wsdl.v7.FaultMessage;
 import de.gematik.ws.conn.cardservicecommon.v2.PinResultEnum;
 import de.gematik.ws.conn.connectorcommon.v5.Status;
@@ -20,21 +41,6 @@ import jakarta.inject.Inject;
 import jakarta.xml.ws.Holder;
 import oasis.names.tc.dss._1_0.core.schema.Base64Data;
 import oasis.names.tc.dss._1_0.core.schema.SignatureObject;
-import org.apache.commons.lang3.tuple.Pair;
-import org.jose4j.jws.JsonWebSignature;
-import org.jose4j.jwx.CompactSerializer;
-import org.jose4j.lang.JoseException;
-import org.jose4j.lang.StringUtil;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.X509Certificate;
-import java.util.Base64;
-import java.util.Optional;
-import java.util.Set;
 
 @Dependent
 public class SmcbAuthenticatorService {
@@ -134,8 +140,8 @@ public class SmcbAuthenticatorService {
         public byte[] externalAuthenticate(byte[] sha265Hash, String smcbCardHandle, RuntimeConfig runtimeConfig) throws JoseException {
             ExternalAuthenticate.OptionalInputs optionalInputs = new ExternalAuthenticate.OptionalInputs();
 
-            optionalInputs.setSignatureSchemes("RSASSA-PSS");
-            optionalInputs.setSignatureType("urn:ietf:rfc:3447");
+            // optionalInputs.setSignatureSchemes("RSASSA-PSS");
+            optionalInputs.setSignatureType("urn:bsi:tr:03111:ecdsa");
 
             BinaryDocumentType binaryDocumentType = new BinaryDocumentType();
             Base64Data base64Data = new Base64Data();
@@ -155,10 +161,12 @@ public class SmcbAuthenticatorService {
             } catch (FaultMessage e) {
                 throw new JoseException("Could not call externalAuthenticate", e);
             }
+            byte[] value = response.getSignatureObject().getBase64Signature().getValue();
 
-            return response.getSignatureObject().getBase64Signature().getValue();
+            byte[] concatenated = convertDerECDSAtoConcated(value);
+
+            return concatenated;
         }
-
 
         private byte[] getSigningInputBytes() throws JoseException {
         /*
@@ -192,6 +200,29 @@ public class SmcbAuthenticatorService {
             }
         }
     }
+
+    public static byte[] convertDerECDSAtoConcated(byte[] derSignature) throws JoseException {
+        try {
+            BigInteger[] signInt = StandardDSAEncoding.INSTANCE.decode(ECNamedCurveTable.getParameterSpec("brainpoolp256r1").getN(), derSignature);
+            ByteBuffer buffer = ByteBuffer.allocate(64);
+            byte[] rArray = signInt[0].toByteArray();
+            if(rArray.length == 32) {
+                buffer.put(rArray);
+            } else {
+                buffer.put(Arrays.copyOfRange(rArray, 1, 33));
+            }
+            byte[] sArray = signInt[1].toByteArray();
+            if(sArray.length == 32) {
+                buffer.put(sArray);
+            } else {
+                buffer.put(Arrays.copyOfRange(sArray, 1, 33));
+            }
+            return buffer.array();
+        } catch (Exception e) {
+            throw new JoseException("Error converting DER to concatenated signature: " + e.getMessage(), e);
+        }
+    }
+
 
     public ExternalAuthenticateResponse doExternalAuthenticate(String cardHandle, RuntimeConfig runtimeConfig,
                                                                ExternalAuthenticate.OptionalInputs optionalInputs,

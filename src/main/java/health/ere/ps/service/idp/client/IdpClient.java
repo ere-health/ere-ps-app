@@ -1,10 +1,39 @@
 package health.ere.ps.service.idp.client;
 
+import static health.ere.ps.model.idp.client.brainPoolExtension.BrainpoolAlgorithmSuiteIdentifiers.BRAINPOOL256_USING_SHA256;
+import static health.ere.ps.model.idp.client.field.ClaimName.NESTED_JWT;
+import static health.ere.ps.model.idp.client.field.IdpScope.EREZEPT;
+import static health.ere.ps.model.idp.client.field.IdpScope.EREZEPTDEV;
+import static health.ere.ps.model.idp.client.field.IdpScope.OPENID;
+import static org.jose4j.jws.AlgorithmIdentifiers.RSA_PSS_USING_SHA256;
+
+import java.security.PublicKey;
+import java.security.Security;
+import java.security.cert.X509Certificate;
+import java.util.Base64;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jetbrains.annotations.NotNull;
+import org.jose4j.jws.JsonWebSignature;
+import org.jose4j.jwt.JwtClaims;
+import org.jose4j.lang.JoseException;
+
 import com.diffplug.common.base.Errors;
 import com.diffplug.common.base.Throwing;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.exception.idp.IdpClientException;
 import health.ere.ps.exception.idp.IdpException;
@@ -26,33 +55,6 @@ import health.ere.ps.service.idp.client.authentication.UriUtils;
 import health.ere.ps.service.idp.crypto.KeyAnalysis;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.jetbrains.annotations.NotNull;
-import org.jose4j.jws.JsonWebSignature;
-import org.jose4j.jwt.JwtClaims;
-import org.jose4j.lang.JoseException;
-
-import java.security.PublicKey;
-import java.security.Security;
-import java.security.cert.X509Certificate;
-import java.util.Base64;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static health.ere.ps.model.idp.client.brainPoolExtension.BrainpoolAlgorithmSuiteIdentifiers.BRAINPOOL256_USING_SHA256;
-import static health.ere.ps.model.idp.client.field.ClaimName.NESTED_JWT;
-import static health.ere.ps.model.idp.client.field.IdpScope.EREZEPT;
-import static health.ere.ps.model.idp.client.field.IdpScope.EREZEPTDEV;
-import static health.ere.ps.model.idp.client.field.IdpScope.OPENID;
-import static org.jose4j.jws.AlgorithmIdentifiers.RSA_PSS_USING_SHA256;
 
 @Dependent
 public class IdpClient implements IIdpClient {

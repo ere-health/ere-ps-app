@@ -1,7 +1,39 @@
 package health.ere.ps.service.idp.client;
 
+import static health.ere.ps.model.idp.client.field.ClaimName.CODE_VERIFIER;
+import static health.ere.ps.model.idp.client.field.ClaimName.TOKEN_KEY;
+import static health.ere.ps.model.idp.client.field.ClaimName.X509_CERTIFICATE_CHAIN;
+import static health.ere.ps.service.idp.client.authentication.UriUtils.extractParameterValue;
+import static health.ere.ps.service.idp.crypto.CryptoLoader.getCertificateFromPem;
+
+import java.io.StringReader;
+import java.math.BigInteger;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.cert.X509Certificate;
+import java.security.spec.ECPublicKeySpec;
+import java.security.spec.InvalidKeySpecException;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.microprofile.rest.client.RestClientBuilder;
+import org.jose4j.jwt.JwtClaims;
+
 import com.diffplug.common.base.Errors;
 import com.diffplug.common.base.Throwing;
+
 import health.ere.ps.exception.idp.IdpClientException;
 import health.ere.ps.exception.idp.IdpException;
 import health.ere.ps.exception.idp.IdpJoseException;
@@ -25,38 +57,13 @@ import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonReader;
 import jakarta.json.JsonString;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.eclipse.microprofile.rest.client.RestClientBuilder;
-import org.jose4j.jwt.JwtClaims;
-
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import java.io.StringReader;
-import java.math.BigInteger;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.cert.X509Certificate;
-import java.security.spec.ECPublicKeySpec;
-import java.security.spec.InvalidKeySpecException;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static health.ere.ps.model.idp.client.field.ClaimName.CODE_VERIFIER;
-import static health.ere.ps.model.idp.client.field.ClaimName.TOKEN_KEY;
-import static health.ere.ps.model.idp.client.field.ClaimName.X509_CERTIFICATE_CHAIN;
-import static health.ere.ps.service.idp.client.authentication.UriUtils.extractParameterValue;
-import static health.ere.ps.service.idp.crypto.CryptoLoader.getCertificateFromPem;
 
 @ApplicationScoped
 public class AuthenticatorClient {
+
+    private static Logger log = Logger.getLogger(AuthenticatorClient.class.getName());
 
     public AuthenticatorClient() {
     }
@@ -109,8 +116,10 @@ public class AuthenticatorClient {
         String endpointUrl = authenticationRequest.getAuthenticationEndpointUrl();
         IdpHttpClientService idpHttpClientService = getIdpHttpClientInstanceByUrl(endpointUrl);
 
+        String rawString = authenticationRequest.getSignedChallenge().getRawString();
+        log.fine("rawString: " + rawString);
         try (Response response = idpHttpClientService.doAuthenticationRequest(
-            authenticationRequest.getSignedChallenge().getRawString())) {
+            rawString)) {
             checkResponseForErrorsAndThrowIfAny(response);
 
             String location = retrieveLocationFromResponse(response);
@@ -119,6 +128,8 @@ public class AuthenticatorClient {
                 .location(location)
                 /*.ssoToken(extractParameterValue(location, "ssotoken"))*/
                 .build();
+        } catch(WebApplicationException ex) {
+            throw new IdpClientException("Unexpected Server-Response: " + ex.getResponse().getStatus() + " " + ex.getResponse().readEntity(String.class));
         }
     }
 
