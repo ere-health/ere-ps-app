@@ -13,13 +13,14 @@ import java.util.function.Function;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
+import java.util.logging.Logger;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.jboss.logging.Logger;
+
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.lang.JoseException;
@@ -170,7 +171,7 @@ public class IdpClient implements IIdpClient {
 
         // Authorization
         final String state = RandomStringUtils.randomAlphanumeric(20);
-        logger.debug("Performing Authorization with remote-URL: " +
+        logger.fine("Performing Authorization with remote-URL: " +
                 discoveryDocumentResponse.getAuthorizationEndpoint());
         final AuthorizationResponse authorizationResponse =
                 authenticatorClient
@@ -190,7 +191,7 @@ public class IdpClient implements IIdpClient {
                 certificate, contentSigner));
 
         // Authentication
-        logger.debug("Performing Authentication with remote-URL: " +
+        logger.fine("Performing Authentication with remote-URL: " +
                 discoveryDocumentResponse.getAuthorizationEndpoint());
         final AuthenticationResponse authenticationResponse =
                 authenticatorClient
@@ -208,7 +209,7 @@ public class IdpClient implements IIdpClient {
         }
 
         // get Token
-        logger.debug("Performing getToken with remote-URL: " +
+        logger.fine("Performing getToken with remote-URL: " +
                 discoveryDocumentResponse.getTokenEndpoint());
         return authenticatorClient.retrieveAccessToken(TokenRequest.builder()
                 .tokenUrl(discoveryDocumentResponse.getTokenEndpoint())
@@ -227,7 +228,7 @@ public class IdpClient implements IIdpClient {
     }
 
     private void assertThatClientIsInitialized() throws IdpClientException {
-        logger.debug("Verifying IDP-Client initialization...");
+        logger.fine("Verifying IDP-Client initialization...");
 
         if (discoveryDocumentResponse == null ||
                 StringUtils.isEmpty(discoveryDocumentResponse.getAuthorizationEndpoint()) ||

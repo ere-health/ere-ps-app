@@ -6,14 +6,11 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.xml.ws.Holder;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
 import de.gematik.ws.conn.cardservicecommon.v2.PinResultEnum;
+import de.gematik.ws.conn.certificateservice.v6.CryptType;
 import de.gematik.ws.conn.certificateservice.v6.ReadCardCertificate;
 import de.gematik.ws.conn.certificateservice.v6.ReadCardCertificateResponse;
 import de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage;
@@ -24,6 +21,9 @@ import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.exception.connector.ConnectorCardCertificateReadException;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import health.ere.ps.service.idp.crypto.CryptoLoader;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.xml.ws.Holder;
 
 @ApplicationScoped
 public class CardCertificateReaderService {
@@ -92,12 +92,15 @@ public class CardCertificateReaderService {
         ReadCardCertificate.CertRefList certRefList = new ReadCardCertificate.CertRefList();
         certRefList.getCertRef().add(CertRefEnum.C_AUT);
 
+        
+
         Holder<Status> statusHolder = new Holder<>();
         Holder<X509DataInfoListType> certHolder = new Holder<>();
 
         try {
+            CryptType crypt = CryptType.ECC;
             connectorServicesProvider.getCertificateServicePortType(runtimeConfig).readCardCertificate(cardHandle, connectorServicesProvider.getContextType(runtimeConfig), certRefList,
-                    statusHolder, certHolder);
+                    crypt, statusHolder, certHolder);
         } catch (FaultMessage faultMessage) {
             // Zugriffsbedingungen nicht erfüllt
             boolean code4085 = faultMessage.getFaultInfo().getTrace().stream()

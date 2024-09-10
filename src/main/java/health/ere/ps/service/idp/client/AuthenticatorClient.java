@@ -20,16 +20,23 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+<<<<<<< HEAD
+=======
+import java.util.logging.Logger;
+>>>>>>> 1fa64b44 (ERE-721 used ECC certificate from SMC-B)
 import java.util.stream.Collectors;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+<<<<<<< HEAD
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonReader;
 import jakarta.json.JsonString;
 import jakarta.ws.rs.core.Response;
+=======
+>>>>>>> 1fa64b44 (ERE-721 used ECC certificate from SMC-B)
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -57,9 +64,21 @@ import health.ere.ps.model.idp.client.token.IdpJwe;
 import health.ere.ps.model.idp.client.token.JsonWebToken;
 import health.ere.ps.model.idp.client.token.TokenClaimExtraction;
 import health.ere.ps.service.idp.client.authentication.UriUtils;
+<<<<<<< HEAD
+=======
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonReader;
+import jakarta.json.JsonString;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
+>>>>>>> 1fa64b44 (ERE-721 used ECC certificate from SMC-B)
 
 @ApplicationScoped
 public class AuthenticatorClient {
+
+    private static Logger log = Logger.getLogger(AuthenticatorClient.class.getName());
 
     public AuthenticatorClient() {
 
@@ -113,12 +132,19 @@ public class AuthenticatorClient {
     public health.ere.ps.model.idp.client.AuthenticationResponse performAuthentication(
             final AuthenticationRequest authenticationRequest) throws IdpClientException, IdpException {
 
+<<<<<<< HEAD
         IdpHttpClientService idpHttpClientService =
                 getIdpHttpClientInstanceByUrl(authenticationRequest.getAuthenticationEndpointUrl());
 
         String location;
         try (Response response = idpHttpClientService.doAuthenticationRequest(
                              authenticationRequest.getSignedChallenge().getRawString())) {
+=======
+        String rawString = authenticationRequest.getSignedChallenge().getRawString();
+        log.fine("rawString: " + rawString);
+        try (Response response = idpHttpClientService.doAuthenticationRequest(
+            rawString)) {
+>>>>>>> 1fa64b44 (ERE-721 used ECC certificate from SMC-B)
             checkResponseForErrorsAndThrowIfAny(response);
 
             location = retrieveLocationFromResponse(response);
@@ -129,6 +155,12 @@ public class AuthenticatorClient {
                 .location(location)
                 /*.ssoToken(extractParameterValue(location, "ssotoken"))*/
                 .build();
+<<<<<<< HEAD
+=======
+        } catch(WebApplicationException ex) {
+            throw new IdpClientException("Unexpected Server-Response: " + ex.getResponse().getStatus() + " " + ex.getResponse().readEntity(String.class));
+        }
+>>>>>>> 1fa64b44 (ERE-721 used ECC certificate from SMC-B)
     }
 
     private void checkResponseForErrorsAndThrowIfAny(final Response loginResponse)

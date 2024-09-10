@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,6 +29,7 @@ import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x500.style.IETFUtils;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import org.bouncycastle.crypto.CryptoException;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.hl7.fhir.r4.model.Address.AddressType;
 import org.hl7.fhir.r4.model.Annotation;
 import org.hl7.fhir.r4.model.BooleanType;
@@ -55,6 +57,7 @@ import org.hl7.fhir.r4.model.StringType;
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
 import de.gematik.ws.conn.cardservice.v8.CardInfoType;
 import de.gematik.ws.conn.cardservicecommon.v2.CardTypeType;
+import de.gematik.ws.conn.certificateservice.v6.CryptType;
 import de.gematik.ws.conn.certificateservice.v6.ReadCardCertificate;
 import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateServicePortType;
 import de.gematik.ws.conn.certificateservicecommon.v2.CertRefEnum;
@@ -326,7 +329,7 @@ public class PrefillPrescriptionService {
 		if(context.getUserId() == null || context.getUserId().isEmpty()) {
 			context.setUserId(UUID.randomUUID().toString());
 		}
-		certificateService.readCardCertificate(hbaHandle, context, certRefList, statusHolder, certHolder);
+		certificateService.readCardCertificate(hbaHandle, context, certRefList, CryptType.ECC, statusHolder, certHolder);
 
 		return CryptoLoader.getCertificateFromAsn1DERCertBytes(
 				certHolder.value.getX509DataInfo().get(0).getX509Data().getX509Certificate());
