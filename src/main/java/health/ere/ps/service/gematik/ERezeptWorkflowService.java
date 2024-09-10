@@ -290,7 +290,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
                 BundleWithAccessCodeOrThrowable bundleWithAccessCode = bundleWithAccessCodes.get(i);
                 try {
                     Task task = tasks.get(i);
-                    if(task != null) {
+                    if(task != null && signedDocument.getSignatureObject() != null && signedDocument.getSignatureObject().getBase64Signature() != null) {
                         byte[] signedBundle = signedDocument.getSignatureObject().getBase64Signature().getValue();
                         bundleWithAccessCode.setSignedBundle(signedBundle);
                         updateERezeptTask(task, bundleWithAccessCode.getAccessCode(),
