@@ -80,28 +80,40 @@ public class CardCertificateReaderService {
         return x509Certificate;
     }
 
+    public ReadCardCertificateResponse doReadCardCertificate(String cardHandle, RuntimeConfig runtimeConfig)
+            throws ConnectorCardCertificateReadException {
+        CryptType crypt = CryptType.ECC;
+        return doReadCardCertificate(cardHandle, runtimeConfig, crypt);
+    }
+
     /**
      * Reads the AUT certificate of a card.
      *
      * @param cardHandle The handle of the card whose AUT certificate is to be read.
      * @return The read AUT certificate.
      */
-    public ReadCardCertificateResponse doReadCardCertificate(String cardHandle, RuntimeConfig runtimeConfig)
+    public ReadCardCertificateResponse doReadCardCertificate(String cardHandle, RuntimeConfig runtimeConfig, CryptType crypt)
             throws ConnectorCardCertificateReadException {
 
         ReadCardCertificate.CertRefList certRefList = new ReadCardCertificate.CertRefList();
         certRefList.getCertRef().add(CertRefEnum.C_AUT);
 
-        
-
         Holder<Status> statusHolder = new Holder<>();
         Holder<X509DataInfoListType> certHolder = new Holder<>();
 
         try {
-            CryptType crypt = CryptType.ECC;
+            
             connectorServicesProvider.getCertificateServicePortType(runtimeConfig).readCardCertificate(cardHandle, connectorServicesProvider.getContextType(runtimeConfig), certRefList,
                     crypt, statusHolder, certHolder);
         } catch (FaultMessage faultMessage) {
+
+            // Datei nicht vorhanden
+            boolean code4087 = faultMessage.getFaultInfo().getTrace().stream()
+                    .anyMatch(t -> t.getCode().equals(BigInteger.valueOf(4087L)));
+            if(code4087 && crypt.equals(CryptType.ECC)) {
+                return doReadCardCertificate(cardHandle, runtimeConfig, CryptType.RSA);
+            }
+
             // Zugriffsbedingungen nicht erfüllt
             boolean code4085 = faultMessage.getFaultInfo().getTrace().stream()
                     .anyMatch(t -> t.getCode().equals(BigInteger.valueOf(4085L)));

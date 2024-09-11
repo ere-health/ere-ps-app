@@ -122,9 +122,10 @@ public class SmcbAuthenticatorService {
                     String smcbCardHandle = (this.runtimeConfig != null && this.runtimeConfig.getSMCBHandle() != null) ?
                         this.runtimeConfig.getSMCBHandle() : connectorCardsService.getConnectorCardHandle(
                         ConnectorCardsService.CardHandleType.SMC_B, runtimeConfig);
+                    boolean isECC = this.getAlgorithmHeaderValue().equalsIgnoreCase("BP256R1");
 
-                    signatureBytes = externalAuthenticate(encodedhash,
-                            smcbCardHandle);
+                    signatureBytes = externalAuthenticateInternal(encodedhash,
+                            smcbCardHandle, isECC);
                 } catch (ConnectorCardsException e) {
                     throw new IllegalStateException("Cannot access the SMC-B card-handle info to " +
                             "compute the json web token signature!", e);
@@ -132,41 +133,11 @@ public class SmcbAuthenticatorService {
                 setSignature(signatureBytes);
             }
         }
-
-        public byte[] externalAuthenticate(byte[] sha265Hash, String smcbCardHandle) throws JoseException {
-            return externalAuthenticate(sha265Hash, smcbCardHandle, this.runtimeConfig);
+    
+        public byte[] externalAuthenticateInternal(byte[] sha265Hash, String smcbCardHandle, boolean isECC) throws JoseException {
+            return externalAuthenticate(sha265Hash, smcbCardHandle, this.runtimeConfig, isECC);
         }
-
-        public byte[] externalAuthenticate(byte[] sha265Hash, String smcbCardHandle, RuntimeConfig runtimeConfig) throws JoseException {
-            ExternalAuthenticate.OptionalInputs optionalInputs = new ExternalAuthenticate.OptionalInputs();
-
-            // optionalInputs.setSignatureSchemes("RSASSA-PSS");
-            optionalInputs.setSignatureType("urn:bsi:tr:03111:ecdsa");
-
-            BinaryDocumentType binaryDocumentType = new BinaryDocumentType();
-            Base64Data base64Data = new Base64Data();
-            base64Data.setMimeType("application/octet-stream");
-            base64Data.setValue(sha265Hash);
-            binaryDocumentType.setBase64Data(base64Data);
-
-            ExternalAuthenticateResponse response;
-
-            try {
-                // Titus Bug:  Client received SOAP Fault from server: No enum constant
-                // de.gematik.ti.signenc.authsignature.SignatureScheme.RSASSA-PSS Please see the
-                // server log to find more detail regarding exact cause of the failure.
-                response = doExternalAuthenticate(smcbCardHandle,
-                        runtimeConfig, optionalInputs,
-                        binaryDocumentType);
-            } catch (FaultMessage e) {
-                throw new JoseException("Could not call externalAuthenticate", e);
-            }
-            byte[] value = response.getSignatureObject().getBase64Signature().getValue();
-
-            byte[] concatenated = convertDerECDSAtoConcated(value);
-
-            return concatenated;
-        }
+        
 
         private byte[] getSigningInputBytes() throws JoseException {
         /*
@@ -198,6 +169,44 @@ public class SmcbAuthenticatorService {
                             e);
                 }
             }
+        }
+    }
+
+    public byte[] externalAuthenticate(byte[] sha265Hash, String smcbCardHandle, RuntimeConfig runtimeConfig, boolean isECC) throws JoseException {
+        ExternalAuthenticate.OptionalInputs optionalInputs = new ExternalAuthenticate.OptionalInputs();
+
+        // optionalInputs.setSignatureSchemes("RSASSA-PSS");
+        if(isECC) {
+            optionalInputs.setSignatureType("urn:bsi:tr:03111:ecdsa");
+        } else {
+            optionalInputs.setSignatureType("urn:ietf:rfc:3447");
+        }
+
+        BinaryDocumentType binaryDocumentType = new BinaryDocumentType();
+        Base64Data base64Data = new Base64Data();
+        base64Data.setMimeType("application/octet-stream");
+        base64Data.setValue(sha265Hash);
+        binaryDocumentType.setBase64Data(base64Data);
+
+        ExternalAuthenticateResponse response;
+
+        try {
+            // Titus Bug:  Client received SOAP Fault from server: No enum constant
+            // de.gematik.ti.signenc.authsignature.SignatureScheme.RSASSA-PSS Please see the
+            // server log to find more detail regarding exact cause of the failure.
+            response = doExternalAuthenticate(smcbCardHandle,
+                    runtimeConfig, optionalInputs,
+                    binaryDocumentType);
+        } catch (FaultMessage e) {
+            throw new JoseException("Could not call externalAuthenticate", e);
+        }
+        byte[] value = response.getSignatureObject().getBase64Signature().getValue();
+
+        if(isECC) {
+            byte[] concatenated = convertDerECDSAtoConcated(value);
+            return concatenated;
+        } else {
+            return value;
         }
     }
 
