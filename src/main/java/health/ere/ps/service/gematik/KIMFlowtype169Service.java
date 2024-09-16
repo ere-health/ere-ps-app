@@ -7,26 +7,12 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.enterprise.event.ObservesAsync;
-import javax.inject.Inject;
-import javax.mail.Authenticator;
-import javax.mail.Message;
-import javax.mail.Multipart;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.SizeLimitExceededException;
@@ -46,7 +32,22 @@ import health.ere.ps.event.VZDSearchResultEvent;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.service.common.security.SSLSocketFactory;
 import health.ere.ps.service.common.security.SecretsManagerService;
-import health.ere.ps.websocket.ExceptionWithReplyToExcetion;
+import health.ere.ps.websocket.ExceptionWithReplyToException;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.event.ObservesAsync;
+import jakarta.inject.Inject;
+import jakarta.mail.Authenticator;
+import jakarta.mail.Message;
+import jakarta.mail.Multipart;
+import jakarta.mail.PasswordAuthentication;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
 
 @ApplicationScoped
 public class KIMFlowtype169Service {
@@ -62,7 +63,8 @@ public class KIMFlowtype169Service {
     @Inject
     Event<Exception> exceptionEvent;
 
-    Pattern HOST_WITH_PORT = Pattern.compile("^(.*):([0-9]+)$");
+    static Pattern HOST_WITH_PORT = Pattern.compile("^(.*):([0-9]+)$");
+    static Pattern PROTOCOL_HOST_WITH_PORT = Pattern.compile("^(smtps?)://(.[^:]*)(:([0-9]+))?$");
 
     @PostConstruct
     public void disableEndpointIdentification() {
@@ -71,15 +73,7 @@ public class KIMFlowtype169Service {
 
     public void sendERezeptToKIMAddress(String fromKimAddress, String toKimAddress, String noteToPharmacy, String smtpHostServer, String smtpUser, String smtpPassword, String eRezeptToken) {
         try {
-            Properties props = new Properties();
-            Matcher m = HOST_WITH_PORT.matcher(smtpHostServer);
-            if(m.matches()) {
-                props.put("mail.smtp.host", m.group(1));
-                props.put("mail.smtp.port", m.group(2));
-            } else {
-                props.put("mail.smtp.host", smtpHostServer);
-            }
-            props.put("mail.smtp.auth", true);
+            Properties props = createProperties(smtpHostServer);
 
             Session session = Session.getInstance(props, new Authenticator() {
                 @Override
@@ -90,6 +84,7 @@ public class KIMFlowtype169Service {
             MimeMessage msg = new MimeMessage(session);
             //set message headers
             msg.addHeader("X-KIM-Dienstkennung", "eRezept;Zuweisung;V1.0");
+            msg.addHeader("X-KIM-Encounter-Id", UUID.randomUUID().toString());
 
             msg.setFrom(new InternetAddress(fromKimAddress));
 
@@ -119,6 +114,35 @@ public class KIMFlowtype169Service {
 	    } catch (Exception e) {
 	      log.log(Level.WARNING, "Error during sending E-Prescription", e);
 	    }
+    }
+
+    static Properties createProperties(String smtpHostServer) {
+        Properties props = new Properties();
+        Matcher m = HOST_WITH_PORT.matcher(smtpHostServer);
+        Matcher m2 = PROTOCOL_HOST_WITH_PORT.matcher(smtpHostServer);
+        if(m2.matches()) {
+            String protocol = m2.group(1);
+            props.put("mail.transport.protocol", protocol);
+            String host = m2.group(2);
+            String port = m2.group(4);
+            props.put("mail.smtp.host", host);
+            if(port != null && !("".equals(port))) {
+                props.put("mail.smtp.port", port);
+            }
+            if("smtps".equals(protocol)) {
+                props.put("mail.smtp.ssl.enable", "true");
+                // props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+                props.put("mail.smtp.ssl.trust", "*");
+                props.put("mail.smtp.ssl.checkserveridentity", "false");
+            }
+        } else if(m.matches()) {
+            props.put("mail.smtp.host", m.group(1));
+            props.put("mail.smtp.port", m.group(2));
+        } else {
+            props.put("mail.smtp.host", smtpHostServer);
+        }
+        props.put("mail.smtp.auth", true);
+        return props;
     }
 
     public List<Map<String,Object>> search(RuntimeConfig runtimeConfig, String searchDisplayName) {
@@ -181,15 +205,20 @@ public class KIMFlowtype169Service {
         try {
             if("169".equals(bundlesWithAccessCodeEvent.getFlowtype())) {
                 Map<String,String> kimConfigMap = bundlesWithAccessCodeEvent.getKimConfigMap();
+		if("true".equals(kimConfigMap.get("preventKIMMail"))) {
+		    log.info("Please do not send a KIM E-Mail");
+		    return;
+		}
                 for(List<BundleWithAccessCodeOrThrowable> list : bundlesWithAccessCodeEvent.getBundleWithAccessCodeOrThrowable()) {
                     for(BundleWithAccessCodeOrThrowable bundle : list) {
                         sendERezeptToKIMAddress(kimConfigMap.get("fromKimAddress"), bundlesWithAccessCodeEvent.getToKimAddress(), bundlesWithAccessCodeEvent.getNoteToPharmacy(), kimConfigMap.get("smtpHostServer"), getSmtpUser(kimConfigMap), kimConfigMap.get("smtpPassword"), getERezeptToken(bundle.getBundle(), bundle.getAccessCode()));
                     }
                 }
             }
-        } catch (Exception e) {
-            log.log(Level.WARNING, "Could not send kim E-Mail", e);
-            exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, bundlesWithAccessCodeEvent.getReplyTo(), bundlesWithAccessCodeEvent.getId()));
+        } catch (Throwable t) {
+            log.log(Level.WARNING, "Could not send kim E-Mail", t);
+            Exception e = (t instanceof Throwable ? new RuntimeException(t) : (Exception) t);
+            exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, bundlesWithAccessCodeEvent.getReplyTo(), bundlesWithAccessCodeEvent.getId()));
         }
     }
 
@@ -200,7 +229,7 @@ public class KIMFlowtype169Service {
             vZDSearchResultEvent.fireAsync(searchResultEvent);
         } catch (Exception e) {
             log.log(Level.WARNING, "Could not search VZD", e);
-            exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, vZDSearchEvent.getReplyTo(), vZDSearchEvent.getId()));
+            exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, vZDSearchEvent.getReplyTo(), vZDSearchEvent.getId()));
         }
     }
 

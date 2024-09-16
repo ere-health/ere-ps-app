@@ -11,6 +11,7 @@ public class GetSignatureModeResponseEvent extends AbstractEvent {
     javax.xml.datatype.Duration comfortSignatureTimer;
     SessionInfo sessionInfo;
     String userId;
+    boolean answertToActivateComfortSignature = false;
 
     public GetSignatureModeResponseEvent(Status status, ComfortSignatureStatusEnum comfortSignatureStatus, Integer comfortSignatureMax, javax.xml.datatype.Duration comfortSignatureTimer, SessionInfo sessionInfo) {
         this.status = status;
@@ -18,6 +19,18 @@ public class GetSignatureModeResponseEvent extends AbstractEvent {
         this.comfortSignatureMax = comfortSignatureMax;
         this.comfortSignatureTimer = comfortSignatureTimer;
         this.sessionInfo = sessionInfo;
+    }
+
+    public boolean isAnswertToActivateComfortSignature() {
+        return this.answertToActivateComfortSignature;
+    }
+
+    public boolean getAnswertToActivateComfortSignature() {
+        return this.answertToActivateComfortSignature;
+    }
+
+    public void setAnswertToActivateComfortSignature(boolean answertToActivateComfortSignature) {
+        this.answertToActivateComfortSignature = answertToActivateComfortSignature;
     }
 
     public Status getStatus() {

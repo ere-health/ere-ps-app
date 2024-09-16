@@ -4,11 +4,11 @@ import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.enterprise.event.ObservesAsync;
-import javax.inject.Inject;
-import javax.websocket.Session;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.event.ObservesAsync;
+import jakarta.inject.Inject;
+import jakarta.websocket.Session;
 
 import de.gematik.ws.conn.eventservice.v7.GetCards;
 import health.ere.ps.config.AppConfig;
@@ -16,10 +16,6 @@ import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.config.UserConfig;
 import health.ere.ps.event.RequestStatusEvent;
 import health.ere.ps.event.StatusResponseEvent;
-import health.ere.ps.exception.connector.ConnectorCardsException;
-import health.ere.ps.exception.idp.IdpClientException;
-import health.ere.ps.exception.idp.IdpException;
-import health.ere.ps.exception.idp.IdpJoseException;
 import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.model.status.Status;
 import health.ere.ps.service.common.security.SecretsManagerService;
@@ -29,7 +25,7 @@ import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import health.ere.ps.service.gematik.ERezeptWorkflowService;
 import health.ere.ps.service.idp.BearerTokenService;
-import health.ere.ps.websocket.ExceptionWithReplyToExcetion;
+import health.ere.ps.websocket.ExceptionWithReplyToException;
 
 @ApplicationScoped
 public class StatusService {
@@ -76,7 +72,7 @@ public class StatusService {
             statusResponseEvent.fireAsync(new StatusResponseEvent(status, session, id));
         } catch(Exception e) {
             log.log(Level.WARNING, "Could not get status", e);
-            exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, requestStatusEvent.getReplyTo(), requestStatusEvent.getId()));
+            exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, requestStatusEvent.getReplyTo(), requestStatusEvent.getId()));
         }
     }
 

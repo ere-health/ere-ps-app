@@ -8,13 +8,17 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.KeyStore;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.logging.LogManager;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
-import javax.xml.bind.DatatypeConverter;
-import javax.xml.ws.BindingProvider;
 
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.bouncycastle.crypto.params.ECDomainParameters;
@@ -24,6 +28,7 @@ import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.math.ec.ECPoint;
+import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -35,6 +40,10 @@ import health.ere.ps.service.common.security.SecretsManagerService.KeyStoreType;
 import health.ere.ps.service.common.security.SecretsManagerService.SslContextType;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
 import health.ere.ps.vau.VAU.KeyCoords;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.xml.bind.DatatypeConverter;
+import jakarta.xml.ws.BindingProvider;
 
 public class VAUTest {
 
@@ -214,5 +223,33 @@ public class VAUTest {
             0,0,0,0,0,
             0,0,0,0,0,
             0, 1}));
+    }
+
+    @Test
+    @Disabled
+    public void test() {
+        String fachdienstUrl = "https://erp-ref.zentral.erp.splitdns.ti-dienste.de";
+        ClientBuilder clientBuilder = ClientBuilder.newBuilder();
+                ((ResteasyClientBuilderImpl) clientBuilder).httpEngine(new VAUEngine(fachdienstUrl));
+
+        Client client = clientBuilder.build();
+        ExecutorService executorService = Executors.newFixedThreadPool(10);
+        List<Future<?>> futures = new ArrayList<>();
+        for(int i = 0; i < 100; i++) {
+            futures.add(executorService.submit(() -> {
+
+                String s = client.target(fachdienstUrl).path("/CapabilityStatement").request().header("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c").get().readEntity(String.class);
+                System.out.println(s);
+            }));
+        }
+        futures.stream().forEach(f -> {
+            try {
+                f.get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+        });
+
+
     }
 }

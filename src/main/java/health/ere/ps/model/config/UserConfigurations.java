@@ -16,9 +16,9 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.json.JsonObject;
-import javax.json.bind.annotation.JsonbProperty;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.json.JsonObject;
+import jakarta.json.bind.annotation.JsonbProperty;
+import jakarta.servlet.http.HttpServletRequest;
 
 public class UserConfigurations {
 
@@ -107,10 +107,14 @@ public class UserConfigurations {
     }
 
     public UserConfigurations(HttpServletRequest httpServletRequest) {
+        updateWithRequest(httpServletRequest);
+    }
+
+    public UserConfigurations updateWithRequest(HttpServletRequest httpServletRequest) {
         Enumeration<String> enumeration = httpServletRequest.getHeaderNames();
         List<String> list = Collections.list(enumeration);
         for(String headerName : list) {
-            if(headerName.startsWith("X-") && !"X-eHBAHandle".equals(headerName) && !"X-SMCBHandle".equals(headerName)) {
+            if(headerName.startsWith("X-") && !"X-eHBAHandle".equals(headerName) && !"X-SMCBHandle".equals(headerName) && !"X-sendPreview".equals(headerName)) {
                 String propertyName = headerName.substring(2);
                 Field field;
                 try {
@@ -123,6 +127,7 @@ public class UserConfigurations {
                 }
             }
         }
+        return this;
     }
 
     private void fillValues(Function<String, Object> getValue) {
@@ -308,6 +313,37 @@ public class UserConfigurations {
 
     @Override
     public int hashCode() {
-        return Objects.hash(erixaHotfolder, erixaDrugstoreEmail, erixaUserEmail, erixaUserPassword, erixaApiKey, muster16TemplateProfile, connectorBaseURL, mandantId, workplaceId, clientSystemId, userId, version, tvMode, clientCertificate, clientCertificatePassword, basicAuthUsername, basicAuthPassword, pruefnummer);
+        return Objects.hash(basicAuthPassword, basicAuthUsername, clientCertificate, clientCertificatePassword,
+                clientSystemId, connectorBaseURL, erixaApiKey, erixaDrugstoreEmail, erixaHotfolder, erixaUserEmail,
+                erixaUserPassword, mandantId, muster16TemplateProfile, pruefnummer, tvMode, userId, version,
+                workplaceId);
+    }
+    
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        UserConfigurations other = (UserConfigurations) obj;
+        return Objects.equals(basicAuthPassword, other.basicAuthPassword)
+                && Objects.equals(basicAuthUsername, other.basicAuthUsername)
+                && Objects.equals(clientCertificate, other.clientCertificate)
+                && Objects.equals(clientCertificatePassword, other.clientCertificatePassword)
+                && Objects.equals(clientSystemId, other.clientSystemId)
+                && Objects.equals(connectorBaseURL, other.connectorBaseURL)
+                && Objects.equals(erixaApiKey, other.erixaApiKey)
+                && Objects.equals(erixaDrugstoreEmail, other.erixaDrugstoreEmail)
+                && Objects.equals(erixaHotfolder, other.erixaHotfolder)
+                && Objects.equals(erixaUserEmail, other.erixaUserEmail)
+                && Objects.equals(erixaUserPassword, other.erixaUserPassword)
+                && Objects.equals(mandantId, other.mandantId)
+                && Objects.equals(muster16TemplateProfile, other.muster16TemplateProfile)
+                && Objects.equals(pruefnummer, other.pruefnummer) && Objects.equals(tvMode, other.tvMode)
+                && Objects.equals(userId, other.userId) && Objects.equals(version, other.version)
+                && Objects.equals(workplaceId, other.workplaceId);
     }
 }

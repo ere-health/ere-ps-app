@@ -1,0 +1,21 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v6="http://ws.gematik.de/conn/CertificateService/v6.0" xmlns:v5="http://ws.gematik.de/conn/ConnectorCommon/v5.0" xmlns:v2="http://ws.gematik.de/conn/ConnectorContext/v2.0">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <v6:ReadCardCertificate>
+         <v5:CardHandle>HBA-3</v5:CardHandle>
+         <v2:Context>
+            <v5:MandantId>Incentergy</v5:MandantId>
+            <v5:ClientSystemId>Incentergy</v5:ClientSystemId>
+            <v5:WorkplaceId>1786_A1</v5:WorkplaceId>
+            <v5:UserId>85eae8a6-826e-e334-78cc-47f308ec4da6</v5:UserId>
+         </v2:Context>
+         <v6:CertRefList>
+            <!--1 or more repetitions:-->
+            <v6:CertRef>C.ENC</v6:CertRef>
+            <v6:CertRef>C.QES</v6:CertRef>
+            <v6:CertRef>C.AUT</v6:CertRef>
+     
+         </v6:CertRefList>
+      </v6:ReadCardCertificate>
+   </soapenv:Body>
+</soapenv:Envelope>

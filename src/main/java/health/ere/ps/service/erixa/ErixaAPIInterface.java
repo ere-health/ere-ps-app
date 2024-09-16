@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -51,7 +51,7 @@ public class ErixaAPIInterface {
 
     public Object uploadToDrugstore(String json) {
         try {
-            log.info("Post: "+uploadToDrugstoreURL+" "+json);
+            log.fine("Post: "+uploadToDrugstoreURL+" "+json);
             HttpResponse response = httpClient.sendPostRequest(uploadToDrugstoreURL, json);
             if(response.getStatusLine().getStatusCode() != 200) {
                 log.log(Level.WARNING, "Could not upload prescription to eRiXa: "+response.getStatusLine().getStatusCode()+" "+new String(response.getEntity().getContent().readAllBytes()));

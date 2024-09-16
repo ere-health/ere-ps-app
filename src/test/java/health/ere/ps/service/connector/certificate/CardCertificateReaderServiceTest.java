@@ -5,7 +5,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.logging.LogManager;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.bouncycastle.crypto.CryptoException;
 import org.junit.jupiter.api.Assertions;

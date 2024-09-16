@@ -11,10 +11,6 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
@@ -36,6 +32,10 @@ import org.jboss.resteasy.client.jaxrs.internal.ClientInvocation;
 import org.jboss.resteasy.client.jaxrs.internal.ClientResponse;
 import org.jboss.resteasy.client.jaxrs.internal.FinalizedClientResponse;
 
+import jakarta.ws.rs.client.Invocation;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.Response;
+
 /**
  * Engine for RestEasy inspired by the Gematik implementation of VAU:
  * https://github.com/gematik/ref-ePA-vauchannel/blob/master/vauchannel-cxf/src/main/java/de/gematik/ti/vauchannel/cxf/AESInterceptor.java
@@ -48,10 +48,10 @@ public class VAUEngine extends ApacheHttpClient43Engine {
     private static final String responsePattern = "1 ([A-Fa-f0-9]{32}) (.*?)\r?\n\r?\n(.*)";
     private static final Pattern RESPONSE_PATTERN = Pattern.compile(responsePattern, Pattern.DOTALL);
     private final String fachdienstUrl;
-    String requestid;
+    ThreadLocal<String> requestidThreadLocal = new ThreadLocal<>();
     String userpseudonym = "0";
     private VAU vau;
-    private byte[] aeskey;
+    private ThreadLocal<byte[]> aeskeyThreadLocal = new ThreadLocal<>();
 
     public VAUEngine(String fachdienstUrl) {
         this.fachdienstUrl = fachdienstUrl;
@@ -122,8 +122,10 @@ public class VAUEngine extends ApacheHttpClient43Engine {
             }
 
             String bearer = authorization.substring(7);
-            requestid = VAU.byteArrayToHexString(vau.getRandom(16)).toLowerCase();
-            aeskey = vau.getRandom(16);
+            String requestid = VAU.byteArrayToHexString(vau.getRandom(16)).toLowerCase();
+            requestidThreadLocal.set(requestid);
+            byte[] aeskey = vau.getRandom(16);
+            aeskeyThreadLocal.set(aeskey);
             String aeskeyString = VAU.byteArrayToHexString(aeskey).toLowerCase();
             String p = "1 " + bearer + " " + requestid + " " + aeskeyString + " " + content;
 
@@ -179,6 +181,7 @@ public class VAUEngine extends ApacheHttpClient43Engine {
             log.fine(VAU.byteArrayToHexString(responseBytes));
             if(Response.Status.Family.SUCCESSFUL == response.getStatusInfo().getFamily()) {
                 // if it is successful 
+                byte[] aeskey = aeskeyThreadLocal.get();
                 transportedData = VAU.decryptWithKey(responseBytes, aeskey);
                 if(!userpseudonym.equals(response.getHeaderString("userpseudonym")) && response.getHeaderString("userpseudonym") != null) {
                     userpseudonym = response.getHeaderString("userpseudonym");
@@ -193,6 +196,7 @@ public class VAUEngine extends ApacheHttpClient43Engine {
             if(responseBytes != null) {
                 log.info("VAU Response Bytes: "+VAU.byteArrayToHexString(responseBytes));
             }
+            byte[] aeskey = aeskeyThreadLocal.get();
             if(aeskey != null) {
                 log.info("VAU AES Key: "+VAU.byteArrayToHexString(aeskey));
             }
@@ -207,6 +211,7 @@ public class VAUEngine extends ApacheHttpClient43Engine {
         }
 
         String requestIdFromResponse = m.group(1);
+        String requestid = requestidThreadLocal.get();
         if (!requestIdFromResponse.equals(requestid)) {
             throw new RuntimeException("requestIdFromResponse (" + requestIdFromResponse + ") does not match requestid (" + requestid + ")");
         }

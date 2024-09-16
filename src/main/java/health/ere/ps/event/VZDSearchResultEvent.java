@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.websocket.Session;
+import jakarta.websocket.Session;
 
 public class VZDSearchResultEvent extends AbstractEvent implements ReplyableEvent {
 

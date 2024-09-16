@@ -1,14 +1,19 @@
 # INSTALLATION
 
+[Back to Readme](README.md)
+
+---
+
 ## Windows
 
-Download and execute the following file:
-https://ere.health/ere-health-installer.bat
+Download and execute the following https://ere.health/ere-health-installer.bat on Windows 10.
 
 This will:
  * Install a JDK if not available
  * Install Chrome if not available
  * Install ere-health and add it to autostart
+
+---
 
 ## Linux (systemd service)
 
@@ -42,3 +47,9 @@ sudo journalctl -f -u ere-health
 ```
 
 Based on: https://dzone.com/articles/run-your-java-application-as-a-service-on-ubuntu
+
+
+
+---
+
+[Back to Readme](README.md)

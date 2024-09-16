@@ -3,15 +3,15 @@ package health.ere.ps.config;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.enterprise.inject.Alternative;
-import javax.enterprise.inject.spi.CDI;
-import javax.json.JsonObject;
-import javax.servlet.http.HttpServletRequest;
-
 import health.ere.ps.model.config.UserConfigurations;
+import jakarta.enterprise.inject.Alternative;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.json.JsonObject;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Alternative
 public class RuntimeConfig extends UserConfig {
@@ -20,14 +20,15 @@ public class RuntimeConfig extends UserConfig {
     
     protected String eHBAHandle = null;
     protected String SMCBHandle = null;
+    protected boolean sendPreview = true;
 
+    //todo: shouldn't idp parameter and prescriptionServerURL be part of UserConfig?
     protected String idpBaseURL = null;
     protected String idpAuthRequestRedirectURL = null;
     protected String idpClientId = null;
 
     protected String prescriptionServerURL = null;
 
-    
     public RuntimeConfig() {
         this.updateProperties(new UserConfigurations());
         try {
@@ -50,7 +51,7 @@ public class RuntimeConfig extends UserConfig {
             this.defaultMandantId = userConfig.getMandantId();
             this.defaultClientSystemId = userConfig.getClientSystemId();
             this.defaultWorkplaceId = userConfig.getWorkplaceId();
-            this.defaultUserId = userConfig.getUserId();
+            this.defaultUserId = Optional.ofNullable(userConfig.getUserId());
             
             this.defaultConnectorVersion = userConfig.getConnectorVersion();
             this.defaultTvMode = userConfig.getTvMode();
@@ -89,7 +90,12 @@ public class RuntimeConfig extends UserConfig {
         this.idpClientId = httpServletRequest.getHeader("X-idpClientId");
         this.idpAuthRequestRedirectURL = httpServletRequest.getHeader("X-idpAuthRequestRedirectURL");
         this.prescriptionServerURL = httpServletRequest.getHeader("X-prescriptionServerURL");
-        this.updateProperties(new UserConfigurations(httpServletRequest));
+
+        if (httpServletRequest.getHeader("X-sendPreview") != null) {
+            this.sendPreview = !httpServletRequest.getHeader("X-sendPreview").equalsIgnoreCase("false");
+        }
+
+        this.updateProperties(this.getConfigurations().updateWithRequest(httpServletRequest));
     }
 
     public void updateConfigurationsWithJsonObject(JsonObject object) {
@@ -104,6 +110,7 @@ public class RuntimeConfig extends UserConfig {
             this.idpClientId = jsonObject.getString("idp.client.id", null);
             this.idpAuthRequestRedirectURL = jsonObject.getString("idp.auth.request.redirect.url", null);
             this.prescriptionServerURL = jsonObject.getString("ere.workflow-service.prescription.server.url", null);
+            this.sendPreview = jsonObject.getBoolean("sendPreview", true);
             this.updateProperties(new UserConfigurations(jsonObject));
         }
     }
@@ -122,6 +129,14 @@ public class RuntimeConfig extends UserConfig {
 
     public void setSMCBHandle(String SMCBHandle) {
         this.SMCBHandle = SMCBHandle;
+    }
+
+    public boolean isSendPreview() {
+        return sendPreview;
+    }
+
+    public void setSendPreview(boolean sendPreview) {
+        this.sendPreview = sendPreview;
     }
 
     public String getIdpBaseURL() {
@@ -158,7 +173,28 @@ public class RuntimeConfig extends UserConfig {
 
     @Override
     public int hashCode() {
-        return Objects.hash(eHBAHandle, SMCBHandle, idpBaseURL, idpAuthRequestRedirectURL, idpClientId, prescriptionServerURL, this.getConfigurations(), super.hashCode());
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + Objects.hash(SMCBHandle, eHBAHandle, idpAuthRequestRedirectURL, idpBaseURL,
+                idpClientId, prescriptionServerURL, sendPreview);
+        return result;
+    }
+    
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        RuntimeConfig other = (RuntimeConfig) obj;
+        return Objects.equals(SMCBHandle, other.SMCBHandle) && Objects.equals(eHBAHandle, other.eHBAHandle)
+                && Objects.equals(idpAuthRequestRedirectURL, other.idpAuthRequestRedirectURL)
+                && Objects.equals(idpBaseURL, other.idpBaseURL) && Objects.equals(idpClientId, other.idpClientId)
+                && Objects.equals(prescriptionServerURL, other.prescriptionServerURL)
+                && sendPreview == other.sendPreview;
     }
 
     public String getConnectorAddress() {

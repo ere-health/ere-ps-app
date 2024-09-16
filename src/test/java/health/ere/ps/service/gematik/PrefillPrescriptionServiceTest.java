@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.security.cert.CertificateEncodingException;
 import java.util.logging.LogManager;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
+import jakarta.xml.bind.JAXBException;
 import javax.naming.InvalidNameException;
-import javax.xml.bind.JAXBException;
 
 import org.bouncycastle.crypto.CryptoException;
 import org.hl7.fhir.r4.model.Bundle;

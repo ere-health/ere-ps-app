@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.Serializable;
 
-import javax.websocket.EncodeException;
+import jakarta.websocket.EncodeException;
 
 import org.junit.jupiter.api.Test;
 

@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
 import javax.xml.transform.TransformerException;
 
 import org.apache.fop.apps.FOPException;
@@ -31,6 +30,7 @@ import health.ere.ps.service.pdf.DocumentService;
 import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
+import jakarta.inject.Inject;
 
 @QuarkusTest
 @Disabled
@@ -54,7 +54,6 @@ public class GenerateKBVCertificationBundlesServiceTest {
     static boolean useTitus = true;
 
     static boolean generateSignatureAndPdf = true;
-    static boolean validateResources = false;
 
     @Test
     public void testPF01() throws IOException, InvalidCanonicalizerException, XMLParserException, CanonicalizationException, ERezeptWorkflowException, FOPException, TransformerException {
@@ -72,9 +71,6 @@ public class GenerateKBVCertificationBundlesServiceTest {
         byte[] canonicalBytes = ERezeptWorkflowService.getCanonicalXmlBytes(bundle);
         Files.write(Paths.get("src/test/resources/kbv-zip/"+testCase+".xml"), canonicalBytes);
         if(generateSignatureAndPdf){
-            if(validateResources) {
-                prescriptionBundleValidator.validateResource(bundle, true);
-            }
             if(generateSignature) {
                 SignResponse signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundle);
                 Files.write(Paths.get("src/test/resources/kbv-zip/"+testCase+".p7s"), signResponse.getSignatureObject().getBase64Signature().getValue());
@@ -189,7 +185,7 @@ public class GenerateKBVCertificationBundlesServiceTest {
     }
 
     @Test
-    @Disabled
+    // @Disabled
     public void testRegeneratePdf() throws IOException, FOPException, TransformerException {
 
         genPDF("PF01", "d78fe79c81be9541bcf7a95c8254821e3ab3e88eaa1898db9e1b78a982fc94b2");

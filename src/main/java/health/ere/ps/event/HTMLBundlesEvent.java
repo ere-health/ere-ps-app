@@ -2,7 +2,7 @@ package health.ere.ps.event;
 
 import java.util.List;
 
-import javax.websocket.Session;
+import jakarta.websocket.Session;
 
 public class HTMLBundlesEvent extends AbstractEvent {
     private final List<String> bundles;

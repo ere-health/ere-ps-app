@@ -1,5 +1,8 @@
 package health.ere.ps.service.gematik;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -11,8 +14,8 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
-import javax.json.bind.JsonbBuilder;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -26,11 +29,12 @@ import health.ere.ps.service.common.security.SSLSocketFactory;
 import health.ere.ps.service.common.security.SecretsManagerService.KeyStoreType;
 import health.ere.ps.service.common.security.SecretsManagerService.SslContextType;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
+import jakarta.json.bind.JsonbBuilder;
 
-@Disabled
 public class KIMFlowtype169ServiceTest {
 
     @Test
+    @Disabled
     public void testSendERezeptToKIMAddress() {
       String fromKimAddress = "incentergy_test_02@arv.kim.telematik-test";
       String toKimAddress = "dsl5@arv.kim.telematik-test";
@@ -44,6 +48,7 @@ public class KIMFlowtype169ServiceTest {
     }
 
     @Test
+    @Disabled
     public void testSearchSee() throws NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException, UnrecoverableKeyException, KeyManagementException {
 
       String searchDisplayName = "See";
@@ -51,11 +56,40 @@ public class KIMFlowtype169ServiceTest {
     }
 
     @Test
+    @Disabled
     public void testSearchTest() throws NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException, UnrecoverableKeyException, KeyManagementException {
 
       String searchDisplayName = "test";
       search(searchDisplayName);
     }
+
+    @Test
+    public void testCreatePropertiesTest() {
+      Properties prop = KIMFlowtype169Service.createProperties("localhost");
+      assertEquals("localhost", prop.getProperty("mail.smtp.host"));
+      assertNull(prop.getProperty("mail.smtp.port"));
+
+      prop = KIMFlowtype169Service.createProperties("localhost:8025");
+      assertEquals("localhost", prop.getProperty("mail.smtp.host"));
+      assertEquals("8025", prop.getProperty("mail.smtp.port"));
+      
+      prop = KIMFlowtype169Service.createProperties("smtp://localhost");
+      assertEquals("localhost", prop.getProperty("mail.smtp.host"));
+      assertNull(prop.getProperty("mail.smtp.port"));
+      
+      prop = KIMFlowtype169Service.createProperties("smtps://localhost");
+      assertEquals("localhost", prop.getProperty("mail.smtp.host"));
+      assertNull(prop.getProperty("mail.smtp.port"));
+      prop = KIMFlowtype169Service.createProperties("smtp://localhost:8025");
+      assertEquals("localhost", prop.getProperty("mail.smtp.host"));
+      assertEquals("8025", prop.getProperty("mail.smtp.port"));
+      prop = KIMFlowtype169Service.createProperties("smtps://localhost:8025");
+      assertEquals("localhost", prop.getProperty("mail.smtp.host"));
+      assertEquals("8025", prop.getProperty("mail.smtp.port"));
+      assertEquals("*", prop.getProperty("mail.smtp.ssl.trust"));
+      
+    }
+
 
     private void search(String searchDisplayName) throws FileNotFoundException, NoSuchAlgorithmException,
         KeyStoreException, IOException, CertificateException, UnrecoverableKeyException, KeyManagementException {

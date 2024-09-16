@@ -10,9 +10,9 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 import java.util.Map;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonReader;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;

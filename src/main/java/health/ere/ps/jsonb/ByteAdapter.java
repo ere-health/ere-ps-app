@@ -1,8 +1,8 @@
 package health.ere.ps.jsonb;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.bind.adapter.JsonbAdapter;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+import jakarta.json.bind.adapter.JsonbAdapter;
 import java.util.Base64;
 
 
