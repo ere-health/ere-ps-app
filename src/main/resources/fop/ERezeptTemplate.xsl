@@ -95,7 +95,7 @@
                         <fo:table-body>
                             <fo:table-row height="5mm">
                                 <fo:table-cell number-columns-spanned="2">
-                                    <fo:block font-family="Liberation Sans" font-weight="bold" font-size="13pt" margin-bottom="1mm">
+                                    <fo:block font-family="Liberation Sans" font-weight="bold" font-size="12pt" margin-bottom="1mm">
                                         Ausdruck zur Einlösung Ihres E-Rezeptes
                                     </fo:block>
                                 </fo:table-cell>
