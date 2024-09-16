@@ -798,7 +798,12 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
      */
     public void onActivateComfortSignatureEvent(@ObservesAsync ActivateComfortSignatureEvent activateComfortSignatureEvent) {
         String userId = activateComfortSignature(activateComfortSignatureEvent.getRuntimeConfig(), activateComfortSignatureEvent.getReplyTo(), activateComfortSignatureEvent.getId());
-        onGetSignatureModeEvent(new GetSignatureModeEvent(activateComfortSignatureEvent.getReplyTo(), activateComfortSignatureEvent.getId()), userId, true);
+        try {
+            onGetSignatureModeEvent(new GetSignatureModeEvent(activateComfortSignatureEvent.getReplyTo(), activateComfortSignatureEvent.getId()), userId, true);
+        } catch(Exception e) {
+            log.log(Level.WARNING, "Could not get signature mode", e);
+            exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, activateComfortSignatureEvent.getReplyTo(), activateComfortSignatureEvent.getReplyToMessageId()));
+        }
     }
 
 
@@ -842,7 +847,12 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
     }
 
     public void onGetSignatureModeEvent(@ObservesAsync GetSignatureModeEvent getSignatureModeEvent) {
-        onGetSignatureModeEvent(getSignatureModeEvent, null);
+        try {
+            onGetSignatureModeEvent(getSignatureModeEvent, null);
+        } catch(Exception e) {
+            log.log(Level.WARNING, "Could not get signature mode", e);
+            exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, getSignatureModeEvent.getReplyTo(), getSignatureModeEvent.getReplyToMessageId()));
+        }
     }
 
     public void onGetSignatureModeEvent(GetSignatureModeEvent getSignatureModeEvent, String userId) {
