@@ -27,8 +27,6 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import javax.inject.Inject;
-
 import org.gradle.internal.impldep.com.google.common.collect.Lists;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Coverage;
@@ -39,13 +37,12 @@ import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Practitioner;
 import org.hl7.fhir.r4.model.Reference;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
 import ca.uhn.fhir.parser.IParser;
-import ca.uhn.fhir.validation.ValidationResult;
 import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.RuntimeConfig;
@@ -60,6 +57,7 @@ import health.ere.ps.service.pdf.DocumentService;
 import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
+import jakarta.inject.Inject;
 
 @QuarkusTest
 @Disabled
@@ -133,7 +131,7 @@ public class MassGenerator2Test {
     }
     @Test
     void testCreateERezeptMassCreateCIDA() throws Exception {
-        createERezeptMassCreate("../secret-test-print-samples/CIDA/egk/cards.txt", null, "../secret-test-print-samples/CIDA/CIDA-10/", true);
+        createERezeptMassCreate("../secret-test-print-samples/CIDA/egk/cards.txt", null, "../secret-test-print-samples/CIDA/CIDA-11/", true);
     }
     @Test
     void testCreateERezeptMassCGMLauer() throws Exception {
@@ -256,12 +254,7 @@ public class MassGenerator2Test {
                                 Coverage coverage = ((Coverage)bundle.getEntry().stream().filter(e -> e.getResource() instanceof Coverage).findAny().get().getResource());
                                 ((Reference)coverage.getPayor().get(0)).getIdentifier().setValue(singleInsurance);
                             }
-                            ValidationResult validationResult = prescriptionBundleValidator.validateResource(bundle, true);
-                            if(validationResult.isSuccessful()) {
-                                bundles.add(bundle);
-                            } else {
-                                log.info(entry.toFile().getName()+" is not valid");
-                            }
+                           bundles.add(bundle);
                         }
                         // System.out.println(iParser.encodeResourceToString(bundle));
                         //if(2 == 1+1) {
@@ -394,12 +387,7 @@ public class MassGenerator2Test {
                                 Coverage coverage = ((Coverage)bundle.getEntry().stream().filter(e -> e.getResource() instanceof Coverage).findAny().get().getResource());
                                 ((Reference)coverage.getPayor().get(0)).getIdentifier().setValue(singleInsurance);
                             }
-                            ValidationResult validationResult = prescriptionBundleValidator.validateResource(bundle, true);
-                            if(validationResult.isSuccessful()) {
-                                bundles.add(bundle);
-                            } else {
-                                log.info(myFile.getName()+" is not valid");
-                            }
+                            bundles.add(bundle);
                         }
                         // System.out.println(iParser.encodeResourceToString(bundle));
                         //if(2 == 1+1) {

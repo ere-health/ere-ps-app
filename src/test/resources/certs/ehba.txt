@@ -1,0 +1,113 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 138634185904543 (0x7e164967919f)
+        Signature Algorithm: sha256WithRSAEncryption
+        Issuer: C = DE, O = gematik GmbH NOT-VALID, CN = GEM.HBA-qCA24 TEST-ONLY
+        Validity
+            Not Before: Jan 29 00:00:00 2020 GMT
+            Not After : Dec 11 23:59:59 2024 GMT
+        Subject: C = DE, SN = Oldenburg + GN = M\C3\A3rianne Gr\C3\A4fin + serialNumber = 80276883110000121337 + CN = M\C3\A3rianne OldenburgTEST-ONLY
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                RSA Public-Key: (2048 bit)
+                Modulus:
+                    00:ae:8c:24:eb:cb:bf:45:39:8f:ac:4d:d1:9d:99:
+                    c5:84:82:bd:24:79:88:5d:5d:01:d4:f1:09:7d:29:
+                    0f:aa:1b:f1:4d:f4:19:d3:07:b3:73:08:3b:ad:16:
+                    99:e1:fe:9a:7e:33:0f:0c:d9:f2:3f:23:ef:cc:2e:
+                    de:60:9a:48:22:af:eb:4f:0c:b9:c7:4b:28:dd:98:
+                    1e:ba:a9:6f:b5:e4:24:e4:95:d2:15:9a:d1:c3:e2:
+                    e4:6f:a0:2d:18:d6:c4:39:f7:ed:d7:13:5c:14:73:
+                    4f:7c:ca:4a:c9:f8:91:07:c8:53:a1:73:b4:e8:19:
+                    a3:87:f6:1c:cb:18:dd:ee:6b:ed:9c:3c:85:a0:af:
+                    c4:7d:2d:b4:2b:ca:03:d3:62:f5:9a:bf:db:a8:30:
+                    5b:36:8d:35:50:32:06:63:fd:6a:e6:34:b4:57:e4:
+                    a9:7f:2b:a3:2a:41:7c:3e:69:25:89:87:5b:85:11:
+                    89:d0:04:fd:08:82:de:de:bd:09:8c:0e:a1:98:cd:
+                    98:48:27:64:c4:06:c7:0d:41:9a:17:d3:23:95:d5:
+                    7b:7a:11:97:80:55:18:04:d8:42:e4:61:bb:95:d9:
+                    1a:27:9d:ef:cd:60:b4:8c:98:bc:b9:a2:2c:4e:60:
+                    a9:e4:f8:02:38:84:a3:eb:7c:a7:67:b0:19:07:9b:
+                    71:6b
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Subject Key Identifier: 
+                BF:C7:1B:FC:5A:F6:02:35:2A:CE:75:7D:D2:66:4E:DA:3F:3A:FD:E6
+            qcStatements: 
+                0.0......F..0......F..
+            X509v3 Certificate Policies: 
+                Policy: 1.2.276.0.76.4.72
+                Policy: 0.4.0.194112.1.2
+                Policy: 1.2.276.0.76.4.145
+                Policy: 1.3.6.1.4.1.42675.1.1
+
+            X509v3 Key Usage: critical
+                Non Repudiation
+            1.3.6.1.4.1.8301.3.5: 
+                0..
++.....m...
+            Authority Information Access: 
+                OCSP - URI:http://ehca.gematik.de/ocsp/
+
+            X509v3 Authority Key Identifier: 
+                keyid:67:9C:31:B6:E9:C0:37:EA:1D:1B:81:E7:A4:F5:3B:CC:1E:17:01:39
+
+            X509v3 Basic Constraints: critical
+                CA:FALSE
+            Professional Information or basis for Admission: 
+                admissionAuthority:
+                  DirName:C = DE, O = gematik Berlin
+                Entry 1:
+                  Profession Info Entry 1:
+                    registrationNumber: 1-HBA-Testkarte-883110000121337
+                    Info Entries:
+                      ..rztin/Arzt
+                    Profession OIDs:
+                      undefined (1.2.276.0.76.4.30)
+
+    Signature Algorithm: sha256WithRSAEncryption
+         5b:fd:4b:98:f0:2b:21:e0:5c:a3:8f:bb:c1:f3:d1:d5:22:4f:
+         a4:d6:0c:0c:be:32:14:ce:f6:97:cf:5b:88:c0:c8:91:cb:70:
+         15:0c:e4:80:71:d0:39:12:69:54:b8:db:fe:d9:20:5d:10:86:
+         fb:6d:eb:2a:2a:89:07:9a:5f:45:2c:fd:da:69:12:25:f0:f0:
+         34:87:1c:f5:6d:43:ff:25:68:6a:6b:ce:51:a8:8d:2e:dc:41:
+         a5:14:95:84:65:59:32:fb:70:12:a2:9e:5c:1c:cf:46:05:54:
+         92:d8:c3:9c:86:b5:6e:f8:46:c6:d9:29:fc:2c:fc:85:bb:78:
+         2d:14:da:4a:1b:3f:a9:8f:32:f3:0b:47:51:09:5c:e1:ac:f8:
+         9e:ba:26:f1:07:af:e7:8d:c2:e1:c0:e1:b2:67:ed:27:0e:c7:
+         e4:d6:49:81:95:3c:7a:33:6f:d2:0f:41:fe:97:fd:19:06:7d:
+         4e:d2:29:de:33:47:c8:d2:a1:16:24:ea:aa:2f:48:68:54:42:
+         aa:35:25:01:67:12:f1:08:25:0a:e3:1d:b8:f9:5c:1f:ec:39:
+         e2:8f:f3:74:3a:e8:54:35:cc:71:bf:a7:09:8c:92:20:f8:39:
+         6b:cb:73:97:1f:d4:48:39:42:3c:60:a8:1d:93:19:06:16:e8:
+         48:82:5e:61
+-----BEGIN CERTIFICATE-----
+MIIE4jCCA8qgAwIBAgIGfhZJZ5GfMA0GCSqGSIb3DQEBCwUAMFAxCzAJBgNVBAYT
+AkRFMR8wHQYDVQQKDBZnZW1hdGlrIEdtYkggTk9ULVZBTElEMSAwHgYDVQQDDBdH
+RU0uSEJBLXFDQTI0IFRFU1QtT05MWTAeFw0yMDAxMjkwMDAwMDBaFw0yNDEyMTEy
+MzU5NTlaMH0xCzAJBgNVBAYTAkRFMW4wEAYDVQQEDAlPbGRlbmJ1cmcwGAYDVQQq
+DBFNw6NyaWFubmUgR3LDpGZpbjAbBgNVBAUTFDgwMjc2ODgzMTEwMDAwMTIxMzM3
+MCMGA1UEAwwcTcOjcmlhbm5lIE9sZGVuYnVyZ1RFU1QtT05MWTCCASIwDQYJKoZI
+hvcNAQEBBQADggEPADCCAQoCggEBAK6MJOvLv0U5j6xN0Z2ZxYSCvSR5iF1dAdTx
+CX0pD6ob8U30GdMHs3MIO60WmeH+mn4zDwzZ8j8j78wu3mCaSCKv608MucdLKN2Y
+Hrqpb7XkJOSV0hWa0cPi5G+gLRjWxDn37dcTXBRzT3zKSsn4kQfIU6FztOgZo4f2
+HMsY3e5r7Zw8haCvxH0ttCvKA9Ni9Zq/26gwWzaNNVAyBmP9auY0tFfkqX8roypB
+fD5pJYmHW4URidAE/QiC3t69CYwOoZjNmEgnZMQGxw1BmhfTI5XVe3oRl4BVGATY
+QuRhu5XZGied781gtIyYvLmiLE5gqeT4AjiEo+t8p2ewGQebcWsCAwEAAaOCAZMw
+ggGPMB0GA1UdDgQWBBS/xxv8WvYCNSrOdX3SZk7aPzr95jAiBggrBgEFBQcBAwQW
+MBQwCAYGBACORgEBMAgGBgQAjkYBBDA5BgNVHSAEMjAwMAkGByqCFABMBEgwCQYH
+BACL7EABAjAKBggqghQATASBETAMBgorBgEEAYLNMwEBMA4GA1UdDwEB/wQEAwIG
+QDAbBgkrBgEEAcBtAwUEDjAMBgorBgEEAcBtAwUBMDgGCCsGAQUFBwEBBCwwKjAo
+BggrBgEFBQcwAYYcaHR0cDovL2VoY2EuZ2VtYXRpay5kZS9vY3NwLzAfBgNVHSME
+GDAWgBRnnDG26cA36h0bgeek9TvMHhcBOTAMBgNVHRMBAf8EAjAAMHkGBSskCAMD
+BHAwbqQoMCYxCzAJBgNVBAYTAkRFMRcwFQYDVQQKDA5nZW1hdGlrIEJlcmxpbjBC
+MEAwPjA8MA4MDMOEcnp0aW4vQXJ6dDAJBgcqghQATAQeEx8xLUhCQS1UZXN0a2Fy
+dGUtODgzMTEwMDAwMTIxMzM3MA0GCSqGSIb3DQEBCwUAA4IBAQBb/UuY8Csh4Fyj
+j7vB89HVIk+k1gwMvjIUzvaXz1uIwMiRy3AVDOSAcdA5EmlUuNv+2SBdEIb7besq
+KokHml9FLP3aaRIl8PA0hxz1bUP/JWhqa85RqI0u3EGlFJWEZVky+3ASop5cHM9G
+BVSS2MOchrVu+EbG2Sn8LPyFu3gtFNpKGz+pjzLzC0dRCVzhrPieuibxB6/njcLh
+wOGyZ+0nDsfk1kmBlTx6M2/SD0H+l/0ZBn1O0ineM0fI0qEWJOqqL0hoVEKqNSUB
+ZxLxCCUK4x24+Vwf7Dnij/N0OuhUNcxxv6cJjJIg+Dlry3OXH9RIOUI8YKgdkxkG
+FuhIgl5h
+-----END CERTIFICATE-----

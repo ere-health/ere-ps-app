@@ -1,7 +1,23 @@
 {
-    "type": "StatusResponse",
     "payload": {
-        "connectorReachable": false,
-        "connectorInformation": null
-    }
+        "bearerToken": "eyJhbGciOiJCUDI1NlIxIiwia2lkIjoicHVrX2lkcF9zaWciLCJ0eXAiOiJhdCtKV1QifQ.eyJhdXRoX3RpbWUiOjE3MDEwOTk0NDQsInNjb3BlIjoib3BlbmlkIGUtcmV6ZXB0IiwiY2xpZW50X2lkIjoiR0VNSW5jZW5lcmVTdWQxUEVyVVIiLCJnaXZlbl9uYW1lIjpudWxsLCJmYW1pbHlfbmFtZSI6bnVsbCwiZGlzcGxheV9uYW1lIjpudWxsLCJvcmdhbml6YXRpb25OYW1lIjoiS3JhbmtlbmhhdXMgYW0gTWVlclRFU1QtT05MWSIsInByb2Zlc3Npb25PSUQiOiIxLjIuMjc2LjAuNzYuNC41MyIsImlkTnVtbWVyIjoiNS1TTUMtQi1UZXN0a2FydGUtODgzMTEwMDAwMTAxMDQyIiwiYXpwIjoiR0VNSW5jZW5lcmVTdWQxUEVyVVIiLCJhY3IiOiJnZW1hdGlrLWVoZWFsdGgtbG9hLWhpZ2giLCJhbXIiOlsibWZhIiwic2MiLCJwaW4iXSwiYXVkIjoiaHR0cHM6Ly9lcnAtcmVmLnplbnRyYWwuZXJwLnNwbGl0ZG5zLnRpLWRpZW5zdGUuZGUvIiwic3ViIjoiOTI0ZThmYmM0NjlhNzQ0M2Y0OTA2NzZkNTQwMDhkOTJiYmEyNzUxZjc1ODhlZjllMjEzNjc3N2Y0MDY1M2QyOSIsImlzcyI6Imh0dHBzOi8vaWRwLXJlZi56ZW50cmFsLmlkcC5zcGxpdGRucy50aS1kaWVuc3RlLmRlIiwiaWF0IjoxNzAxMDk5NDQ0LCJleHAiOjE3MDEwOTk3NDQsImp0aSI6IjZiMDBhMDJjLTJhYWYtNDZkMy1hZjRiLTQ2MDZlZWVmZjRjYiJ9.gy4MjeiNfRHUJL5jakCF5mOduP87n_HKYEKbDwAop-Ojv-Y-YTzsixJkr5lBVNpXo7jTiTI9AddA49bQoYgQdA",
+        "cautInformation": "",
+        "cautReadable": true,
+        "comfortsignatureAvailable": true,
+        "comfortsignatureInformation": "",
+        "connectorInformation": "https://192.168.178.75",
+        "connectorReachable": true,
+        "ehbaAvailable": true,
+        "ehbaInformation": "Card Handle: 896e1757-0398-4806-b3ef-abdc4270075a",
+        "fachdienstInformation": "",
+        "fachdienstReachable": true,
+        "idpInformation": "https://idp-ref.zentral.idp.splitdns.ti-dienste.de//.well-known/openid-configuration",
+        "idpReachable": true,
+        "idpaccesstokenInformation": "Bearer Token: eyJhbGciOiJCUDI1NlIxIiwia2lkIjoicHVrX2lkcF9zaWciLCJ0eXAiOiJhdCtKV1QifQ.eyJhdXRoX3RpbWUiOjE3MDEwOTk0NDQsInNjb3BlIjoib3BlbmlkIGUtcmV6ZXB0IiwiY2xpZW50X2lkIjoiR0VNSW5jZW5lcmVTdWQxUEVyVVIiLCJnaXZlbl9uYW1lIjpudWxsLCJmYW1pbHlfbmFtZSI6bnVsbCwiZGlzcGxheV9uYW1lIjpudWxsLCJvcmdhbml6YXRpb25OYW1lIjoiS3JhbmtlbmhhdXMgYW0gTWVlclRFU1QtT05MWSIsInByb2Zlc3Npb25PSUQiOiIxLjIuMjc2LjAuNzYuNC41MyIsImlkTnVtbWVyIjoiNS1TTUMtQi1UZXN0a2FydGUtODgzMTEwMDAwMTAxMDQyIiwiYXpwIjoiR0VNSW5jZW5lcmVTdWQxUEVyVVIiLCJhY3IiOiJnZW1hdGlrLWVoZWFsdGgtbG9hLWhpZ2giLCJhbXIiOlsibWZhIiwic2MiLCJwaW4iXSwiYXVkIjoiaHR0cHM6Ly9lcnAtcmVmLnplbnRyYWwuZXJwLnNwbGl0ZG5zLnRpLWRpZW5zdGUuZGUvIiwic3ViIjoiOTI0ZThmYmM0NjlhNzQ0M2Y0OTA2NzZkNTQwMDhkOTJiYmEyNzUxZjc1ODhlZjllMjEzNjc3N2Y0MDY1M2QyOSIsImlzcyI6Imh0dHBzOi8vaWRwLXJlZi56ZW50cmFsLmlkcC5zcGxpdGRucy50aS1kaWVuc3RlLmRlIiwiaWF0IjoxNzAxMDk5NDQ0LCJleHAiOjE3MDEwOTk3NDQsImp0aSI6IjZiMDBhMDJjLTJhYWYtNDZkMy1hZjRiLTQ2MDZlZWVmZjRjYiJ9.gy4MjeiNfRHUJL5jakCF5mOduP87n_HKYEKbDwAop-Ojv-Y-YTzsixJkr5lBVNpXo7jTiTI9AddA49bQoYgQdA",
+        "idpaccesstokenObtainable": true,
+        "smcbAvailable": true,
+        "smcbInformation": "Card Handle: 241a3388-ae9c-4564-8a5e-4671c3f171f9"
+    },
+    "replyToMessageId": "833e07ad-dd5e-4af0-9540-d1400a92416f",
+    "type": "StatusResponse"
 }

@@ -3,7 +3,7 @@ package health.ere.ps.event;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.websocket.Session;
+import jakarta.websocket.Session;
 
 public class AbortTasksStatusEvent extends AbstractEvent {
 

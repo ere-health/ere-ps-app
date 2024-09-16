@@ -24,7 +24,7 @@ class VAUEngineTest {
         "\n"+
         "<OperationOutcome xmlns=\"http://hl7.org/fhir\"><meta><profile value=\"http://hl7.org/fhir/StructureDefinition/OperationOutcome\"/></meta><issue><severity value=\"error\"/><code value=\"unknown\"/><details><text value=\"Access Token Error: Expired!\"/></details></issue></OperationOutcome>";
         VAUEngine vauEngine = new VAUEngine("");
-        vauEngine.requestid = "1c51e243bf3f657b8f9d0034e30aac40";
+        vauEngine.requestidThreadLocal.set("1c51e243bf3f657b8f9d0034e30aac40");
         HttpResponse res = vauEngine.extractHttpResponse(testResponse);
         assertEquals(401, res.getStatusLine().getStatusCode());
         assertEquals("application/fhir+xml", res.getFirstHeader("content-type").getValue());

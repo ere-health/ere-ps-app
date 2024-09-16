@@ -1,8 +1,8 @@
 package health.ere.ps.event;
 
-import javax.json.JsonObject;
-import javax.json.bind.annotation.JsonbTransient;
-import javax.websocket.Session;
+import jakarta.json.JsonObject;
+import jakarta.json.bind.annotation.JsonbTransient;
+import jakarta.websocket.Session;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

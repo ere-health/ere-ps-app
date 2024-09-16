@@ -11,6 +11,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.logging.Logger;
 
+import health.ere.ps.service.fhir.FHIRService;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.hl7.fhir.common.hapi.validation.support.PrePopulatedValidationSupport;
@@ -28,8 +29,10 @@ public class ErePrePopulatedValidationSupport extends PrePopulatedValidationSupp
     private static final List<EreLogger.SystemContext> systemContextList = List.of(
             EreLogger.SystemContext.KbvBundleValidator,
             EreLogger.SystemContext.KbvBundleValidatorConfiguration);
-    private IParser xmlParser = FhirContext.forR4().newXmlParser();
-    private IParser jsonParser = FhirContext.forR4().newJsonParser();
+
+    private static final FhirContext fhirContext = FHIRService.getFhirContext();
+    private static final IParser xmlParser = fhirContext.newXmlParser();
+    private static final IParser jsonParser = fhirContext.newJsonParser();
     private static Logger log = Logger.getLogger(ErePrePopulatedValidationSupport.class.getName());
 
     protected enum ConfigType {

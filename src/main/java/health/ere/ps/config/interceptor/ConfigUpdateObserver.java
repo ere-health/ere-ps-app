@@ -2,8 +2,8 @@ package health.ere.ps.config.interceptor;
 
 import health.ere.ps.event.config.UserConfigurationsUpdateEvent;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.ObservesAsync;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.ObservesAsync;
 
 @ApplicationScoped
 public class ConfigUpdateObserver {

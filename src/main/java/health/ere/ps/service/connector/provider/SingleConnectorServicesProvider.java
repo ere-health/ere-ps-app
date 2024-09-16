@@ -20,8 +20,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.PatternSyntaxException;
 
-import javax.enterprise.event.Event;
-import javax.enterprise.inject.spi.CDI;
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.inject.spi.CDI;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.X509KeyManager;

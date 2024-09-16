@@ -6,14 +6,11 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.xml.ws.Holder;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
 import de.gematik.ws.conn.cardservicecommon.v2.PinResultEnum;
+import de.gematik.ws.conn.certificateservice.v6.CryptType;
 import de.gematik.ws.conn.certificateservice.v6.ReadCardCertificate;
 import de.gematik.ws.conn.certificateservice.v6.ReadCardCertificateResponse;
 import de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage;
@@ -24,6 +21,9 @@ import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.exception.connector.ConnectorCardCertificateReadException;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import health.ere.ps.service.idp.crypto.CryptoLoader;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.xml.ws.Holder;
 
 @ApplicationScoped
 public class CardCertificateReaderService {
@@ -80,13 +80,19 @@ public class CardCertificateReaderService {
         return x509Certificate;
     }
 
+    public ReadCardCertificateResponse doReadCardCertificate(String cardHandle, RuntimeConfig runtimeConfig)
+            throws ConnectorCardCertificateReadException {
+        CryptType crypt = CryptType.ECC;
+        return doReadCardCertificate(cardHandle, runtimeConfig, crypt);
+    }
+
     /**
      * Reads the AUT certificate of a card.
      *
      * @param cardHandle The handle of the card whose AUT certificate is to be read.
      * @return The read AUT certificate.
      */
-    public ReadCardCertificateResponse doReadCardCertificate(String cardHandle, RuntimeConfig runtimeConfig)
+    public ReadCardCertificateResponse doReadCardCertificate(String cardHandle, RuntimeConfig runtimeConfig, CryptType crypt)
             throws ConnectorCardCertificateReadException {
 
         ReadCardCertificate.CertRefList certRefList = new ReadCardCertificate.CertRefList();
@@ -96,9 +102,18 @@ public class CardCertificateReaderService {
         Holder<X509DataInfoListType> certHolder = new Holder<>();
 
         try {
+            
             connectorServicesProvider.getCertificateServicePortType(runtimeConfig).readCardCertificate(cardHandle, connectorServicesProvider.getContextType(runtimeConfig), certRefList,
-                    statusHolder, certHolder);
+                    crypt, statusHolder, certHolder);
         } catch (FaultMessage faultMessage) {
+
+            // Datei nicht vorhanden
+            boolean code4087 = faultMessage.getFaultInfo().getTrace().stream()
+                    .anyMatch(t -> t.getCode().equals(BigInteger.valueOf(4087L)));
+            if(code4087 && crypt.equals(CryptType.ECC)) {
+                return doReadCardCertificate(cardHandle, runtimeConfig, CryptType.RSA);
+            }
+
             // Zugriffsbedingungen nicht erfüllt
             boolean code4085 = faultMessage.getFaultInfo().getTrace().stream()
                     .anyMatch(t -> t.getCode().equals(BigInteger.valueOf(4085L)));

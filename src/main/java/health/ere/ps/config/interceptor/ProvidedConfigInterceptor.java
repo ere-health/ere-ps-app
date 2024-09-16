@@ -3,11 +3,11 @@ package health.ere.ps.config.interceptor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.annotation.Priority;
-import javax.inject.Inject;
-import javax.interceptor.AroundInvoke;
-import javax.interceptor.Interceptor;
-import javax.interceptor.InvocationContext;
+import jakarta.annotation.Priority;
+import jakarta.inject.Inject;
+import jakarta.interceptor.AroundInvoke;
+import jakarta.interceptor.Interceptor;
+import jakarta.interceptor.InvocationContext;
 
 import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.connector.provider.AbstractConnectorServicesProvider;

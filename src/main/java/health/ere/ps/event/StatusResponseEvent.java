@@ -2,7 +2,7 @@ package health.ere.ps.event;
 
 import java.io.Serializable;
 
-import javax.websocket.Session;
+import jakarta.websocket.Session;
 
 public class StatusResponseEvent extends AbstractEvent implements ReplyableEvent {
     private String type = "StatusResponse";
