@@ -15,11 +15,11 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.enterprise.event.Event;
-import javax.json.Json;
-import javax.websocket.RemoteEndpoint.Async;
-import javax.websocket.SendHandler;
-import javax.websocket.Session;
+import jakarta.enterprise.event.Event;
+import jakarta.json.Json;
+import jakarta.websocket.RemoteEndpoint.Async;
+import jakarta.websocket.SendHandler;
+import jakarta.websocket.Session;
 
 import org.hl7.fhir.r4.model.Bundle;
 import org.junit.jupiter.api.Disabled;
@@ -33,16 +33,28 @@ import health.ere.ps.model.pdf.ERezeptDocument;
 
 class WebsocketTest {
 
-  @Disabled("Currently failing since the introduction of the validation checks in the websocket.")
   @Test
-  void testMessage() throws IOException {
+  void testSignAndUploadBundlesMessageWithInvalidBundleWithoutValidationFires() throws IOException {
       Websocket websocket = new Websocket();
       websocket.signAndUploadBundlesEvent = mock(Event.class);
       String signAndUploadBundles = new String(getClass().getResourceAsStream("/websocket" +
-              "-messages/SignAndUploadBundles.json").readAllBytes(), StandardCharsets.UTF_8);
+              "-messages/SignAndUploadBundles-Without-Validation.json").readAllBytes(), StandardCharsets.UTF_8);
 
       websocket.onMessage(signAndUploadBundles, null);
       verify(websocket.signAndUploadBundlesEvent, times(1)).fireAsync(any());
+  }
+
+  // todo: just passing because of missing validator: integration test with prescriptionValidator / remove / extend
+  @Disabled
+  @Test
+  void testSignAndUploadBundlesMessageWithInvalidBundleWontFire() throws IOException {
+    Websocket websocket = new Websocket();
+    websocket.signAndUploadBundlesEvent = mock(Event.class);
+    String signAndUploadBundles = new String(getClass().getResourceAsStream("/websocket" +
+            "-messages/SignAndUploadBundles.json").readAllBytes(), StandardCharsets.UTF_8);
+
+    websocket.onMessage(signAndUploadBundles, null);
+    verify(websocket.signAndUploadBundlesEvent, times(0)).fireAsync(any());
   }
 
   // Passing but also generating LogManager errors since the introduction of the validation checks
@@ -87,7 +99,7 @@ class WebsocketTest {
     verify(mockedAsync).sendObject(exceptionMessageCaptor.capture(), sendHandlerCaptor.capture());
     String exception = exceptionMessageCaptor.getValue();
 
-    javax.json.JsonObject exceptionObject = Json.createReader(new StringReader(exception)).readObject();
+    jakarta.json.JsonObject exceptionObject = Json.createReader(new StringReader(exception)).readObject();
 
     assertEquals("Exception", exceptionObject.getString("type"));
 

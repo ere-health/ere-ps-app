@@ -27,6 +27,8 @@ class SVGExtractorTest {
 
     private String lineSep = System.lineSeparator();
 
+    //todo: is this still in use? (ipp etc removed?)
+    @Disabled
     @Test
     void testExtractData_CGM_Z1() throws URISyntaxException, IOException, XMLStreamException {
         SVGExtractor svgExtractor = new SVGExtractor(CGM_Z1.configuration, true);

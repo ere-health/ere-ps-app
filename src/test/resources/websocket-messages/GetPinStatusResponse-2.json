@@ -1,0 +1,11 @@
+{
+    "payload": {
+        "leftTries": 3,
+        "pinStatusEnum": "VERIFIABLE",
+        "status": {
+            "result": "OK"
+        }
+    },
+    "replyToMessageId": "855e49f8-315c-4ff5-bab3-2cfd05c5d8f0",
+    "type": "GetPinStatusResponse"
+}

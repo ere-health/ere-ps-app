@@ -20,24 +20,25 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import javax.enterprise.context.ApplicationScoped;
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-import javax.json.JsonString;
-import javax.ws.rs.core.Response;
-
-import com.diffplug.common.base.Errors;
-import com.diffplug.common.base.Throwing;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonReader;
+import jakarta.json.JsonString;
+import jakarta.ws.rs.core.Response;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.jose4j.jwt.JwtClaims;
+
+import com.diffplug.common.base.Errors;
+import com.diffplug.common.base.Throwing;
 
 import health.ere.ps.exception.idp.IdpClientException;
 import health.ere.ps.exception.idp.IdpException;
@@ -57,9 +58,17 @@ import health.ere.ps.model.idp.client.token.IdpJwe;
 import health.ere.ps.model.idp.client.token.JsonWebToken;
 import health.ere.ps.model.idp.client.token.TokenClaimExtraction;
 import health.ere.ps.service.idp.client.authentication.UriUtils;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonReader;
+import jakarta.json.JsonString;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 
 @ApplicationScoped
 public class AuthenticatorClient {
+
+    private static Logger log = Logger.getLogger(AuthenticatorClient.class.getName());
 
     public AuthenticatorClient() {
 
@@ -115,20 +124,24 @@ public class AuthenticatorClient {
 
         IdpHttpClientService idpHttpClientService =
                 getIdpHttpClientInstanceByUrl(authenticationRequest.getAuthenticationEndpointUrl());
-
         String location;
+        String rawString = authenticationRequest.getSignedChallenge().getRawString();
+        log.fine("rawString: " + rawString);
         try (Response response = idpHttpClientService.doAuthenticationRequest(
-                             authenticationRequest.getSignedChallenge().getRawString())) {
+            rawString)) {
+
             checkResponseForErrorsAndThrowIfAny(response);
 
             location = retrieveLocationFromResponse(response);
-        }
 
-        return AuthenticationResponse.builder()
+            return AuthenticationResponse.builder()
                 .code(extractParameterValue(location, "code"))
                 .location(location)
                 /*.ssoToken(extractParameterValue(location, "ssotoken"))*/
                 .build();
+        } catch(WebApplicationException ex) {
+            throw new IdpClientException("Unexpected Server-Response: " + ex.getResponse().getStatus() + " " + ex.getResponse().readEntity(String.class));
+        }
     }
 
     private void checkResponseForErrorsAndThrowIfAny(final Response loginResponse)
@@ -338,6 +351,7 @@ public class AuthenticatorClient {
         try {
             idpHttpClientService = RestClientBuilder.newBuilder()
                     .baseUrl(new URL(url))
+                    .connectTimeout(5000, java.util.concurrent.TimeUnit.MILLISECONDS)
                     .build(IdpHttpClientService.class);
         } catch (MalformedURLException e) {
             throw new IdpClientException("Bad URL: " + url, e);

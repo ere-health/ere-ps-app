@@ -3,13 +3,19 @@ package health.ere.ps.jsonb;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.math.BigInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.bind.adapter.JsonbAdapter;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonObjectBuilder;
+import jakarta.json.bind.adapter.JsonbAdapter;
+import jakarta.ws.rs.WebApplicationException;
 
 
 public class ThrowableAdapter implements JsonbAdapter<Throwable, JsonObject> {
+
+    private static final Logger log = Logger.getLogger(ThrowableAdapter.class.getName());
 
     @Override
     public JsonObject adaptToJson(Throwable e) {
@@ -17,16 +23,31 @@ public class ThrowableAdapter implements JsonbAdapter<Throwable, JsonObject> {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         e.printStackTrace(pw);
-
-        return Json.createObjectBuilder()
-        .add("class", e.getClass().getName())
-        .add("message", e.getMessage() != null ? e.getMessage() : "null")
-        .add("errorCode", extractErrorCode(e))
-        .add("stacktrace", sw.toString())
-        .build();
+        String message = e.getMessage() != null ? e.getMessage() : "null";
+        if(e.getCause() != null && e.getCause().getMessage() != null) {
+            if(e.getCause().getCause() != null && e.getCause().getCause().getMessage() != null) {
+                message = e.getCause().getCause().getMessage();
+            } else {
+                message = e.getCause().getMessage();
+            }
+        }
+        JsonObjectBuilder builder = Json.createObjectBuilder()
+            .add("class", e.getClass().getName())
+            .add("message", message)
+            .add("errorCode", extractErrorCode(e))
+            .add("stacktrace", sw.toString());
+        try {
+            if(e instanceof WebApplicationException) {
+                WebApplicationException wae = (WebApplicationException) e;
+                builder.add("response", wae.getResponse().getEntity().toString());
+            }
+        } catch(Exception ex) {
+            log.log(Level.SEVERE, "Error during response generation", ex);
+        }
+        return builder.build();
     }
 
-    private BigInteger extractErrorCode(Throwable e) {
+    public static BigInteger extractErrorCode(Throwable e) {
         BigInteger errorCode = BigInteger.ZERO;
         do {
             if(e instanceof de.gematik.ws.conn.authsignatureservice.wsdl.v7.FaultMessage) {

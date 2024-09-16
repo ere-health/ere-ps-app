@@ -1,0 +1,23 @@
+# ActivateComfortSignature example messages
+### ActivateComfortSignature Example
+WEBSOCKET ws://{{baseURL}}/websocket
+Content-Type: application/json
+
+{
+  "type": "ActivateComfortSignature",
+  "id": "{{$random.uuid}}",
+  "runtimeConfig": {
+        "eHBAHandle": "{{eHBAHandle}}",
+        "SMCBHandle": "{{SMCBHandle}}",
+        "connector.user-id": "{{userId}}",
+        "connector.base-url": "{{connector.base-url}}",
+        "connector.client-certificate": "{{connector.client-certificate}}",
+        "connector.client-certificate-password": "{{connector.client-certificate-password}}",
+        "connector.client-system-id": "{{connector.client-system-id}}",
+        "connector.mandant-id": "{{connector.mandant-id}}",
+        "connector.workplace-id": "{{connector.workplace-id}}",
+        "connector.version": "{{connector.version}}",
+        "connector.basic-auth-username": null,
+        "connector.basic-auth-password": null
+        }
+}

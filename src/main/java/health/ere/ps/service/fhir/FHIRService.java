@@ -4,11 +4,12 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.enterprise.event.ObservesAsync;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.event.ObservesAsync;
+import jakarta.inject.Inject;
 
+import ca.uhn.fhir.context.FhirContext;
 import org.hl7.fhir.r4.model.Bundle;
 
 import health.ere.ps.config.UserConfig;
@@ -35,6 +36,8 @@ public class FHIRService {
     @Inject
     Event<Exception> exceptionEvent;
 
+    private static final FhirContext fhirContext = FhirContext.forR4();
+
     public void generatePrescriptionBundle(@ObservesAsync Muster16PrescriptionFormEvent muster16PrescriptionFormEvent) {
         try {
             Muster16PrescriptionForm muster16PrescriptionForm = muster16PrescriptionFormEvent.getMuster16PrescriptionForm();
@@ -42,9 +45,13 @@ public class FHIRService {
 
             List<Bundle> bundles = bundleBuilder.createBundles();
             bundleEvent.fireAsync(new BundlesEvent(bundles));
-        } catch(Exception e) {
+        } catch (Exception e) {
             log.log(Level.SEVERE, "Could not create bundles", e);
             exceptionEvent.fireAsync(e);
         }
+    }
+
+    public static FhirContext getFhirContext() {
+        return fhirContext;
     }
 }

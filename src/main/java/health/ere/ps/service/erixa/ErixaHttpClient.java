@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpHeaders;

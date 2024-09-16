@@ -1,7 +1,7 @@
 package health.ere.ps.event;
 
-import javax.json.JsonObject;
-import javax.websocket.Session;
+import jakarta.json.JsonObject;
+import jakarta.websocket.Session;
 
 public class GetSignatureModeEvent extends AbstractEvent {
 

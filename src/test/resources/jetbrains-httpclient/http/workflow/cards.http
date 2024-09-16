@@ -1,0 +1,14 @@
+### GetCards
+GET http://{{baseURL}}/workflow/cards
+X-userId: {{userId}}
+X-eHBAHandle: {{eHBAHandle}}
+X-SMCBHandle: {{SMCBHandle}}
+X-connectorBaseURL: {{connector.base-url}}
+X-clientCertificate: {{connector.client-certificate}}
+X-clientCertificatePassword: {{connector.client-certificate-password}}
+X-clientSystemId: {{connector.client-system-id}}
+X-mandantId: {{connector.mandant-id}}
+X-workplaceId: {{connector.workplace-id}}
+
+### GetCards
+GET http://{{baseURL}}/workflow/cards

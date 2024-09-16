@@ -1,13 +1,10 @@
 package health.ere.ps.websocket;
 
-import java.awt.Desktop;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.math.BigInteger;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,23 +17,23 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.enterprise.event.ObservesAsync;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-import javax.json.bind.JsonbConfig;
-import javax.websocket.OnClose;
-import javax.websocket.OnError;
-import javax.websocket.OnMessage;
-import javax.websocket.OnOpen;
-import javax.websocket.Session;
-import javax.websocket.server.ServerEndpoint;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.event.ObservesAsync;
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonReader;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
+import jakarta.json.bind.JsonbConfig;
+import jakarta.websocket.OnClose;
+import jakarta.websocket.OnError;
+import jakarta.websocket.OnMessage;
+import jakarta.websocket.OnOpen;
+import jakarta.websocket.Session;
+import jakarta.websocket.server.ServerEndpoint;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.hl7.fhir.r4.model.Bundle;
@@ -66,6 +63,7 @@ import health.ere.ps.event.PrefillBundleEvent;
 import health.ere.ps.event.ReadyToSignBundlesEvent;
 import health.ere.ps.event.RequestStatusEvent;
 import health.ere.ps.event.SaveSettingsEvent;
+import health.ere.ps.event.SaveSettingsResponseEvent;
 import health.ere.ps.event.SignAndUploadBundlesEvent;
 import health.ere.ps.event.StatusResponseEvent;
 import health.ere.ps.event.UnblockPinEvent;
@@ -82,6 +80,7 @@ import health.ere.ps.jsonb.ThrowableAdapter;
 import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.model.websocket.OutgoingPayload;
 import health.ere.ps.service.config.UserConfigurationService;
+import health.ere.ps.service.fhir.FHIRService;
 import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
 import health.ere.ps.service.fhir.bundle.EreBundle;
 import health.ere.ps.service.logging.EreLogger;
@@ -164,11 +163,9 @@ public class Websocket {
             .withAdapters(new ThrowableAdapter())
             .withAdapters(new DurationAdapter());
     public static Jsonb jsonbFactory = JsonbBuilder.create(customConfig);
-    private static final String CHROME_X86_PATH = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
-    private static final String CHROME_X64_PATH = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
     private static final EreLogger ereLog = EreLogger.getLogger(Websocket.class);
 
-    private final FhirContext ctx = FhirContext.forR4();
+    private final FhirContext fhirContext = FHIRService.getFhirContext();
     private final static Set<Session> sessions = new CopyOnWriteArraySet<>();
 
     @OnOpen
@@ -180,36 +177,36 @@ public class Websocket {
     void sendAllKBVExamples(String folder, Session senderSession) {
         if(folder.equals("../src/test/resources/kbv-zip")) {
             try {
-                Bundle bundle = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF01.xml"));
+                Bundle bundle = fhirContext.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF01.xml"));
                 bundle.setId(UUID.randomUUID().toString());
                 onFhirBundle(new BundlesEvent(Collections.singletonList(bundle), senderSession, ""));
 
-                bundle = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF02.xml"));
+                bundle = fhirContext.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF02.xml"));
                 bundle.setId(UUID.randomUUID().toString());
                 onFhirBundle(new BundlesEvent(Collections.singletonList(bundle), senderSession, ""));
 
-                Bundle bundle03 = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF03.xml"));
+                Bundle bundle03 = fhirContext.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF03.xml"));
                 bundle03.setId(UUID.randomUUID().toString());
 
-                Bundle bundle04 = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF04.xml"));
+                Bundle bundle04 = fhirContext.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF04.xml"));
                 bundle04.setId(UUID.randomUUID().toString());
 
-                Bundle bundle05 = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF05.xml"));
+                Bundle bundle05 = fhirContext.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF05.xml"));
                 bundle05.setId(UUID.randomUUID().toString());
 
                 onFhirBundle(new BundlesEvent(Arrays.asList(bundle03, bundle04, bundle05), senderSession, ""));
 
-                bundle = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF07.xml"));
+                bundle = fhirContext.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF07.xml"));
                 bundle.setId(UUID.randomUUID().toString());
                 onFhirBundle(new BundlesEvent(Collections.singletonList(bundle), senderSession, ""));
 
-                Bundle bundle08_1 = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF08_1.xml"));
+                Bundle bundle08_1 = fhirContext.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF08_1.xml"));
                 bundle08_1.setId(UUID.randomUUID().toString());
 
-                Bundle bundle08_2 = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF08_2.xml"));
+                Bundle bundle08_2 = fhirContext.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF08_2.xml"));
                 bundle08_2.setId(UUID.randomUUID().toString());
 
-                Bundle bundle08_3 = ctx.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF08_3.xml"));
+                Bundle bundle08_3 = fhirContext.newXmlParser().parseResource(Bundle.class, getXmlString(folder + "/PF08_3.xml"));
                 bundle08_3.setId(UUID.randomUUID().toString());
 
                 onFhirBundle(new BundlesEvent(Arrays.asList(bundle08_1, bundle08_2, bundle08_3), senderSession, ""));
@@ -223,7 +220,7 @@ public class Websocket {
                         .forEach(f -> {
                             try (InputStream inputStream = new FileInputStream(f.toFile())) {
                                 String xml = new String(inputStream.readAllBytes(), "UTF-8").replaceAll("<!--.*-->", "");
-                                Bundle bundle = ctx.newXmlParser().parseResource(Bundle.class, xml);
+                                Bundle bundle = fhirContext.newXmlParser().parseResource(Bundle.class, xml);
                                 bundle.setId(UUID.randomUUID().toString());
                                 onFhirBundle(new BundlesEvent(Collections.singletonList(bundle)));
                             } catch (IOException ex) {
@@ -257,7 +254,8 @@ public class Websocket {
 
     @OnMessage
     public void onMessage(String message, Session senderSession) {
-        ereLog.info("Message: " + message);
+        ereLog.info("Message received.");
+        ereLog.trace("Message received: " + message);
         if(message == null) {
             ereLog.warn("null given as message");
             return;
@@ -280,10 +278,12 @@ public class Websocket {
             } else if ("XMLBundle".equals(object.getString("type"))) {
                 Bundle[] bundles = XmlPrescriptionProcessor.parseFromString(object.getString("payload"));
                 if(appConfig.getXmlBundleDirectProcess()) {
-                    SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(bundles, senderSession, messageId);
+                    SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(bundles, object, senderSession, messageId);
                     signAndUploadBundlesEvent.fireAsync(event);   
                 }
                 onFhirBundle(new BundlesEvent(Arrays.asList(bundles), null, messageId));
+            } else if ("PreviewOnly".equals(object.getString("type"))) { // todo: not final access-code and eRz-Id in here, just a preview!
+                readyToSignBundlesEvent.fireAsync(new ReadyToSignBundlesEvent(object, senderSession, messageId));
             } else if ("AbortTasks".equals(object.getString("type"))) {
                 abortTasksEvent.fireAsync(new AbortTasksEvent(object, senderSession, messageId));
             } else if ("ErixaEvent".equals(object.getString("type"))) {
@@ -332,7 +332,7 @@ public class Websocket {
             } else if("SaveSettings".equals(object.getString("type"))) {
                 String userConfiguration = object.getJsonObject("payload").toString();
                 UserConfigurations userConfigurations = jsonbFactory.fromJson(userConfiguration, UserConfigurations.class);
-                saveSettingsEvent.fireAsync(new SaveSettingsEvent(userConfigurations));
+                saveSettingsEvent.fireAsync(new SaveSettingsEvent(userConfigurations, senderSession, messageId));
             } else if("RequestStatus".equals(object.getString("type"))) {
                 requestStatusEvent.fireAsync(new RequestStatusEvent(object, senderSession, messageId));
             } else if ("Publish".equals(object.getString("type"))) {
@@ -346,7 +346,7 @@ public class Websocket {
             }
         } catch(Exception ex) {
             ereLog.warn("Could not process message", ex);
-            onException(new ExceptionWithReplyToExcetion(ex, senderSession, messageId));
+            onException(new ExceptionWithReplyToException(ex, senderSession, messageId));
         }
     }
 
@@ -387,7 +387,6 @@ public class Websocket {
     }
 
     public void onFhirBundle(@ObservesAsync BundlesEvent bundlesEvent) {
-        assureChromeIsOpen();
         String bundlesString = generateJson(bundlesEvent);
         Set<Session> localSessions = new HashSet<>();
         if(bundlesEvent.getReplyTo() != null) {
@@ -405,7 +404,7 @@ public class Websocket {
     }
 
     public void onAbortTasksStatusEvent(@ObservesAsync AbortTasksStatusEvent abortTasksStatusEvent) {
-        assureChromeIsOpen();
+        
         String abortTasksStatusString = generateJson(abortTasksStatusEvent);
         
         abortTasksStatusEvent.getReplyTo().getAsyncRemote().sendObject(
@@ -418,7 +417,7 @@ public class Websocket {
     }
 
     public void onGetCardsResponseEvent(@ObservesAsync GetCardsResponseEvent getCardsResponseEvent) {
-        assureChromeIsOpen();
+        
         String abortTasksStatusString = generateJson(getCardsResponseEvent);
         
         getCardsResponseEvent.getReplyTo().getAsyncRemote().sendObject(
@@ -431,7 +430,7 @@ public class Websocket {
     }
 
     public void onGetSignatureModeResponseEvent(@ObservesAsync GetSignatureModeResponseEvent getSignatureModeResponseEvent) {
-        assureChromeIsOpen();
+        
         String abortTasksStatusString = generateJson(getSignatureModeResponseEvent);
         getSignatureModeResponseEvent.getReplyTo().getAsyncRemote().sendObject(
                 "{\"type\": \"GetSignatureModeResponse\", \"payload\": " + abortTasksStatusString + ", \"replyToMessageId\": \""+getSignatureModeResponseEvent.getReplyToMessageId()+"\"}",
@@ -443,7 +442,7 @@ public class Websocket {
     }
 
     public void onChangePinResponseEvent(@ObservesAsync ChangePinResponseEvent changePinResponseEvent) {
-        assureChromeIsOpen();
+        
         String changePinResponseString = generateJson(changePinResponseEvent);
         changePinResponseEvent.getReplyTo().getAsyncRemote().sendObject(
                 "{\"type\": \"ChangePinResponse\", \"payload\": " + changePinResponseString + ", \"replyToMessageId\": \""+changePinResponseEvent.getReplyToMessageId()+"\"}",
@@ -455,7 +454,7 @@ public class Websocket {
     }
 
     public void onStatusResponseEvent(@ObservesAsync StatusResponseEvent statusResponseEvent) {
-        assureChromeIsOpen();
+        
         statusResponseEvent.getReplyTo().getAsyncRemote().sendObject(statusResponseEvent,
                 result -> {
                     if (!result.isOK()) {
@@ -465,7 +464,7 @@ public class Websocket {
     }
 
     public void onVZDSearchResultEvent(@ObservesAsync VZDSearchResultEvent vZDSearchResultEvent) {
-        assureChromeIsOpen();
+        
         vZDSearchResultEvent.getReplyTo().getAsyncRemote().sendObject(vZDSearchResultEvent,
                 result -> {
                     if (!result.isOK()) {
@@ -475,7 +474,7 @@ public class Websocket {
     }
 
     public void onVerifyPinResponseEvent(@ObservesAsync VerifyPinResponseEvent verifyPinResponseEvent) {
-        assureChromeIsOpen();
+        
         verifyPinResponseEvent.getReplyTo().getAsyncRemote().sendObject(verifyPinResponseEvent,
                 result -> {
                     if (!result.isOK()) {
@@ -485,7 +484,7 @@ public class Websocket {
     }
 
     public void onUnblockPinResponseEvent(@ObservesAsync UnblockPinResponseEvent unblockPinResponseEvent) {
-        assureChromeIsOpen();
+        
         unblockPinResponseEvent.getReplyTo().getAsyncRemote().sendObject(unblockPinResponseEvent,
                 result -> {
                     if (!result.isOK()) {
@@ -495,11 +494,21 @@ public class Websocket {
     }
 
     public void onGetPinStatusResponseEvent(@ObservesAsync GetPinStatusResponseEvent getPinStatusResponseEvent) {
-        assureChromeIsOpen();
+        
         getPinStatusResponseEvent.getReplyTo().getAsyncRemote().sendObject(getPinStatusResponseEvent,
                 result -> {
                     if (!result.isOK()) {
                         ereLog.fatal("Unable to send GetPinStatusResponseEvent: " + result.getException());
+                    }
+                });
+    }
+
+    public void onSaveSettingsResponseEvent(@ObservesAsync SaveSettingsResponseEvent saveSettingsResponseEvent) {
+        saveSettingsResponseEvent.getReplyTo().getAsyncRemote().sendObject(
+        "{\"type\": \"SaveSettingsResponseEvent\", \"payload\": " + jsonbFactory.toJson(saveSettingsResponseEvent) + ", \"replyToMessageId\": \""+saveSettingsResponseEvent.getReplyToMessageId()+"\"}",
+                result -> {
+                    if (!result.isOK()) {
+                        ereLog.fatal("Unable to send SaveSettingsResponseEvent: " + result.getException());
                     }
                 });
     }
@@ -532,21 +541,10 @@ public class Websocket {
         return jsonbFactory.toJson(getPinStatusResponseEvent.getGetPinStatusResponse());
     }
 
-    void assureChromeIsOpen() {
-        // if nobody is connected to the websocket
-        if (sessions.size() == 0) {
-            try {
-                startWebappInChrome();
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                ereLog.warn("Could not open browser", e);
-            }
-        }
-    }
-
     public void onERezeptDocuments(@ObservesAsync ERezeptWithDocumentsEvent eRezeptDocumentsEvent) {
         String jsonPayload = generateJson(eRezeptDocumentsEvent);
-        ereLog.info("Sending prescription receipt payload to front-end: " +
+        ereLog.info("Sending prescription receipt payload to front-end.");
+        ereLog.trace("Receipt Payload: " +
                 jsonPayload);
 
                 Set<Session> localSessions = new HashSet<>();
@@ -583,11 +581,11 @@ public class Websocket {
 
         bundlesEvent.getBundles().forEach(bundle -> {
             if (bundle instanceof EreBundle) {
-                ereLog.info("Filled bundle json template result shown below. Null value place" +
-                        " holders present.");
-                ereLog.info("==============================================");
+                ereLog.info("Filled bundle json template.");
+                ereLog.trace("Result shown below. Null value place holders present.");
+                ereLog.trace("==============================================");
 
-                ereLog.info(((EreBundle) bundle).encodeToJson());
+                ereLog.trace(((EreBundle) bundle).encodeToJson());
             }
         });
 
@@ -597,7 +595,7 @@ public class Websocket {
                     .collect(Collectors.joining(",\n", "[", "]"));
         } else {
             return bundlesEvent.getBundles().stream().map(bundle ->
-                            ctx.newJsonParser().encodeResourceToString(bundle))
+                            fhirContext.newJsonParser().encodeResourceToString(bundle))
                     .collect(Collectors.joining(",\n", "[", "]"));
         }
     }
@@ -610,8 +608,8 @@ public class Websocket {
         String replyToMessageIdFromException = null; 
 
         // only send the exception to the session that provoked it
-        if(exceptionParam instanceof ExceptionWithReplyToExcetion) {
-            ExceptionWithReplyToExcetion exceptionWithReplyToExcetion = (ExceptionWithReplyToExcetion) exceptionParam;
+        if(exceptionParam instanceof ExceptionWithReplyToException) {
+            ExceptionWithReplyToException exceptionWithReplyToExcetion = (ExceptionWithReplyToException) exceptionParam;
             localSessions = new HashSet<>();
             if(exceptionWithReplyToExcetion.getReplyTo() != null) {
                 localSessions.add(exceptionWithReplyToExcetion.getReplyTo());
@@ -688,22 +686,4 @@ public class Websocket {
         return message;
     }
 
-    private void startWebappInChrome() {
-        try {
-            if (Files.exists(Path.of(CHROME_X86_PATH))) {
-                Runtime.getRuntime().exec(CHROME_X86_PATH + " http://localhost:8080/frontend/app/src/index.html");
-            } else if (Files.exists(Path.of(CHROME_X64_PATH))) {
-                Runtime.getRuntime().exec(CHROME_X64_PATH + " http://localhost:8080/frontend/app/src/index.html");
-            } else {
-                ereLog.warn("Could not start the webapp on Chrome as no Chrome was detected");
-                // If you're not on Windows but have Chrome as a default browser
-                if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-                    Desktop.getDesktop().browse(new URI("http://localhost:8080/frontend/app/src/index.html"));
-                }
-            }
-        } catch (IOException | URISyntaxException e) {
-            ereLog.error("There was a problem when opening the browser:");
-            e.printStackTrace();
-        }
-    }
 }

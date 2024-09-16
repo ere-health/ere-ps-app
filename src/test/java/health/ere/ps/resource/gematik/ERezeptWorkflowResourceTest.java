@@ -1,20 +1,24 @@
 package health.ere.ps.resource.gematik;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import health.ere.ps.config.RuntimeConfig;
+import health.ere.ps.config.UserConfig;
+import health.ere.ps.service.gematik.ERezeptWorkflowService;
 
 public class ERezeptWorkflowResourceTest {
     @Test
@@ -47,7 +51,7 @@ public class ERezeptWorkflowResourceTest {
         });
         ERezeptWorkflowResource eRezeptWorkflowResource = new ERezeptWorkflowResource();
         eRezeptWorkflowResource.httpServletRequest = httpServletRequest;
-        RuntimeConfig runtimeConfig = ERezeptWorkflowResource.extractRuntimeConfigFromHeaders(httpServletRequest);
+        RuntimeConfig runtimeConfig = Extractors.extractRuntimeConfigFromHeaders(httpServletRequest, new UserConfig());
 
         assertEquals("HBA-1", runtimeConfig.getEHBAHandle());
         assertEquals("SMCB-1", runtimeConfig.getSMCBHandle());
@@ -63,5 +67,19 @@ public class ERezeptWorkflowResourceTest {
         assertEquals("workplace-id", runtimeConfig.getWorkplaceId());
 
 
+    }
+
+    @Test
+    public void testIdpToken() {
+        ERezeptWorkflowResource eRezeptWorkflowResource = new ERezeptWorkflowResource();
+        eRezeptWorkflowResource.httpServletRequest = mock(HttpServletRequest.class);
+        when(eRezeptWorkflowResource.httpServletRequest.getHeaderNames()).thenReturn(Collections.enumeration(Collections.emptyList()));
+        eRezeptWorkflowResource.eRezeptWorkflowService = mock(ERezeptWorkflowService.class);
+        when(eRezeptWorkflowResource.eRezeptWorkflowService.getBearerToken(any())).thenReturn("123456");
+
+        String token = eRezeptWorkflowResource.idpToken();
+
+        assertEquals("123456", token);
+        verify(eRezeptWorkflowResource.eRezeptWorkflowService).requestNewAccessTokenIfNecessary(any(), any(), any());
     }
 }

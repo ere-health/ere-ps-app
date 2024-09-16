@@ -11,7 +11,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.jboss.logging.Logger;
 import org.junit.jupiter.api.AfterEach;

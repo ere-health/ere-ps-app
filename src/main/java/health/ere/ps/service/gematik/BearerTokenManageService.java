@@ -4,9 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import javax.inject.Inject;
-import javax.websocket.Session;
-
 import org.apache.commons.lang3.StringUtils;
 import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.jose4j.jwt.consumer.JwtConsumer;
@@ -14,6 +11,8 @@ import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.service.idp.BearerTokenService;
+import jakarta.inject.Inject;
+import jakarta.websocket.Session;
 
 public class BearerTokenManageService {
 
@@ -50,20 +49,28 @@ public class BearerTokenManageService {
     }
 
     public String getBearerToken(RuntimeConfig runtimeConfig) {
+        if(runtimeConfig != null) {
+            int hashCode = runtimeConfig.hashCode();
+            for(RuntimeConfig runtimeConfig2 : bearerToken.keySet()) {
+                if(runtimeConfig2 != null && runtimeConfig2.hashCode() == hashCode) {
+                    runtimeConfig = runtimeConfig2;
+                }
+            }
+        }
         return bearerToken.get(runtimeConfig);
     }
-    
+
     /**
      * Checks if the given bearer token is expired.
      * @param bearerToken2 the bearer token to check
      */
     boolean isExpired(String bearerToken2) {
         JwtConsumer consumer = new JwtConsumerBuilder()
-            .setDisableRequireSignature()
-            .setSkipSignatureVerification()
-            .setSkipDefaultAudienceValidation()
-            .setRequireExpirationTime()
-            .build();
+                .setDisableRequireSignature()
+                .setSkipSignatureVerification()
+                .setSkipDefaultAudienceValidation()
+                .setRequireExpirationTime()
+                .build();
         try {
             consumer.process(bearerToken2);
             return false;

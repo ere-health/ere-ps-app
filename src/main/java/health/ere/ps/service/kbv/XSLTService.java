@@ -10,11 +10,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.enterprise.event.ObservesAsync;
-import javax.inject.Inject;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.event.ObservesAsync;
+import jakarta.inject.Inject;
 import javax.xml.XMLConstants;
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Result;
@@ -31,14 +31,15 @@ import org.hl7.fhir.r4.model.Bundle;
 import ca.uhn.fhir.context.FhirContext;
 import health.ere.ps.event.HTMLBundlesEvent;
 import health.ere.ps.event.ReadyToSignBundlesEvent;
-import health.ere.ps.websocket.ExceptionWithReplyToExcetion;
+import health.ere.ps.service.fhir.FHIRService;
+import health.ere.ps.websocket.ExceptionWithReplyToException;
 
 @ApplicationScoped
 public class XSLTService {
 
     private static Logger log = Logger.getLogger(XSLTService.class.getName());
 
-    private final FhirContext fhirContext = FhirContext.forR4();
+    private static final FhirContext fhirContext = FHIRService.getFhirContext();
 
     @Inject
     Event<Exception> exceptionEvent;
@@ -94,6 +95,10 @@ public class XSLTService {
 
     public String generateHtmlForBundle(Bundle bundle) throws IOException, TransformerException {
         String xmlString = fhirContext.newXmlParser().encodeResourceToString(bundle);
+        return generateHtmlForString(xmlString);
+    }
+
+    public String generateHtmlForString(String xmlString) throws IOException, TransformerException {
         File xml = Files.createTempFile("bundle-", ".xml").toFile();
         Files.write(xml.toPath(), xmlString.getBytes(StandardCharsets.UTF_8));
 
@@ -126,13 +131,13 @@ public class XSLTService {
                 try {
                     return generateHtmlForBundle(bundle);
                 } catch (Exception e) {
-                    exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(e, readyToSignBundlesEvent.getReplyTo(), readyToSignBundlesEvent.getReplyToMessageId()));
+                    exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, readyToSignBundlesEvent.getReplyTo(), readyToSignBundlesEvent.getReplyToMessageId()));
                     return "";
                 }
             }).collect(Collectors.toList());
             hTMLBundlesEvent.fireAsync(new HTMLBundlesEvent(htmlBundlesList, readyToSignBundlesEvent.getReplyTo(), readyToSignBundlesEvent.getReplyToMessageId()));
         } catch(Exception ex) {
-            exceptionEvent.fireAsync(new ExceptionWithReplyToExcetion(ex, readyToSignBundlesEvent.getReplyTo(), readyToSignBundlesEvent.getReplyToMessageId()));
+            exceptionEvent.fireAsync(new ExceptionWithReplyToException(ex, readyToSignBundlesEvent.getReplyTo(), readyToSignBundlesEvent.getReplyToMessageId()));
         }
     }
 }

@@ -1,15 +1,11 @@
-{"type": "GetSignatureModeResponse", "payload": 
+{"type": "GetSignatureModeResponse", "payload":
 {
+    "answertToActivateComfortSignature": true,
     "comfortSignatureMax": 250,
     "comfortSignatureStatus": "ENABLED",
-    "comfortSignatureTimer": "P1DT0H0M0S",
-    "sessionInfo": {
-        "countRemaining": 250,
-        "signatureMode": "COMFORT",
-        "timeRemaining": "PT23H59M59S"
-    },
+    "comfortSignatureTimer": "PT0H0M0S",
     "status": {
         "result": "OK"
     },
-    "userId": "6df2dbaa-0c5a-464b-81af-9231faca9c65"
-}, "replyToMessageId": "6373b833-c797-42b3-af15-43a427e76919"}
+    "userId": "986f972d-49f2-43f3-84ea-dcc25f5509a0"
+}, "replyToMessageId": "cecf004a-a212-4f3a-85a4-098580bee3bc"}
