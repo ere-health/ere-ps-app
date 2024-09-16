@@ -10,18 +10,19 @@
     <properties>
         <compiler-plugin.version>3.8.1</compiler-plugin.version>
         <maven.compiler.parameters>true</maven.compiler.parameters>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <quarkus-plugin.version>1.13.7.Final</quarkus-plugin.version>
+        <quarkus-plugin.version>3.9.4</quarkus-plugin.version>
         <quarkus.platform.artifact-id>quarkus-universe-bom</quarkus.platform.artifact-id>
         <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
-        <quarkus.platform.version>1.13.7.Final</quarkus.platform.version>
+        <quarkus.platform.version>3.9.4</quarkus.platform.version>
         <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
-        <hapi.version>6.10.0</hapi.version>
+        <hapi.version>7.0.2</hapi.version>
+        <version.referencevalidator>2.1.1</version.referencevalidator>
     </properties>
-    <!-- 2021-12-20 Add a random line to update maven cache in github actions -->
+    <!-- 2021-12-20 Add a random line to update maven cache in gitHub actions -->
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -35,9 +36,15 @@
     </dependencyManagement>
     <dependencies>
         <dependency>
-            <groupId>com.sun.mail</groupId>
-            <artifactId>javax.mail</artifactId>
-            <version>1.6.2</version>
+              <groupId>de.gematik.refv</groupId>
+              <artifactId>referencevalidator-lib</artifactId>
+              <version>${version.referencevalidator}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.eclipse.angus/angus-mail -->
+        <dependency>
+            <groupId>org.eclipse.angus</groupId>
+            <artifactId>angus-mail</artifactId>
+            <version>2.0.3</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -55,13 +62,14 @@
             <version>1.8</version>
         </dependency>
         <dependency>
-            <artifactId>bcpkix-jdk15on</artifactId>
             <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk18on</artifactId>
+            <version>1.78.1</version>
         </dependency>
         <dependency>
             <groupId>org.bitbucket.b_c</groupId>
             <artifactId>jose4j</artifactId>
-            <version>0.7.7-hard-code-brainpool-p256-r1</version>
+            <version>0.9.4</version>
         </dependency>
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
@@ -79,13 +87,18 @@
             <artifactId>hapi-fhir-structures-r4</artifactId>
             <version>${hapi.version}</version>
         </dependency>
+		<dependency>
+		    <groupId>ca.uhn.hapi.fhir</groupId>
+		    <artifactId>hapi-fhir-caching-caffeine</artifactId>
+		    <version>${hapi.version}</version>
+		</dependency>
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>hapi-fhir-validation</artifactId>
             <version>${hapi.version}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>xpp3</groupId>
+                    <groupId>org.ogce</groupId>
                     <artifactId>xpp3</artifactId>
                 </exclusion>
             </exclusions>
@@ -93,23 +106,28 @@
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>hapi-fhir-validation-resources-r4</artifactId>
-            <version>5.4.1</version>
+            <version>5.7.9</version>
         </dependency>
         <dependency>
             <groupId>com.hp.jipp</groupId>
             <artifactId>jipp-core</artifactId>
-            <version>0.7.9</version>
+            <version>0.7.15</version>
         </dependency>
         <dependency>
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
-            <version>2.0.24</version>
+            <version>2.0.31</version>
+            <!--
+            Breaking Change Upgrading to 3.0.x;
+            Migration Guide here: https://pdfbox.apache.org/3.0/migration.html
+            https://incentergy.atlassian.net/browse/ERE-671
+            -->
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.xmlgraphics/fop -->
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>fop</artifactId>
-            <version>2.6</version>
+            <version>2.9</version>
             <exclusions>
                 <exclusion>
                     <groupId>xml-apis</groupId>
@@ -132,6 +150,10 @@
                     <groupId>log4j</groupId>
                     <artifactId>log4j</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>geronimo-spec</groupId>
+                    <artifactId>geronimo-spec-javamail</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -139,12 +161,12 @@
         <dependency>
             <groupId>net.sf.saxon</groupId>
             <artifactId>Saxon-HE</artifactId>
-            <version>10.3</version>
+            <version>10.9</version>
         </dependency>
         <dependency>
             <groupId>health.ere</groupId>
             <artifactId>api-telematik-service</artifactId>
-            <version>OPD4-20220115</version>
+            <version>OPD4-20240910</version>
         </dependency>
         <dependency>
             <groupId>health.ere</groupId>
@@ -158,7 +180,7 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.7</version>
+            <version>2.16.1</version>
         </dependency>
         <dependency>
             <groupId>com.diffplug.durian</groupId>
@@ -168,7 +190,7 @@
         <dependency>
             <groupId>com.sun.xml.ws</groupId>
             <artifactId>jaxws-ri</artifactId>
-            <version>2.3.0</version>
+            <version>4.0.2</version>
             <type>pom</type>
             <exclusions>
                 <exclusion>
@@ -184,7 +206,7 @@
         <dependency>
             <groupId>com.sun.xml.ws</groupId>
             <artifactId>jaxws-rt</artifactId>
-            <version>2.3.4</version>
+            <version>4.0.2</version>
             <!--<exclusions>
                 <exclusion>
                     <groupId>com.sun.istack</groupId>
@@ -193,8 +215,18 @@
             </exclusions>-->
         </dependency>
         <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>4.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.xml.ws</groupId>
+            <artifactId>jakarta.xml.ws-api</artifactId>
+            <version>4.0.1</version>
+        </dependency>
+        <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-rest-client</artifactId>
+            <artifactId>quarkus-resteasy-client</artifactId>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -217,25 +249,6 @@
             <artifactId>quarkus-jackson</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>2.15.2</version>
-        </dependency>
-        <dependency>
-          <groupId>com.fasterxml.jackson.core</groupId>
-          <artifactId>jackson-core</artifactId>
-          <version>2.15.2</version>
-        </dependency>
-        <dependency>
-          <groupId>com.fasterxml.jackson.core</groupId>
-          <artifactId>jackson-databind</artifactId>
-          <version>2.15.2</version>
-        </dependency>
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-undertow-websockets</artifactId>
-        </dependency>
-        <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-scheduler</artifactId>
         </dependency>
@@ -243,7 +256,7 @@
         <dependency>
             <groupId>org.apache.santuario</groupId>
             <artifactId>xmlsec</artifactId>
-            <version>2.2.3</version>
+            <version>4.0.2</version>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -342,7 +355,7 @@
                 <artifactId>maven-pmd-plugin</artifactId>
                 <version>3.14.0</version>
                 <configuration>
-                    <targetJdk>11</targetJdk>
+                    <targetJdk>17</targetJdk>
                     <includeTests>true</includeTests>
                     <failOnViolation>false</failOnViolation>
                     <skipEmptyReport>false</skipEmptyReport>
@@ -411,51 +424,6 @@
             <properties>
                 <quarkus.package.type>native</quarkus.package.type>
             </properties>
-        </profile>
-        <profile>
-            <id>with-vos-translator</id>
-            <activation>
-                <property>
-                    <name>with-vos-translator</name>
-                </property>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>health.ere.vos</groupId>
-                    <artifactId>translator</artifactId>
-                    <version>1.0-SNAPSHOT</version>
-                </dependency>
-            </dependencies>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <version>${surefire-plugin.version}</version>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>integration-test</goal>
-                                    <goal>verify</goal>
-                                </goals>
-                                <configuration>
-                                    <systemPropertyVariables>
-                                        <quarkus.test.profile>dev</quarkus.test.profile>
-                                        <native.image.path>
-                                            ${project.build.directory}/${project.build.finalName}-runner
-                                        </native.image.path>
-                                        <java.util.logging.manager>org.jboss.logmanager.LogManager
-                                        </java.util.logging.manager>
-                                        <maven.home>${maven.home}</maven.home>
-                                    </systemPropertyVariables>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-	    <!-- fast-jar is the default <properties>
-                <quarkus.package.type>fast-jar</quarkus.package.type>
-	    </properties> -->
         </profile>
     </profiles>
     <repositories>

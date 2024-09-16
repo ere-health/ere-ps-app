@@ -2,7 +2,7 @@ package health.ere.ps.event;
 
 import java.io.Serializable;
 
-import javax.websocket.Session;
+import jakarta.websocket.Session;
 
 import health.ere.ps.model.gematik.ChangePinResponse;
 

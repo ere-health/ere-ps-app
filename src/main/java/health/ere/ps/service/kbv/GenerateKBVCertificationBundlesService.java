@@ -20,10 +20,11 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
 
+import health.ere.ps.service.fhir.FHIRService;
 import org.hl7.fhir.r4.model.Annotation;
 import org.hl7.fhir.r4.model.BooleanType;
 import org.hl7.fhir.r4.model.Bundle;
@@ -59,7 +60,7 @@ public class GenerateKBVCertificationBundlesService {
 
     private static Logger log = Logger.getLogger(GenerateKBVCertificationBundlesService.class.getName());
 
-    private final FhirContext fhirContext = FhirContext.forR4();
+    private static final FhirContext fhirContext = FHIRService.getFhirContext();
 
     static JAXBContext jaxbContext; 
 
@@ -517,7 +518,7 @@ public class GenerateKBVCertificationBundlesService {
         //       </extension>
         medicationRequest.addExtension(multiplePrescription);
 
-        // <extension url="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Accident">
+        // <extension url="https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Accident">
         //  <extension url="unfallkennzeichen">
         //  <valueCoding>
         //    <system value="https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_Ursache_Type" />
@@ -530,14 +531,14 @@ public class GenerateKBVCertificationBundlesService {
         // </extension>
 
         if(unfallkennzeichen) {
-            Extension KBV_EX_ERP_Accident = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Accident");
+            Extension KBV_EX_FOR_Accident = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Accident");
             Coding unfallkennzeichenValueCoding = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_Ursache_Type",
                 "1", null);
-            KBV_EX_ERP_Accident.addExtension(new Extension("unfallkennzeichen", unfallkennzeichenValueCoding));
+            KBV_EX_FOR_Accident.addExtension(new Extension("unfallkennzeichen", unfallkennzeichenValueCoding));
             DateType unfalltagDate = new DateType(new Date());
             unfalltagDate.setPrecision(TemporalPrecisionEnum.DAY);
-            KBV_EX_ERP_Accident.addExtension(new Extension("unfalltag", unfalltagDate));
-            medicationRequest.addExtension(KBV_EX_ERP_Accident);
+            KBV_EX_FOR_Accident.addExtension(new Extension("unfalltag", unfalltagDate));
+            medicationRequest.addExtension(KBV_EX_FOR_Accident);
         }
 
         medicationRequest.setStatus(MedicationRequest.MedicationRequestStatus.ACTIVE)

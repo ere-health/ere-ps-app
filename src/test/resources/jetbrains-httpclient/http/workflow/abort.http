@@ -1,0 +1,16 @@
+### POST Abort
+POST http://{{baseURL}}/workflow/abort
+Content-Type: application/json
+X-userId: {{userId}}
+X-eHBAHandle: {{eHBAHandle}}
+X-SMCBHandle: {{SMCBHandle}}
+X-clientSystemId: {{connector.client-system-id}}
+X-mandantId: {{connector.mandant-id}}
+X-workplaceId: {{connector.workplace-id}}
+X-clientCertificate: {{connector.client-certificate}}
+X-clientCertificatePassword: {{connector.client-certificate-password}}
+
+{
+  "taskId": "160.000.226.491.339.79",
+  "accessCode": "84d00970cf99dd7c4d434c1378872fb5780b84e6033d43e8f811a42c4320c2b6"
+}

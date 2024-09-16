@@ -1,0 +1,13 @@
+@prescriptionId = 160.000.226.454.961.88
+@accessCode = 180aa3c0a0cf7cc7213a7688097605b18201eb3c353cf599b922a0365de4a650
+
+### GET Pharmacy Accept
+GET http://{{baseURL}}/pharmacy/Accept?token=/Task/{{prescriptionId}}/$accept?ac={{accessCode}}
+X-userId: {{userId}}
+X-eHBAHandle: {{eHBAHandle}}
+X-SMCBHandle: {{SMCBHandle}}
+X-clientSystemId: {{connector.client-system-id}}
+X-mandantId: {{connector.mandant-id}}
+X-workplaceId: {{connector.workplace-id}}
+X-clientCertificate: {{connector.client-certificate}}
+X-clientCertificatePassword: {{connector.client-certificate-password}}

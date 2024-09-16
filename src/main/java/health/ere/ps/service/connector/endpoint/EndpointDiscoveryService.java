@@ -7,12 +7,12 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.ProcessingException;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.Invocation.Builder;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.ProcessingException;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Invocation;
+import jakarta.ws.rs.client.Invocation.Builder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -269,6 +269,9 @@ public class EndpointDiscoveryService {
 
             location = endpointNode.getAttributes().getNamedItem("Location").getTextContent();
             if (location.startsWith(userConfig.getConnectorBaseURL())) {
+                return location;
+            } else {
+                log.warning("Invalid service node. Maybe location: "+location+" does not start with: "+userConfig.getConnectorBaseURL());
                 return location;
             }
         }

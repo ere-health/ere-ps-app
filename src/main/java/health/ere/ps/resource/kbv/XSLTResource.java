@@ -2,15 +2,16 @@ package health.ere.ps.resource.kbv;
 
 import java.io.IOException;
 
-import javax.inject.Inject;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.HeaderParam;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import javax.xml.transform.TransformerException;
 
+import health.ere.ps.service.fhir.FHIRService;
 import org.hl7.fhir.r4.model.Bundle;
 
 import ca.uhn.fhir.context.FhirContext;
@@ -22,8 +23,9 @@ public class XSLTResource {
     @Inject
     XSLTService xsltService;
 
-    IParser jsonParser = FhirContext.forR4().newJsonParser();
-    IParser xmlParser = FhirContext.forR4().newXmlParser();
+    private static final FhirContext fhirContext = FHIRService.getFhirContext();
+    IParser jsonParser = fhirContext.newJsonParser();
+    IParser xmlParser = fhirContext.newXmlParser();
 
     @POST
     @Path("transform")

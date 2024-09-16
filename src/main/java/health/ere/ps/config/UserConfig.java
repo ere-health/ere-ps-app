@@ -5,10 +5,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.ObservesAsync;
-import javax.inject.Inject;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.ObservesAsync;
+import jakarta.inject.Inject;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -36,6 +36,7 @@ public class UserConfig {
     @ConfigProperty(name = "connector.client-system-id")
     String defaultClientSystemId;
 
+    //todo: shouldn't user-id be part of runtime-config? (comfortSignature!)
     @ConfigProperty(name = "connector.user-id")
     Optional<String> defaultUserId;
 

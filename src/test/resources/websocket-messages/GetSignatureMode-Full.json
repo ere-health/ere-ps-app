@@ -1,0 +1,11 @@
+{
+  "type": "GetSignatureMode",
+  "id": "2da86eb7-57a3-4df2-83d3-5f9715e8ae09",
+  "runtimeConfig": {
+    "eHBAHandle": "HBA-46",
+    "connector.user-id": "1bb01080-c0ad-4ed3-816f-76a4cdf823ce",
+    "connector.client-system-id": "Incentergy",
+    "connector.mandant-id": "Incentergy",
+    "connector.workplace-id": "1786_A1"
+  }
+}

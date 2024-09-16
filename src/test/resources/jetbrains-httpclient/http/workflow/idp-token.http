@@ -1,0 +1,5 @@
+### GET idp-token
+GET http://{{baseURL}}/workflow/idp-token
+X-userId: {{userId}}
+X-eHBAHandle: {{eHBAHandle}}
+X-SMCBHandle: {{SMCBHandle}}

@@ -23,13 +23,13 @@
             <fo:layout-master-set>
                 <fo:simple-page-master master-name="DIN-A5" column-count="2"
                                        page-width="210mm" page-height="148mm"
-                                       margin-top="5mm" margin-bottom="5mm"
-                                       margin-left="8mm" margin-right="5mm">
+                                       margin-top="5mm" margin-bottom="0mm"
+                                       margin-left="10mm" margin-right="5mm">
                     <fo:region-body region-name="body"
                                     margin-top="60mm" margin-bottom="0mm"
-                                    margin-left="2mm" margin-right="5mm"/>
-                    <fo:region-before region-name="header" extent="55mm"/>
-                    <fo:region-after region-name="footer" extent="50mm"/>
+                                    margin-left="2mm" margin-right="5mm" />
+                    <fo:region-before region-name="header" extent="70mm" />
+                    <fo:region-after region-name="footer" extent="50mm" />
                 </fo:simple-page-master>
             </fo:layout-master-set>
             <fo:declarations>
@@ -78,30 +78,30 @@
 
     <xsl:template name="footer">
         <fo:block text-align="end">
-            <fo:external-graphic content-height="41mm" content-width="scale-to-fit"
+            <fo:external-graphic content-height="40mm" content-width="scale-to-fit"
                                  src="classpath:/fop/img/erezept-app-note.svg"/>
         </fo:block>
     </xsl:template>
 
     <xsl:template name="header">
         <fo:table>
-            <fo:table-column column-number="1" column-width="70%"/>
+            <fo:table-column column-number="1" column-width="69%"/>
             <fo:table-column column-number="2" column-width="2%"/>
-            <fo:table-column column-number="3" column-width="28%"/>
+            <fo:table-column column-number="3" column-width="29%"/>
             <fo:table-body>
                 <fo:table-cell>
-                    <fo:table border-separation="1mm" fox:border-radius="3mm"
+                    <fo:table border-separation="1mm"
                               border-collapse="separate">
                         <fo:table-body>
                             <fo:table-row height="5mm">
                                 <fo:table-cell number-columns-spanned="2">
-                                    <fo:block font-family="Liberation Sans" font-weight="bold" font-size="12pt">
+                                    <fo:block font-family="Liberation Sans" font-weight="bold" font-size="13pt" margin-bottom="1mm">
                                         Ausdruck zur Einlösung Ihres E-Rezeptes
                                     </fo:block>
                                 </fo:table-cell>
                             </fo:table-row>
                             <fo:table-row>
-                                <fo:table-cell number-columns-spanned="2" fox:border-radius="1mm"
+                                <fo:table-cell number-columns-spanned="2" fox:border-radius="2mm"
                                                border="solid 0.5pt black">
                                     <fo:table>
                                         <fo:table-column/>
@@ -171,7 +171,7 @@
                                 </fo:table-cell>
                             </fo:table-row>
                             <fo:table-row>
-                                <fo:table-cell number-columns-spanned="2" fox:border-radius="1mm"
+                                <fo:table-cell number-columns-spanned="2" fox:border-radius="2mm"
                                                border="solid 0.5pt black">
                                     <fo:table>
                                         <fo:table-column/>
@@ -249,14 +249,14 @@
                     </fo:table>
                 </fo:table-cell>
                 <fo:table-cell display-align="after">
-                    <fo:block-container reference-orientation="90" margin-left="1mm">
+                    <fo:block-container reference-orientation="90" margin-left="2mm">
                         <fo:block font-size="6pt" font-family="Liberation Sans" font-weight="bold" wrap-option="no-wrap">
                             Sammelcode zur Einlösung aller Verordnungen
                         </fo:block>
                     </fo:block-container>
                 </fo:table-cell>
                 <fo:table-cell display-align="after">
-                    <fo:block margin-left="2.5mm">
+                    <fo:block margin-left="3mm">
                         <fo:instream-foreign-object>
                             <barcode:barcode>
                                 <xsl:attribute name="message"><xsl:variable name="bundles" select="fhir:bundle"/>{"urls":[<xsl:for-each select="fhir:bundle"><xsl:variable name="qrPos" select="position()"/><xsl:variable name="bundlesCount" select="count($bundles)"/>"Task/<xsl:value-of
@@ -277,12 +277,12 @@
 
     <xsl:template name="body">
         <fo:table table-layout="fixed" width="190mm">
-            <fo:table-column column-number="1" column-width="51%"/>
-            <fo:table-column column-number="2" column-width="49%"/>
+            <fo:table-column column-number="1" column-width="50%"/>
+            <fo:table-column column-number="2" column-width="50%"/>
             <fo:table-body>
                 <xsl:for-each select="fhir:bundle">
                     <xsl:variable name="pos" select="position()"/>
-                    <fo:table-cell>
+                    <fo:table-cell margin-bottom="2mm">
                         <xsl:if test="not(($pos mod 3) mod 2) or not(($pos mod 3) mod 3)">
                             <xsl:attribute name="ends-row">true</xsl:attribute>
                         </xsl:if>
@@ -290,7 +290,7 @@
                             <fo:table-column/>
                             <fo:table-column/>
                             <fo:table-body>
-                                <fo:table-row height="35mm">
+                                <fo:table-row height="40mm">
                                     <fo:table-cell width="31mm">
                                         <fo:block>
                                             <fo:instream-foreign-object>
@@ -306,7 +306,7 @@
                                         </fo:block>
                                     </fo:table-cell>
                                     <fo:table-cell>
-                                        <fo:block margin-top="3mm" margin-right="3mm">
+                                        <fo:block margin-top="3mm" margin-right="3mm" margin-left="1mm">
                                             <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:extension[@url='https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription']/fhir:extension[@url='Kennzeichen']/fhir:valueBoolean/@value = 'true' or string-length(fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:text/@value) &gt; 40 or string-length(fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:dosageInstruction/fhir:text/@value) &gt; 10">
                                                 <xsl:attribute name="font-size">10pt</xsl:attribute>
                                             </xsl:if>
@@ -343,28 +343,36 @@
                                                 </xsl:if>
                                                 <xsl:if test="starts-with(string(fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:meta/fhir:profile/@value), 'https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Ingredient')">
                                                     <xsl:value-of
-                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:ingredient/fhir:itemCodeableConcept/fhir:text/@value"/> / <xsl:value-of
+                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:ingredient/fhir:itemCodeableConcept/fhir:text/@value"/><xsl:text> </xsl:text><xsl:value-of
                                                         select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:ingredient/fhir:strength/fhir:numerator/fhir:value/@value"/><xsl:text> </xsl:text><xsl:value-of
-                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:ingredient/fhir:strength/fhir:numerator/fhir:unit/@value"/> / <xsl:value-of
-                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:form/fhir:text/@value"/> 
+                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:ingredient/fhir:strength/fhir:numerator/fhir:unit/@value"/><xsl:text> </xsl:text><xsl:value-of
+                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:form/fhir:text/@value"/>
+
                                                 </xsl:if>
                                                 <xsl:if test="starts-with(string(fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:meta/fhir:profile/@value), 'https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Compounding')">
                                                     <xsl:value-of
-                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:text/@value"/>
-                                                    <xsl:value-of
-                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:numerator/fhir:value/@value"/><xsl:text> </xsl:text><xsl:value-of
-                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:numerator/fhir:unit/@value"/> <xsl:value-of
-                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:form/fhir:text/@value"/>
+                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:text/@value"/><!-- 123 -->
                                                 </xsl:if>
 
-                                                <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:amount/fhir:numerator/fhir:value/@value > 0">
+                                                <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:amount/fhir:numerator/fhir:value/@value != '0' or fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:amount/fhir:numerator/fhir:extension/fhir:valueString/@value != '0'">
+                                                    <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:coding/fhir:code/@value = 'rezeptur'">
+                                                        <fo:block /><xsl:value-of
+                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:amount/fhir:numerator/fhir:extension/fhir:valueString/@value"/><!-- 124 --><xsl:text> </xsl:text><xsl:value-of
+                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:amount/fhir:numerator/fhir:unit/@value"/><!-- 125 -->
+                                                        <fo:block />
+                                                        <xsl:value-of
+                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:form/fhir:text/@value"/><!-- 104 -->
+                                                    </xsl:if>
+                                                    <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:coding/fhir:code/@value != 'rezeptur'">  
                                                     <xsl:text> / </xsl:text><xsl:value-of
-                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:amount/fhir:numerator/fhir:value/@value" />
-                                                    <xsl:text> </xsl:text><xsl:value-of
-                                                            select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:amount/fhir:numerator/fhir:unit/@value"/>
+                                                    select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:amount/fhir:numerator/fhir:value/@value" /><xsl:value-of
+                                                    select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:amount/fhir:numerator/fhir:extension/fhir:valueString/@value"/><xsl:text> </xsl:text><xsl:value-of
+                                                    select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:amount/fhir:numerator/fhir:unit/@value"/>
+                                                    </xsl:if>
+                                                    
                                                 </xsl:if>
                                                 <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:extension[@url='http://fhir.de/StructureDefinition/normgroesse']">
-                                                    <xsl:text> / </xsl:text>
+                                                    <xsl:text> </xsl:text>
                                                     <xsl:value-of
                                                             select="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:extension[@url='http://fhir.de/StructureDefinition/normgroesse']/fhir:valueCode/@value"/>
                                                 </xsl:if>
@@ -372,6 +380,8 @@
                                             <fo:block>
                                                 <xsl:value-of
                                                         select="fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:dosageInstruction/fhir:text/@value"/>
+                                                <xsl:value-of
+                                                        select="fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:dosageInstruction/fhir:patientInstruction/@value"/><!-- 128 -->
                                             </fo:block>
                                             <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:coding/fhir:code/@value != 'freitext' and fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:coding/fhir:code/@value != 'wirkstoff' and fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:coding/fhir:code/@value != 'rezeptur'">
                                                 <fo:block>

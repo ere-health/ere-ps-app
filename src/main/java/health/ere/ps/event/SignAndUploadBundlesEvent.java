@@ -7,12 +7,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.json.JsonString;
-import javax.json.JsonValue;
-import javax.websocket.Session;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonString;
+import jakarta.json.JsonValue;
+import jakarta.websocket.Session;
 
+import health.ere.ps.service.fhir.FHIRService;
 import org.hl7.fhir.r4.model.Bundle;
 
 import ca.uhn.fhir.context.FhirContext;
@@ -29,6 +30,8 @@ public class SignAndUploadBundlesEvent extends AbstractEvent {
     public String noteToPharmacy;
 
     public Map<String,String> kimConfigMap = new HashMap<>();
+
+    private static final FhirContext fhirContext = FHIRService.getFhirContext();
 
 
     public SignAndUploadBundlesEvent(JsonObject jsonObject) {
@@ -54,7 +57,7 @@ public class SignAndUploadBundlesEvent extends AbstractEvent {
 
             if (jsonValue instanceof JsonArray) {
                 for (JsonValue singleBundle : (JsonArray) jsonValue) {
-                    IParser jsonParser = FhirContext.forR4().newJsonParser();
+                    IParser jsonParser = fhirContext.newJsonParser();
 
                     Bundle bundle = jsonParser.parseResource(Bundle.class, singleBundle.toString());
                     bundles.add(bundle);
@@ -74,7 +77,8 @@ public class SignAndUploadBundlesEvent extends AbstractEvent {
         listOfListOfBundles.add(bundles);
     }
 
-    public SignAndUploadBundlesEvent(Bundle[] bundles, Session senderSession, String id) {
+    public SignAndUploadBundlesEvent(Bundle[] bundles, JsonObject jsonObject, Session senderSession, String id) {
+        parseRuntimeConfig(jsonObject); //todo: here the keys from above (flowtype etc) are ignored - refactor & include (probably own process json method?)
         this.replyTo = senderSession;
         this.id = id;
         listOfListOfBundles.add(Arrays.asList(bundles));

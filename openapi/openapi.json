@@ -1,12 +1,121 @@
 {
   "openapi" : "3.0.3",
   "info" : {
-    "title" : "Generated API",
-    "version" : "1.0"
+    "title" : "ere-ps-app API",
+    "version" : "1.0.0-SNAPSHOT"
   },
   "paths" : {
+    "/card/change-pin" : {
+      "post" : {
+        "tags" : [ "Card Resource" ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ChangePinParameter"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ChangePinResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/card/pin-status" : {
+      "get" : {
+        "tags" : [ "Card Resource" ],
+        "parameters" : [ {
+          "name" : "cardHandle",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "pinType",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GetPinStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/card/unblock-pin" : {
+      "post" : {
+        "tags" : [ "Card Resource" ],
+        "requestBody" : {
+          "content" : {
+            "text/plain" : {
+              "schema" : {
+                "type" : "string"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UnblockPinResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/card/verify-pin" : {
+      "post" : {
+        "tags" : [ "Card Resource" ],
+        "requestBody" : {
+          "content" : {
+            "text/plain" : {
+              "schema" : {
+                "type" : "string"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/VerifyPinResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/config" : {
       "get" : {
+        "tags" : [ "User Configurations Resource" ],
         "responses" : {
           "200" : {
             "description" : "OK"
@@ -14,6 +123,7 @@
         }
       },
       "put" : {
+        "tags" : [ "User Configurations Resource" ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -32,37 +142,12 @@
     },
     "/document/bundles" : {
       "post" : {
+        "tags" : [ "Document Resource" ],
         "requestBody" : {
           "content" : {
-            "application/json" : {
+            "text/plain" : {
               "schema" : {
                 "type" : "string"
-              }
-            }
-          }
-        },
-        "responses" : {
-          "200" : {
-            "description" : "OK"
-          }
-        }
-      }
-    },
-    "/ipp/{queue}" : {
-      "post" : {
-        "parameters" : [ {
-          "name" : "queue",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/InputStream"
               }
             }
           }
@@ -76,9 +161,10 @@
     },
     "/kbv/transform" : {
       "post" : {
+        "tags" : [ "XSLT Resource" ],
         "requestBody" : {
           "content" : {
-            "application/json" : {
+            "text/plain" : {
               "schema" : {
                 "type" : "string"
               }
@@ -92,8 +178,33 @@
         }
       }
     },
+    "/pharmacy/Accept" : {
+      "get" : {
+        "tags" : [ "Pharmacy Resource" ],
+        "parameters" : [ {
+          "name" : "token",
+          "in" : "query",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Bundle"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/pharmacy/Task" : {
       "get" : {
+        "tags" : [ "Pharmacy Resource" ],
         "parameters" : [ {
           "name" : "egkHandle",
           "in" : "query",
@@ -121,8 +232,35 @@
         }
       }
     },
+    "/preview/generate" : {
+      "post" : {
+        "tags" : [ "Preview Resource" ],
+        "requestBody" : {
+          "content" : {
+            "text/plain" : {
+              "schema" : {
+                "type" : "string"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "text/plain" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/status" : {
       "get" : {
+        "tags" : [ "Status Resource" ],
         "responses" : {
           "200" : {
             "description" : "OK"
@@ -132,6 +270,7 @@
     },
     "/validate" : {
       "post" : {
+        "tags" : [ "Prescription Bundle Validator Resource" ],
         "requestBody" : {
           "content" : {
             "application/xml" : {
@@ -141,7 +280,10 @@
             },
             "application/json" : {
               "schema" : {
-                "type" : "object"
+                "type" : "object",
+                "additionalProperties" : {
+                  "$ref" : "#/components/schemas/JsonValue"
+                }
               }
             }
           }
@@ -155,6 +297,7 @@
     },
     "/workflow/abort" : {
       "post" : {
+        "tags" : [ "E Rezept Workflow Resource" ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -173,9 +316,10 @@
     },
     "/workflow/batch-sign" : {
       "post" : {
+        "tags" : [ "E Rezept Workflow Resource" ],
         "requestBody" : {
           "content" : {
-            "application/json" : {
+            "text/plain" : {
               "schema" : {
                 "type" : "string"
               }
@@ -191,6 +335,7 @@
     },
     "/workflow/cards" : {
       "get" : {
+        "tags" : [ "E Rezept Workflow Resource" ],
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -207,6 +352,7 @@
     },
     "/workflow/comfortsignature/activate" : {
       "post" : {
+        "tags" : [ "E Rezept Workflow Resource" ],
         "responses" : {
           "200" : {
             "description" : "OK"
@@ -216,6 +362,7 @@
     },
     "/workflow/comfortsignature/deactivate" : {
       "post" : {
+        "tags" : [ "E Rezept Workflow Resource" ],
         "responses" : {
           "200" : {
             "description" : "OK"
@@ -225,6 +372,7 @@
     },
     "/workflow/comfortsignature/user-id" : {
       "get" : {
+        "tags" : [ "E Rezept Workflow Resource" ],
         "responses" : {
           "200" : {
             "description" : "OK"
@@ -232,9 +380,10 @@
         }
       },
       "post" : {
+        "tags" : [ "E Rezept Workflow Resource" ],
         "requestBody" : {
           "content" : {
-            "application/json" : {
+            "text/plain" : {
               "schema" : {
                 "type" : "string"
               }
@@ -250,11 +399,12 @@
     },
     "/workflow/idp-token" : {
       "get" : {
+        "tags" : [ "E Rezept Workflow Resource" ],
         "responses" : {
           "200" : {
             "description" : "OK",
             "content" : {
-              "application/json" : {
+              "text/plain" : {
                 "schema" : {
                   "type" : "string"
                 }
@@ -266,9 +416,10 @@
     },
     "/workflow/sign" : {
       "post" : {
+        "tags" : [ "E Rezept Workflow Resource" ],
         "requestBody" : {
           "content" : {
-            "application/json" : {
+            "text/plain" : {
               "schema" : {
                 "type" : "string"
               }
@@ -282,8 +433,26 @@
         }
       }
     },
+    "/workflow/signature-mode" : {
+      "get" : {
+        "tags" : [ "E Rezept Workflow Resource" ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GetSignatureModeResponseEvent"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/workflow/task" : {
       "post" : {
+        "tags" : [ "E Rezept Workflow Resource" ],
         "parameters" : [ {
           "name" : "flowtype",
           "in" : "query",
@@ -298,8 +467,19 @@
         }
       }
     },
+    "/workflow/test-prescription" : {
+      "post" : {
+        "tags" : [ "E Rezept Workflow Resource" ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
     "/workflow/update" : {
       "post" : {
+        "tags" : [ "E Rezept Workflow Resource" ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -318,9 +498,10 @@
     },
     "/xmlPrescription" : {
       "post" : {
+        "tags" : [ "Xml Prescription Resource" ],
         "requestBody" : {
           "content" : {
-            "application/json" : {
+            "text/plain" : {
               "schema" : {
                 "type" : "string"
               }
@@ -340,10 +521,10 @@
       "AbortERezept" : {
         "type" : "object",
         "properties" : {
-          "accessCode" : {
+          "taskId" : {
             "type" : "string"
           },
-          "taskId" : {
+          "accessCode" : {
             "type" : "string"
           }
         }
@@ -351,13 +532,13 @@
       "Address" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -367,8 +548,8 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
+          "primitive" : {
+            "type" : "boolean"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -379,14 +560,14 @@
           "metadataBased" : {
             "type" : "boolean"
           },
-          "primitive" : {
-            "type" : "boolean"
-          },
           "resource" : {
             "type" : "boolean"
           },
-          "disallowExtensions" : {
-            "type" : "boolean"
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
           },
           "extension" : {
             "type" : "array",
@@ -394,7 +575,10 @@
               "$ref" : "#/components/schemas/Extension"
             }
           },
-          "id" : {
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -403,16 +587,13 @@
           "idBase" : {
             "type" : "string"
           },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
+          "use" : {
+            "$ref" : "#/components/schemas/EnumerationAddressUse"
           },
-          "city" : {
-            "$ref" : "#/components/schemas/StringType"
+          "type" : {
+            "$ref" : "#/components/schemas/EnumerationAddressType"
           },
-          "country" : {
-            "$ref" : "#/components/schemas/StringType"
-          },
-          "district" : {
+          "text" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "line" : {
@@ -421,47 +602,47 @@
               "$ref" : "#/components/schemas/StringType"
             }
           },
-          "period" : {
-            "$ref" : "#/components/schemas/Period"
+          "city" : {
+            "$ref" : "#/components/schemas/StringType"
           },
-          "postalCode" : {
+          "district" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "state" : {
             "$ref" : "#/components/schemas/StringType"
           },
-          "text" : {
+          "postalCode" : {
             "$ref" : "#/components/schemas/StringType"
           },
-          "type" : {
-            "$ref" : "#/components/schemas/EnumerationAddressType"
+          "country" : {
+            "$ref" : "#/components/schemas/StringType"
           },
-          "use" : {
+          "period" : {
+            "$ref" : "#/components/schemas/Period"
+          },
+          "useElement" : {
             "$ref" : "#/components/schemas/EnumerationAddressUse"
           },
-          "cityElement" : {
+          "typeElement" : {
+            "$ref" : "#/components/schemas/EnumerationAddressType"
+          },
+          "textElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
-          "countryElement" : {
+          "cityElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "districtElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
-          "postalCodeElement" : {
-            "$ref" : "#/components/schemas/StringType"
-          },
           "stateElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
-          "textElement" : {
+          "postalCodeElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
-          "typeElement" : {
-            "$ref" : "#/components/schemas/EnumerationAddressType"
-          },
-          "useElement" : {
-            "$ref" : "#/components/schemas/EnumerationAddressUse"
+          "countryElement" : {
+            "$ref" : "#/components/schemas/StringType"
           },
           "empty" : {
             "type" : "boolean"
@@ -469,23 +650,23 @@
         }
       },
       "AddressType" : {
-        "enum" : [ "BOTH", "NULL", "PHYSICAL", "POSTAL" ],
+        "enum" : [ "POSTAL", "PHYSICAL", "BOTH", "NULL" ],
         "type" : "string"
       },
       "AddressUse" : {
-        "enum" : [ "BILLING", "HOME", "NULL", "OLD", "TEMP", "WORK" ],
+        "enum" : [ "HOME", "WORK", "TEMP", "OLD", "BILLING", "NULL" ],
         "type" : "string"
       },
       "Base64BinaryType" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -501,9 +682,6 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
-          },
           "booleanPrimitive" : {
             "type" : "boolean"
           },
@@ -516,10 +694,16 @@
           "resource" : {
             "type" : "boolean"
           },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
           "disallowExtensions" : {
             "type" : "boolean"
           },
-          "id" : {
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -528,11 +712,9 @@
           "idBase" : {
             "type" : "string"
           },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
-          },
           "myCoercedValue" : {
-            "type" : "array",
+            "format" : "binary",
+            "type" : "string",
             "items" : {
               "format" : "byte",
               "type" : "string"
@@ -545,20 +727,14 @@
             "type" : "boolean"
           },
           "myValue" : {
-            "type" : "array",
-            "items" : {
-              "format" : "byte",
-              "type" : "string"
-            }
-          },
-          "value" : {
-            "type" : "array",
-            "items" : {
-              "format" : "byte",
-              "type" : "string"
-            }
+            "format" : "binary",
+            "type" : "string"
           },
           "valueAsString" : {
+            "type" : "string"
+          },
+          "value" : {
+            "format" : "binary",
             "type" : "string"
           },
           "empty" : {
@@ -580,23 +756,19 @@
           },
           "calendarDate" : {
             "$ref" : "#/components/schemas/CalendarDate"
-          },
-          "weekLength" : {
-            "format" : "int32",
-            "type" : "integer"
           }
         }
       },
       "BaseDateTimeType" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -612,9 +784,6 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
-          },
           "booleanPrimitive" : {
             "type" : "boolean"
           },
@@ -624,10 +793,16 @@
           "resource" : {
             "type" : "boolean"
           },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
           "disallowExtensions" : {
             "type" : "boolean"
           },
-          "id" : {
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -636,22 +811,17 @@
           "idBase" : {
             "type" : "string"
           },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
-          },
           "valueAsString" : {
             "type" : "string"
           },
           "myCoercedValue" : {
-            "format" : "date",
-            "type" : "string"
+            "$ref" : "#/components/schemas/Date"
           },
           "myStringValue" : {
             "type" : "string"
           },
           "value" : {
-            "format" : "date",
-            "type" : "string"
+            "$ref" : "#/components/schemas/Date"
           },
           "empty" : {
             "type" : "boolean"
@@ -678,9 +848,6 @@
           "defaultPrecisionForDatatype" : {
             "$ref" : "#/components/schemas/TemporalPrecisionEnum"
           },
-          "highEdge" : {
-            "$ref" : "#/components/schemas/BaseDateTimeType"
-          },
           "hour" : {
             "format" : "int32",
             "type" : "integer"
@@ -697,6 +864,10 @@
             "format" : "int32",
             "type" : "integer"
           },
+          "secondsMilli" : {
+            "format" : "float",
+            "type" : "number"
+          },
           "nanos" : {
             "format" : "int64",
             "type" : "integer"
@@ -708,10 +879,6 @@
             "format" : "int32",
             "type" : "integer"
           },
-          "secondsMilli" : {
-            "format" : "float",
-            "type" : "number"
-          },
           "timeZone" : {
             "$ref" : "#/components/schemas/TimeZone"
           },
@@ -722,9 +889,6 @@
             "format" : "int32",
             "type" : "integer"
           },
-          "dateTime" : {
-            "type" : "boolean"
-          },
           "timeZoneZulu" : {
             "type" : "boolean"
           },
@@ -733,23 +897,24 @@
           },
           "valueAsV3String" : {
             "type" : "string"
+          },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "highEdge" : {
+            "$ref" : "#/components/schemas/BaseDateTimeType"
           }
         }
       },
       "BooleanType" : {
         "type" : "object",
         "properties" : {
-          "value" : {
-            "type" : "object"
-          },
           "valueAsString" : {
             "type" : "string"
           },
-          "formatCommentsPost" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
+          "value" : { },
+          "empty" : {
+            "type" : "boolean"
           },
           "formatCommentsPre" : {
             "type" : "array",
@@ -757,8 +922,11 @@
               "type" : "string"
             }
           },
-          "empty" : {
-            "type" : "boolean"
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           },
           "extension" : {
             "type" : "array",
@@ -770,9 +938,6 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
-          },
           "dateTime" : {
             "type" : "boolean"
           },
@@ -782,10 +947,16 @@
           "resource" : {
             "type" : "boolean"
           },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
           "disallowExtensions" : {
             "type" : "boolean"
           },
-          "id" : {
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -793,9 +964,6 @@
           },
           "idBase" : {
             "type" : "string"
-          },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
           },
           "myCoercedValue" : {
             "type" : "boolean"
@@ -814,11 +982,11 @@
       "Bundle" : {
         "type" : "object",
         "properties" : {
-          "idElement" : {
-            "$ref" : "#/components/schemas/IIdType"
-          },
           "meta" : {
             "$ref" : "#/components/schemas/IBaseMetaType"
+          },
+          "idElement" : {
+            "$ref" : "#/components/schemas/IIdType"
           },
           "structureFhirVersionEnum" : {
             "$ref" : "#/components/schemas/FhirVersionEnum"
@@ -826,13 +994,13 @@
           "deleted" : {
             "type" : "boolean"
           },
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -842,8 +1010,8 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
+          "primitive" : {
+            "type" : "boolean"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -854,8 +1022,8 @@
           "metadataBased" : {
             "type" : "boolean"
           },
-          "primitive" : {
-            "type" : "boolean"
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
           },
           "resource" : {
             "type" : "boolean"
@@ -869,9 +1037,6 @@
           "language" : {
             "$ref" : "#/components/schemas/CodeType"
           },
-          "idBase" : {
-            "type" : "string"
-          },
           "idPart" : {
             "type" : "string"
           },
@@ -881,23 +1046,14 @@
           "languageElement" : {
             "$ref" : "#/components/schemas/CodeType"
           },
-          "entry" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/BundleEntryComponent"
-            }
+          "idBase" : {
+            "type" : "string"
           },
           "identifier" : {
             "$ref" : "#/components/schemas/Identifier"
           },
-          "link" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/BundleLinkComponent"
-            }
-          },
-          "signature" : {
-            "$ref" : "#/components/schemas/Signature"
+          "type" : {
+            "$ref" : "#/components/schemas/EnumerationBundleType"
           },
           "timestamp" : {
             "$ref" : "#/components/schemas/InstantType"
@@ -905,17 +1061,23 @@
           "total" : {
             "$ref" : "#/components/schemas/UnsignedIntType"
           },
-          "type" : {
+          "link" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/BundleLinkComponent"
+            }
+          },
+          "entry" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/BundleEntryComponent"
+            }
+          },
+          "signature" : {
+            "$ref" : "#/components/schemas/Signature"
+          },
+          "typeElement" : {
             "$ref" : "#/components/schemas/EnumerationBundleType"
-          },
-          "entryFirstRep" : {
-            "$ref" : "#/components/schemas/BundleEntryComponent"
-          },
-          "linkFirstRep" : {
-            "$ref" : "#/components/schemas/BundleLinkComponent"
-          },
-          "resourceType" : {
-            "$ref" : "#/components/schemas/ResourceType"
           },
           "timestampElement" : {
             "$ref" : "#/components/schemas/InstantType"
@@ -923,24 +1085,30 @@
           "totalElement" : {
             "$ref" : "#/components/schemas/UnsignedIntType"
           },
-          "typeElement" : {
-            "$ref" : "#/components/schemas/EnumerationBundleType"
+          "linkFirstRep" : {
+            "$ref" : "#/components/schemas/BundleLinkComponent"
+          },
+          "entryFirstRep" : {
+            "$ref" : "#/components/schemas/BundleEntryComponent"
           },
           "empty" : {
             "type" : "boolean"
+          },
+          "resourceType" : {
+            "$ref" : "#/components/schemas/ResourceType"
           }
         }
       },
       "BundleEntryComponent" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -962,8 +1130,8 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
+          "primitive" : {
+            "type" : "boolean"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -974,13 +1142,16 @@
           "metadataBased" : {
             "type" : "boolean"
           },
-          "primitive" : {
-            "type" : "boolean"
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
           },
           "disallowExtensions" : {
             "type" : "boolean"
           },
-          "id" : {
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -989,14 +1160,8 @@
           "idBase" : {
             "type" : "string"
           },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
-          },
           "modifierExtensionFirstRep" : {
             "$ref" : "#/components/schemas/Extension"
-          },
-          "fullUrl" : {
-            "$ref" : "#/components/schemas/UriType"
           },
           "link" : {
             "type" : "array",
@@ -1004,23 +1169,26 @@
               "$ref" : "#/components/schemas/BundleLinkComponent"
             }
           },
-          "request" : {
-            "$ref" : "#/components/schemas/BundleEntryRequestComponent"
+          "fullUrl" : {
+            "$ref" : "#/components/schemas/UriType"
           },
           "resource" : {
             "$ref" : "#/components/schemas/Resource"
           },
-          "response" : {
-            "$ref" : "#/components/schemas/BundleEntryResponseComponent"
-          },
           "search" : {
             "$ref" : "#/components/schemas/BundleEntrySearchComponent"
           },
-          "fullUrlElement" : {
-            "$ref" : "#/components/schemas/UriType"
+          "request" : {
+            "$ref" : "#/components/schemas/BundleEntryRequestComponent"
+          },
+          "response" : {
+            "$ref" : "#/components/schemas/BundleEntryResponseComponent"
           },
           "linkFirstRep" : {
             "$ref" : "#/components/schemas/BundleLinkComponent"
+          },
+          "fullUrlElement" : {
+            "$ref" : "#/components/schemas/UriType"
           },
           "empty" : {
             "type" : "boolean"
@@ -1030,13 +1198,13 @@
       "BundleEntryRequestComponent" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -1058,8 +1226,8 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
+          "primitive" : {
+            "type" : "boolean"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -1070,16 +1238,19 @@
           "metadataBased" : {
             "type" : "boolean"
           },
-          "primitive" : {
-            "type" : "boolean"
-          },
           "resource" : {
             "type" : "boolean"
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
           },
           "disallowExtensions" : {
             "type" : "boolean"
           },
-          "id" : {
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -1088,23 +1259,8 @@
           "idBase" : {
             "type" : "string"
           },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
-          },
           "modifierExtensionFirstRep" : {
             "$ref" : "#/components/schemas/Extension"
-          },
-          "ifMatch" : {
-            "$ref" : "#/components/schemas/StringType"
-          },
-          "ifModifiedSince" : {
-            "$ref" : "#/components/schemas/InstantType"
-          },
-          "ifNoneExist" : {
-            "$ref" : "#/components/schemas/StringType"
-          },
-          "ifNoneMatch" : {
-            "$ref" : "#/components/schemas/StringType"
           },
           "method" : {
             "$ref" : "#/components/schemas/EnumerationHTTPVerb"
@@ -1112,16 +1268,16 @@
           "url" : {
             "$ref" : "#/components/schemas/UriType"
           },
-          "ifMatchElement" : {
+          "ifNoneMatch" : {
             "$ref" : "#/components/schemas/StringType"
           },
-          "ifModifiedSinceElement" : {
+          "ifModifiedSince" : {
             "$ref" : "#/components/schemas/InstantType"
           },
-          "ifNoneExistElement" : {
+          "ifMatch" : {
             "$ref" : "#/components/schemas/StringType"
           },
-          "ifNoneMatchElement" : {
+          "ifNoneExist" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "methodElement" : {
@@ -1129,6 +1285,18 @@
           },
           "urlElement" : {
             "$ref" : "#/components/schemas/UriType"
+          },
+          "ifNoneMatchElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "ifModifiedSinceElement" : {
+            "$ref" : "#/components/schemas/InstantType"
+          },
+          "ifMatchElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "ifNoneExistElement" : {
+            "$ref" : "#/components/schemas/StringType"
           },
           "empty" : {
             "type" : "boolean"
@@ -1138,13 +1306,13 @@
       "BundleEntryResponseComponent" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -1166,8 +1334,8 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
+          "primitive" : {
+            "type" : "boolean"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -1178,16 +1346,19 @@
           "metadataBased" : {
             "type" : "boolean"
           },
-          "primitive" : {
-            "type" : "boolean"
-          },
           "resource" : {
             "type" : "boolean"
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
           },
           "disallowExtensions" : {
             "type" : "boolean"
           },
-          "id" : {
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -1196,11 +1367,14 @@
           "idBase" : {
             "type" : "string"
           },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
-          },
           "modifierExtensionFirstRep" : {
             "$ref" : "#/components/schemas/Extension"
+          },
+          "status" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "location" : {
+            "$ref" : "#/components/schemas/UriType"
           },
           "etag" : {
             "$ref" : "#/components/schemas/StringType"
@@ -1208,26 +1382,20 @@
           "lastModified" : {
             "$ref" : "#/components/schemas/InstantType"
           },
-          "location" : {
-            "$ref" : "#/components/schemas/UriType"
-          },
           "outcome" : {
             "$ref" : "#/components/schemas/Resource"
           },
-          "status" : {
+          "statusElement" : {
             "$ref" : "#/components/schemas/StringType"
+          },
+          "locationElement" : {
+            "$ref" : "#/components/schemas/UriType"
           },
           "etagElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "lastModifiedElement" : {
             "$ref" : "#/components/schemas/InstantType"
-          },
-          "locationElement" : {
-            "$ref" : "#/components/schemas/UriType"
-          },
-          "statusElement" : {
-            "$ref" : "#/components/schemas/StringType"
           },
           "empty" : {
             "type" : "boolean"
@@ -1237,13 +1405,13 @@
       "BundleEntrySearchComponent" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -1265,8 +1433,8 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
+          "primitive" : {
+            "type" : "boolean"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -1277,16 +1445,19 @@
           "metadataBased" : {
             "type" : "boolean"
           },
-          "primitive" : {
-            "type" : "boolean"
-          },
           "resource" : {
             "type" : "boolean"
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
           },
           "disallowExtensions" : {
             "type" : "boolean"
           },
-          "id" : {
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -1294,9 +1465,6 @@
           },
           "idBase" : {
             "type" : "string"
-          },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
           },
           "modifierExtensionFirstRep" : {
             "$ref" : "#/components/schemas/Extension"
@@ -1321,13 +1489,13 @@
       "BundleLinkComponent" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -1349,8 +1517,8 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
+          "primitive" : {
+            "type" : "boolean"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -1361,16 +1529,19 @@
           "metadataBased" : {
             "type" : "boolean"
           },
-          "primitive" : {
-            "type" : "boolean"
-          },
           "resource" : {
             "type" : "boolean"
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
           },
           "disallowExtensions" : {
             "type" : "boolean"
           },
-          "id" : {
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -1378,9 +1549,6 @@
           },
           "idBase" : {
             "type" : "string"
-          },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
           },
           "modifierExtensionFirstRep" : {
             "$ref" : "#/components/schemas/Extension"
@@ -1403,12 +1571,23 @@
         }
       },
       "BundleType" : {
-        "enum" : [ "BATCH", "BATCHRESPONSE", "COLLECTION", "DOCUMENT", "HISTORY", "MESSAGE", "NULL", "SEARCHSET", "TRANSACTION", "TRANSACTIONRESPONSE" ],
+        "enum" : [ "DOCUMENT", "MESSAGE", "TRANSACTION", "TRANSACTIONRESPONSE", "BATCH", "BATCHRESPONSE", "HISTORY", "SEARCHSET", "COLLECTION", "NULL" ],
         "type" : "string"
       },
       "CalendarDate" : {
         "type" : "object",
         "properties" : {
+          "era" : {
+            "$ref" : "#/components/schemas/Era"
+          },
+          "year" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "month" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
           "dayOfMonth" : {
             "format" : "int32",
             "type" : "integer"
@@ -1417,31 +1596,10 @@
             "format" : "int32",
             "type" : "integer"
           },
-          "daylightSaving" : {
-            "format" : "int32",
-            "type" : "integer"
-          },
-          "era" : {
-            "$ref" : "#/components/schemas/Era"
-          },
-          "forceStandardTime" : {
-            "type" : "boolean"
-          },
-          "fraction" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "hours" : {
-            "format" : "int32",
-            "type" : "integer"
-          },
           "leapYear" : {
             "type" : "boolean"
           },
-          "locale" : {
-            "$ref" : "#/components/schemas/Locale"
-          },
-          "millis" : {
+          "hours" : {
             "format" : "int32",
             "type" : "integer"
           },
@@ -1449,53 +1607,63 @@
             "format" : "int32",
             "type" : "integer"
           },
-          "month" : {
+          "seconds" : {
             "format" : "int32",
+            "type" : "integer"
+          },
+          "millis" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "fraction" : {
+            "format" : "int64",
             "type" : "integer"
           },
           "normalized" : {
             "type" : "boolean"
           },
-          "seconds" : {
-            "format" : "int32",
-            "type" : "integer"
-          },
-          "year" : {
-            "format" : "int32",
-            "type" : "integer"
+          "zoneinfo" : {
+            "$ref" : "#/components/schemas/TimeZone"
           },
           "zoneOffset" : {
             "format" : "int32",
             "type" : "integer"
           },
-          "zoneinfo" : {
-            "$ref" : "#/components/schemas/TimeZone"
+          "daylightSaving" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "forceStandardTime" : {
+            "type" : "boolean"
+          },
+          "locale" : {
+            "$ref" : "#/components/schemas/Locale"
           },
           "timeOfDay" : {
             "format" : "int64",
             "type" : "integer"
           },
-          "zone" : {
-            "$ref" : "#/components/schemas/TimeZone"
+          "standardTime" : {
+            "type" : "boolean"
           },
           "daylightTime" : {
             "type" : "boolean"
           },
-          "standardTime" : {
-            "type" : "boolean"
+          "zone" : {
+            "$ref" : "#/components/schemas/TimeZone"
           }
         }
       },
       "CanonicalType" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -1511,9 +1679,6 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
-          },
           "booleanPrimitive" : {
             "type" : "boolean"
           },
@@ -1526,10 +1691,16 @@
           "resource" : {
             "type" : "boolean"
           },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
           "disallowExtensions" : {
             "type" : "boolean"
           },
-          "id" : {
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -1537,9 +1708,6 @@
           },
           "idBase" : {
             "type" : "string"
-          },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
           },
           "myCoercedValue" : {
             "type" : "string"
@@ -1571,22 +1739,22 @@
             }
           },
           "cardType" : {
+            "type" : "string",
             "allOf" : [ {
               "$ref" : "#/components/schemas/CardTypeType"
-            }, {
-              "xml" : {
-                "name" : "CardType"
-              }
-            } ]
+            } ],
+            "xml" : {
+              "name" : "CardType"
+            }
           },
           "cardVersion" : {
+            "type" : "object",
             "allOf" : [ {
               "$ref" : "#/components/schemas/CardVersion"
-            }, {
-              "xml" : {
-                "name" : "CardVersion"
-              }
-            } ]
+            } ],
+            "xml" : {
+              "name" : "CardVersion"
+            }
           },
           "iccsn" : {
             "type" : "string",
@@ -1607,13 +1775,13 @@
             }
           },
           "insertTime" : {
+            "type" : "object",
             "allOf" : [ {
               "$ref" : "#/components/schemas/XMLGregorianCalendar"
-            }, {
-              "xml" : {
-                "name" : "InsertTime"
-              }
-            } ]
+            } ],
+            "xml" : {
+              "name" : "InsertTime"
+            }
           },
           "cardHolderName" : {
             "type" : "string",
@@ -1628,94 +1796,94 @@
             }
           },
           "certificateExpirationDate" : {
+            "type" : "object",
             "allOf" : [ {
               "$ref" : "#/components/schemas/XMLGregorianCalendar"
-            }, {
-              "xml" : {
-                "name" : "CertificateExpirationDate"
-              }
-            } ]
+            } ],
+            "xml" : {
+              "name" : "CertificateExpirationDate"
+            }
           }
         }
       },
       "CardTypeType" : {
-        "enum" : [ "EGK", "HBA", "HBA_Q_SIG", "HB_AX", "HSM_B", "KVK", "SMC_B", "SMC_KT", "SM_B", "UNKNOWN", "ZOD_2_0" ],
+        "enum" : [ "EGK", "HBA_Q_SIG", "HBA", "SMC_B", "HSM_B", "SMC_KT", "KVK", "ZOD_2_0", "UNKNOWN", "HB_AX", "SM_B" ],
         "type" : "string"
       },
       "CardVersion" : {
         "type" : "object",
         "properties" : {
           "cosVersion" : {
+            "type" : "object",
             "allOf" : [ {
               "$ref" : "#/components/schemas/VersionInfoType"
-            }, {
-              "xml" : {
-                "name" : "COSVersion"
-              }
-            } ]
+            } ],
+            "xml" : {
+              "name" : "COSVersion"
+            }
           },
           "objectSystemVersion" : {
+            "type" : "object",
             "allOf" : [ {
               "$ref" : "#/components/schemas/VersionInfoType"
-            }, {
-              "xml" : {
-                "name" : "ObjectSystemVersion"
-              }
-            } ]
+            } ],
+            "xml" : {
+              "name" : "ObjectSystemVersion"
+            }
           },
           "cardPTPersVersion" : {
+            "type" : "object",
             "allOf" : [ {
               "$ref" : "#/components/schemas/VersionInfoType"
-            }, {
-              "xml" : {
-                "name" : "CardPTPersVersion"
-              }
-            } ]
+            } ],
+            "xml" : {
+              "name" : "CardPTPersVersion"
+            }
           },
           "dataStructureVersion" : {
+            "type" : "object",
             "allOf" : [ {
               "$ref" : "#/components/schemas/VersionInfoType"
-            }, {
-              "xml" : {
-                "name" : "DataStructureVersion"
-              }
-            } ]
+            } ],
+            "xml" : {
+              "name" : "DataStructureVersion"
+            }
           },
           "loggingVersion" : {
+            "type" : "object",
             "allOf" : [ {
               "$ref" : "#/components/schemas/VersionInfoType"
-            }, {
-              "xml" : {
-                "name" : "LoggingVersion"
-              }
-            } ]
+            } ],
+            "xml" : {
+              "name" : "LoggingVersion"
+            }
           },
           "atrVersion" : {
+            "type" : "object",
             "allOf" : [ {
               "$ref" : "#/components/schemas/VersionInfoType"
-            }, {
-              "xml" : {
-                "name" : "ATRVersion"
-              }
-            } ]
+            } ],
+            "xml" : {
+              "name" : "ATRVersion"
+            }
           },
           "gdoVersion" : {
+            "type" : "object",
             "allOf" : [ {
               "$ref" : "#/components/schemas/VersionInfoType"
-            }, {
-              "xml" : {
-                "name" : "GDOVersion"
-              }
-            } ]
+            } ],
+            "xml" : {
+              "name" : "GDOVersion"
+            }
           },
           "keyInfoVersion" : {
+            "type" : "object",
             "allOf" : [ {
               "$ref" : "#/components/schemas/VersionInfoType"
-            }, {
-              "xml" : {
-                "name" : "KeyInfoVersion"
-              }
-            } ]
+            } ],
+            "xml" : {
+              "name" : "KeyInfoVersion"
+            }
           }
         }
       },
@@ -1733,16 +1901,41 @@
           }
         }
       },
+      "ChangePinParameter" : {
+        "type" : "object",
+        "properties" : {
+          "cardHandle" : {
+            "type" : "string"
+          },
+          "pinType" : {
+            "type" : "string"
+          }
+        }
+      },
+      "ChangePinResponse" : {
+        "type" : "object",
+        "properties" : {
+          "status" : {
+            "$ref" : "#/components/schemas/Status"
+          },
+          "pinResultEnum" : {
+            "$ref" : "#/components/schemas/PinResultEnum"
+          },
+          "leftTries" : {
+            "type" : "integer"
+          }
+        }
+      },
       "CodeType" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -1758,9 +1951,6 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
-          },
           "booleanPrimitive" : {
             "type" : "boolean"
           },
@@ -1773,10 +1963,16 @@
           "resource" : {
             "type" : "boolean"
           },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
           "disallowExtensions" : {
             "type" : "boolean"
           },
-          "id" : {
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -1784,9 +1980,6 @@
           },
           "idBase" : {
             "type" : "string"
-          },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
           },
           "myCoercedValue" : {
             "type" : "string"
@@ -1812,13 +2005,13 @@
           "system" : {
             "type" : "string"
           },
-          "code" : {
+          "version" : {
             "type" : "string"
           },
           "display" : {
             "type" : "string"
           },
-          "version" : {
+          "code" : {
             "type" : "string"
           }
         }
@@ -1826,13 +2019,13 @@
       "CodeableConcept" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -1842,8 +2035,8 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
+          "primitive" : {
+            "type" : "boolean"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -1854,14 +2047,14 @@
           "metadataBased" : {
             "type" : "boolean"
           },
-          "primitive" : {
-            "type" : "boolean"
-          },
           "resource" : {
             "type" : "boolean"
           },
-          "disallowExtensions" : {
-            "type" : "boolean"
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
           },
           "extension" : {
             "type" : "array",
@@ -1869,7 +2062,10 @@
               "$ref" : "#/components/schemas/Extension"
             }
           },
-          "id" : {
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -1877,9 +2073,6 @@
           },
           "idBase" : {
             "type" : "string"
-          },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
           },
           "coding" : {
             "type" : "array",
@@ -1904,13 +2097,13 @@
       "Coding" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -1920,8 +2113,8 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
+          "primitive" : {
+            "type" : "boolean"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -1932,14 +2125,14 @@
           "metadataBased" : {
             "type" : "boolean"
           },
-          "primitive" : {
-            "type" : "boolean"
-          },
           "resource" : {
             "type" : "boolean"
           },
-          "disallowExtensions" : {
-            "type" : "boolean"
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
           },
           "extension" : {
             "type" : "array",
@@ -1947,7 +2140,10 @@
               "$ref" : "#/components/schemas/Extension"
             }
           },
-          "id" : {
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -1956,7 +2152,10 @@
           "idBase" : {
             "type" : "string"
           },
-          "idElement" : {
+          "system" : {
+            "$ref" : "#/components/schemas/UriType"
+          },
+          "version" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "code" : {
@@ -1965,13 +2164,13 @@
           "display" : {
             "$ref" : "#/components/schemas/StringType"
           },
-          "system" : {
-            "$ref" : "#/components/schemas/UriType"
-          },
           "userSelected" : {
             "$ref" : "#/components/schemas/BooleanType"
           },
-          "version" : {
+          "systemElement" : {
+            "$ref" : "#/components/schemas/UriType"
+          },
+          "versionElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "codeElement" : {
@@ -1980,30 +2179,28 @@
           "displayElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
-          "systemElement" : {
-            "$ref" : "#/components/schemas/UriType"
-          },
           "userSelectedElement" : {
             "$ref" : "#/components/schemas/BooleanType"
-          },
-          "versionElement" : {
-            "$ref" : "#/components/schemas/StringType"
           },
           "empty" : {
             "type" : "boolean"
           }
         }
       },
+      "ComfortSignatureStatusEnum" : {
+        "enum" : [ "ENABLED", "DISABLED" ],
+        "type" : "string"
+      },
       "ContactPoint" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -2013,8 +2210,8 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
+          "primitive" : {
+            "type" : "boolean"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -2025,14 +2222,14 @@
           "metadataBased" : {
             "type" : "boolean"
           },
-          "primitive" : {
-            "type" : "boolean"
-          },
           "resource" : {
             "type" : "boolean"
           },
-          "disallowExtensions" : {
-            "type" : "boolean"
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
           },
           "extension" : {
             "type" : "array",
@@ -2040,7 +2237,10 @@
               "$ref" : "#/components/schemas/Extension"
             }
           },
-          "id" : {
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -2049,35 +2249,32 @@
           "idBase" : {
             "type" : "string"
           },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
-          },
-          "period" : {
-            "$ref" : "#/components/schemas/Period"
-          },
-          "rank" : {
-            "$ref" : "#/components/schemas/PositiveIntType"
-          },
           "system" : {
             "$ref" : "#/components/schemas/EnumerationContactPointSystem"
-          },
-          "use" : {
-            "$ref" : "#/components/schemas/EnumerationContactPointUse"
           },
           "value" : {
             "$ref" : "#/components/schemas/StringType"
           },
-          "rankElement" : {
+          "use" : {
+            "$ref" : "#/components/schemas/EnumerationContactPointUse"
+          },
+          "rank" : {
             "$ref" : "#/components/schemas/PositiveIntType"
+          },
+          "period" : {
+            "$ref" : "#/components/schemas/Period"
           },
           "systemElement" : {
             "$ref" : "#/components/schemas/EnumerationContactPointSystem"
           },
+          "valueElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
           "useElement" : {
             "$ref" : "#/components/schemas/EnumerationContactPointUse"
           },
-          "valueElement" : {
-            "$ref" : "#/components/schemas/StringType"
+          "rankElement" : {
+            "$ref" : "#/components/schemas/PositiveIntType"
           },
           "empty" : {
             "type" : "boolean"
@@ -2085,16 +2282,32 @@
         }
       },
       "ContactPointSystem" : {
-        "enum" : [ "EMAIL", "FAX", "NULL", "OTHER", "PAGER", "PHONE", "SMS", "URL" ],
+        "enum" : [ "PHONE", "FAX", "EMAIL", "PAGER", "URL", "SMS", "OTHER", "NULL" ],
         "type" : "string"
       },
       "ContactPointUse" : {
-        "enum" : [ "HOME", "MOBILE", "NULL", "OLD", "TEMP", "WORK" ],
+        "enum" : [ "HOME", "WORK", "TEMP", "OLD", "MOBILE", "NULL" ],
         "type" : "string"
       },
       "Date" : {
+        "format" : "date",
+        "type" : "string",
+        "example" : "2022-03-10"
+      },
+      "Date1" : {
         "type" : "object",
         "properties" : {
+          "era" : {
+            "$ref" : "#/components/schemas/Era"
+          },
+          "year" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "month" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
           "dayOfMonth" : {
             "format" : "int32",
             "type" : "integer"
@@ -2103,31 +2316,10 @@
             "format" : "int32",
             "type" : "integer"
           },
-          "daylightSaving" : {
-            "format" : "int32",
-            "type" : "integer"
-          },
-          "era" : {
-            "$ref" : "#/components/schemas/Era"
-          },
-          "forceStandardTime" : {
-            "type" : "boolean"
-          },
-          "fraction" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "hours" : {
-            "format" : "int32",
-            "type" : "integer"
-          },
           "leapYear" : {
             "type" : "boolean"
           },
-          "locale" : {
-            "$ref" : "#/components/schemas/Locale"
-          },
-          "millis" : {
+          "hours" : {
             "format" : "int32",
             "type" : "integer"
           },
@@ -2135,40 +2327,54 @@
             "format" : "int32",
             "type" : "integer"
           },
-          "month" : {
+          "seconds" : {
             "format" : "int32",
+            "type" : "integer"
+          },
+          "millis" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "fraction" : {
+            "format" : "int64",
             "type" : "integer"
           },
           "normalized" : {
             "type" : "boolean"
           },
-          "seconds" : {
-            "format" : "int32",
-            "type" : "integer"
-          },
-          "year" : {
-            "format" : "int32",
-            "type" : "integer"
+          "zoneinfo" : {
+            "$ref" : "#/components/schemas/TimeZone"
           },
           "zoneOffset" : {
             "format" : "int32",
             "type" : "integer"
           },
-          "zoneinfo" : {
-            "$ref" : "#/components/schemas/TimeZone"
+          "daylightSaving" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "forceStandardTime" : {
+            "type" : "boolean"
+          },
+          "locale" : {
+            "$ref" : "#/components/schemas/Locale"
           },
           "timeOfDay" : {
             "format" : "int64",
             "type" : "integer"
           },
-          "zone" : {
-            "$ref" : "#/components/schemas/TimeZone"
+          "standardTime" : {
+            "type" : "boolean"
           },
           "daylightTime" : {
             "type" : "boolean"
           },
-          "standardTime" : {
-            "type" : "boolean"
+          "zone" : {
+            "$ref" : "#/components/schemas/TimeZone"
+          },
+          "cachedYear" : {
+            "format" : "int32",
+            "type" : "integer"
           },
           "cachedFixedDateJan1" : {
             "format" : "int64",
@@ -2178,16 +2384,12 @@
             "format" : "int64",
             "type" : "integer"
           },
-          "cachedYear" : {
+          "normalizedYear" : {
             "format" : "int32",
             "type" : "integer"
           },
           "cachedJan1" : {
             "format" : "int64",
-            "type" : "integer"
-          },
-          "normalizedYear" : {
-            "format" : "int32",
             "type" : "integer"
           }
         }
@@ -2195,13 +2397,13 @@
       "DateTimeType" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -2217,9 +2419,6 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
-          },
           "booleanPrimitive" : {
             "type" : "boolean"
           },
@@ -2229,10 +2428,16 @@
           "resource" : {
             "type" : "boolean"
           },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
           "disallowExtensions" : {
             "type" : "boolean"
           },
-          "id" : {
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -2241,22 +2446,17 @@
           "idBase" : {
             "type" : "string"
           },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
-          },
           "valueAsString" : {
             "type" : "string"
           },
           "myCoercedValue" : {
-            "format" : "date",
-            "type" : "string"
+            "$ref" : "#/components/schemas/Date"
           },
           "myStringValue" : {
             "type" : "string"
           },
           "value" : {
-            "format" : "date",
-            "type" : "string"
+            "$ref" : "#/components/schemas/Date"
           },
           "empty" : {
             "type" : "boolean"
@@ -2280,9 +2480,6 @@
             "format" : "int32",
             "type" : "integer"
           },
-          "highEdge" : {
-            "$ref" : "#/components/schemas/BaseDateTimeType"
-          },
           "hour" : {
             "format" : "int32",
             "type" : "integer"
@@ -2299,6 +2496,10 @@
             "format" : "int32",
             "type" : "integer"
           },
+          "secondsMilli" : {
+            "format" : "float",
+            "type" : "number"
+          },
           "nanos" : {
             "format" : "int64",
             "type" : "integer"
@@ -2309,10 +2510,6 @@
           "second" : {
             "format" : "int32",
             "type" : "integer"
-          },
-          "secondsMilli" : {
-            "format" : "float",
-            "type" : "number"
           },
           "timeZone" : {
             "$ref" : "#/components/schemas/TimeZone"
@@ -2333,11 +2530,14 @@
           "valueAsV3String" : {
             "type" : "string"
           },
-          "asV3" : {
-            "type" : "string"
+          "highEdge" : {
+            "$ref" : "#/components/schemas/BaseDateTimeType"
           },
           "defaultPrecisionForDatatype" : {
             "$ref" : "#/components/schemas/TemporalPrecisionEnum"
+          },
+          "tzSign" : {
+            "type" : "boolean"
           },
           "tzHour" : {
             "format" : "int32",
@@ -2347,8 +2547,8 @@
             "format" : "int32",
             "type" : "integer"
           },
-          "tzSign" : {
-            "type" : "boolean"
+          "asV3" : {
+            "type" : "string"
           },
           "dateTime" : {
             "type" : "boolean"
@@ -2361,11 +2561,8 @@
           "valueAsString" : {
             "type" : "string"
           },
-          "formatCommentsPost" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
+          "empty" : {
+            "type" : "boolean"
           },
           "formatCommentsPre" : {
             "type" : "array",
@@ -2373,8 +2570,11 @@
               "type" : "string"
             }
           },
-          "empty" : {
-            "type" : "boolean"
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           },
           "extension" : {
             "type" : "array",
@@ -2385,9 +2585,6 @@
           "userData" : {
             "type" : "object",
             "additionalProperties" : { }
-          },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -2401,10 +2598,16 @@
           "resource" : {
             "type" : "boolean"
           },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
           "disallowExtensions" : {
             "type" : "boolean"
           },
-          "id" : {
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -2412,9 +2615,6 @@
           },
           "idBase" : {
             "type" : "string"
-          },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
           },
           "myCoercedValue" : {
             "type" : "number"
@@ -2433,8 +2633,8 @@
             "type" : "number"
           },
           "value" : {
-            "format" : "double",
-            "type" : "number"
+            "format" : "int64",
+            "type" : "integer"
           }
         }
       },
@@ -2453,16 +2653,52 @@
           }
         }
       },
+      "Duration" : {
+        "type" : "object",
+        "properties" : {
+          "xMLSchemaType" : {
+            "$ref" : "#/components/schemas/QName"
+          },
+          "sign" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "years" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "months" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "days" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "hours" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "minutes" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "seconds" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        }
+      },
       "Endpoint" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -2490,8 +2726,8 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
+          "primitive" : {
+            "type" : "boolean"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -2502,8 +2738,8 @@
           "metadataBased" : {
             "type" : "boolean"
           },
-          "primitive" : {
-            "type" : "boolean"
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
           },
           "resource" : {
             "type" : "boolean"
@@ -2514,14 +2750,17 @@
           "language" : {
             "$ref" : "#/components/schemas/CodeType"
           },
-          "idBase" : {
-            "type" : "string"
-          },
           "idPart" : {
             "type" : "string"
           },
           "implicitRulesElement" : {
             "$ref" : "#/components/schemas/UriType"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "text" : {
+            "$ref" : "#/components/schemas/Narrative"
           },
           "contained" : {
             "type" : "array",
@@ -2541,32 +2780,20 @@
               "$ref" : "#/components/schemas/Extension"
             }
           },
-          "text" : {
-            "$ref" : "#/components/schemas/Narrative"
-          },
-          "address" : {
-            "$ref" : "#/components/schemas/UrlType"
-          },
-          "connectionType" : {
-            "$ref" : "#/components/schemas/Coding"
-          },
-          "contact" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/ContactPoint"
-            }
-          },
-          "header" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/StringType"
-            }
-          },
           "identifier" : {
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/Identifier"
             }
+          },
+          "status" : {
+            "$ref" : "#/components/schemas/EnumerationEndpointStatus"
+          },
+          "connectionType" : {
+            "$ref" : "#/components/schemas/Coding"
+          },
+          "name" : {
+            "$ref" : "#/components/schemas/StringType"
           },
           "managingOrganization" : {
             "$ref" : "#/components/schemas/Reference"
@@ -2574,14 +2801,14 @@
           "managingOrganizationTarget" : {
             "$ref" : "#/components/schemas/Organization"
           },
-          "name" : {
-            "$ref" : "#/components/schemas/StringType"
-          },
-          "payloadMimeType" : {
+          "contact" : {
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/CodeType"
+              "$ref" : "#/components/schemas/ContactPoint"
             }
+          },
+          "period" : {
+            "$ref" : "#/components/schemas/Period"
           },
           "payloadType" : {
             "type" : "array",
@@ -2589,40 +2816,49 @@
               "$ref" : "#/components/schemas/CodeableConcept"
             }
           },
-          "period" : {
-            "$ref" : "#/components/schemas/Period"
+          "payloadMimeType" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CodeType"
+            }
           },
-          "status" : {
-            "$ref" : "#/components/schemas/EnumerationEndpointStatus"
-          },
-          "addressElement" : {
+          "address" : {
             "$ref" : "#/components/schemas/UrlType"
           },
-          "contactFirstRep" : {
-            "$ref" : "#/components/schemas/ContactPoint"
+          "header" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/StringType"
+            }
           },
           "identifierFirstRep" : {
             "$ref" : "#/components/schemas/Identifier"
           },
+          "statusElement" : {
+            "$ref" : "#/components/schemas/EnumerationEndpointStatus"
+          },
           "nameElement" : {
             "$ref" : "#/components/schemas/StringType"
+          },
+          "contactFirstRep" : {
+            "$ref" : "#/components/schemas/ContactPoint"
           },
           "payloadTypeFirstRep" : {
             "$ref" : "#/components/schemas/CodeableConcept"
           },
-          "resourceType" : {
-            "$ref" : "#/components/schemas/ResourceType"
-          },
-          "statusElement" : {
-            "$ref" : "#/components/schemas/EnumerationEndpointStatus"
+          "addressElement" : {
+            "$ref" : "#/components/schemas/UrlType"
           },
           "empty" : {
             "type" : "boolean"
+          },
+          "resourceType" : {
+            "$ref" : "#/components/schemas/ResourceType"
           }
         }
       },
       "EndpointStatus" : {
-        "enum" : [ "ACTIVE", "ENTEREDINERROR", "ERROR", "NULL", "OFF", "SUSPENDED", "TEST" ],
+        "enum" : [ "ACTIVE", "SUSPENDED", "ERROR", "OFF", "ENTEREDINERROR", "TEST", "NULL" ],
         "type" : "string"
       },
       "EnumFactoryAddressType" : {
@@ -2661,17 +2897,14 @@
       "EnumerationAddressType" : {
         "type" : "object",
         "properties" : {
-          "value" : {
-            "$ref" : "#/components/schemas/AddressType"
-          },
           "valueAsString" : {
             "type" : "string"
           },
-          "formatCommentsPost" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
+          "value" : {
+            "$ref" : "#/components/schemas/AddressType"
+          },
+          "empty" : {
+            "type" : "boolean"
           },
           "formatCommentsPre" : {
             "type" : "array",
@@ -2679,8 +2912,11 @@
               "type" : "string"
             }
           },
-          "empty" : {
-            "type" : "boolean"
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           },
           "extension" : {
             "type" : "array",
@@ -2691,9 +2927,6 @@
           "userData" : {
             "type" : "object",
             "additionalProperties" : { }
-          },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -2707,10 +2940,16 @@
           "resource" : {
             "type" : "boolean"
           },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
           "disallowExtensions" : {
             "type" : "boolean"
           },
-          "id" : {
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -2718,9 +2957,6 @@
           },
           "idBase" : {
             "type" : "string"
-          },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
           },
           "myCoercedValue" : {
             "$ref" : "#/components/schemas/AddressType"
@@ -2734,12 +2970,6 @@
           "myEnumFactory" : {
             "$ref" : "#/components/schemas/EnumFactoryAddressType"
           },
-          "code" : {
-            "type" : "string"
-          },
-          "display" : {
-            "type" : "string"
-          },
           "enumFactory" : {
             "$ref" : "#/components/schemas/EnumFactoryAddressType"
           },
@@ -2747,6 +2977,12 @@
             "type" : "string"
           },
           "version" : {
+            "type" : "string"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "display" : {
             "type" : "string"
           }
         }
@@ -2754,17 +2990,14 @@
       "EnumerationAddressUse" : {
         "type" : "object",
         "properties" : {
-          "value" : {
-            "$ref" : "#/components/schemas/AddressUse"
-          },
           "valueAsString" : {
             "type" : "string"
           },
-          "formatCommentsPost" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
+          "value" : {
+            "$ref" : "#/components/schemas/AddressUse"
+          },
+          "empty" : {
+            "type" : "boolean"
           },
           "formatCommentsPre" : {
             "type" : "array",
@@ -2772,8 +3005,11 @@
               "type" : "string"
             }
           },
-          "empty" : {
-            "type" : "boolean"
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           },
           "extension" : {
             "type" : "array",
@@ -2784,9 +3020,6 @@
           "userData" : {
             "type" : "object",
             "additionalProperties" : { }
-          },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -2800,10 +3033,16 @@
           "resource" : {
             "type" : "boolean"
           },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
           "disallowExtensions" : {
             "type" : "boolean"
           },
-          "id" : {
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -2811,9 +3050,6 @@
           },
           "idBase" : {
             "type" : "string"
-          },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
           },
           "myCoercedValue" : {
             "$ref" : "#/components/schemas/AddressUse"
@@ -2827,12 +3063,6 @@
           "myEnumFactory" : {
             "$ref" : "#/components/schemas/EnumFactoryAddressUse"
           },
-          "code" : {
-            "type" : "string"
-          },
-          "display" : {
-            "type" : "string"
-          },
           "enumFactory" : {
             "$ref" : "#/components/schemas/EnumFactoryAddressUse"
           },
@@ -2840,6 +3070,12 @@
             "type" : "string"
           },
           "version" : {
+            "type" : "string"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "display" : {
             "type" : "string"
           }
         }
@@ -2847,17 +3083,14 @@
       "EnumerationBundleType" : {
         "type" : "object",
         "properties" : {
-          "value" : {
-            "$ref" : "#/components/schemas/BundleType"
-          },
           "valueAsString" : {
             "type" : "string"
           },
-          "formatCommentsPost" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
+          "value" : {
+            "$ref" : "#/components/schemas/BundleType"
+          },
+          "empty" : {
+            "type" : "boolean"
           },
           "formatCommentsPre" : {
             "type" : "array",
@@ -2865,8 +3098,11 @@
               "type" : "string"
             }
           },
-          "empty" : {
-            "type" : "boolean"
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           },
           "extension" : {
             "type" : "array",
@@ -2877,9 +3113,6 @@
           "userData" : {
             "type" : "object",
             "additionalProperties" : { }
-          },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -2893,10 +3126,16 @@
           "resource" : {
             "type" : "boolean"
           },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
           "disallowExtensions" : {
             "type" : "boolean"
           },
-          "id" : {
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -2904,9 +3143,6 @@
           },
           "idBase" : {
             "type" : "string"
-          },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
           },
           "myCoercedValue" : {
             "$ref" : "#/components/schemas/BundleType"
@@ -2920,12 +3156,6 @@
           "myEnumFactory" : {
             "$ref" : "#/components/schemas/EnumFactoryBundleType"
           },
-          "code" : {
-            "type" : "string"
-          },
-          "display" : {
-            "type" : "string"
-          },
           "enumFactory" : {
             "$ref" : "#/components/schemas/EnumFactoryBundleType"
           },
@@ -2933,6 +3163,12 @@
             "type" : "string"
           },
           "version" : {
+            "type" : "string"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "display" : {
             "type" : "string"
           }
         }
@@ -2940,17 +3176,14 @@
       "EnumerationContactPointSystem" : {
         "type" : "object",
         "properties" : {
-          "value" : {
-            "$ref" : "#/components/schemas/ContactPointSystem"
-          },
           "valueAsString" : {
             "type" : "string"
           },
-          "formatCommentsPost" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
+          "value" : {
+            "$ref" : "#/components/schemas/ContactPointSystem"
+          },
+          "empty" : {
+            "type" : "boolean"
           },
           "formatCommentsPre" : {
             "type" : "array",
@@ -2958,8 +3191,11 @@
               "type" : "string"
             }
           },
-          "empty" : {
-            "type" : "boolean"
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           },
           "extension" : {
             "type" : "array",
@@ -2970,9 +3206,6 @@
           "userData" : {
             "type" : "object",
             "additionalProperties" : { }
-          },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -2986,10 +3219,16 @@
           "resource" : {
             "type" : "boolean"
           },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
           "disallowExtensions" : {
             "type" : "boolean"
           },
-          "id" : {
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -2997,9 +3236,6 @@
           },
           "idBase" : {
             "type" : "string"
-          },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
           },
           "myCoercedValue" : {
             "$ref" : "#/components/schemas/ContactPointSystem"
@@ -3013,12 +3249,6 @@
           "myEnumFactory" : {
             "$ref" : "#/components/schemas/EnumFactoryContactPointSystem"
           },
-          "code" : {
-            "type" : "string"
-          },
-          "display" : {
-            "type" : "string"
-          },
           "enumFactory" : {
             "$ref" : "#/components/schemas/EnumFactoryContactPointSystem"
           },
@@ -3026,6 +3256,12 @@
             "type" : "string"
           },
           "version" : {
+            "type" : "string"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "display" : {
             "type" : "string"
           }
         }
@@ -3033,17 +3269,14 @@
       "EnumerationContactPointUse" : {
         "type" : "object",
         "properties" : {
-          "value" : {
-            "$ref" : "#/components/schemas/ContactPointUse"
-          },
           "valueAsString" : {
             "type" : "string"
           },
-          "formatCommentsPost" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
+          "value" : {
+            "$ref" : "#/components/schemas/ContactPointUse"
+          },
+          "empty" : {
+            "type" : "boolean"
           },
           "formatCommentsPre" : {
             "type" : "array",
@@ -3051,8 +3284,11 @@
               "type" : "string"
             }
           },
-          "empty" : {
-            "type" : "boolean"
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           },
           "extension" : {
             "type" : "array",
@@ -3063,9 +3299,6 @@
           "userData" : {
             "type" : "object",
             "additionalProperties" : { }
-          },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -3079,10 +3312,16 @@
           "resource" : {
             "type" : "boolean"
           },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
           "disallowExtensions" : {
             "type" : "boolean"
           },
-          "id" : {
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -3090,9 +3329,6 @@
           },
           "idBase" : {
             "type" : "string"
-          },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
           },
           "myCoercedValue" : {
             "$ref" : "#/components/schemas/ContactPointUse"
@@ -3106,12 +3342,6 @@
           "myEnumFactory" : {
             "$ref" : "#/components/schemas/EnumFactoryContactPointUse"
           },
-          "code" : {
-            "type" : "string"
-          },
-          "display" : {
-            "type" : "string"
-          },
           "enumFactory" : {
             "$ref" : "#/components/schemas/EnumFactoryContactPointUse"
           },
@@ -3119,6 +3349,12 @@
             "type" : "string"
           },
           "version" : {
+            "type" : "string"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "display" : {
             "type" : "string"
           }
         }
@@ -3126,17 +3362,14 @@
       "EnumerationEndpointStatus" : {
         "type" : "object",
         "properties" : {
-          "value" : {
-            "$ref" : "#/components/schemas/EndpointStatus"
-          },
           "valueAsString" : {
             "type" : "string"
           },
-          "formatCommentsPost" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
+          "value" : {
+            "$ref" : "#/components/schemas/EndpointStatus"
+          },
+          "empty" : {
+            "type" : "boolean"
           },
           "formatCommentsPre" : {
             "type" : "array",
@@ -3144,8 +3377,11 @@
               "type" : "string"
             }
           },
-          "empty" : {
-            "type" : "boolean"
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           },
           "extension" : {
             "type" : "array",
@@ -3156,9 +3392,6 @@
           "userData" : {
             "type" : "object",
             "additionalProperties" : { }
-          },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -3172,10 +3405,16 @@
           "resource" : {
             "type" : "boolean"
           },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
           "disallowExtensions" : {
             "type" : "boolean"
           },
-          "id" : {
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -3183,9 +3422,6 @@
           },
           "idBase" : {
             "type" : "string"
-          },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
           },
           "myCoercedValue" : {
             "$ref" : "#/components/schemas/EndpointStatus"
@@ -3199,12 +3435,6 @@
           "myEnumFactory" : {
             "$ref" : "#/components/schemas/EnumFactoryEndpointStatus"
           },
-          "code" : {
-            "type" : "string"
-          },
-          "display" : {
-            "type" : "string"
-          },
           "enumFactory" : {
             "$ref" : "#/components/schemas/EnumFactoryEndpointStatus"
           },
@@ -3212,6 +3442,12 @@
             "type" : "string"
           },
           "version" : {
+            "type" : "string"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "display" : {
             "type" : "string"
           }
         }
@@ -3219,17 +3455,14 @@
       "EnumerationHTTPVerb" : {
         "type" : "object",
         "properties" : {
-          "value" : {
-            "$ref" : "#/components/schemas/HTTPVerb"
-          },
           "valueAsString" : {
             "type" : "string"
           },
-          "formatCommentsPost" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
+          "value" : {
+            "$ref" : "#/components/schemas/HTTPVerb"
+          },
+          "empty" : {
+            "type" : "boolean"
           },
           "formatCommentsPre" : {
             "type" : "array",
@@ -3237,8 +3470,11 @@
               "type" : "string"
             }
           },
-          "empty" : {
-            "type" : "boolean"
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           },
           "extension" : {
             "type" : "array",
@@ -3249,9 +3485,6 @@
           "userData" : {
             "type" : "object",
             "additionalProperties" : { }
-          },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -3265,10 +3498,16 @@
           "resource" : {
             "type" : "boolean"
           },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
           "disallowExtensions" : {
             "type" : "boolean"
           },
-          "id" : {
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -3276,9 +3515,6 @@
           },
           "idBase" : {
             "type" : "string"
-          },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
           },
           "myCoercedValue" : {
             "$ref" : "#/components/schemas/HTTPVerb"
@@ -3292,12 +3528,6 @@
           "myEnumFactory" : {
             "$ref" : "#/components/schemas/EnumFactoryHTTPVerb"
           },
-          "code" : {
-            "type" : "string"
-          },
-          "display" : {
-            "type" : "string"
-          },
           "enumFactory" : {
             "$ref" : "#/components/schemas/EnumFactoryHTTPVerb"
           },
@@ -3305,6 +3535,12 @@
             "type" : "string"
           },
           "version" : {
+            "type" : "string"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "display" : {
             "type" : "string"
           }
         }
@@ -3312,17 +3548,14 @@
       "EnumerationIdentifierUse" : {
         "type" : "object",
         "properties" : {
-          "value" : {
-            "$ref" : "#/components/schemas/IdentifierUse"
-          },
           "valueAsString" : {
             "type" : "string"
           },
-          "formatCommentsPost" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
+          "value" : {
+            "$ref" : "#/components/schemas/IdentifierUse"
+          },
+          "empty" : {
+            "type" : "boolean"
           },
           "formatCommentsPre" : {
             "type" : "array",
@@ -3330,8 +3563,11 @@
               "type" : "string"
             }
           },
-          "empty" : {
-            "type" : "boolean"
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           },
           "extension" : {
             "type" : "array",
@@ -3342,9 +3578,6 @@
           "userData" : {
             "type" : "object",
             "additionalProperties" : { }
-          },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -3358,10 +3591,16 @@
           "resource" : {
             "type" : "boolean"
           },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
           "disallowExtensions" : {
             "type" : "boolean"
           },
-          "id" : {
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -3369,9 +3608,6 @@
           },
           "idBase" : {
             "type" : "string"
-          },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
           },
           "myCoercedValue" : {
             "$ref" : "#/components/schemas/IdentifierUse"
@@ -3385,12 +3621,6 @@
           "myEnumFactory" : {
             "$ref" : "#/components/schemas/EnumFactoryIdentifierUse"
           },
-          "code" : {
-            "type" : "string"
-          },
-          "display" : {
-            "type" : "string"
-          },
           "enumFactory" : {
             "$ref" : "#/components/schemas/EnumFactoryIdentifierUse"
           },
@@ -3398,6 +3628,12 @@
             "type" : "string"
           },
           "version" : {
+            "type" : "string"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "display" : {
             "type" : "string"
           }
         }
@@ -3405,17 +3641,14 @@
       "EnumerationNameUse" : {
         "type" : "object",
         "properties" : {
-          "value" : {
-            "$ref" : "#/components/schemas/NameUse"
-          },
           "valueAsString" : {
             "type" : "string"
           },
-          "formatCommentsPost" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
+          "value" : {
+            "$ref" : "#/components/schemas/NameUse"
+          },
+          "empty" : {
+            "type" : "boolean"
           },
           "formatCommentsPre" : {
             "type" : "array",
@@ -3423,8 +3656,11 @@
               "type" : "string"
             }
           },
-          "empty" : {
-            "type" : "boolean"
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           },
           "extension" : {
             "type" : "array",
@@ -3435,9 +3671,6 @@
           "userData" : {
             "type" : "object",
             "additionalProperties" : { }
-          },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -3451,10 +3684,16 @@
           "resource" : {
             "type" : "boolean"
           },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
           "disallowExtensions" : {
             "type" : "boolean"
           },
-          "id" : {
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -3462,9 +3701,6 @@
           },
           "idBase" : {
             "type" : "string"
-          },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
           },
           "myCoercedValue" : {
             "$ref" : "#/components/schemas/NameUse"
@@ -3478,12 +3714,6 @@
           "myEnumFactory" : {
             "$ref" : "#/components/schemas/EnumFactoryNameUse"
           },
-          "code" : {
-            "type" : "string"
-          },
-          "display" : {
-            "type" : "string"
-          },
           "enumFactory" : {
             "$ref" : "#/components/schemas/EnumFactoryNameUse"
           },
@@ -3491,6 +3721,12 @@
             "type" : "string"
           },
           "version" : {
+            "type" : "string"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "display" : {
             "type" : "string"
           }
         }
@@ -3498,17 +3734,14 @@
       "EnumerationNarrativeStatus" : {
         "type" : "object",
         "properties" : {
-          "value" : {
-            "$ref" : "#/components/schemas/NarrativeStatus"
-          },
           "valueAsString" : {
             "type" : "string"
           },
-          "formatCommentsPost" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
+          "value" : {
+            "$ref" : "#/components/schemas/NarrativeStatus"
+          },
+          "empty" : {
+            "type" : "boolean"
           },
           "formatCommentsPre" : {
             "type" : "array",
@@ -3516,8 +3749,11 @@
               "type" : "string"
             }
           },
-          "empty" : {
-            "type" : "boolean"
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           },
           "extension" : {
             "type" : "array",
@@ -3528,9 +3764,6 @@
           "userData" : {
             "type" : "object",
             "additionalProperties" : { }
-          },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -3544,10 +3777,16 @@
           "resource" : {
             "type" : "boolean"
           },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
           "disallowExtensions" : {
             "type" : "boolean"
           },
-          "id" : {
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -3555,9 +3794,6 @@
           },
           "idBase" : {
             "type" : "string"
-          },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
           },
           "myCoercedValue" : {
             "$ref" : "#/components/schemas/NarrativeStatus"
@@ -3571,12 +3807,6 @@
           "myEnumFactory" : {
             "$ref" : "#/components/schemas/EnumFactoryNarrativeStatus"
           },
-          "code" : {
-            "type" : "string"
-          },
-          "display" : {
-            "type" : "string"
-          },
           "enumFactory" : {
             "$ref" : "#/components/schemas/EnumFactoryNarrativeStatus"
           },
@@ -3584,6 +3814,12 @@
             "type" : "string"
           },
           "version" : {
+            "type" : "string"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "display" : {
             "type" : "string"
           }
         }
@@ -3591,17 +3827,14 @@
       "EnumerationSearchEntryMode" : {
         "type" : "object",
         "properties" : {
-          "value" : {
-            "$ref" : "#/components/schemas/SearchEntryMode"
-          },
           "valueAsString" : {
             "type" : "string"
           },
-          "formatCommentsPost" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
+          "value" : {
+            "$ref" : "#/components/schemas/SearchEntryMode"
+          },
+          "empty" : {
+            "type" : "boolean"
           },
           "formatCommentsPre" : {
             "type" : "array",
@@ -3609,8 +3842,11 @@
               "type" : "string"
             }
           },
-          "empty" : {
-            "type" : "boolean"
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           },
           "extension" : {
             "type" : "array",
@@ -3621,9 +3857,6 @@
           "userData" : {
             "type" : "object",
             "additionalProperties" : { }
-          },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -3637,10 +3870,16 @@
           "resource" : {
             "type" : "boolean"
           },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
           "disallowExtensions" : {
             "type" : "boolean"
           },
-          "id" : {
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -3648,9 +3887,6 @@
           },
           "idBase" : {
             "type" : "string"
-          },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
           },
           "myCoercedValue" : {
             "$ref" : "#/components/schemas/SearchEntryMode"
@@ -3664,12 +3900,6 @@
           "myEnumFactory" : {
             "$ref" : "#/components/schemas/EnumFactorySearchEntryMode"
           },
-          "code" : {
-            "type" : "string"
-          },
-          "display" : {
-            "type" : "string"
-          },
           "enumFactory" : {
             "$ref" : "#/components/schemas/EnumFactorySearchEntryMode"
           },
@@ -3678,23 +3908,22 @@
           },
           "version" : {
             "type" : "string"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "display" : {
+            "type" : "string"
           }
         }
       },
       "Era" : {
         "type" : "object",
         "properties" : {
-          "abbr" : {
+          "name" : {
             "type" : "string"
           },
-          "hash" : {
-            "format" : "int32",
-            "type" : "integer"
-          },
-          "localTime" : {
-            "type" : "boolean"
-          },
-          "name" : {
+          "abbr" : {
             "type" : "string"
           },
           "since" : {
@@ -3703,6 +3932,13 @@
           },
           "sinceDate" : {
             "$ref" : "#/components/schemas/CalendarDate"
+          },
+          "localTime" : {
+            "type" : "boolean"
+          },
+          "hash" : {
+            "format" : "int32",
+            "type" : "integer"
           },
           "abbreviation" : {
             "type" : "string"
@@ -3719,13 +3955,13 @@
             }
           },
           "timestamp" : {
+            "type" : "object",
             "allOf" : [ {
               "$ref" : "#/components/schemas/XMLGregorianCalendar"
-            }, {
-              "xml" : {
-                "name" : "Timestamp"
-              }
-            } ]
+            } ],
+            "xml" : {
+              "name" : "Timestamp"
+            }
           },
           "trace" : {
             "type" : "array",
@@ -3743,17 +3979,15 @@
         "properties" : {
           "extension" : {
             "type" : "array",
-            "items" : {
-              "type" : "object"
-            }
+            "items" : { }
           },
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -3763,8 +3997,8 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
+          "primitive" : {
+            "type" : "boolean"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -3775,16 +4009,19 @@
           "metadataBased" : {
             "type" : "boolean"
           },
-          "primitive" : {
-            "type" : "boolean"
-          },
           "resource" : {
             "type" : "boolean"
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
           },
           "disallowExtensions" : {
             "type" : "boolean"
           },
-          "id" : {
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -3792,9 +4029,6 @@
           },
           "idBase" : {
             "type" : "string"
-          },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
           },
           "valueAsPrimitive" : {
             "$ref" : "#/components/schemas/IPrimitiveTypeObject"
@@ -3814,38 +4048,79 @@
         }
       },
       "FhirVersionEnum" : {
-        "enum" : [ "DSTU2", "DSTU2_1", "DSTU2_HL7ORG", "DSTU3", "R4", "R4B", "R5" ],
+        "enum" : [ "DSTU2", "DSTU2_HL7ORG", "DSTU2_1", "DSTU3", "R4", "R4B", "R5" ],
         "type" : "string"
       },
       "GetCardsResponse" : {
         "type" : "object",
         "properties" : {
           "status" : {
+            "type" : "object",
             "allOf" : [ {
               "$ref" : "#/components/schemas/Status"
-            }, {
-              "xml" : {
-                "name" : "Status"
-              }
-            } ]
+            } ],
+            "xml" : {
+              "name" : "Status"
+            }
           },
           "cards" : {
+            "type" : "object",
             "allOf" : [ {
               "$ref" : "#/components/schemas/Cards"
-            }, {
-              "xml" : {
-                "name" : "Cards"
-              }
-            } ]
+            } ],
+            "xml" : {
+              "name" : "Cards"
+            }
+          }
+        }
+      },
+      "GetPinStatusResponse" : {
+        "type" : "object",
+        "properties" : {
+          "status" : {
+            "$ref" : "#/components/schemas/Status"
+          },
+          "pinResultEnum" : {
+            "$ref" : "#/components/schemas/PinStatusEnum"
+          },
+          "leftTries" : {
+            "type" : "integer"
+          },
+          "pinStatusEnum" : {
+            "$ref" : "#/components/schemas/PinStatusEnum"
+          }
+        }
+      },
+      "GetSignatureModeResponseEvent" : {
+        "type" : "object",
+        "properties" : {
+          "status" : {
+            "$ref" : "#/components/schemas/Status"
+          },
+          "comfortSignatureStatus" : {
+            "$ref" : "#/components/schemas/ComfortSignatureStatusEnum"
+          },
+          "comfortSignatureMax" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "comfortSignatureTimer" : {
+            "$ref" : "#/components/schemas/Duration"
+          },
+          "sessionInfo" : {
+            "$ref" : "#/components/schemas/SessionInfo"
+          },
+          "userId" : {
+            "type" : "string"
+          },
+          "answertToActivateComfortSignature" : {
+            "type" : "boolean"
           }
         }
       },
       "GregorianCalendar" : {
         "type" : "object",
         "properties" : {
-          "areFieldsSet" : {
-            "type" : "boolean"
-          },
           "fields" : {
             "type" : "array",
             "items" : {
@@ -3853,21 +4128,31 @@
               "type" : "integer"
             }
           },
-          "firstDayOfWeek" : {
-            "format" : "int32",
-            "type" : "integer"
-          },
           "isSet" : {
             "type" : "array",
             "items" : {
               "type" : "boolean"
             }
           },
+          "time" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
           "isTimeSet" : {
+            "type" : "boolean"
+          },
+          "areFieldsSet" : {
             "type" : "boolean"
           },
           "lenient" : {
             "type" : "boolean"
+          },
+          "zone" : {
+            "$ref" : "#/components/schemas/TimeZone"
+          },
+          "firstDayOfWeek" : {
+            "format" : "int32",
+            "type" : "integer"
           },
           "minimalDaysInFirstWeek" : {
             "format" : "int32",
@@ -3881,26 +4166,13 @@
             "format" : "int32",
             "type" : "integer"
           },
-          "time" : {
-            "format" : "int64",
-            "type" : "integer"
-          },
-          "zone" : {
-            "$ref" : "#/components/schemas/TimeZone"
-          },
-          "setStateFields" : {
-            "format" : "int32",
-            "type" : "integer"
-          },
           "timeInMillis" : {
             "format" : "int64",
             "type" : "integer"
           },
-          "fullyNormalized" : {
-            "type" : "boolean"
-          },
-          "partiallyNormalized" : {
-            "type" : "boolean"
+          "setStateFields" : {
+            "format" : "int32",
+            "type" : "integer"
           },
           "fieldsComputed" : {
             "format" : "int32",
@@ -3910,38 +4182,37 @@
             "format" : "int32",
             "type" : "integer"
           },
-          "weekCountData" : {
-            "$ref" : "#/components/schemas/Locale"
+          "partiallyNormalized" : {
+            "type" : "boolean"
+          },
+          "fullyNormalized" : {
+            "type" : "boolean"
           },
           "zoneShared" : {
             "type" : "boolean"
+          },
+          "weekCountData" : {
+            "$ref" : "#/components/schemas/Locale"
           },
           "gregorianCutover" : {
             "format" : "int64",
             "type" : "integer"
           },
+          "gregorianChange" : {
+            "$ref" : "#/components/schemas/Date"
+          },
           "calendarType" : {
             "type" : "string"
           },
-          "currentFixedDate" : {
+          "yearOffsetInMillis" : {
             "format" : "int64",
             "type" : "integer"
           },
-          "cutoverCalendarSystem" : {
-            "$ref" : "#/components/schemas/BaseCalendar"
-          },
-          "gregorianChange" : {
-            "format" : "date",
-            "type" : "string"
-          },
-          "lastJulianDate" : {
-            "$ref" : "#/components/schemas/Date"
-          },
-          "normalizedCalendar" : {
-            "$ref" : "#/components/schemas/GregorianCalendar"
-          },
           "timeZone" : {
             "$ref" : "#/components/schemas/TimeZone"
+          },
+          "weekDateSupported" : {
+            "type" : "boolean"
           },
           "weekYear" : {
             "format" : "int32",
@@ -3951,29 +4222,38 @@
             "format" : "int32",
             "type" : "integer"
           },
-          "yearOffsetInMillis" : {
+          "normalizedCalendar" : {
+            "$ref" : "#/components/schemas/GregorianCalendar"
+          },
+          "cutoverCalendarSystem" : {
+            "$ref" : "#/components/schemas/BaseCalendar"
+          },
+          "invalidWeek1" : {
+            "type" : "boolean"
+          },
+          "lastJulianDate" : {
+            "$ref" : "#/components/schemas/Date1"
+          },
+          "currentFixedDate" : {
             "format" : "int64",
             "type" : "integer"
-          },
-          "weekDateSupported" : {
-            "type" : "boolean"
           }
         }
       },
       "HTTPVerb" : {
-        "enum" : [ "DELETE", "GET", "HEAD", "NULL", "PATCH", "POST", "PUT" ],
+        "enum" : [ "GET", "HEAD", "POST", "PUT", "DELETE", "PATCH", "NULL" ],
         "type" : "string"
       },
       "HumanName" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -3983,8 +4263,8 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
+          "primitive" : {
+            "type" : "boolean"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -3995,14 +4275,14 @@
           "metadataBased" : {
             "type" : "boolean"
           },
-          "primitive" : {
-            "type" : "boolean"
-          },
           "resource" : {
             "type" : "boolean"
           },
-          "disallowExtensions" : {
-            "type" : "boolean"
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
           },
           "extension" : {
             "type" : "array",
@@ -4010,7 +4290,10 @@
               "$ref" : "#/components/schemas/Extension"
             }
           },
-          "id" : {
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -4019,7 +4302,10 @@
           "idBase" : {
             "type" : "string"
           },
-          "idElement" : {
+          "use" : {
+            "$ref" : "#/components/schemas/EnumerationNameUse"
+          },
+          "text" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "family" : {
@@ -4030,9 +4316,6 @@
             "items" : {
               "$ref" : "#/components/schemas/StringType"
             }
-          },
-          "period" : {
-            "$ref" : "#/components/schemas/Period"
           },
           "prefix" : {
             "type" : "array",
@@ -4046,19 +4329,19 @@
               "$ref" : "#/components/schemas/StringType"
             }
           },
-          "text" : {
-            "$ref" : "#/components/schemas/StringType"
+          "period" : {
+            "$ref" : "#/components/schemas/Period"
           },
-          "use" : {
+          "useElement" : {
             "$ref" : "#/components/schemas/EnumerationNameUse"
+          },
+          "textElement" : {
+            "$ref" : "#/components/schemas/StringType"
           },
           "familyElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "givenAsSingleString" : {
-            "type" : "string"
-          },
-          "nameAsSingleString" : {
             "type" : "string"
           },
           "prefixAsSingleString" : {
@@ -4067,11 +4350,8 @@
           "suffixAsSingleString" : {
             "type" : "string"
           },
-          "textElement" : {
-            "$ref" : "#/components/schemas/StringType"
-          },
-          "useElement" : {
-            "$ref" : "#/components/schemas/EnumerationNameUse"
+          "nameAsSingleString" : {
+            "type" : "string"
           },
           "empty" : {
             "type" : "boolean"
@@ -4081,11 +4361,8 @@
       "IBaseCoding" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
+          "empty" : {
+            "type" : "boolean"
           },
           "formatCommentsPre" : {
             "type" : "array",
@@ -4093,8 +4370,11 @@
               "type" : "string"
             }
           },
-          "empty" : {
-            "type" : "boolean"
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           },
           "code" : {
             "type" : "string"
@@ -4116,11 +4396,8 @@
       "IBaseDatatype" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
+          "empty" : {
+            "type" : "boolean"
           },
           "formatCommentsPre" : {
             "type" : "array",
@@ -4128,19 +4405,19 @@
               "type" : "string"
             }
           },
-          "empty" : {
-            "type" : "boolean"
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           }
         }
       },
       "IBaseExtensionObjectObject" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
+          "empty" : {
+            "type" : "boolean"
           },
           "formatCommentsPre" : {
             "type" : "array",
@@ -4148,14 +4425,15 @@
               "type" : "string"
             }
           },
-          "empty" : {
-            "type" : "boolean"
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           },
           "extension" : {
             "type" : "array",
-            "items" : {
-              "type" : "object"
-            }
+            "items" : { }
           },
           "url" : {
             "type" : "string"
@@ -4168,11 +4446,8 @@
       "IBaseMetaType" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
+          "empty" : {
+            "type" : "boolean"
           },
           "formatCommentsPre" : {
             "type" : "array",
@@ -4180,12 +4455,14 @@
               "type" : "string"
             }
           },
-          "empty" : {
-            "type" : "boolean"
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           },
           "lastUpdated" : {
-            "format" : "date",
-            "type" : "string"
+            "$ref" : "#/components/schemas/Date"
           },
           "profile" : {
             "type" : "array",
@@ -4216,13 +4493,13 @@
           "valueAsString" : {
             "type" : "string"
           },
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -4274,11 +4551,8 @@
       "IPrimitiveTypeObject" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
+          "empty" : {
+            "type" : "boolean"
           },
           "formatCommentsPre" : {
             "type" : "array",
@@ -4286,25 +4560,23 @@
               "type" : "string"
             }
           },
-          "empty" : {
-            "type" : "boolean"
-          },
-          "value" : {
-            "type" : "object"
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           },
           "valueAsString" : {
             "type" : "string"
-          }
+          },
+          "value" : { }
         }
       },
       "IPrimitiveTypeString" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
+          "empty" : {
+            "type" : "boolean"
           },
           "formatCommentsPre" : {
             "type" : "array",
@@ -4312,13 +4584,16 @@
               "type" : "string"
             }
           },
-          "empty" : {
-            "type" : "boolean"
-          },
-          "value" : {
-            "type" : "string"
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           },
           "valueAsString" : {
+            "type" : "string"
+          },
+          "value" : {
             "type" : "string"
           }
         }
@@ -4326,13 +4601,13 @@
       "IdType" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -4348,9 +4623,6 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
-          },
           "booleanPrimitive" : {
             "type" : "boolean"
           },
@@ -4363,10 +4635,16 @@
           "resource" : {
             "type" : "boolean"
           },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
           "disallowExtensions" : {
             "type" : "boolean"
           },
-          "id" : {
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -4374,9 +4652,6 @@
           },
           "idBase" : {
             "type" : "string"
-          },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
           },
           "myCoercedValue" : {
             "type" : "string"
@@ -4457,13 +4732,13 @@
       "Identifier" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -4473,8 +4748,8 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
+          "primitive" : {
+            "type" : "boolean"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -4485,14 +4760,14 @@
           "metadataBased" : {
             "type" : "boolean"
           },
-          "primitive" : {
-            "type" : "boolean"
-          },
           "resource" : {
             "type" : "boolean"
           },
-          "disallowExtensions" : {
-            "type" : "boolean"
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
           },
           "extension" : {
             "type" : "array",
@@ -4500,7 +4775,10 @@
               "$ref" : "#/components/schemas/Extension"
             }
           },
-          "id" : {
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -4509,8 +4787,20 @@
           "idBase" : {
             "type" : "string"
           },
-          "idElement" : {
+          "use" : {
+            "$ref" : "#/components/schemas/EnumerationIdentifierUse"
+          },
+          "type" : {
+            "$ref" : "#/components/schemas/CodeableConcept"
+          },
+          "system" : {
+            "$ref" : "#/components/schemas/UriType"
+          },
+          "value" : {
             "$ref" : "#/components/schemas/StringType"
+          },
+          "period" : {
+            "$ref" : "#/components/schemas/Period"
           },
           "assigner" : {
             "$ref" : "#/components/schemas/Reference"
@@ -4518,26 +4808,11 @@
           "assignerTarget" : {
             "$ref" : "#/components/schemas/Organization"
           },
-          "period" : {
-            "$ref" : "#/components/schemas/Period"
-          },
-          "system" : {
-            "$ref" : "#/components/schemas/UriType"
-          },
-          "type" : {
-            "$ref" : "#/components/schemas/CodeableConcept"
-          },
-          "use" : {
+          "useElement" : {
             "$ref" : "#/components/schemas/EnumerationIdentifierUse"
-          },
-          "value" : {
-            "$ref" : "#/components/schemas/StringType"
           },
           "systemElement" : {
             "$ref" : "#/components/schemas/UriType"
-          },
-          "useElement" : {
-            "$ref" : "#/components/schemas/EnumerationIdentifierUse"
           },
           "valueElement" : {
             "$ref" : "#/components/schemas/StringType"
@@ -4548,22 +4823,19 @@
         }
       },
       "IdentifierUse" : {
-        "enum" : [ "NULL", "OFFICIAL", "OLD", "SECONDARY", "TEMP", "USUAL" ],
+        "enum" : [ "USUAL", "OFFICIAL", "TEMP", "SECONDARY", "OLD", "NULL" ],
         "type" : "string"
-      },
-      "InputStream" : {
-        "type" : "object"
       },
       "InstantType" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -4579,9 +4851,6 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
-          },
           "booleanPrimitive" : {
             "type" : "boolean"
           },
@@ -4591,10 +4860,16 @@
           "resource" : {
             "type" : "boolean"
           },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
           "disallowExtensions" : {
             "type" : "boolean"
           },
-          "id" : {
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -4603,22 +4878,17 @@
           "idBase" : {
             "type" : "string"
           },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
-          },
           "valueAsString" : {
             "type" : "string"
           },
           "myCoercedValue" : {
-            "format" : "date",
-            "type" : "string"
+            "$ref" : "#/components/schemas/Date"
           },
           "myStringValue" : {
             "type" : "string"
           },
           "value" : {
-            "format" : "date",
-            "type" : "string"
+            "$ref" : "#/components/schemas/Date"
           },
           "empty" : {
             "type" : "boolean"
@@ -4642,9 +4912,6 @@
             "format" : "int32",
             "type" : "integer"
           },
-          "highEdge" : {
-            "$ref" : "#/components/schemas/BaseDateTimeType"
-          },
           "hour" : {
             "format" : "int32",
             "type" : "integer"
@@ -4661,6 +4928,10 @@
             "format" : "int32",
             "type" : "integer"
           },
+          "secondsMilli" : {
+            "format" : "float",
+            "type" : "number"
+          },
           "nanos" : {
             "format" : "int64",
             "type" : "integer"
@@ -4672,10 +4943,6 @@
             "format" : "int32",
             "type" : "integer"
           },
-          "secondsMilli" : {
-            "format" : "float",
-            "type" : "number"
-          },
           "timeZone" : {
             "$ref" : "#/components/schemas/TimeZone"
           },
@@ -4686,9 +4953,6 @@
             "format" : "int32",
             "type" : "integer"
           },
-          "dateTime" : {
-            "type" : "boolean"
-          },
           "timeZoneZulu" : {
             "type" : "boolean"
           },
@@ -4698,30 +4962,38 @@
           "valueAsV3String" : {
             "type" : "string"
           },
+          "dateTime" : {
+            "type" : "boolean"
+          },
+          "highEdge" : {
+            "$ref" : "#/components/schemas/BaseDateTimeType"
+          },
           "defaultPrecisionForDatatype" : {
             "$ref" : "#/components/schemas/TemporalPrecisionEnum"
+          }
+        }
+      },
+      "JsonValue" : {
+        "type" : "object",
+        "properties" : {
+          "valueType" : {
+            "$ref" : "#/components/schemas/ValueType"
           }
         }
       },
       "Locale" : {
         "type" : "object",
         "properties" : {
+          "language" : {
+            "type" : "string"
+          },
+          "script" : {
+            "type" : "string"
+          },
           "country" : {
             "type" : "string"
           },
-          "displayCountry" : {
-            "type" : "string"
-          },
-          "displayLanguage" : {
-            "type" : "string"
-          },
-          "displayName" : {
-            "type" : "string"
-          },
-          "displayScript" : {
-            "type" : "string"
-          },
-          "displayVariant" : {
+          "variant" : {
             "type" : "string"
           },
           "extensionKeys" : {
@@ -4731,18 +5003,6 @@
               "format" : "byte",
               "type" : "string"
             }
-          },
-          "iSO3Country" : {
-            "type" : "string"
-          },
-          "iSO3Language" : {
-            "type" : "string"
-          },
-          "language" : {
-            "type" : "string"
-          },
-          "script" : {
-            "type" : "string"
           },
           "unicodeLocaleAttributes" : {
             "uniqueItems" : true,
@@ -4758,7 +5018,25 @@
               "type" : "string"
             }
           },
-          "variant" : {
+          "iSO3Language" : {
+            "type" : "string"
+          },
+          "iSO3Country" : {
+            "type" : "string"
+          },
+          "displayLanguage" : {
+            "type" : "string"
+          },
+          "displayScript" : {
+            "type" : "string"
+          },
+          "displayCountry" : {
+            "type" : "string"
+          },
+          "displayVariant" : {
+            "type" : "string"
+          },
+          "displayName" : {
             "type" : "string"
           }
         }
@@ -4766,11 +5044,11 @@
       "Location" : {
         "type" : "object",
         "properties" : {
-          "column" : {
+          "line" : {
             "format" : "int32",
             "type" : "integer"
           },
-          "line" : {
+          "column" : {
             "format" : "int32",
             "type" : "integer"
           }
@@ -4779,13 +5057,13 @@
       "Meta" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -4795,8 +5073,8 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
+          "primitive" : {
+            "type" : "boolean"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -4807,14 +5085,14 @@
           "metadataBased" : {
             "type" : "boolean"
           },
-          "primitive" : {
-            "type" : "boolean"
-          },
           "resource" : {
             "type" : "boolean"
           },
-          "disallowExtensions" : {
-            "type" : "boolean"
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
           },
           "extension" : {
             "type" : "array",
@@ -4822,7 +5100,10 @@
               "$ref" : "#/components/schemas/Extension"
             }
           },
-          "id" : {
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -4831,11 +5112,14 @@
           "idBase" : {
             "type" : "string"
           },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
+          "versionId" : {
+            "$ref" : "#/components/schemas/IdType"
           },
           "lastUpdated" : {
             "$ref" : "#/components/schemas/InstantType"
+          },
+          "source" : {
+            "$ref" : "#/components/schemas/UriType"
           },
           "profile" : {
             "type" : "array",
@@ -4849,32 +5133,26 @@
               "$ref" : "#/components/schemas/Coding"
             }
           },
-          "source" : {
-            "$ref" : "#/components/schemas/UriType"
-          },
           "tag" : {
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/Coding"
             }
           },
-          "versionId" : {
+          "versionIdElement" : {
             "$ref" : "#/components/schemas/IdType"
           },
           "lastUpdatedElement" : {
             "$ref" : "#/components/schemas/InstantType"
           },
-          "securityFirstRep" : {
-            "$ref" : "#/components/schemas/Coding"
-          },
           "sourceElement" : {
             "$ref" : "#/components/schemas/UriType"
           },
-          "tagFirstRep" : {
+          "securityFirstRep" : {
             "$ref" : "#/components/schemas/Coding"
           },
-          "versionIdElement" : {
-            "$ref" : "#/components/schemas/IdType"
+          "tagFirstRep" : {
+            "$ref" : "#/components/schemas/Coding"
           },
           "empty" : {
             "type" : "boolean"
@@ -4882,7 +5160,7 @@
         }
       },
       "NameUse" : {
-        "enum" : [ "ANONYMOUS", "MAIDEN", "NICKNAME", "NULL", "OFFICIAL", "OLD", "TEMP", "USUAL" ],
+        "enum" : [ "USUAL", "OFFICIAL", "TEMP", "NICKNAME", "ANONYMOUS", "OLD", "MAIDEN", "NULL" ],
         "type" : "string"
       },
       "Narrative" : {
@@ -4894,13 +5172,13 @@
           "statusAsString" : {
             "type" : "string"
           },
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -4910,8 +5188,8 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
+          "primitive" : {
+            "type" : "boolean"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -4922,14 +5200,14 @@
           "metadataBased" : {
             "type" : "boolean"
           },
-          "primitive" : {
-            "type" : "boolean"
-          },
           "resource" : {
             "type" : "boolean"
           },
-          "disallowExtensions" : {
-            "type" : "boolean"
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
           },
           "extension" : {
             "type" : "array",
@@ -4937,7 +5215,10 @@
               "$ref" : "#/components/schemas/Extension"
             }
           },
-          "id" : {
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -4946,14 +5227,11 @@
           "idBase" : {
             "type" : "string"
           },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
+          "status" : {
+            "$ref" : "#/components/schemas/EnumerationNarrativeStatus"
           },
           "div" : {
             "$ref" : "#/components/schemas/XhtmlNode"
-          },
-          "status" : {
-            "$ref" : "#/components/schemas/EnumerationNarrativeStatus"
           },
           "statusElement" : {
             "$ref" : "#/components/schemas/EnumerationNarrativeStatus"
@@ -4964,23 +5242,23 @@
         }
       },
       "NarrativeStatus" : {
-        "enum" : [ "ADDITIONAL", "EMPTY", "EXTENSIONS", "GENERATED", "NULL" ],
+        "enum" : [ "GENERATED", "EXTENSIONS", "ADDITIONAL", "EMPTY", "NULL" ],
         "type" : "string"
       },
       "NodeType" : {
-        "enum" : [ "Comment", "DocType", "Document", "Element", "Instruction", "Text" ],
+        "enum" : [ "Element", "Text", "Comment", "DocType", "Document", "Instruction" ],
         "type" : "string"
       },
       "Organization" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -5008,8 +5286,8 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
+          "primitive" : {
+            "type" : "boolean"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -5020,8 +5298,8 @@
           "metadataBased" : {
             "type" : "boolean"
           },
-          "primitive" : {
-            "type" : "boolean"
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
           },
           "resource" : {
             "type" : "boolean"
@@ -5032,14 +5310,17 @@
           "language" : {
             "$ref" : "#/components/schemas/CodeType"
           },
-          "idBase" : {
-            "type" : "string"
-          },
           "idPart" : {
             "type" : "string"
           },
           "implicitRulesElement" : {
             "$ref" : "#/components/schemas/UriType"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "text" : {
+            "$ref" : "#/components/schemas/Narrative"
           },
           "contained" : {
             "type" : "array",
@@ -5059,11 +5340,35 @@
               "$ref" : "#/components/schemas/Extension"
             }
           },
-          "text" : {
-            "$ref" : "#/components/schemas/Narrative"
+          "identifier" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Identifier"
+            }
           },
           "active" : {
             "$ref" : "#/components/schemas/BooleanType"
+          },
+          "type" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CodeableConcept"
+            }
+          },
+          "name" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "alias" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/StringType"
+            }
+          },
+          "telecom" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ContactPoint"
+            }
           },
           "address" : {
             "type" : "array",
@@ -5071,11 +5376,11 @@
               "$ref" : "#/components/schemas/Address"
             }
           },
-          "alias" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/StringType"
-            }
+          "partOf" : {
+            "$ref" : "#/components/schemas/Reference"
+          },
+          "partOfTarget" : {
+            "$ref" : "#/components/schemas/Organization"
           },
           "contact" : {
             "type" : "array",
@@ -5095,35 +5400,20 @@
               "$ref" : "#/components/schemas/Endpoint"
             }
           },
-          "identifier" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/Identifier"
-            }
-          },
-          "name" : {
-            "$ref" : "#/components/schemas/StringType"
-          },
-          "partOf" : {
-            "$ref" : "#/components/schemas/Reference"
-          },
-          "partOfTarget" : {
-            "$ref" : "#/components/schemas/Organization"
-          },
-          "telecom" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/ContactPoint"
-            }
-          },
-          "type" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/CodeableConcept"
-            }
+          "identifierFirstRep" : {
+            "$ref" : "#/components/schemas/Identifier"
           },
           "activeElement" : {
             "$ref" : "#/components/schemas/BooleanType"
+          },
+          "typeFirstRep" : {
+            "$ref" : "#/components/schemas/CodeableConcept"
+          },
+          "nameElement" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
+          "telecomFirstRep" : {
+            "$ref" : "#/components/schemas/ContactPoint"
           },
           "addressFirstRep" : {
             "$ref" : "#/components/schemas/Address"
@@ -5134,36 +5424,24 @@
           "endpointFirstRep" : {
             "$ref" : "#/components/schemas/Reference"
           },
-          "identifierFirstRep" : {
-            "$ref" : "#/components/schemas/Identifier"
-          },
-          "nameElement" : {
-            "$ref" : "#/components/schemas/StringType"
+          "empty" : {
+            "type" : "boolean"
           },
           "resourceType" : {
             "$ref" : "#/components/schemas/ResourceType"
-          },
-          "telecomFirstRep" : {
-            "$ref" : "#/components/schemas/ContactPoint"
-          },
-          "typeFirstRep" : {
-            "$ref" : "#/components/schemas/CodeableConcept"
-          },
-          "empty" : {
-            "type" : "boolean"
           }
         }
       },
       "OrganizationContactComponent" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -5185,8 +5463,8 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
+          "primitive" : {
+            "type" : "boolean"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -5197,16 +5475,19 @@
           "metadataBased" : {
             "type" : "boolean"
           },
-          "primitive" : {
-            "type" : "boolean"
-          },
           "resource" : {
             "type" : "boolean"
+          },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
           },
           "disallowExtensions" : {
             "type" : "boolean"
           },
-          "id" : {
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -5215,26 +5496,23 @@
           "idBase" : {
             "type" : "string"
           },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
-          },
           "modifierExtensionFirstRep" : {
             "$ref" : "#/components/schemas/Extension"
           },
-          "address" : {
-            "$ref" : "#/components/schemas/Address"
+          "purpose" : {
+            "$ref" : "#/components/schemas/CodeableConcept"
           },
           "name" : {
             "$ref" : "#/components/schemas/HumanName"
-          },
-          "purpose" : {
-            "$ref" : "#/components/schemas/CodeableConcept"
           },
           "telecom" : {
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/ContactPoint"
             }
+          },
+          "address" : {
+            "$ref" : "#/components/schemas/Address"
           },
           "telecomFirstRep" : {
             "$ref" : "#/components/schemas/ContactPoint"
@@ -5247,13 +5525,13 @@
       "Period" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -5263,8 +5541,8 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
+          "primitive" : {
+            "type" : "boolean"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -5275,14 +5553,14 @@
           "metadataBased" : {
             "type" : "boolean"
           },
-          "primitive" : {
-            "type" : "boolean"
-          },
           "resource" : {
             "type" : "boolean"
           },
-          "disallowExtensions" : {
-            "type" : "boolean"
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
           },
           "extension" : {
             "type" : "array",
@@ -5290,7 +5568,10 @@
               "$ref" : "#/components/schemas/Extension"
             }
           },
-          "id" : {
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -5299,19 +5580,16 @@
           "idBase" : {
             "type" : "string"
           },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
+          "start" : {
+            "$ref" : "#/components/schemas/DateTimeType"
           },
           "end" : {
             "$ref" : "#/components/schemas/DateTimeType"
           },
-          "start" : {
+          "startElement" : {
             "$ref" : "#/components/schemas/DateTimeType"
           },
           "endElement" : {
-            "$ref" : "#/components/schemas/DateTimeType"
-          },
-          "startElement" : {
             "$ref" : "#/components/schemas/DateTimeType"
           },
           "empty" : {
@@ -5319,20 +5597,23 @@
           }
         }
       },
+      "PinResultEnum" : {
+        "enum" : [ "ERROR", "OK", "REJECTED", "WASBLOCKED", "NOWBLOCKED", "TRANSPORT_PIN" ],
+        "type" : "string"
+      },
+      "PinStatusEnum" : {
+        "enum" : [ "VERIFIED", "TRANSPORT_PIN", "EMPTY_PIN", "BLOCKED", "VERIFIABLE" ],
+        "type" : "string"
+      },
       "PositiveIntType" : {
         "type" : "object",
         "properties" : {
-          "value" : {
-            "type" : "object"
-          },
           "valueAsString" : {
             "type" : "string"
           },
-          "formatCommentsPost" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
+          "value" : { },
+          "empty" : {
+            "type" : "boolean"
           },
           "formatCommentsPre" : {
             "type" : "array",
@@ -5340,8 +5621,11 @@
               "type" : "string"
             }
           },
-          "empty" : {
-            "type" : "boolean"
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           },
           "extension" : {
             "type" : "array",
@@ -5353,9 +5637,6 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
-          },
           "booleanPrimitive" : {
             "type" : "boolean"
           },
@@ -5368,10 +5649,16 @@
           "resource" : {
             "type" : "boolean"
           },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
           "disallowExtensions" : {
             "type" : "boolean"
           },
-          "id" : {
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -5379,9 +5666,6 @@
           },
           "idBase" : {
             "type" : "string"
-          },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
           },
           "myCoercedValue" : {
             "format" : "int32",
@@ -5398,10 +5682,10 @@
       "QName" : {
         "type" : "object",
         "properties" : {
-          "localPart" : {
+          "namespaceURI" : {
             "type" : "string"
           },
-          "namespaceURI" : {
+          "localPart" : {
             "type" : "string"
           },
           "prefix" : {
@@ -5415,13 +5699,13 @@
           "referenceElement" : {
             "$ref" : "#/components/schemas/IIdType"
           },
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -5431,8 +5715,8 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
+          "primitive" : {
+            "type" : "boolean"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -5443,11 +5727,11 @@
           "metadataBased" : {
             "type" : "boolean"
           },
-          "primitive" : {
-            "type" : "boolean"
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
           },
-          "disallowExtensions" : {
-            "type" : "boolean"
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
           },
           "extension" : {
             "type" : "array",
@@ -5455,7 +5739,10 @@
               "$ref" : "#/components/schemas/Extension"
             }
           },
-          "id" : {
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -5464,22 +5751,16 @@
           "idBase" : {
             "type" : "string"
           },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
-          },
-          "display" : {
-            "$ref" : "#/components/schemas/StringType"
-          },
-          "identifier" : {
-            "$ref" : "#/components/schemas/Identifier"
-          },
           "reference" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "type" : {
             "$ref" : "#/components/schemas/UriType"
           },
-          "displayElement" : {
+          "identifier" : {
+            "$ref" : "#/components/schemas/Identifier"
+          },
+          "display" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "referenceElement_" : {
@@ -5487,6 +5768,9 @@
           },
           "typeElement" : {
             "$ref" : "#/components/schemas/UriType"
+          },
+          "displayElement" : {
+            "$ref" : "#/components/schemas/StringType"
           },
           "empty" : {
             "type" : "boolean"
@@ -5502,13 +5786,13 @@
           "deleted" : {
             "type" : "boolean"
           },
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -5518,8 +5802,8 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
+          "primitive" : {
+            "type" : "boolean"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -5530,8 +5814,8 @@
           "metadataBased" : {
             "type" : "boolean"
           },
-          "primitive" : {
-            "type" : "boolean"
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
           },
           "resource" : {
             "type" : "boolean"
@@ -5539,17 +5823,14 @@
           "id" : {
             "$ref" : "#/components/schemas/IdType"
           },
+          "meta" : {
+            "$ref" : "#/components/schemas/Meta"
+          },
           "implicitRules" : {
             "$ref" : "#/components/schemas/UriType"
           },
           "language" : {
             "$ref" : "#/components/schemas/CodeType"
-          },
-          "meta" : {
-            "$ref" : "#/components/schemas/Meta"
-          },
-          "idBase" : {
-            "type" : "string"
           },
           "idElement" : {
             "$ref" : "#/components/schemas/IdType"
@@ -5563,11 +5844,14 @@
           "languageElement" : {
             "$ref" : "#/components/schemas/CodeType"
           },
-          "resourceType" : {
-            "$ref" : "#/components/schemas/ResourceType"
-          },
           "empty" : {
             "type" : "boolean"
+          },
+          "idBase" : {
+            "type" : "string"
+          },
+          "resourceType" : {
+            "$ref" : "#/components/schemas/ResourceType"
           }
         }
       },
@@ -5576,19 +5860,49 @@
         "type" : "string"
       },
       "SearchEntryMode" : {
-        "enum" : [ "INCLUDE", "MATCH", "NULL", "OUTCOME" ],
+        "enum" : [ "MATCH", "INCLUDE", "OUTCOME", "NULL" ],
         "type" : "string"
+      },
+      "SessionInfo" : {
+        "type" : "object",
+        "properties" : {
+          "signatureMode" : {
+            "type" : "string",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/SignatureModeEnum"
+            } ],
+            "xml" : {
+              "name" : "SignatureMode"
+            }
+          },
+          "countRemaining" : {
+            "format" : "int32",
+            "type" : "integer",
+            "xml" : {
+              "name" : "CountRemaining"
+            }
+          },
+          "timeRemaining" : {
+            "type" : "object",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/Duration"
+            } ],
+            "xml" : {
+              "name" : "TimeRemaining"
+            }
+          }
+        }
       },
       "Signature" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -5598,8 +5912,8 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
+          "primitive" : {
+            "type" : "boolean"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -5610,14 +5924,14 @@
           "metadataBased" : {
             "type" : "boolean"
           },
-          "primitive" : {
-            "type" : "boolean"
-          },
           "resource" : {
             "type" : "boolean"
           },
-          "disallowExtensions" : {
-            "type" : "boolean"
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
           },
           "extension" : {
             "type" : "array",
@@ -5625,7 +5939,10 @@
               "$ref" : "#/components/schemas/Extension"
             }
           },
-          "id" : {
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -5633,24 +5950,6 @@
           },
           "idBase" : {
             "type" : "string"
-          },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
-          },
-          "data" : {
-            "$ref" : "#/components/schemas/Base64BinaryType"
-          },
-          "onBehalfOf" : {
-            "$ref" : "#/components/schemas/Reference"
-          },
-          "onBehalfOfTarget" : {
-            "$ref" : "#/components/schemas/Resource"
-          },
-          "sigFormat" : {
-            "$ref" : "#/components/schemas/CodeType"
-          },
-          "targetFormat" : {
-            "$ref" : "#/components/schemas/CodeType"
           },
           "type" : {
             "type" : "array",
@@ -5667,14 +5966,20 @@
           "whoTarget" : {
             "$ref" : "#/components/schemas/Resource"
           },
-          "dataElement" : {
+          "onBehalfOf" : {
+            "$ref" : "#/components/schemas/Reference"
+          },
+          "onBehalfOfTarget" : {
+            "$ref" : "#/components/schemas/Resource"
+          },
+          "targetFormat" : {
+            "$ref" : "#/components/schemas/CodeType"
+          },
+          "sigFormat" : {
+            "$ref" : "#/components/schemas/CodeType"
+          },
+          "data" : {
             "$ref" : "#/components/schemas/Base64BinaryType"
-          },
-          "sigFormatElement" : {
-            "$ref" : "#/components/schemas/CodeType"
-          },
-          "targetFormatElement" : {
-            "$ref" : "#/components/schemas/CodeType"
           },
           "typeFirstRep" : {
             "$ref" : "#/components/schemas/Coding"
@@ -5682,10 +5987,23 @@
           "whenElement" : {
             "$ref" : "#/components/schemas/InstantType"
           },
+          "targetFormatElement" : {
+            "$ref" : "#/components/schemas/CodeType"
+          },
+          "sigFormatElement" : {
+            "$ref" : "#/components/schemas/CodeType"
+          },
+          "dataElement" : {
+            "$ref" : "#/components/schemas/Base64BinaryType"
+          },
           "empty" : {
             "type" : "boolean"
           }
         }
+      },
+      "SignatureModeEnum" : {
+        "enum" : [ "PIN", "COMFORT" ],
+        "type" : "string"
       },
       "Status" : {
         "type" : "object",
@@ -5697,26 +6015,26 @@
             }
           },
           "error" : {
+            "type" : "object",
             "allOf" : [ {
               "$ref" : "#/components/schemas/Error"
-            }, {
-              "xml" : {
-                "name" : "Error"
-              }
-            } ]
+            } ],
+            "xml" : {
+              "name" : "Error"
+            }
           }
         }
       },
       "StringType" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -5732,9 +6050,6 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
-          },
           "booleanPrimitive" : {
             "type" : "boolean"
           },
@@ -5747,10 +6062,16 @@
           "resource" : {
             "type" : "boolean"
           },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
           "disallowExtensions" : {
             "type" : "boolean"
           },
-          "id" : {
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -5758,9 +6079,6 @@
           },
           "idBase" : {
             "type" : "string"
-          },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
           },
           "myCoercedValue" : {
             "type" : "string"
@@ -5786,7 +6104,7 @@
         }
       },
       "TemporalPrecisionEnum" : {
-        "enum" : [ "DAY", "MILLI", "MINUTE", "MONTH", "SECOND", "YEAR" ],
+        "enum" : [ "YEAR", "MONTH", "DAY", "MINUTE", "SECOND", "MILLI" ],
         "type" : "string"
       },
       "TimeZone" : {
@@ -5795,17 +6113,17 @@
           "ID" : {
             "type" : "string"
           },
-          "dSTSavings" : {
+          "rawOffset" : {
             "format" : "int32",
             "type" : "integer"
-          },
-          "displayName" : {
-            "type" : "string"
           },
           "iD" : {
             "type" : "string"
           },
-          "rawOffset" : {
+          "displayName" : {
+            "type" : "string"
+          },
+          "dSTSavings" : {
             "format" : "int32",
             "type" : "integer"
           }
@@ -5863,24 +6181,21 @@
             }
           },
           "detail" : {
+            "type" : "object",
             "allOf" : [ {
               "$ref" : "#/components/schemas/Detail"
-            }, {
-              "xml" : {
-                "name" : "Detail"
-              }
-            } ]
+            } ],
+            "xml" : {
+              "name" : "Detail"
+            }
           }
         }
       },
       "Type" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
+          "empty" : {
+            "type" : "boolean"
           },
           "formatCommentsPre" : {
             "type" : "array",
@@ -5888,15 +6203,18 @@
               "type" : "string"
             }
           },
-          "empty" : {
-            "type" : "boolean"
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           },
           "userData" : {
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
+          "primitive" : {
+            "type" : "boolean"
           },
           "booleanPrimitive" : {
             "type" : "boolean"
@@ -5907,14 +6225,14 @@
           "metadataBased" : {
             "type" : "boolean"
           },
-          "primitive" : {
-            "type" : "boolean"
-          },
           "resource" : {
             "type" : "boolean"
           },
-          "disallowExtensions" : {
-            "type" : "boolean"
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
           },
           "extension" : {
             "type" : "array",
@@ -5922,7 +6240,10 @@
               "$ref" : "#/components/schemas/Extension"
             }
           },
-          "id" : {
+          "disallowExtensions" : {
+            "type" : "boolean"
+          },
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -5930,26 +6251,32 @@
           },
           "idBase" : {
             "type" : "string"
+          }
+        }
+      },
+      "UnblockPinResponse" : {
+        "type" : "object",
+        "properties" : {
+          "status" : {
+            "$ref" : "#/components/schemas/Status"
           },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
+          "pinResultEnum" : {
+            "$ref" : "#/components/schemas/PinResultEnum"
+          },
+          "leftTries" : {
+            "type" : "integer"
           }
         }
       },
       "UnsignedIntType" : {
         "type" : "object",
         "properties" : {
-          "value" : {
-            "type" : "object"
-          },
           "valueAsString" : {
             "type" : "string"
           },
-          "formatCommentsPost" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
+          "value" : { },
+          "empty" : {
+            "type" : "boolean"
           },
           "formatCommentsPre" : {
             "type" : "array",
@@ -5957,8 +6284,11 @@
               "type" : "string"
             }
           },
-          "empty" : {
-            "type" : "boolean"
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           },
           "extension" : {
             "type" : "array",
@@ -5970,9 +6300,6 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
-          },
           "booleanPrimitive" : {
             "type" : "boolean"
           },
@@ -5985,10 +6312,16 @@
           "resource" : {
             "type" : "boolean"
           },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
           "disallowExtensions" : {
             "type" : "boolean"
           },
-          "id" : {
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -5996,9 +6329,6 @@
           },
           "idBase" : {
             "type" : "string"
-          },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
           },
           "myCoercedValue" : {
             "format" : "int32",
@@ -6015,13 +6345,13 @@
       "UpdateERezept" : {
         "type" : "object",
         "properties" : {
+          "taskId" : {
+            "type" : "string"
+          },
           "accessCode" : {
             "type" : "string"
           },
           "signedBytes" : {
-            "type" : "string"
-          },
-          "taskId" : {
             "type" : "string"
           }
         }
@@ -6029,13 +6359,13 @@
       "UriType" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -6051,9 +6381,6 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
-          },
           "booleanPrimitive" : {
             "type" : "boolean"
           },
@@ -6066,10 +6393,16 @@
           "resource" : {
             "type" : "boolean"
           },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
           "disallowExtensions" : {
             "type" : "boolean"
           },
-          "id" : {
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -6077,9 +6410,6 @@
           },
           "idBase" : {
             "type" : "string"
-          },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
           },
           "myCoercedValue" : {
             "type" : "string"
@@ -6104,13 +6434,13 @@
       "UrlType" : {
         "type" : "object",
         "properties" : {
-          "formatCommentsPost" : {
+          "formatCommentsPre" : {
             "type" : "array",
             "items" : {
               "type" : "string"
             }
           },
-          "formatCommentsPre" : {
+          "formatCommentsPost" : {
             "type" : "array",
             "items" : {
               "type" : "string"
@@ -6126,9 +6456,6 @@
             "type" : "object",
             "additionalProperties" : { }
           },
-          "xhtml" : {
-            "$ref" : "#/components/schemas/XhtmlNode"
-          },
           "booleanPrimitive" : {
             "type" : "boolean"
           },
@@ -6141,10 +6468,16 @@
           "resource" : {
             "type" : "boolean"
           },
+          "xhtml" : {
+            "$ref" : "#/components/schemas/XhtmlNode"
+          },
+          "id" : {
+            "$ref" : "#/components/schemas/StringType"
+          },
           "disallowExtensions" : {
             "type" : "boolean"
           },
-          "id" : {
+          "idElement" : {
             "$ref" : "#/components/schemas/StringType"
           },
           "extensionFirstRep" : {
@@ -6152,9 +6485,6 @@
           },
           "idBase" : {
             "type" : "string"
-          },
-          "idElement" : {
-            "$ref" : "#/components/schemas/StringType"
           },
           "myCoercedValue" : {
             "type" : "string"
@@ -6179,31 +6509,10 @@
       "UserConfigurations" : {
         "type" : "object",
         "properties" : {
-          "connector.basic-auth-password" : {
-            "type" : "string"
-          },
-          "connector.basic-auth-username" : {
-            "type" : "string"
-          },
-          "connector.client-certificate" : {
-            "type" : "string"
-          },
-          "connector.client-certificate-password" : {
-            "type" : "string"
-          },
-          "connector.client-system-id" : {
-            "type" : "string"
-          },
-          "connector.base-url" : {
-            "type" : "string"
-          },
-          "erixa.api.key" : {
+          "erixa.hotfolder" : {
             "type" : "string"
           },
           "erixa.drugstore.email" : {
-            "type" : "string"
-          },
-          "erixa.hotfolder" : {
             "type" : "string"
           },
           "erixa.user.email" : {
@@ -6212,16 +6521,22 @@
           "erixa.user.password" : {
             "type" : "string"
           },
-          "connector.mandant-id" : {
+          "erixa.api.key" : {
             "type" : "string"
           },
           "extractor.template.profile" : {
             "type" : "string"
           },
-          "kbv.pruefnummer" : {
+          "connector.base-url" : {
             "type" : "string"
           },
-          "connector.tvMode" : {
+          "connector.mandant-id" : {
+            "type" : "string"
+          },
+          "connector.workplace-id" : {
+            "type" : "string"
+          },
+          "connector.client-system-id" : {
             "type" : "string"
           },
           "connector.user-id" : {
@@ -6230,8 +6545,41 @@
           "connector.version" : {
             "type" : "string"
           },
-          "connector.workplace-id" : {
+          "connector.tvMode" : {
             "type" : "string"
+          },
+          "connector.client-certificate" : {
+            "type" : "string"
+          },
+          "connector.client-certificate-password" : {
+            "type" : "string"
+          },
+          "connector.basic-auth-username" : {
+            "type" : "string"
+          },
+          "connector.basic-auth-password" : {
+            "type" : "string"
+          },
+          "kbv.pruefnummer" : {
+            "type" : "string"
+          }
+        }
+      },
+      "ValueType" : {
+        "enum" : [ "ARRAY", "OBJECT", "STRING", "NUMBER", "TRUE", "FALSE", "NULL" ],
+        "type" : "string"
+      },
+      "VerifyPinResponse" : {
+        "type" : "object",
+        "properties" : {
+          "status" : {
+            "$ref" : "#/components/schemas/Status"
+          },
+          "pinResultEnum" : {
+            "$ref" : "#/components/schemas/PinResultEnum"
+          },
+          "leftTries" : {
+            "type" : "integer"
           }
         }
       },
@@ -6264,36 +6612,14 @@
       "XMLGregorianCalendar" : {
         "type" : "object",
         "properties" : {
-          "day" : {
-            "format" : "int32",
-            "type" : "integer"
-          },
-          "eon" : {
-            "type" : "integer"
-          },
-          "eonAndYear" : {
-            "type" : "integer"
-          },
-          "fractionalSecond" : {
-            "type" : "number"
-          },
-          "hour" : {
-            "format" : "int32",
-            "type" : "integer"
-          },
-          "millisecond" : {
-            "format" : "int32",
-            "type" : "integer"
-          },
-          "minute" : {
-            "format" : "int32",
+          "year" : {
             "type" : "integer"
           },
           "month" : {
             "format" : "int32",
             "type" : "integer"
           },
-          "second" : {
+          "day" : {
             "format" : "int32",
             "type" : "integer"
           },
@@ -6301,12 +6627,33 @@
             "format" : "int32",
             "type" : "integer"
           },
-          "xMLSchemaType" : {
-            "$ref" : "#/components/schemas/QName"
-          },
-          "year" : {
+          "hour" : {
             "format" : "int32",
             "type" : "integer"
+          },
+          "minute" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "second" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "millisecond" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "fractionalSecond" : {
+            "type" : "number"
+          },
+          "eon" : {
+            "type" : "integer"
+          },
+          "eonAndYear" : {
+            "type" : "integer"
+          },
+          "xMLSchemaType" : {
+            "$ref" : "#/components/schemas/QName"
           },
           "valid" : {
             "type" : "boolean"
@@ -6316,6 +6663,15 @@
       "XhtmlNode" : {
         "type" : "object",
         "properties" : {
+          "location" : {
+            "$ref" : "#/components/schemas/Location"
+          },
+          "nodeType" : {
+            "$ref" : "#/components/schemas/NodeType"
+          },
+          "name" : {
+            "type" : "string"
+          },
           "attributes" : {
             "type" : "object",
             "additionalProperties" : {
@@ -6328,20 +6684,14 @@
           "content" : {
             "type" : "string"
           },
-          "emptyExpanded" : {
+          "notPretty" : {
             "type" : "boolean"
           },
-          "location" : {
-            "$ref" : "#/components/schemas/Location"
+          "seperated" : {
+            "type" : "boolean"
           },
-          "name" : {
-            "type" : "string"
-          },
-          "namedParamValues" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            }
+          "emptyExpanded" : {
+            "type" : "boolean"
           },
           "namedParams" : {
             "type" : "object",
@@ -6349,23 +6699,30 @@
               "$ref" : "#/components/schemas/XhtmlNode"
             }
           },
-          "nodeType" : {
-            "$ref" : "#/components/schemas/NodeType"
+          "namedParamValues" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
           },
-          "notPretty" : {
-            "type" : "boolean"
-          },
-          "seperated" : {
-            "type" : "boolean"
+          "userData" : {
+            "type" : "object",
+            "additionalProperties" : { }
           },
           "firstElement" : {
             "$ref" : "#/components/schemas/XhtmlNode"
           },
-          "formatCommentsPost" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
+          "empty" : {
+            "type" : "boolean"
+          },
+          "nsDecl" : {
+            "type" : "string"
+          },
+          "valueAsString" : {
+            "type" : "string"
+          },
+          "value" : {
+            "type" : "string"
           },
           "formatCommentsPre" : {
             "type" : "array",
@@ -6373,17 +6730,11 @@
               "type" : "string"
             }
           },
-          "nsDecl" : {
-            "type" : "string"
-          },
-          "value" : {
-            "type" : "string"
-          },
-          "valueAsString" : {
-            "type" : "string"
-          },
-          "empty" : {
-            "type" : "boolean"
+          "formatCommentsPost" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
           },
           "noPretty" : {
             "type" : "boolean"
@@ -6394,7 +6745,10 @@
         }
       },
       "XhtmlNodeList" : {
-        "type" : "array"
+        "type" : "array",
+        "items" : {
+          "$ref" : "#/components/schemas/XhtmlNode"
+        }
       }
     }
   }
