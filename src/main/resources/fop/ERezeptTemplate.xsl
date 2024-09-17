@@ -102,7 +102,7 @@
                             </fo:table-row>
                             <fo:table-row>
                                 <fo:table-cell number-columns-spanned="2" fox:border-radius="2mm"
-                                               border="solid 0.5pt black">
+                                               border="solid 0.5pt black" min-height="15mm">
                                     <fo:table>
                                         <fo:table-column/>
                                         <fo:table-column/>
