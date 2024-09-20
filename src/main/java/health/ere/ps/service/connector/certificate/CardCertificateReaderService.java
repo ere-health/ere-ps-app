@@ -107,10 +107,14 @@ public class CardCertificateReaderService {
                     crypt, statusHolder, certHolder);
         } catch (FaultMessage faultMessage) {
 
-            // Datei nicht vorhanden
+            // Datei nicht vorhanden (Secunet)
             boolean code4087 = faultMessage.getFaultInfo().getTrace().stream()
                     .anyMatch(t -> t.getCode().equals(BigInteger.valueOf(4087L)));
-            if(code4087 && crypt.equals(CryptType.ECC)) {
+
+            // ECC-Zertifikate nicht vorhanden auf Karte: (KocoBox)
+            boolean code4258 = faultMessage.getFaultInfo().getTrace().stream()
+                    .anyMatch(t -> t.getCode().equals(BigInteger.valueOf(4258L)));
+            if((code4087 || code4258)  && crypt.equals(CryptType.ECC)) {
                 return doReadCardCertificate(cardHandle, runtimeConfig, CryptType.RSA);
             }
 
