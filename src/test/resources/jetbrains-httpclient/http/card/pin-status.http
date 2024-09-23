@@ -1,0 +1,10 @@
+# todo: documentation, link sources
+# testcard smc-b: PIN.SMC
+# testcard hba : PIN.CH, PIN.QES, (PIN.AUTO, PIN.SO ??)
+# testcard egk: (PIN.CH, PIN.Home, PIN.AMTS, PIN.NFD, PIN.DPE, PIN.GDD, PIN.NFD_READ, PIN.OSE, PIN.AMTS_REP ??)
+@cardHandle = {{SMCBHandle}}
+#@cardHandle = {{eHBAHandle}}
+@pinType = "PIN.SMC"
+
+GET http://{{baseURL}}/card/pin-status?cardHandle={{cardHandle}}&pinType={{pinType}}
+ACCEPT: application/json
