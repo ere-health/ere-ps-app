@@ -78,7 +78,7 @@
         <dependency>
             <groupId>org.bitbucket.b_c</groupId>
             <artifactId>jose4j</artifactId>
-            <version>0.7.7-hard-code-brainpool-p256-r1</version>
+            <version>0.9.4</version>
         </dependency>
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
@@ -90,6 +90,16 @@
                     <artifactId>jcl-over-slf4j</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>ca.uhn.hapi.fhir</groupId>
+            <artifactId>org.hl7.fhir.r4</artifactId>
+            <version>6.3.25</version>
+        </dependency>
+        <dependency>
+            <groupId>ca.uhn.hapi.fhir</groupId>
+            <artifactId>org.hl7.fhir.utilities</artifactId>
+            <version>6.3.25</version>
         </dependency>
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
@@ -114,8 +124,33 @@
         </dependency>
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
-            <artifactId>hapi-fhir-validation-resources-r4</artifactId>
-            <version>5.4.1</version>
+            <artifactId>org.hl7.fhir.validation</artifactId>
+            <version>6.3.25</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.ogce</groupId>
+                    <artifactId>xpp3</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ca.uhn.hapi.fhir</groupId>
+                    <artifactId>org.hl7.fhir.dstu2016may</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>ca.uhn.hapi.fhir</groupId>
+            <artifactId>org.hl7.fhir.dstu2</artifactId>
+            <version>6.3.25</version>
+        </dependency>
+        <dependency>
+            <groupId>ca.uhn.hapi.fhir</groupId>
+            <artifactId>org.hl7.fhir.dstu3</artifactId>
+            <version>6.3.25</version>
+        </dependency>
+        <dependency>
+            <groupId>ca.uhn.hapi.fhir</groupId>
+            <artifactId>org.hl7.fhir.r5</artifactId>
+            <version>6.3.25</version>
         </dependency>
         <dependency>
             <groupId>com.hp.jipp</groupId>
@@ -355,7 +390,7 @@
                     <systemPropertyVariables>
                         <quarkus.test.profile>dev</quarkus.test.profile>
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-                        <quarkus.log.level>DEBUG</quarkus.log.level>
+                        <quarkus.log.level>INFO</quarkus.log.level>
                         <maven.home>${maven.home}</maven.home>
                     </systemPropertyVariables>
                 </configuration>
