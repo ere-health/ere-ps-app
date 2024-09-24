@@ -16,17 +16,13 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Event;
-import jakarta.enterprise.event.ObservesAsync;
-import jakarta.inject.Inject;
 import javax.xml.XMLConstants;
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Result;
@@ -54,6 +50,11 @@ import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.model.pdf.ERezeptDocument;
 import health.ere.ps.service.fhir.FHIRService;
 import health.ere.ps.websocket.ExceptionWithReplyToException;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.event.ObservesAsync;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class DocumentService {
@@ -181,21 +182,25 @@ public class DocumentService {
                         .subList(i, Math.min(i + MAX_NUMBER_OF_MEDICINES_PER_PRESCRIPTIONS, bundles.size()));
                     
                     ByteArrayOutputStream boas = new ByteArrayOutputStream();
-                    if(!onlyContainsThrowables(subList)) {
+                    ERezeptDocument eRezeptDocument = null;
+                    if(!containsThrowables(subList)) {
                         log.info("Now creating prescription receipts");
                         try {
                             boas = generateERezeptPdf(subList);
+                            eRezeptDocument = new ERezeptDocument(subList, boas.size() > 0 ? boas.toByteArray() : null);
                         } catch (IOException | FOPException | TransformerException e) {
                             log.severe("Could not generate ERezept PDF:" + e);
                             exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, bundlesWithAccessCodeEvent.getReplyTo(), bundlesWithAccessCodeEvent.getReplyToMessageId()));
                             boas = new ByteArrayOutputStream();
                         }
+                    } else {
+                        log.warning("E-Prescriptions contain throwables. Will not generate PDF.");
+                        eRezeptDocument = new ERezeptDocument(subList, null);
                     }
                 
-                    ERezeptDocument eRezeptDocument = new ERezeptDocument(subList, boas.size() > 0 ? boas.toByteArray() : null);
                 
                     log.info("Created prescription receipts");
-                    eRezeptDocumentsEvent.fireAsync(new ERezeptWithDocumentsEvent(List.of(eRezeptDocument),
+                    eRezeptDocumentsEvent.fireAsync(new ERezeptWithDocumentsEvent(eRezeptDocument != null ? List.of(eRezeptDocument) : new ArrayList(),
                         bundlesWithAccessCodeEvent.getReplyTo(), bundlesWithAccessCodeEvent.getReplyToMessageId()));
                     log.info("Sending prescription receipts results.");
                 }
@@ -205,8 +210,8 @@ public class DocumentService {
         });
     }
 
-    private boolean onlyContainsThrowables(List<BundleWithAccessCodeOrThrowable> bundles) {
-        return bundles.size() == bundles.stream().filter(bundle -> bundle.getThrowable() != null).count();
+    private boolean containsThrowables(List<BundleWithAccessCodeOrThrowable> bundles) {
+        return bundles.stream().filter(bundle -> bundle.getThrowable() != null).count() > 0;
     }
 
     public ByteArrayOutputStream generateERezeptPdf(List<BundleWithAccessCodeOrThrowable> bundles) throws IOException, FOPException, TransformerException {

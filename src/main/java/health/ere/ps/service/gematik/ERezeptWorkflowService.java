@@ -124,7 +124,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
     @Inject
     Event<GetCardsResponseEvent> getCardsResponseEvent;
 
-    private Client client;
+    Client client;
     private String userIdForComfortSignature;
     
 
@@ -201,7 +201,8 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
         for(int i = 0;i<listOfListOfBundles.size();i++) {
             List<BundleWithAccessCodeOrThrowable> unflattenBundles = new ArrayList<>();
             for(int j=0;j<listOfListOfBundles.get(i).size(); j++) {
-                unflattenBundles.add(it.next());
+                BundleWithAccessCodeOrThrowable next = it.next();
+                unflattenBundles.add(next);
             }
             bundleWithAccessCodeOrThrowable
                     .add(unflattenBundles);
@@ -283,11 +284,42 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
             }
             i++;
         }
+        uploadSignedBundle(bundles, runtimeConfig, replyTo, replyToMessageId, bundleWithAccessCodes, tasks);
+
+        return bundleWithAccessCodes;
+    }
+
+    void uploadSignedBundle(List<Bundle> bundles, RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId,
+            List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodes, List<Task> tasks) {
+        int i;
         try {
             List<SignResponse> signedDocuments = signBundleWithIdentifiers(bundles, false, runtimeConfig, replyTo, replyToMessageId);
             i = 0;
-            for(SignResponse signedDocument : signedDocuments) {
-                BundleWithAccessCodeOrThrowable bundleWithAccessCode = bundleWithAccessCodes.get(i);
+            for(BundleWithAccessCodeOrThrowable bundleWithAccessCode : bundleWithAccessCodes) {
+                // find correct signed document
+                SignResponse signedDocument = signedDocuments.stream().filter((sd) -> {
+                    if(bundleWithAccessCode.getBundle() != null) {
+                        if(bundleWithAccessCode.getBundle().getIdentifier() != null) {
+                            return sd.getRequestID().equals(bundleWithAccessCode.getBundle().getIdentifier().getValue());
+                        } else if(bundleWithAccessCode.getBundle().getId() != null) {
+                            return sd.getRequestID().equals(bundleWithAccessCode.getBundle().getId());
+                        } else {
+                            return false;
+                        }
+                    } else {
+                        return false;
+                    }
+                }).findFirst().orElse(null);
+                if(signedDocument == null) {
+                    log.warning("Was not able to find a signedDocument for: "+(bundleWithAccessCode.getBundle() != null ? bundleWithAccessCode.getBundle().getId() : "null"));
+                    if(signedDocuments.size() > i) {
+                        log.warning("Using first one.");
+                        signedDocument = signedDocuments.get(i);
+                    } else {
+                        i++;
+                        continue;
+                    }
+                }
                 try {
                     Task task = tasks.get(i);
                     if(task != null && signedDocument.getSignatureObject() != null && signedDocument.getSignatureObject().getBase64Signature() != null) {
@@ -304,8 +336,6 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
         } catch(Throwable t) {
             bundleWithAccessCodes.stream().forEach(bundleWithAccessCode -> bundleWithAccessCode.setThrowable(t));
         }
-
-        return bundleWithAccessCodes;
     }
 
     public BundleWithAccessCodeOrThrowable createERezeptOnPrescriptionServer(Bundle bundle)
@@ -406,7 +436,6 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
                     responseBuilder.entity(taskString);
                     Response responseError = responseBuilder.build();
                     throw new WebApplicationException(responseError);
-                    
                 }
             }
             log.fine("Task $activate Response: " + taskString);
@@ -507,7 +536,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
             OptionalInputs optionalInputs = new OptionalInputs();
             optionalInputs.setSignatureType("urn:ietf:rfc:5652");
             optionalInputs.setIncludeEContent(true);
-
+            
             List<SignRequest> signRequests = bundles.stream().map(bundle -> {
                 byte[] canonXmlBytes;
                 try {
@@ -526,7 +555,14 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
                 base64Data.setValue(canonXmlBytes);
                 document.setBase64Data(base64Data);
                 signRequest.setOptionalInputs(optionalInputs);
-                signRequest.setRequestID(UUID.randomUUID().toString());
+                if(bundle.getIdentifier() != null) {
+                    signRequest.setRequestID(bundle.getIdentifier().getValue());
+                } else if(bundle.getId() != null) {
+                    signRequest.setRequestID(bundle.getId());
+                } else {
+                    bundle.setId(UUID.randomUUID().toString());
+                    signRequest.setRequestID(bundle.getId());
+                }
                 signRequest.setDocument(document);
                 signRequest.setIncludeRevocationInfo(appConfig.includeRevocationInfoEnabled());
                 return signRequest;
@@ -550,7 +586,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
                     optionalInputsC755.setSignatureType(optionalInputs.getSignatureType());
                     optionalInputsC755.setIncludeEContent(optionalInputs.isIncludeEContent());
                     signRequestV755.setOptionalInputs(optionalInputsC755);
-                    signRequestV755.setRequestID(UUID.randomUUID().toString());
+                    signRequestV755.setRequestID(signRequest.getRequestID());
                     de.gematik.ws.conn.signatureservice.v7_5_5.DocumentType documentV755 = new de.gematik.ws.conn.signatureservice.v7_5_5.DocumentType();
                     documentV755.setBase64Data(signRequest.getDocument().getBase64Data());
                     documentV755.setShortText(signRequest.getDocument().getShortText());
@@ -598,6 +634,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
                 List<SignResponse> signResponses744 = signResponsesV755.stream().map(signResponseV755 -> {
                     if(signResponseV755 != null) {
                         SignResponse signResponse744 = new SignResponse();
+                        signResponse744.setRequestID(signResponseV755.getRequestID());
                         signResponse744.setSignatureObject(signResponseV755.getSignatureObject());
                         signResponse744.setStatus(signResponseV755.getStatus());
                         return signResponse744;
