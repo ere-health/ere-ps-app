@@ -9,6 +9,3 @@ X-clientCertificatePassword: {{connector.client-certificate-password}}
 X-clientSystemId: {{connector.client-system-id}}
 X-mandantId: {{connector.mandant-id}}
 X-workplaceId: {{connector.workplace-id}}
-
-### GetCards
-GET http://{{baseURL}}/workflow/cards
