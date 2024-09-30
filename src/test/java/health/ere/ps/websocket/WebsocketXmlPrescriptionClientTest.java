@@ -9,16 +9,16 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.UUID;
 
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonString;
 import jakarta.json.JsonValue;
-
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class WebsocketXmlPrescriptionClientTest {
 
@@ -138,6 +138,22 @@ public class WebsocketXmlPrescriptionClientTest {
             jsonBundle = new String(Files.readAllBytes(Paths.get("src/test/resources/websocket-messages/SignAndUploadBundles-With-RuntimeConfig.json")));
             
             jsonBundle = jsonBundle.replaceFirst("0428d416-149e-48a4-977c-394887b3d85c", UUID.randomUUID().toString());
+
+            sendMessage(jsonBundle);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    @Disabled
+    public void testXmlPrescriptionSignAndUploadBundlesV1_1_0() {
+
+        String jsonBundle;
+        try {
+            jsonBundle = new String(Files.readAllBytes(Paths.get("src/test/resources/websocket-messages/SignAndUploadBundles-V1_1_0.json")));
+            
+            jsonBundle = jsonBundle.replaceFirst("d7f4c2ab-aedc-4c1d-a0e1-ddc7ebaa5ecd", UUID.randomUUID().toString());
 
             sendMessage(jsonBundle);
         } catch (IOException e) {
