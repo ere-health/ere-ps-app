@@ -74,6 +74,7 @@ The ere-health application read configuration is the following order from most i
 * user.properties
 * Java process parameter e.g. -Dquarkus.http.port=8081 on startup
 * Environment variables e.g. export ERE_DIRECTORY_WATCHER_DIR="my-watch-dir"
+* .env file at the root of the project
 * application.properties outside of the jar
 * application.properties in the java class path (inside the jar)
 
@@ -106,6 +107,8 @@ The ere-health application read configuration is the following order from most i
   In order to make sure you are working with the latest front-end UI, run the following first:
   > git submodule update --init
   
+  Make sure you created a `.env` file with your connector-specific configuration, see [CONFIGURATION.md](CONFIGURATION.md).
+
   Then run:
   
   > mvn quarkus:dev
