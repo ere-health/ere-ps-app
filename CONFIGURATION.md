@@ -86,6 +86,21 @@ ERE_CONNECTOR_TLS_CERT_TRUST_STORE_FILE=<YOUR_LOCAL_PATH>/ere-ps-app/src/test/re
 ERE_CONNECTOR_TLS_CERT_TRUST_STORE_PWD=<SECRET_VALUE_ON_YOUR_COMPUTER>
 ```
 
+#### Minimum viable configuration
+A minimum working configuration is the following:
+
+```
+connector.crypt=RSA
+connector.tvMode=NONE
+connector.verify-hostname=false
+connector.base-uri=https://192.168.XX.XX
+connector.cert.auth.store.file=<path to certificate.p12>
+connector.cert.auth.store.file.password=<certificate.p12 password>
+connector.mandant-id=XXX
+connector.workplace-id=XXX
+connector.client-system-id=XXX
+```
+
 ####  Table
 
 ---
