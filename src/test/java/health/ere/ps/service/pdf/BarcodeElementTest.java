@@ -27,7 +27,7 @@ public class BarcodeElementTest {
     }
 
     private void lookup(int dataCodewords) {
-        return lookup(dataCodewords, 90, 100);
+        lookup(dataCodewords, 90, 100);
     }
     private void lookup(int dataCodewords, int minSizeInt, int maxSizeInt) {
         SymbolShapeHint shape = SymbolShapeHint.FORCE_SQUARE;
