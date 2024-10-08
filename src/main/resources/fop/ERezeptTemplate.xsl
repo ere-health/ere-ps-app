@@ -265,7 +265,7 @@
                                 <barcode:datamatrix>
                                     <barcode:module-width>0.52mm</barcode:module-width>
                                     <barcode:min-symbol-size>90</barcode:min-symbol-size>
-                                    <barcode:max-symbol-size>100</barcode:max-symbol-size>
+                                    <barcode:max-symbol-size>120</barcode:max-symbol-size>
                                 </barcode:datamatrix>
                             </barcode:barcode>
                         </fo:instream-foreign-object>
