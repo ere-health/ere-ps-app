@@ -2,8 +2,8 @@ package health.ere.ps.service.connector;
 
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.config.UserConfig;
+import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.service.connector.provider.SingleConnectorServicesProvider;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import javax.net.ssl.KeyManager;
@@ -40,7 +40,7 @@ public class SingleConnectorServicesProviderTest {
     public void testConstructorWithMultiKeyWithoutPassword() {
         jakarta.enterprise.event.Event<Exception> exceptionEvent = mock(jakarta.enterprise.event.Event.class);
         UserConfig runtimeConfig = new RuntimeConfig();
-        runtimeConfig.getConfigurations().setClientCertificate(new File(keystoreFileName).toURI().toString()+"?alias=key2");
+        ((UserConfigurations) runtimeConfig.getConfigurations()).setClientCertificate(new File(keystoreFileName).toURI().toString()+"?alias=key2");
         new SingleConnectorServicesProvider(runtimeConfig, exceptionEvent);
         verify(exceptionEvent).fireAsync(any());
     }
@@ -49,8 +49,8 @@ public class SingleConnectorServicesProviderTest {
     public void testConstructorWithMultiKeyWithPassword() {
         jakarta.enterprise.event.Event<Exception> exceptionEvent = mock(jakarta.enterprise.event.Event.class);
         UserConfig runtimeConfig = new RuntimeConfig();
-        runtimeConfig.getConfigurations().setClientCertificate(new File(keystoreFileName).toURI().toString()+"?alias=key2");
-        runtimeConfig.getConfigurations().setClientCertificatePassword(keystoreFilePass);
+        ((UserConfigurations) runtimeConfig.getConfigurations()).setClientCertificate(new File(keystoreFileName).toURI().toString()+"?alias=key2");
+        ((UserConfigurations) runtimeConfig.getConfigurations()).setClientCertificatePassword(keystoreFilePass);
         new SingleConnectorServicesProvider(runtimeConfig, exceptionEvent);
         verify(exceptionEvent, times(0)).fireAsync(any());
     }

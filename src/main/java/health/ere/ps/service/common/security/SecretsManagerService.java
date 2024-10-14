@@ -70,7 +70,7 @@ public class SecretsManagerService implements FallbackSecretsManager {
         }
     }
 
-    public SSLContext createSSLContext(UserConfigurations userConfigurations) {
+    public SSLContext createSSLContext(IUserConfigurations userConfigurations) {
         byte[] clientCertificateBytes = getClientCertificateBytes(userConfigurations);
         try (ByteArrayInputStream certificateInputStream = new ByteArrayInputStream(clientCertificateBytes)) {
             return createSSLContext(userConfigurations.getClientCertificatePassword(), certificateInputStream);

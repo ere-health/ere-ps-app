@@ -1,6 +1,7 @@
 package health.ere.ps.service.status;
 
 import de.gematik.ws.conn.eventservice.v7.GetCards;
+import de.health.service.cetp.config.IUserConfigurations;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.config.UserConfig;
@@ -87,7 +88,7 @@ public class StatusService {
         }
     }
 
-    private Pair<String, String> getClientCertificatePair(UserConfigurations configurations) {
+    private Pair<String, String> getClientCertificatePair(IUserConfigurations configurations) {
         String clientCertificate = configurations.getClientCertificate();
         String clientCertificatePassword = configurations.getClientCertificatePassword();
         try {
@@ -108,8 +109,9 @@ public class StatusService {
         Status status = new Status();
         String connectorBaseURL = userConfig.getConnectorBaseURL();
 
-        boolean runtimeConfigurationsIsNotNull = (runtimeConfig != null && runtimeConfig.getConfigurations() != null);
-        UserConfigurations configurations = runtimeConfigurationsIsNotNull ? runtimeConfig.getConfigurations() : userConfig.getConfigurations();
+        IUserConfigurations configurations = runtimeConfig != null
+            ? runtimeConfig.getConfigurations()
+            : userConfig.getConfigurations();
         String basicAuthUsername = configurations.getBasicAuthUsername();
         String basicAuthPassword = configurations.getBasicAuthPassword();
 

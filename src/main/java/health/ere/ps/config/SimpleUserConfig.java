@@ -215,7 +215,7 @@ public class SimpleUserConfig {
 	}
 
 	private void setValues(UserRuntimeConfig userConfig) {
-		IUserConfigurations configurations = userConfig.getUserConfigurations();
+		IUserConfigurations configurations = userConfig.getConfigurations();
 		this.erixaHotfolder = configurations.getErixaHotfolder();
 		this.erixaDrugstoreEmail =  configurations.getErixaDrugstoreEmail();
 		this.erixaUserEmail = configurations.getErixaUserEmail();

@@ -1,5 +1,6 @@
 package health.ere.ps.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.health.service.cetp.config.IRuntimeConfig;
 import de.health.service.cetp.config.IUserConfigurations;
 import de.health.service.cetp.config.UserRuntimeConfig;
@@ -49,7 +50,7 @@ public class UserConfig implements UserRuntimeConfig {
 
     String defaultMuster16TemplateProfile = "DENS";
 
-    private UserConfigurations configurations;
+    protected UserConfigurations configurations;
 
     @PostConstruct
     void init() {
@@ -60,10 +61,11 @@ public class UserConfig implements UserRuntimeConfig {
     }
 
     @Override
-    public IUserConfigurations getUserConfigurations() {
-        return configurations;
+    public IUserConfigurations getConfigurations() {
+        return configurations == null ? new UserConfigurations() : configurations;
     }
 
+    @JsonIgnore
     @Override
     public IRuntimeConfig getRuntimeConfig() {
         if (this instanceof RuntimeConfig runtimeConfig) {
@@ -78,10 +80,6 @@ public class UserConfig implements UserRuntimeConfig {
         RuntimeConfig runtimeConfig = new RuntimeConfig();
         runtimeConfig.copyValuesFromUserConfig(this);
         return runtimeConfig;
-    }
-
-    public UserConfigurations getConfigurations() {
-        return configurations == null ? new UserConfigurations() : configurations;
     }
 
     public String getErixaHotfolder() {

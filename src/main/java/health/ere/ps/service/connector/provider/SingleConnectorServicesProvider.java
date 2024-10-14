@@ -35,7 +35,7 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
         this.secretsManagerService = new SecretsManagerService();
 
         // Try to read SSL Certificates from the userConfig (this can also be the runtime config)
-        IUserConfigurations userConfigurations = userConfig.getUserConfigurations();
+        IUserConfigurations userConfigurations = userConfig.getConfigurations();
         String configKeystoreUri = userConfigurations.getClientCertificate();
         String configKeystorePass = userConfigurations.getClientCertificatePassword();
 

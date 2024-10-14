@@ -211,7 +211,7 @@ public abstract class AbstractConnectorServicesProvider {
         bindingProvider.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier",
                 new SSLUtilities.FakeHostnameVerifier());
 
-        IUserConfigurations userConfigurations = getUserConfig().getUserConfigurations();
+        IUserConfigurations userConfigurations = getUserConfig().getConfigurations();
         String basicAuthUsername = userConfigurations.getBasicAuthUsername();
         String basicAuthPassword = userConfigurations.getBasicAuthPassword();
 

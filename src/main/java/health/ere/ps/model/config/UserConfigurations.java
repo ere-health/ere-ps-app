@@ -21,6 +21,7 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+@SuppressWarnings("unchecked")
 public class UserConfigurations implements IUserConfigurations {
 
     private static final Logger log = Logger.getLogger(UserConfigurations.class.getName());
@@ -129,27 +130,6 @@ public class UserConfigurations implements IUserConfigurations {
         updateWithRequest(httpServletRequest);
     }
 
-    public UserConfigurations updateWithRequest(HttpServletRequest httpServletRequest) {
-        Enumeration<String> enumeration = httpServletRequest.getHeaderNames();
-        List<String> list = Collections.list(enumeration);
-        for (String headerName : list) {
-            if (headerName.startsWith("X-") && !"X-eHBAHandle".equals(headerName) && !"X-SMCBHandle".equals(headerName) && !"X-sendPreview".equals(headerName)) {
-                String propertyName = headerName.substring(2);
-                Field field;
-                try {
-                    field = UserConfigurations.class.getDeclaredField(propertyName);
-                    if (field != null) {
-                        field.set(this, httpServletRequest.getHeader(headerName));
-                    }
-                } catch (NoSuchFieldException | SecurityException | IllegalArgumentException |
-                         IllegalAccessException e) {
-                    log.log(Level.WARNING, "Could not extract values from header", e);
-                }
-            }
-        }
-        return this;
-    }
-
     private void fillValues(Function<String, Object> getValue) {
         for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
             try {
@@ -179,10 +159,6 @@ public class UserConfigurations implements IUserConfigurations {
             }
         }
         return properties;
-    }
-
-    public static BeanInfo getBeanInfo() {
-        return beanInfo;
     }
 
     public String getErixaHotfolder() {

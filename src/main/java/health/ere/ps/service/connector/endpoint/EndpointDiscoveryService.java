@@ -91,7 +91,7 @@ public class EndpointDiscoveryService {
                 .path("/connector.sds")
                 .request();
 
-        IUserConfigurations userConfigurations = userConfig.getUserConfigurations();
+        IUserConfigurations userConfigurations = userConfig.getConfigurations();
         String basicAuthUsername = userConfigurations.getBasicAuthUsername();
         String basicAuthPassword = userConfigurations.getBasicAuthPassword();
         if(basicAuthUsername != null && !basicAuthUsername.equals("")) {
@@ -208,10 +208,10 @@ public class EndpointDiscoveryService {
 
             if (versionContainingText.contains("PTV4+") || versionContainingText.contains("PTV4Plus")) {
                 log.info("Connector version PTV4+ found in connector.sds");
-                userConfig.getUserConfigurations().setVersion("PTV4+");
+                userConfig.getConfigurations().setVersion("PTV4+");
             } else if (versionContainingText.contains("PTV4")) {
                 log.info("Connector version PTV4 found in connector.sds");
-                userConfig.getUserConfigurations().setVersion("PTV4");
+                userConfig.getConfigurations().setVersion("PTV4");
             } else {
                 log.warning("Could not determine the version of the connector to use from connector.sds, " +
                         "using the one from the configuration:" + userConfig.getConnectorVersion());

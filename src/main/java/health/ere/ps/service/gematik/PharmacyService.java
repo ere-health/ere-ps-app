@@ -69,6 +69,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 
+import static com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_SELF_REFERENCES;
+
 /* Note: reading, writing and resending of failed rejects are done by one Thread (see scheduledExecutorService), no additional synchronization for retrying reject is need */
 @ApplicationScoped
 public class PharmacyService implements AutoCloseable {
