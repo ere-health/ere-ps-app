@@ -1,0 +1,5 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Mon Oct 14 14:37:29 AMT 2024
+lib-cetp-1.0-SNAPSHOT.jar>=
+lib-cetp-1.0-SNAPSHOT-sources.jar>=
+lib-cetp-1.0-SNAPSHOT.pom>=
