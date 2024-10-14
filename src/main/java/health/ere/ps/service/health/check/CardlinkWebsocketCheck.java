@@ -2,10 +2,11 @@ package health.ere.ps.service.health.check;
 
 import health.ere.ps.config.RuntimeConfig;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Dependent;
 
 import java.util.Map;
 
-@ApplicationScoped
+@Dependent
 public class CardlinkWebsocketCheck implements Check {
 
     private boolean connected;

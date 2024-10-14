@@ -1,5 +1,11 @@
 package health.ere.ps.model.config;
 
+import de.health.service.cetp.config.IUserConfigurations;
+import jakarta.json.JsonObject;
+import jakarta.json.bind.annotation.JsonbNillable;
+import jakarta.json.bind.annotation.JsonbProperty;
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -15,12 +21,8 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import jakarta.json.JsonObject;
-import jakarta.json.bind.annotation.JsonbNillable;
-import jakarta.json.bind.annotation.JsonbProperty;
-import jakarta.servlet.http.HttpServletRequest;
-
-public class UserConfigurations {
+@SuppressWarnings("unchecked")
+public class UserConfigurations implements IUserConfigurations {
 
     private static final Logger log = Logger.getLogger(UserConfigurations.class.getName());
 
@@ -128,27 +130,6 @@ public class UserConfigurations {
         updateWithRequest(httpServletRequest);
     }
 
-    public UserConfigurations updateWithRequest(HttpServletRequest httpServletRequest) {
-        Enumeration<String> enumeration = httpServletRequest.getHeaderNames();
-        List<String> list = Collections.list(enumeration);
-        for (String headerName : list) {
-            if (headerName.startsWith("X-") && !"X-eHBAHandle".equals(headerName) && !"X-SMCBHandle".equals(headerName) && !"X-sendPreview".equals(headerName)) {
-                String propertyName = headerName.substring(2);
-                Field field;
-                try {
-                    field = UserConfigurations.class.getDeclaredField(propertyName);
-                    if (field != null) {
-                        field.set(this, httpServletRequest.getHeader(headerName));
-                    }
-                } catch (NoSuchFieldException | SecurityException | IllegalArgumentException |
-                         IllegalAccessException e) {
-                    log.log(Level.WARNING, "Could not extract values from header", e);
-                }
-            }
-        }
-        return this;
-    }
-
     private void fillValues(Function<String, Object> getValue) {
         for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
             try {
@@ -178,10 +159,6 @@ public class UserConfigurations {
             }
         }
         return properties;
-    }
-
-    public static BeanInfo getBeanInfo() {
-        return beanInfo;
     }
 
     public String getErixaHotfolder() {

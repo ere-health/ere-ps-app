@@ -20,8 +20,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+import static de.health.service.cetp.utils.Utils.deleteFiles;
 import static health.ere.ps.service.cetp.tracker.TrackerService.REQUESTS_CSV;
-import static health.ere.ps.utils.Utils.deleteFiles;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

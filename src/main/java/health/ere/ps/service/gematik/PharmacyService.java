@@ -5,19 +5,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.LoadingCache;
 import de.gematik.ws.conn.cardservicecommon.v2.CardTypeType;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
-import de.gematik.ws.conn.eventservice.v7.SubscriptionType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
 import de.gematik.ws.conn.vsds.vsdservice.v5.VSDServicePortType;
 import de.gematik.ws.conn.vsds.vsdservice.v5.VSDStatusType;
+import de.health.service.cetp.IKonnektorClient;
+import de.health.service.cetp.domain.eventservice.Subscription;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.jmx.ReadEPrescriptionsMXBeanImpl;
-import health.ere.ps.service.cetp.KonnektorClient;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import health.ere.ps.service.fhir.FHIRService;
 import health.ere.ps.service.idp.BearerTokenService;
@@ -56,8 +54,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.time.Duration;
-import java.util.*;
+import java.util.Base64;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -68,6 +69,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 
+import static com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_SELF_REFERENCES;
 
 /* Note: reading, writing and resending of failed rejects are done by one Thread (see scheduledExecutorService), no additional synchronization for retrying reject is need */
 @ApplicationScoped
@@ -87,7 +89,7 @@ public class PharmacyService implements AutoCloseable {
     AppConfig appConfig;
 
     @Inject
-    KonnektorClient konnektorClient;
+    IKonnektorClient konnektorClient;
 
     @Inject
     MultiConnectorServicesProvider connectorServicesProvider;
@@ -196,9 +198,9 @@ public class PharmacyService implements AutoCloseable {
         try {
             String listString;
             try {
-                List<SubscriptionType> subscriptions = konnektorClient.getSubscriptions(runtimeConfig);
+                List<Subscription> subscriptions = konnektorClient.getSubscriptions(runtimeConfig);
                 listString = subscriptions.stream()
-                        .map(s -> String.format("[id=%s eventTo=%s topic=%s]", s.getSubscriptionID(), s.getEventTo(), s.getTopic()))
+                        .map(s -> String.format("[id=%s eventTo=%s topic=%s]", s.getSubscriptionId(), s.getEventTo(), s.getTopic()))
                         .collect(Collectors.joining(","));
             } catch (Throwable e) {
                 String msg = String.format("[%s] Could not get active getSubscriptions", correlationId);

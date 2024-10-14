@@ -1,7 +1,8 @@
 package health.ere.ps.service.connector.provider;
 
+import de.health.service.cetp.config.IUserConfigurations;
+import de.health.service.cetp.config.UserRuntimeConfig;
 import health.ere.ps.config.AppConfig;
-import health.ere.ps.config.UserConfig;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.connector.endpoint.EndpointDiscoveryService;
 import jakarta.enterprise.event.Event;
@@ -27,15 +28,16 @@ import java.util.regex.PatternSyntaxException;
 public class SingleConnectorServicesProvider extends AbstractConnectorServicesProvider {
     private final static Logger log = Logger.getLogger(SingleConnectorServicesProvider.class.getName());
 
-    UserConfig userConfig;
+    UserRuntimeConfig userConfig;
 
-    public SingleConnectorServicesProvider(UserConfig userConfig, Event<Exception> exceptionEvent) {
+    public SingleConnectorServicesProvider(UserRuntimeConfig userConfig, Event<Exception> exceptionEvent) {
         this.userConfig = userConfig;
         this.secretsManagerService = new SecretsManagerService();
 
         // Try to read SSL Certificates from the userConfig (this can also be the runtime config)
-        String configKeystoreUri = userConfig.getConfigurations().getClientCertificate();
-        String configKeystorePass = userConfig.getConfigurations().getClientCertificatePassword();
+        IUserConfigurations userConfigurations = userConfig.getConfigurations();
+        String configKeystoreUri = userConfigurations.getClientCertificate();
+        String configKeystorePass = userConfigurations.getClientCertificatePassword();
 
         if (configKeystoreUri != null && !configKeystoreUri.isEmpty()) {
             try {
@@ -159,7 +161,7 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
         }
     }
 
-    public UserConfig getUserConfig() {
+    public UserRuntimeConfig getUserConfig() {
         return userConfig;
     }
 }

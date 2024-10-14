@@ -1,5 +1,10 @@
 package health.ere.ps.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import de.health.service.cetp.config.IRuntimeConfig;
+import de.health.service.cetp.config.IUserConfigurations;
+import de.health.service.cetp.config.UserRuntimeConfig;
+import de.health.service.cetp.konnektorconfig.KCUserConfigurations;
 import health.ere.ps.event.config.UserConfigurationsUpdateEvent;
 import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.service.config.UserConfigurationService;
@@ -13,7 +18,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @ApplicationScoped
-public class UserConfig {
+public class UserConfig implements UserRuntimeConfig {
 
     @Inject
     UserConfigurationService configurationManagementService;
@@ -45,7 +50,7 @@ public class UserConfig {
 
     String defaultMuster16TemplateProfile = "DENS";
 
-    private UserConfigurations configurations;
+    protected UserConfigurations configurations;
 
     @PostConstruct
     void init() {
@@ -55,8 +60,26 @@ public class UserConfig {
     public UserConfig() {
     }
 
-    public UserConfigurations getConfigurations() {
+    @Override
+    public IUserConfigurations getConfigurations() {
         return configurations == null ? new UserConfigurations() : configurations;
+    }
+
+    @JsonIgnore
+    @Override
+    public IRuntimeConfig getRuntimeConfig() {
+        if (this instanceof RuntimeConfig runtimeConfig) {
+            return runtimeConfig;
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public UserRuntimeConfig copy() {
+        RuntimeConfig runtimeConfig = new RuntimeConfig();
+        runtimeConfig.copyValuesFromUserConfig(this);
+        return runtimeConfig;
     }
 
     public String getErixaHotfolder() {
@@ -119,8 +142,12 @@ public class UserConfig {
         updateProperties(event.getConfigurations());
     }
 
-    public void updateProperties(UserConfigurations configurations) {
-        this.configurations = configurations;
+    public void updateProperties(IUserConfigurations configurations) {
+        if (configurations instanceof UserConfigurations) {
+            this.configurations = (UserConfigurations) configurations;
+        } else if (configurations instanceof KCUserConfigurations kcUserConfigurations) {
+            this.configurations = new UserConfigurations(kcUserConfigurations.properties());
+        }
     }
 
     private void updateProperties() {

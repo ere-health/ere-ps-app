@@ -1,6 +1,7 @@
 package health.ere.ps.config;
 
-import health.ere.ps.service.cetp.CETPServer;
+import de.health.service.cetp.CETPServer;
+import de.health.service.cetp.config.SubscriptionConfig;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -13,8 +14,9 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+@SuppressWarnings({"LombokGetterMayBeUsed", "LombokSetterMayBeUsed"})
 @ApplicationScoped
-public class AppConfig {
+public class AppConfig implements SubscriptionConfig {
 
     private static final Logger log = Logger.getLogger(AppConfig.class.getName());
 
@@ -194,8 +196,8 @@ public class AppConfig {
         return konnectorHost;
     }
 
-    public Integer getCetpPort() {
-        return cetpPort.orElse(CETPServer.PORT);
+    public int getCetpPort() {
+        return cetpPort.orElse(CETPServer.DEFAULT_PORT);
     }
 
     public String getConnectorCrypt() {

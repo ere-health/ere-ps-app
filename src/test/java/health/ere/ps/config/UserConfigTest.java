@@ -1,5 +1,6 @@
 package health.ere.ps.config;
 
+import de.health.service.cetp.config.IUserConfigurations;
 import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.service.config.UserConfigurationService;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +28,7 @@ public class UserConfigTest {
 
     @Test
     public void testGetConfigurations() {
-        UserConfigurations configurations = userConfig.getConfigurations();
+        IUserConfigurations configurations = userConfig.getConfigurations();
         assertEquals("https://example.com", configurations.getConnectorBaseURL());
         assertEquals("123456", configurations.getMandantId());
         // Add more assertions for other configuration properties

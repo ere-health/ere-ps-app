@@ -1,17 +1,16 @@
 package health.ere.ps.config;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import health.ere.ps.event.AbortTasksEvent;
+import health.ere.ps.model.config.UserConfigurations;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+import org.junit.jupiter.api.Test;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Optional;
 
-import org.junit.jupiter.api.Test;
-
-import health.ere.ps.event.AbortTasksEvent;
-import health.ere.ps.model.config.UserConfigurations;
-import jakarta.json.Json;
-import jakarta.json.JsonObject;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RuntimeConfigTest {
     @Test
@@ -55,7 +54,7 @@ public class RuntimeConfigTest {
         assertEquals("5", runtimeConfig.getUserId());
         assertEquals("6", runtimeConfig.getWorkplaceId());
 
-        runtimeConfig.getConfigurations().setConnectorBaseURL("7");
+        ((UserConfigurations) runtimeConfig.getConfigurations()).setConnectorBaseURL("7");
         assertEquals("7", runtimeConfig.getConnectorBaseURL());
     }
 
