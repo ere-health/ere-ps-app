@@ -107,9 +107,7 @@ public class RuntimeConfig extends UserConfig implements IRuntimeConfig {
             this.sendPreview = !httpServletRequest.getHeader("X-sendPreview").equalsIgnoreCase("false");
         }
 
-        IUserConfigurations userConfigurations = getConfigurations();
-        userConfigurations.updateWithRequest(httpServletRequest);
-        this.updateProperties(userConfigurations);
+        this.updateProperties(getConfigurations().updateWithRequest(httpServletRequest));
     }
 
     public void updateConfigurationsWithJsonObject(JsonObject object) {

@@ -87,8 +87,8 @@ class HealthCheckTest {
                 .filter(check -> check.name().equals(CETP_SERVER_CHECK))
                 .findFirst();
         assertTrue(cetpServerCheckOpt.isPresent());
-        assertThat(cetpServerCheckOpt.get().status(), equalTo("DOWN"));
-        assertThat(cetpServerCheckOpt.get().data().size(), equalTo(0));
+        assertThat(cetpServerCheckOpt.get().status(), equalTo("UP"));
+        assertThat(cetpServerCheckOpt.get().data().size(), equalTo(3));
 
         Optional<CheckInfo> statusCheckOpt = healthInfo.checks()
                 .stream()
