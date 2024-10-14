@@ -3,10 +3,10 @@ package health.ere.ps.service.cetp.config;
 import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
+import de.health.service.cetp.SubscriptionManager;
+import de.health.service.cetp.konnektorconfig.FSConfigService;
+import de.health.service.cetp.konnektorconfig.KonnektorConfigService;
 import health.ere.ps.profile.RUDevTestProfile;
-import health.ere.ps.service.cetp.SubscriptionManager;
-import health.ere.ps.service.cetp.config.FSConfigService;
-import health.ere.ps.service.cetp.config.KonnektorConfigService;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -106,7 +106,7 @@ public class KonnektorSubscriptionTest {
         new File(TEMP_CONFIG).delete();
 
         if (konnektorConfigService instanceof FSConfigService fsConfigService) {
-            fsConfigService.configFolder = "config/konnektoren";
+            fsConfigService.setConfigFolder("config/konnektoren");
         }
     }
 
@@ -150,7 +150,7 @@ public class KonnektorSubscriptionTest {
         Pair<Boolean, String> pair = prepareTempConfigFolder();
         if (pair.getKey()) {
             if (konnektorConfigService instanceof FSConfigService fsConfigService) {
-                fsConfigService.configFolder = pair.getValue();
+                fsConfigService.setConfigFolder(pair.getValue());
                 subscriptionManager.onStart(null);
             }
             Response response = given()
@@ -172,7 +172,7 @@ public class KonnektorSubscriptionTest {
         Pair<Boolean, String> pair = prepareTempConfigFolder();
         if (pair.getKey()) {
             if (konnektorConfigService instanceof FSConfigService fsConfigService) {
-                fsConfigService.configFolder = pair.getValue();
+                fsConfigService.setConfigFolder(pair.getValue());
                 subscriptionManager.onStart(null);
             }
             String host = "192.168.178.52";

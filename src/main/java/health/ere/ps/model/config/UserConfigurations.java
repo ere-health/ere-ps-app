@@ -1,5 +1,11 @@
 package health.ere.ps.model.config;
 
+import de.health.service.cetp.config.IUserConfigurations;
+import jakarta.json.JsonObject;
+import jakarta.json.bind.annotation.JsonbNillable;
+import jakarta.json.bind.annotation.JsonbProperty;
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -15,12 +21,7 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import jakarta.json.JsonObject;
-import jakarta.json.bind.annotation.JsonbNillable;
-import jakarta.json.bind.annotation.JsonbProperty;
-import jakarta.servlet.http.HttpServletRequest;
-
-public class UserConfigurations {
+public class UserConfigurations implements IUserConfigurations {
 
     private static final Logger log = Logger.getLogger(UserConfigurations.class.getName());
 

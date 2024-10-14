@@ -1,14 +1,5 @@
 package health.ere.ps.service.connector.provider;
 
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import jakarta.inject.Inject;
-import jakarta.xml.ws.BindingProvider;
-import javax.net.ssl.SSLContext;
-import javax.xml.parsers.ParserConfigurationException;
-
 import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureService;
 import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureServicePortType;
 import de.gematik.ws.conn.cardservice.wsdl.v8.CardService;
@@ -24,11 +15,18 @@ import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServiceV740;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServiceV755;
 import de.gematik.ws.conn.vsds.vsdservice.v5.VSDService;
 import de.gematik.ws.conn.vsds.vsdservice.v5.VSDServicePortType;
-import health.ere.ps.config.UserConfig;
+import de.health.service.cetp.config.IUserConfigurations;
+import de.health.service.cetp.config.UserRuntimeConfig;
 import health.ere.ps.config.interceptor.ProvidedConfig;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.connector.endpoint.EndpointDiscoveryService;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
+import jakarta.inject.Inject;
+import jakarta.xml.ws.BindingProvider;
+
+import javax.net.ssl.SSLContext;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public abstract class AbstractConnectorServicesProvider {
     private final static Logger log = Logger.getLogger(AbstractConnectorServicesProvider.class.getName());
@@ -213,8 +211,9 @@ public abstract class AbstractConnectorServicesProvider {
         bindingProvider.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier",
                 new SSLUtilities.FakeHostnameVerifier());
 
-        String basicAuthUsername = getUserConfig().getConfigurations().getBasicAuthUsername();
-        String basicAuthPassword = getUserConfig().getConfigurations().getBasicAuthPassword();
+        IUserConfigurations userConfigurations = getUserConfig().getUserConfigurations();
+        String basicAuthUsername = userConfigurations.getBasicAuthUsername();
+        String basicAuthPassword = userConfigurations.getBasicAuthPassword();
 
         if(basicAuthUsername != null && !basicAuthUsername.equals("")) {
             bindingProvider.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, basicAuthUsername);
@@ -262,5 +261,5 @@ public abstract class AbstractConnectorServicesProvider {
         return contextType;
     }
 
-    public abstract UserConfig getUserConfig();
+    public abstract UserRuntimeConfig getUserConfig();
 }

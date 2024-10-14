@@ -3,8 +3,8 @@ package health.ere.ps.service.cetp;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import de.gematik.ws.conn.eventservice.v7.Event;
+import de.health.service.cetp.config.IUserConfigurations;
 import health.ere.ps.config.RuntimeConfig;
-import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.service.cardlink.CardlinkWebsocketClient;
 import health.ere.ps.service.cetp.tracker.TrackerService;
 import health.ere.ps.service.gematik.PharmacyService;
@@ -24,7 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import static health.ere.ps.utils.Utils.printException;
+import static de.health.service.cetp.utils.Utils.printException;
 
 public class CETPServerHandler extends ChannelInboundHandlerAdapter {
 
@@ -62,7 +62,7 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
             cardlinkWebsocketClient.connect();
 
             @SuppressWarnings("unchecked")
-            Pair<Event, UserConfigurations> input = (Pair<Event, UserConfigurations>) msg;
+            Pair<Event, IUserConfigurations> input = (Pair<Event, IUserConfigurations>) msg;
             Event event = input.getKey();
 
             if (event.getTopic().equals("CARD/INSERTED")) {
@@ -89,7 +89,7 @@ public class CETPServerHandler extends ChannelInboundHandlerAdapter {
 
                     log.fine(String.format("[%s] Card inserted: params: %s", correlationId, paramsStr));
                     try {
-                        UserConfigurations uc = input.getValue();
+                        IUserConfigurations uc = input.getValue();
                         RuntimeConfig runtimeConfig = new RuntimeConfig(uc);
                         Pair<Bundle, String> pair = pharmacyService.getEPrescriptionsForCardHandle(
                                 correlationId, cardHandle, null, runtimeConfig

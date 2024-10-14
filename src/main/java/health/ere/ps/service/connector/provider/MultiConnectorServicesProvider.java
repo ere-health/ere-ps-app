@@ -8,8 +8,8 @@ import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV740;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
 import de.gematik.ws.conn.vsds.vsdservice.v5.VSDServicePortType;
+import de.health.service.cetp.config.UserRuntimeConfig;
 import health.ere.ps.config.SimpleUserConfig;
-import health.ere.ps.config.UserConfig;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
@@ -17,7 +17,6 @@ import jakarta.inject.Inject;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 @ApplicationScoped
@@ -34,7 +33,7 @@ public class MultiConnectorServicesProvider {
     //Map<UserConfig, SingleConnectorServicesProvider> singleConnectorServicesProvider = new ConcurrentHashMap<>();
     Map<SimpleUserConfig, SingleConnectorServicesProvider> singleConnectorServicesProvider = Collections.synchronizedMap(new HashMap<SimpleUserConfig, SingleConnectorServicesProvider>());
 
-    public AbstractConnectorServicesProvider getSingleConnectorServicesProvider(UserConfig userConfig) {
+    public AbstractConnectorServicesProvider getSingleConnectorServicesProvider(UserRuntimeConfig userConfig) {
         if (userConfig == null) {
             return defaultConnectorServicesProvider;
         } else {
@@ -48,35 +47,35 @@ public class MultiConnectorServicesProvider {
         }
     }
 
-    public CardServicePortType getCardServicePortType(UserConfig userConfig) {
+    public CardServicePortType getCardServicePortType(UserRuntimeConfig userConfig) {
         return getSingleConnectorServicesProvider(userConfig).getCardServicePortType();
     }
 
-    public CertificateServicePortType getCertificateServicePortType(UserConfig userConfig) {
+    public CertificateServicePortType getCertificateServicePortType(UserRuntimeConfig userConfig) {
         return getSingleConnectorServicesProvider(userConfig).getCertificateService();
     }
 
-    public EventServicePortType getEventServicePortType(UserConfig userConfig) {
+    public EventServicePortType getEventServicePortType(UserRuntimeConfig userConfig) {
         return getSingleConnectorServicesProvider(userConfig).getEventServicePortType();
     }
 
-    public AuthSignatureServicePortType getAuthSignatureServicePortType(UserConfig userConfig) {
+    public AuthSignatureServicePortType getAuthSignatureServicePortType(UserRuntimeConfig userConfig) {
         return getSingleConnectorServicesProvider(userConfig).getAuthSignatureServicePortType();
     }
 
-    public SignatureServicePortTypeV740 getSignatureServicePortType(UserConfig userConfig) {
+    public SignatureServicePortTypeV740 getSignatureServicePortType(UserRuntimeConfig userConfig) {
         return getSingleConnectorServicesProvider(userConfig).getSignatureServicePortType();
     }
 
-    public SignatureServicePortTypeV755 getSignatureServicePortTypeV755(UserConfig userConfig) {
+    public SignatureServicePortTypeV755 getSignatureServicePortTypeV755(UserRuntimeConfig userConfig) {
         return getSingleConnectorServicesProvider(userConfig).getSignatureServicePortTypeV755();
     }
 
-    public VSDServicePortType getVSDServicePortType(UserConfig userConfig) {
+    public VSDServicePortType getVSDServicePortType(UserRuntimeConfig userConfig) {
         return getSingleConnectorServicesProvider(userConfig).getVSDServicePortType();
     }
 
-    public ContextType getContextType(UserConfig userConfig) {
+    public ContextType getContextType(UserRuntimeConfig userConfig) {
         if (userConfig == null) {
             return defaultConnectorServicesProvider.getContextType();
         }

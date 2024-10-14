@@ -1,30 +1,29 @@
 package health.ere.ps.service.connector.endpoint;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Base64;
-import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import de.health.service.cetp.config.IUserConfigurations;
+import de.health.service.cetp.config.UserRuntimeConfig;
+import health.ere.ps.config.AppConfig;
+import health.ere.ps.service.common.security.SecretsManagerService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.client.Invocation.Builder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import health.ere.ps.config.AppConfig;
-import health.ere.ps.config.UserConfig;
-import health.ere.ps.service.common.security.SecretsManagerService;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Base64;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This service automatically discovers the endpoints that are available at the connector.
@@ -49,7 +48,7 @@ public class EndpointDiscoveryService {
     @Inject
     AppConfig appConfig;
     @Inject
-    UserConfig userConfig;
+    UserRuntimeConfig userConfig;
     @Inject
     SecretsManagerService secretsManagerService;
 
@@ -64,7 +63,7 @@ public class EndpointDiscoveryService {
 
     }
 
-    public EndpointDiscoveryService(UserConfig userConfig, SecretsManagerService secretsManagerService) {
+    public EndpointDiscoveryService(UserRuntimeConfig userConfig, SecretsManagerService secretsManagerService) {
         this.userConfig = userConfig;
         this.secretsManagerService = secretsManagerService;
     }
@@ -92,8 +91,9 @@ public class EndpointDiscoveryService {
                 .path("/connector.sds")
                 .request();
 
-        String basicAuthUsername = userConfig.getConfigurations().getBasicAuthUsername();
-        String basicAuthPassword = userConfig.getConfigurations().getBasicAuthPassword();
+        IUserConfigurations userConfigurations = userConfig.getUserConfigurations();
+        String basicAuthUsername = userConfigurations.getBasicAuthUsername();
+        String basicAuthPassword = userConfigurations.getBasicAuthPassword();
         if(basicAuthUsername != null && !basicAuthUsername.equals("")) {
             builder.header("Authorization", "Basic "+Base64.getEncoder().encodeToString((basicAuthUsername+":"+basicAuthPassword).getBytes()));
         }
@@ -208,10 +208,10 @@ public class EndpointDiscoveryService {
 
             if (versionContainingText.contains("PTV4+") || versionContainingText.contains("PTV4Plus")) {
                 log.info("Connector version PTV4+ found in connector.sds");
-                userConfig.getConfigurations().setVersion("PTV4+");
+                userConfig.getUserConfigurations().setVersion("PTV4+");
             } else if (versionContainingText.contains("PTV4")) {
                 log.info("Connector version PTV4 found in connector.sds");
-                userConfig.getConfigurations().setVersion("PTV4");
+                userConfig.getUserConfigurations().setVersion("PTV4");
             } else {
                 log.warning("Could not determine the version of the connector to use from connector.sds, " +
                         "using the one from the configuration:" + userConfig.getConnectorVersion());

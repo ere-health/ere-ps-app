@@ -20,7 +20,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import static health.ere.ps.utils.Utils.terminateExecutor;
+import static de.health.service.cetp.utils.Utils.terminateExecutor;
 
 @ApplicationScoped
 public class TrackerService {

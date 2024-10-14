@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import de.health.service.cetp.config.IUserConfigurations;
 import org.apache.commons.lang3.tuple.Pair;
 
 import de.gematik.ws.conn.eventservice.v7.Event;
@@ -29,13 +30,13 @@ public class CETPDecoder extends ByteToMessageDecoder {
             log.log(Level.SEVERE, "Failed to create JAXB context", e);
         }
     }
-    UserConfigurations userConfigurations;
+    IUserConfigurations userConfigurations;
 
     public CETPDecoder() {
 
     }
 
-    public CETPDecoder(UserConfigurations userConfigurations) {
+    public CETPDecoder(IUserConfigurations userConfigurations) {
         this.userConfigurations = userConfigurations;
     }
 

@@ -1,5 +1,21 @@
 package health.ere.ps.service.common.security;
 
+import de.health.service.cetp.FallbackSecretsManager;
+import de.health.service.cetp.config.IUserConfigurations;
+import health.ere.ps.config.AppConfig;
+import health.ere.ps.exception.common.security.SecretsManagerException;
+import health.ere.ps.model.config.UserConfigurations;
+import health.ere.ps.service.config.UserConfigurationService;
+import health.ere.ps.service.connector.endpoint.SSLUtilities;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
+
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -18,23 +34,8 @@ import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-
-import health.ere.ps.config.AppConfig;
-import health.ere.ps.exception.common.security.SecretsManagerException;
-import health.ere.ps.model.config.UserConfigurations;
-import health.ere.ps.service.config.UserConfigurationService;
-import health.ere.ps.service.connector.endpoint.SSLUtilities;
-import jakarta.annotation.PostConstruct;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Event;
-import jakarta.inject.Inject;
-
 @ApplicationScoped
-public class SecretsManagerService {
+public class SecretsManagerService implements FallbackSecretsManager {
 
     private static final Logger log = Logger.getLogger(SecretsManagerService.class.getName());
 
@@ -81,12 +82,11 @@ public class SecretsManagerService {
         }
     }
 
-    public static byte[] getClientCertificateBytes(UserConfigurations userConfigurations) {
+    private byte[] getClientCertificateBytes(IUserConfigurations userConfigurations) {
         String base64UrlCertificate = userConfigurations.getClientCertificate();
         String clientCertificateString = base64UrlCertificate.split(",")[1];
         log.fine("Using certificate: "+clientCertificateString);
-        byte[] clientCertificateBytes = Base64.getDecoder().decode(clientCertificateString);
-        return clientCertificateBytes;
+        return Base64.getDecoder().decode(clientCertificateString);
     }
 
     public void acceptAllCertificates() {
@@ -147,6 +147,7 @@ public class SecretsManagerService {
         return sslContext;
     }
 
+    @Override
     public KeyManagerFactory getKeyManagerFactory() {
         return keyManagerFactory;
     }

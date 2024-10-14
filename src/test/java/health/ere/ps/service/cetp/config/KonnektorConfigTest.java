@@ -1,7 +1,15 @@
 package health.ere.ps.service.cetp.config;
 
+import de.health.service.cetp.SubscriptionManager;
+import de.health.service.cetp.konnektorconfig.FSConfigService;
+import de.health.service.cetp.konnektorconfig.KonnektorConfig;
+import health.ere.ps.config.AppConfig;
+import health.ere.ps.config.UserConfig;
 import health.ere.ps.model.config.UserConfigurations;
-import health.ere.ps.service.cetp.SubscriptionManager;
+import health.ere.ps.profile.RUDevTestProfile;
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -16,12 +24,20 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
+@QuarkusTest
+@TestProfile(RUDevTestProfile.class)
 public class KonnektorConfigTest {
+
+    @Inject
+    AppConfig appConfig;
+
+    @Inject
+    UserConfig userConfig;
 
     @Test
     void testGenerateKonnektorConfig() {
-        FSConfigService configService = new FSConfigService();
-        configService.configFolder = "src/test/resources/config/konnektoren/";
+        FSConfigService configService = new FSConfigService(appConfig, userConfig);
+        configService.setConfigFolder("src/test/resources/config/konnektoren/");
 
         var configs = configService.loadConfigs();
         assertEquals(3, configs.size());
@@ -42,8 +58,8 @@ public class KonnektorConfigTest {
 
     @Test
     public void twoConfigsWithSameKonnectorAreLoaded() {
-        FSConfigService configService = spy(new FSConfigService());
-        configService.configFolder = "config/konnektoren";
+        FSConfigService configService = spy(new FSConfigService(appConfig, userConfig));
+        configService.setConfigFolder("config/konnektoren");
 
         List<KonnektorConfig> sameKonnektorConfigs = new ArrayList<>();
         Properties sameKonnektorProperties = new Properties();
@@ -54,7 +70,7 @@ public class KonnektorConfigTest {
 
         doReturn(sameKonnektorConfigs).when(configService).readFromPath(any());
 
-        SubscriptionManager subscriptionManager = new SubscriptionManager(null, null, configService);
+        SubscriptionManager subscriptionManager = new SubscriptionManager(appConfig, userConfig, null, configService);
         subscriptionManager.onStart(null);
         Collection<KonnektorConfig> konnektorConfigs = subscriptionManager.getKonnektorConfigs(konnektorHost);
         assertEquals(sameKonnektorConfigs.size(), konnektorConfigs.size());

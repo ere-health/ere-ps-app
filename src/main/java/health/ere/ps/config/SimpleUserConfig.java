@@ -1,5 +1,9 @@
 package health.ere.ps.config;
 
+import de.health.service.cetp.config.IRuntimeConfig;
+import de.health.service.cetp.config.IUserConfigurations;
+import de.health.service.cetp.config.UserRuntimeConfig;
+
 import java.util.Objects;
 
 public class SimpleUserConfig {
@@ -52,7 +56,7 @@ public class SimpleUserConfig {
 
 	
 	
-	public SimpleUserConfig(UserConfig userConfig) {
+	public SimpleUserConfig(UserRuntimeConfig userConfig) {
 		setValues(userConfig);
 	}
 
@@ -210,25 +214,28 @@ public class SimpleUserConfig {
 		this.idpClientId = idpClientId;
 	}
 
-	private void setValues(UserConfig userConfig) {
-		this.erixaHotfolder = userConfig.getConfigurations().getErixaHotfolder();
-		this.erixaDrugstoreEmail =  userConfig.getConfigurations().getErixaDrugstoreEmail();
-		this.erixaUserEmail = userConfig.getConfigurations().getErixaUserEmail();
-		this.erixaApiKey = userConfig.getConfigurations().getErixaApiKey();
-		this.muster16TemplateProfile = userConfig.getConfigurations().getMuster16TemplateProfile();
-		this.connectorBaseURL = userConfig.getConfigurations().getConnectorBaseURL();
-		this.mandantId = userConfig.getConfigurations().getMandantId();
-		this.workplaceId = userConfig.getConfigurations().getWorkplaceId();
-		this.clientSystemId = userConfig.getConfigurations().getClientSystemId();
-		this.userId = userConfig.getConfigurations().getUserId();
-		this.version = userConfig.getConfigurations().getVersion();
-		this.tvMode = userConfig.getConfigurations().getTvMode();
-		if(userConfig.getClass().getName().contains("RuntimeConfig")) {
-			this.eHBAHandle = ((RuntimeConfig)userConfig).getEHBAHandle();
-			this.SMCBHandle = ((RuntimeConfig)userConfig).getSMCBHandle();
-			this.sendPreview = ((RuntimeConfig)userConfig).isSendPreview();
-			this.idpAuthRequestRedirectURL = ((RuntimeConfig)userConfig).getIdpAuthRequestRedirectURL();
-			this.idpClientId = ((RuntimeConfig)userConfig).getIdpClientId();
+	private void setValues(UserRuntimeConfig userConfig) {
+		IUserConfigurations configurations = userConfig.getUserConfigurations();
+		this.erixaHotfolder = configurations.getErixaHotfolder();
+		this.erixaDrugstoreEmail =  configurations.getErixaDrugstoreEmail();
+		this.erixaUserEmail = configurations.getErixaUserEmail();
+		this.erixaApiKey = configurations.getErixaApiKey();
+		this.muster16TemplateProfile = configurations.getMuster16TemplateProfile();
+		this.connectorBaseURL = configurations.getConnectorBaseURL();
+		this.mandantId = configurations.getMandantId();
+		this.workplaceId = configurations.getWorkplaceId();
+		this.clientSystemId = configurations.getClientSystemId();
+		this.userId = configurations.getUserId();
+		this.version = configurations.getVersion();
+		this.tvMode = configurations.getTvMode();
+
+		IRuntimeConfig runtimeConfig = userConfig.getRuntimeConfig();
+		if (runtimeConfig != null) {
+			this.eHBAHandle = runtimeConfig.getEHBAHandle();
+			this.SMCBHandle = runtimeConfig.getSMCBHandle();
+			this.sendPreview = runtimeConfig.isSendPreview();
+			this.idpAuthRequestRedirectURL = runtimeConfig.getIdpAuthRequestRedirectURL();
+			this.idpClientId = runtimeConfig.getIdpClientId();
 		}		
 	}
 	

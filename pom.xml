@@ -10,18 +10,18 @@
     <properties>
         <compiler-plugin.version>3.8.1</compiler-plugin.version>
         <maven.compiler.parameters>true</maven.compiler.parameters>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
         <quarkus-plugin.version>3.9.4</quarkus-plugin.version>
         <quarkus.platform.artifact-id>quarkus-universe-bom</quarkus.platform.artifact-id>
         <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
         <quarkus.platform.version>3.9.4</quarkus.platform.version>
-        <surefire-plugin.version>3.2.5</surefire-plugin.version>
-        <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
         <hapi.version>7.4.0</hapi.version>
         <version.referencevalidator>2.5.1</version.referencevalidator>
+
+        <surefire-plugin.version>3.2.5</surefire-plugin.version>
+        <failsafe-plugin.version>3.5.0</failsafe-plugin.version>
     </properties>
     <!-- 2021-12-20 Add a random line to update maven cache in gitHub actions -->
     <dependencyManagement>
@@ -202,6 +202,16 @@
             <groupId>net.sf.saxon</groupId>
             <artifactId>Saxon-HE</artifactId>
             <version>10.3</version>
+        </dependency>
+        <dependency>
+            <groupId>de.servicehealth</groupId>
+            <artifactId>lib-cetp</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>1.6.2</version>
         </dependency>
         <dependency>
             <groupId>health.ere</groupId>
@@ -388,10 +398,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${compiler-plugin.version}</version>
-            </plugin>
-            <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${surefire-plugin.version}</version>
                 <configuration>
@@ -400,8 +406,23 @@
                         <quarkus.test.profile>dev</quarkus.test.profile>
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
                         <quarkus.log.level>INFO</quarkus.log.level>
-                        <maven.home>${maven.home}</maven.home>
                     </systemPropertyVariables>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${compiler-plugin.version}</version>
+                <configuration>
+                    <source>17</source>
+                    <target>17</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>1.6.2</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
             <!-- STATIC CODE ANALYSIS -->
@@ -461,8 +482,9 @@
             <build>
                 <plugins>
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
-                        <version>${surefire-plugin.version}</version>
+                        <version>${failsafe-plugin.version}</version>
                         <executions>
                             <execution>
                                 <goals>
@@ -472,12 +494,8 @@
                                 <configuration>
                                     <systemPropertyVariables>
                                         <quarkus.test.profile>dev</quarkus.test.profile>
-                                        <native.image.path>
-                                            ${project.build.directory}/${project.build.finalName}-runner
-                                        </native.image.path>
-                                        <java.util.logging.manager>org.jboss.logmanager.LogManager
-                                        </java.util.logging.manager>
-                                        <maven.home>${maven.home}</maven.home>
+                                        <native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
+                                        <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
                                     </systemPropertyVariables>
                                 </configuration>
                             </execution>

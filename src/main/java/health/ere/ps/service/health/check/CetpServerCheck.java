@@ -1,7 +1,7 @@
 package health.ere.ps.service.health.check;
 
+import de.health.service.cetp.CETPServer;
 import health.ere.ps.config.RuntimeConfig;
-import health.ere.ps.service.cetp.CETPServer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 

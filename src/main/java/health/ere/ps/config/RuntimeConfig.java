@@ -7,6 +7,8 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import de.health.service.cetp.config.IRuntimeConfig;
+import de.health.service.cetp.config.IUserConfigurations;
 import health.ere.ps.model.config.UserConfigurations;
 import jakarta.enterprise.inject.Alternative;
 import jakarta.enterprise.inject.spi.CDI;
@@ -14,7 +16,7 @@ import jakarta.json.JsonObject;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Alternative
-public class RuntimeConfig extends UserConfig {
+public class RuntimeConfig extends UserConfig implements IRuntimeConfig {
 
     private static Logger log = Logger.getLogger(RuntimeConfig.class.getName());
     
@@ -39,7 +41,7 @@ public class RuntimeConfig extends UserConfig {
         }
     }
 
-    public RuntimeConfig(UserConfigurations userConfigurations) {
+    public RuntimeConfig(IUserConfigurations userConfigurations) {
         this();
         this.updateProperties(userConfigurations);
     }
