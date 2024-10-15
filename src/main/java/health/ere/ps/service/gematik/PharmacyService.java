@@ -212,8 +212,10 @@ public class PharmacyService implements AutoCloseable {
                     new ByteArrayInputStream(readVSDResult.persoenlicheVersichertendaten.value));
                 UCPersoenlicheVersichertendatenXML patient = (UCPersoenlicheVersichertendatenXML) jaxbContext
                         .createUnmarshaller().unmarshal(isPersoenlicheVersichertendaten);
-            
-                return patient.getVersicherter().getVersichertenID();
+                
+                String versichertenID = patient.getVersicherter().getVersichertenID();
+                log.fine("VSDM result: "+e+" VersichertenID: " + versichertenID);
+                return versichertenID;
             } else {
                 String pn = doc.getElementsByTagName("PZ").item(0).getTextContent();
                 String base64PN = new String(DatatypeConverter.parseBase64Binary(pn));
