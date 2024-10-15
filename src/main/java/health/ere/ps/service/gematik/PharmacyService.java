@@ -5,8 +5,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import ca.uhn.fhir.context.FhirContext;
 import de.gematik.ws.conn.cardservicecommon.v2.CardTypeType;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
@@ -49,6 +47,7 @@ import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
