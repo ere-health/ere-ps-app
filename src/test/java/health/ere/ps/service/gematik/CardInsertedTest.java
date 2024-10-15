@@ -1,5 +1,29 @@
 package health.ere.ps.service.gematik;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.InputStream;
+import java.math.BigInteger;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.tuple.Pair;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+
 import de.gematik.ws.conn.eventservice.v7.Event;
 import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
 import de.gematik.ws.tel.error.v2.Error;
@@ -18,29 +42,6 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
 import jakarta.xml.bind.DatatypeConverter;
 import jakarta.xml.ws.Holder;
-import org.apache.commons.lang3.tuple.Pair;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-
-import java.io.InputStream;
-import java.math.BigInteger;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @QuarkusTest
 class CardInsertedTest {
@@ -51,7 +52,9 @@ class CardInsertedTest {
     void vsdmSensorDataWithEventIdIsSentOnCardInsertedEvent() throws Exception {
         PharmacyService pharmacyService = spy(createPharmacyService());
         Holder<byte[]> holder = prepareHolder(pharmacyService);
-        doReturn(holder).when(pharmacyService).readVSD(any(), any(), any(), any());
+        PharmacyService.ReadVSDResult readVSDResult = pharmacyService.new ReadVSDResult();
+        readVSDResult.pruefungsnachweis = holder;
+        doReturn(readVSDResult).when(pharmacyService).readVSD(any(), any(), any(), any());
 
         TrackerService trackerService = mock(TrackerService.class);
         when(trackerService.submit(any(), any(), any(), any())).thenReturn(true);

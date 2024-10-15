@@ -5,12 +5,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import ca.uhn.fhir.context.FhirContext;
 import de.gematik.ws.conn.cardservicecommon.v2.CardTypeType;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
 import de.gematik.ws.conn.vsds.vsdservice.v5.VSDServicePortType;
 import de.gematik.ws.conn.vsds.vsdservice.v5.VSDStatusType;
+import de.gematik.ws.fa.vsdm.vsd.v5.UCAllgemeineVersicherungsdatenXML;
+import de.gematik.ws.fa.vsdm.vsd.v5.UCGeschuetzteVersichertendatenXML;
+import de.gematik.ws.fa.vsdm.vsd.v5.UCPersoenlicheVersichertendatenXML;
 import de.health.service.cetp.IKonnektorClient;
 import de.health.service.cetp.domain.eventservice.Subscription;
 import health.ere.ps.config.AppConfig;
@@ -27,6 +32,9 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.Response;
+import jakarta.xml.bind.DatatypeConverter;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
 import jakarta.xml.ws.Holder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -111,8 +119,31 @@ public class PharmacyService implements AutoCloseable {
 
     Client client;
 
-    private final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    static final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+
+    static DocumentBuilder builder;
+
+    static {
+        try {
+            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            builder = factory.newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            log.log(Level.SEVERE, "Could create  parser", e);
+        }
+    }
+
+    static final JAXBContext jaxbContext = createJaxbContext();
+
+    static JAXBContext createJaxbContext() {
+        try {
+            return JAXBContext.newInstance(UCPersoenlicheVersichertendatenXML.class,
+                    UCAllgemeineVersicherungsdatenXML.class, UCGeschuetzteVersichertendatenXML.class);
+        } catch (JAXBException e) {
+            log.log(Level.SEVERE, "Could not init jaxb context", e);
+            return null;
+        }
+    }
 
     @PostConstruct
     public void init() {
@@ -141,9 +172,11 @@ public class PharmacyService implements AutoCloseable {
             runtimeConfig = new RuntimeConfig();
         }
         runtimeConfig.setSMCBHandle(smcbHandle);
-        Holder<byte[]> pruefungsnachweis = readVSD(correlationId, egkHandle, smcbHandle, runtimeConfig);
+        ReadVSDResult readVSD = readVSD(correlationId, egkHandle, smcbHandle, runtimeConfig);
+        Holder<byte[]> pruefungsnachweis = readVSD.pruefungsnachweis;
         String pnw = Base64.getEncoder().encodeToString(pruefungsnachweis.value);
         try (Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task")
+                .queryParam("kvnr", extractKVNR(readVSD))
                 .queryParam("pnw", pnw).request()
                 .header("Content-Type", "application/fhir+xml")
                 .header("User-Agent", appConfig.getUserAgent())
@@ -166,7 +199,35 @@ public class PharmacyService implements AutoCloseable {
         }
     }
 
-    public Holder<byte[]> readVSD(
+    static synchronized String extractKVNR(ReadVSDResult readVSDResult) {
+        try {
+            Holder<byte[]> pnw = readVSDResult.pruefungsnachweis;
+            String decodedXMLFromPNW = new String(new GZIPInputStream(new ByteArrayInputStream(pnw.value)).readAllBytes());
+            Document doc = builder.parse(new ByteArrayInputStream(decodedXMLFromPNW.getBytes()));
+            String e = doc.getElementsByTagName("E").item(0).getTextContent();
+            if (e.equals("3")) {
+                InputStream isPersoenlicheVersichertendaten = new GZIPInputStream(
+                    new ByteArrayInputStream(readVSDResult.persoenlicheVersichertendaten.value));
+                UCPersoenlicheVersichertendatenXML patient = (UCPersoenlicheVersichertendatenXML) jaxbContext
+                        .createUnmarshaller().unmarshal(isPersoenlicheVersichertendaten);
+
+                String versichertenID = patient.getVersicherter().getVersichertenID();
+                log.fine("VSDM result: "+e+" VersichertenID: " + versichertenID);
+                return versichertenID;
+            } else {
+                String pn = doc.getElementsByTagName("PZ").item(0).getTextContent();
+                String base64PN = new String(DatatypeConverter.parseBase64Binary(pn));
+                String kvnrFromPn = base64PN.substring(0, 10);
+                return kvnrFromPn;
+            }
+        } catch (SAXException | IOException | NullPointerException | JAXBException e) {
+            String msg = "Could not parse PNW message";
+            log.log(Level.WARNING, msg, e);
+            return "";
+        }
+    }
+
+    public ReadVSDResult readVSD(
             String correlationId,
             String egkHandle,
             String smcbHandle,
@@ -221,7 +282,21 @@ public class PharmacyService implements AutoCloseable {
             readEPrescriptionsMXBean.increaseVSDFailed();
             throw t;
         }
-        return pruefungsnachweis;
+        ReadVSDResult readVSDResult = new ReadVSDResult();
+        readVSDResult.persoenlicheVersichertendaten = persoenlicheVersichertendaten;
+        readVSDResult.allgemeineVersicherungsdaten = allgemeineVersicherungsdaten;
+        readVSDResult.geschuetzteVersichertendaten = geschuetzteVersichertendaten;
+        readVSDResult.vSD_Status = vSD_Status;
+        readVSDResult.pruefungsnachweis = pruefungsnachweis;
+        return readVSDResult;
+    }
+
+    public class ReadVSDResult {
+        Holder<byte[]> persoenlicheVersichertendaten;
+        Holder<byte[]> allgemeineVersicherungsdaten;
+        Holder<byte[]> geschuetzteVersichertendaten;
+        Holder<VSDStatusType> vSD_Status;
+        Holder<byte[]> pruefungsnachweis;
     }
 
     private String getEvent(DocumentBuilder builder, byte[] pruefnachweisBytes) throws IOException, SAXException {
