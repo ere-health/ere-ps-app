@@ -1,54 +1,10 @@
 package health.ere.ps.service.gematik;
 
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.Base64;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.zip.GZIPInputStream;
-
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.http.entity.ContentType;
-import org.bouncycastle.cms.CMSProcessableByteArray;
-import org.bouncycastle.cms.CMSSignedData;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.hl7.fhir.r4.model.Binary;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Task;
-import org.jetbrains.annotations.NotNull;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-
+import ca.uhn.fhir.context.FhirContext;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import ca.uhn.fhir.context.FhirContext;
 import de.gematik.ws.conn.cardservicecommon.v2.CardTypeType;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
@@ -78,6 +34,47 @@ import jakarta.xml.bind.DatatypeConverter;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.ws.Holder;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.http.entity.ContentType;
+import org.bouncycastle.cms.CMSProcessableByteArray;
+import org.bouncycastle.cms.CMSSignedData;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.hl7.fhir.r4.model.Binary;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Task;
+import org.jetbrains.annotations.NotNull;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.Base64;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.zip.GZIPInputStream;
 
 /* Note: reading, writing and resending of failed rejects are done by one Thread (see scheduledExecutorService), no additional synchronization for retrying reject is need */
 @ApplicationScoped
@@ -212,7 +209,7 @@ public class PharmacyService implements AutoCloseable {
                     new ByteArrayInputStream(readVSDResult.persoenlicheVersichertendaten.value));
                 UCPersoenlicheVersichertendatenXML patient = (UCPersoenlicheVersichertendatenXML) jaxbContext
                         .createUnmarshaller().unmarshal(isPersoenlicheVersichertendaten);
-                
+
                 String versichertenID = patient.getVersicherter().getVersichertenID();
                 log.fine("VSDM result: "+e+" VersichertenID: " + versichertenID);
                 return versichertenID;
@@ -224,7 +221,7 @@ public class PharmacyService implements AutoCloseable {
             }
         } catch (SAXException | IOException | NullPointerException | JAXBException e) {
             String msg = "Could not parse PNW message";
-            log.log(Level.WARNING, msg, e);                    
+            log.log(Level.WARNING, msg, e);
             return "";
         }
     }
@@ -469,9 +466,5 @@ public class PharmacyService implements AutoCloseable {
      */
     public void setReadEPrescriptionsMXBean(ReadEPrescriptionsMXBeanImpl readEPrescriptionsMXBean) {
         this.readEPrescriptionsMXBean = readEPrescriptionsMXBean;
-    }
-
-    public BearerTokenService getBearerTokenService() {
-        return bearerTokenService;
     }
 }

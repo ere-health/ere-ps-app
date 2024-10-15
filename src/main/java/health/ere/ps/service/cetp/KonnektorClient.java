@@ -2,6 +2,7 @@ package health.ere.ps.service.cetp;
 
 import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
+import de.gematik.ws.conn.eventservice.v7.GetCards;
 import de.gematik.ws.conn.eventservice.v7.GetSubscription;
 import de.gematik.ws.conn.eventservice.v7.GetSubscriptionResponse;
 import de.gematik.ws.conn.eventservice.v7.RenewSubscriptionsResponse;
@@ -14,10 +15,15 @@ import de.health.service.cetp.config.UserRuntimeConfig;
 import de.health.service.cetp.domain.CetpStatus;
 import de.health.service.cetp.domain.SubscriptionResult;
 import de.health.service.cetp.domain.eventservice.Subscription;
+import de.health.service.cetp.domain.eventservice.card.Card;
+import de.health.service.cetp.domain.eventservice.card.CardType;
+import de.health.service.cetp.domain.eventservice.card.CardsResponse;
 import de.health.service.cetp.domain.fault.CetpFault;
-import health.ere.ps.service.cetp.mapper.StatusMapper;
-import health.ere.ps.service.cetp.mapper.SubscriptionMapper;
-import health.ere.ps.service.cetp.mapper.SubscriptionResultMapper;
+import health.ere.ps.service.cetp.mapper.card.CardTypeMapper;
+import health.ere.ps.service.cetp.mapper.card.CardsResponseMapper;
+import health.ere.ps.service.cetp.mapper.status.StatusMapper;
+import health.ere.ps.service.cetp.mapper.subscription.SubscriptionMapper;
+import health.ere.ps.service.cetp.mapper.subscription.SubscriptionResultMapper;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -42,6 +48,12 @@ public class KonnektorClient implements IKonnektorClient {
 
     @Inject
     SubscriptionMapper subscriptionMapper;
+
+    @Inject
+    CardsResponseMapper cardsResponseMapper;
+    
+    @Inject
+    CardTypeMapper cardTypeMapper;
 
     @Inject
     StatusMapper statusMapper;
@@ -120,6 +132,21 @@ public class KonnektorClient implements IKonnektorClient {
                 }
                 return statusMapper.toDomain(eventService.unsubscribe(context, subscriptionId, null));
             }
+        } catch (FaultMessage faultMessage) {
+            throw new CetpFault(faultMessage.getMessage());
+        }
+    }
+
+    @Override
+    public List<Card> getCards(UserRuntimeConfig runtimeConfig, CardType cardType) throws CetpFault {
+        ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
+        EventServicePortType eventService = connectorServicesProvider.getEventServicePortType(runtimeConfig);
+        GetCards parameter = new GetCards();
+        parameter.setContext(context);
+        parameter.setCardType(cardTypeMapper.toSoap(cardType));
+        try {
+            CardsResponse cardsResponse = cardsResponseMapper.toDomain(eventService.getCards(parameter));
+            return cardsResponse.getCards();
         } catch (FaultMessage faultMessage) {
             throw new CetpFault(faultMessage.getMessage());
         }

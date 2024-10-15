@@ -1,6 +1,7 @@
-package health.ere.ps.service.cetp.mapper;
+package health.ere.ps.service.cetp.mapper.subscription;
 
 import de.health.service.cetp.domain.eventservice.Subscription;
+import health.ere.ps.service.cetp.mapper.DefaultMappingConfig;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
