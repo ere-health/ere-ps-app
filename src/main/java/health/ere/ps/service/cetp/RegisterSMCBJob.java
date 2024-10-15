@@ -1,5 +1,20 @@
 package health.ere.ps.service.cetp;
 
+import de.health.service.cetp.SubscriptionManager;
+import de.health.service.cetp.cardlink.CardlinkWebsocketClient;
+import de.health.service.cetp.konnektorconfig.KonnektorConfig;
+import health.ere.ps.config.RuntimeConfig;
+import health.ere.ps.jmx.SubscriptionsMXBean;
+import health.ere.ps.jmx.SubscriptionsMXBeanImpl;
+import health.ere.ps.service.cardlink.EreJwtConfigurator;
+import health.ere.ps.service.idp.BearerTokenService;
+import io.quarkus.runtime.StartupEvent;
+import io.quarkus.scheduler.Scheduled;
+import jakarta.annotation.Priority;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -9,20 +24,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import de.health.service.cetp.SubscriptionManager;
-import de.health.service.cetp.konnektorconfig.KonnektorConfig;
-import health.ere.ps.jmx.SubscriptionsMXBean;
-import health.ere.ps.jmx.SubscriptionsMXBeanImpl;
-import health.ere.ps.service.cardlink.AddJWTConfigurator;
-import health.ere.ps.service.cardlink.CardlinkWebsocketClient;
-import health.ere.ps.service.health.check.CardlinkWebsocketCheck;
-import io.quarkus.runtime.StartupEvent;
-import io.quarkus.scheduler.Scheduled;
-import jakarta.annotation.Priority;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Observes;
-import jakarta.inject.Inject;
-
 import static health.ere.ps.jmx.PsMXBeanManager.registerMXBean;
 
 @ApplicationScoped
@@ -31,14 +32,17 @@ public class RegisterSMCBJob {
     private final static Logger log = Logger.getLogger(RegisterSMCBJob.class.getName());
 
     @Inject
-    CardlinkWebsocketCheck cardlinkWebsocketCheck;
+    KonnektorClient konnektorClient;
+
+    @Inject
+    BearerTokenService bearerTokenService;
 
     @Inject
     SubscriptionManager subscriptionManager;
 
     private List<CardlinkWebsocketClient> cardlinkWebsocketClients = new ArrayList<>();
 
-    // Make sure subscription manager get's onStart first, before RegisterSMCBJob at least!
+    // Make sure subscription manager calls onStart first, before RegisterSMCBJob at least!
     void onStart(@Observes @Priority(5300) StartupEvent ev) {
         log.info("RegisterSMCBJob init onStart");
         initWSClients();
@@ -52,11 +56,17 @@ public class RegisterSMCBJob {
 
         cardlinkWebsocketClients = new ArrayList<>();
         konnektorConfigs.forEach(kc ->
-            cardlinkWebsocketClients.add(new CardlinkWebsocketClient(
-                kc.getCardlinkEndpoint(),
-                cardlinkWebsocketCheck)
-            ));
-        AddJWTConfigurator.initConfigs(konnektorConfigs);
+            cardlinkWebsocketClients.add(
+                new CardlinkWebsocketClient(
+                    kc.getCardlinkEndpoint(),
+                    new EreJwtConfigurator(
+                        new RuntimeConfig(kc.getUserConfigurations()),
+                        konnektorClient,
+                        bearerTokenService
+                    )
+                )
+            )
+        );
     }
 
     @Scheduled(
@@ -67,14 +77,14 @@ public class RegisterSMCBJob {
     void registerSmcbMaintenance() {
         String correlationId = UUID.randomUUID().toString();
         log.info(String.format("RegisterSMCBJob started with %s", correlationId));
-        // reload cardlink configs if neccessary
-        if(cardlinkWebsocketClients.isEmpty()) {
+        // reload cardlink configs if necessary
+        if (cardlinkWebsocketClients.isEmpty()) {
             initWSClients();
         }
         cardlinkWebsocketClients.forEach(client -> {
             try {
                 client.connect();
-                client.sendJson(correlationId, null,"registerSMCB", Map.of());
+                client.sendJson(correlationId, null, "registerSMCB", Map.of());
             } catch (Exception e) {
                 log.log(Level.SEVERE, "Error while sending registerSMCB", e);
             } finally {

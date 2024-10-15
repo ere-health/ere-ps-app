@@ -22,7 +22,7 @@ public class HealthChecker {
         boolean anyChecks500 = checks.stream()
             .map(check -> check.getSafeStatus(runtimeConfig))
             .anyMatch(status -> status.equals(Status.Down500));
-        
+
         return new HealthInfo(
             anyChecks500 ? "DOWN" : "UP",
             checks.stream().map(check -> {

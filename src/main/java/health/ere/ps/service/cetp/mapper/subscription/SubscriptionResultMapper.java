@@ -1,9 +1,12 @@
-package health.ere.ps.service.cetp.mapper;
+package health.ere.ps.service.cetp.mapper.subscription;
 
 import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.eventservice.v7.SubscriptionRenewal;
 import de.health.service.cetp.domain.CetpStatus;
 import de.health.service.cetp.domain.SubscriptionResult;
+import health.ere.ps.service.cetp.mapper.DefaultMappingConfig;
+import health.ere.ps.service.cetp.mapper.status.StatusMapper;
+import health.ere.ps.service.cetp.mapper.status.StatusMapperImpl;
 import jakarta.xml.ws.Holder;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Context;

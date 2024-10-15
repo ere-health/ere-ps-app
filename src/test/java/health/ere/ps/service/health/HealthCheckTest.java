@@ -3,6 +3,7 @@ package health.ere.ps.service.health;
 import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateServicePortType;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
+import de.health.service.cetp.CETPServer;
 import health.ere.ps.profile.RUDevTestProfile;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import health.ere.ps.service.idp.BearerTokenService;
@@ -19,6 +20,17 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
+import java.io.FileInputStream;
+import java.io.OutputStream;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.util.Optional;
 
 import static health.ere.ps.service.health.check.Check.CARDLINK_WEBSOCKET_CHECK;
@@ -65,36 +77,74 @@ class HealthCheckTest {
     }
 
     @Test
-    void healthCheckWorks() {
+    void healthCheckWorks() throws Exception {
         RestAssuredConfig config = RestAssured.config()
-                .httpClient(HttpClientConfig.httpClientConfig()
-                        .setParam(CONNECTION_TIMEOUT, 10000)
-                        .setParam(SO_TIMEOUT, 10000));
+            .httpClient(HttpClientConfig.httpClientConfig()
+                .setParam(CONNECTION_TIMEOUT, 10000)
+                .setParam(SO_TIMEOUT, 10000));
+
+        connectToCetpServer();
 
         Response response = given().header(new Header("X-eHBAHandle", "test")).config(config).when().get("/health");
         response.then().statusCode(200);
         HealthInfo healthInfo = response.getBody().as(HealthInfo.class);
         assertThat(healthInfo.checks().size(), equalTo(3));
         Optional<CheckInfo> cardLinkWebsocketCheckOpt = healthInfo.checks()
-                .stream()
-                .filter(check -> check.name().equals(CARDLINK_WEBSOCKET_CHECK))
-                .findFirst();
+            .stream()
+            .filter(check -> check.name().equals(CARDLINK_WEBSOCKET_CHECK))
+            .findFirst();
         assertTrue(cardLinkWebsocketCheckOpt.isPresent());
         assertThat(cardLinkWebsocketCheckOpt.get().status(), equalTo("DOWN"));
 
         Optional<CheckInfo> cetpServerCheckOpt = healthInfo.checks()
-                .stream()
-                .filter(check -> check.name().equals(CETP_SERVER_CHECK))
-                .findFirst();
+            .stream()
+            .filter(check -> check.name().equals(CETP_SERVER_CHECK))
+            .findFirst();
         assertTrue(cetpServerCheckOpt.isPresent());
         assertThat(cetpServerCheckOpt.get().status(), equalTo("UP"));
         assertThat(cetpServerCheckOpt.get().data().size(), equalTo(3));
 
         Optional<CheckInfo> statusCheckOpt = healthInfo.checks()
-                .stream()
-                .filter(check -> check.name().equals(STATUS_CHECK))
-                .findFirst();
+            .stream()
+            .filter(check -> check.name().equals(STATUS_CHECK))
+            .findFirst();
         assertTrue(statusCheckOpt.isPresent());
         assertThat(statusCheckOpt.get().status(), equalTo("DOWN"));
+    }
+
+    private void connectToCetpServer() throws Exception {
+        SSLContext sc = SSLContext.getInstance("TLS");
+        sc.init(null, new TrustManager[]{new X509TrustManager() {
+            public X509Certificate[] getAcceptedIssuers() {
+                return null;
+            }
+
+            public void checkClientTrusted(X509Certificate[] certs, String authType) {
+            }
+
+            public void checkServerTrusted(X509Certificate[] certs, String authType) {
+            }
+        }}, new SecureRandom());
+        SSLSocketFactory sslsocketfactory = sc.getSocketFactory();
+
+        SSLSocket sslsocket = (SSLSocket) sslsocketfactory.createSocket("localhost", CETPServer.DEFAULT_PORT);
+        try {
+            sslsocket.startHandshake();
+
+            try (OutputStream outputstream = new BufferedOutputStream(sslsocket.getOutputStream());
+                 FileInputStream in = new FileInputStream("src/test/resources/cetp/CARD_INSERTED.xml")) {
+                byte[] event = in.readAllBytes();
+                byte[] cetpHeader = new byte[]{'C', 'E', 'T', 'P'};
+                outputstream.write(cetpHeader);
+                new DataOutputStream(outputstream).writeInt(event.length);
+                outputstream.write(event);
+                outputstream.flush();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            sslsocket.close();
+        }
+
     }
 }
