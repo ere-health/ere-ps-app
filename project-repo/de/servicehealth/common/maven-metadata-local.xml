@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <metadata>
   <groupId>de.servicehealth</groupId>
-  <artifactId>lib-cetp</artifactId>
+  <artifactId>common</artifactId>
   <versioning>
     <versions>
       <version>1.0.0-SNAPSHOT</version>
     </versions>
-    <lastUpdated>20241016183958</lastUpdated>
+    <lastUpdated>20241016184014</lastUpdated>
   </versioning>
 </metadata>

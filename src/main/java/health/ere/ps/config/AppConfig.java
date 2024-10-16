@@ -1,7 +1,7 @@
 package health.ere.ps.config;
 
 import de.health.service.cetp.CETPServer;
-import de.health.service.cetp.config.SubscriptionConfig;
+import de.servicehealth.config.api.ISubscriptionConfig;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 
 @SuppressWarnings({"LombokGetterMayBeUsed", "LombokSetterMayBeUsed"})
 @ApplicationScoped
-public class AppConfig implements SubscriptionConfig {
+public class AppConfig implements ISubscriptionConfig {
 
     private static final Logger log = Logger.getLogger(AppConfig.class.getName());
 
@@ -144,7 +144,7 @@ public class AppConfig implements SubscriptionConfig {
         return cetpSubscriptionsRenewalSafePeriodSeconds.orElse(600) * 1000;
     }
 
-    public int getSubscriptionsMaintenanceRetryIntervalMs() {
+    public int getCetpSubscriptionsMaintenanceRetryIntervalMs() {
         return subscriptionsMaintenanceRetryIntervalMs.orElse(5000);
     }
 
@@ -196,7 +196,7 @@ public class AppConfig implements SubscriptionConfig {
         return konnectorHost;
     }
 
-    public int getCetpPort() {
+    public int getCetpServerDefaultPort() {
         return cetpPort.orElse(CETPServer.DEFAULT_PORT);
     }
 

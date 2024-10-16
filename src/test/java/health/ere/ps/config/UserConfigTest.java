@@ -1,6 +1,6 @@
 package health.ere.ps.config;
 
-import de.health.service.cetp.config.IUserConfigurations;
+import de.servicehealth.config.api.IUserConfigurations;
 import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.service.config.UserConfigurationService;
 import org.junit.jupiter.api.BeforeEach;

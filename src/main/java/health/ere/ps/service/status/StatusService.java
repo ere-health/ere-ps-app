@@ -1,13 +1,12 @@
 package health.ere.ps.service.status;
 
 import de.gematik.ws.conn.eventservice.v7.GetCards;
-import de.health.service.cetp.config.IUserConfigurations;
+import de.servicehealth.config.api.IUserConfigurations;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.config.UserConfig;
 import health.ere.ps.event.RequestStatusEvent;
 import health.ere.ps.event.StatusResponseEvent;
-import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.model.status.Status;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;

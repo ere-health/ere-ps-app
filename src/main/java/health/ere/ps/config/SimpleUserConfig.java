@@ -1,8 +1,9 @@
 package health.ere.ps.config;
 
-import de.health.service.cetp.config.IRuntimeConfig;
-import de.health.service.cetp.config.IUserConfigurations;
-import de.health.service.cetp.config.UserRuntimeConfig;
+
+import de.servicehealth.config.api.IRuntimeConfig;
+import de.servicehealth.config.api.IUserConfigurations;
+import de.servicehealth.config.api.UserRuntimeConfig;
 
 import java.util.Objects;
 

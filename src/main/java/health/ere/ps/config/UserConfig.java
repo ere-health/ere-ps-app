@@ -1,10 +1,10 @@
 package health.ere.ps.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.health.service.cetp.config.IRuntimeConfig;
-import de.health.service.cetp.config.IUserConfigurations;
-import de.health.service.cetp.config.UserRuntimeConfig;
 import de.health.service.cetp.konnektorconfig.KCUserConfigurations;
+import de.servicehealth.config.api.IRuntimeConfig;
+import de.servicehealth.config.api.IUserConfigurations;
+import de.servicehealth.config.api.UserRuntimeConfig;
 import health.ere.ps.event.config.UserConfigurationsUpdateEvent;
 import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.service.config.UserConfigurationService;

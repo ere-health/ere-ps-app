@@ -1,7 +1,7 @@
 package health.ere.ps.service.common.security;
 
 import de.health.service.cetp.FallbackSecretsManager;
-import de.health.service.cetp.config.IUserConfigurations;
+import de.servicehealth.config.api.IUserConfigurations;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.model.config.UserConfigurations;

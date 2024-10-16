@@ -1,7 +1,7 @@
 package health.ere.ps.service.connector.provider;
 
-import de.health.service.cetp.config.IUserConfigurations;
-import de.health.service.cetp.config.UserRuntimeConfig;
+import de.servicehealth.config.api.IUserConfigurations;
+import de.servicehealth.config.api.UserRuntimeConfig;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.connector.endpoint.EndpointDiscoveryService;
@@ -17,7 +17,13 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.*;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
+import java.security.PrivateKey;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Base64;

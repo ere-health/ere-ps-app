@@ -1,21 +1,19 @@
 package health.ere.ps.service.cetp.codec;
 
-import java.io.StringReader;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import de.health.service.cetp.config.IUserConfigurations;
-import org.apache.commons.lang3.tuple.Pair;
-
 import de.gematik.ws.conn.eventservice.v7.Event;
-import health.ere.ps.model.config.UserConfigurations;
+import de.servicehealth.config.api.IUserConfigurations;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
+import org.apache.commons.lang3.tuple.Pair;
+
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class CETPDecoder extends ByteToMessageDecoder {
 

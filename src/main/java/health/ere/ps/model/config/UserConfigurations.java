@@ -1,6 +1,6 @@
 package health.ere.ps.model.config;
 
-import de.health.service.cetp.config.IUserConfigurations;
+import de.servicehealth.config.api.IUserConfigurations;
 import jakarta.json.JsonObject;
 import jakarta.json.bind.annotation.JsonbNillable;
 import jakarta.json.bind.annotation.JsonbProperty;
@@ -10,11 +10,7 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.function.Function;

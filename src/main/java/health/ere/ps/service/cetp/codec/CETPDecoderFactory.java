@@ -1,7 +1,7 @@
 package health.ere.ps.service.cetp.codec;
 
 import de.health.service.cetp.codec.CETPEventDecoderFactory;
-import de.health.service.cetp.config.IUserConfigurations;
+import de.servicehealth.config.api.IUserConfigurations;
 import io.netty.channel.ChannelInboundHandler;
 import jakarta.enterprise.context.ApplicationScoped;
 

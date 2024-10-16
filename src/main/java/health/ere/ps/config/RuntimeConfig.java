@@ -1,20 +1,15 @@
 package health.ere.ps.config;
 
-import de.health.service.cetp.config.IRuntimeConfig;
-import de.health.service.cetp.config.IUserConfigurations;
-import de.health.service.cetp.konnektorconfig.KCUserConfigurations;
+import de.servicehealth.config.api.IRuntimeConfig;
+import de.servicehealth.config.api.IUserConfigurations;
 import health.ere.ps.model.config.UserConfigurations;
 import jakarta.enterprise.inject.Alternative;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.json.JsonObject;
 import jakarta.servlet.http.HttpServletRequest;
 
-import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;

@@ -1,6 +1,6 @@
 package health.ere.ps.service.connector.provider;
 
-import de.health.service.cetp.config.UserRuntimeConfig;
+import de.servicehealth.config.api.UserRuntimeConfig;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

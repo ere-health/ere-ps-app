@@ -1,7 +1,7 @@
 package health.ere.ps.service.connector.endpoint;
 
-import de.health.service.cetp.config.IUserConfigurations;
-import de.health.service.cetp.config.UserRuntimeConfig;
+import de.servicehealth.config.api.IUserConfigurations;
+import de.servicehealth.config.api.UserRuntimeConfig;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import jakarta.enterprise.context.ApplicationScoped;

@@ -9,7 +9,7 @@ import de.gematik.ws.conn.eventservice.v7.SubscriptionType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.tel.error.v2.Error;
 import de.health.service.cetp.SubscriptionManager;
-import de.health.service.cetp.konnektorconfig.KonnektorConfig;
+import de.servicehealth.config.KonnektorConfig;
 import health.ere.ps.profile.RUDevTestProfile;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import io.quarkus.test.junit.QuarkusMock;

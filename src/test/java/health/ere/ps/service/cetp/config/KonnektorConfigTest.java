@@ -2,7 +2,7 @@ package health.ere.ps.service.cetp.config;
 
 import de.health.service.cetp.SubscriptionManager;
 import de.health.service.cetp.konnektorconfig.FSConfigService;
-import de.health.service.cetp.konnektorconfig.KonnektorConfig;
+import de.servicehealth.config.KonnektorConfig;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.UserConfig;
 import health.ere.ps.model.config.UserConfigurations;
@@ -65,8 +65,8 @@ public class KonnektorConfigTest {
         Properties sameKonnektorProperties = new Properties();
         String konnektorHost = "192.168.178.42";
         sameKonnektorProperties.put("connectorBaseURL", "https\\://" + konnektorHost);
-        sameKonnektorConfigs.add(new KonnektorConfig(null, 8585, new UserConfigurations(sameKonnektorProperties), null));
-        sameKonnektorConfigs.add(new KonnektorConfig(null, 8586, new UserConfigurations(sameKonnektorProperties), null));
+        sameKonnektorConfigs.add(new KonnektorConfig(null, 8585, null, new UserConfigurations(sameKonnektorProperties)));
+        sameKonnektorConfigs.add(new KonnektorConfig(null, 8586, null, new UserConfigurations(sameKonnektorProperties)));
 
         doReturn(sameKonnektorConfigs).when(configService).readFromPath(any());
 
