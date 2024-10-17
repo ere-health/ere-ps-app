@@ -1,5 +1,34 @@
 package health.ere.ps.service.gematik;
 
+import de.gematik.ws.conn.eventservice.v7.Event;
+import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
+import de.gematik.ws.tel.error.v2.Error;
+import de.health.service.cetp.cardlink.CardlinkWebsocketClient;
+import de.health.service.cetp.domain.eventservice.event.DecodeResult;
+import health.ere.ps.config.AppConfig;
+import health.ere.ps.jmx.ReadEPrescriptionsMXBeanImpl;
+import health.ere.ps.model.config.UserConfigurations;
+import health.ere.ps.service.cetp.CETPServerHandler;
+import health.ere.ps.service.cetp.mapper.event.EventMapper;
+import health.ere.ps.service.cetp.tracker.TrackerService;
+import health.ere.ps.service.idp.BearerTokenService;
+import io.netty.channel.embedded.EmbeddedChannel;
+import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.Invocation;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Response;
+import jakarta.xml.bind.DatatypeConverter;
+import jakarta.xml.ws.Holder;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+
+import java.io.InputStream;
+import java.math.BigInteger;
+import java.util.List;
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -15,38 +44,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.InputStream;
-import java.math.BigInteger;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang3.tuple.Pair;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-
-import de.gematik.ws.conn.eventservice.v7.Event;
-import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
-import de.gematik.ws.tel.error.v2.Error;
-import de.health.service.cetp.cardlink.CardlinkWebsocketClient;
-import health.ere.ps.config.AppConfig;
-import health.ere.ps.jmx.ReadEPrescriptionsMXBeanImpl;
-import health.ere.ps.model.config.UserConfigurations;
-import health.ere.ps.service.cetp.CETPServerHandler;
-import health.ere.ps.service.cetp.tracker.TrackerService;
-import health.ere.ps.service.idp.BearerTokenService;
-import io.netty.channel.embedded.EmbeddedChannel;
-import io.quarkus.test.junit.QuarkusTest;
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.Invocation;
-import jakarta.ws.rs.client.WebTarget;
-import jakarta.ws.rs.core.Response;
-import jakarta.xml.bind.DatatypeConverter;
-import jakarta.xml.ws.Holder;
-
 @QuarkusTest
 class CardInsertedTest {
 
     private static final String READ_VSD_RESPONSE = "H4sIAAAAAAAA/w2M3QqCMBhAXyV8AL+5oj/mQNyKgk3ROaKbKLT8T1L8e/q8OReHwyG+XLlMPDQPwosnbcMykYmM1ViVdWsbadc1R4ChNT9J9eyywowTeD+hb+MKmnqAfukNSlRIMcJrtMN7tMW7zYHAoginmACnxL9TzZxJsGgtcmeWjGNPOZbIIyzzVGt2fo1zVvIrFEqq7BZZwVd7Z81+vSsmfzgVNoFlskDSP8uj5+izAAAA";
+
+    @Inject
+    EventMapper eventMapper;
 
     @Test
     void vsdmSensorDataWithEventIdIsSentOnCardInsertedEvent() throws Exception {
@@ -66,7 +70,7 @@ class CardInsertedTest {
         String slotIdValue = "3";
         String ctIdValue = "CtIDValue";
 
-        channel.writeOneInbound(prepareEvent(slotIdValue, ctIdValue));
+        channel.writeOneInbound(decode(slotIdValue, ctIdValue));
         channel.pipeline().fireChannelReadComplete();
 
         ArgumentCaptor<String> messageTypeCaptor = ArgumentCaptor.forClass(String.class);
@@ -110,7 +114,7 @@ class CardInsertedTest {
         String slotIdValue = "3";
         String ctIdValue = "9";
 
-        channel.writeOneInbound(prepareEvent(slotIdValue, ctIdValue));
+        channel.writeOneInbound(decode(slotIdValue, ctIdValue));
         channel.pipeline().fireChannelReadComplete();
 
         ArgumentCaptor<String> messageTypeCaptor = ArgumentCaptor.forClass(String.class);
@@ -162,7 +166,7 @@ class CardInsertedTest {
         return holder;
     }
 
-    private Pair<Event, UserConfigurations> prepareEvent(String slotIdValue, String ctIdValue) {
+    private DecodeResult decode(String slotIdValue, String ctIdValue) {
         Event event = new Event();
         event.setTopic("CARD/INSERTED");
         Event.Message message = new Event.Message();
@@ -184,7 +188,7 @@ class CardInsertedTest {
         message.getParameter().add(parameterCtId);
         message.getParameter().add(parameterCardType);
         event.setMessage(message);
-        return Pair.of(event, new UserConfigurations());
+        return new DecodeResult(eventMapper.toDomain(event), new UserConfigurations());
     }
 
     private static PharmacyService createPharmacyService() {

@@ -43,7 +43,7 @@ public class CETPServerHandlerFactory implements CETPEventHandlerFactory {
     }
 
     @Override
-    public ChannelInboundHandler build(KonnektorConfig kc) {
+    public ChannelInboundHandler[] build(KonnektorConfig kc) {
         CardlinkWebsocketClient cardlinkWebsocketClient = new CardlinkWebsocketClient(
             kc.getCardlinkEndpoint(),
             new EreJwtConfigurator(
@@ -56,6 +56,8 @@ public class CETPServerHandlerFactory implements CETPEventHandlerFactory {
             kc.getCardlinkEndpoint(),
             cardlinkWebsocketClient.connected()
         );
-        return new CETPServerHandler(trackerService, pharmacyService, cardlinkWebsocketClient);
+        return new CETPServerHandler[] {
+            new CETPServerHandler(trackerService, pharmacyService, cardlinkWebsocketClient)
+        };
     }
 }
