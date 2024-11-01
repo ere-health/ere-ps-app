@@ -2,10 +2,10 @@ package health.ere.ps.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.health.service.cetp.konnektorconfig.KCUserConfigurations;
 import de.health.service.config.api.IRuntimeConfig;
 import de.health.service.config.api.IUserConfigurations;
 import de.health.service.config.api.UserRuntimeConfig;
-import de.health.service.cetp.konnektorconfig.KCUserConfigurations;
 import health.ere.ps.event.config.UserConfigurationsUpdateEvent;
 import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.service.config.UserConfigurationService;
@@ -51,7 +51,7 @@ public class UserConfig implements UserRuntimeConfig {
 
     String defaultMuster16TemplateProfile = "DENS";
 
-    protected UserConfigurations configurations;
+    protected UserConfigurations userConfigurations;
 
     @PostConstruct
     void init() {
@@ -64,7 +64,7 @@ public class UserConfig implements UserRuntimeConfig {
     @Override
     @JsonProperty("configurations")
     public IUserConfigurations getUserConfigurations() {
-        return configurations == null ? new UserConfigurations() : configurations;
+        return userConfigurations == null ? new UserConfigurations() : userConfigurations;
     }
 
     @JsonIgnore
@@ -146,9 +146,9 @@ public class UserConfig implements UserRuntimeConfig {
 
     public void updateProperties(IUserConfigurations configurations) {
         if (configurations instanceof UserConfigurations) {
-            this.configurations = (UserConfigurations) configurations;
+            this.userConfigurations = (UserConfigurations) configurations;
         } else if (configurations instanceof KCUserConfigurations kcUserConfigurations) {
-            this.configurations = new UserConfigurations(kcUserConfigurations.properties());
+            this.userConfigurations = new UserConfigurations(kcUserConfigurations.properties());
         }
     }
 
@@ -175,7 +175,7 @@ public class UserConfig implements UserRuntimeConfig {
                 && Objects.equals(defaultConnectorVersion, userConfig.defaultConnectorVersion)
                 && Objects.equals(defaultPruefnummer, userConfig.defaultPruefnummer)
                 && Objects.equals(defaultMuster16TemplateProfile, userConfig.defaultMuster16TemplateProfile)
-                && Objects.equals(configurations, userConfig.configurations);
+                && Objects.equals(userConfigurations, userConfig.userConfigurations);
         } else {
             return false;
         }
@@ -185,7 +185,7 @@ public class UserConfig implements UserRuntimeConfig {
     public int hashCode() {
         return Objects.hash(
             defaultConnectorBaseURI, defaultMandantId, defaultWorkplaceId, defaultClientSystemId, defaultUserId,
-            defaultTvMode, defaultConnectorVersion, defaultPruefnummer, defaultMuster16TemplateProfile, configurations
+            defaultTvMode, defaultConnectorVersion, defaultPruefnummer, defaultMuster16TemplateProfile, userConfigurations
         );
     }
 
@@ -201,7 +201,7 @@ public class UserConfig implements UserRuntimeConfig {
                ", defaultConnectorVersion='" + defaultConnectorVersion + '\'' +
                ", defaultPruefnummer='" + defaultPruefnummer + '\'' +
                ", defaultMuster16TemplateProfile='" + defaultMuster16TemplateProfile + '\'' +
-               ", configurations=" + configurations +
+               ", configurations=" + userConfigurations +
                '}';
     }
 }
