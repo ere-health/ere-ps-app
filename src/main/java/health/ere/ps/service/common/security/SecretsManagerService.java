@@ -1,7 +1,8 @@
 package health.ere.ps.service.common.security;
 
-import de.health.service.cetp.FallbackSecretsManager;
-import de.servicehealth.config.api.IUserConfigurations;
+import de.health.service.cetp.ISecretsManager;
+import de.health.service.cetp.config.KonnektorConfig;
+import de.health.service.config.api.IUserConfigurations;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.exception.common.security.SecretsManagerException;
 import health.ere.ps.model.config.UserConfigurations;
@@ -35,7 +36,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @ApplicationScoped
-public class SecretsManagerService implements FallbackSecretsManager {
+public class SecretsManagerService implements ISecretsManager {
 
     private static final Logger log = Logger.getLogger(SecretsManagerService.class.getName());
 
@@ -71,7 +72,8 @@ public class SecretsManagerService implements FallbackSecretsManager {
     }
 
     public SSLContext createSSLContext(IUserConfigurations userConfigurations) {
-        byte[] clientCertificateBytes = getClientCertificateBytes(userConfigurations);
+        String certificate = userConfigurations.getClientCertificate();
+        byte[] clientCertificateBytes = getClientCertificateBytes(certificate);
         try (ByteArrayInputStream certificateInputStream = new ByteArrayInputStream(clientCertificateBytes)) {
             return createSSLContext(userConfigurations.getClientCertificatePassword(), certificateInputStream);
         } catch (NoSuchAlgorithmException | KeyStoreException | CertificateException | IOException
@@ -82,8 +84,7 @@ public class SecretsManagerService implements FallbackSecretsManager {
         }
     }
 
-    private byte[] getClientCertificateBytes(IUserConfigurations userConfigurations) {
-        String base64UrlCertificate = userConfigurations.getClientCertificate();
+    private byte[] getClientCertificateBytes(String base64UrlCertificate) {
         String clientCertificateString = base64UrlCertificate.split(",")[1];
         log.fine("Using certificate: "+clientCertificateString);
         return Base64.getDecoder().decode(clientCertificateString);
@@ -125,8 +126,11 @@ public class SecretsManagerService implements FallbackSecretsManager {
         keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         keyManagerFactory.init(ks, connectorTlsCertAuthStorePwd.toCharArray());
 
-        sslContext.init(keyManagerFactory.getKeyManagers(), new TrustManager[]{new SSLUtilities.FakeX509TrustManager()},
-                null);
+        sslContext.init(
+            keyManagerFactory.getKeyManagers(),
+            new TrustManager[]{new SSLUtilities.FakeX509TrustManager()},
+            null
+        );
         return sslContext;
     }
 
@@ -147,11 +151,41 @@ public class SecretsManagerService implements FallbackSecretsManager {
         return sslContext;
     }
 
-    @Override
-    public KeyManagerFactory getKeyManagerFactory() {
+    public static KeyManagerFactory initSSLContext(InputStream certInputStream, String certPass) throws Exception {
+        SSLContext sslContext = SSLContext.getInstance(SslContextType.TLS.getSslContextType());
+
+        KeyStore ks = KeyStore.getInstance(KeyStoreType.PKCS12.getKeyStoreType());
+        ks.load(certInputStream, certPass.toCharArray());
+        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        keyManagerFactory.init(ks, certPass.toCharArray());
+        sslContext.init(
+            keyManagerFactory.getKeyManagers(),
+            new TrustManager[]{new SSLUtilities.FakeX509TrustManager()},
+            null
+        );
+
+        System.setProperty("javax.xml.accessExternalDTD", "all");
+        System.setProperty("jdk.internal.httpclient.disableHostnameVerification", "true");
+
         return keyManagerFactory;
     }
 
+    @Override
+    public KeyManagerFactory getKeyManagerFactory(KonnektorConfig config) {
+        IUserConfigurations userConfigurations = config.getUserConfigurations();
+        String clientCertificate = userConfigurations.getClientCertificate();
+        if (clientCertificate == null) {
+            return keyManagerFactory;
+        } else {
+            byte[] clientCertificateBytes = getClientCertificateBytes(clientCertificate);
+            try (ByteArrayInputStream certInputStream = new ByteArrayInputStream(clientCertificateBytes)) {
+                return initSSLContext(certInputStream, userConfigurations.getClientCertificatePassword());
+            } catch (Exception e) {
+                log.log(Level.SEVERE, "Could not create keyManagerFactory", e);
+            }
+        }
+        return null;
+    }
 
     //METHODS USED IN TESTS
     KeyStore createTrustStore(String trustStoreFilePath, KeyStoreType keyStoreType, char[] keyStorePassword)

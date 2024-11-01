@@ -1,7 +1,7 @@
 package health.ere.ps.service.connector.provider;
 
-import de.servicehealth.config.api.IUserConfigurations;
-import de.servicehealth.config.api.UserRuntimeConfig;
+import de.health.service.config.api.IUserConfigurations;
+import de.health.service.config.api.UserRuntimeConfig;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.connector.endpoint.EndpointDiscoveryService;
@@ -41,7 +41,7 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
         this.secretsManagerService = new SecretsManagerService();
 
         // Try to read SSL Certificates from the userConfig (this can also be the runtime config)
-        IUserConfigurations userConfigurations = userConfig.getConfigurations();
+        IUserConfigurations userConfigurations = userConfig.getUserConfigurations();
         String configKeystoreUri = userConfigurations.getClientCertificate();
         String configKeystorePass = userConfigurations.getClientCertificatePassword();
 

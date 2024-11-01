@@ -15,8 +15,8 @@ import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServiceV740;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServiceV755;
 import de.gematik.ws.conn.vsds.vsdservice.v5.VSDService;
 import de.gematik.ws.conn.vsds.vsdservice.v5.VSDServicePortType;
-import de.servicehealth.config.api.IUserConfigurations;
-import de.servicehealth.config.api.UserRuntimeConfig;
+import de.health.service.config.api.IUserConfigurations;
+import de.health.service.config.api.UserRuntimeConfig;
 import health.ere.ps.config.interceptor.ProvidedConfig;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.connector.endpoint.EndpointDiscoveryService;
@@ -211,7 +211,7 @@ public abstract class AbstractConnectorServicesProvider {
         bindingProvider.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier",
                 new SSLUtilities.FakeHostnameVerifier());
 
-        IUserConfigurations userConfigurations = getUserConfig().getConfigurations();
+        IUserConfigurations userConfigurations = getUserConfig().getUserConfigurations();
         String basicAuthUsername = userConfigurations.getBasicAuthUsername();
         String basicAuthPassword = userConfigurations.getBasicAuthPassword();
 

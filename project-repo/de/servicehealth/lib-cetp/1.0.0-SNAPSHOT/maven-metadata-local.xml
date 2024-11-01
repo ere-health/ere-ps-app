@@ -3,7 +3,7 @@
   <groupId>de.servicehealth</groupId>
   <artifactId>lib-cetp</artifactId>
   <versioning>
-    <lastUpdated>20241016183958</lastUpdated>
+    <lastUpdated>20241101140755</lastUpdated>
     <snapshot>
       <localCopy>true</localCopy>
     </snapshot>
@@ -11,18 +11,18 @@
       <snapshotVersion>
         <extension>pom</extension>
         <value>1.0.0-SNAPSHOT</value>
-        <updated>20241016183958</updated>
+        <updated>20241101140755</updated>
       </snapshotVersion>
       <snapshotVersion>
         <extension>jar</extension>
         <value>1.0.0-SNAPSHOT</value>
-        <updated>20241016183958</updated>
+        <updated>20241101140755</updated>
       </snapshotVersion>
       <snapshotVersion>
         <classifier>sources</classifier>
         <extension>jar</extension>
         <value>1.0.0-SNAPSHOT</value>
-        <updated>20241016183958</updated>
+        <updated>20241101140755</updated>
       </snapshotVersion>
     </snapshotVersions>
   </versioning>

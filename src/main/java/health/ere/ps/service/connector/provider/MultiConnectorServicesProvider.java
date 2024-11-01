@@ -8,7 +8,7 @@ import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV740;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
 import de.gematik.ws.conn.vsds.vsdservice.v5.VSDServicePortType;
-import de.servicehealth.config.api.UserRuntimeConfig;
+import de.health.service.config.api.UserRuntimeConfig;
 import health.ere.ps.config.SimpleUserConfig;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;

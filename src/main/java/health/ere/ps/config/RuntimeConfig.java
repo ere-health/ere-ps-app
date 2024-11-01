@@ -1,7 +1,7 @@
 package health.ere.ps.config;
 
-import de.servicehealth.config.api.IRuntimeConfig;
-import de.servicehealth.config.api.IUserConfigurations;
+import de.health.service.config.api.IRuntimeConfig;
+import de.health.service.config.api.IUserConfigurations;
 import health.ere.ps.model.config.UserConfigurations;
 import jakarta.enterprise.inject.Alternative;
 import jakarta.enterprise.inject.spi.CDI;
@@ -66,7 +66,7 @@ public class RuntimeConfig extends UserConfig implements IRuntimeConfig {
             this.defaultPruefnummer = userConfig.getPruefnummer();
 
             this.defaultMuster16TemplateProfile = userConfig.getMuster16TemplateConfiguration();
-            this.updateProperties(userConfig.getConfigurations());
+            this.updateProperties(userConfig.getUserConfigurations());
         } catch(Exception ex) {
             log.log(Level.SEVERE, "Was not able to copy values from user config", ex);
         }
@@ -102,7 +102,7 @@ public class RuntimeConfig extends UserConfig implements IRuntimeConfig {
             this.sendPreview = !httpServletRequest.getHeader("X-sendPreview").equalsIgnoreCase("false");
         }
 
-        this.updateProperties(getConfigurations().updateWithRequest(httpServletRequest));
+        this.updateProperties(getUserConfigurations().updateWithRequest(httpServletRequest));
     }
 
     public void updateConfigurationsWithJsonObject(JsonObject object) {

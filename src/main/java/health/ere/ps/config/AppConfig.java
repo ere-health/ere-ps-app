@@ -1,20 +1,16 @@
 package health.ere.ps.config;
 
 import de.health.service.cetp.CETPServer;
-import de.servicehealth.config.api.ISubscriptionConfig;
+import de.health.service.config.api.ISubscriptionConfig;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@SuppressWarnings({"LombokGetterMayBeUsed", "LombokSetterMayBeUsed"})
 @ApplicationScoped
 public class AppConfig implements ISubscriptionConfig {
 
@@ -101,14 +97,6 @@ public class AppConfig implements ISubscriptionConfig {
     @ConfigProperty(name = "connector.cetp.port")
     Optional<Integer> cetpPort;
 
-    public Optional<String> getCardLinkServer() {
-        return cardLinkServer;
-    }
-
-    public void setCardLinkServer(Optional<String> cardLinkServer) {
-        this.cardLinkServer = cardLinkServer;
-    }
-
     public String getPrescriptionServiceURL() {
         return prescriptionServiceURL;
     }
@@ -160,8 +148,14 @@ public class AppConfig implements ISubscriptionConfig {
         return csvFolder.orElse("billing");
     }
 
-    public Optional<String> getEventToHost() {
-        return eventToHost;
+    @Override
+    public String getDefaultEventToHost() {
+        return eventToHost.orElseThrow();
+    }
+
+    @Override
+    public int getDefaultCetpServerPort() {
+        return cetpPort.orElse(CETPServer.DEFAULT_PORT);
     }
 
     public String getIdpAuthRequestURL() {
@@ -196,10 +190,6 @@ public class AppConfig implements ISubscriptionConfig {
         return konnectorHost;
     }
 
-    public int getCetpServerDefaultPort() {
-        return cetpPort.orElse(CETPServer.DEFAULT_PORT);
-    }
-
     public String getConnectorCrypt() {
         return connectorCrypt;
     }
@@ -224,16 +214,9 @@ public class AppConfig implements ISubscriptionConfig {
         return this.xmlBundleDirectProcess;
     }
 
-    public URI getCardLinkURI() {
-        try {
-            String cardLinkServer = getCardLinkServer().orElse(
-                "wss://cardlink.service-health.de:8444/websocket/80276003650110006580-20230112"
-            );
-            log.info("Starting websocket connection to: " + cardLinkServer);
-            return new URI(cardLinkServer);
-        } catch (URISyntaxException e) {
-            log.log(Level.WARNING, "Could not connect to card link", e);
-            return null;
-        }
+    public String getDefaultCardLinkServer() {
+        return cardLinkServer.orElse(
+            "wss://cardlink.service-health.de:8444/websocket/80276003650110006580-20230112"
+        );
     }
 }

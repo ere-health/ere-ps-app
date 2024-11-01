@@ -1,6 +1,6 @@
 package health.ere.ps.model.config;
 
-import de.servicehealth.config.api.IUserConfigurations;
+import de.health.service.config.api.IUserConfigurations;
 import jakarta.json.JsonObject;
 import jakarta.json.bind.annotation.JsonbNillable;
 import jakarta.json.bind.annotation.JsonbProperty;
@@ -17,7 +17,6 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@SuppressWarnings("unchecked")
 public class UserConfigurations implements IUserConfigurations {
 
     private static final Logger log = Logger.getLogger(UserConfigurations.class.getName());

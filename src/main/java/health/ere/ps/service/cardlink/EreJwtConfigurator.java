@@ -2,9 +2,9 @@ package health.ere.ps.service.cardlink;
 
 import de.health.service.cetp.IKonnektorClient;
 import de.health.service.cetp.cardlink.JwtConfigurator;
+import de.health.service.config.api.UserRuntimeConfig;
 import de.health.service.cetp.domain.eventservice.card.Card;
 import de.health.service.cetp.domain.eventservice.card.CardType;
-import de.servicehealth.config.api.UserRuntimeConfig;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.service.idp.BearerTokenService;
 import jakarta.validation.constraints.NotNull;

@@ -1,7 +1,7 @@
 package health.ere.ps.service.connector.endpoint;
 
-import de.servicehealth.config.api.IUserConfigurations;
-import de.servicehealth.config.api.UserRuntimeConfig;
+import de.health.service.config.api.IUserConfigurations;
+import de.health.service.config.api.UserRuntimeConfig;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.service.common.security.SecretsManagerService;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -91,7 +91,7 @@ public class EndpointDiscoveryService {
                 .path("/connector.sds")
                 .request();
 
-        IUserConfigurations userConfigurations = userConfig.getConfigurations();
+        IUserConfigurations userConfigurations = userConfig.getUserConfigurations();
         String basicAuthUsername = userConfigurations.getBasicAuthUsername();
         String basicAuthPassword = userConfigurations.getBasicAuthPassword();
         if(basicAuthUsername != null && !basicAuthUsername.equals("")) {
@@ -208,10 +208,10 @@ public class EndpointDiscoveryService {
 
             if (versionContainingText.contains("PTV4+") || versionContainingText.contains("PTV4Plus")) {
                 log.info("Connector version PTV4+ found in connector.sds");
-                userConfig.getConfigurations().setVersion("PTV4+");
+                userConfig.getUserConfigurations().setVersion("PTV4+");
             } else if (versionContainingText.contains("PTV4")) {
                 log.info("Connector version PTV4 found in connector.sds");
-                userConfig.getConfigurations().setVersion("PTV4");
+                userConfig.getUserConfigurations().setVersion("PTV4");
             } else {
                 log.warning("Could not determine the version of the connector to use from connector.sds, " +
                         "using the one from the configuration:" + userConfig.getConnectorVersion());
