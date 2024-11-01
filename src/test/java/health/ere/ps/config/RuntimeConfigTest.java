@@ -20,10 +20,10 @@ public class RuntimeConfigTest {
         assertEquals("HBA-1", abortTasksEvent.getRuntimeConfig().getEHBAHandle());
         assertEquals("SMCB-1", abortTasksEvent.getRuntimeConfig().getSMCBHandle());
         assertEquals("https://localhost:8080/", abortTasksEvent.getRuntimeConfig().getConnectorBaseURL());
-        assertEquals("admin", abortTasksEvent.getRuntimeConfig().getConfigurations().getBasicAuthUsername());
-        assertEquals("password", abortTasksEvent.getRuntimeConfig().getConfigurations().getBasicAuthPassword());
-        assertEquals("data:application/x-pkcs12;base64,MIA", abortTasksEvent.getRuntimeConfig().getConfigurations().getClientCertificate().substring(0, 36));
-        assertEquals("00", abortTasksEvent.getRuntimeConfig().getConfigurations().getClientCertificatePassword());
+        assertEquals("admin", abortTasksEvent.getRuntimeConfig().getUserConfigurations().getBasicAuthUsername());
+        assertEquals("password", abortTasksEvent.getRuntimeConfig().getUserConfigurations().getBasicAuthPassword());
+        assertEquals("data:application/x-pkcs12;base64,MIA", abortTasksEvent.getRuntimeConfig().getUserConfigurations().getClientCertificate().substring(0, 36));
+        assertEquals("00", abortTasksEvent.getRuntimeConfig().getUserConfigurations().getClientCertificatePassword());
         assertEquals("mandant-id", abortTasksEvent.getRuntimeConfig().getMandantId());
         assertEquals("crypt", abortTasksEvent.getRuntimeConfig().getTvMode());
         assertEquals("user-id", abortTasksEvent.getRuntimeConfig().getUserId());
@@ -54,7 +54,7 @@ public class RuntimeConfigTest {
         assertEquals("5", runtimeConfig.getUserId());
         assertEquals("6", runtimeConfig.getWorkplaceId());
 
-        ((UserConfigurations) runtimeConfig.getConfigurations()).setConnectorBaseURL("7");
+        ((UserConfigurations) runtimeConfig.getUserConfigurations()).setConnectorBaseURL("7");
         assertEquals("7", runtimeConfig.getConnectorBaseURL());
     }
 

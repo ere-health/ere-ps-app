@@ -1,8 +1,8 @@
 package health.ere.ps.service.cetp.config;
 
 import de.health.service.cetp.SubscriptionManager;
+import de.health.service.cetp.config.KonnektorConfig;
 import de.health.service.cetp.konnektorconfig.FSConfigService;
-import de.servicehealth.config.KonnektorConfig;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.UserConfig;
 import health.ere.ps.model.config.UserConfigurations;

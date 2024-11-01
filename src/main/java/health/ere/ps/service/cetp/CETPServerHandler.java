@@ -4,7 +4,7 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import de.health.service.cetp.AbstractCETPEventHandler;
 import de.health.service.cetp.cardlink.CardlinkWebsocketClient;
-import de.servicehealth.config.api.IUserConfigurations;
+import de.health.service.config.api.IUserConfigurations;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.service.cetp.tracker.TrackerService;
 import health.ere.ps.service.gematik.PharmacyService;

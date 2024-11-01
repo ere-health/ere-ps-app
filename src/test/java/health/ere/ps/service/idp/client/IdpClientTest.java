@@ -116,7 +116,7 @@ public class IdpClientTest {
         runtimeConfig.setSMCBHandle("1-2-" +
             "ARZT-WaltrautDrombusch01");
 
-        UserConfigurations configurations = (UserConfigurations) runtimeConfig.getConfigurations();
+        UserConfigurations configurations = (UserConfigurations) runtimeConfig.getUserConfigurations();
 
         configurations.setConnectorBaseURL("https://kon-instanz2.titus.gematik.solutions");
         configurations.setVersion("PTV4+");

@@ -134,8 +134,8 @@ public class KIMFlowtype169Service {
             env.put(Context.PROVIDER_URL, "ldaps://" + runtimeConfig.getConnectorAddress() + ":636/");
             env.put(Context.SECURITY_AUTHENTICATION, "none");
 
-            if (secretsManagerService != null && runtimeConfig.getConfigurations() != null) {
-                SSLContext sslContext = secretsManagerService.createSSLContext(runtimeConfig.getConfigurations());
+            if (secretsManagerService != null && runtimeConfig.getUserConfigurations() != null) {
+                SSLContext sslContext = secretsManagerService.createSSLContext(runtimeConfig.getUserConfigurations());
                 SSLSocketFactory.delegate = sslContext.getSocketFactory();
             }
 

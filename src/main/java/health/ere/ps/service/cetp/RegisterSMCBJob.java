@@ -2,7 +2,7 @@ package health.ere.ps.service.cetp;
 
 import de.health.service.cetp.SubscriptionManager;
 import de.health.service.cetp.cardlink.CardlinkWebsocketClient;
-import de.servicehealth.config.KonnektorConfig;
+import de.health.service.cetp.config.KonnektorConfig;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.jmx.SubscriptionsMXBean;
 import health.ere.ps.jmx.SubscriptionsMXBeanImpl;

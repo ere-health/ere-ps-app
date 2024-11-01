@@ -3,7 +3,7 @@ package health.ere.ps.service.cetp;
 import de.health.service.cetp.CETPEventHandlerFactory;
 import de.health.service.cetp.IKonnektorClient;
 import de.health.service.cetp.cardlink.CardlinkWebsocketClient;
-import de.servicehealth.config.KonnektorConfig;
+import de.health.service.cetp.config.KonnektorConfig;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.service.cardlink.EreJwtConfigurator;
 import health.ere.ps.service.cetp.tracker.TrackerService;
@@ -56,7 +56,7 @@ public class CETPServerHandlerFactory implements CETPEventHandlerFactory {
             kc.getCardlinkEndpoint(),
             cardlinkWebsocketClient.connected()
         );
-        return new CETPServerHandler[] {
+        return new ChannelInboundHandler[] {
             new CETPServerHandler(trackerService, pharmacyService, cardlinkWebsocketClient)
         };
     }

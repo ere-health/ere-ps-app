@@ -1,7 +1,7 @@
 package health.ere.ps.service.status;
 
 import de.gematik.ws.conn.eventservice.v7.GetCards;
-import de.servicehealth.config.api.IUserConfigurations;
+import de.health.service.config.api.IUserConfigurations;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.config.UserConfig;
@@ -109,8 +109,8 @@ public class StatusService {
         String connectorBaseURL = userConfig.getConnectorBaseURL();
 
         IUserConfigurations configurations = runtimeConfig != null
-            ? runtimeConfig.getConfigurations()
-            : userConfig.getConfigurations();
+            ? runtimeConfig.getUserConfigurations()
+            : userConfig.getUserConfigurations();
         String basicAuthUsername = configurations.getBasicAuthUsername();
         String basicAuthPassword = configurations.getBasicAuthPassword();
 

@@ -54,10 +54,10 @@ class ERezeptWorkflowResourceTest {
         assertEquals("HBA-1", runtimeConfig.getEHBAHandle());
         assertEquals("SMCB-1", runtimeConfig.getSMCBHandle());
         assertEquals("https://localhost:8080/", runtimeConfig.getConnectorBaseURL());
-        assertEquals("admin", runtimeConfig.getConfigurations().getBasicAuthUsername());
-        assertEquals("password", runtimeConfig.getConfigurations().getBasicAuthPassword());
-        assertEquals("data:application/x-pkcs12;base64,MIA", runtimeConfig.getConfigurations().getClientCertificate().substring(0, 36));
-        assertEquals("00", runtimeConfig.getConfigurations().getClientCertificatePassword());
+        assertEquals("admin", runtimeConfig.getUserConfigurations().getBasicAuthUsername());
+        assertEquals("password", runtimeConfig.getUserConfigurations().getBasicAuthPassword());
+        assertEquals("data:application/x-pkcs12;base64,MIA", runtimeConfig.getUserConfigurations().getClientCertificate().substring(0, 36));
+        assertEquals("00", runtimeConfig.getUserConfigurations().getClientCertificatePassword());
         assertEquals("mandant-id", runtimeConfig.getMandantId());
         assertEquals("crypt", runtimeConfig.getTvMode());
         assertEquals("user-id", runtimeConfig.getUserId());

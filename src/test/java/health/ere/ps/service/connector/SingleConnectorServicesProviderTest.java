@@ -40,7 +40,7 @@ public class SingleConnectorServicesProviderTest {
     public void testConstructorWithMultiKeyWithoutPassword() {
         jakarta.enterprise.event.Event<Exception> exceptionEvent = mock(jakarta.enterprise.event.Event.class);
         UserConfig runtimeConfig = new RuntimeConfig();
-        ((UserConfigurations) runtimeConfig.getConfigurations()).setClientCertificate(new File(keystoreFileName).toURI().toString()+"?alias=key2");
+        ((UserConfigurations) runtimeConfig.getUserConfigurations()).setClientCertificate(new File(keystoreFileName).toURI().toString()+"?alias=key2");
         new SingleConnectorServicesProvider(runtimeConfig, exceptionEvent);
         verify(exceptionEvent).fireAsync(any());
     }
@@ -49,8 +49,8 @@ public class SingleConnectorServicesProviderTest {
     public void testConstructorWithMultiKeyWithPassword() {
         jakarta.enterprise.event.Event<Exception> exceptionEvent = mock(jakarta.enterprise.event.Event.class);
         UserConfig runtimeConfig = new RuntimeConfig();
-        ((UserConfigurations) runtimeConfig.getConfigurations()).setClientCertificate(new File(keystoreFileName).toURI().toString()+"?alias=key2");
-        ((UserConfigurations) runtimeConfig.getConfigurations()).setClientCertificatePassword(keystoreFilePass);
+        ((UserConfigurations) runtimeConfig.getUserConfigurations()).setClientCertificate(new File(keystoreFileName).toURI().toString()+"?alias=key2");
+        ((UserConfigurations) runtimeConfig.getUserConfigurations()).setClientCertificatePassword(keystoreFilePass);
         new SingleConnectorServicesProvider(runtimeConfig, exceptionEvent);
         verify(exceptionEvent, times(0)).fireAsync(any());
     }

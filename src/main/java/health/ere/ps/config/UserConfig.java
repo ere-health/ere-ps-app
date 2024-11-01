@@ -1,10 +1,10 @@
 package health.ere.ps.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import de.health.service.config.api.IRuntimeConfig;
+import de.health.service.config.api.IUserConfigurations;
+import de.health.service.config.api.UserRuntimeConfig;
 import de.health.service.cetp.konnektorconfig.KCUserConfigurations;
-import de.servicehealth.config.api.IRuntimeConfig;
-import de.servicehealth.config.api.IUserConfigurations;
-import de.servicehealth.config.api.UserRuntimeConfig;
 import health.ere.ps.event.config.UserConfigurationsUpdateEvent;
 import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.service.config.UserConfigurationService;
@@ -61,7 +61,7 @@ public class UserConfig implements UserRuntimeConfig {
     }
 
     @Override
-    public IUserConfigurations getConfigurations() {
+    public IUserConfigurations getUserConfigurations() {
         return configurations == null ? new UserConfigurations() : configurations;
     }
 
@@ -83,59 +83,59 @@ public class UserConfig implements UserRuntimeConfig {
     }
 
     public String getErixaHotfolder() {
-        return getConfigurations().getErixaHotfolder();
+        return getUserConfigurations().getErixaHotfolder();
     }
 
     public String getErixaReceiverEmail() {
-        return getConfigurations().getErixaDrugstoreEmail();
+        return getUserConfigurations().getErixaDrugstoreEmail();
     }
 
     public String getErixaUserEmail() {
-        return getConfigurations().getErixaUserEmail();
+        return getUserConfigurations().getErixaUserEmail();
     }
 
     public String getErixaUserPassword() {
-        return getConfigurations().getErixaUserPassword();
+        return getUserConfigurations().getErixaUserPassword();
     }
 
     public String getConnectorBaseURL() {
-        return getConfigOrDefault(getConfigurations().getConnectorBaseURL(), defaultConnectorBaseURI);
+        return getConfigOrDefault(getUserConfigurations().getConnectorBaseURL(), defaultConnectorBaseURI);
     }
 
     public String getMandantId() {
-        return getConfigOrDefault(getConfigurations().getMandantId(), defaultMandantId);
+        return getConfigOrDefault(getUserConfigurations().getMandantId(), defaultMandantId);
     }
 
     public String getWorkplaceId() {
-        return getConfigOrDefault(getConfigurations().getWorkplaceId(), defaultWorkplaceId);
+        return getConfigOrDefault(getUserConfigurations().getWorkplaceId(), defaultWorkplaceId);
     }
 
     public String getClientSystemId() {
-        return getConfigOrDefault(getConfigurations().getClientSystemId(), defaultClientSystemId);
+        return getConfigOrDefault(getUserConfigurations().getClientSystemId(), defaultClientSystemId);
     }
 
     public String getUserId() {
-        return getConfigOrDefault(getConfigurations().getUserId(), defaultUserId == null ? null : defaultUserId.orElse(null));
+        return getConfigOrDefault(getUserConfigurations().getUserId(), defaultUserId == null ? null : defaultUserId.orElse(null));
     }
 
     public String getTvMode() {
-        return getConfigOrDefault(getConfigurations().getTvMode(), defaultTvMode);
+        return getConfigOrDefault(getUserConfigurations().getTvMode(), defaultTvMode);
     }
 
     public String getConnectorVersion() {
-        return getConfigOrDefault(getConfigurations().getVersion(), defaultConnectorVersion);
+        return getConfigOrDefault(getUserConfigurations().getVersion(), defaultConnectorVersion);
     }
 
     public String getPruefnummer() {
-        return getConfigOrDefault(getConfigurations().getPruefnummer(), defaultPruefnummer);
+        return getConfigOrDefault(getUserConfigurations().getPruefnummer(), defaultPruefnummer);
     }
 
     public String getErixaApiKey() {
-        return getConfigurations().getErixaApiKey();
+        return getUserConfigurations().getErixaApiKey();
     }
 
     public String getMuster16TemplateConfiguration() {
-        return getConfigOrDefault(getConfigurations().getMuster16TemplateProfile(), defaultMuster16TemplateProfile);
+        return getConfigOrDefault(getUserConfigurations().getMuster16TemplateProfile(), defaultMuster16TemplateProfile);
     }
 
     public void handleUpdateProperties(@ObservesAsync UserConfigurationsUpdateEvent event) {

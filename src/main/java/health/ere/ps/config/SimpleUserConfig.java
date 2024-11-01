@@ -1,9 +1,8 @@
 package health.ere.ps.config;
 
-
-import de.servicehealth.config.api.IRuntimeConfig;
-import de.servicehealth.config.api.IUserConfigurations;
-import de.servicehealth.config.api.UserRuntimeConfig;
+import de.health.service.config.api.IRuntimeConfig;
+import de.health.service.config.api.IUserConfigurations;
+import de.health.service.config.api.UserRuntimeConfig;
 
 import java.util.Objects;
 
@@ -216,7 +215,7 @@ public class SimpleUserConfig {
 	}
 
 	private void setValues(UserRuntimeConfig userConfig) {
-		IUserConfigurations configurations = userConfig.getConfigurations();
+		IUserConfigurations configurations = userConfig.getUserConfigurations();
 		this.erixaHotfolder = configurations.getErixaHotfolder();
 		this.erixaDrugstoreEmail =  configurations.getErixaDrugstoreEmail();
 		this.erixaUserEmail = configurations.getErixaUserEmail();

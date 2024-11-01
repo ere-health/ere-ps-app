@@ -1,25 +1,5 @@
 package health.ere.ps.service.gematik;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.nullable;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
-
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.jmx.ReadEPrescriptionsMXBeanImpl;
@@ -32,6 +12,25 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
 import jakarta.xml.bind.DatatypeConverter;
 import jakarta.xml.ws.Holder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class PharmacyServiceTest {
     private static final Path FAILED_REJECTS_FILE = Paths.get("target/test-dangling-e-prescriptions.dat");
@@ -73,7 +72,7 @@ class PharmacyServiceTest {
         assertEquals("prescriptionId", read.getPrescriptionId());
         assertEquals("secret", read.getSecret());
         assertEquals(runtimeConfig, read.getRuntimeConfig());
-        assertEquals(runtimeConfig.getConfigurations(), read.getRuntimeConfig().getConfigurations());
+        assertEquals(runtimeConfig.getUserConfigurations(), read.getRuntimeConfig().getUserConfigurations());
     }
 
     @Test
@@ -95,13 +94,13 @@ class PharmacyServiceTest {
         assertEquals("prescriptionId", read.getPrescriptionId());
         assertEquals("secret", read.getSecret());
         assertEquals(runtimeConfig, read.getRuntimeConfig());
-        assertEquals(runtimeConfig.getConfigurations(), read.getRuntimeConfig().getConfigurations());
+        assertEquals(runtimeConfig.getUserConfigurations(), read.getRuntimeConfig().getUserConfigurations());
 
         FailedRejectEntry read2 = PharmacyService.objectMapper.readValue(lines.get(1), FailedRejectEntry.class);
         assertEquals("prescriptionId2", read2.getPrescriptionId());
         assertEquals("secret2", read2.getSecret());
         assertEquals(runtimeConfig, read2.getRuntimeConfig());
-        assertEquals(runtimeConfig.getConfigurations(), read2.getRuntimeConfig().getConfigurations());
+        assertEquals(runtimeConfig.getUserConfigurations(), read2.getRuntimeConfig().getUserConfigurations());
     }
 
     @Test
