@@ -1,6 +1,7 @@
 package health.ere.ps.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import de.health.service.config.api.IRuntimeConfig;
 import de.health.service.config.api.IUserConfigurations;
 import de.health.service.config.api.UserRuntimeConfig;
@@ -61,6 +62,7 @@ public class UserConfig implements UserRuntimeConfig {
     }
 
     @Override
+    @JsonProperty("configurations")
     public IUserConfigurations getUserConfigurations() {
         return configurations == null ? new UserConfigurations() : configurations;
     }
