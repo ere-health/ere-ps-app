@@ -498,7 +498,11 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
     public SignResponse signBundleWithIdentifiers(Bundle bundle, boolean wait10secondsAfterJobNumber, RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId)
             throws ERezeptWorkflowException {
         List<SignResponse> signResponses = signBundleWithIdentifiers(Arrays.asList(bundle), wait10secondsAfterJobNumber, runtimeConfig, replyTo, replyToMessageId);
-        return signResponses.get(0);
+        try {
+            return signResponses.get(0);
+        } catch (Exception e) {
+            throw new ERezeptWorkflowException("Could not get signResponse", e);
+        }
     }
 
     public List<SignResponse> signBundleWithIdentifiers(List<Bundle> bundles, boolean wait10secondsAfterJobNumber)
@@ -688,6 +692,12 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
                 }
             }
         }
+
+        if (signResponses == null || signResponses.isEmpty()) {
+            log.warning("Was not able to sign document(s).");
+            throw new ERezeptWorkflowException("Was not able to sign document(s).");
+        }
+
         return signResponses;
     }
 

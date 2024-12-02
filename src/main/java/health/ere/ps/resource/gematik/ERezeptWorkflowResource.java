@@ -201,7 +201,13 @@ public class ERezeptWorkflowResource {
             }
         };
         bundle.getIdentifier().setValue(taskId);
-        SignResponse signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundle, false, runtimeConfig);
+
+        SignResponse signResponse = null;
+        try {
+            signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundle, false, runtimeConfig);
+        } catch (ERezeptWorkflowException e) {
+            throw new WebApplicationException(e);
+        }
         String base64String = signResponse2base64String(signResponse);
 
         eRezeptWorkflowService.updateERezeptTask(taskId, accessCode, Base64.getDecoder().decode(base64String), runtimeConfig);
