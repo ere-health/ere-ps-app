@@ -6,6 +6,7 @@ import java.nio.file.Paths;
 import java.util.Date;
 import java.util.UUID;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -19,10 +20,11 @@ public class KBVFHIRUtilTest {
     IParser parser = FhirContext.forR4().newXmlParser();
     IParser jsonParser = FhirContext.forR4().newJsonParser();
 
+    @Disabled("This test needs unpublished data")
     @ParameterizedTest
-    @CsvSource({
+    @CsvSource({/*
             "Beirliner_Maria.xml, Praxis_Sigmuntowski.xml, TK-Mustermann_Max.xml, TK-Testprescription.xml, Freetext/_Test.xml, MedicationRequest_GebPflicht.xml",
-/*
+
             "Beirliner_Maria.xml, Praxis_Sigmuntowski.xml, Joe_Doe.xml, TestGKVSV-Joe_Doe.xml, PZN/Ibuflam600N3.xml, Dosierung_Gekreuzt.xml",
 
             "Beirliner_Maria.xml, Praxis_Sigmuntowski.xml, Joe_Doe.xml, TestGKVSV-Joe_Doe.xml, PZN/LThyroxin75N3.xml, MedicationRequest_GebPflicht.xml",
