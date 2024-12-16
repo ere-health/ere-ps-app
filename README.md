@@ -109,9 +109,13 @@ The ere-health application read configuration is the following order from most i
   
   Make sure you created a `.env` file with your connector-specific configuration, see [CONFIGURATION.md](CONFIGURATION.md).
 
-  Then run:
+  Then run (with titus)):
   
   > mvn quarkus:dev
+
+  With RU:
+
+ > mvn -Dquarkus.profile=RU quarkus:dev
 
   [(Examples to start the application in different profiles and example CLI Parameters can be found in the CONFIGURATION.md file)](CONFIGURATION.md)
  
