@@ -44,7 +44,7 @@ public class BearerTokenManageService {
     public void requestNewAccessTokenIfNecessary(RuntimeConfig runtimeConfig, Session replyTo, String replyToMessageId) {
         if (StringUtils.isEmpty(getBearerToken(runtimeConfig)) || isExpired(bearerToken.get(runtimeConfig))) {
             log.info("Request new bearer token.");
-            if(runtimeConfig != null && runtimeConfig.getConfigurations() != null && userConfigurationService.getConfig() != null) {
+            if(runtimeConfig != null && runtimeConfig.getConfigurations() != null && userConfigurationService != null && userConfigurationService.getConfig() != null) {
                 UserConfigurations configurations = runtimeConfig.getConfigurations();
                 UserConfigurations config = userConfigurationService.getConfig();
                 if(configurations.getBasicAuthUsername() == null && config.getBasicAuthUsername() != null) {
