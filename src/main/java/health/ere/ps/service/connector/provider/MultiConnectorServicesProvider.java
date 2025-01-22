@@ -50,31 +50,43 @@ public class MultiConnectorServicesProvider {
 
     public CertificateServicePortType getCertificateServicePortType(UserConfig userConfig) {
         CertificateServicePortType certificateService = getSingleConnectorServicesProvider(userConfig).getCertificateService();
+        checkNull("certificateService", certificateService);
         return certificateService;
+    }
+
+    private void checkNull(String serviceName, Object service) {
+        if(service == null) {
+            log.warning(serviceName+" is null. This means it was not properly initialized when communicating with the connector. Please check the log for more information.");
+        }
     }
 
     public EventServicePortType getEventServicePortType(UserConfig userConfig) {
         EventServicePortType eventServicePortType = getSingleConnectorServicesProvider(userConfig).getEventServicePortType();
+        checkNull("eventServicePortType", eventServicePortType);
         return eventServicePortType;
     }
 
     public AuthSignatureServicePortType getAuthSignatureServicePortType(UserConfig userConfig) {
         AuthSignatureServicePortType authSignatureServicePortType = getSingleConnectorServicesProvider(userConfig).getAuthSignatureServicePortType();
+        checkNull("authSignatureServicePortType", authSignatureServicePortType);
         return authSignatureServicePortType;
     }
 
     public SignatureServicePortTypeV740 getSignatureServicePortType(UserConfig userConfig) {
         SignatureServicePortTypeV740 signatureServicePortType = getSingleConnectorServicesProvider(userConfig).getSignatureServicePortType();
+        checkNull("signatureServicePortType", signatureServicePortType);
         return signatureServicePortType;
     }
 
     public SignatureServicePortTypeV755 getSignatureServicePortTypeV755(UserConfig userConfig) {
         SignatureServicePortTypeV755 signatureServicePortTypeV755 = getSingleConnectorServicesProvider(userConfig).getSignatureServicePortTypeV755();
+        checkNull("signatureServicePortTypeV755", signatureServicePortTypeV755);
         return signatureServicePortTypeV755;
     }
 
     public VSDServicePortType getVSDServicePortType(UserConfig userConfig) {
         VSDServicePortType vsdServicePortType = getSingleConnectorServicesProvider(userConfig).getVSDServicePortType();
+        checkNull("vsdServicePortType", vsdServicePortType);
         return vsdServicePortType;
     }
 
