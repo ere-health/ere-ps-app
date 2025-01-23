@@ -114,14 +114,31 @@ public class PrefillPrescriptionService {
 	@Inject
 	Event<Exception> exceptionEvent;
 
-        public Bundle get(RuntimeConfig runtimeConfig)
+	public Bundle get(RuntimeConfig runtimeConfig)
+		throws FaultMessage, de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage, JAXBException,
+		de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage, CryptoException, IOException,
+		InvalidNameException, CertificateEncodingException {
+			return get(runtimeConfig, null);
+	}
+	
+	public Bundle get(RuntimeConfig runtimeConfig, String egkHandleParameter)
 			throws FaultMessage, de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage, JAXBException,
 			de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage, CryptoException, IOException,
 			InvalidNameException, CertificateEncodingException {
-                return get(runtimeConfig, null);
-        }
+		return get(runtimeConfig, egkHandleParameter, null);
+	}
 
-	public Bundle get(RuntimeConfig runtimeConfig, String egkHandleParameter)
+
+	
+	public Bundle get(RuntimeConfig runtimeConfig, String egkHandleParameter, String smcbHandleParameter)
+			throws FaultMessage, de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage, JAXBException,
+			de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage, CryptoException, IOException,
+			InvalidNameException, CertificateEncodingException {
+		return get(runtimeConfig, egkHandleParameter, smcbHandleParameter, null);
+	}
+
+
+	public Bundle get(RuntimeConfig runtimeConfig, String egkHandleParameter, String smcbHandleParameter, String hbaHandleParameter)
 			throws FaultMessage, de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage, JAXBException,
 			de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage, CryptoException, IOException,
 			InvalidNameException, CertificateEncodingException {
@@ -131,8 +148,8 @@ public class PrefillPrescriptionService {
 		EventServicePortType eventService = connectorServicesProvider.getEventServicePortType(runtimeConfig);
 
 		String egkHandle = egkHandleParameter != null ? egkHandleParameter : getFirstCardOfType(eventService, CardTypeType.EGK, context);
-		String smcbHandle = (runtimeConfig != null && runtimeConfig.getSMCBHandle() != null) ? runtimeConfig.getSMCBHandle() : getFirstCardOfType(eventService, CardTypeType.SMC_B, context);
-		String hbaHandle = (runtimeConfig != null && runtimeConfig.getEHBAHandle() != null) ? runtimeConfig.getEHBAHandle() : getFirstCardOfType(eventService, CardTypeType.HBA, context);
+		String smcbHandle = smcbHandleParameter != null ? smcbHandleParameter : (runtimeConfig != null && runtimeConfig.getSMCBHandle() != null) ? runtimeConfig.getSMCBHandle() : getFirstCardOfType(eventService, CardTypeType.SMC_B, context);
+		String hbaHandle = hbaHandleParameter != null ? hbaHandleParameter : (runtimeConfig != null && runtimeConfig.getEHBAHandle() != null) ? runtimeConfig.getEHBAHandle() : getFirstCardOfType(eventService, CardTypeType.HBA, context);
 
 		Patient patient = null;
 		Coverage coverage = null;
@@ -462,7 +479,7 @@ public class PrefillPrescriptionService {
 
 	public void onPrefillBundleEvent(@ObservesAsync PrefillBundleEvent prefillBundleEvent) {
 		try {
-			bundleEvent.fireAsync(new BundlesEvent(Arrays.asList(get(prefillBundleEvent.getRuntimeConfig(), prefillBundleEvent.getEgkHandle()))));
+			bundleEvent.fireAsync(new BundlesEvent(Arrays.asList(get(prefillBundleEvent.getRuntimeConfig(), prefillBundleEvent.getEgkHandle(), prefillBundleEvent.getSmcbHandle(), prefillBundleEvent.getHbaHandle()))));
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "Could not create bundles", e);
 			exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, prefillBundleEvent.getReplyTo(),
