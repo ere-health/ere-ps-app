@@ -1,14 +1,5 @@
 package health.ere.ps.service.connector.certificate;
 
-import java.math.BigInteger;
-import java.security.cert.X509Certificate;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.ArrayUtils;
-
 import de.gematik.ws.conn.cardservicecommon.v2.PinResultEnum;
 import de.gematik.ws.conn.certificateservice.v6.CryptType;
 import de.gematik.ws.conn.certificateservice.v6.ReadCardCertificate;
@@ -24,6 +15,13 @@ import health.ere.ps.service.idp.crypto.CryptoLoader;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.xml.ws.Holder;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
+
+import java.math.BigInteger;
+import java.security.cert.X509Certificate;
+import java.util.List;
+import java.util.logging.Logger;
 
 @ApplicationScoped
 public class CardCertificateReaderService {
@@ -59,7 +57,7 @@ public class CardCertificateReaderService {
             X509DataInfoListType x509DataInfoList = readCardCertificateResponse.getX509DataInfoList();
             List<X509DataInfoListType.X509DataInfo> x509DataInfos = x509DataInfoList.getX509DataInfo();
             if (CollectionUtils.isNotEmpty(x509DataInfos)) {
-                log.log(Level.INFO, "Certificate list size = " + x509DataInfos.size());
+                log.fine("Certificate list size = " + x509DataInfos.size());
 
                 connector_cert_auth = x509DataInfos.get(0).getX509Data().getX509Certificate();
             }

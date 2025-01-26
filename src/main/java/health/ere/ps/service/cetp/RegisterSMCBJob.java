@@ -82,7 +82,7 @@ public class RegisterSMCBJob {
     )
     void registerSmcbMaintenance() {
         String correlationId = UUID.randomUUID().toString();
-        log.info(String.format("RegisterSMCBJob started with %s", correlationId));
+        log.fine(String.format("RegisterSMCBJob started with %s", correlationId));
         // reload cardlink configs if necessary
         if (cardlinkWebsocketClients.isEmpty()) {
             initWSClients();
