@@ -167,7 +167,7 @@ public class StatusService {
             // SmcbAvailable
             String smcbHandle = null;
             try {
-                smcbHandle = connectorCardsService.getConnectorCardHandle(CardHandleType.SMC_B, runtimeConfig);
+                smcbHandle = connectorCardsService.getConnectorCardHandle(CardHandleType.SMC_B, runtimeConfig, false);
                 status.setSmcbAvailable(true, "Card Handle: " + smcbHandle);
             } catch (Exception e) {
                 status.setSmcbAvailable(false, "Exception: " + e.getMessage() + " Cause: " + (e.getCause() != null ? e.getCause().getMessage() : ""));
@@ -184,7 +184,7 @@ public class StatusService {
         futures.add(scheduledThreadPool.submit(() -> {
             // EhbaAvailable
             try {
-                String ehbaHandle = connectorCardsService.getConnectorCardHandle(CardHandleType.HBA, runtimeConfig);
+                String ehbaHandle = connectorCardsService.getConnectorCardHandle(CardHandleType.HBA, runtimeConfig, false);
                 status.setEhbaAvailable(true, "Card Handle: " + ehbaHandle);
             } catch (Exception e) {
                 status.setEhbaAvailable(false, "Exception: " + e.getMessage() + " Cause: " + (e.getCause() != null ? e.getCause().getMessage() : ""));

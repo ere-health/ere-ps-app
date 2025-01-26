@@ -42,7 +42,7 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-scheduler-api</artifactId>
-            <version>3.14.3</version>
+            <version>3.17.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -62,17 +62,11 @@
             <artifactId>guava</artifactId>
             <version>33.0.0-jre</version>
         </dependency>
-
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-junit5</artifactId>
-            <version>3.14.3</version>
-            <scope>test</scope>
-        </dependency>
+        
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-junit5-mockito</artifactId>
-            <version>3.14.3</version>
+            <version>3.17.2</version>
             <scope>test</scope>
             <!-- Go for Mockito inline mode which allows mocking final classes like java.net.NetworkInterface in our code -->
             <exclusions>
@@ -81,6 +75,13 @@
                     <artifactId>mockito-subclass</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.10.5</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

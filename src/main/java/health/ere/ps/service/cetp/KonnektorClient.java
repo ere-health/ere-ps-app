@@ -11,7 +11,6 @@ import de.gematik.ws.conn.eventservice.v7.SubscriptionType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
 import de.health.service.cetp.IKonnektorClient;
-import de.health.service.config.api.UserRuntimeConfig;
 import de.health.service.cetp.domain.CetpStatus;
 import de.health.service.cetp.domain.SubscriptionResult;
 import de.health.service.cetp.domain.eventservice.Subscription;
@@ -19,6 +18,7 @@ import de.health.service.cetp.domain.eventservice.card.Card;
 import de.health.service.cetp.domain.eventservice.card.CardType;
 import de.health.service.cetp.domain.eventservice.card.CardsResponse;
 import de.health.service.cetp.domain.fault.CetpFault;
+import de.health.service.config.api.UserRuntimeConfig;
 import health.ere.ps.service.cetp.mapper.card.CardTypeMapper;
 import health.ere.ps.service.cetp.mapper.card.CardsResponseMapper;
 import health.ere.ps.service.cetp.mapper.status.StatusMapper;
@@ -28,8 +28,11 @@ import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.xml.ws.Holder;
+import org.apache.commons.lang3.NotImplementedException;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -150,5 +153,29 @@ public class KonnektorClient implements IKonnektorClient {
         } catch (FaultMessage faultMessage) {
             throw new CetpFault(faultMessage.getMessage());
         }
+    }
+
+    public String getEgkHandle(UserRuntimeConfig userRuntimeConfig, String insurantId) throws CetpFault {
+        throw new NotImplementedException("Not implemented");
+    }
+
+    @Override
+    public Pair<X509Certificate, Boolean> getSmcbX509Certificate(String smcbHandle, UserRuntimeConfig userRuntimeConfig) throws CetpFault {
+        throw new NotImplementedException("Not implemented");
+    }
+
+    @Override
+    public String getTelematikId(UserRuntimeConfig userRuntimeConfig, String smcbHandle) {
+        throw new NotImplementedException("Not implemented");
+    }
+
+    @Override
+    public String getSmcbHandle(UserRuntimeConfig userRuntimeConfig) throws CetpFault {
+        throw new NotImplementedException("Not implemented");
+    }
+
+    @Override
+    public String getKvnr(UserRuntimeConfig userRuntimeConfig, String egkHandle) throws CetpFault {
+        throw new NotImplementedException("Not implemented");
     }
 }

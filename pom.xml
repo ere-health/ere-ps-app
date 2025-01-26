@@ -516,8 +516,13 @@
             <!-- cp -r ~/.m2/repository/health/  -->
             <id>project-repo</id>
             <releases>
+                <enabled>true</enabled>
                 <checksumPolicy>ignore</checksumPolicy>
             </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <checksumPolicy>ignore</checksumPolicy>
+            </snapshots>
             <url>file://${project.basedir}/project-repo</url>
         </repository>
     </repositories>

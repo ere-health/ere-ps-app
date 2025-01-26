@@ -1,5 +1,6 @@
 package health.ere.ps.service.connector.cards;
 
+import com.google.common.annotations.VisibleForTesting;
 import de.gematik.ws.conn.cardservice.v8.CardInfoType;
 import de.gematik.ws.conn.cardservice.v8.Cards;
 import de.gematik.ws.conn.cardservice.v8.PinStatusEnum;
@@ -90,6 +91,7 @@ public class ConnectorCardsService {
         return Optional.ofNullable(cardHandleTypeList);
     }
 
+    @VisibleForTesting
     public String getConnectorCardHandle(CardHandleType cardHandleType) throws ConnectorCardsException {
         return getConnectorCardHandle(cardHandleType, null);
     }
@@ -98,25 +100,30 @@ public class ConnectorCardsService {
         CardHandleType cardHandleType,
         RuntimeConfig runtimeConfig
     ) throws ConnectorCardsException {
-        Predicate<CardInfoType> predicate = ch -> ch.getCardType().value().equalsIgnoreCase(cardHandleType.getCardHandleType());
-        return getConnectorCardHandle(predicate, runtimeConfig);
+        return getConnectorCardHandle(cardHandleType, runtimeConfig, true);
     }
 
-    public String getConnectorCardHandle(String cardHolderName, RuntimeConfig runtimeConfig)
-            throws ConnectorCardsException {
-        return getConnectorCardHandle(ch ->
-            cardHolderName.equals(ch.getCardHolderName()), runtimeConfig);
+    public String getConnectorCardHandle(
+        CardHandleType cardHandleType,
+        RuntimeConfig runtimeConfig,
+        boolean print
+    ) throws ConnectorCardsException {
+        Predicate<CardInfoType> predicate = ch -> ch.getCardType().value().equalsIgnoreCase(cardHandleType.getCardHandleType());
+        return getConnectorCardHandle(predicate, runtimeConfig, print);
     }
 
     public String  getConnectorCardHandle(
         Predicate<? super CardInfoType> filter,
-        RuntimeConfig runtimeConfig
+        RuntimeConfig runtimeConfig,
+        boolean print
     ) throws ConnectorCardsException {
         Optional<List<CardInfoType>> cardsInfoListOpt = getConnectorCardsInfo(runtimeConfig);
         String cardHandle = null;
         if (cardsInfoListOpt.isPresent()) {
             List<CardInfoType> typeList = cardsInfoListOpt.get();
-            log.info(String.format("ConnectorCardsInfo: %s", print(typeList)));
+            if (print) {
+                log.info(String.format("ConnectorCardsInfo: %s", print(typeList)));
+            }
             Optional<CardInfoType> cardHandleOpt = typeList.stream().filter(filter).findFirst();
             if (cardHandleOpt.isPresent()) {
                 cardHandle = cardHandleOpt.get().getCardHandle();

@@ -3,7 +3,7 @@ package health.ere.ps.service.cetp;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import de.health.service.cetp.AbstractCETPEventHandler;
-import de.health.service.cetp.cardlink.CardlinkWebsocketClient;
+import de.health.service.cetp.cardlink.CardlinkClient;
 import de.health.service.config.api.IUserConfigurations;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.service.cetp.tracker.TrackerService;
@@ -37,9 +37,9 @@ public class CETPServerHandler extends AbstractCETPEventHandler {
     public CETPServerHandler(
         TrackerService trackerService,
         PharmacyService pharmacyService,
-        CardlinkWebsocketClient cardlinkWebsocketClient
+        CardlinkClient cardlinkClient
     ) {
-        super(cardlinkWebsocketClient);
+        super(cardlinkClient);
         this.trackerService = trackerService;
         this.pharmacyService = pharmacyService;
     }
@@ -80,12 +80,12 @@ public class CETPServerHandler extends AbstractCETPEventHandler {
                 Bundle bundle = pair.getKey();
                 String eventId = pair.getValue();
                 String xml = parser.encodeToString(bundle);
-                cardlinkWebsocketClient.sendJson(correlationId, iccsn, "eRezeptTokensFromAVS", Map.of("slotId", slotId, "ctId", ctId, "tokens", xml));
+                cardlinkClient.sendJson(correlationId, iccsn, "eRezeptTokensFromAVS", Map.of("slotId", slotId, "ctId", ctId, "tokens", xml));
 
                 JsonArrayBuilder bundles = prepareBundles(correlationId, bundle, runtimeConfig);
-                cardlinkWebsocketClient.sendJson(correlationId, iccsn, "eRezeptBundlesFromAVS", Map.of("slotId", slotId, "ctId", ctId, "bundles", bundles));
+                cardlinkClient.sendJson(correlationId, iccsn, "eRezeptBundlesFromAVS", Map.of("slotId", slotId, "ctId", ctId, "bundles", bundles));
 
-                cardlinkWebsocketClient.sendJson(correlationId, iccsn, "vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "eventId", eventId));
+                cardlinkClient.sendJson(correlationId, iccsn, "vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "eventId", eventId));
 
                 trackerService.submit(ctId, uc.getMandantId(), uc.getWorkplaceId(), uc.getClientSystemId());
             } catch (Exception e ) {
@@ -93,15 +93,15 @@ public class CETPServerHandler extends AbstractCETPEventHandler {
 
                 if (e instanceof de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage faultMessage) {
                     String code = faultMessage.getFaultInfo().getTrace().get(0).getCode().toString();
-                    cardlinkWebsocketClient.sendJson(correlationId, iccsn, "vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "err", code));
+                    cardlinkClient.sendJson(correlationId, iccsn, "vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "err", code));
                 }
                 if (e instanceof de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage faultMessage) {
                     String code = faultMessage.getFaultInfo().getTrace().get(0).getCode().toString();
-                    cardlinkWebsocketClient.sendJson(correlationId, iccsn, "vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "err", code));
+                    cardlinkClient.sendJson(correlationId, iccsn, "vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "err", code));
                 }
 
                 String error = printException(e);
-                cardlinkWebsocketClient.sendJson(
+                cardlinkClient.sendJson(
                     correlationId,
                     iccsn,
                     "receiveTasklistError",
