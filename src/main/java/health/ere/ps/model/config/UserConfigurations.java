@@ -133,7 +133,10 @@ public class UserConfigurations implements IUserConfigurations {
                     writeMethod.invoke(this, getValue.apply(pd.getName()));
                 } else {
                     if (!"class".equals(pd.getName())) {
-                        log.warning("No write method for: " + pd.getName());
+                        Method readMethod = pd.getReadMethod();
+                        if (readMethod != null && !readMethod.getDeclaringClass().isInterface()) {
+                            log.warning("No write method for: " + pd.getName());
+                        }
                     }
                 }
             } catch (Exception e) {

@@ -105,7 +105,7 @@ public class EndpointDiscoveryService {
                     .newDocumentBuilder()
                     .parse(inputStream);
 
-            extractAndSetConnectorVersion(document);
+            extractAndSetConnectorVersion(document, throwEndpointException);
 
             Node serviceInformationNode = getNodeWithTag(document.getDocumentElement(), "ServiceInformation");
 
@@ -183,7 +183,7 @@ public class EndpointDiscoveryService {
         }
     }
 
-    private void extractAndSetConnectorVersion(Document document) {
+    private void extractAndSetConnectorVersion(Document document, boolean throwEndpointException) {
         try {
             //Staging/probably prod as well
             Node productTypeNode = getNodeWithTag(getNodeWithTag(getNodeWithTag(document.getDocumentElement(),
@@ -202,8 +202,10 @@ public class EndpointDiscoveryService {
             } else if (productName.contains("PTV")) {
                 versionContainingText = productName;
             } else {
-                log.warning("Could not find the version of the connector to use from connector.sds, " +
+                if (!throwEndpointException) {
+                    log.warning("Could not find the version of the connector to use from connector.sds, " +
                         "using the one from the configuration:" + userConfig.getConnectorVersion());
+                }
             }
 
             if (versionContainingText.contains("PTV4+") || versionContainingText.contains("PTV4Plus")) {
@@ -213,8 +215,10 @@ public class EndpointDiscoveryService {
                 log.info("Connector version PTV4 found in connector.sds");
                 userConfig.getUserConfigurations().setVersion("PTV4");
             } else {
-                log.warning("Could not determine the version of the connector to use from connector.sds, " +
+                if (!throwEndpointException) {
+                    log.warning("Could not determine the version of the connector to use from connector.sds, " +
                         "using the one from the configuration:" + userConfig.getConnectorVersion());
+                }
             }
         } catch (Exception e) {
             log.warning("Could not determine the version of the connector to use from connector.sds, " +
