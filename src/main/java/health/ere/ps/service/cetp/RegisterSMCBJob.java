@@ -31,6 +31,9 @@ public class RegisterSMCBJob {
 
     private final static Logger log = Logger.getLogger(RegisterSMCBJob.class.getName());
 
+    private static final Logger LOGGER_I18N = Logger.getLogger("org.jboss.resteasy.client.jaxrs.i18n");
+    private static final Logger LOGGER_WS = Logger.getLogger("de.health.service.cetp.cardlink.CardlinkWebsocketClient");
+
     @Inject
     KonnektorClient konnektorClient;
 
@@ -44,6 +47,9 @@ public class RegisterSMCBJob {
 
     // Make sure subscription manager calls onStart first, before RegisterSMCBJob at least!
     void onStart(@Observes @Priority(5300) StartupEvent ev) {
+        LOGGER_I18N.setLevel(Level.SEVERE);
+        LOGGER_WS.setLevel(Level.WARNING);
+        
         log.info("RegisterSMCBJob init onStart");
         initWSClients();
     }
