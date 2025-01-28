@@ -50,6 +50,9 @@ public class AppConfig {
     @ConfigProperty(name = "ere-workflow-service.includeRevocationInfo.enable", defaultValue = "true")
     boolean includeRevocationInfo;
 
+    @ConfigProperty(name = "ere-workflow-service.retry.enable", defaultValue = "true")
+    boolean retry;
+
     @ConfigProperty(name = "ere.workflow-service.prescription.write-signature-file")
     boolean writeSignatureFile;
 
@@ -152,6 +155,14 @@ public class AppConfig {
 
     public boolean getXmlBundleDirectProcess() {
         return this.xmlBundleDirectProcess;
+    }
+
+    public boolean isRetry() {
+        return retry;
+    }
+
+    public void setRetry(boolean retry) {
+        this.retry = retry;
     }
 
 }

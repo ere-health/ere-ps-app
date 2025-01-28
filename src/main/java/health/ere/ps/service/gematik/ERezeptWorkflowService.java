@@ -669,7 +669,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
                  } 
             }
         } catch (ConnectorCardsException | FaultMessage e) {
-            if(firstTry) {
+            if(firstTry && appConfig.isRetry()) {
                 log.log(Level.WARNING, "Exception signing bundles with identifiers on first try.", e);
                 return signBundleWithIdentifiers(bundles, wait10secondsAfterJobNumber, runtimeConfig, replyTo, replyToMessageId, false);
             } else {
@@ -775,7 +775,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
             String taskString = response.readEntity(String.class);
 
             // if this was the first try, try again, this will request a new bearer token
-            if(firstTry && response.getStatus() == 401) {
+            if(firstTry && appConfig.isRetry() && response.getStatus() == 401) {
                 log.warning("401 when trying to create e prescription. Retrying.");
                 return createERezeptTask(false, runtimeConfig, flowtype);
             }
