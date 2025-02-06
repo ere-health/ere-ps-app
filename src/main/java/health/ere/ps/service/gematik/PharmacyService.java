@@ -55,13 +55,17 @@ import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -176,6 +180,7 @@ public class PharmacyService implements AutoCloseable {
         String pnw = Base64.getEncoder().encodeToString(pruefungsnachweis.value);
         try (Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task")
                 .queryParam("kvnr", extractKVNR(readVSD))
+                .queryParam("hcv", extractHCV(readVSD))
                 .queryParam("pnw", pnw).request()
                 .header("Content-Type", "application/fhir+xml")
                 .header("User-Agent", appConfig.getUserAgent())
@@ -198,32 +203,65 @@ public class PharmacyService implements AutoCloseable {
         }
     }
 
-    static synchronized String extractKVNR(ReadVSDResult readVSDResult) {
+    static synchronized String extractHCV(ReadVSDResult readVSDResult) {
         try {
-            Holder<byte[]> pnw = readVSDResult.pruefungsnachweis;
-            String decodedXMLFromPNW = new String(new GZIPInputStream(new ByteArrayInputStream(pnw.value)).readAllBytes());
-            Document doc = builder.parse(new ByteArrayInputStream(decodedXMLFromPNW.getBytes()));
-            String e = doc.getElementsByTagName("E").item(0).getTextContent();
-            if (e.equals("3")) {
-                InputStream isPersoenlicheVersichertendaten = new GZIPInputStream(
-                    new ByteArrayInputStream(readVSDResult.persoenlicheVersichertendaten.value));
-                UCPersoenlicheVersichertendatenXML patient = (UCPersoenlicheVersichertendatenXML) jaxbContext
-                        .createUnmarshaller().unmarshal(isPersoenlicheVersichertendaten);
-
-                String versichertenID = patient.getVersicherter().getVersichertenID();
-                log.fine("VSDM result: "+e+" VersichertenID: " + versichertenID);
-                return versichertenID;
-            } else {
-                String pn = doc.getElementsByTagName("PZ").item(0).getTextContent();
-                String base64PN = new String(DatatypeConverter.parseBase64Binary(pn));
-                String kvnrFromPn = base64PN.substring(0, 10);
-                return kvnrFromPn;
-            }
-        } catch (SAXException | IOException | NullPointerException | JAXBException e) {
-            String msg = "Could not parse PNW message";
+            UCAllgemeineVersicherungsdatenXML allgemeineVersicherungsdatenXML = getAllgemeineVersicherungsdaten(readVSDResult);
+            String vb = allgemeineVersicherungsdatenXML.getVersicherter().getVersicherungsschutz().getBeginn().replaceAll(" ", "");
+            UCPersoenlicheVersichertendatenXML patient = getPatient(readVSDResult);
+            String sas = patient.getVersicherter().getPerson().getStrassenAdresse().getStrasse() == null ? "" : patient.getVersicherter().getPerson().getStrassenAdresse().getStrasse().trim();
+            return calculateHCV(vb, sas);
+        } catch (IOException | NullPointerException | JAXBException | NoSuchAlgorithmException e) {
+            String msg = "Could generate HCV message";
             log.log(Level.WARNING, msg, e);
             return "";
         }
+    }
+
+    static String calculateHCV(String vb, String sas)
+            throws UnsupportedEncodingException, NoSuchAlgorithmException {
+        byte [] vbb = vb.getBytes("ISO-8859-1");
+        byte[] sasb = sas.getBytes("ISO-8859-1");
+
+        byte[] combined = new byte[vbb.length + sasb.length];
+
+        System.arraycopy(vbb,0,combined,0         ,vbb.length);
+        System.arraycopy(sasb,0,combined,vbb.length,sasb.length);
+
+        byte[] sha256 = MessageDigest.getInstance("SHA-256").digest(combined);
+        byte[] first5 = new byte[5];
+        System.arraycopy(sha256, 0, first5, 0, 5);
+        first5[0] = (byte) (first5[0] & 127);
+        return HexFormat.of().formatHex(first5);
+    }
+
+    static synchronized String extractKVNR(ReadVSDResult readVSDResult) {
+        try {
+            UCPersoenlicheVersichertendatenXML patient = getPatient(readVSDResult);
+            String versichertenID = patient.getVersicherter().getVersichertenID();
+            return versichertenID;
+        } catch (IOException | NullPointerException | JAXBException e) {
+            String msg = "Could not extract KVNR message";
+            log.log(Level.WARNING, msg, e);
+            return "";
+        }
+    }
+
+    private static UCPersoenlicheVersichertendatenXML getPatient(ReadVSDResult readVSDResult)
+            throws IOException, JAXBException {
+        InputStream isPersoenlicheVersichertendaten = new GZIPInputStream(
+            new ByteArrayInputStream(readVSDResult.persoenlicheVersichertendaten.value));
+        UCPersoenlicheVersichertendatenXML patient = (UCPersoenlicheVersichertendatenXML) jaxbContext
+                .createUnmarshaller().unmarshal(isPersoenlicheVersichertendaten);
+        return patient;
+    }
+
+    private static UCAllgemeineVersicherungsdatenXML getAllgemeineVersicherungsdaten(ReadVSDResult readVSDResult)
+            throws IOException, JAXBException {
+        InputStream isPersoenlicheVersichertendaten = new GZIPInputStream(
+            new ByteArrayInputStream(readVSDResult.allgemeineVersicherungsdaten.value));
+            UCAllgemeineVersicherungsdatenXML allgemeineVersicherungsdatenXML = (UCAllgemeineVersicherungsdatenXML) jaxbContext
+                .createUnmarshaller().unmarshal(isPersoenlicheVersichertendaten);
+        return allgemeineVersicherungsdatenXML;
     }
 
     public ReadVSDResult readVSD(

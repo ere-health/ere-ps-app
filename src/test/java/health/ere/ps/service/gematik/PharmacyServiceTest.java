@@ -180,6 +180,30 @@ class PharmacyServiceTest {
         }
     }
 
+    @Test
+    public void testExtractHCV() {
+        try (PharmacyService pharmacyService = new PharmacyService()) {
+            ReadVSDResult readVSDResult = pharmacyService.new ReadVSDResult();
+            readVSDResult.persoenlicheVersichertendaten = new Holder<byte[]>(DatatypeConverter.parseBase64Binary("H4sIAAAAAAAA/41S0U7rMAz9lSrvq9vCRIfcIMQGTGIMMe7gbQqtWSva5CpJx2Vfj7vBLgMeeEniY+f4OCd48q+pgxVZVxmdiTiMREA6N0Wll5kYz6a9NO0PenFfBM4rXajaaMrEKzlxIvHP2eKGrxrSdZWXNO9oeLeeuJKXh8lVcDacLOaj29l4ep2Jfph0Hbindpkovf97DPDiwiU1ylfPYUHwpGDliqZbYMX1QuInXrsX6cV4KM/TKI6iw+ToCOFrDjfytMQLemytd6yqbWQ8SOMoPYgQ9mCcG6tVQ/KOezPXe4TXKi83p4utSoQdwrwuL2vKSy8nHd0u6sic8usXY71cGb3h2wF4V3mq5dCGCNsjzrxVzpE+LSzxztKN8zVVfq3KWibJYX+AsIfhlJkuVcMjLBG6AK/YIon3ptSOi2rFPpBlN0kOEX6CEbZX3rvLc1tRYfkJe6NHfsUe4yzxI4uXqnW6bRr2IWY5n0I81Ty7rZ745ddtN6iMkzAYebUkhO/JHen/geHDLNg3HH7xzeQbugD9a8kCAAA="));
+            readVSDResult.allgemeineVersicherungsdaten  = new Holder<byte[]>(DatatypeConverter.parseBase64Binary("H4sIAAAAAAAA/7VT30/CMBD+V5a+SzfMApquBsEYgoARReMLqezYFsbNtAWVv94rotnI/PHiS5u7r993392l4ux1lXsb0CYrMGJBw2ce4LyIM0wi1p+Mj9rt8OQoCJlnrMJY5QVCxN7AsDMp7rqzTp4nsIIMYepE5inoNSYmVhbwYXjldXvD2fTiZtIfjyIWNpquAJVEE7HU2udTzl9MgxSUzZaNGPhC8Y2JV+7gG3rPpPgStqBLkStj5unabqU4hyRDlE0/OPYDPxB8nxCDwpARqxUkjlwJl4BIIpIIYSsMgxPBa/EqK1eAMWgaEcjeAaOMiZFagbyFeYrZErQ30ApJcamMAcF3oOg8aYfvSH922gp9/z+cDj5d8R9s8cO4dh2Pa6PsNsNFYSrB5WBaWScqbWVQEtmnypzZ3g3pz3b8DwfEsMraXdcd0FubOwEnVOjEZWlGtXnxqFJU3zC+xcSEqtEXIRD0OR2EO0Jd2nWoMKdFW7iCzDiTgO51PfA51HJL9+Nr6TcFdzfZ+mEc/HC+vDJ9Xv09/PcvK98BTCKoUhQEAAA="));            
+
+            assertEquals("66648b7131", PharmacyService.extractHCV(readVSDResult));
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail(e);
+        }
+    }
+
+    @Test
+    public void testExtractClaculateHCV() {
+        try (PharmacyService pharmacyService = new PharmacyService()) {
+            assertEquals("10be65f365", PharmacyService.calculateHCV("2018-01-11T07:00:00", "Beispielstrasse"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail(e);
+        }
+    }
+
     private static PharmacyService getPharmacyServiceWithMocks() {
         Client client = mock(Client.class);
         WebTarget successTarget = mock(WebTarget.class);
