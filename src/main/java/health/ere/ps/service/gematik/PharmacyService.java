@@ -180,7 +180,7 @@ public class PharmacyService implements AutoCloseable {
         String pnw = Base64.getEncoder().encodeToString(pruefungsnachweis.value);
         try (Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task")
                 .queryParam("kvnr", extractKVNR(readVSD))
-                .queryParam("hcv", extractHCV(readVSD))
+                .queryParam("kvnr", extractHCV(readVSD))
                 .queryParam("pnw", pnw).request()
                 .header("Content-Type", "application/fhir+xml")
                 .header("User-Agent", appConfig.getUserAgent())
