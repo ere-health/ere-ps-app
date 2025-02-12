@@ -42,7 +42,7 @@ public class PharmacyResource {
     ) {
         boolean forceCetp = useCetp != null && useCetp;
         RuntimeConfig runtimeConfig = extractRuntimeConfigFromHeaders(httpServletRequest, userConfig);
-        return subscriptionManager.manage(runtimeConfig, host, httpServletRequest.getServerName(), forceCetp, true);
+        return subscriptionManager.manage(runtimeConfig, host, null, httpServletRequest.getServerName(), forceCetp, true);
     }
 
     @GET
@@ -53,7 +53,7 @@ public class PharmacyResource {
     ) {
         boolean forceCetp = useCetp != null && useCetp;
         RuntimeConfig runtimeConfig = extractRuntimeConfigFromHeaders(httpServletRequest, userConfig);
-        return subscriptionManager.manage(runtimeConfig, host, httpServletRequest.getServerName(), forceCetp, false);
+        return subscriptionManager.manage(runtimeConfig, host,null, httpServletRequest.getServerName(), forceCetp, false);
     }
  
     @GET

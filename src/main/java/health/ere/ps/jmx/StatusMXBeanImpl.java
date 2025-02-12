@@ -32,7 +32,7 @@ public class StatusMXBeanImpl implements StatusMXBean {
 //    }
 
     public String getStatus() {
-        var konnektorConfigs = subscriptionManager.getKonnektorConfigs(null);
+        var konnektorConfigs = subscriptionManager.getKonnektorConfigs(null, null);
         ObjectNode rootNode = OBJECT_MAPPER.createObjectNode();
 
         for (var konnektorConfig : konnektorConfigs) {

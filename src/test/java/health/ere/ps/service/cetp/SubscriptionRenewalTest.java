@@ -24,6 +24,9 @@ import org.mockito.stubbing.Answer;
 
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -70,12 +73,20 @@ public class SubscriptionRenewalTest {
         int subscribedCount = 0;
         EventServicePortType eventService = setupRenewal(subscribedCount, 5000, subscribeStatus, renewalStatus, unsubscribeStatus);
 
-        KonnektorConfig kc = subscriptionManager.getKonnektorConfigs("192.168.178.42").stream().findFirst().get();
-        boolean result = subscriptionManager.renewSubscriptions(eventToHost, kc);
+        boolean result = getResult();
         assertTrue(result);
         verify(eventService).subscribe(any(), any(), any(), any(), any());
         verify(eventService, never()).renewSubscriptions(any(), any(), any(), any());
         verify(eventService, never()).unsubscribe(any(), any(), any());
+    }
+
+    private boolean getResult() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        KonnektorConfig kc = subscriptionManager.getKonnektorConfigs("192.168.178.42", null).stream().findFirst().get();
+
+        Method method = subscriptionManager.getClass().getDeclaredMethod("renewSubscriptions", String.class, KonnektorConfig.class);
+        method.setAccessible(true);
+        boolean result = (boolean) method.invoke(subscriptionManager, eventToHost, kc);
+        return result;
     }
 
     @Test
@@ -87,8 +98,7 @@ public class SubscriptionRenewalTest {
         int subscribedCount = 2;
         EventServicePortType eventService = setupRenewal(subscribedCount, 5000, subscribeStatus, renewalStatus, unsubscribeStatus);
 
-        KonnektorConfig kc = subscriptionManager.getKonnektorConfigs("192.168.178.42").stream().findFirst().get();
-        boolean result = subscriptionManager.renewSubscriptions(eventToHost, kc);
+        boolean result = getResult();
         assertTrue(result);
         verify(eventService, never()).subscribe(any(), any(), any(), any(), any());
         verify(eventService).renewSubscriptions(any(), any(), any(), any());
@@ -104,8 +114,7 @@ public class SubscriptionRenewalTest {
         int subscribedCount = 2;
         EventServicePortType eventService = setupRenewal(subscribedCount, 0, subscribeStatus, renewalStatus, unsubscribeStatus);
 
-        KonnektorConfig kc = subscriptionManager.getKonnektorConfigs("192.168.178.42").stream().findFirst().get();
-        boolean result = subscriptionManager.renewSubscriptions(eventToHost, kc);
+        boolean result = getResult();
         assertTrue(result);
         verify(eventService).subscribe(any(), any(), any(), any(), any());
         verify(eventService, never()).renewSubscriptions(any(), any(), any(), any());
@@ -131,8 +140,7 @@ public class SubscriptionRenewalTest {
         int subscribedCount = 2;
         EventServicePortType eventService = setupRenewal(subscribedCount, 0, subscribeStatus, renewalStatus, unsubscribeStatus);
 
-        KonnektorConfig kc = subscriptionManager.getKonnektorConfigs("192.168.178.42").stream().findFirst().get();
-        boolean result = subscriptionManager.renewSubscriptions(eventToHost, kc);
+        boolean result = getResult();
         assertFalse(result);
         verify(eventService).subscribe(any(), any(), any(), any(), any());
         verify(eventService, never()).renewSubscriptions(any(), any(), any(), any());
@@ -143,7 +151,7 @@ public class SubscriptionRenewalTest {
         // force subscribe
         unsubscribeStatus = prepareStatus("Unsubscribed", null);
         eventService = setupRenewal(1, 60000, subscribeStatus, renewalStatus, unsubscribeStatus);
-        result = subscriptionManager.renewSubscriptions(eventToHost, kc);
+        result = getResult();
         assertTrue(result);
         verify(eventService).subscribe(any(), any(), any(), any(), any());
         verify(eventService, never()).renewSubscriptions(any(), any(), any(), any());

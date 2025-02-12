@@ -55,7 +55,7 @@ public class RegisterSMCBJob {
     }
 
     private void initWSClients() {
-        Collection<KonnektorConfig> konnektorConfigs = subscriptionManager.getKonnektorConfigs(null);
+        Collection<KonnektorConfig> konnektorConfigs = subscriptionManager.getKonnektorConfigs(null, null);
 
         SubscriptionsMXBeanImpl subscriptionsMXBean = new SubscriptionsMXBeanImpl(konnektorConfigs.size());
         registerMXBean(SubscriptionsMXBean.OBJECT_NAME, subscriptionsMXBean);
