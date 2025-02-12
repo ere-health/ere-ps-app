@@ -8,8 +8,15 @@ import de.gematik.ws.conn.eventservice.v7.SubscriptionRenewal;
 import de.gematik.ws.conn.eventservice.v7.SubscriptionType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.tel.error.v2.Error;
+import de.health.service.cetp.IKonnektorClient;
 import de.health.service.cetp.SubscriptionManager;
 import de.health.service.cetp.config.KonnektorConfig;
+import de.health.service.cetp.domain.CetpStatus;
+import de.health.service.cetp.domain.SubscriptionResult;
+import de.health.service.cetp.domain.fault.CetpFault;
+import de.health.service.cetp.konnektorconfig.KonnektorConfigService;
+import de.health.service.config.api.UserRuntimeConfig;
+import health.ere.ps.config.UserConfig;
 import health.ere.ps.profile.RUDevTestProfile;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import io.quarkus.test.junit.QuarkusMock;
@@ -25,6 +32,7 @@ import org.mockito.stubbing.Answer;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
@@ -80,11 +88,33 @@ public class SubscriptionRenewalTest {
         verify(eventService, never()).unsubscribe(any(), any(), any());
     }
 
-    private boolean getResult() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    private boolean getResult() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, NoSuchFieldException, SecurityException {
         KonnektorConfig kc = subscriptionManager.getKonnektorConfigs("192.168.178.42", null).stream().findFirst().get();
 
-        Method method = subscriptionManager.getClass().getDeclaredMethod("renewSubscriptions", String.class, KonnektorConfig.class);
+        Method method = SubscriptionManager.class.getDeclaredMethod("renewSubscriptions", String.class, KonnektorConfig.class);
         method.setAccessible(true);
+
+        Field field = SubscriptionManager.class.getDeclaredField("userRuntimeConfig");
+        field.setAccessible(true);
+        field.set(subscriptionManager, new UserConfig());
+
+        field = SubscriptionManager.class.getDeclaredField("konnektorClient");
+        field.setAccessible(true);
+        IKonnektorClient mock = mock(IKonnektorClient.class);
+        try {
+            when(mock.renewSubscription(any(), any())).thenReturn(new SubscriptionResult(new CetpStatus(), "", new Date()));
+            when(mock.subscribe(any(), any())).thenReturn(new SubscriptionResult(new CetpStatus(), "", new Date()));
+        } catch (CetpFault e) {
+            e.printStackTrace();
+        }
+        field.set(subscriptionManager, mock);
+
+        field = SubscriptionManager.class.getDeclaredField("kcService");
+        field.setAccessible(true);
+        field.set(subscriptionManager, mock(KonnektorConfigService.class));
+
+        
+
         boolean result = (boolean) method.invoke(subscriptionManager, eventToHost, kc);
         return result;
     }
@@ -97,7 +127,6 @@ public class SubscriptionRenewalTest {
         Status unsubscribeStatus = prepareStatus("Unsubscribed", null);
         int subscribedCount = 2;
         EventServicePortType eventService = setupRenewal(subscribedCount, 5000, subscribeStatus, renewalStatus, unsubscribeStatus);
-
         boolean result = getResult();
         assertTrue(result);
         verify(eventService, never()).subscribe(any(), any(), any(), any(), any());
