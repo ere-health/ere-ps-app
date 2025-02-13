@@ -17,6 +17,7 @@ import de.health.service.cetp.domain.eventservice.Subscription;
 import de.health.service.cetp.domain.eventservice.card.Card;
 import de.health.service.cetp.domain.eventservice.card.CardType;
 import de.health.service.cetp.domain.eventservice.card.CardsResponse;
+import de.health.service.cetp.domain.eventservice.cardTerminal.CardTerminal;
 import de.health.service.cetp.domain.fault.CetpFault;
 import de.health.service.config.api.UserRuntimeConfig;
 import health.ere.ps.service.cetp.mapper.card.CardTypeMapper;
@@ -29,7 +30,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.xml.ws.Holder;
 import org.apache.commons.lang3.NotImplementedException;
-import org.apache.commons.lang3.tuple.Pair;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.security.cert.X509Certificate;
@@ -155,12 +155,17 @@ public class KonnektorClient implements IKonnektorClient {
         }
     }
 
+    @Override
+    public List<CardTerminal> getCardTerminals(UserRuntimeConfig runtimeConfig) throws CetpFault {
+        throw new NotImplementedException("Not implemented");
+    }
+
     public String getEgkHandle(UserRuntimeConfig userRuntimeConfig, String insurantId) throws CetpFault {
         throw new NotImplementedException("Not implemented");
     }
 
     @Override
-    public Pair<X509Certificate, Boolean> getSmcbX509Certificate(String smcbHandle, UserRuntimeConfig userRuntimeConfig) throws CetpFault {
+    public X509Certificate getSmcbX509Certificate(UserRuntimeConfig userRuntimeConfig, String smcbHandle) throws CetpFault {
         throw new NotImplementedException("Not implemented");
     }
 

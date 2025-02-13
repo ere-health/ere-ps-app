@@ -70,7 +70,7 @@ public class SubscriptionRenewalTest {
         int subscribedCount = 0;
         EventServicePortType eventService = setupRenewal(subscribedCount, 5000, subscribeStatus, renewalStatus, unsubscribeStatus);
 
-        KonnektorConfig kc = subscriptionManager.getKonnektorConfigs("192.168.178.42").stream().findFirst().get();
+        KonnektorConfig kc = subscriptionManager.getKonnektorConfigs("192.168.178.42", null).stream().findFirst().get();
         boolean result = subscriptionManager.renewSubscriptions(eventToHost, kc);
         assertTrue(result);
         verify(eventService).subscribe(any(), any(), any(), any(), any());
@@ -87,7 +87,7 @@ public class SubscriptionRenewalTest {
         int subscribedCount = 2;
         EventServicePortType eventService = setupRenewal(subscribedCount, 5000, subscribeStatus, renewalStatus, unsubscribeStatus);
 
-        KonnektorConfig kc = subscriptionManager.getKonnektorConfigs("192.168.178.42").stream().findFirst().get();
+        KonnektorConfig kc = subscriptionManager.getKonnektorConfigs("192.168.178.42", null).stream().findFirst().get();
         boolean result = subscriptionManager.renewSubscriptions(eventToHost, kc);
         assertTrue(result);
         verify(eventService, never()).subscribe(any(), any(), any(), any(), any());
@@ -104,7 +104,7 @@ public class SubscriptionRenewalTest {
         int subscribedCount = 2;
         EventServicePortType eventService = setupRenewal(subscribedCount, 0, subscribeStatus, renewalStatus, unsubscribeStatus);
 
-        KonnektorConfig kc = subscriptionManager.getKonnektorConfigs("192.168.178.42").stream().findFirst().get();
+        KonnektorConfig kc = subscriptionManager.getKonnektorConfigs("192.168.178.42", null).stream().findFirst().get();
         boolean result = subscriptionManager.renewSubscriptions(eventToHost, kc);
         assertTrue(result);
         verify(eventService).subscribe(any(), any(), any(), any(), any());
@@ -131,7 +131,7 @@ public class SubscriptionRenewalTest {
         int subscribedCount = 2;
         EventServicePortType eventService = setupRenewal(subscribedCount, 0, subscribeStatus, renewalStatus, unsubscribeStatus);
 
-        KonnektorConfig kc = subscriptionManager.getKonnektorConfigs("192.168.178.42").stream().findFirst().get();
+        KonnektorConfig kc = subscriptionManager.getKonnektorConfigs("192.168.178.42", null).stream().findFirst().get();
         boolean result = subscriptionManager.renewSubscriptions(eventToHost, kc);
         assertFalse(result);
         verify(eventService).subscribe(any(), any(), any(), any(), any());

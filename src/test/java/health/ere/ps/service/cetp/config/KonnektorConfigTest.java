@@ -1,23 +1,18 @@
 package health.ere.ps.service.cetp.config;
 
-import de.health.service.cetp.KonnektorsConfigs;
-import de.health.service.cetp.SubscriptionManager;
 import de.health.service.cetp.config.KonnektorConfig;
 import de.health.service.cetp.konnektorconfig.FSConfigService;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.UserConfig;
 import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.profile.RUDevTestProfile;
-import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -25,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
 @QuarkusTest
@@ -61,24 +55,27 @@ public class KonnektorConfigTest {
     }
 
     @Test
-    public void twoConfigsWithSameKonnectorAreLoaded() {
-        FSConfigService configService = spy(new FSConfigService(appConfig, userConfig));
-        configService.setConfigFolder("config/konnektoren");
+    public void twoConfigsWithSameKonnectorAndDifferentWorkplacesAreLoaded() {
+        FSConfigService fsConfigService = spy(new FSConfigService(appConfig, userConfig));
+        fsConfigService.setConfigFolder("config/konnektoren");
 
         List<KonnektorConfig> sameKonnektorConfigs = new ArrayList<>();
-        Properties sameKonnektorProperties = new Properties();
+
         String konnektorHost = "192.168.178.42";
-        sameKonnektorProperties.put("connectorBaseURL", "https\\://" + konnektorHost);
-        sameKonnektorConfigs.add(new KonnektorConfig(null, 8585, null, new UserConfigurations(sameKonnektorProperties)));
-        sameKonnektorConfigs.add(new KonnektorConfig(null, 8586, null, new UserConfigurations(sameKonnektorProperties)));
+        Properties konnektorProperties1 = new Properties();
+        konnektorProperties1.put("connectorBaseURL", "https\\://" + konnektorHost);
+        konnektorProperties1.put("workplaceId", "wp1");
 
-        doReturn(sameKonnektorConfigs).when(configService).readFromPath(any());
+        Properties konnektorProperties2 = new Properties();
+        konnektorProperties2.put("connectorBaseURL", "https\\://" + konnektorHost);
+        konnektorProperties2.put("workplaceId", "wp2");
 
-        // Does not work anymore because konnektorsConfigs gets injected in SubscriptionManager
-        // and this is not happening in this test case
-        // SubscriptionManager subscriptionManager = new SubscriptionManager(appConfig, userConfig, null, configService);
-        // subscriptionManager.onStart(null);
-        // Collection<KonnektorConfig> konnektorConfigs = subscriptionManager.getKonnektorConfigs(konnektorHost);
-        // assertEquals(sameKonnektorConfigs.size(), konnektorConfigs.size());
+        sameKonnektorConfigs.add(new KonnektorConfig(null, 8585, null, new UserConfigurations(konnektorProperties1)));
+        sameKonnektorConfigs.add(new KonnektorConfig(null, 8586, null, new UserConfigurations(konnektorProperties2)));
+
+        doReturn(sameKonnektorConfigs).when(fsConfigService).readFromPath(any());
+        fsConfigService.onStart(null);
+
+        assertEquals(sameKonnektorConfigs.size(), fsConfigService.configMap().size());
     }
 }
