@@ -1,6 +1,6 @@
 package health.ere.ps.resource.gematik;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -10,8 +10,13 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.Collections;
 
+import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
+import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
+import de.gematik.ws.tel.error.v2.Error;
 import jakarta.servlet.http.HttpServletRequest;
 
+import jakarta.ws.rs.WebApplicationException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -20,7 +25,21 @@ import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.config.UserConfig;
 import health.ere.ps.service.gematik.ERezeptWorkflowService;
 
-public class ERezeptWorkflowResourceTest {
+class ERezeptWorkflowResourceTest {
+
+    private ERezeptWorkflowResource eRezeptWorkflowResource;
+
+    @BeforeEach
+    public void setUp() {
+        ERezeptWorkflowService eRezeptWorkflowService = mock(ERezeptWorkflowService.class);
+        HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
+
+        eRezeptWorkflowResource = new ERezeptWorkflowResource();
+
+        eRezeptWorkflowResource.eRezeptWorkflowService = eRezeptWorkflowService;
+        eRezeptWorkflowResource.httpServletRequest = httpServletRequest;
+    }
+
     @Test
     public void testReadHeader() {
         HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
@@ -49,7 +68,6 @@ public class ERezeptWorkflowResourceTest {
             }
             
         });
-        ERezeptWorkflowResource eRezeptWorkflowResource = new ERezeptWorkflowResource();
         eRezeptWorkflowResource.httpServletRequest = httpServletRequest;
         RuntimeConfig runtimeConfig = Extractors.extractRuntimeConfigFromHeaders(httpServletRequest, new UserConfig());
 
@@ -71,15 +89,36 @@ public class ERezeptWorkflowResourceTest {
 
     @Test
     public void testIdpToken() {
-        ERezeptWorkflowResource eRezeptWorkflowResource = new ERezeptWorkflowResource();
-        eRezeptWorkflowResource.httpServletRequest = mock(HttpServletRequest.class);
         when(eRezeptWorkflowResource.httpServletRequest.getHeaderNames()).thenReturn(Collections.enumeration(Collections.emptyList()));
-        eRezeptWorkflowResource.eRezeptWorkflowService = mock(ERezeptWorkflowService.class);
         when(eRezeptWorkflowResource.eRezeptWorkflowService.getBearerToken(any())).thenReturn("123456");
 
         String token = eRezeptWorkflowResource.idpToken();
 
         assertEquals("123456", token);
         verify(eRezeptWorkflowResource.eRezeptWorkflowService).requestNewAccessTokenIfNecessary(any(), any(), any());
+    }
+
+    @Test
+    public void testCards() throws FaultMessage {
+        GetCardsResponse getCardsResponse = new GetCardsResponse();
+        when(eRezeptWorkflowResource.eRezeptWorkflowService.getCards(any())).thenReturn(getCardsResponse);
+        when(eRezeptWorkflowResource.httpServletRequest.getHeaderNames()).thenReturn(Collections.enumeration(Collections.emptyList()));
+
+        GetCardsResponse response = eRezeptWorkflowResource.cards();
+
+        assertEquals(getCardsResponse, response);
+        verify(eRezeptWorkflowResource.eRezeptWorkflowService).getCards(any());
+    }
+
+    @Test
+    public void testCardsThrowsException() throws FaultMessage {
+        FaultMessage faultMessage = new FaultMessage("Fehler", new Error());
+        when(eRezeptWorkflowResource.eRezeptWorkflowService.getCards(any())).thenThrow(faultMessage);
+        when(eRezeptWorkflowResource.httpServletRequest.getHeaderNames()).thenReturn(Collections.enumeration(Collections.emptyList()));
+
+        WebApplicationException webApplicationException = assertThrows(WebApplicationException.class, () -> eRezeptWorkflowResource.cards());
+
+        assertTrue(webApplicationException.getCause().getMessage().contains(faultMessage.getMessage()));
+        verify(eRezeptWorkflowResource.eRezeptWorkflowService).getCards(any());
     }
 }
