@@ -175,49 +175,55 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
      * necessary processing
      */
     public void onSignAndUploadBundlesEvent(@ObservesAsync SignAndUploadBundlesEvent signAndUploadBundlesEvent) {
-        requestNewAccessTokenIfNecessary(signAndUploadBundlesEvent.getRuntimeConfig(), signAndUploadBundlesEvent.getReplyTo(), signAndUploadBundlesEvent.getId());
+        try {
+            requestNewAccessTokenIfNecessary(signAndUploadBundlesEvent.getRuntimeConfig(), signAndUploadBundlesEvent.getReplyTo(), signAndUploadBundlesEvent.getId());
 
-        List<List<Bundle>> listOfListOfBundles = signAndUploadBundlesEvent.listOfListOfBundles;
-        log.info(String.format("Received %d bundles to sign ", listOfListOfBundles.size()));
-        log.fine("Contents of list of bundles to sign are as follows:");
-        listOfListOfBundles.forEach(bundlesList -> {
-            log.fine("Bundles list contents is:");
-            bundlesList.forEach(bundle -> log.fine("Bundle content: " + bundle.toString()));
-        });
+            List<List<Bundle>> listOfListOfBundles = signAndUploadBundlesEvent.listOfListOfBundles;
+            log.info(String.format("Received %d bundles to sign ", listOfListOfBundles.size()));
+            log.fine("Contents of list of bundles to sign are as follows:");
+            listOfListOfBundles.forEach(bundlesList -> {
+                log.fine("Bundles list contents is:");
+                bundlesList.forEach(bundle -> log.fine("Bundle content: " + bundle.toString()));
+            });
 
-        List<List<BundleWithAccessCodeOrThrowable>> bundleWithAccessCodeOrThrowable = new ArrayList<>();
-        List<Bundle> bundles = signAndUploadBundlesEvent.listOfListOfBundles.stream().flatMap(b -> b.stream()).collect(Collectors.toList());
-        if(bundles.size() == 0) {
-            log.warning("No bundles to sign. Returning.");
-            exceptionEvent.fireAsync(new ArrayIndexOutOfBoundsException("No bundles to sign. Returning. Please see https://github.com/ere-health/ere-ps-app/blob/main/src/test/resources/websocket-messages/SignAndUploadBundles.json for an example message"));
+            List<List<BundleWithAccessCodeOrThrowable>> bundleWithAccessCodeOrThrowable = new ArrayList<>();
+            List<Bundle> bundles = signAndUploadBundlesEvent.listOfListOfBundles.stream().flatMap(b -> b.stream()).collect(Collectors.toList());
+            if(bundles.size() == 0) {
+                log.warning("No bundles to sign. Returning.");
+                exceptionEvent.fireAsync(new ArrayIndexOutOfBoundsException("No bundles to sign. Returning. Please see https://github.com/ere-health/ere-ps-app/blob/main/src/test/resources/websocket-messages/SignAndUploadBundles.json for an example message"));
+                return;
+            }
+            log.info(String.format("Getting access codes for %d bundles.",
+                    bundles.size()));
+
+            List<BundleWithAccessCodeOrThrowable> unflatten = createMultipleERezeptsOnPrescriptionServer(bundles, signAndUploadBundlesEvent.getFlowtype(), signAndUploadBundlesEvent.getRuntimeConfig(), signAndUploadBundlesEvent.getReplyTo(), signAndUploadBundlesEvent.getId());
+            Iterator<BundleWithAccessCodeOrThrowable> it = unflatten.iterator();
+            // unflatten bundles again
+            for(int i = 0;i<listOfListOfBundles.size();i++) {
+                List<BundleWithAccessCodeOrThrowable> unflattenBundles = new ArrayList<>();
+                for(int j=0;j<listOfListOfBundles.get(i).size(); j++) {
+                    BundleWithAccessCodeOrThrowable next = it.next();
+                    unflattenBundles.add(next);
+                }
+                bundleWithAccessCodeOrThrowable
+                        .add(unflattenBundles);
+            }
+
+            log.info(String.format("Firing event to create prescription receipts for %d bundles.",
+                    bundleWithAccessCodeOrThrowable.size()));
+            BundlesWithAccessCodeEvent bundleWithAccessCode = new BundlesWithAccessCodeEvent(bundleWithAccessCodeOrThrowable, signAndUploadBundlesEvent.getReplyTo(), signAndUploadBundlesEvent.getId());
+            if("169".equals(signAndUploadBundlesEvent.getFlowtype())) {
+                bundleWithAccessCode.setFlowtype(signAndUploadBundlesEvent.getFlowtype());
+                bundleWithAccessCode.setToKimAddress(signAndUploadBundlesEvent.getToKimAddress());
+                bundleWithAccessCode.setKimConfigMap(signAndUploadBundlesEvent.getKimConfigMap());
+                bundleWithAccessCode.setNoteToPharmacy(signAndUploadBundlesEvent.getNoteToPharmacy());
+            }
+            bundlesWithAccessCodeEvent.fireAsync(bundleWithAccessCode);
+        } catch(Exception ex) {
+            log.warning("Exception during onSignAndUploadBundlesEvent");
+            exceptionEvent.fireAsync(ex);
             return;
         }
-        log.info(String.format("Getting access codes for %d bundles.",
-                bundles.size()));
-
-        List<BundleWithAccessCodeOrThrowable> unflatten = createMultipleERezeptsOnPrescriptionServer(bundles, signAndUploadBundlesEvent.getFlowtype(), signAndUploadBundlesEvent.getRuntimeConfig(), signAndUploadBundlesEvent.getReplyTo(), signAndUploadBundlesEvent.getId());
-        Iterator<BundleWithAccessCodeOrThrowable> it = unflatten.iterator();
-        // unflatten bundles again
-        for(int i = 0;i<listOfListOfBundles.size();i++) {
-            List<BundleWithAccessCodeOrThrowable> unflattenBundles = new ArrayList<>();
-            for(int j=0;j<listOfListOfBundles.get(i).size(); j++) {
-                BundleWithAccessCodeOrThrowable next = it.next();
-                unflattenBundles.add(next);
-            }
-            bundleWithAccessCodeOrThrowable
-                    .add(unflattenBundles);
-        }
-
-        log.info(String.format("Firing event to create prescription receipts for %d bundles.",
-                bundleWithAccessCodeOrThrowable.size()));
-        BundlesWithAccessCodeEvent bundleWithAccessCode = new BundlesWithAccessCodeEvent(bundleWithAccessCodeOrThrowable, signAndUploadBundlesEvent.getReplyTo(), signAndUploadBundlesEvent.getId());
-        if("169".equals(signAndUploadBundlesEvent.getFlowtype())) {
-            bundleWithAccessCode.setFlowtype(signAndUploadBundlesEvent.getFlowtype());
-            bundleWithAccessCode.setToKimAddress(signAndUploadBundlesEvent.getToKimAddress());
-            bundleWithAccessCode.setKimConfigMap(signAndUploadBundlesEvent.getKimConfigMap());
-            bundleWithAccessCode.setNoteToPharmacy(signAndUploadBundlesEvent.getNoteToPharmacy());
-        }
-        bundlesWithAccessCodeEvent.fireAsync(bundleWithAccessCode);
     }
 
 
