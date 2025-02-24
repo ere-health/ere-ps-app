@@ -231,7 +231,7 @@ public class PharmacyService implements AutoCloseable {
         byte[] first5 = new byte[5];
         System.arraycopy(sha256, 0, first5, 0, 5);
         first5[0] = (byte) (first5[0] & 127);
-        return HexFormat.of().formatHex(first5);
+        return Base64.getUrlEncoder().encodeToString(first5);
     }
 
     static synchronized String extractKVNR(ReadVSDResult readVSDResult) {

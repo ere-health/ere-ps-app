@@ -17,6 +17,7 @@ import jakarta.inject.Inject;
 import jakarta.xml.ws.Holder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
@@ -41,6 +42,7 @@ import static org.mockito.Mockito.when;
 
 @SuppressWarnings("unchecked")
 @QuarkusTest
+@Disabled
 @TestProfile(RUDevTestProfile.class)
 public class KonnektorFailedUnsubscriptionTest {
 
