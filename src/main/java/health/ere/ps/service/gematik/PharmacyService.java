@@ -178,6 +178,7 @@ public class PharmacyService implements AutoCloseable {
         ReadVSDResult readVSD = readVSD(correlationId, egkHandle, smcbHandle, runtimeConfig);
         Holder<byte[]> pruefungsnachweis = readVSD.pruefungsnachweis;
         String pnw = Base64.getEncoder().encodeToString(pruefungsnachweis.value);
+	log.info(appConfig.getPrescriptionServiceURL()+"/Task?kvnr="+extractKVNR(readVSD)+"&hcv="+extractHCV(readVSD)+"&pnw="+pnw);
         try (Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task")
                 .queryParam("kvnr", extractKVNR(readVSD))
                 .queryParam("hcv", extractHCV(readVSD))
@@ -219,9 +220,11 @@ public class PharmacyService implements AutoCloseable {
 
     static String calculateHCV(String vb, String sas)
             throws UnsupportedEncodingException, NoSuchAlgorithmException {
-        byte [] vbb = vb.getBytes("ISO-8859-1");
-        byte[] sasb = sas.getBytes("ISO-8859-1");
-
+	log.info(vb+" "+sas);
+        byte [] vbb = vb.getBytes("ISO-8859-15");
+	log.info("vbb: "+HexFormat.of().formatHex(vbb));
+        byte[] sasb = sas.getBytes("ISO-8859-15");
+	log.info("sab: "+HexFormat.of().formatHex(sasb));
         byte[] combined = new byte[vbb.length + sasb.length];
 
         System.arraycopy(vbb,0,combined,0         ,vbb.length);
@@ -250,6 +253,9 @@ public class PharmacyService implements AutoCloseable {
             throws IOException, JAXBException {
         InputStream isPersoenlicheVersichertendaten = new GZIPInputStream(
             new ByteArrayInputStream(readVSDResult.persoenlicheVersichertendaten.value));
+	InputStream isPersoenlicheVersichertendatenLog = new GZIPInputStream(
+            new ByteArrayInputStream(readVSDResult.persoenlicheVersichertendaten.value));
+	log.info(new String(isPersoenlicheVersichertendatenLog.readAllBytes()));
         UCPersoenlicheVersichertendatenXML patient = (UCPersoenlicheVersichertendatenXML) jaxbContext
                 .createUnmarshaller().unmarshal(isPersoenlicheVersichertendaten);
         return patient;
@@ -259,7 +265,10 @@ public class PharmacyService implements AutoCloseable {
             throws IOException, JAXBException {
         InputStream isPersoenlicheVersichertendaten = new GZIPInputStream(
             new ByteArrayInputStream(readVSDResult.allgemeineVersicherungsdaten.value));
-            UCAllgemeineVersicherungsdatenXML allgemeineVersicherungsdatenXML = (UCAllgemeineVersicherungsdatenXML) jaxbContext
+	InputStream isPersoenlicheVersichertendatenLog = new GZIPInputStream(
+            new ByteArrayInputStream(readVSDResult.allgemeineVersicherungsdaten.value));
+	log.info(new String(isPersoenlicheVersichertendatenLog.readAllBytes()));
+	UCAllgemeineVersicherungsdatenXML allgemeineVersicherungsdatenXML = (UCAllgemeineVersicherungsdatenXML) jaxbContext
                 .createUnmarshaller().unmarshal(isPersoenlicheVersichertendaten);
         return allgemeineVersicherungsdatenXML;
     }
@@ -325,7 +334,7 @@ public class PharmacyService implements AutoCloseable {
         readVSDResult.geschuetzteVersichertendaten = geschuetzteVersichertendaten;
         readVSDResult.vSD_Status = vSD_Status;
         readVSDResult.pruefungsnachweis = pruefungsnachweis;
-        return readVSDResult;
+	return readVSDResult;
     }
 
     public class ReadVSDResult {
