@@ -5,8 +5,19 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import de.gematik.ws.conn.cardservice.v8.CardInfoType;
 import de.gematik.ws.conn.cardservicecommon.v2.CardTypeType;
+import de.gematik.ws.conn.certificateservice.v6.CryptType;
+import de.gematik.ws.conn.certificateservice.v6.ReadCardCertificate;
+import de.gematik.ws.conn.certificateservice.v6.ReadCardCertificate.CertRefList;
+import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateServicePortType;
+import de.gematik.ws.conn.certificateservicecommon.v2.CertRefEnum;
+import de.gematik.ws.conn.certificateservicecommon.v2.X509DataInfoListType;
+import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
+import de.gematik.ws.conn.eventservice.v7.GetCards;
+import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
 import de.gematik.ws.conn.vsds.vsdservice.v5.VSDServicePortType;
@@ -16,6 +27,7 @@ import de.gematik.ws.fa.vsdm.vsd.v5.UCGeschuetzteVersichertendatenXML;
 import de.gematik.ws.fa.vsdm.vsd.v5.UCPersoenlicheVersichertendatenXML;
 import de.health.service.cetp.IKonnektorClient;
 import de.health.service.cetp.domain.eventservice.Subscription;
+import de.health.service.cetp.domain.eventservice.card.Card;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.jmx.ReadEPrescriptionsMXBeanImpl;
@@ -37,6 +49,11 @@ import jakarta.xml.ws.Holder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.entity.ContentType;
+import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.ASN1Primitive;
+import org.bouncycastle.asn1.DEROctetString;
+import org.bouncycastle.asn1.isismtt.ISISMTTObjectIdentifiers;
+import org.bouncycastle.asn1.isismtt.x509.AdmissionSyntax;
 import org.bouncycastle.cms.CMSProcessableByteArray;
 import org.bouncycastle.cms.CMSSignedData;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -64,9 +81,14 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.HexFormat;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -127,6 +149,10 @@ public class PharmacyService implements AutoCloseable {
 
     static DocumentBuilder builder;
 
+    private static Map<RuntimeConfig, Map<String,String>> runtimeConfigToTelematikIdToSmcbHandle = new HashMap<>();
+
+    private int reads = 0;
+
     static {
         try {
             factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
@@ -178,8 +204,16 @@ public class PharmacyService implements AutoCloseable {
         ReadVSDResult readVSD = readVSD(correlationId, egkHandle, smcbHandle, runtimeConfig);
         Holder<byte[]> pruefungsnachweis = readVSD.pruefungsnachweis;
         String pnw = Base64.getEncoder().encodeToString(pruefungsnachweis.value);
+        
+        KVNRAndTelematikId kvnrAndTelematikId = extractKVNRAndTelematikId(readVSD);
+
+        smcbHandle = getSMCBHandleForTelematikId(kvnrAndTelematikId.telematikId, runtimeConfig);
+        if(smcbHandle != null) {
+            runtimeConfig.setSMCBHandle(smcbHandle);
+        }
+
         try (Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task")
-                .queryParam("kvnr", extractKVNR(readVSD))
+                .queryParam("kvnr", kvnrAndTelematikId.kvnr)
                 .queryParam("hcv", extractHCV(readVSD))
                 .queryParam("pnw", pnw).request()
                 .header("Content-Type", "application/fhir+xml")
@@ -197,11 +231,97 @@ public class PharmacyService implements AutoCloseable {
             readEPrescriptionsMXBean.increaseTasks();
             return Pair.of(fhirContext.newXmlParser().parseResource(Bundle.class, bundleString), event);
         } catch (IOException | ParserConfigurationException | SAXException e) {
+            generateRuntimeConfigToTelematikIdToSmcbHandle(runtimeConfig);
             log.log(Level.SEVERE, String.format("[%s] Could not read response from Fachdienst", correlationId), e);
             readEPrescriptionsMXBean.increaseTasksFailed();
             throw new WebApplicationException("Could not read response from Fachdienst", e);
         }
     }
+
+    String getSMCBHandleForTelematikId(String telematikId, RuntimeConfig runtimeConfig) {
+        reads++;
+        // all 1000 reads clear the cache
+        if(reads % 1000 == 0) {
+            runtimeConfigToTelematikIdToSmcbHandle.clear();
+            runtimeConfigToTelematikIdToSmcbHandle = new HashMap<>();
+        }
+        if(runtimeConfigToTelematikIdToSmcbHandle.containsKey(runtimeConfig)) {
+            return runtimeConfigToTelematikIdToSmcbHandle.get(runtimeConfig).get(telematikId);
+        }
+        generateRuntimeConfigToTelematikIdToSmcbHandle(runtimeConfig);
+        if(runtimeConfigToTelematikIdToSmcbHandle.containsKey(runtimeConfig)) {
+            return runtimeConfigToTelematikIdToSmcbHandle.get(runtimeConfig).get(telematikId);
+        }
+        return null;
+    }
+
+    private void generateRuntimeConfigToTelematikIdToSmcbHandle(RuntimeConfig runtimeConfig) {
+        try {
+            EventServicePortType eventService = connectorServicesProvider.getEventServicePortType(runtimeConfig);
+            CertificateServicePortType certificateServicePortType = connectorServicesProvider.getCertificateServicePortType(runtimeConfig);
+            GetCards getCards = new GetCards();
+            ContextType contextType = connectorServicesProvider.getContextType(runtimeConfig);
+            getCards.setContext(contextType);
+            getCards.setCardType(CardTypeType.SMC_B);
+            GetCardsResponse getCardsRespone = eventService.getCards(getCards);
+
+            ReadCardCertificate.CertRefList certRefList = new ReadCardCertificate.CertRefList();
+            certRefList.getCertRef().add(CertRefEnum.C_AUT);
+
+            Holder<Status> statusHolder = new Holder<>();
+            Holder<X509DataInfoListType> certHolder = new Holder<>();
+
+            for(CardInfoType cif : getCardsRespone.getCards().getCard()) {
+                try {
+                    certificateServicePortType.readCardCertificate(cif.getCardHandle(), contextType, certRefList, CryptType.ECC,statusHolder, certHolder);
+                } catch (de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage e) {
+                    log.log(Level.WARNING, "Could not get ECC certificate", e);
+                    try {
+                        certificateServicePortType.readCardCertificate(telematikId, contextType, certRefList, CryptType.RSA, statusHolder, certHolder);
+                    } catch (de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage e1) {
+                        log.log(Level.WARNING, "Could not get RSA certificate", e);
+                    }
+                }
+                if(statusHolder.value != null && statusHolder.value.getResult().equals("OK")) {
+                   // get telematik id from certificate
+                    try {
+                        X509Certificate cert = (X509Certificate) CertificateFactory.getInstance("X509").generateCertificate(new ByteArrayInputStream(certHolder.value.getX509DataInfo().get(0).getX509Data().getX509Certificate()));
+                        String extractedTelematikId = extractTelematikIdFromCertificate(cert);
+                        if(extractedTelematikId != null) {
+                            if(!runtimeConfigToTelematikIdToSmcbHandle.containsKey(runtimeConfig)) {
+                                runtimeConfigToTelematikIdToSmcbHandle.put(runtimeConfig, new HashMap<>());
+                            }
+                            runtimeConfigToTelematikIdToSmcbHandle.get(runtimeConfig).put(extractedTelematikId, cif.getCardHandle());
+                        }
+                    } catch (CertificateException e) {
+                        log.log(Level.WARNING, "Could not parse certificate", e);
+                    }
+                }
+            }
+        } catch (de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage e) {
+            log.log(Level.WARNING, "Could not read cards", e);
+        }
+    }
+
+    public static String extractTelematikIdFromCertificate(X509Certificate cert) {
+        // https://oidref.com/1.3.36.8.3.3
+        byte[] admission = cert.getExtensionValue(ISISMTTObjectIdentifiers.id_isismtt_at_admission.toString());
+        try (ASN1InputStream input = new ASN1InputStream(admission)) {
+            ASN1Primitive p = input.readObject();
+            if (p != null) {
+                // Based on https://stackoverflow.com/a/20439748
+                DEROctetString derOctetString = (DEROctetString) p;
+                try (ASN1InputStream asnInputStream = new ASN1InputStream(new ByteArrayInputStream(derOctetString.getOctets()))) {
+                    ASN1Primitive asn1 = asnInputStream.readObject();
+                    AdmissionSyntax admissionSyntax = AdmissionSyntax.getInstance(asn1);
+                    return admissionSyntax.getContentsOfAdmissions()[0].getProfessionInfos()[0].getRegistrationNumber();
+                }
+            }
+        } catch (IOException ignored) {
+        }
+        return null;
+    }
+    
 
     static synchronized String extractHCV(ReadVSDResult readVSDResult) {
         try {
@@ -234,15 +354,26 @@ public class PharmacyService implements AutoCloseable {
         return Base64.getUrlEncoder().encodeToString(first5);
     }
 
-    static synchronized String extractKVNR(ReadVSDResult readVSDResult) {
+    static synchronized KVNRAndTelematikId extractKVNRAndTelematikId(ReadVSDResult readVSDResult) {
         try {
             UCPersoenlicheVersichertendatenXML patient = getPatient(readVSDResult);
             String versichertenID = patient.getVersicherter().getVersichertenID();
-            return versichertenID;
+            String telematikId = patient.getVersicherter().getPerson().getStrassenAdresse().getAnschriftenzusatz();
+            return new KVNRAndTelematikId(versichertenID, telematikId);
         } catch (IOException | NullPointerException | JAXBException e) {
             String msg = "Could not extract KVNR message";
             log.log(Level.WARNING, msg, e);
-            return "";
+            return new KVNRAndTelematikId("", "");;
+        }
+    }
+
+    class KVNRAndTelematikId {
+        String kvnr;
+        String telematikId;
+
+        public KVNRAndTelematikId(String kvnr, String telematikId) {
+            this.kvnr = kvnr;
+            this.telematikId = telematikId;
         }
     }
 
