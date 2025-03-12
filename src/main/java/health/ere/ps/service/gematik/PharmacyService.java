@@ -245,7 +245,7 @@ public class PharmacyService implements AutoCloseable {
             runtimeConfigToTelematikIdToSmcbHandle.clear();
             runtimeConfigToTelematikIdToSmcbHandle = new HashMap<>();
         }
-        if(runtimeConfigToTelematikIdToSmcbHandle.containsKey(runtimeConfig)) {
+        if(runtimeConfigToTelematikIdToSmcbHandle.containsKey(runtimeConfig) && runtimeConfigToTelematikIdToSmcbHandle.get(runtimeConfig).containsKey(telematikId)) {
             return runtimeConfigToTelematikIdToSmcbHandle.get(runtimeConfig).get(telematikId);
         }
         generateRuntimeConfigToTelematikIdToSmcbHandle(runtimeConfig);
@@ -255,7 +255,7 @@ public class PharmacyService implements AutoCloseable {
         return null;
     }
 
-    private void generateRuntimeConfigToTelematikIdToSmcbHandle(RuntimeConfig runtimeConfig) {
+    void generateRuntimeConfigToTelematikIdToSmcbHandle(RuntimeConfig runtimeConfig) {
         try {
             EventServicePortType eventService = connectorServicesProvider.getEventServicePortType(runtimeConfig);
             CertificateServicePortType certificateServicePortType = connectorServicesProvider.getCertificateServicePortType(runtimeConfig);
@@ -277,7 +277,7 @@ public class PharmacyService implements AutoCloseable {
                 } catch (de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage e) {
                     log.log(Level.WARNING, "Could not get ECC certificate", e);
                     try {
-                        certificateServicePortType.readCardCertificate(telematikId, contextType, certRefList, CryptType.RSA, statusHolder, certHolder);
+                        certificateServicePortType.readCardCertificate(cif.getCardHandle(), contextType, certRefList, CryptType.RSA, statusHolder, certHolder);
                     } catch (de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage e1) {
                         log.log(Level.WARNING, "Could not get RSA certificate", e);
                     }
@@ -292,6 +292,8 @@ public class PharmacyService implements AutoCloseable {
                                 runtimeConfigToTelematikIdToSmcbHandle.put(runtimeConfig, new HashMap<>());
                             }
                             runtimeConfigToTelematikIdToSmcbHandle.get(runtimeConfig).put(extractedTelematikId, cif.getCardHandle());
+                        } else {
+                            log.warning("Could not extract telematik id from certificate of " + cif.getCardHandle());
                         }
                     } catch (CertificateException e) {
                         log.log(Level.WARNING, "Could not parse certificate", e);
@@ -303,7 +305,7 @@ public class PharmacyService implements AutoCloseable {
         }
     }
 
-    public static String extractTelematikIdFromCertificate(X509Certificate cert) {
+    static String extractTelematikIdFromCertificate(X509Certificate cert) {
         // https://oidref.com/1.3.36.8.3.3
         byte[] admission = cert.getExtensionValue(ISISMTTObjectIdentifiers.id_isismtt_at_admission.toString());
         try (ASN1InputStream input = new ASN1InputStream(admission)) {
@@ -317,7 +319,8 @@ public class PharmacyService implements AutoCloseable {
                     return admissionSyntax.getContentsOfAdmissions()[0].getProfessionInfos()[0].getRegistrationNumber();
                 }
             }
-        } catch (IOException ignored) {
+        } catch (Exception ex) {
+            log.log(Level.WARNING, "Could not extract telematif id from cert: "+cert, ex);
         }
         return null;
     }
@@ -363,11 +366,11 @@ public class PharmacyService implements AutoCloseable {
         } catch (IOException | NullPointerException | JAXBException e) {
             String msg = "Could not extract KVNR message";
             log.log(Level.WARNING, msg, e);
-            return new KVNRAndTelematikId("", "");;
+            return new KVNRAndTelematikId("", "");
         }
     }
 
-    class KVNRAndTelematikId {
+    public static class KVNRAndTelematikId {
         String kvnr;
         String telematikId;
 

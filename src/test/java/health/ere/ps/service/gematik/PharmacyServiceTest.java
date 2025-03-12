@@ -4,10 +4,20 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import de.gematik.ws.conn.cardservice.v8.CardInfoType;
+import de.gematik.ws.conn.cardservice.v8.Cards;
+import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateServicePortType;
+import de.gematik.ws.conn.certificateservicecommon.v2.X509DataInfoListType;
+import de.gematik.ws.conn.connectorcommon.v5.Status;
+import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
+import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
+import de.gematik.ws.conn.servicedirectory.v3.ConnectorServices;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.jmx.ReadEPrescriptionsMXBeanImpl;
 import health.ere.ps.model.config.UserConfigurations;
+import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import health.ere.ps.service.gematik.PharmacyService.ReadVSDResult;
 import health.ere.ps.service.idp.BearerTokenService;
 import jakarta.ws.rs.client.Client;
@@ -19,11 +29,15 @@ import jakarta.xml.ws.Holder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -36,6 +50,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -198,6 +213,46 @@ class PharmacyServiceTest {
     public void testExtractCalculateHCV() {
         try (PharmacyService pharmacyService = new PharmacyService()) {
             assertEquals("EL5l82U=", PharmacyService.calculateHCV("2018-01-11T07:00:00", "Beispielstrasse"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail(e);
+        }
+    }
+
+    @Test
+    public void testGetSMCBHandleForTelematikId() {
+        try (PharmacyService pharmacyService = new PharmacyService()) {
+
+            EventServicePortType eventServicePortType = mock(EventServicePortType.class);
+            GetCardsResponse getCardsResponse = new GetCardsResponse();
+            CardInfoType cardInfoType = new CardInfoType();
+            getCardsResponse.setCards(new Cards());
+            getCardsResponse.getCards().getCard().add(cardInfoType);
+            cardInfoType.setCardHandle("SMC-B-1");
+
+            when(eventServicePortType.getCards(any())).thenReturn(getCardsResponse);
+            CertificateServicePortType certificateServicePortType = mock(CertificateServicePortType.class);
+
+            doAnswer(new Answer<Void>() {
+            public Void answer(InvocationOnMock invocation) {
+                Object[] args = invocation.getArguments();
+                Holder<Status> statusHolder = (Holder<Status>) args[4];
+                statusHolder.value = new Status();
+                statusHolder.value.setResult("OK");
+                Holder<X509DataInfoListType> cardCertificate = (Holder<X509DataInfoListType>) args[5];
+                cardCertificate.value = new X509DataInfoListType();
+                cardCertificate.value.getX509DataInfo().add(new X509DataInfoListType.X509DataInfo());
+                cardCertificate.value.getX509DataInfo().get(0).setX509Data(new X509DataInfoListType.X509DataInfo.X509Data());
+                cardCertificate.value.getX509DataInfo().get(0).getX509Data().setX509Certificate(Base64.getDecoder().decode("MIIE4jCCA8qgAwIBAgIGfhZJZ5GfMA0GCSqGSIb3DQEBCwUAMFAxCzAJBgNVBAYTAkRFMR8wHQYDVQQKDBZnZW1hdGlrIEdtYkggTk9ULVZBTElEMSAwHgYDVQQDDBdHRU0uSEJBLXFDQTI0IFRFU1QtT05MWTAeFw0yMDAxMjkwMDAwMDBaFw0yNDEyMTEyMzU5NTlaMH0xCzAJBgNVBAYTAkRFMW4wEAYDVQQEDAlPbGRlbmJ1cmcwGAYDVQQqDBFNw6NyaWFubmUgR3LDpGZpbjAbBgNVBAUTFDgwMjc2ODgzMTEwMDAwMTIxMzM3MCMGA1UEAwwcTcOjcmlhbm5lIE9sZGVuYnVyZ1RFU1QtT05MWTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK6MJOvLv0U5j6xN0Z2ZxYSCvSR5iF1dAdTxCX0pD6ob8U30GdMHs3MIO60WmeH+mn4zDwzZ8j8j78wu3mCaSCKv608MucdLKN2YHrqpb7XkJOSV0hWa0cPi5G+gLRjWxDn37dcTXBRzT3zKSsn4kQfIU6FztOgZo4f2HMsY3e5r7Zw8haCvxH0ttCvKA9Ni9Zq/26gwWzaNNVAyBmP9auY0tFfkqX8roypBfD5pJYmHW4URidAE/QiC3t69CYwOoZjNmEgnZMQGxw1BmhfTI5XVe3oRl4BVGATYQuRhu5XZGied781gtIyYvLmiLE5gqeT4AjiEo+t8p2ewGQebcWsCAwEAAaOCAZMwggGPMB0GA1UdDgQWBBS/xxv8WvYCNSrOdX3SZk7aPzr95jAiBggrBgEFBQcBAwQWMBQwCAYGBACORgEBMAgGBgQAjkYBBDA5BgNVHSAEMjAwMAkGByqCFABMBEgwCQYHBACL7EABAjAKBggqghQATASBETAMBgorBgEEAYLNMwEBMA4GA1UdDwEB/wQEAwIGQDAbBgkrBgEEAcBtAwUEDjAMBgorBgEEAcBtAwUBMDgGCCsGAQUFBwEBBCwwKjAoBggrBgEFBQcwAYYcaHR0cDovL2VoY2EuZ2VtYXRpay5kZS9vY3NwLzAfBgNVHSMEGDAWgBRnnDG26cA36h0bgeek9TvMHhcBOTAMBgNVHRMBAf8EAjAAMHkGBSskCAMDBHAwbqQoMCYxCzAJBgNVBAYTAkRFMRcwFQYDVQQKDA5nZW1hdGlrIEJlcmxpbjBCMEAwPjA8MA4MDMOEcnp0aW4vQXJ6dDAJBgcqghQATAQeEx8xLUhCQS1UZXN0a2FydGUtODgzMTEwMDAwMTIxMzM3MA0GCSqGSIb3DQEBCwUAA4IBAQBb/UuY8Csh4Fyjj7vB89HVIk+k1gwMvjIUzvaXz1uIwMiRy3AVDOSAcdA5EmlUuNv+2SBdEIb7besqKokHml9FLP3aaRIl8PA0hxz1bUP/JWhqa85RqI0u3EGlFJWEZVky+3ASop5cHM9GBVSS2MOchrVu+EbG2Sn8LPyFu3gtFNpKGz+pjzLzC0dRCVzhrPieuibxB6/njcLhwOGyZ+0nDsfk1kmBlTx6M2/SD0H+l/0ZBn1O0ineM0fI0qEWJOqqL0hoVEKqNSUBZxLxCCUK4x24+Vwf7Dnij/N0OuhUNcxxv6cJjJIg+Dlry3OXH9RIOUI8YKgdkxkGFuhIgl5h"));
+                return null;
+            }}).when(certificateServicePortType).readCardCertificate(any(), any(), any(), any(), any(), any());
+
+            MultiConnectorServicesProvider multiConnectorServicesProvider = mock(MultiConnectorServicesProvider.class);
+            when(multiConnectorServicesProvider.getEventServicePortType(any())).thenReturn(eventServicePortType);
+            when(multiConnectorServicesProvider.getCertificateServicePortType(any())).thenReturn(certificateServicePortType);
+            pharmacyService.connectorServicesProvider = multiConnectorServicesProvider;
+            
+            assertEquals("SMC-B-1", pharmacyService.getSMCBHandleForTelematikId("1-HBA-Testkarte-883110000121337", null));
         } catch (Exception e) {
             e.printStackTrace();
             fail(e);
