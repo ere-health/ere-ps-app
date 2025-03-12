@@ -296,6 +296,7 @@ public class PharmacyService implements AutoCloseable {
                             if(!runtimeConfigToTelematikIdToSmcbHandle.containsKey(runtimeConfig)) {
                                 runtimeConfigToTelematikIdToSmcbHandle.put(runtimeConfig, new HashMap<>());
                             }
+                            log.info("Extracted telematik id from certificate of " + cif.getCardHandle() + " " + extractedTelematikId);
                             runtimeConfigToTelematikIdToSmcbHandle.get(runtimeConfig).put(extractedTelematikId, cif.getCardHandle());
                         } else {
                             log.warning("Could not extract telematik id from certificate of " + cif.getCardHandle());
