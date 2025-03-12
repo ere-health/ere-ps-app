@@ -1,9 +1,12 @@
 package health.ere.ps.jmx;
 
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import health.ere.ps.profile.RUTestProfile;
 
 import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
@@ -13,6 +16,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 @QuarkusTest
+@TestProfile(RUTestProfile.class)
 class ReadEPrescriptionsMXBeanImplTest {
     @Inject
     ReadEPrescriptionsMXBeanImpl bean;
@@ -20,6 +24,7 @@ class ReadEPrescriptionsMXBeanImplTest {
     @Test
     void testCIDandParallel() throws Exception {
         Assertions.assertNotNull(bean);
+        bean.onStart(null);
         var nrTasks = 10_000;
         var tasks = new ArrayList<Future<?>>(nrTasks);
         int numOfCores = Runtime.getRuntime().availableProcessors() / 2;

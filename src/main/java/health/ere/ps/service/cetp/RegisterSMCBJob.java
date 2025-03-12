@@ -19,6 +19,7 @@ import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -71,22 +72,23 @@ public class RegisterSMCBJob {
             List<Card> cards;
             try {
                 cards = konnektorClient.getCards(new RuntimeConfig(kc.getUserConfigurations()), CardType.SMC_B);
-                for(Card card : cards) {
-    
-                    cardlinkWebsocketClients.add(
-                        new CardlinkWebsocketClient(
-                            kc.getCardlinkEndpoint(),
-                            new EreJwtConfigurator(
-                                new RuntimeConfig(kc.getUserConfigurations()),
-                                konnektorClient,
-                                bearerTokenService,
-                                card.getCardHandle()
-                            )
-                        )
-                    );
-                }
-            } catch (CetpFault e) {
+            } catch (Exception e) {
                 log.log(Level.WARNING, "Could not read SMC-Bs", e);
+                cards=Arrays.asList(new Card());
+            }
+            for(Card card : cards) {
+
+                cardlinkWebsocketClients.add(
+                    new CardlinkWebsocketClient(
+                        kc.getCardlinkEndpoint(),
+                        new EreJwtConfigurator(
+                            new RuntimeConfig(kc.getUserConfigurations()),
+                            konnektorClient,
+                            bearerTokenService,
+                            card.getCardHandle()
+                        )
+                    )
+                );
             }
 
         });

@@ -188,7 +188,7 @@ class PharmacyServiceTest {
             readVSDResult.persoenlicheVersichertendaten = new Holder<byte[]>(DatatypeConverter.parseBase64Binary("H4sIAAAAAAAAAI1Sy27bMBD8FYH3iJITIXaxYhDERewijoO6dXMzGGltCSWXBUk5rb81H9NVHo4d9NALyRnOcpYcwsVva5It+tA6KkWeZiJBqlzd0qYU08X8ZDgsRid5IZIQNdXaOMJS/MEgLhR8v1rdcalDMm3V4LI/hmcfkZU83M9ukqvxbLX8/HUxnd+WokgHvQN7UihFE+OvT1I+hnSDVsf2Z1qjXGu5DbXtB7llvVBwcK4/QrSajtV9nmdnw2IwykF+3IPn9kjBNT50PgbuqrMqH50Ps7PBOcgjGpbOk7aovrhGEyWXZu0oJIvWOkom2Nbo2eFVA7e6ap5XT/5BE8g9Zq9QNQarJqpZb7FHXGORwq4LOu7UtdfrvuyAgm9tRKPuvFunydinIF8IWESvQ0C6rD3yzPdyIRps4043Rg2y06IAecTB3Ec10ZbvtwHZA7jh/BT8cA0FFhnNIaHnqFGNQf6LBvlS8uquJs4EfthHbQzINxImugvUWcvZnGYgD+Be9N63fAtEHocq/+Mrqb+FySMvrQIAAA=="));
             readVSDResult.pruefungsnachweis = new Holder<byte[]>(DatatypeConverter.parseBase64Binary("H4sIAAAAAAAA/7MJ8FNwdvGND3MNCvb097NVMtQz0DNQUqjIzckrtlXKKCkpsNLXLy/WS0/NTSzJzNZLSdVPS9QvK07J1S/IK9cvA6pXsrMJCbYzMjAyMTAysDA0NjAwMLTRBwrZuNoZ2+i72tnoB/jZAQBWMwfLagAAAA=="));
 
-            assertEquals("X110485291", PharmacyService.extractKVNRAndTelematikId(readVSDResult));
+            assertEquals("X110485291", PharmacyService.extractKVNRAndTelematikId(readVSDResult).kvnr);
         } catch (Exception e) {
             e.printStackTrace();
             fail(e);
