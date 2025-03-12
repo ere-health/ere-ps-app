@@ -208,7 +208,8 @@ public class PharmacyService implements AutoCloseable {
         KVNRAndTelematikId kvnrAndTelematikId = extractKVNRAndTelematikId(readVSD);
 
         smcbHandle = getSMCBHandleForTelematikId(kvnrAndTelematikId.telematikId, runtimeConfig);
-        if(smcbHandle != null) {
+        if(smcbHandle != null && kvnrAndTelematikId != null) {
+            log.info("Found SMCB handle for telematik id: " + kvnrAndTelematikId.telematikId + " " +smcbHandle);
             runtimeConfig.setSMCBHandle(smcbHandle);
         }
 
