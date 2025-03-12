@@ -3,6 +3,9 @@ package health.ere.ps.service.cetp;
 import de.health.service.cetp.SubscriptionManager;
 import de.health.service.cetp.cardlink.CardlinkWebsocketClient;
 import de.health.service.cetp.config.KonnektorConfig;
+import de.health.service.cetp.domain.eventservice.card.Card;
+import de.health.service.cetp.domain.eventservice.card.CardType;
+import de.health.service.cetp.domain.fault.CetpFault;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.jmx.SubscriptionsMXBean;
 import health.ere.ps.jmx.SubscriptionsMXBeanImpl;
@@ -43,7 +46,9 @@ public class RegisterSMCBJob {
     @Inject
     SubscriptionManager subscriptionManager;
 
-    private List<CardlinkWebsocketClient> cardlinkWebsocketClients = new ArrayList<>();
+    int counter = 0;
+
+    List<CardlinkWebsocketClient> cardlinkWebsocketClients = new ArrayList<>();
 
     // Make sure subscription manager calls onStart first, before RegisterSMCBJob at least!
     void onStart(@Observes @Priority(5300) StartupEvent ev) {
@@ -54,25 +59,37 @@ public class RegisterSMCBJob {
         initWSClients();
     }
 
-    private void initWSClients() {
+    void initWSClients() {
         Collection<KonnektorConfig> konnektorConfigs = subscriptionManager.getKonnektorConfigs(null, null);
 
         SubscriptionsMXBeanImpl subscriptionsMXBean = new SubscriptionsMXBeanImpl(konnektorConfigs.size());
         registerMXBean(SubscriptionsMXBean.OBJECT_NAME, subscriptionsMXBean);
 
         cardlinkWebsocketClients = new ArrayList<>();
-        konnektorConfigs.forEach(kc ->
-            cardlinkWebsocketClients.add(
-                new CardlinkWebsocketClient(
-                    kc.getCardlinkEndpoint(),
-                    new EreJwtConfigurator(
-                        new RuntimeConfig(kc.getUserConfigurations()),
-                        konnektorClient,
-                        bearerTokenService
-                    )
-                )
-            )
-        );
+        konnektorConfigs.forEach(kc -> {
+
+            List<Card> cards;
+            try {
+                cards = konnektorClient.getCards(new RuntimeConfig(kc.getUserConfigurations()), CardType.SMC_B);
+                for(Card card : cards) {
+    
+                    cardlinkWebsocketClients.add(
+                        new CardlinkWebsocketClient(
+                            kc.getCardlinkEndpoint(),
+                            new EreJwtConfigurator(
+                                new RuntimeConfig(kc.getUserConfigurations()),
+                                konnektorClient,
+                                bearerTokenService,
+                                card.getCardHandle()
+                            )
+                        )
+                    );
+                }
+            } catch (CetpFault e) {
+                log.log(Level.WARNING, "Could not read SMC-Bs", e);
+            }
+
+        });
     }
 
     @Scheduled(
@@ -83,8 +100,8 @@ public class RegisterSMCBJob {
     void registerSmcbMaintenance() {
         String correlationId = UUID.randomUUID().toString();
         log.fine(String.format("RegisterSMCBJob started with %s", correlationId));
-        // reload cardlink configs if necessary
-        if (cardlinkWebsocketClients.isEmpty()) {
+        // reload cardlink configs if necessary, or all 100 tries
+        if (cardlinkWebsocketClients.isEmpty() || counter % 100 == 0) {
             initWSClients();
         }
         cardlinkWebsocketClients.forEach(client -> {
@@ -97,5 +114,6 @@ public class RegisterSMCBJob {
                 client.close();
             }
         });
+        counter++;
     }
 }
