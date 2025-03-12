@@ -78,14 +78,15 @@ public class RegisterSMCBJob {
             }
             for(Card card : cards) {
                 log.info("Creating Websockets for SMC-B: " + card.getCardHandle());
+                RuntimeConfig userRuntimeConfig = new RuntimeConfig(kc.getUserConfigurations());
+                userRuntimeConfig.setSMCBHandle(card.getCardHandle());
                 cardlinkWebsocketClients.add(
                     new CardlinkWebsocketClient(
                         kc.getCardlinkEndpoint(),
                         new EreJwtConfigurator(
-                            new RuntimeConfig(kc.getUserConfigurations()),
+                            userRuntimeConfig,
                             konnektorClient,
-                            bearerTokenService,
-                            card.getCardHandle()
+                            bearerTokenService
                         )
                     )
                 );
