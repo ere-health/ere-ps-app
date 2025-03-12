@@ -49,11 +49,13 @@ public class EreJwtConfigurator extends JwtConfigurator {
     public void beforeRequest(Map<String, List<String>> headers) {
         RuntimeConfig runtimeConfig = (RuntimeConfig) userRuntimeConfig;
         if(this.smcbHandle != null) {
+            log.fine("SMCB handle found from field: " + this.smcbHandle);
             runtimeConfig.setSMCBHandle(this.smcbHandle);
         } else {
             try {
                 List<Card> cards = konnektorClient.getCards(userRuntimeConfig, CardType.SMC_B);
                 String smcbHandle = cards.stream().map(Card::getCardHandle).findAny().orElse(null);
+                log.fine("SMCB handle found from konnektor: " + smcbHandle);
                 runtimeConfig.setSMCBHandle(smcbHandle);
             } catch (Exception e) {
                 log.log(Level.SEVERE, "Could not get SMC-B for pharmacy", e);

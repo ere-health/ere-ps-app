@@ -77,7 +77,7 @@ public class RegisterSMCBJob {
                 cards=Arrays.asList(new Card());
             }
             for(Card card : cards) {
-
+                log.info("Creating Websockets for SMC-B: " + card.getCardHandle());
                 cardlinkWebsocketClients.add(
                     new CardlinkWebsocketClient(
                         kc.getCardlinkEndpoint(),
