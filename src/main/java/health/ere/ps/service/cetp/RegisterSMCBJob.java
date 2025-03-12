@@ -103,7 +103,7 @@ public class RegisterSMCBJob {
         String correlationId = UUID.randomUUID().toString();
         log.fine(String.format("RegisterSMCBJob started with %s", correlationId));
         // reload cardlink configs if necessary, or all 100 tries
-        if (cardlinkWebsocketClients.isEmpty() || counter % 100 == 0) {
+        if (cardlinkWebsocketClients.isEmpty() || counter % 100 == 99) {
             initWSClients();
         }
         cardlinkWebsocketClients.forEach(client -> {
