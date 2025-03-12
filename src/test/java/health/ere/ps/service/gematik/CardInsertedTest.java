@@ -8,12 +8,14 @@ import de.health.service.cetp.domain.eventservice.event.DecodeResult;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.jmx.ReadEPrescriptionsMXBeanImpl;
 import health.ere.ps.model.config.UserConfigurations;
+import health.ere.ps.profile.RUTestProfile;
 import health.ere.ps.service.cetp.CETPServerHandler;
 import health.ere.ps.service.cetp.mapper.event.EventMapper;
 import health.ere.ps.service.cetp.tracker.TrackerService;
 import health.ere.ps.service.idp.BearerTokenService;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Invocation;
@@ -45,6 +47,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
+@TestProfile(RUTestProfile.class)
 class CardInsertedTest {
 
     private static final String READ_VSD_RESPONSE = "H4sIAAAAAAAA/w2M3QqCMBhAXyV8AL+5oj/mQNyKgk3ROaKbKLT8T1L8e/q8OReHwyG+XLlMPDQPwosnbcMykYmM1ViVdWsbadc1R4ChNT9J9eyywowTeD+hb+MKmnqAfukNSlRIMcJrtMN7tMW7zYHAoginmACnxL9TzZxJsGgtcmeWjGNPOZbIIyzzVGt2fo1zVvIrFEqq7BZZwVd7Z81+vSsmfzgVNoFlskDSP8uj5+izAAAA";

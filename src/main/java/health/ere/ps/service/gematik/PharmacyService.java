@@ -257,6 +257,10 @@ public class PharmacyService implements AutoCloseable {
 
     void generateRuntimeConfigToTelematikIdToSmcbHandle(RuntimeConfig runtimeConfig) {
         try {
+            if(connectorServicesProvider == null) {
+                log.warning("connectorServicesProvider is null");
+                return;
+            }
             EventServicePortType eventService = connectorServicesProvider.getEventServicePortType(runtimeConfig);
             CertificateServicePortType certificateServicePortType = connectorServicesProvider.getCertificateServicePortType(runtimeConfig);
             GetCards getCards = new GetCards();
@@ -360,6 +364,9 @@ public class PharmacyService implements AutoCloseable {
     static synchronized KVNRAndTelematikId extractKVNRAndTelematikId(ReadVSDResult readVSDResult) {
         try {
             UCPersoenlicheVersichertendatenXML patient = getPatient(readVSDResult);
+            if(patient == null) {
+                return new KVNRAndTelematikId(null, null);
+            }
             String versichertenID = patient.getVersicherter().getVersichertenID();
             String telematikId = patient.getVersicherter().getPerson().getStrassenAdresse().getAnschriftenzusatz();
             return new KVNRAndTelematikId(versichertenID, telematikId);
@@ -382,6 +389,9 @@ public class PharmacyService implements AutoCloseable {
 
     private static UCPersoenlicheVersichertendatenXML getPatient(ReadVSDResult readVSDResult)
             throws IOException, JAXBException {
+        if(readVSDResult.persoenlicheVersichertendaten.value == null) {
+            return null;
+        }
         InputStream isPersoenlicheVersichertendaten = new GZIPInputStream(
             new ByteArrayInputStream(readVSDResult.persoenlicheVersichertendaten.value));
         UCPersoenlicheVersichertendatenXML patient = (UCPersoenlicheVersichertendatenXML) jaxbContext
