@@ -108,7 +108,7 @@ public class BearerTokenService {
             String cardHandle = smcbHandleValid
                     ? runtimeConfig.getSMCBHandle()
                     : connectorCardsService.getConnectorCardHandle(SMC_B, runtimeConfig);
-            log.info(() -> "Request new bearer token for " + cardHandle);
+            log.fine(() -> "Request new bearer token for " + cardHandle);
 
             X509Certificate x509Certificate = cardCertificateReaderService.retrieveSmcbCardCertificate(
                     cardHandle, runtimeConfig

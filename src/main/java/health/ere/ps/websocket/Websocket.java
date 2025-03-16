@@ -170,7 +170,7 @@ public class Websocket {
     @OnOpen
     public void onOpen(Session session) {
         sessions.add(session);
-        ereLog.info("Websocket opened");
+        ereLog.debug("Websocket opened");
     }
 
     void sendAllKBVExamples(String folder, Session senderSession) {
@@ -239,14 +239,14 @@ public class Websocket {
     @OnClose
     public void onClose(Session session) {
         sessions.remove(session);
-        ereLog.info("Websocket closed");
+        ereLog.debug("Websocket closed");
     }
 
     @OnError
     public void onError(Session session, Throwable throwable) {
         sessions.remove(session);
 
-        ereLog.info("Websocket error ", throwable);
+        ereLog.warn("Websocket error ", throwable);
     }
 
     @OnMessage

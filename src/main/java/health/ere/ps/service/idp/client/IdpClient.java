@@ -252,7 +252,7 @@ public class IdpClient implements IIdpClient {
     @Override
     public IIdpClient initializeClient() throws IdpClientException, IdpException, IdpJoseException {
         if (discoveryDocumentUrl != null) {
-            logger.info("Initializing using url: " + discoveryDocumentUrl);
+            logger.fine("Initializing using url: " + discoveryDocumentUrl);
             discoveryDocumentResponse = authenticatorClient.retrieveDiscoveryDocument(discoveryDocumentUrl);
         }
         return this;

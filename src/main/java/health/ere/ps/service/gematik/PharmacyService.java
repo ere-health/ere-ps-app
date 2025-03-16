@@ -209,7 +209,7 @@ public class PharmacyService implements AutoCloseable {
 
         smcbHandle = getSMCBHandleForTelematikId(kvnrAndTelematikId.telematikId, runtimeConfig);
         if(smcbHandle != null && kvnrAndTelematikId != null) {
-            log.info("Found SMCB handle for telematik id: " + kvnrAndTelematikId.telematikId + " " +smcbHandle);
+            log.fine("Found SMCB handle for telematik id: " + kvnrAndTelematikId.telematikId + " " +smcbHandle);
             runtimeConfig.setSMCBHandle(smcbHandle);
         }
 
@@ -296,7 +296,7 @@ public class PharmacyService implements AutoCloseable {
                             if(!runtimeConfigToTelematikIdToSmcbHandle.containsKey(runtimeConfig)) {
                                 runtimeConfigToTelematikIdToSmcbHandle.put(runtimeConfig, new HashMap<>());
                             }
-                            log.info("Extracted telematik id from certificate of " + cif.getCardHandle() + " " + extractedTelematikId);
+                            log.fine("Extracted telematik id from certificate of " + cif.getCardHandle() + " " + extractedTelematikId);
                             runtimeConfigToTelematikIdToSmcbHandle.get(runtimeConfig).put(extractedTelematikId, cif.getCardHandle());
                         } else {
                             log.warning("Could not extract telematik id from certificate of " + cif.getCardHandle());
@@ -435,7 +435,7 @@ public class PharmacyService implements AutoCloseable {
         if (smcbHandle == null) {
             smcbHandle = setAndGetSMCBHandleForPharmacy(runtimeConfig, context, eventService);
         }
-        log.info(egkHandle + " " + smcbHandle);
+        log.fine(egkHandle + " " + smcbHandle);
         VSDServicePortType vsdServicePortType = connectorServicesProvider.getVSDServicePortType(runtimeConfig);
         try {
             String listString;
@@ -449,7 +449,7 @@ public class PharmacyService implements AutoCloseable {
                 log.log(Level.SEVERE, msg, e);
                 listString = "not available";
             }
-            log.info(String.format(
+            log.fine(String.format(
                     "[%s] readVSD for cardHandle=%s, smcbHandle=%s, subscriptions: %s", correlationId, egkHandle, smcbHandle, listString
             ));
             vsdServicePortType.readVSD(

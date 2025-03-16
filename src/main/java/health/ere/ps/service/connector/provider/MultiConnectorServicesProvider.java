@@ -39,8 +39,8 @@ public class MultiConnectorServicesProvider {
         } else {
         	SimpleUserConfig simpleUserConfig = new SimpleUserConfig(userConfig);
         	if(!singleConnectorServicesProvider.containsKey(simpleUserConfig)) {
-        		log.info("This key is not present in the map and will be inserted: " + simpleUserConfig.toString());
-        		log.info("The hashkey for it is: " + simpleUserConfig.hashCode());
+        		log.fine("This key is not present in the map and will be inserted: " + simpleUserConfig.toString());
+        		log.fine("The hashkey for it is: " + simpleUserConfig.hashCode());
         		singleConnectorServicesProvider.put(simpleUserConfig, new SingleConnectorServicesProvider(userConfig, eventException));
             }
             return singleConnectorServicesProvider.get(simpleUserConfig);

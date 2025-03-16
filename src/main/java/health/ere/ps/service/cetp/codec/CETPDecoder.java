@@ -53,7 +53,7 @@ public class CETPDecoder extends ByteToMessageDecoder {
 
         int lengthOfMessage = in.readInt();
         String message = in.readCharSequence(lengthOfMessage, StandardCharsets.UTF_8).toString();
-        log.info(message);
+        log.fine(message);
         try {
             Event eventType = (Event) jaxbContext.createUnmarshaller().unmarshal(new StringReader(message));
             out.add(new DecodeResult(eventMapper.toDomain(eventType), configurations));

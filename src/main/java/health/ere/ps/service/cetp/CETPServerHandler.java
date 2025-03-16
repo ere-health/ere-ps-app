@@ -110,7 +110,7 @@ public class CETPServerHandler extends AbstractCETPEventHandler {
             }
         } else {
             String msgFormat = "Ignored \"CARD/INSERTED\" values=%s";
-            log.log(Level.INFO, String.format(msgFormat, paramsMap));
+            log.log(Level.FINE, String.format(msgFormat, paramsMap));
         }
     }
 
