@@ -86,7 +86,11 @@ public class RegisterSMCBJob {
                         new EreJwtConfigurator(
                             userRuntimeConfig,
                             konnektorClient,
-                            bearerTokenService
+                            bearerTokenService,
+                            (e) -> {
+                                log.info("Reloading websocket clients due to exception");
+                                initWSClients();
+                            }
                         )
                     )
                 );
