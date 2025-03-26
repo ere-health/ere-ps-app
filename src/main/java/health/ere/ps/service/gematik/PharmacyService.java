@@ -197,6 +197,15 @@ public class PharmacyService implements AutoCloseable {
             String smcbHandle,
             RuntimeConfig runtimeConfig
     ) throws FaultMessage, de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
+        return getEPrescriptionsForCardHandle(correlationId, egkHandle, smcbHandle, runtimeConfig, null);
+    }
+
+    public Pair<Bundle, String> getEPrescriptionsForCardHandle(
+            String correlationId,
+            String egkHandle,
+            String smcbHandle,
+            RuntimeConfig runtimeConfig, String kvnr
+    ) throws FaultMessage, de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         if (runtimeConfig == null) {
             runtimeConfig = new RuntimeConfig();
         }
@@ -214,7 +223,7 @@ public class PharmacyService implements AutoCloseable {
         }
 
         try (Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task")
-                .queryParam("kvnr", kvnrAndTelematikId.kvnr)
+                .queryParam("kvnr", kvnr != null ? kvnr : kvnrAndTelematikId.kvnr)
                 .queryParam("hcv", extractHCV(readVSD))
                 .queryParam("pnw", pnw).request()
                 .header("Content-Type", "application/fhir+xml")

@@ -64,6 +64,7 @@ public class CETPServerHandler extends AbstractCETPEventHandler {
             Integer slotId = Integer.parseInt(paramsMap.get("SlotID"));
             String ctId = paramsMap.get("CtID");
             String iccsn = paramsMap.get("ICCSN");
+            String kvnr = paramsMap.get("KVNR");
             Long endTime = System.currentTimeMillis();
 
 
@@ -75,7 +76,7 @@ public class CETPServerHandler extends AbstractCETPEventHandler {
             try {
                 RuntimeConfig runtimeConfig = new RuntimeConfig(uc);
                 Pair<Bundle, String> pair = pharmacyService.getEPrescriptionsForCardHandle(
-                    correlationId, cardHandle, null, runtimeConfig
+                    correlationId, cardHandle, null, runtimeConfig, kvnr
                 );
                 Bundle bundle = pair.getKey();
                 String eventId = pair.getValue();
