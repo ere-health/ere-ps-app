@@ -23,6 +23,6 @@ tar czf ${DPKG_BUILD_PACKAGE}_${DEB_VERSION}.orig.tar.gz ${DPKG_BUILD_PACKAGE}_$
 cd deb-package
 debuild -us -uc
 cd ..
-debsigs --sign=origin ${DPKG_BUILD_PACKAGE}_${DEB_VERSION}-14_all.deb
-# reprepro -V --basedir ~/public_html/apt/ includedeb jammy ere-health_1.0.0-14_all.deb
+debsigs --sign=origin ${DPKG_BUILD_PACKAGE}_${DEB_VERSION}-15_all.deb
+# reprepro -V --basedir ~/public_html/apt/ includedeb jammy ere-health_1.0.0-15_all.deb
 # rsync -va /home/manuel/public_html/apt/ ec2-user@packages.service-health.de:/srv/www/vhosts/packages.service-health.de

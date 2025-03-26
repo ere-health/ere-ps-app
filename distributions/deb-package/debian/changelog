@@ -1,5 +1,5 @@
-ere-health (1.0.0-14) stable; urgency=low
+ere-health (1.0.0-15) stable; urgency=low
 
-  * Release Notes: https://incentergy.atlassian.net/wiki/spaces/NFCKT/pages/1060339770/Release+Notes+-+E-Rezept+ere.health+-+cardlink.service-health.de-2025-03-16-b2d2efc8+1.0.0-14+-+Mar+16+22+30
+  * Release Notes: Read KVNR from CETP message
 
- -- Manuel Blechschmidt <manuel.blechschmidt@service-health.de>  Sun, 16 Mar 2025 22:33:00 +0000
+ -- Manuel Blechschmidt <manuel.blechschmidt@service-health.de>  Wed, 26 Mar 2025 22:33:00 +0000
