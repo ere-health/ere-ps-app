@@ -23,22 +23,29 @@ public class PrescriptionBundleValidatorTest {
 
     FhirContext fhirContext = FhirContext.forR4();
 
+    private String getValidPrescription1() throws IOException {
+        return Files.readString(Paths.get(
+                "src/test" +
+                        "/resources/examples-kbv-fhir-erp-v1-1-0/Beispiel_1.xml"));
+    }
+
+    private String getValidPrescription2() throws IOException {
+        return Files.readString(Paths.get(
+                "src/test" +
+                        "/resources/simplifier_erezept/0428d416-149e-48a4-977c-394887b3d85c.xml"));
+    }
 
     @Test
     public void testKBV() throws IOException {
 
         ValidationResult validationResult =
-                prescriptionBundleValidator.validateResource(Files.readString(Paths.get(
-                "src/test" +
-                "/resources/examples-kbv-fhir-erp-v1-1-0/Beispiel_1.xml")), true);
+                prescriptionBundleValidator.validateResource(getValidPrescription1(), true);
 
         Assertions.assertTrue(validationResult.isValid(), "Sample simplifier.net bundle " +
                 "has been successfully validated.");
 
         validationResult =
-                prescriptionBundleValidator.validateResource(Files.readString(Paths.get(
-                "src/test" +
-                "/resources/simplifier_erezept/0428d416-149e-48a4-977c-394887b3d85c.xml")), true);
+                prescriptionBundleValidator.validateResource(getValidPrescription2(), true);
 
         Assertions.assertTrue(validationResult.isValid(), "Sample simplifier.net bundle " +
                 "has been successfully validated.");
