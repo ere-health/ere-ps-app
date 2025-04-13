@@ -21,6 +21,7 @@ import jakarta.json.JsonArray;
 import jakarta.json.JsonArrayBuilder;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonObjectBuilder;
+import jakarta.json.JsonString;
 import jakarta.json.JsonValue;
 
 
@@ -111,6 +112,10 @@ public class PrescriptionBundleValidator {
                     singleBundle.toString());
         JsonObjectBuilder singleBundleResults = Json.createObjectBuilder();
         String bundleJson = singleBundle.toString();
+        // JsonString.toString adds prepending and appending quotation marks.
+        // We have to call JsonString.getString
+        if (singleBundle instanceof JsonString)
+            bundleJson = ((JsonString) singleBundle).getString();
         List<String> errorsList = new ArrayList<>(1);
 
         if (!validateResource(bundleJson,
