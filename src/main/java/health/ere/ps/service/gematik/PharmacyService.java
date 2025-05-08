@@ -39,6 +39,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.core.Response;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
@@ -204,6 +205,10 @@ public class PharmacyService implements AutoCloseable {
         return getEPrescriptionsForCardHandle(correlationId, egkHandle, smcbHandle, runtimeConfig, null);
     }
 
+    private boolean valid(String telematikId) {
+        return telematikId != null && !telematikId.isEmpty();
+    }
+
     public Pair<Bundle, String> getEPrescriptionsForCardHandle(
         String correlationId,
         String egkHandle,
@@ -222,7 +227,7 @@ public class PharmacyService implements AutoCloseable {
         KVNRAndTelematikId kvnrAndTelematikId = extractKVNRAndTelematikId(readVSD);
         String telematikId = kvnrAndTelematikId.telematikId;
 
-        if (telematikId != null) {
+        if (valid(telematikId)) {
             smcbHandle = getSMCBHandleForTelematikId(telematikId, runtimeConfig);
             if (smcbHandle != null) {
                 log.fine("Found SMCB handle for telematik id: '" + telematikId + "' " + smcbHandle);
@@ -230,15 +235,15 @@ public class PharmacyService implements AutoCloseable {
             }
         }
 
-        try (Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task")
+        Invocation.Builder builder = client.target(appConfig.getPrescriptionServiceURL()).path("/Task")
             .queryParam("kvnr", kvnr != null ? kvnr : kvnrAndTelematikId.kvnr)
             .queryParam("hcv", extractHCV(readVSD))
             .queryParam("pnw", pnw).request()
             .header("Content-Type", "application/fhir+xml")
             .header("User-Agent", appConfig.getUserAgent())
-            .header("Authorization", "Bearer " + bearerTokenService.getBearerToken(runtimeConfig))
-            .get()) {
-
+            .header("Authorization", "Bearer " + bearerTokenService.getBearerToken(runtimeConfig));
+        
+        try (Response response = builder.get()) {
             String event = getEvent(factory.newDocumentBuilder(), pruefungsnachweis.value);
             String bundleString = new String(response.readEntity(InputStream.class).readAllBytes(), getCharset(response));
 
@@ -247,7 +252,7 @@ public class PharmacyService implements AutoCloseable {
                 throw new WebApplicationException("Error on " + appConfig.getPrescriptionServiceURL() + " " + bundleString, response.getStatus());
             }
             readEPrescriptionsMXBean.increaseTasks();
-            if (kvnr != null && telematikId != null) {
+            if (kvnr != null && valid(telematikId)) {
                 readEPrescriptionsMXBean.incrementTelematikIdAccepted(telematikId);
                 prescriptionTracker.countSuccessfulPrescription(telematikId);
             }
@@ -256,7 +261,7 @@ public class PharmacyService implements AutoCloseable {
             generateRuntimeConfigToTelematikIdToSmcbHandle(runtimeConfig);
             log.log(Level.SEVERE, String.format("[%s] Could not read response from Fachdienst", correlationId), e);
             readEPrescriptionsMXBean.increaseTasksFailed();
-            if (kvnr != null && telematikId != null) {
+            if (kvnr != null && valid(telematikId)) {
                 readEPrescriptionsMXBean.incrementTelematikIdRejected(telematikId);
             }
             throw new WebApplicationException("Could not read response from Fachdienst", e);
@@ -391,7 +396,7 @@ public class PharmacyService implements AutoCloseable {
         try {
             UCPersoenlicheVersichertendatenXML patient = getPatient(readVSDResult);
             if (patient == null) {
-                return new KVNRAndTelematikId(null, null);
+                return new KVNRAndTelematikId("", "");
             }
             String versichertenID = patient.getVersicherter().getVersichertenID();
             String telematikId = patient.getVersicherter().getPerson().getStrassenAdresse().getAnschriftenzusatz();
@@ -399,7 +404,7 @@ public class PharmacyService implements AutoCloseable {
         } catch (IOException | NullPointerException | JAXBException e) {
             String msg = "Could not extract KVNR message";
             log.log(Level.WARNING, msg, e);
-            return new KVNRAndTelematikId(null, null);
+            return new KVNRAndTelematikId("", "");
         }
     }
 
@@ -413,16 +418,16 @@ public class PharmacyService implements AutoCloseable {
         }
     }
 
-    private static UCPersoenlicheVersichertendatenXML getPatient(ReadVSDResult readVSDResult)
-        throws IOException, JAXBException {
-        if (readVSDResult.persoenlicheVersichertendaten.value == null) {
+    private static UCPersoenlicheVersichertendatenXML getPatient(ReadVSDResult readVSDResult) throws IOException, JAXBException {
+        if (readVSDResult.persoenlicheVersichertendaten == null || readVSDResult.persoenlicheVersichertendaten.value == null) {
             return null;
         }
         InputStream isPersoenlicheVersichertendaten = new GZIPInputStream(new ByteArrayInputStream(
             readVSDResult.persoenlicheVersichertendaten.value
         ));
         UCPersoenlicheVersichertendatenXML patient = (UCPersoenlicheVersichertendatenXML) jaxbContext
-            .createUnmarshaller().unmarshal(isPersoenlicheVersichertendaten);
+            .createUnmarshaller()
+            .unmarshal(isPersoenlicheVersichertendaten);
         return patient;
     }
 
