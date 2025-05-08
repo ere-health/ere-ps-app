@@ -4,6 +4,8 @@ import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.logging.Logger;
 
@@ -11,6 +13,9 @@ import java.util.logging.Logger;
 public class ReadEPrescriptionsMXBeanImpl implements ReadEPrescriptionsMXBean {
 
     private static final Logger log = Logger.getLogger(ReadEPrescriptionsMXBeanImpl.class.getName());
+
+    private final ConcurrentHashMap<String, AtomicInteger> telematikIdAccepted = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, AtomicInteger> telematikIdRejected = new ConcurrentHashMap<>();
 
     private final LongAdder readVSD = new LongAdder();
     private final LongAdder readVSDFailed = new LongAdder();
@@ -24,6 +29,26 @@ public class ReadEPrescriptionsMXBeanImpl implements ReadEPrescriptionsMXBean {
     void onStart(@Observes StartupEvent ev) {
         log.info("Registering " + getClass().getSimpleName());
         PsMXBeanManager.registerMXBean(this);
+    }
+
+    @Override
+    public int getTelematikIdAccepted(String telematikId) {
+        AtomicInteger counter = telematikIdAccepted.get(telematikId);
+        return counter == null ? 0 : counter.get();
+    }
+
+    public void incrementTelematikIdAccepted(String telematikId) {
+        telematikIdAccepted.computeIfAbsent(telematikId, s -> new AtomicInteger(0)).incrementAndGet();
+    }
+
+    @Override
+    public int getTelematikIdRejected(String telematikId) {
+        AtomicInteger counter = telematikIdRejected.get(telematikId);
+        return counter == null ? 0 : counter.get();
+    }
+
+    public void incrementTelematikIdRejected(String telematikId) {
+        telematikIdRejected.computeIfAbsent(telematikId, s -> new AtomicInteger(0)).incrementAndGet();
     }
 
     @Override
