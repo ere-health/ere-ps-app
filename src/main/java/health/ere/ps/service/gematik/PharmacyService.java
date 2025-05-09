@@ -5,12 +5,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import de.gematik.ws.conn.cardservice.v8.CardInfoType;
 import de.gematik.ws.conn.cardservicecommon.v2.CardTypeType;
 import de.gematik.ws.conn.certificateservice.v6.CryptType;
 import de.gematik.ws.conn.certificateservice.v6.ReadCardCertificate;
-import de.gematik.ws.conn.certificateservice.v6.ReadCardCertificate.CertRefList;
 import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateServicePortType;
 import de.gematik.ws.conn.certificateservicecommon.v2.CertRefEnum;
 import de.gematik.ws.conn.certificateservicecommon.v2.X509DataInfoListType;
@@ -27,10 +25,11 @@ import de.gematik.ws.fa.vsdm.vsd.v5.UCGeschuetzteVersichertendatenXML;
 import de.gematik.ws.fa.vsdm.vsd.v5.UCPersoenlicheVersichertendatenXML;
 import de.health.service.cetp.IKonnektorClient;
 import de.health.service.cetp.domain.eventservice.Subscription;
-import de.health.service.cetp.domain.eventservice.card.Card;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.jmx.ReadEPrescriptionsMXBeanImpl;
+import health.ere.ps.jmx.TelematikMXBeanRegistry;
+import health.ere.ps.service.cetp.tracker.PrescriptionTracker;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import health.ere.ps.service.fhir.FHIRService;
 import health.ere.ps.service.idp.BearerTokenService;
@@ -41,8 +40,8 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.core.Response;
-import jakarta.xml.bind.DatatypeConverter;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.ws.Holder;
@@ -86,7 +85,6 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.HashMap;
-import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -101,6 +99,8 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
+
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 
 /* Note: reading, writing and resending of failed rejects are done by one Thread (see scheduledExecutorService), no additional synchronization for retrying reject is need */
 @ApplicationScoped
@@ -129,13 +129,19 @@ public class PharmacyService implements AutoCloseable {
     ReadEPrescriptionsMXBeanImpl readEPrescriptionsMXBean;
 
     @Inject
+    TelematikMXBeanRegistry telematikMXBeanRegistry;
+
+    @Inject
+    PrescriptionTracker prescriptionTracker;
+
+    @Inject
     BearerTokenService bearerTokenService;
 
     @ConfigProperty(name = "preferred.smcb")
     Optional<String> preferredSmcb;
 
     /**
-     * By default should be the static file.
+     * By default, should be the static file.
      * A test case can change this to a temporary file.
      */
     Path failedRejectsFile = Paths.get(FAILED_REJECTS_FILE);
@@ -149,7 +155,7 @@ public class PharmacyService implements AutoCloseable {
 
     static DocumentBuilder builder;
 
-    private static Map<RuntimeConfig, Map<String,String>> runtimeConfigToTelematikIdToSmcbHandle = new HashMap<>();
+    private static Map<RuntimeConfig, Map<String, String>> runtimeConfigToTelematikIdToSmcbHandle = new HashMap<>();
 
     private int reads = 0;
 
@@ -166,8 +172,11 @@ public class PharmacyService implements AutoCloseable {
 
     static JAXBContext createJaxbContext() {
         try {
-            return JAXBContext.newInstance(UCPersoenlicheVersichertendatenXML.class,
-                    UCAllgemeineVersicherungsdatenXML.class, UCGeschuetzteVersichertendatenXML.class);
+            return JAXBContext.newInstance(
+                UCPersoenlicheVersichertendatenXML.class,
+                UCAllgemeineVersicherungsdatenXML.class,
+                UCGeschuetzteVersichertendatenXML.class
+            );
         } catch (JAXBException e) {
             log.log(Level.SEVERE, "Could not init jaxb context", e);
             return null;
@@ -177,7 +186,7 @@ public class PharmacyService implements AutoCloseable {
     @PostConstruct
     public void init() {
         client = ERezeptWorkflowService.initClientWithVAU(appConfig);
-        int retryInterval = 1;  //TODO: make configurable
+        int retryInterval = 1;  // TODO: make configurable
         scheduledExecutorService.scheduleAtFixedRate(this::retryFailedRejects, retryInterval, retryInterval, TimeUnit.MINUTES);
     }
 
@@ -192,19 +201,24 @@ public class PharmacyService implements AutoCloseable {
     }
 
     public Pair<Bundle, String> getEPrescriptionsForCardHandle(
-            String correlationId,
-            String egkHandle,
-            String smcbHandle,
-            RuntimeConfig runtimeConfig
+        String correlationId,
+        String egkHandle,
+        String smcbHandle,
+        RuntimeConfig runtimeConfig
     ) throws FaultMessage, de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         return getEPrescriptionsForCardHandle(correlationId, egkHandle, smcbHandle, runtimeConfig, null);
     }
 
+    private boolean valid(String telematikId) {
+        return telematikId != null && !telematikId.isEmpty();
+    }
+
     public Pair<Bundle, String> getEPrescriptionsForCardHandle(
-            String correlationId,
-            String egkHandle,
-            String smcbHandle,
-            RuntimeConfig runtimeConfig, String kvnr
+        String correlationId,
+        String egkHandle,
+        String smcbHandle,
+        RuntimeConfig runtimeConfig,
+        String kvnr
     ) throws FaultMessage, de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         if (runtimeConfig == null) {
             runtimeConfig = new RuntimeConfig();
@@ -213,24 +227,28 @@ public class PharmacyService implements AutoCloseable {
         ReadVSDResult readVSD = readVSD(correlationId, egkHandle, smcbHandle, runtimeConfig);
         Holder<byte[]> pruefungsnachweis = readVSD.pruefungsnachweis;
         String pnw = Base64.getEncoder().encodeToString(pruefungsnachweis.value);
-        
-        KVNRAndTelematikId kvnrAndTelematikId = extractKVNRAndTelematikId(readVSD);
 
-        smcbHandle = getSMCBHandleForTelematikId(kvnrAndTelematikId.telematikId, runtimeConfig);
-        if(smcbHandle != null && kvnrAndTelematikId != null) {
-            log.fine("Found SMCB handle for telematik id: " + kvnrAndTelematikId.telematikId + " " +smcbHandle);
-            runtimeConfig.setSMCBHandle(smcbHandle);
+        KVNRAndTelematikId kvnrAndTelematikId = extractKVNRAndTelematikId(readVSD);
+        String telematikId = kvnrAndTelematikId.telematikId;
+
+        if (valid(telematikId)) {
+            telematikMXBeanRegistry.registerTelematikIdBean(telematikId);
+            smcbHandle = getSMCBHandleForTelematikId(telematikId, runtimeConfig);
+            if (smcbHandle != null) {
+                log.fine("Found SMCB handle for telematik id: '" + telematikId + "' " + smcbHandle);
+                runtimeConfig.setSMCBHandle(smcbHandle);
+            }
         }
 
-        try (Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task")
-                .queryParam("kvnr", kvnr != null ? kvnr : kvnrAndTelematikId.kvnr)
-                .queryParam("hcv", extractHCV(readVSD))
-                .queryParam("pnw", pnw).request()
-                .header("Content-Type", "application/fhir+xml")
-                .header("User-Agent", appConfig.getUserAgent())
-                .header("Authorization", "Bearer " + bearerTokenService.getBearerToken(runtimeConfig))
-                .get()) {
-
+        Invocation.Builder builder = client.target(appConfig.getPrescriptionServiceURL()).path("/Task")
+            .queryParam("kvnr", kvnr != null ? kvnr : kvnrAndTelematikId.kvnr)
+            .queryParam("hcv", extractHCV(readVSD))
+            .queryParam("pnw", pnw).request()
+            .header("Content-Type", "application/fhir+xml")
+            .header("User-Agent", appConfig.getUserAgent())
+            .header("Authorization", "Bearer " + bearerTokenService.getBearerToken(runtimeConfig));
+        
+        try (Response response = builder.get()) {
             String event = getEvent(factory.newDocumentBuilder(), pruefungsnachweis.value);
             String bundleString = new String(response.readEntity(InputStream.class).readAllBytes(), getCharset(response));
 
@@ -239,11 +257,18 @@ public class PharmacyService implements AutoCloseable {
                 throw new WebApplicationException("Error on " + appConfig.getPrescriptionServiceURL() + " " + bundleString, response.getStatus());
             }
             readEPrescriptionsMXBean.increaseTasks();
+            if (kvnr != null && valid(telematikId)) {
+                telematikMXBeanRegistry.countAccepted(telematikId);
+                prescriptionTracker.countSuccessfulPrescription(telematikId);
+            }
             return Pair.of(fhirContext.newXmlParser().parseResource(Bundle.class, bundleString), event);
         } catch (IOException | ParserConfigurationException | SAXException e) {
             generateRuntimeConfigToTelematikIdToSmcbHandle(runtimeConfig);
             log.log(Level.SEVERE, String.format("[%s] Could not read response from Fachdienst", correlationId), e);
             readEPrescriptionsMXBean.increaseTasksFailed();
+            if (kvnr != null && valid(telematikId)) {
+                telematikMXBeanRegistry.countRejected(telematikId);
+            }
             throw new WebApplicationException("Could not read response from Fachdienst", e);
         }
     }
@@ -251,15 +276,15 @@ public class PharmacyService implements AutoCloseable {
     String getSMCBHandleForTelematikId(String telematikId, RuntimeConfig runtimeConfig) {
         reads++;
         // all 1000 reads clear the cache
-        if(reads % 1000 == 0) {
+        if (reads % 1000 == 0) {
             runtimeConfigToTelematikIdToSmcbHandle.clear();
             runtimeConfigToTelematikIdToSmcbHandle = new HashMap<>();
         }
-        if(runtimeConfigToTelematikIdToSmcbHandle.containsKey(runtimeConfig) && runtimeConfigToTelematikIdToSmcbHandle.get(runtimeConfig).containsKey(telematikId)) {
+        if (runtimeConfigToTelematikIdToSmcbHandle.containsKey(runtimeConfig) && runtimeConfigToTelematikIdToSmcbHandle.get(runtimeConfig).containsKey(telematikId)) {
             return runtimeConfigToTelematikIdToSmcbHandle.get(runtimeConfig).get(telematikId);
         }
         generateRuntimeConfigToTelematikIdToSmcbHandle(runtimeConfig);
-        if(runtimeConfigToTelematikIdToSmcbHandle.containsKey(runtimeConfig)) {
+        if (runtimeConfigToTelematikIdToSmcbHandle.containsKey(runtimeConfig)) {
             return runtimeConfigToTelematikIdToSmcbHandle.get(runtimeConfig).get(telematikId);
         }
         return null;
@@ -267,7 +292,7 @@ public class PharmacyService implements AutoCloseable {
 
     void generateRuntimeConfigToTelematikIdToSmcbHandle(RuntimeConfig runtimeConfig) {
         try {
-            if(connectorServicesProvider == null) {
+            if (connectorServicesProvider == null) {
                 log.warning("connectorServicesProvider is null");
                 return;
             }
@@ -285,9 +310,9 @@ public class PharmacyService implements AutoCloseable {
             Holder<Status> statusHolder = new Holder<>();
             Holder<X509DataInfoListType> certHolder = new Holder<>();
 
-            for(CardInfoType cif : getCardsRespone.getCards().getCard()) {
+            for (CardInfoType cif : getCardsRespone.getCards().getCard()) {
                 try {
-                    certificateServicePortType.readCardCertificate(cif.getCardHandle(), contextType, certRefList, CryptType.ECC,statusHolder, certHolder);
+                    certificateServicePortType.readCardCertificate(cif.getCardHandle(), contextType, certRefList, CryptType.ECC, statusHolder, certHolder);
                 } catch (de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage e) {
                     log.log(Level.WARNING, "Could not get ECC certificate", e);
                     try {
@@ -296,13 +321,13 @@ public class PharmacyService implements AutoCloseable {
                         log.log(Level.WARNING, "Could not get RSA certificate", e);
                     }
                 }
-                if(statusHolder.value != null && statusHolder.value.getResult().equals("OK")) {
-                   // get telematik id from certificate
+                if (statusHolder.value != null && statusHolder.value.getResult().equals("OK")) {
+                    // get telematik id from certificate
                     try {
                         X509Certificate cert = (X509Certificate) CertificateFactory.getInstance("X509").generateCertificate(new ByteArrayInputStream(certHolder.value.getX509DataInfo().get(0).getX509Data().getX509Certificate()));
                         String extractedTelematikId = extractTelematikIdFromCertificate(cert);
-                        if(extractedTelematikId != null) {
-                            if(!runtimeConfigToTelematikIdToSmcbHandle.containsKey(runtimeConfig)) {
+                        if (extractedTelematikId != null) {
+                            if (!runtimeConfigToTelematikIdToSmcbHandle.containsKey(runtimeConfig)) {
                                 runtimeConfigToTelematikIdToSmcbHandle.put(runtimeConfig, new HashMap<>());
                             }
                             log.fine("Extracted telematik id from certificate of " + cif.getCardHandle() + " " + extractedTelematikId);
@@ -320,7 +345,7 @@ public class PharmacyService implements AutoCloseable {
         }
     }
 
-    static String extractTelematikIdFromCertificate(X509Certificate cert) {
+    public static String extractTelematikIdFromCertificate(X509Certificate cert) {
         // https://oidref.com/1.3.36.8.3.3
         byte[] admission = cert.getExtensionValue(ISISMTTObjectIdentifiers.id_isismtt_at_admission.toString());
         try (ASN1InputStream input = new ASN1InputStream(admission)) {
@@ -335,11 +360,11 @@ public class PharmacyService implements AutoCloseable {
                 }
             }
         } catch (Exception ex) {
-            log.log(Level.WARNING, "Could not extract telematif id from cert: "+cert, ex);
+            log.log(Level.WARNING, "Could not extract telematif id from cert: " + cert, ex);
         }
         return null;
     }
-    
+
 
     static synchronized String extractHCV(ReadVSDResult readVSDResult) {
         try {
@@ -356,14 +381,14 @@ public class PharmacyService implements AutoCloseable {
     }
 
     static String calculateHCV(String vb, String sas)
-            throws UnsupportedEncodingException, NoSuchAlgorithmException {
-        byte [] vbb = vb.getBytes("ISO-8859-1");
-        byte[] sasb = sas.getBytes("ISO-8859-1");
+        throws UnsupportedEncodingException, NoSuchAlgorithmException {
+        byte[] vbb = vb.getBytes(ISO_8859_1);
+        byte[] sasb = sas.getBytes(ISO_8859_1);
 
         byte[] combined = new byte[vbb.length + sasb.length];
 
-        System.arraycopy(vbb,0,combined,0         ,vbb.length);
-        System.arraycopy(sasb,0,combined,vbb.length,sasb.length);
+        System.arraycopy(vbb, 0, combined, 0, vbb.length);
+        System.arraycopy(sasb, 0, combined, vbb.length, sasb.length);
 
         byte[] sha256 = MessageDigest.getInstance("SHA-256").digest(combined);
         byte[] first5 = new byte[5];
@@ -375,8 +400,8 @@ public class PharmacyService implements AutoCloseable {
     static synchronized KVNRAndTelematikId extractKVNRAndTelematikId(ReadVSDResult readVSDResult) {
         try {
             UCPersoenlicheVersichertendatenXML patient = getPatient(readVSDResult);
-            if(patient == null) {
-                return new KVNRAndTelematikId(null, null);
+            if (patient == null) {
+                return new KVNRAndTelematikId("", "");
             }
             String versichertenID = patient.getVersicherter().getVersichertenID();
             String telematikId = patient.getVersicherter().getPerson().getStrassenAdresse().getAnschriftenzusatz();
@@ -398,32 +423,33 @@ public class PharmacyService implements AutoCloseable {
         }
     }
 
-    private static UCPersoenlicheVersichertendatenXML getPatient(ReadVSDResult readVSDResult)
-            throws IOException, JAXBException {
-        if(readVSDResult.persoenlicheVersichertendaten.value == null) {
+    private static UCPersoenlicheVersichertendatenXML getPatient(ReadVSDResult readVSDResult) throws IOException, JAXBException {
+        if (readVSDResult.persoenlicheVersichertendaten == null || readVSDResult.persoenlicheVersichertendaten.value == null) {
             return null;
         }
-        InputStream isPersoenlicheVersichertendaten = new GZIPInputStream(
-            new ByteArrayInputStream(readVSDResult.persoenlicheVersichertendaten.value));
+        InputStream isPersoenlicheVersichertendaten = new GZIPInputStream(new ByteArrayInputStream(
+            readVSDResult.persoenlicheVersichertendaten.value
+        ));
         UCPersoenlicheVersichertendatenXML patient = (UCPersoenlicheVersichertendatenXML) jaxbContext
-                .createUnmarshaller().unmarshal(isPersoenlicheVersichertendaten);
+            .createUnmarshaller()
+            .unmarshal(isPersoenlicheVersichertendaten);
         return patient;
     }
 
     private static UCAllgemeineVersicherungsdatenXML getAllgemeineVersicherungsdaten(ReadVSDResult readVSDResult)
-            throws IOException, JAXBException {
+        throws IOException, JAXBException {
         InputStream isPersoenlicheVersichertendaten = new GZIPInputStream(
             new ByteArrayInputStream(readVSDResult.allgemeineVersicherungsdaten.value));
-            UCAllgemeineVersicherungsdatenXML allgemeineVersicherungsdatenXML = (UCAllgemeineVersicherungsdatenXML) jaxbContext
-                .createUnmarshaller().unmarshal(isPersoenlicheVersichertendaten);
+        UCAllgemeineVersicherungsdatenXML allgemeineVersicherungsdatenXML = (UCAllgemeineVersicherungsdatenXML) jaxbContext
+            .createUnmarshaller().unmarshal(isPersoenlicheVersichertendaten);
         return allgemeineVersicherungsdatenXML;
     }
 
     public ReadVSDResult readVSD(
-            String correlationId,
-            String egkHandle,
-            String smcbHandle,
-            RuntimeConfig runtimeConfig
+        String correlationId,
+        String egkHandle,
+        String smcbHandle,
+        RuntimeConfig runtimeConfig
     ) throws FaultMessage, de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
         if ("".equals(context.getUserId()) || context.getUserId() == null) {
@@ -451,23 +477,23 @@ public class PharmacyService implements AutoCloseable {
             try {
                 List<Subscription> subscriptions = konnektorClient.getSubscriptions(runtimeConfig);
                 listString = subscriptions.stream()
-                        .map(s -> String.format("[id=%s eventTo=%s topic=%s]", s.getSubscriptionId(), s.getEventTo(), s.getTopic()))
-                        .collect(Collectors.joining(","));
+                    .map(s -> String.format("[id=%s eventTo=%s topic=%s]", s.getSubscriptionId(), s.getEventTo(), s.getTopic()))
+                    .collect(Collectors.joining(","));
             } catch (Throwable e) {
                 String msg = String.format("[%s] Could not get active getSubscriptions", correlationId);
                 log.log(Level.SEVERE, msg, e);
                 listString = "not available";
             }
             log.fine(String.format(
-                    "[%s] readVSD for cardHandle=%s, smcbHandle=%s, subscriptions: %s", correlationId, egkHandle, smcbHandle, listString
+                "[%s] readVSD for cardHandle=%s, smcbHandle=%s, subscriptions: %s", correlationId, egkHandle, smcbHandle, listString
             ));
             vsdServicePortType.readVSD(
-                    egkHandle, smcbHandle, true, true, context,
-                    persoenlicheVersichertendaten,
-                    allgemeineVersicherungsdaten,
-                    geschuetzteVersichertendaten,
-                    vSD_Status,
-                    pruefungsnachweis
+                egkHandle, smcbHandle, true, true, context,
+                persoenlicheVersichertendaten,
+                allgemeineVersicherungsdaten,
+                geschuetzteVersichertendaten,
+                vSD_Status,
+                pruefungsnachweis
             );
             readEPrescriptionsMXBean.increaseVSDRead();
         } catch (Throwable t) {
@@ -498,9 +524,9 @@ public class PharmacyService implements AutoCloseable {
     }
 
     public String setAndGetSMCBHandleForPharmacy(
-            RuntimeConfig runtimeConfig,
-            ContextType context,
-            EventServicePortType eventService
+        RuntimeConfig runtimeConfig,
+        ContextType context,
+        EventServicePortType eventService
     ) throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         String smcbHandle = PrefillPrescriptionService.getFirstCardOfType(eventService, CardTypeType.SMC_B, context, preferredSmcb.orElse(null));
         runtimeConfig.setSMCBHandle(smcbHandle);
@@ -512,10 +538,10 @@ public class PharmacyService implements AutoCloseable {
         byte[] data;
         Task task;
         try (Response response = client.target(appConfig.getPrescriptionServiceURL() + token).request()
-                .header("Content-Type", "application/fhir+xml")
-                .header("User-Agent", appConfig.getUserAgent())
-                .header("Authorization", "Bearer " + bearerTokenService.getBearerToken(runtimeConfig))
-                .post(Entity.entity("", "application/fhir+xml"))) {
+            .header("Content-Type", "application/fhir+xml")
+            .header("User-Agent", appConfig.getUserAgent())
+            .header("Authorization", "Bearer " + bearerTokenService.getBearerToken(runtimeConfig))
+            .post(Entity.entity("", "application/fhir+xml"))) {
 
             String bundleString = new String(response.readEntity(InputStream.class).readAllBytes(), getCharset(response));
 
@@ -542,10 +568,10 @@ public class PharmacyService implements AutoCloseable {
         String prescriptionId = task.getIdentifier().stream().filter(t -> "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId".equals(t.getSystem())).map(t -> t.getValue()).findAny().orElse(null);
 
         try (Response response2 = client.target(appConfig.getPrescriptionServiceURL()).path("/Task/" + prescriptionId + "/$reject")
-                .queryParam("secret", secret).request()
-                .header("User-Agent", appConfig.getUserAgent())
-                .header("Authorization", "Bearer " + bearerTokenService.getBearerToken(runtimeConfig))
-                .post(Entity.entity("", "application/fhir+xml"))) {
+            .queryParam("secret", secret).request()
+            .header("User-Agent", appConfig.getUserAgent())
+            .header("Authorization", "Bearer " + bearerTokenService.getBearerToken(runtimeConfig))
+            .post(Entity.entity("", "application/fhir+xml"))) {
 
             InputStream is = response2.readEntity(InputStream.class);
             String rejectResponse = "";
@@ -565,7 +591,7 @@ public class PharmacyService implements AutoCloseable {
             readEPrescriptionsMXBean.increaseRejectFailed();
             appendFailedRejectToFile(prescriptionId, secret, runtimeConfig);
             String msg = String.format(
-                    "[%s] Could not process %s prescriptionId: %s secret: %s", correlationId, token, prescriptionId, secret
+                "[%s] Could not process %s prescriptionId: %s secret: %s", correlationId, token, prescriptionId, secret
             );
             log.log(Level.SEVERE, msg, t);
             return null;
@@ -616,23 +642,23 @@ public class PharmacyService implements AutoCloseable {
 
     List<String> reprocessFailingEntries(Stream<FailedRejectEntry> failedRejectEntries) {
         return failedRejectEntries.filter(entry -> !attemptReject(entry.getPrescriptionId(), entry.getSecret(), entry.getRuntimeConfig()))
-                .map(o -> {
-                    try {
-                        return objectMapper.writeValueAsString(o);
-                    } catch (JsonProcessingException e) {
-                        log.log(Level.SEVERE, "Failed to serialize object", e);
-                        return null;
-                    }
-                }).filter(Objects::nonNull)
-                .toList();
+            .map(o -> {
+                try {
+                    return objectMapper.writeValueAsString(o);
+                } catch (JsonProcessingException e) {
+                    log.log(Level.SEVERE, "Failed to serialize object", e);
+                    return null;
+                }
+            }).filter(Objects::nonNull)
+            .toList();
     }
 
     public boolean attemptReject(String prescriptionId, String secret, RuntimeConfig runtimeConfig) {
         try (Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task/" + prescriptionId + "/$reject")
-                .queryParam("secret", secret).request()
-                .header("User-Agent", appConfig.getUserAgent())
-                .header("Authorization", "Bearer " + bearerTokenService.getBearerToken(runtimeConfig))
-                .post(Entity.entity("", "application/fhir+xml"))) {
+            .queryParam("secret", secret).request()
+            .header("User-Agent", appConfig.getUserAgent())
+            .header("Authorization", "Bearer " + bearerTokenService.getBearerToken(runtimeConfig))
+            .post(Entity.entity("", "application/fhir+xml"))) {
 
             String rejectResponse = "";
             if (response.hasEntity()) {

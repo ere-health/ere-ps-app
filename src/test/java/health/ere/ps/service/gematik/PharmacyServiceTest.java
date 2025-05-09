@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import de.gematik.ws.conn.cardservice.v8.CardInfoType;
 import de.gematik.ws.conn.cardservice.v8.Cards;
 import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateServicePortType;
@@ -12,7 +11,6 @@ import de.gematik.ws.conn.certificateservicecommon.v2.X509DataInfoListType;
 import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
-import de.gematik.ws.conn.servicedirectory.v3.ConnectorServices;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.jmx.ReadEPrescriptionsMXBeanImpl;
@@ -36,7 +34,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
@@ -185,8 +182,8 @@ class PharmacyServiceTest {
     public void testExtractKvnr() {
         try (PharmacyService pharmacyService = new PharmacyService()) {
             ReadVSDResult readVSDResult = pharmacyService.new ReadVSDResult();
-            readVSDResult.persoenlicheVersichertendaten = new Holder<byte[]>(DatatypeConverter.parseBase64Binary("H4sIAAAAAAAAAI1Sy27bMBD8FYH3iJITIXaxYhDERewijoO6dXMzGGltCSWXBUk5rb81H9NVHo4d9NALyRnOcpYcwsVva5It+tA6KkWeZiJBqlzd0qYU08X8ZDgsRid5IZIQNdXaOMJS/MEgLhR8v1rdcalDMm3V4LI/hmcfkZU83M9ukqvxbLX8/HUxnd+WokgHvQN7UihFE+OvT1I+hnSDVsf2Z1qjXGu5DbXtB7llvVBwcK4/QrSajtV9nmdnw2IwykF+3IPn9kjBNT50PgbuqrMqH50Ps7PBOcgjGpbOk7aovrhGEyWXZu0oJIvWOkom2Nbo2eFVA7e6ap5XT/5BE8g9Zq9QNQarJqpZb7FHXGORwq4LOu7UtdfrvuyAgm9tRKPuvFunydinIF8IWESvQ0C6rD3yzPdyIRps4043Rg2y06IAecTB3Ec10ZbvtwHZA7jh/BT8cA0FFhnNIaHnqFGNQf6LBvlS8uquJs4EfthHbQzINxImugvUWcvZnGYgD+Be9N63fAtEHocq/+Mrqb+FySMvrQIAAA=="));
-            readVSDResult.pruefungsnachweis = new Holder<byte[]>(DatatypeConverter.parseBase64Binary("H4sIAAAAAAAA/7MJ8FNwdvGND3MNCvb097NVMtQz0DNQUqjIzckrtlXKKCkpsNLXLy/WS0/NTSzJzNZLSdVPS9QvK07J1S/IK9cvA6pXsrMJCbYzMjAyMTAysDA0NjAwMLTRBwrZuNoZ2+i72tnoB/jZAQBWMwfLagAAAA=="));
+            readVSDResult.persoenlicheVersichertendaten = new Holder<>(DatatypeConverter.parseBase64Binary("H4sIAAAAAAAAAI1Sy27bMBD8FYH3iJITIXaxYhDERewijoO6dXMzGGltCSWXBUk5rb81H9NVHo4d9NALyRnOcpYcwsVva5It+tA6KkWeZiJBqlzd0qYU08X8ZDgsRid5IZIQNdXaOMJS/MEgLhR8v1rdcalDMm3V4LI/hmcfkZU83M9ukqvxbLX8/HUxnd+WokgHvQN7UihFE+OvT1I+hnSDVsf2Z1qjXGu5DbXtB7llvVBwcK4/QrSajtV9nmdnw2IwykF+3IPn9kjBNT50PgbuqrMqH50Ps7PBOcgjGpbOk7aovrhGEyWXZu0oJIvWOkom2Nbo2eFVA7e6ap5XT/5BE8g9Zq9QNQarJqpZb7FHXGORwq4LOu7UtdfrvuyAgm9tRKPuvFunydinIF8IWESvQ0C6rD3yzPdyIRps4043Rg2y06IAecTB3Ec10ZbvtwHZA7jh/BT8cA0FFhnNIaHnqFGNQf6LBvlS8uquJs4EfthHbQzINxImugvUWcvZnGYgD+Be9N63fAtEHocq/+Mrqb+FySMvrQIAAA=="));
+            readVSDResult.pruefungsnachweis = new Holder<>(DatatypeConverter.parseBase64Binary("H4sIAAAAAAAA/7MJ8FNwdvGND3MNCvb097NVMtQz0DNQUqjIzckrtlXKKCkpsNLXLy/WS0/NTSzJzNZLSdVPS9QvK07J1S/IK9cvA6pXsrMJCbYzMjAyMTAysDA0NjAwMLTRBwrZuNoZ2+i72tnoB/jZAQBWMwfLagAAAA=="));
 
             assertEquals("X110485291", PharmacyService.extractKVNRAndTelematikId(readVSDResult).kvnr);
         } catch (Exception e) {
