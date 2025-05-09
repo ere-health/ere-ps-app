@@ -28,6 +28,7 @@ import de.health.service.cetp.domain.eventservice.Subscription;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.jmx.ReadEPrescriptionsMXBeanImpl;
+import health.ere.ps.jmx.TelematikMXBeanRegistry;
 import health.ere.ps.service.cetp.tracker.PrescriptionTracker;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import health.ere.ps.service.fhir.FHIRService;
@@ -126,6 +127,9 @@ public class PharmacyService implements AutoCloseable {
 
     @Inject
     ReadEPrescriptionsMXBeanImpl readEPrescriptionsMXBean;
+
+    @Inject
+    TelematikMXBeanRegistry telematikMXBeanRegistry;
 
     @Inject
     PrescriptionTracker prescriptionTracker;
@@ -228,6 +232,7 @@ public class PharmacyService implements AutoCloseable {
         String telematikId = kvnrAndTelematikId.telematikId;
 
         if (valid(telematikId)) {
+            telematikMXBeanRegistry.registerTelematikIdBean(telematikId);
             smcbHandle = getSMCBHandleForTelematikId(telematikId, runtimeConfig);
             if (smcbHandle != null) {
                 log.fine("Found SMCB handle for telematik id: '" + telematikId + "' " + smcbHandle);
@@ -253,7 +258,7 @@ public class PharmacyService implements AutoCloseable {
             }
             readEPrescriptionsMXBean.increaseTasks();
             if (kvnr != null && valid(telematikId)) {
-                readEPrescriptionsMXBean.incrementTelematikIdAccepted(telematikId);
+                telematikMXBeanRegistry.countAccepted(telematikId);
                 prescriptionTracker.countSuccessfulPrescription(telematikId);
             }
             return Pair.of(fhirContext.newXmlParser().parseResource(Bundle.class, bundleString), event);
@@ -262,7 +267,7 @@ public class PharmacyService implements AutoCloseable {
             log.log(Level.SEVERE, String.format("[%s] Could not read response from Fachdienst", correlationId), e);
             readEPrescriptionsMXBean.increaseTasksFailed();
             if (kvnr != null && valid(telematikId)) {
-                readEPrescriptionsMXBean.incrementTelematikIdRejected(telematikId);
+                telematikMXBeanRegistry.countRejected(telematikId);
             }
             throw new WebApplicationException("Could not read response from Fachdienst", e);
         }

@@ -13,9 +13,19 @@ public class PsMXBeanManager {
 
     private static final Logger log = Logger.getLogger(PsMXBeanManager.class.getName());
 
-    public static void registerMXBean(String name, Object mbean) {
-        MBeanServer server = ManagementFactory.getPlatformMBeanServer();
-        register(server, name, mbean);
+    private static final MBeanServer MBEAN_SERVER = ManagementFactory.getPlatformMBeanServer();
+
+    public static void registerMXBean(String name, Object mxbean) {
+        try {
+            ObjectName objectName = new ObjectName(name);
+            if (MBEAN_SERVER.isRegistered(objectName)) {
+                log.warning(String.format("MXBean %s is already registered", name));
+            } else {
+                MBEAN_SERVER.registerMBean(mxbean, objectName);
+            }
+        } catch (Exception e) {
+            log.log(Level.SEVERE, String.format("JMX Bean for %s was not created", name), e);
+        }
     }
 
     public static void registerMXBean(Object mbean) {
@@ -26,44 +36,28 @@ public class PsMXBeanManager {
                                 interfaceClass.getSimpleName().endsWith("MXBean")
                 ).findAny().orElseThrow();
         var objectName = "health.ere.ps:type=" + mXBeanInterface.getSimpleName();
-        var server = ManagementFactory.getPlatformMBeanServer();
-        register(server, objectName, mbean);
+        registerMXBean(objectName, mbean);
     }
 
     public static void unregisterMXBean(String name) {
-        MBeanServer server = ManagementFactory.getPlatformMBeanServer();
         try {
-            server.unregisterMBean(new ObjectName(name));
+            MBEAN_SERVER.unregisterMBean(new ObjectName(name));
         } catch (Exception e) {
             log.log(Level.SEVERE, String.format("Unable to unregister JMX Bean %s", name), e);
         }
     }
 
     public static <T> T getMXBean(String name, Class<T> clazz) {
-        MBeanServer server = ManagementFactory.getPlatformMBeanServer();
         try {
-            return JMX.newMBeanProxy(server, new ObjectName(name), clazz);
+            ObjectName objectName = new ObjectName(name);
+            return MBEAN_SERVER.isRegistered(objectName) ? JMX.newMBeanProxy(MBEAN_SERVER, objectName, clazz) : null;
         } catch (Exception e) {
-            log.log(Level.SEVERE, String.format("JMX Bean %s is not found", name), e);
+            log.log(Level.FINE, String.format("Error accessing JMX Bean %s", name), e);
             return null;
         }
     }
 
     public static void registerMXBeans(Map<String, Object> objectNameToMXBean) {
-        MBeanServer server = ManagementFactory.getPlatformMBeanServer();
-        objectNameToMXBean.forEach((name, mbean) -> register(server, name, mbean));
-    }
-
-    private static void register(MBeanServer server, String name, Object mxbean) {
-        try {
-            ObjectName objectName = new ObjectName(name);
-            if (server.isRegistered(objectName)) {
-                log.warning(String.format("MXBean %s is already registered", name));
-            } else {
-                server.registerMBean(mxbean, objectName);
-            }
-        } catch (Exception e) {
-            log.log(Level.SEVERE, String.format("JMX Bean for %s was not created", name), e);
-        }
+        objectNameToMXBean.forEach(PsMXBeanManager::registerMXBean);
     }
 }
