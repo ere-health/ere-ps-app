@@ -30,7 +30,7 @@ public class PrescriptionTracker {
             try (FileOutputStream os = new FileOutputStream(telematikAcceptedFile, true)) {
                 FileChannel channel = os.getChannel();
                 FileLock lock = channel.lock();
-                try (channel) {
+                try {
                     String timestamp = formatter.format(Instant.now());
                     TelematikIdInfo telematikIdInfo = new TelematikIdInfo(timestamp, telematikId);
                     os.write(telematikIdInfo.toString().getBytes());
