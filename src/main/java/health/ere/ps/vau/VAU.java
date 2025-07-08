@@ -2,9 +2,11 @@ package health.ere.ps.vau;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.net.ConnectException;
 import java.net.URL;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
@@ -27,6 +29,10 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.teletrust.TeleTrusTObjectIdentifiers;
 import org.bouncycastle.asn1.x9.X9ECParameters;
@@ -155,10 +161,23 @@ public class VAU {
         CertificateFactory certFactory = CertificateFactory.getInstance("X.509", BouncyCastleProvider.PROVIDER_NAME);
         synchronized(this) {
             if(z == null) {
-                z = (X509Certificate) certFactory
-                        .generateCertificate(new URL(fachdienstUrl + "/VAUCertificate").openStream());
-                if(certificateService != null) {
-                    verifyCertificate(z);
+                String vauCertificateUrl = fachdienstUrl + "/VAUCertificate";
+                try {
+                    z = (X509Certificate) certFactory
+                            .generateCertificate(new URL(vauCertificateUrl).openStream());
+                    if(certificateService != null) {
+                        verifyCertificate(z);
+                    }
+                } catch (ConnectException e) {
+                    // open an url with apache http client and return a stream, this intergrates client failover
+                     CloseableHttpClient httpclient = HttpClients.createDefault();
+                    HttpGet httpget = new HttpGet(vauCertificateUrl);
+                    CloseableHttpResponse response = httpclient.execute(httpget);
+                    z = (X509Certificate) certFactory
+                            .generateCertificate(response.getEntity().getContent());
+                    response.close();
+                    httpclient.close();
+
                 }
             }
         }
