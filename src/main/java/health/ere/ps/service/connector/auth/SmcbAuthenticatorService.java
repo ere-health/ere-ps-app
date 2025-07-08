@@ -54,9 +54,8 @@ public class SmcbAuthenticatorService {
     @Inject
     AppConfig appConfig;
 
-    private X509Certificate x509Certificate;
 
-    public String signIdpChallenge(Pair<String, String> jwtPair, RuntimeConfig runtimeConfig) {
+    public String signIdpChallenge(Pair<String, String> jwtPair, RuntimeConfig runtimeConfig, X509Certificate certificate) {
         JsonWebSignatureWithExternalAuthentication jws = new JsonWebSignatureWithExternalAuthentication(runtimeConfig);
         jws.setPayload(new String(Base64.getUrlDecoder().decode(jwtPair.getRight())));
 
@@ -70,15 +69,11 @@ public class SmcbAuthenticatorService {
                 .forEach(entry -> jws.setHeader(entry.getKey(),
                         entry.getValue().getAsString()));
         try {
-            jws.setCertificateChainHeaderValue(x509Certificate);
+            jws.setCertificateChainHeaderValue(certificate);
             return jws.getCompactSerialization();
         } catch (JoseException e) {
             throw new IllegalStateException("Error during encryption", e);
         }
-    }
-
-    public void setX509Certificate(X509Certificate x509Certificate) {
-        this.x509Certificate = x509Certificate;
     }
 
     /**
