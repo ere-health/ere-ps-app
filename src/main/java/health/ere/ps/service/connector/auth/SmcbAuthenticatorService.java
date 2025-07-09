@@ -49,9 +49,7 @@ public class SmcbAuthenticatorService {
     @Inject
     ConnectorCardsService connectorCardsService;
 
-    private X509Certificate x509Certificate;
-
-    public String signIdpChallenge(Pair<String, String> jwtPair, RuntimeConfig runtimeConfig) {
+    public String signIdpChallenge(Pair<String, String> jwtPair, RuntimeConfig runtimeConfig, X509Certificate certificate) {
         JsonWebSignatureWithExternalAuthentication jws = new JsonWebSignatureWithExternalAuthentication(runtimeConfig);
         jws.setPayload(new String(Base64.getUrlDecoder().decode(jwtPair.getRight())));
 
@@ -65,22 +63,18 @@ public class SmcbAuthenticatorService {
                 .forEach(entry -> jws.setHeader(entry.getKey(),
                         entry.getValue().getAsString()));
         try {
-            jws.setCertificateChainHeaderValue(x509Certificate);
+            jws.setCertificateChainHeaderValue(certificate);
             return jws.getCompactSerialization();
         } catch (JoseException e) {
             throw new IllegalStateException("Error during encryption", e);
         }
     }
 
-    public void setX509Certificate(X509Certificate x509Certificate) {
-        this.x509Certificate = x509Certificate;
-    }
-
     /**
      * This extension for the jose4j JsonWebSignature signs the payload
      * with the function ExternalAuthenticate from the AuthSignatureServicePortType.
      *
-     * @see https://github.com/gematik/api-telematik/blob/bb3ac703c2df619b54b2fbf4ab91337a66b395b4/conn/AuthSignatureService.wsdl#L44
+     * @see <a href="https://github.com/gematik/api-telematik/blob/bb3ac703c2df619b54b2fbf4ab91337a66b395b4/conn/AuthSignatureService.wsdl#L44">...</a>
      */
     private class JsonWebSignatureWithExternalAuthentication extends JsonWebSignature {
 

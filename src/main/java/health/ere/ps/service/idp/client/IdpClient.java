@@ -66,6 +66,9 @@ public class IdpClient implements IIdpClient {
     @ConfigProperty(name = "ere.workflow-service.prescription.server.url")
     String prescriptionServiceURL;
 
+    @ConfigProperty(name = "ere.konnektor.sign.challenge.retry", defaultValue = "5")
+    int signChallengeRetry;
+
     private final CodeChallengeMethod codeChallengeMethod = CodeChallengeMethod.S256;
 
     @Inject
@@ -154,10 +157,7 @@ public class IdpClient implements IIdpClient {
 
     public IdpTokenResult login(X509Certificate x509Certificate, RuntimeConfig runtimeConfig) throws IdpJoseException,
             IdpClientException, IdpException {
-        smcbAuthenticatorService.setX509Certificate(x509Certificate);
-        return login(x509Certificate, (pair) -> {
-            return smcbAuthenticatorService.signIdpChallenge(pair, runtimeConfig);
-        });
+        return login(x509Certificate, (pair) -> smcbAuthenticatorService.signIdpChallenge(pair, runtimeConfig, x509Certificate));
     }
 
     private IdpTokenResult login(final X509Certificate certificate,
@@ -185,20 +185,29 @@ public class IdpClient implements IIdpClient {
                                 .nonce(nonce)
                                 .build());
 
-        IdpJwe idpJwe = new IdpJwe(signServerChallenge(
-                authorizationResponse.getAuthenticationChallenge().getChallenge().getRawString(),
-                certificate, contentSigner));
+        String rawString = authorizationResponse.getAuthenticationChallenge().getChallenge().getRawString();
 
-        // Authentication
-        logger.debug("Performing Authentication with remote-URL: " +
-                discoveryDocumentResponse.getAuthorizationEndpoint());
-        final AuthenticationResponse authenticationResponse =
-                authenticatorClient
-                        .performAuthentication(AuthenticationRequest.builder()
-                                .authenticationEndpointUrl(
-                                        discoveryDocumentResponse.getAuthorizationEndpoint())
-                                .signedChallenge(idpJwe)
-                                .build());
+        int counter = 0;
+        String exceptionMessage = null;
+        AuthenticationResponse authenticationResponse = null;
+        while (authenticationResponse == null && counter++ < signChallengeRetry) {
+            try {
+                IdpJwe idpJwe = new IdpJwe(signServerChallenge(rawString, certificate, contentSigner));
+                logger.debug("Performing Authentication with remote-URL: " + discoveryDocumentResponse.getAuthorizationEndpoint());
+                AuthenticationRequest request = AuthenticationRequest.builder()
+                    .authenticationEndpointUrl(discoveryDocumentResponse.getAuthorizationEndpoint())
+                    .signedChallenge(idpJwe)
+                    .build();
+                authenticationResponse = authenticatorClient.performAuthentication(request);
+            } catch (IdpClientException e) {
+                exceptionMessage = e.getMessage();
+                logger.error(String.format("[%s] SIGN RETRY: %d", Thread.currentThread().getName(), counter));
+            }
+        }
+        if (authenticationResponse == null) {
+            throw new IdpClientException(exceptionMessage);
+        }
+        
         if (shouldVerifyState) {
             final String stringInTokenUrl = UriUtils
                     .extractParameterValue(authenticationResponse.getLocation(), "state");

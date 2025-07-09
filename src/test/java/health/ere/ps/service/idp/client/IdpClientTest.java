@@ -2,6 +2,11 @@ package health.ere.ps.service.idp.client;
 
 import java.security.Security;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
 import jakarta.inject.Inject;
@@ -80,26 +85,37 @@ public class IdpClientTest {
     }
 
     @Test
-    public void test_Successful_Idp_Login_With_Connector_Smcb() throws IdpJoseException,
-            IdpClientException, IdpException, ConnectorCardCertificateReadException, ConnectorCardsException {
+    public void test_Successful_Idp_Login_With_Connector_Smcb() throws Exception {
 
         discoveryDocumentUrl = appConfig.getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
 
         idpClient.init(appConfig.getIdpClientId(), appConfig.getIdpAuthRequestRedirectURL(), discoveryDocumentUrl, true);
         idpClient.initializeClient();
 
-        String cardHandle = connectorCardsService.getConnectorCardHandle(
-                ConnectorCardsService.CardHandleType.SMC_B);
+        int samples = 5;
+        int cnt = 35;
 
-        X509Certificate x509Certificate = cardCertificateReaderService.retrieveSmcbCardCertificate(cardHandle);
+        ExecutorService executor = Executors.newFixedThreadPool(cnt);
+        for (int k = 0; k < samples; k++) {
+            List<Future<IdpTokenResult>> futures = new ArrayList<>();
+            for (int i = 0; i < cnt; i++) {
+                futures.add(executor.submit(() -> {
+                    String cardHandle = connectorCardsService.getConnectorCardHandle(ConnectorCardsService.CardHandleType.SMC_B);
+                    X509Certificate x509Certificate = cardCertificateReaderService.retrieveSmcbCardCertificate(cardHandle);
 
-        IdpTokenResult idpTokenResult = idpClient.login(x509Certificate);
+                    return idpClient.login(x509Certificate);
+                }));
+            }
+            for (Future<IdpTokenResult> future : futures) {
+                IdpTokenResult idpTokenResult = future.get();
 
-        log.info("Access Token: " + idpTokenResult.getAccessToken().getRawString());
+                log.info("Access Token: " + idpTokenResult.getAccessToken().getRawString());
 
-        Assertions.assertNotNull(idpTokenResult, "Idp Token result present.");
-        Assertions.assertNotNull(idpTokenResult.getAccessToken(), "Access Token present");
-        Assertions.assertNotNull(idpTokenResult.getIdToken(), "Id Token present");
+                Assertions.assertNotNull(idpTokenResult, "Idp Token result present.");
+                Assertions.assertNotNull(idpTokenResult.getAccessToken(), "Access Token present");
+                Assertions.assertNotNull(idpTokenResult.getIdToken(), "Id Token present");
+            }
+        }
     }
 
     @Test
