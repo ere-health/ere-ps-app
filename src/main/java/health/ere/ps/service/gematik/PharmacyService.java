@@ -257,7 +257,7 @@ public class PharmacyService implements AutoCloseable {
                 throw new WebApplicationException("Error on " + appConfig.getPrescriptionServiceURL() + " " + bundleString, response.getStatus());
             }
             readEPrescriptionsMXBean.increaseTasks();
-            if (kvnr != null && valid(telematikId)) {
+            if (valid(telematikId)) {
                 telematikMXBeanRegistry.countAccepted(telematikId);
                 prescriptionTracker.countSuccessfulPrescription(telematikId);
             }
@@ -266,7 +266,7 @@ public class PharmacyService implements AutoCloseable {
             generateRuntimeConfigToTelematikIdToSmcbHandle(runtimeConfig);
             log.log(Level.SEVERE, String.format("[%s] Could not read response from Fachdienst", correlationId), e);
             readEPrescriptionsMXBean.increaseTasksFailed();
-            if (kvnr != null && valid(telematikId)) {
+            if (valid(telematikId)) {
                 telematikMXBeanRegistry.countRejected(telematikId);
             }
             throw new WebApplicationException("Could not read response from Fachdienst", e);
