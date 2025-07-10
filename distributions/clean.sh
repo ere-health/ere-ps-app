@@ -4,7 +4,7 @@ echo 'Cleaning package...'
 
 DPKG_BUILD_PACKAGE="ere-health"
 DEB_VERSION="1.0.0"
-PATCH="16"
+PATCH="17"
 
 rm -R ${DPKG_BUILD_PACKAGE}_${DEB_VERSION}
 rm ${DPKG_BUILD_PACKAGE}_${DEB_VERSION}.orig.tar.gz
