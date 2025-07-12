@@ -19,7 +19,7 @@
         <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
         <quarkus.platform.version>3.9.4</quarkus.platform.version>
         <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
-        <hapi.version>7.4.0</hapi.version>
+        <hapi.version>8.0.0</hapi.version>
         <version.referencevalidator>2.5.1</version.referencevalidator>
     </properties>
     <!-- 2021-12-20 Add a random line to update maven cache in gitHub actions -->
