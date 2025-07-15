@@ -4,7 +4,6 @@ import javax.management.JMX;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -13,15 +12,15 @@ public class PsMXBeanManager {
 
     private static final Logger log = Logger.getLogger(PsMXBeanManager.class.getName());
 
-    private static final MBeanServer MBEAN_SERVER = ManagementFactory.getPlatformMBeanServer();
+    private static final MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
 
     public static void registerMXBean(String name, Object mxbean) {
         try {
             ObjectName objectName = new ObjectName(name);
-            if (MBEAN_SERVER.isRegistered(objectName)) {
+            if (mbeanServer.isRegistered(objectName)) {
                 log.warning(String.format("MXBean %s is already registered", name));
             } else {
-                MBEAN_SERVER.registerMBean(mxbean, objectName);
+                mbeanServer.registerMBean(mxbean, objectName);
             }
         } catch (Exception e) {
             log.log(Level.SEVERE, String.format("JMX Bean for %s was not created", name), e);
@@ -41,7 +40,7 @@ public class PsMXBeanManager {
 
     public static void unregisterMXBean(String name) {
         try {
-            MBEAN_SERVER.unregisterMBean(new ObjectName(name));
+            mbeanServer.unregisterMBean(new ObjectName(name));
         } catch (Exception e) {
             log.log(Level.SEVERE, String.format("Unable to unregister JMX Bean %s", name), e);
         }
@@ -50,14 +49,10 @@ public class PsMXBeanManager {
     public static <T> T getMXBean(String name, Class<T> clazz) {
         try {
             ObjectName objectName = new ObjectName(name);
-            return MBEAN_SERVER.isRegistered(objectName) ? JMX.newMBeanProxy(MBEAN_SERVER, objectName, clazz) : null;
+            return mbeanServer.isRegistered(objectName) ? JMX.newMBeanProxy(mbeanServer, objectName, clazz) : null;
         } catch (Exception e) {
             log.log(Level.FINE, String.format("Error accessing JMX Bean %s", name), e);
             return null;
         }
-    }
-
-    public static void registerMXBeans(Map<String, Object> objectNameToMXBean) {
-        objectNameToMXBean.forEach(PsMXBeanManager::registerMXBean);
     }
 }

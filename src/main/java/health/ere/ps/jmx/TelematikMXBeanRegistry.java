@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.LongAdder;
 
-import static health.ere.ps.jmx.PsMXBeanManager.getMXBean;
 import static health.ere.ps.jmx.PsMXBeanManager.registerMXBean;
 
 @ApplicationScoped
@@ -19,26 +18,28 @@ public class TelematikMXBeanRegistry {
     private final Map<String, LongAdder> acceptedCount = new ConcurrentHashMap<>();
     private final Map<String, LongAdder> rejectedCount = new ConcurrentHashMap<>();
 
-    public void registerTelematikIdBean(String telematikId) {
-        String name = telematikId + ":type=TelematikMXBean";
-        if (getMXBean(name, TelematikMXBean.class) != null) {
-            return;
-        }
-        log.info("Registering TelematikMXBean " + telematikId);
-        acceptedCount.put(telematikId, new LongAdder());
-        rejectedCount.put(telematikId, new LongAdder());
+    private final ConcurrentHashMap<String, String> registeredTelematikIds = new ConcurrentHashMap<>();
 
-        TelematikMXBean telematikMXBean = new TelematikMXBean() {
-            @Override
-            public long acceptedTasks() {
-                return acceptedCount.get(telematikId).sum();
-            }
-            @Override
-            public long rejectedTasks() {
-                return rejectedCount.get(telematikId).sum();
-            }
-        };
-        registerMXBean(name, telematikMXBean);
+    public void registerTelematikIdBean(String telematikId) {
+        String objectName = "health.ere.ps:type=TelematikMXBean,name=" + telematikId;
+        String existing = registeredTelematikIds.putIfAbsent(telematikId, objectName);
+        if (existing == null) {
+            log.info("Registering TelematikMXBean " + telematikId);
+            acceptedCount.put(telematikId, new LongAdder());
+            rejectedCount.put(telematikId, new LongAdder());
+
+            TelematikMXBean telematikMXBean = new TelematikMXBean() {
+                @Override
+                public long getAccepted() {
+                    return acceptedCount.get(telematikId).sum();
+                }
+                @Override
+                public long getRejected() {
+                    return rejectedCount.get(telematikId).sum();
+                }
+            };
+            registerMXBean(objectName, telematikMXBean);
+        }
     }
 
     public void countAccepted(String telematikId) {
