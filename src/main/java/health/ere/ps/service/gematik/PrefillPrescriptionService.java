@@ -353,7 +353,12 @@ public class PrefillPrescriptionService {
 		if(context.getUserId() == null || context.getUserId().isEmpty()) {
 			context.setUserId(UUID.randomUUID().toString());
 		}
-		certificateService.readCardCertificate(hbaHandle, context, certRefList, CryptType.ECC, statusHolder, certHolder);
+		try {
+			certificateService.readCardCertificate(hbaHandle, context, certRefList, CryptType.ECC, statusHolder, certHolder);
+		} catch(Exception e) {
+			log.log(Level.WARNING, "Could not read ECC certificate, trying RSA", e);
+			certificateService.readCardCertificate(hbaHandle, context, certRefList, CryptType.RSA, statusHolder, certHolder);
+		}
 
 		return CryptoLoader.getCertificateFromAsn1DERCertBytes(
 				certHolder.value.getX509DataInfo().get(0).getX509Data().getX509Certificate());
