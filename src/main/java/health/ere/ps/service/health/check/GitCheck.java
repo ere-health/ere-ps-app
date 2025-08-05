@@ -1,8 +1,6 @@
 package health.ere.ps.service.health.check;
 
-import de.health.service.check.Check;
-import de.health.service.check.Status;
-import de.health.service.config.api.IRuntimeConfig;
+import health.ere.ps.config.RuntimeConfig;
 import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
@@ -41,12 +39,12 @@ public class GitCheck implements Check {
     }
 
     @Override
-    public Status getStatus(IRuntimeConfig runtimeConfig) {
+    public Status getStatus(RuntimeConfig runtimeConfig) {
         return Status.Up200;
     }
 
     @Override
-    public Map<String, String> getData(IRuntimeConfig runtimeConfig) {
+    public Map<String, String> getData(RuntimeConfig runtimeConfig) {
         return Map.of(
             BUILD_TIME, properties.getProperty("git.build.time"),
             GIT_COMMIT_ID, properties.getProperty("git.commit.id")

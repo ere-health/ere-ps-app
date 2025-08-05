@@ -9,6 +9,7 @@ public interface Check {
     String CARDLINK_WEBSOCKET_CHECK = "CardlinkWebsocketCheck";
     String CETP_SERVER_CHECK = "CETPServerCheck";
     String STATUS_CHECK = "StatusCheck";
+    String GIT_CHECK = "GitCheck";
 
     String getName();
 
