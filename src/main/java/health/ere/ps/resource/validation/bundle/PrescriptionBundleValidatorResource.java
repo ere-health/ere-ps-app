@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import de.gematik.refv.commons.validation.ValidationResult;
 import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 import jakarta.inject.Inject;
 import jakarta.json.JsonObject;
@@ -32,8 +33,8 @@ public class PrescriptionBundleValidatorResource {
     public Response post(String bundle) {
         List<String> errorsList = new ArrayList<>();
 
-        if (!prescriptionBundleValidator.validateResource(bundle,
-            true, errorsList).isValid()) {
+        ValidationResult validationResult = prescriptionBundleValidator.validateResource(bundle, true, errorsList);
+        if (!validationResult.isValid()) {
             return Response.status(Status.BAD_REQUEST).entity(getXmlForErrorsList(errorsList)).build();
         } else {
             return Response.ok().build();
