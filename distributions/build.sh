@@ -9,7 +9,6 @@ mkdir ${DPKG_BUILD_PACKAGE}_${DEB_VERSION}
 mkdir -p ${DPKG_BUILD_PACKAGE}_${DEB_VERSION}/src
 cp -r ../src/main ${DPKG_BUILD_PACKAGE}_${DEB_VERSION}/src
 cp -r ../pom.xml ${DPKG_BUILD_PACKAGE}_${DEB_VERSION}/pom.xml
-cp -r ../KBV_FHIR_eRP_V1_1_0 ${DPKG_BUILD_PACKAGE}_${DEB_VERSION}/
 mkdir ${DPKG_BUILD_PACKAGE}_${DEB_VERSION}/config
 cp ../src/main/resources/application.properties ${DPKG_BUILD_PACKAGE}_${DEB_VERSION}/config/
 mkdir ${DPKG_BUILD_PACKAGE}_${DEB_VERSION}/log
