@@ -18,7 +18,7 @@
         <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
         <quarkus.platform.version>3.9.4</quarkus.platform.version>
         <hapi.version>7.4.0</hapi.version>
-        <version.referencevalidator>2.5.1</version.referencevalidator>
+        <version.referencevalidator>2.12.0</version.referencevalidator>
 
         <surefire-plugin.version>3.2.5</surefire-plugin.version>
         <failsafe-plugin.version>3.5.0</failsafe-plugin.version>
@@ -483,10 +483,6 @@
 					<tasks>
 						<echo>Copying Server certificate</echo>
 						<copy file="src/main/resources/META-INF/resources/server.keystore" tofile="${basedir}/target/quarkus-app/server.keystore"/>
-						<echo>Copying KBV_FHIR_eRP_V1_1_0</echo>
-						<copy todir="${basedir}/target/quarkus-app/KBV_FHIR_eRP_V1_1_0">
-							<fileset dir="KBV_FHIR_eRP_V1_1_0"/>
-						</copy>
 					</tasks>
 				</configuration>
 			</execution>

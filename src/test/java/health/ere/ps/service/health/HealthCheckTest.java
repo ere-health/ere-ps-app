@@ -35,6 +35,7 @@ import java.util.Optional;
 
 import static health.ere.ps.service.health.check.Check.CARDLINK_WEBSOCKET_CHECK;
 import static health.ere.ps.service.health.check.Check.CETP_SERVER_CHECK;
+import static health.ere.ps.service.health.check.Check.GIT_CHECK;
 import static health.ere.ps.service.health.check.Check.STATUS_CHECK;
 import static io.restassured.RestAssured.given;
 import static org.apache.http.params.CoreConnectionPNames.CONNECTION_TIMEOUT;
@@ -88,7 +89,7 @@ class HealthCheckTest {
         Response response = given().header(new Header("X-eHBAHandle", "test")).config(config).when().get("/health");
         response.then().statusCode(200);
         HealthInfo healthInfo = response.getBody().as(HealthInfo.class);
-        assertThat(healthInfo.checks().size(), equalTo(3));
+        assertThat(healthInfo.checks().size(), equalTo(4));
         Optional<CheckInfo> cardLinkWebsocketCheckOpt = healthInfo.checks()
             .stream()
             .filter(check -> check.name().equals(CARDLINK_WEBSOCKET_CHECK))
@@ -110,6 +111,12 @@ class HealthCheckTest {
             .findFirst();
         assertTrue(statusCheckOpt.isPresent());
         assertThat(statusCheckOpt.get().status(), equalTo("DOWN"));
+
+        Optional<CheckInfo> gitCheckOpt = healthInfo.checks()
+            .stream()
+            .filter(check -> check.name().equals(GIT_CHECK))
+            .findFirst();
+        assertTrue(gitCheckOpt.isPresent());
     }
 
     private void connectToCetpServer() throws Exception {
