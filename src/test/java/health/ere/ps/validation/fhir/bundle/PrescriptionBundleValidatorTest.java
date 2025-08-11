@@ -24,7 +24,8 @@ public class PrescriptionBundleValidatorTest {
         assertValidBundle("./src/test/resources/examples-kbv-fhir-erp-v1-1-0/Beispiel_1.xml");
         assertValidBundle("./src/test/resources/simplifier_erezept/0428d416-149e-48a4-977c-394887b3d85c.xml");
 
-        //assertValidBundle("./src/test/resources/examples-kbv-fhir-erp-v1-3-2/erp111.xml");
+        assertValidBundle("./src/test/resources/examples-kbv-fhir-erp-v1-1-0/PZN_Nr1_VerordnungArzt.json");
+        assertValidBundle("./src/test/resources/examples-kbv-fhir-erp-v1-3-2/PZN_Nr1_VerordnungArzt.json");
     }
 
     private void assertValidBundle(String fileName) throws Exception {
