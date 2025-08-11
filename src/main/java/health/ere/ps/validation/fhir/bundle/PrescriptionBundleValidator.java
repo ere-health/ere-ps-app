@@ -3,7 +3,6 @@ package health.ere.ps.validation.fhir.bundle;
 import ca.uhn.fhir.validation.SingleValidationMessage;
 import de.gematik.refv.ValidationModuleFactory;
 import de.gematik.refv.commons.configuration.ValidationModuleConfiguration;
-import de.gematik.refv.commons.exceptions.ValidationModuleInitializationException;
 import de.gematik.refv.commons.validation.ValidationModule;
 import de.gematik.refv.commons.validation.ValidationResult;
 import io.quarkus.runtime.Startup;
@@ -16,14 +15,13 @@ import jakarta.json.JsonObject;
 import jakarta.json.JsonObjectBuilder;
 import jakarta.json.JsonValue;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static ca.uhn.fhir.rest.api.Constants.FORMAT_JSON;
-import static ca.uhn.fhir.rest.api.Constants.FORMAT_XML;
 import static de.gematik.refv.SupportedValidationModule.ERP;
 
 @Startup
@@ -34,11 +32,19 @@ public class PrescriptionBundleValidator {
 
     ValidationModule erpModule;
 
+    @SuppressWarnings("unchecked")
     @PostConstruct
     public void init() {
         try {
             erpModule = new ValidationModuleFactory().createValidationModule(ERP);
-        } catch (IllegalArgumentException | ValidationModuleInitializationException e) {
+            ValidationModuleConfiguration configuration = erpModule.getConfiguration();
+            Field acceptedEncodings = configuration.getClass().getDeclaredField("acceptedEncodings");
+            acceptedEncodings.setAccessible(true);
+            List<String> list = (ArrayList<String>) acceptedEncodings.get(configuration);
+            if (!list.contains(FORMAT_JSON)) {
+                list.add(FORMAT_JSON);
+            }
+        } catch (Exception e) {
             log.log(Level.SEVERE, "Could not init validator", e);
         }
     }
