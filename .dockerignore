@@ -3,4 +3,3 @@
 !target/*-runner.jar
 !target/lib/*
 !target/quarkus-app/*
-!KBV_FHIR_eRP_V1_1_0
