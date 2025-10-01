@@ -1,6 +1,5 @@
 package health.ere.ps.resource;
 
-import static com.hp.jipp.model.Types.documentFormat;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -10,8 +9,6 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
-
-import jakarta.validation.constraints.NotNull;
 
 import com.hp.jipp.encoding.IppInputStream;
 import com.hp.jipp.trans.IppClientTransport;

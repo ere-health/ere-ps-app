@@ -1,5 +1,36 @@
 package health.ere.ps.service.pdf;
 
+import ca.uhn.fhir.context.FhirContext;
+import health.ere.ps.event.BundlesWithAccessCodeEvent;
+import health.ere.ps.event.ERezeptWithDocumentsEvent;
+import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
+import health.ere.ps.model.pdf.ERezeptDocument;
+import health.ere.ps.service.fhir.FHIRService;
+import health.ere.ps.websocket.ExceptionWithReplyToException;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.event.ObservesAsync;
+import jakarta.inject.Inject;
+import org.apache.fop.apps.FOPException;
+import org.apache.fop.apps.Fop;
+import org.apache.fop.apps.FopFactory;
+import org.apache.fop.apps.FopFactoryBuilder;
+import org.apache.fop.apps.MimeConstants;
+import org.apache.fop.configuration.Configuration;
+import org.apache.fop.configuration.ConfigurationException;
+import org.apache.fop.configuration.DefaultConfigurationBuilder;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+import javax.xml.XMLConstants;
+import javax.xml.transform.ErrorListener;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXResult;
+import javax.xml.transform.stream.StreamSource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -23,39 +54,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import javax.xml.XMLConstants;
-import javax.xml.transform.ErrorListener;
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.sax.SAXResult;
-import javax.xml.transform.stream.StreamSource;
-
-import org.apache.fop.apps.FOPException;
-import org.apache.fop.apps.Fop;
-import org.apache.fop.apps.FopFactory;
-import org.apache.fop.apps.FopFactoryBuilder;
-import org.apache.fop.apps.MimeConstants;
-import org.apache.fop.configuration.Configuration;
-import org.apache.fop.configuration.ConfigurationException;
-import org.apache.fop.configuration.DefaultConfigurationBuilder;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
-import ca.uhn.fhir.context.FhirContext;
-import health.ere.ps.event.BundlesWithAccessCodeEvent;
-import health.ere.ps.event.ERezeptWithDocumentsEvent;
-import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
-import health.ere.ps.model.pdf.ERezeptDocument;
-import health.ere.ps.service.fhir.FHIRService;
-import health.ere.ps.websocket.ExceptionWithReplyToException;
-import jakarta.annotation.PostConstruct;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Event;
-import jakarta.enterprise.event.ObservesAsync;
-import jakarta.inject.Inject;
-
 @ApplicationScoped
 public class DocumentService {
 
@@ -69,7 +67,7 @@ public class DocumentService {
     Event<Exception> exceptionEvent;
 
     @ConfigProperty(name = "ere.document-service.write-pdf-file", defaultValue = "false")
-    boolean writePdfFile = false;
+    boolean writePdfFile;
 
     private FopFactory fopFactory;
 
@@ -130,8 +128,7 @@ public class DocumentService {
     }
 
     /**
-     * https://stackoverflow.com/a/1529707/1059979
-     * @param jarFile
+     * <a href="https://stackoverflow.com/a/1529707/1059979">...</a>
      */
     void extractJarsFromFolderFopFolder(String folderWithJars) {
         Path dir = Paths.get(folderWithJars);

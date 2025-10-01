@@ -1,9 +1,12 @@
 package health.ere.ps.service.gematik;
 
-import java.util.Base64;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import ca.uhn.fhir.context.FhirContext;
+import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
+import de.gematik.ws.conn.vsds.vsdservice.v5.ReadVSDResponse;
+import health.ere.ps.config.AppConfig;
+import health.ere.ps.config.RuntimeConfig;
+import health.ere.ps.exception.common.security.SecretsManagerException;
+import health.ere.ps.service.fhir.FHIRService;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -11,27 +14,16 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.Response;
-import jakarta.xml.ws.Holder;
-
 import org.bouncycastle.cms.CMSProcessableByteArray;
 import org.bouncycastle.cms.CMSSignedData;
 import org.hl7.fhir.r4.model.Binary;
 import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Task;
 
-import ca.uhn.fhir.context.FhirContext;
-import de.gematik.ws.conn.cardservicecommon.v2.CardTypeType;
-import de.gematik.ws.conn.connectorcontext.v2.ContextType;
-import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
-import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
-import de.gematik.ws.conn.vsds.vsdservice.v5.VSDStatusType;
-import health.ere.ps.config.AppConfig;
-import health.ere.ps.config.RuntimeConfig;
-import health.ere.ps.config.UserConfig;
-import health.ere.ps.exception.common.security.SecretsManagerException;
-import health.ere.ps.service.connector.cards.ConnectorCardsService;
-import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
-import health.ere.ps.service.fhir.FHIRService;
+import java.util.Base64;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @ApplicationScoped
 public class PharmacyService extends BearerTokenManageService {
@@ -40,13 +32,9 @@ public class PharmacyService extends BearerTokenManageService {
 
     @Inject
     AppConfig appConfig;
-    @Inject
-    UserConfig userConfig;
 
     @Inject
-    MultiConnectorServicesProvider connectorServicesProvider;
-    @Inject
-    ConnectorCardsService connectorCardsService;
+    VSDService vsdService;
 
     private static final FhirContext fhirContext = FHIRService.getFhirContext();
 
@@ -57,37 +45,21 @@ public class PharmacyService extends BearerTokenManageService {
         client = ERezeptWorkflowService.initClientWithVAU(appConfig);
     }
 
-    public Bundle getEPrescriptionsForCardHandle(String egkHandle, String smcbHandle, RuntimeConfig runtimeConfig) throws FaultMessage, de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
-        
-        if(runtimeConfig == null) {
+    public Bundle getEPrescriptionsForCardHandle(
+        String egkHandle,
+        String smcbHandle,
+        RuntimeConfig runtimeConfig
+    ) throws FaultMessage, de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
+        if (runtimeConfig == null) {
             runtimeConfig = new RuntimeConfig();
         }
         runtimeConfig.setSMCBHandle(smcbHandle);
-        ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
-        
-        Holder<byte[]> persoenlicheVersichertendaten = new Holder<>();
-			Holder<byte[]> allgemeineVersicherungsdaten = new Holder<>();
-			Holder<byte[]> geschuetzteVersichertendaten = new Holder<>();
-			Holder<VSDStatusType> vSD_Status = new Holder<>();
-			Holder<byte[]> pruefungsnachweis = new Holder<>();
 
-        EventServicePortType eventService = connectorServicesProvider.getEventServicePortType(runtimeConfig);
-        if(egkHandle == null) {
-            egkHandle = PrefillPrescriptionService.getFirstCardOfType(eventService, CardTypeType.EGK, context);
-            
-        }
-        if(smcbHandle == null) {
-            smcbHandle = PrefillPrescriptionService.getFirstCardOfType(eventService, CardTypeType.SMC_B, context);
-            runtimeConfig.setSMCBHandle(smcbHandle);
-        }
+        log.info(egkHandle + " " + smcbHandle);
+        ReadVSDResponse readVSDResponse = vsdService.readVSD(runtimeConfig, egkHandle, smcbHandle, true, true);
+        String pnw = Base64.getEncoder().encodeToString(readVSDResponse.getPruefungsnachweis());
+
         requestNewAccessTokenIfNecessary(runtimeConfig, null, null);
-        log.info(egkHandle+" "+smcbHandle);
-        connectorServicesProvider.getVSDServicePortType(runtimeConfig).readVSD(egkHandle, smcbHandle, true, true,
-                context, persoenlicheVersichertendaten, allgemeineVersicherungsdaten, geschuetzteVersichertendaten,
-                vSD_Status, pruefungsnachweis);
-
-        String pnw = Base64.getEncoder().encodeToString(pruefungsnachweis.value);
-
         try (Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task")
                 .queryParam("pnw", pnw).request()
                 .header("User-Agent", appConfig.getUserAgent())
@@ -95,13 +67,11 @@ public class PharmacyService extends BearerTokenManageService {
                 .get()) {
 
             String bundleString = response.readEntity(String.class);
-            
             if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
                 throw new WebApplicationException("Error on "+appConfig.getPrescriptionServiceURL()+" "+bundleString, response.getStatus());
             }
             return fhirContext.newXmlParser().parseResource(Bundle.class, bundleString);
         }
-    
     }
 
     public Bundle accept(String token, RuntimeConfig runtimeConfig) {
@@ -120,7 +90,7 @@ public class PharmacyService extends BearerTokenManageService {
             }
             Bundle bundle = fhirContext.newXmlParser().parseResource(Bundle.class, bundleString);
             Task task = (Task) bundle.getEntry().get(0).getResource();
-            secret = task.getIdentifier().stream().filter(t -> "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_Secret".equals(t.getSystem())).map(t -> t.getValue()).findAny().orElse(null);
+            secret = task.getIdentifier().stream().filter(t -> "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_Secret".equals(t.getSystem())).map(Identifier::getValue).findAny().orElse(null);
             Binary binary = (Binary) bundle.getEntry().get(1).getResource();
             byte[] pkcs7Data = binary.getData();
             CMSSignedData signedData = new CMSSignedData(pkcs7Data);
@@ -129,7 +99,7 @@ public class PharmacyService extends BearerTokenManageService {
 
             response.close();
             
-            prescriptionId = task.getIdentifier().stream().filter(t -> "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId".equals(t.getSystem())).map(t -> t.getValue()).findAny().orElse(null);
+            prescriptionId = task.getIdentifier().stream().filter(t -> "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId".equals(t.getSystem())).map(Identifier::getValue).findAny().orElse(null);
 
             try (Response response2 = client.target(appConfig.getPrescriptionServiceURL()).path("/Task/"+prescriptionId+"/$reject")
                 .queryParam("secret", secret).request()
@@ -150,7 +120,5 @@ public class PharmacyService extends BearerTokenManageService {
             log.log(Level.SEVERE, "Could not process "+token+"prescriptionId: "+prescriptionId+" secret: "+secret+" ", t);
             return null;
         }
-
     }
-
 }

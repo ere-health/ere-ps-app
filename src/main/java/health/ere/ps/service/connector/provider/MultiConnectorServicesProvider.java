@@ -12,6 +12,7 @@ import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV740;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
+import de.gematik.ws.conn.vsds.kvkservice.v4.KVKServicePortType;
 import de.gematik.ws.conn.vsds.vsdservice.v5.VSDServicePortType;
 import health.ere.ps.config.SimpleUserConfig;
 import health.ere.ps.config.UserConfig;
@@ -88,6 +89,12 @@ public class MultiConnectorServicesProvider {
         VSDServicePortType vsdServicePortType = getSingleConnectorServicesProvider(userConfig).getVSDServicePortType();
         checkNull("vsdServicePortType", vsdServicePortType);
         return vsdServicePortType;
+    }
+
+    public KVKServicePortType getKVKServicePortType(UserConfig userConfig) {
+        KVKServicePortType kvkServicePortType = getSingleConnectorServicesProvider(userConfig).getKVKServicePortType();
+        checkNull("kvkServicePortType", kvkServicePortType);
+        return kvkServicePortType;
     }
 
     public ContextType getContextType(UserConfig userConfig) {
