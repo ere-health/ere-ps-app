@@ -1,35 +1,43 @@
 package health.ere.ps.service.gematik;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.zip.GZIPInputStream;
-
-import javax.naming.InvalidNameException;
-
+import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
+import de.gematik.ws.conn.cardservice.v8.CardInfoType;
+import de.gematik.ws.conn.cardservicecommon.v2.CardTypeType;
+import de.gematik.ws.conn.certificateservice.v6.CryptType;
+import de.gematik.ws.conn.certificateservice.v6.ReadCardCertificate;
+import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateServicePortType;
+import de.gematik.ws.conn.certificateservicecommon.v2.CertRefEnum;
+import de.gematik.ws.conn.certificateservicecommon.v2.X509DataInfoListType;
+import de.gematik.ws.conn.connectorcommon.v5.Status;
+import de.gematik.ws.conn.connectorcontext.v2.ContextType;
+import de.gematik.ws.conn.eventservice.v7.GetCards;
+import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
+import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
+import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
+import de.gematik.ws.conn.vsds.vsdservice.v5.ReadVSDResponse;
+import de.gematik.ws.fa.vsdm.vsd.v5.UCAllgemeineVersicherungsdatenXML;
+import de.gematik.ws.fa.vsdm.vsd.v5.UCGeschuetzteVersichertendatenXML;
+import de.gematik.ws.fa.vsdm.vsd.v5.UCPersoenlicheVersichertendatenXML;
+import health.ere.ps.config.RuntimeConfig;
+import health.ere.ps.event.BundlesEvent;
+import health.ere.ps.event.PrefillBundleEvent;
+import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
+import health.ere.ps.service.idp.crypto.CryptoLoader;
+import health.ere.ps.service.kbv.KBVFHIRUtil;
+import health.ere.ps.websocket.ExceptionWithReplyToException;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.event.ObservesAsync;
+import jakarta.inject.Inject;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.ws.Holder;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x500.style.IETFUtils;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import org.bouncycastle.crypto.CryptoException;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.hl7.fhir.r4.model.Address.AddressType;
 import org.hl7.fhir.r4.model.Annotation;
 import org.hl7.fhir.r4.model.BooleanType;
@@ -54,43 +62,32 @@ import org.hl7.fhir.r4.model.Practitioner.PractitionerQualificationComponent;
 import org.hl7.fhir.r4.model.Quantity;
 import org.hl7.fhir.r4.model.StringType;
 
-import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
-import de.gematik.ws.conn.cardservice.v8.CardInfoType;
-import de.gematik.ws.conn.cardservicecommon.v2.CardTypeType;
-import de.gematik.ws.conn.certificateservice.v6.CryptType;
-import de.gematik.ws.conn.certificateservice.v6.ReadCardCertificate;
-import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateServicePortType;
-import de.gematik.ws.conn.certificateservicecommon.v2.CertRefEnum;
-import de.gematik.ws.conn.certificateservicecommon.v2.X509DataInfoListType;
-import de.gematik.ws.conn.connectorcommon.v5.Status;
-import de.gematik.ws.conn.connectorcontext.v2.ContextType;
-import de.gematik.ws.conn.eventservice.v7.GetCards;
-import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
-import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
-import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
-import de.gematik.ws.conn.vsds.vsdservice.v5.VSDStatusType;
-import de.gematik.ws.fa.vsdm.vsd.v5.UCAllgemeineVersicherungsdatenXML;
-import de.gematik.ws.fa.vsdm.vsd.v5.UCGeschuetzteVersichertendatenXML;
-import de.gematik.ws.fa.vsdm.vsd.v5.UCPersoenlicheVersichertendatenXML;
-import health.ere.ps.config.RuntimeConfig;
-import health.ere.ps.event.BundlesEvent;
-import health.ere.ps.event.PrefillBundleEvent;
-import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
-import health.ere.ps.service.idp.crypto.CryptoLoader;
-import health.ere.ps.service.kbv.KBVFHIRUtil;
-import health.ere.ps.websocket.ExceptionWithReplyToException;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Event;
-import jakarta.enterprise.event.ObservesAsync;
-import jakarta.inject.Inject;
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
-import jakarta.xml.ws.Holder;
+import javax.naming.InvalidNameException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.zip.GZIPInputStream;
 
 @ApplicationScoped
 public class PrefillPrescriptionService {
 
-	private static Logger log = Logger.getLogger(PrefillPrescriptionService.class.getName());
+	private static final Logger log = Logger.getLogger(PrefillPrescriptionService.class.getName());
 
 	static JAXBContext jaxbContext;
 
@@ -98,8 +95,11 @@ public class PrefillPrescriptionService {
 
 	static {
 		try {
-			jaxbContext = JAXBContext.newInstance(UCPersoenlicheVersichertendatenXML.class,
-					UCAllgemeineVersicherungsdatenXML.class, UCGeschuetzteVersichertendatenXML.class);
+			jaxbContext = JAXBContext.newInstance(
+				UCPersoenlicheVersichertendatenXML.class,
+				UCAllgemeineVersicherungsdatenXML.class,
+				UCGeschuetzteVersichertendatenXML.class
+			);
 		} catch (JAXBException e) {
 			log.log(Level.SEVERE, "Could not init jaxb context", e);
 		}
@@ -107,6 +107,9 @@ public class PrefillPrescriptionService {
 
 	@Inject
 	MultiConnectorServicesProvider connectorServicesProvider;
+
+	@Inject
+	VSDService vsdService;
 
 	@Inject
 	Event<BundlesEvent> bundleEvent;
@@ -120,7 +123,7 @@ public class PrefillPrescriptionService {
 		InvalidNameException, CertificateEncodingException {
 			return get(runtimeConfig, null);
 	}
-	
+
 	public Bundle get(RuntimeConfig runtimeConfig, String egkHandleParameter)
 			throws FaultMessage, de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage, JAXBException,
 			de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage, CryptoException, IOException,
@@ -128,8 +131,6 @@ public class PrefillPrescriptionService {
 		return get(runtimeConfig, egkHandleParameter, null);
 	}
 
-
-	
 	public Bundle get(RuntimeConfig runtimeConfig, String egkHandleParameter, String smcbHandleParameter)
 			throws FaultMessage, de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage, JAXBException,
 			de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage, CryptoException, IOException,
@@ -137,49 +138,40 @@ public class PrefillPrescriptionService {
 		return get(runtimeConfig, egkHandleParameter, smcbHandleParameter, null);
 	}
 
-
-	public Bundle get(RuntimeConfig runtimeConfig, String egkHandleParameter, String smcbHandleParameter, String hbaHandleParameter)
-			throws FaultMessage, de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage, JAXBException,
-			de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage, CryptoException, IOException,
-			InvalidNameException, CertificateEncodingException {
+	public Bundle get(
+		RuntimeConfig runtimeConfig,
+		String egkHandleParameter,
+		String smcbHandleParameter,
+		String hbaHandleParameter
+	) throws FaultMessage, de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage, JAXBException,
+		de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage, CryptoException, IOException,
+		InvalidNameException, CertificateEncodingException {
 		// Get data from egk
 		ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
 
 		EventServicePortType eventService = connectorServicesProvider.getEventServicePortType(runtimeConfig);
 
-		String egkHandle = egkHandleParameter != null ? egkHandleParameter : getFirstCardOfType(eventService, CardTypeType.EGK, context);
 		String smcbHandle = smcbHandleParameter != null ? smcbHandleParameter : (runtimeConfig != null && runtimeConfig.getSMCBHandle() != null) ? runtimeConfig.getSMCBHandle() : getFirstCardOfType(eventService, CardTypeType.SMC_B, context);
 		String hbaHandle = hbaHandleParameter != null ? hbaHandleParameter : (runtimeConfig != null && runtimeConfig.getEHBAHandle() != null) ? runtimeConfig.getEHBAHandle() : getFirstCardOfType(eventService, CardTypeType.HBA, context);
 
-		Patient patient = null;
-		Coverage coverage = null;
-		if (egkHandle != null) {
-			Holder<byte[]> persoenlicheVersichertendaten = new Holder<>();
-			Holder<byte[]> allgemeineVersicherungsdaten = new Holder<>();
-			Holder<byte[]> geschuetzteVersichertendaten = new Holder<>();
-			Holder<VSDStatusType> vSD_Status = new Holder<>();
-			Holder<byte[]> pruefungsnachweis = new Holder<>();
-			connectorServicesProvider.getVSDServicePortType(runtimeConfig).readVSD(egkHandle, smcbHandle, false, false,
-					context, persoenlicheVersichertendaten, allgemeineVersicherungsdaten, geschuetzteVersichertendaten,
-					vSD_Status, pruefungsnachweis);
+		ReadVSDResponse readVSDResponse = vsdService.readVSD(runtimeConfig, egkHandleParameter, smcbHandleParameter, false, false);
 
-			InputStream isPersoenlicheVersichertendaten = new GZIPInputStream(
-					new ByteArrayInputStream(persoenlicheVersichertendaten.value));
-			UCPersoenlicheVersichertendatenXML schaumberg = (UCPersoenlicheVersichertendatenXML) jaxbContext
-					.createUnmarshaller().unmarshal(isPersoenlicheVersichertendaten);
-			patient = KBVFHIRUtil.UCPersoenlicheVersichertendatenXML2Patient(schaumberg);
+		InputStream isPersoenlicheVersichertendaten = new GZIPInputStream(
+				new ByteArrayInputStream(readVSDResponse.getPersoenlicheVersichertendaten()));
+		UCPersoenlicheVersichertendatenXML schaumberg = (UCPersoenlicheVersichertendatenXML) jaxbContext
+				.createUnmarshaller().unmarshal(isPersoenlicheVersichertendaten);
+		Patient patient = KBVFHIRUtil.UCPersoenlicheVersichertendatenXML2Patient(schaumberg);
 
-			InputStream isAllgemeineVersicherungsdaten = new GZIPInputStream(
-					new ByteArrayInputStream(allgemeineVersicherungsdaten.value));
-			UCAllgemeineVersicherungsdatenXML versicherung = (UCAllgemeineVersicherungsdatenXML) jaxbContext
-					.createUnmarshaller().unmarshal(isAllgemeineVersicherungsdaten);
-			InputStream isVersichungKennzeichen = new GZIPInputStream(
-					new ByteArrayInputStream(geschuetzteVersichertendaten.value));
-			UCGeschuetzteVersichertendatenXML versichungKennzeichen = (UCGeschuetzteVersichertendatenXML) jaxbContext
-					.createUnmarshaller().unmarshal(isVersichungKennzeichen);
-			coverage = KBVFHIRUtil.UCAllgemeineVersicherungsdatenXML2Coverage(versicherung,
+		InputStream isAllgemeineVersicherungsdaten = new GZIPInputStream(
+				new ByteArrayInputStream(readVSDResponse.getAllgemeineVersicherungsdaten()));
+		UCAllgemeineVersicherungsdatenXML versicherung = (UCAllgemeineVersicherungsdatenXML) jaxbContext
+				.createUnmarshaller().unmarshal(isAllgemeineVersicherungsdaten);
+		InputStream isVersichungKennzeichen = new GZIPInputStream(
+				new ByteArrayInputStream(readVSDResponse.getGeschuetzteVersichertendaten()));
+		UCGeschuetzteVersichertendatenXML versichungKennzeichen = (UCGeschuetzteVersichertendatenXML) jaxbContext
+				.createUnmarshaller().unmarshal(isVersichungKennzeichen);
+		Coverage coverage = KBVFHIRUtil.UCAllgemeineVersicherungsdatenXML2Coverage(versicherung,
 					patient.getIdElement().getIdPart(), versichungKennzeichen);
-		}
 
 		CertificateServicePortType certificateService = connectorServicesProvider
 				.getCertificateServicePortType(runtimeConfig);
@@ -187,7 +179,7 @@ public class PrefillPrescriptionService {
 		Practitioner practitioner = null;
 
 		if (hbaHandle != null) {
-			practitioner = hbaHandle2Practitioner(hbaHandle, runtimeConfig, certificateService, context);
+			practitioner = hbaHandle2Practitioner(hbaHandle, certificateService, context);
 		}
 
 		Organization organization = null;
@@ -202,10 +194,16 @@ public class PrefillPrescriptionService {
 				patient.getIdElement().getIdPart(), practitioner.getIdElement().getIdPart(),
 				coverage.getIdElement().getIdPart());
 
-		Bundle bundle = KBVFHIRUtil.assembleBundle(practitioner, organization, patient, coverage, medication,
-				medicationRequest, null, null);
-
-		return bundle;
+        return KBVFHIRUtil.assembleBundle(
+			practitioner,
+			organization,
+			patient,
+			coverage,
+			medication,
+			medicationRequest,
+			null,
+			null
+		);
 	}
 
 	private Organization smcbHandle2Organization(String hbaHandle, RuntimeConfig runtimeConfig,
@@ -270,10 +268,11 @@ public class PrefillPrescriptionService {
 		return organization;
 	}
 
-	private Practitioner hbaHandle2Practitioner(String hbaHandle, RuntimeConfig runtimeConfig,
-			CertificateServicePortType certificateService, ContextType context)
-			throws de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage, CryptoException, InvalidNameException,
-			CertificateEncodingException {
+	private Practitioner hbaHandle2Practitioner(
+		String hbaHandle,
+		CertificateServicePortType certificateService,
+		ContextType context
+	) throws de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage, CryptoException, CertificateEncodingException {
 		CertRefEnum certRef = CertRefEnum.C_QES;
 
 		X509Certificate x509Certificate = getCertificateFor(hbaHandle, certificateService, context, certRef);
@@ -364,20 +363,18 @@ public class PrefillPrescriptionService {
 				certHolder.value.getX509DataInfo().get(0).getX509Data().getX509Certificate());
 	}
 
-	static String getFirstCardOfType(EventServicePortType eventService, CardTypeType type, ContextType context)
-			throws FaultMessage {
+	static String getFirstCardOfType(
+		EventServicePortType eventService,
+		CardTypeType type,
+		ContextType context
+	) throws FaultMessage {
 		GetCards parameter = new GetCards();
 		parameter.setContext(context);
 		parameter.setCardType(type);
 		GetCardsResponse getCardsResponse = eventService.getCards(parameter);
 
 		List<CardInfoType> cards = getCardsResponse.getCards().getCard();
-		if (cards.size() > 0) {
-			String ehcHandle = cards.get(0).getCardHandle();
-			return ehcHandle;
-		} else {
-			return null;
-		}
+		return cards.isEmpty() ? null : cards.get(0).getCardHandle();
 	}
 
 	private Medication createMedicationResource() {
@@ -484,7 +481,13 @@ public class PrefillPrescriptionService {
 
 	public void onPrefillBundleEvent(@ObservesAsync PrefillBundleEvent prefillBundleEvent) {
 		try {
-			bundleEvent.fireAsync(new BundlesEvent(Arrays.asList(get(prefillBundleEvent.getRuntimeConfig(), prefillBundleEvent.getEgkHandle(), prefillBundleEvent.getSmcbHandle(), prefillBundleEvent.getHbaHandle()))));
+			Bundle bundle = get(
+				prefillBundleEvent.getRuntimeConfig(),
+				prefillBundleEvent.getEgkHandle(),
+				prefillBundleEvent.getSmcbHandle(),
+				prefillBundleEvent.getHbaHandle()
+			);
+			bundleEvent.fireAsync(new BundlesEvent(Collections.singletonList(bundle)));
 		} catch (Exception e) {
 			log.log(Level.SEVERE, "Could not create bundles", e);
 			exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, prefillBundleEvent.getReplyTo(),
@@ -502,9 +505,9 @@ public class PrefillPrescriptionService {
 
 		CertificateServicePortType certificateService = connectorServicesProvider.getCertificateServicePortType(runtimeConfig);
 
-		Practitioner practitioner = null;
+		Practitioner practitioner;
 		if (hbaHandle != null) {
-			practitioner = hbaHandle2Practitioner(hbaHandle, runtimeConfig, certificateService, context);
+			practitioner = hbaHandle2Practitioner(hbaHandle, certificateService, context);
 		} else {
 			throw new RuntimeException("No HBA found");
 		}

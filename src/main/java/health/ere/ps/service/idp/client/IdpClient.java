@@ -1,19 +1,36 @@
 package health.ere.ps.service.idp.client;
 
-import static org.jose4j.jws.AlgorithmIdentifiers.RSA_PSS_USING_SHA256;
-
-import java.security.PublicKey;
-import java.security.Security;
-import java.security.cert.X509Certificate;
-import java.util.Base64;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-
-import jakarta.enterprise.context.Dependent;
+import com.diffplug.common.base.Errors;
+import com.diffplug.common.base.Throwing;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import health.ere.ps.config.AppConfig;
+import health.ere.ps.config.RuntimeConfig;
+import health.ere.ps.exception.idp.IdpClientException;
+import health.ere.ps.exception.idp.IdpException;
+import health.ere.ps.exception.idp.IdpJoseException;
+import health.ere.ps.exception.idp.crypto.IdpCryptoException;
+import health.ere.ps.model.idp.client.AuthenticationRequest;
+import health.ere.ps.model.idp.client.AuthenticationResponse;
+import health.ere.ps.model.idp.client.AuthorizationRequest;
+import health.ere.ps.model.idp.client.AuthorizationResponse;
+import health.ere.ps.model.idp.client.DiscoveryDocumentResponse;
+import health.ere.ps.model.idp.client.IdpTokenResult;
+import health.ere.ps.model.idp.client.TokenRequest;
+import health.ere.ps.model.idp.client.field.CodeChallengeMethod;
+import health.ere.ps.model.idp.client.field.IdpScope;
+import health.ere.ps.model.idp.client.token.IdpJwe;
+import health.ere.ps.model.idp.client.token.JsonWebToken;
+import health.ere.ps.model.idp.crypto.PkiIdentity;
+import health.ere.ps.service.connector.auth.SmcbAuthenticatorService;
+import health.ere.ps.service.idp.IDPClient;
+import health.ere.ps.service.idp.client.authentication.UriUtils;
+import health.ere.ps.service.idp.crypto.KeyAnalysis;
+import io.quarkus.runtime.Startup;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -24,36 +41,23 @@ import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.lang.JoseException;
 
-import com.diffplug.common.base.Errors;
-import com.diffplug.common.base.Throwing;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import java.security.PublicKey;
+import java.security.Security;
+import java.security.cert.X509Certificate;
+import java.util.Base64;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
 
-import health.ere.ps.config.RuntimeConfig;
-import health.ere.ps.exception.idp.IdpClientException;
-import health.ere.ps.exception.idp.IdpException;
-import health.ere.ps.exception.idp.IdpJoseException;
-import health.ere.ps.model.idp.client.AuthenticationRequest;
-import health.ere.ps.model.idp.client.AuthenticationResponse;
-import health.ere.ps.model.idp.client.AuthorizationRequest;
-import health.ere.ps.model.idp.client.AuthorizationResponse;
-import health.ere.ps.model.idp.client.DiscoveryDocumentResponse;
-import health.ere.ps.model.idp.client.IdpTokenResult;
-import health.ere.ps.model.idp.client.TokenRequest;
-import health.ere.ps.model.idp.client.brainPoolExtension.BrainpoolAlgorithmSuiteIdentifiers;
-import health.ere.ps.model.idp.client.field.ClaimName;
-import health.ere.ps.model.idp.client.field.CodeChallengeMethod;
-import health.ere.ps.model.idp.client.field.IdpScope;
-import health.ere.ps.model.idp.client.token.IdpJwe;
-import health.ere.ps.model.idp.client.token.JsonWebToken;
-import health.ere.ps.model.idp.crypto.PkiIdentity;
-import health.ere.ps.service.connector.auth.SmcbAuthenticatorService;
-import health.ere.ps.service.idp.client.authentication.UriUtils;
-import health.ere.ps.service.idp.crypto.KeyAnalysis;
+import static health.ere.ps.model.idp.client.brainPoolExtension.BrainpoolAlgorithmSuiteIdentifiers.BRAINPOOL256_USING_SHA256;
+import static health.ere.ps.model.idp.client.field.ClaimName.NESTED_JWT;
+import static health.ere.ps.service.idp.client.IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
+import static org.jose4j.jws.AlgorithmIdentifiers.RSA_PSS_USING_SHA256;
 
-@Dependent
-public class IdpClient implements IIdpClient {
+@ApplicationScoped
+@Startup
+public class IdpClient implements IDPClient {
 
     static {
         Security.addProvider(new BouncyCastleProvider());
@@ -61,7 +65,6 @@ public class IdpClient implements IIdpClient {
 
     private final Set<IdpScope> scopes = Set.of(IdpScope.OPENID, IdpScope.EREZEPT);
     private final Set<IdpScope> scopes_rudev = Set.of(IdpScope.OPENID, IdpScope.EREZEPTDEV);
-
 
     @ConfigProperty(name = "ere.workflow-service.prescription.server.url")
     String prescriptionServiceURL;
@@ -72,33 +75,36 @@ public class IdpClient implements IIdpClient {
     private final CodeChallengeMethod codeChallengeMethod = CodeChallengeMethod.S256;
 
     @Inject
+    AppConfig appConfig;
+    @Inject
     AuthenticatorClient authenticatorClient;
     @Inject
     SmcbAuthenticatorService smcbAuthenticatorService;
     @Inject
     Logger logger;
 
-    private String clientId;
-    private String redirectUrl;
     private String discoveryDocumentUrl;
-    private boolean shouldVerifyState;
     private DiscoveryDocumentResponse discoveryDocumentResponse;
 
-    public IdpClient() {
+    @Override
+    @PostConstruct
+    public void initializeClient() throws IdpClientException, IdpException, IdpCryptoException, IdpJoseException {
+        discoveryDocumentUrl = appConfig.getIdpBaseURL() + DISCOVERY_DOCUMENT_URI;
+        logger.info("Initializing using url: " + discoveryDocumentUrl);
+        discoveryDocumentResponse = authenticatorClient.retrieveDiscoveryDocument(discoveryDocumentUrl);
     }
 
-    public void init(String clientId, String redirectUrl, String discoveryDocumentUrl, boolean shouldVerifyState) {
-        this.clientId = clientId;
-        this.redirectUrl = redirectUrl;
-        this.discoveryDocumentUrl = discoveryDocumentUrl;
-        this.shouldVerifyState = shouldVerifyState;
+    public String getDiscoveryDocumentUrl() {
+        return discoveryDocumentUrl;
     }
 
-    private String signServerChallenge(final String challengeToSign, final X509Certificate certificate,
-                                       final Function<Pair<String, String>, String> contentSigner)
-            throws IdpJoseException {
+    private String signServerChallenge(
+        String challengeToSign,
+        X509Certificate certificate,
+        Function<Pair<String, String>, String> contentSigner
+    ) throws IdpJoseException {
         final JwtClaims claims = new JwtClaims();
-        claims.setClaim(ClaimName.NESTED_JWT.getJoseName(), challengeToSign);
+        claims.setClaim(NESTED_JWT.getJoseName(), challengeToSign);
 
         final JsonWebSignature jsonWebSignature = new JsonWebSignature();
         jsonWebSignature.setPayload(claims.toJson());
@@ -106,8 +112,7 @@ public class IdpClient implements IIdpClient {
         jsonWebSignature.setHeader("cty", "NJWT");
 
         if (KeyAnalysis.isEcKey(certificate.getPublicKey())) {
-            jsonWebSignature.setAlgorithmHeaderValue(
-                    BrainpoolAlgorithmSuiteIdentifiers.BRAINPOOL256_USING_SHA256);
+            jsonWebSignature.setAlgorithmHeaderValue(BRAINPOOL256_USING_SHA256);
         } else {
             jsonWebSignature.setAlgorithmHeaderValue(RSA_PSS_USING_SHA256);
         }
@@ -119,7 +124,7 @@ public class IdpClient implements IIdpClient {
                         jsonWebSignature.getEncodedPayload())));
 
         jwt.getHeaderClaims().remove("alg");
-        jwt.getHeaderClaims().put("alg", BrainpoolAlgorithmSuiteIdentifiers.BRAINPOOL256_USING_SHA256);
+        jwt.getHeaderClaims().put("alg", BRAINPOOL256_USING_SHA256);
 
         return jwt.encrypt(idpPublicKey).getRawString();
     }
@@ -160,9 +165,10 @@ public class IdpClient implements IIdpClient {
         return login(x509Certificate, (pair) -> smcbAuthenticatorService.signIdpChallenge(pair, runtimeConfig, x509Certificate));
     }
 
-    private IdpTokenResult login(final X509Certificate certificate,
-                                final Function<Pair<String, String>, String> contentSigner)
-            throws IdpClientException, IdpException, IdpJoseException {
+    private IdpTokenResult login(
+        X509Certificate certificate,
+        Function<Pair<String, String>, String> contentSigner
+    ) throws IdpClientException, IdpException, IdpJoseException {
         assertThatClientIsInitialized();
 
         final String codeVerifier = ClientUtilities.generateCodeVerifier();
@@ -170,16 +176,15 @@ public class IdpClient implements IIdpClient {
 
         // Authorization
         final String state = RandomStringUtils.randomAlphanumeric(20);
-        logger.debug("Performing Authorization with remote-URL: " +
-                discoveryDocumentResponse.getAuthorizationEndpoint());
+        logger.debug("Performing Authorization with remote-URL: " + discoveryDocumentResponse.getAuthorizationEndpoint());
         final AuthorizationResponse authorizationResponse =
                 authenticatorClient
                         .doAuthorizationRequest(AuthorizationRequest.builder()
-                                .clientId(clientId)
+                                .clientId(appConfig.getIdpClientId())
                                 .link(discoveryDocumentResponse.getAuthorizationEndpoint())
                                 .codeChallenge(ClientUtilities.generateCodeChallenge(codeVerifier))
                                 .codeChallengeMethod(codeChallengeMethod)
-                                .redirectUri(redirectUrl)
+                                .redirectUri(appConfig.getIdpAuthRequestRedirectURL())
                                 .state(state)
                                 .scopes(prescriptionServiceURL.equals("https://erp-dev.zentral.erp.splitdns.ti-dienste.de") ? scopes_rudev : scopes)
                                 .nonce(nonce)
@@ -208,23 +213,19 @@ public class IdpClient implements IIdpClient {
             throw new IdpClientException(exceptionMessage);
         }
         
-        if (shouldVerifyState) {
-            final String stringInTokenUrl = UriUtils
-                    .extractParameterValue(authenticationResponse.getLocation(), "state");
-            if (!state.equals(stringInTokenUrl)) {
-                throw new IdpClientException("state-parameter unexpected changed");
-            }
+        String stringInTokenUrl = UriUtils.extractParameterValue(authenticationResponse.getLocation(), "state");
+        if (!state.equals(stringInTokenUrl)) {
+            throw new IdpClientException("state-parameter unexpected changed");
         }
 
         // get Token
-        logger.debug("Performing getToken with remote-URL: " +
-                discoveryDocumentResponse.getTokenEndpoint());
+        logger.debug("Performing getToken with remote-URL: " + discoveryDocumentResponse.getTokenEndpoint());
         return authenticatorClient.retrieveAccessToken(TokenRequest.builder()
                 .tokenUrl(discoveryDocumentResponse.getTokenEndpoint())
-                .clientId(clientId)
+                .clientId(appConfig.getIdpClientId())
                 .code(authenticationResponse.getCode())
                 .ssoToken(authenticationResponse.getSsoToken())
-                .redirectUrl(redirectUrl)
+                .redirectUrl(appConfig.getIdpAuthRequestRedirectURL())
                 .codeVerifier(codeVerifier)
                 .idpEnc(discoveryDocumentResponse.getIdpEnc())
                 .build());
@@ -244,16 +245,5 @@ public class IdpClient implements IIdpClient {
             throw new IdpClientException(
                     "IDP-Client not initialized correctly! Call .initialize() before performing an actual operation.");
         }
-    }
-
-    @Override
-    public IIdpClient initializeClient() throws IdpClientException, IdpException, IdpJoseException {
-        logger.info("Initializing using url: " + discoveryDocumentUrl);
-        discoveryDocumentResponse = authenticatorClient.retrieveDiscoveryDocument(discoveryDocumentUrl);
-        return this;
-    }
-
-    public String getDiscoveryDocumentUrl() {
-        return discoveryDocumentUrl;
     }
 }

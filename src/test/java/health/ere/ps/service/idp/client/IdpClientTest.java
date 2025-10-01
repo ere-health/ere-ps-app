@@ -1,27 +1,7 @@
 package health.ere.ps.service.idp.client;
 
-import java.security.Security;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.logging.Logger;
-
-import jakarta.inject.Inject;
-
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
-
-import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.exception.connector.ConnectorCardCertificateReadException;
-import health.ere.ps.exception.connector.ConnectorCardsException;
 import health.ere.ps.exception.idp.IdpClientException;
 import health.ere.ps.exception.idp.IdpException;
 import health.ere.ps.exception.idp.IdpJoseException;
@@ -32,7 +12,23 @@ import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
+import jakarta.inject.Inject;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+import java.security.Security;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.logging.Logger;
 
 @QuarkusTest
 @TestProfile(RUTestProfile.class)
@@ -45,8 +41,6 @@ public class IdpClientTest {
 
     private final Logger log = Logger.getLogger(getClass().getName());
 
-    @Inject
-    AppConfig appConfig;
     @Inject
     IdpClient idpClient;
     @Inject
@@ -86,12 +80,6 @@ public class IdpClientTest {
 
     @Test
     public void test_Successful_Idp_Login_With_Connector_Smcb() throws Exception {
-
-        discoveryDocumentUrl = appConfig.getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
-
-        idpClient.init(appConfig.getIdpClientId(), appConfig.getIdpAuthRequestRedirectURL(), discoveryDocumentUrl, true);
-        idpClient.initializeClient();
-
         int samples = 5;
         int cnt = 35;
 
@@ -120,13 +108,8 @@ public class IdpClientTest {
 
     @Test
     @Tag("titus")
-    public void test_With_RuntimeConfig() throws IdpJoseException,
-            IdpClientException, IdpException, ConnectorCardCertificateReadException, ConnectorCardsException {
-
-        discoveryDocumentUrl = appConfig.getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
-
-        idpClient.init(appConfig.getIdpClientId(), appConfig.getIdpAuthRequestRedirectURL(), discoveryDocumentUrl, true);
-        idpClient.initializeClient();
+    public void test_With_RuntimeConfig()
+        throws IdpJoseException, IdpClientException, IdpException, ConnectorCardCertificateReadException {
 
         RuntimeConfig runtimeConfig = new RuntimeConfig();
         runtimeConfig.setEHBAHandle("1-1-ARZT-WaltrautFinkengrund01");

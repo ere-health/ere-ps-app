@@ -1,22 +1,5 @@
 package health.ere.ps.service.idp.client;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.security.Security;
-import java.util.Map;
-import java.util.Objects;
-
-import org.apache.commons.lang3.StringUtils;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-
 import health.ere.ps.exception.idp.IdpClientException;
 import health.ere.ps.exception.idp.IdpException;
 import health.ere.ps.exception.idp.IdpJoseException;
@@ -29,6 +12,22 @@ import health.ere.ps.model.idp.client.field.ClaimName;
 import health.ere.ps.model.idp.client.token.JsonWebToken;
 import health.ere.ps.model.idp.crypto.PkiIdentity;
 import health.ere.ps.model.idp.crypto.PkiKeyResolver;
+import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import java.security.Security;
+import java.util.Map;
+import java.util.Objects;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(PkiKeyResolver.class)
 public class MockIdpClientTest {
@@ -46,8 +45,8 @@ public class MockIdpClientTest {
     @BeforeEach
     public void startup(
             @PkiKeyResolver.Filename("ecc") final PkiIdentity serverIdentity,
-            @PkiKeyResolver.Filename("C_CH_AUT_R2048") final PkiIdentity rsaClientIdentity)
-            throws IdpCryptoException {
+            @PkiKeyResolver.Filename("C_CH_AUT_R2048") final PkiIdentity rsaClientIdentity
+    ) throws Exception {
         this.serverIdentity = serverIdentity;
         this.rsaClientIdentity = rsaClientIdentity;
 
@@ -76,16 +75,14 @@ public class MockIdpClientTest {
     }
 
     @Test
-    public void invalidSignatureTokens_verifyShouldFail()
-            throws IdpCryptoException, IdpJoseException, IdpClientException, IdpException {
-        final IdpTokenResult authToken = MockIdpClient.builder()
-                .serverIdentity(serverIdentity)
-                .produceTokensWithInvalidSignature(true)
-                .clientId(CLIENT_ID_E_REZEPT_APP)
-                .build()
-                .initializeClient()
-                .login(rsaClientIdentity);
-
+    public void invalidSignatureTokens_verifyShouldFail() throws Exception {
+        MockIdpClient idpClient = MockIdpClient.builder()
+            .serverIdentity(serverIdentity)
+            .produceTokensWithInvalidSignature(true)
+            .clientId(CLIENT_ID_E_REZEPT_APP)
+            .build();
+        idpClient.initializeClient();
+        final IdpTokenResult authToken = idpClient.login(rsaClientIdentity);
         assertThrows(IdpJwtSignatureInvalidException.class, () -> authToken.getAccessToken()
                 .verify(mockIdpClient.getServerIdentity().getCertificate().getPublicKey()));
     }
@@ -103,15 +100,15 @@ public class MockIdpClientTest {
     }
 
     @Test
-    public void expiredTokens_verifyShouldFail() throws IdpCryptoException, IdpJoseException,
+    public void expiredTokens_verifyShouldFail() throws Exception,
             IdpClientException, IdpException {
-        final IdpTokenResult authToken = MockIdpClient.builder()
-                .serverIdentity(serverIdentity)
-                .produceOnlyExpiredTokens(true)
-                .clientId(CLIENT_ID_E_REZEPT_APP)
-                .build()
-                .initializeClient()
-                .login(rsaClientIdentity);
+        MockIdpClient idpClient = MockIdpClient.builder()
+            .serverIdentity(serverIdentity)
+            .produceOnlyExpiredTokens(true)
+            .clientId(CLIENT_ID_E_REZEPT_APP)
+            .build();
+        idpClient.initializeClient();
+        final IdpTokenResult authToken = idpClient.login(rsaClientIdentity);
 
         assertThrows(IdpJwtExpiredException.class, () -> authToken.getAccessToken().verify(
                 mockIdpClient.getServerIdentity().getCertificate().getPublicKey()));
@@ -139,8 +136,9 @@ public class MockIdpClientTest {
 
     @Disabled
     @Test
-    public void verifyServerSignatureRsa(@PkiKeyResolver.Filename("rsa") final PkiIdentity rsaIdentity)
-            throws IdpCryptoException, IdpJoseException {
+    public void verifyServerSignatureRsa(
+        @PkiKeyResolver.Filename("rsa") final PkiIdentity rsaIdentity
+    ) throws Exception {
         mockIdpClient = MockIdpClient.builder()
                 .serverIdentity(rsaIdentity)
                 .uriIdpServer(URI_IDP_SERVER)
