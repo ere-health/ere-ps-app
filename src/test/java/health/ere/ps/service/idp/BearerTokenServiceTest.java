@@ -9,7 +9,6 @@ import health.ere.ps.service.idp.client.IdpClient;
 import health.ere.ps.websocket.ExceptionWithReplyToException;
 import jakarta.enterprise.event.Event;
 import jakarta.websocket.Session;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
