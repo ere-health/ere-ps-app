@@ -310,6 +310,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-jacoco</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>me.xdrop</groupId>
             <artifactId>fuzzywuzzy</artifactId>
             <version>1.4.0</version>
@@ -373,6 +378,7 @@
                 <version>3.2.5</version>
                 <configuration>
                     <excludedGroups>titus</excludedGroups>
+                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     <systemPropertyVariables>
                         <quarkus.test.profile>dev</quarkus.test.profile>
                         <java.util.logging.manager>
