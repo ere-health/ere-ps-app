@@ -18,7 +18,7 @@ This will:
 ## Linux (systemd service)
 
 Prequisite:
- * Java 11 JDK
+ * Java 17 JDK (sudo apt install --yes openjdk-17-jdk)
 
 ```
 git clone --recurse-submodules https://github.com/ere-health/ere-ps-app.git

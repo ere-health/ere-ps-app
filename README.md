@@ -16,8 +16,10 @@ The repository for the front-end UI can be found [here](https://github.com/ere-h
    1. [Configuring the ERE-PS-App Front-End UI](#Configuring-the-ERE-PS-App-Front-End-UI)
    2. [Configuring the ERE-PS-App Back-End](#Configuring-the-ERE-PS-App-Back-End)
 3. [Running the Application](#Running-the-ERE-PS-App-Application)
-4. [Using the Application](#Using-the-Application)
-5. [Additional Information](#Additional-Information)
+4. [Running Tests](#Running-Tests)
+5. [Code Coverage](#Code-Coverage)
+6. [Using the Application](#Using-the-Application)
+7. [Additional Information](#Additional-Information)
 
 ---
 
@@ -158,6 +160,50 @@ You should see something similar to the following with the only difference being
 revision number:
 
 >  7887a70e4dbe35cede4d286dc57bc3bba608a48d src/main/resources/META-INF/resources/frontend (heads/main)
+
+---
+[Back to top](#Table-of-Contents)
+
+## Running Tests
+
+The ere-ps-app includes a comprehensive test suite with unit tests for Java components.
+
+### Running Unit Tests
+
+To run the unit tests, open a terminal window and change to the ere-ps-app directory, then execute:
+
+> ./mvnw test
+
+This command will:
+* Compile both main and test sources
+* Execute all JUnit tests (excluding "titus" group by default)
+* Generate surefire reports in `target/surefire-reports/`
+* Tests use Quarkus test profile "dev" with system properties for development mode
+
+---
+[Back to top](#Table-of-Contents)
+
+## Code Coverage
+
+The project uses the `quarkus-jacoco` extension to generate code coverage reports during test execution.
+
+### Generating Coverage Reports
+
+To generate and view code coverage reports:
+
+1. Run tests with coverage collection (automatically includes quarkus-jacoco):
+   > ./mvnw test
+
+2. View the HTML report by opening:
+   > target/jacoco-report/index.html
+
+### Coverage Metrics
+
+The report provides detailed metrics including:
+* Instruction coverage percentage
+* Branch coverage
+* Line coverage
+* Method and class coverage
 
 ---
 [Back to top](#Table-of-Contents)

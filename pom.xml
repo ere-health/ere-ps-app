@@ -310,6 +310,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-jacoco</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>me.xdrop</groupId>
             <artifactId>fuzzywuzzy</artifactId>
             <version>1.4.0</version>
@@ -373,6 +378,7 @@
                 <version>3.2.5</version>
                 <configuration>
                     <excludedGroups>titus</excludedGroups>
+                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     <systemPropertyVariables>
                         <quarkus.test.profile>dev</quarkus.test.profile>
                         <java.util.logging.manager>
@@ -423,6 +429,34 @@
 			</execution>
 		</executions>
 	</plugin>
+    <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.8.13</version>
+        <executions>
+            <execution>
+                <id>prepare-agent</id>
+                <goals>
+                    <goal>prepare-agent</goal>
+                </goals>
+                <configuration>
+                    <exclClassLoaders>*QuarkusClassLoader</exclClassLoaders>
+                    <destFile>${project.build.directory}/jacoco-quarkus.exec</destFile>
+                    <append>true</append>
+                </configuration>
+            </execution>
+            <execution>
+                <id>report</id>
+                <phase>test</phase>
+                <goals>
+                    <goal>report</goal>
+                </goals>
+                <configuration>
+                    <dataFile>${project.build.directory}/jacoco-quarkus.exec</dataFile>
+                </configuration>
+            </execution>
+        </executions>
+    </plugin>
         </plugins>
     </build>
     <profiles>
