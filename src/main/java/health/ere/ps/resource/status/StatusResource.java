@@ -16,24 +16,27 @@ import jakarta.ws.rs.core.Response;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.service.status.StatusService;
 
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
+
 @Path("/status")
 public class StatusResource {
+    
     @Inject
     StatusService statusService;
 
     @Context
     HttpServletRequest httpServletRequest;
-  
+
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
     @Blocking
     public Response status() {
         return Response.ok(statusService.getStatus(extractRuntimeConfigFromHeaders())).build();
     }
 
     RuntimeConfig extractRuntimeConfigFromHeaders() {
-        for(Object name : Collections.list(httpServletRequest.getHeaderNames())) {
-            if(name.toString().startsWith("X-")) {
+        for (Object name : Collections.list(httpServletRequest.getHeaderNames())) {
+            if (name.toString().startsWith("X-")) {
                 return new RuntimeConfig(httpServletRequest);
             }
         }

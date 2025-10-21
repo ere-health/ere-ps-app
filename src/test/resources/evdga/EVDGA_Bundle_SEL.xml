@@ -1,0 +1,273 @@
+<Bundle xmlns="http://hl7.org/fhir">
+	<!-- Beispiel-Bundle eDiGA-Verordnung -->
+	<id value="evdga-bundle-selbstzahler"/>
+	<meta>
+		<profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_EVDGA_Bundle|1.2"/>
+	</meta>
+	<identifier>
+		<system value="https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId"/>
+		<value value="162.100.000.000.574.83"/>
+	</identifier>
+	<type value="document"/>
+	<timestamp value="2023-03-26T13:12:00Z"/>
+	<entry>
+		<fullUrl value="http://pvs.praxis-topp-gluecklich.local/fhir/Composition/fdf33e80-e05d-4167-9463-7487735a9751"/>
+		<resource>
+			<Composition xmlns="http://hl7.org/fhir">
+				<id value="fdf33e80-e05d-4167-9463-7487735a9751"/>
+				<meta>
+					<profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_EVDGA_Composition|1.2"/>
+				</meta>
+				<status value="final"/>
+				<type>
+					<coding>
+						<system value="https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_FORMULAR_ART"/>
+						<code value="e16D"/>
+					</coding>
+				</type>
+				<subject>
+					<reference value="Patient/40acd463-b25d-4ede-8b1f-2b0994f29aa5"/>
+				</subject>
+				<date value="2023-03-26T13:12:00Z"/>
+				<author>
+					<reference value="Practitioner/1228772e-1c72-493b-8b5c-5ae54d25843d"/>
+					<type value="Practitioner"/>
+				</author>
+				<author>
+					<type value="Device"/>
+					<identifier>
+						<system value="https://fhir.kbv.de/NamingSystem/KBV_NS_FOR_Pruefnummer"/>
+						<value value="Y/450/2501/36/523"/>
+					</identifier>
+				</author>
+				<title value="elektronische Verordnung digitaler Gesundheitsanwendungen"/>
+				<custodian>
+					<reference value="Organization/b87b9d90-c8db-4660-93eb-fed916caa2da"/>
+				</custodian>
+				<section>
+					<code>
+						<coding>
+							<system value="https://fhir.kbv.de/CodeSystem/KBV_CS_EVDGA_Section_Type"/>
+							<code value="Prescription"/>
+						</coding>
+					</code>
+					<entry>
+						<!-- Referenz auf Verordnung (DeviceRequest) -->
+						<reference value="DeviceRequest/d933d532-ecba-44f5-8a6d-c40376ffcf04"/>
+					</entry>
+				</section>
+				<section>
+					<code>
+						<coding>
+							<system value="https://fhir.kbv.de/CodeSystem/KBV_CS_EVDGA_Section_Type"/>
+							<code value="HealthInsurance"/>
+						</coding>
+					</code>
+					<entry>
+						<!-- Referenz auf Krankenkasse/Kostenträger  -->
+						<reference value="Coverage/2d1a0d67-72d4-414e-b419-0ab08f99e506"/>
+					</entry>
+				</section>
+			</Composition>
+		</resource>
+	</entry>
+	<entry>
+		<fullUrl value="http://pvs.praxis-topp-gluecklich.local/fhir/DeviceRequest/d933d532-ecba-44f5-8a6d-c40376ffcf04"/>
+		<resource>
+			<DeviceRequest xmlns="http://hl7.org/fhir">
+				<id value="d933d532-ecba-44f5-8a6d-c40376ffcf04"/>
+				<meta>
+					<profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_EVDGA_HealthAppRequest|1.2"/>
+				</meta>
+				<extension url="https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_SER">
+					<valueBoolean value="false"/>
+				</extension>
+				<status value="active"/>
+				<intent value="order"/>
+				<codeCodeableConcept>
+					<coding>
+						<system value="http://fhir.de/CodeSystem/ifa/pzn"/>
+						<code value="19205615"/>
+					</coding>
+					<text value="Vantis KHK und Herzinfarkt 001"/>
+				</codeCodeableConcept>
+				<subject>
+					<reference value="Patient/40acd463-b25d-4ede-8b1f-2b0994f29aa5"/>
+				</subject>
+				<authoredOn value="2023-03-26"/>
+				<requester>
+					<reference value="Practitioner/1228772e-1c72-493b-8b5c-5ae54d25843d"/>
+				</requester>
+				<insurance>
+					<reference value="Coverage/2d1a0d67-72d4-414e-b419-0ab08f99e506"/>
+				</insurance>
+			</DeviceRequest>
+		</resource>
+	</entry>
+	<entry>
+		<fullUrl value="http://pvs.praxis-topp-gluecklich.local/fhir/Patient/40acd463-b25d-4ede-8b1f-2b0994f29aa5"/>
+		<resource>
+			<Patient xmlns="http://hl7.org/fhir">
+				<id value="40acd463-b25d-4ede-8b1f-2b0994f29aa5"/>
+				<meta>
+					<profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.2"/>
+				</meta>
+				<identifier>
+					<type>
+						<coding>
+							<system value="http://fhir.de/CodeSystem/identifier-type-de-basis"/>
+							<code value="KVZ10"/>
+						</coding>
+					</type>
+					<system value="http://fhir.de/sid/gkv/kvid-10"/>
+					<value value="X234567890"/>
+				</identifier>
+				<name>
+					<use value="official"/>
+					<family value="Königsstein">
+						<extension url="http://hl7.org/fhir/StructureDefinition/humanname-own-name">
+							<valueString value="Königsstein"/>
+						</extension>
+					</family>
+					<given value="Ludger"/>
+				</name>
+				<birthDate value="1935-06-22"/>
+				<address>
+					<type value="both"/>
+					<line value="Musterstr. 1">
+						<extension url="http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber">
+							<valueString value="1"/>
+						</extension>
+						<extension url="http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName">
+							<valueString value="Musterstr."/>
+						</extension>
+					</line>
+					<city value="Berlin"/>
+				</address>
+			</Patient>
+		</resource>
+	</entry>
+	<entry>
+		<fullUrl value="http://pvs.praxis-topp-gluecklich.local/fhir/Practitioner/1228772e-1c72-493b-8b5c-5ae54d25843d"/>
+		<resource>
+			<Practitioner xmlns="http://hl7.org/fhir">
+				<id value="1228772e-1c72-493b-8b5c-5ae54d25843d"/>
+				<meta>
+					<profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner|1.2"/>
+				</meta>
+				<name>
+					<use value="official"/>
+					<family value="Topp-Glücklich">
+						<extension url="http://hl7.org/fhir/StructureDefinition/humanname-own-name">
+							<valueString value="Topp-Glücklich"/>
+						</extension>
+					</family>
+					<given value="Hans"/>
+					<prefix value="Dr. med.">
+						<extension url="http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier">
+							<valueCode value="AC"/>
+						</extension>
+					</prefix>
+				</name>
+				<qualification>
+					<code>
+						<coding>
+							<system value="https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_Qualification_Type"/>
+							<code value="00"/>
+						</coding>
+					</code>
+				</qualification>
+				<qualification>
+					<code>
+						<coding>
+							<system value="https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_Berufsbezeichnung"/>
+							<code value="Berufsbezeichnung"/>
+						</coding>
+						<text value="Hausarzt"/>
+					</code>
+				</qualification>
+			</Practitioner>
+		</resource>
+	</entry>
+	<entry>
+		<fullUrl value="http://pvs.praxis-topp-gluecklich.local/fhir/Organization/b87b9d90-c8db-4660-93eb-fed916caa2da"/>
+		<resource>
+			<Organization xmlns="http://hl7.org/fhir">
+				<id value="b87b9d90-c8db-4660-93eb-fed916caa2da"/>
+				<meta>
+					<profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Organization|1.2"/>
+				</meta>
+				<name value="Hausarztpraxis Dr. Topp-Glücklich"/>
+				<telecom>
+					<system value="phone"/>
+					<value value="0301234567"/>
+				</telecom>
+				<address>
+					<type value="both"/>
+					<line value="Musterstr. 2">
+						<extension url="http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber">
+							<valueString value="2"/>
+						</extension>
+						<extension url="http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName">
+							<valueString value="Musterstr."/>
+						</extension>
+					</line>
+					<city value="Berlin"/>
+					<postalCode value="10623"/>
+				</address>
+			</Organization>
+		</resource>
+	</entry>
+	<entry>
+		<fullUrl value="http://pvs.praxis-topp-gluecklich.local/fhir/Coverage/2d1a0d67-72d4-414e-b419-0ab08f99e506"/>
+		<resource>
+			<Coverage xmlns="http://hl7.org/fhir">
+				<id value="2d1a0d67-72d4-414e-b419-0ab08f99e506"/>
+				<meta>
+					<profile value="https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Coverage|1.2"/>
+				</meta>
+				<extension url="http://fhir.de/StructureDefinition/gkv/besondere-personengruppe">
+					<valueCoding>
+						<system value="https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_PERSONENGRUPPE"/>
+						<code value="00"/>
+					</valueCoding>
+				</extension>
+				<extension url="http://fhir.de/StructureDefinition/gkv/dmp-kennzeichen">
+					<valueCoding>
+						<system value="https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DMP"/>
+						<code value="00"/>
+					</valueCoding>
+				</extension>
+				<extension url="http://fhir.de/StructureDefinition/gkv/wop">
+					<valueCoding>
+						<system value="https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_ITA_WOP"/>
+						<code value="03"/>
+					</valueCoding>
+				</extension>
+				<extension url="http://fhir.de/StructureDefinition/gkv/versichertenart">
+					<valueCoding>
+						<system value="https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_VERSICHERTENSTATUS"/>
+						<code value="1"/>
+					</valueCoding>
+				</extension>
+				<status value="active"/>
+				<type>
+					<coding>
+						<system value="http://fhir.de/CodeSystem/versicherungsart-de-basis"/>
+						<code value="SEL"/>
+					</coding>
+				</type>
+				<beneficiary>
+					<reference value="Patient/40acd463-b25d-4ede-8b1f-2b0994f29aa5"/>
+				</beneficiary>
+				<payor>
+					<identifier>
+						<system value="http://fhir.de/sid/arge-ik/iknr"/>
+						<value value="104212059"/>
+					</identifier>
+					<display value="AOK Rheinland/Hamburg"/>
+				</payor>
+			</Coverage>
+		</resource>
+	</entry>
+</Bundle>

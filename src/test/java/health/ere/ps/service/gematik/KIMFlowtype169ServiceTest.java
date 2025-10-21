@@ -1,8 +1,18 @@
 package health.ere.ps.service.gematik;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import health.ere.ps.config.RuntimeConfig;
+import health.ere.ps.model.config.UserConfigurations;
+import health.ere.ps.service.common.security.SSLSocketFactory;
+import health.ere.ps.service.common.security.SecretsManagerService.KeyStoreType;
+import health.ere.ps.service.common.security.SecretsManagerService.SslContextType;
+import health.ere.ps.service.connector.endpoint.SSLUtilities;
+import jakarta.json.bind.JsonbBuilder;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -16,20 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-
-import health.ere.ps.config.RuntimeConfig;
-import health.ere.ps.model.config.UserConfigurations;
-import health.ere.ps.service.common.security.SSLSocketFactory;
-import health.ere.ps.service.common.security.SecretsManagerService.KeyStoreType;
-import health.ere.ps.service.common.security.SecretsManagerService.SslContextType;
-import health.ere.ps.service.connector.endpoint.SSLUtilities;
-import jakarta.json.bind.JsonbBuilder;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class KIMFlowtype169ServiceTest {
 
@@ -50,15 +48,13 @@ public class KIMFlowtype169ServiceTest {
     @Test
     @Disabled
     public void testSearchSee() throws NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException, UnrecoverableKeyException, KeyManagementException {
-
       String searchDisplayName = "See";
       search(searchDisplayName);
     }
 
     @Test
     @Disabled
-    public void testSearchTest() throws NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException, UnrecoverableKeyException, KeyManagementException {
-
+    public void testSearchTest() throws Exception {
       String searchDisplayName = "test";
       search(searchDisplayName);
     }

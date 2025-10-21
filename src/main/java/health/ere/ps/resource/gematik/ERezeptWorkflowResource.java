@@ -1,25 +1,5 @@
 package health.ere.ps.resource.gematik;
 
-import static health.ere.ps.resource.gematik.Extractors.extractRuntimeConfigFromHeaders;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.security.cert.CertificateEncodingException;
-import java.text.ParseException;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.naming.InvalidNameException;
-import javax.xml.transform.TransformerException;
-
-import org.apache.fop.apps.FOPException;
-import org.bouncycastle.crypto.CryptoException;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Identifier;
-import org.hl7.fhir.r4.model.Task;
-
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.DataFormatException;
 import ca.uhn.fhir.parser.IParser;
@@ -47,6 +27,27 @@ import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.apache.fop.apps.FOPException;
+import org.bouncycastle.crypto.CryptoException;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Identifier;
+import org.hl7.fhir.r4.model.Task;
+
+import javax.naming.InvalidNameException;
+import javax.xml.transform.TransformerException;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.security.cert.CertificateEncodingException;
+import java.text.ParseException;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static health.ere.ps.resource.gematik.Extractors.extractRuntimeConfigFromHeaders;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_XML;
+import static jakarta.ws.rs.core.MediaType.TEXT_PLAIN;
 
 @Path("/workflow")
 public class ERezeptWorkflowResource {
@@ -72,26 +73,33 @@ public class ERezeptWorkflowResource {
 
     @POST
     @Path("task")
-    public Response createERezeptTask(@HeaderParam("accept") String accept, @QueryParam("flowtype") String flowtype) {
-
-	if(flowtype == null) {
-	    flowtype = "160";
-	}
-        Task task = eRezeptWorkflowService.createERezeptTask(true, extractRuntimeConfigFromHeaders(httpServletRequest, userConfig), flowtype);
-        if("application/xml".equals(accept)) {
-            return Response.ok().entity(xmlParser.encodeResourceToString(task)).type(MediaType.APPLICATION_XML).build();
+    public Response createERezeptTask(
+        @HeaderParam("accept") String accept,
+        @QueryParam("flowtype") String flowtype
+    ) {
+        if (flowtype == null) {
+            flowtype = "160";
+        }
+        RuntimeConfig runtimeConfig = extractRuntimeConfigFromHeaders(httpServletRequest, userConfig);
+        Task task = eRezeptWorkflowService.createERezeptTask(true, runtimeConfig, flowtype);
+        if (APPLICATION_XML.equals(accept)) {
+            return Response.ok().entity(xmlParser.encodeResourceToString(task)).type(APPLICATION_XML).build();
         } else {
-            return Response.ok().entity(jsonParser.encodeResourceToString(task)).type(MediaType.APPLICATION_JSON).build();
+            return Response.ok().entity(jsonParser.encodeResourceToString(task)).type(APPLICATION_JSON).build();
         }
     }
 
     @POST
     @Path("sign")
-    public Response signBundleWithIdentifiers(@HeaderParam("Content-Type") String contentType, String bundle) throws DataFormatException, ERezeptWorkflowException {
+    public Response signBundleWithIdentifiers(
+        @HeaderParam("Content-Type") String contentType,
+        String bundle
+    ) throws DataFormatException, ERezeptWorkflowException {
         Bundle bundleObject = string2bundle(contentType, bundle);
-        SignResponse signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundleObject, false, extractRuntimeConfigFromHeaders(httpServletRequest, userConfig));
+        RuntimeConfig runtimeConfig = extractRuntimeConfigFromHeaders(httpServletRequest, userConfig);
+        SignResponse signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundleObject, false, runtimeConfig, null, null);
         String base64String = signResponse2base64String(signResponse);
-        return Response.ok().entity(base64String).type(MediaType.TEXT_PLAIN).build();
+        return Response.ok().entity(base64String).type(TEXT_PLAIN).build();
     }
 
     static String signResponse2base64String(SignResponse signResponse) {
@@ -99,17 +107,20 @@ public class ERezeptWorkflowResource {
     }
 
     Bundle string2bundle(String contentType, String bundle) {
-        Bundle bundleObject = "application/xml".equals(contentType) ? xmlParser.parseResource(Bundle.class, bundle) : jsonParser.parseResource(Bundle.class, bundle);
-        return bundleObject;
+        IParser parser = APPLICATION_XML.equals(contentType) ? xmlParser : jsonParser;
+        return parser.parseResource(Bundle.class, bundle);
     }
 
     @POST
     @Path("batch-sign")
     public Response signBundlesWithIdentifiers(@HeaderParam("Content-Type") String contentType, String bundles) throws DataFormatException, ERezeptWorkflowException {
-        List<Bundle> bundlesList = Arrays.asList(bundles.split("\\r?\\n")).stream().map((bundle) ->  string2bundle(contentType, bundle)).collect(Collectors.toList());
-        List<SignResponse> signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundlesList, false, extractRuntimeConfigFromHeaders(httpServletRequest, userConfig));
+        List<Bundle> bundlesList = Arrays.asList(bundles.split("\\r?\\n")).stream().map((bundle) -> string2bundle(contentType, bundle)).collect(Collectors.toList());
+        RuntimeConfig runtimeConfig = extractRuntimeConfigFromHeaders(httpServletRequest, userConfig);
+        List<SignResponse> signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(
+            bundlesList, false, runtimeConfig, null, null, true
+        );
         String responses = signResponse.stream().map(ERezeptWorkflowResource::signResponse2base64String).collect(Collectors.joining("\n"));
-        return Response.ok().entity(responses).type(MediaType.TEXT_PLAIN).build();
+        return Response.ok().entity(responses).type(TEXT_PLAIN).build();
     }
 
     @GET
@@ -125,7 +136,11 @@ public class ERezeptWorkflowResource {
     @POST
     @Path("update")
     public Response updateERezeptTask(UpdateERezept updateERezept) {
-        eRezeptWorkflowService.updateERezeptTask(updateERezept.getTaskId(), updateERezept.getAccessCode(), Base64.getDecoder().decode(updateERezept.getSignedBytes()), extractRuntimeConfigFromHeaders(httpServletRequest, userConfig));
+        String taskId = updateERezept.getTaskId();
+        String accessCode = updateERezept.getAccessCode();
+        byte[] signedBytes = Base64.getDecoder().decode(updateERezept.getSignedBytes());
+        RuntimeConfig runtimeConfig = extractRuntimeConfigFromHeaders(httpServletRequest, userConfig);
+        eRezeptWorkflowService.updateERezeptTask(taskId, accessCode, signedBytes, true, runtimeConfig, null, null);
         return Response.ok().build();
     }
 
@@ -178,14 +193,12 @@ public class ERezeptWorkflowResource {
         return eRezeptWorkflowService.getSignatureMode(runtimeConfig, null, null);
     }
 
-
-
     @POST
     @Path("test-prescription")
     public Response testConfigurationsByCreatingTestPrescription() throws
-            FaultMessage, de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage, InvalidNameException,
-            CertificateEncodingException, IOException, CryptoException, ParseException, ERezeptWorkflowException,
-            FOPException, TransformerException {
+        FaultMessage, de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage, InvalidNameException,
+        CertificateEncodingException, IOException, CryptoException, ParseException, ERezeptWorkflowException,
+        FOPException, TransformerException {
 
         RuntimeConfig runtimeConfig = extractRuntimeConfigFromHeaders(httpServletRequest, userConfig);
         Bundle bundle = prefillPrescriptionService.getTestPrescriptionBundle(runtimeConfig);
@@ -199,22 +212,23 @@ public class ERezeptWorkflowResource {
             } else if (identifier.getSystem().equals("https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_AccessCode")) {
                 accessCode = identifier.getValue();
             }
-        };
+        }
         bundle.getIdentifier().setValue(taskId);
 
-        SignResponse signResponse = null;
+        SignResponse signResponse;
         try {
-            signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundle, false, runtimeConfig);
+            signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundle, false, runtimeConfig, null, null);
         } catch (ERezeptWorkflowException e) {
             throw new WebApplicationException(e);
         }
         String base64String = signResponse2base64String(signResponse);
 
-        eRezeptWorkflowService.updateERezeptTask(taskId, accessCode, Base64.getDecoder().decode(base64String), runtimeConfig);
+        byte[] signedBytes = Base64.getDecoder().decode(base64String);
+        eRezeptWorkflowService.updateERezeptTask(taskId, accessCode, signedBytes, true, runtimeConfig, null, null);
 
         BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = new BundleWithAccessCodeOrThrowable(bundle, accessCode);
-        List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowableList = Arrays.asList(bundleWithAccessCodeOrThrowable);
-        ByteArrayOutputStream baos = documentService.generateERezeptPdf(bundleWithAccessCodeOrThrowableList);
-        return Response.ok().entity(baos.toByteArray()).type("application/pdf").build();
+        List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowableList = List.of(bundleWithAccessCodeOrThrowable);
+        ByteArrayOutputStream os = documentService.generateERezeptPdf(bundleWithAccessCodeOrThrowableList);
+        return Response.ok().entity(os.toByteArray()).type("application/pdf").build();
     }
 }

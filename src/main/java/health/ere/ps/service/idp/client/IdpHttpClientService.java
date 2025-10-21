@@ -14,6 +14,9 @@ import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
+import static jakarta.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
+
 @Dependent
 @RegisterRestClient
 public interface IdpHttpClientService {
@@ -23,12 +26,12 @@ public interface IdpHttpClientService {
     String USER_AGENT = "ere.health/1.0.0 IncentergyGmbH/GEMIncenereS2QmFN83P"; //todo: hardcoded PU !?
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
     @ClientHeaderParam(name=HttpHeaders.USER_AGENT, value=USER_AGENT)
     Response doGenericGetRequest();
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
     @ClientHeaderParam(name=HttpHeaders.USER_AGENT, value=USER_AGENT)
     Response doAuthorizationRequest(@QueryParam("scope") String scope,
                                     @QueryParam("response_type") String responseType,
@@ -40,8 +43,8 @@ public interface IdpHttpClientService {
                                     @QueryParam("code_challenge") String code_challenge);
 
     @POST
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(APPLICATION_FORM_URLENCODED)
+    @Produces(APPLICATION_JSON)
     @ClientHeaderParam(name=HttpHeaders.USER_AGENT, value=USER_AGENT)
     Response doAccessTokenRequest(@FormParam("grant_type") String grantType,
                                   @FormParam("client_id") String clientId,
@@ -50,13 +53,13 @@ public interface IdpHttpClientService {
                                   @FormParam("redirect_uri") String redirectUri);
 
     @POST
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Consumes(APPLICATION_FORM_URLENCODED)
     @ClientHeaderParam(name=HttpHeaders.USER_AGENT, value=USER_AGENT)
     Response doAuthenticationRequest(@FormParam("signed_challenge") String signedChallenge);
 
     @POST
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(APPLICATION_FORM_URLENCODED)
+    @Produces(APPLICATION_JSON)
     @ClientHeaderParam(name=HttpHeaders.USER_AGENT, value=USER_AGENT)
     Response doAuthenticationRequestWithSsoToken(@FormParam("ssotoken") String ssoToken,
                                                  @FormParam("unsigned_challenge") String unsignedChallenge);

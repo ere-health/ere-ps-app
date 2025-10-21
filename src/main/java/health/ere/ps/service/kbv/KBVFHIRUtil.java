@@ -1,17 +1,14 @@
 package health.ere.ps.service.kbv;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-
+import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
+import de.gematik.ws.fa.vsdm.vsd.v5.UCAllgemeineVersicherungsdatenXML;
+import de.gematik.ws.fa.vsdm.vsd.v5.UCGeschuetzteVersichertendatenXML;
+import de.gematik.ws.fa.vsdm.vsd.v5.UCPersoenlicheVersichertendatenXML;
+import de.gematik.ws.fa.vsdm.vsd.v5.UCPersoenlicheVersichertendatenXML.Versicherter;
+import de.gematik.ws.fa.vsdm.vsd.v5.UCPersoenlicheVersichertendatenXML.Versicherter.Person;
+import de.gematik.ws.fa.vsdm.vsd.v5.UCPersoenlicheVersichertendatenXML.Versicherter.Person.StrassenAdresse;
 import org.hl7.fhir.r4.model.Address.AddressType;
 import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Bundle.BundleType;
 import org.hl7.fhir.r4.model.CodeType;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
@@ -19,7 +16,6 @@ import org.hl7.fhir.r4.model.Composition;
 import org.hl7.fhir.r4.model.Coverage;
 import org.hl7.fhir.r4.model.Extension;
 import org.hl7.fhir.r4.model.HumanName;
-import org.hl7.fhir.r4.model.HumanName.NameUse;
 import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Medication;
 import org.hl7.fhir.r4.model.MedicationRequest;
@@ -29,25 +25,32 @@ import org.hl7.fhir.r4.model.Practitioner;
 import org.hl7.fhir.r4.model.PractitionerRole;
 import org.hl7.fhir.r4.model.StringType;
 
-import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
-import de.gematik.ws.fa.vsdm.vsd.v5.UCAllgemeineVersicherungsdatenXML;
-import de.gematik.ws.fa.vsdm.vsd.v5.UCGeschuetzteVersichertendatenXML;
-import de.gematik.ws.fa.vsdm.vsd.v5.UCPersoenlicheVersichertendatenXML;
-import de.gematik.ws.fa.vsdm.vsd.v5.UCPersoenlicheVersichertendatenXML.Versicherter;
-import de.gematik.ws.fa.vsdm.vsd.v5.UCPersoenlicheVersichertendatenXML.Versicherter.Person;
-import de.gematik.ws.fa.vsdm.vsd.v5.UCPersoenlicheVersichertendatenXML.Versicherter.Person.StrassenAdresse;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import java.util.logging.Logger;
+
+import static org.hl7.fhir.r4.model.Bundle.BundleType.DOCUMENT;
+import static org.hl7.fhir.r4.model.HumanName.NameUse.OFFICIAL;
 
 public class KBVFHIRUtil {
 	
-	private static Logger log = Logger.getLogger(KBVFHIRUtil.class.getName());
+	private static final Logger log = Logger.getLogger(KBVFHIRUtil.class.getName());
 
-	public static Coverage UCAllgemeineVersicherungsdatenXML2Coverage(UCAllgemeineVersicherungsdatenXML versicherung, String patientId, UCGeschuetzteVersichertendatenXML versichungKennzeichen) {
+	public static Coverage UCAllgemeineVersicherungsdatenXML2Coverage(
+		UCAllgemeineVersicherungsdatenXML versicherung,
+		String patientId,
+		UCGeschuetzteVersichertendatenXML versichungKennzeichen
+	) {
 	    Coverage coverage = new Coverage();
 	
 	    coverage.setId(UUID.randomUUID().toString());
 	    coverage.getMeta()
 	            .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Coverage|1.1.0");
-	
+
 	    Coding besonderePersonengruppe = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_PERSONENGRUPPE", String.format("%02d", versichungKennzeichen.getBesonderePersonengruppe() != null ? versichungKennzeichen.getBesonderePersonengruppe() : 0), null);
 	    Extension besonderePersonengruppeEx = new Extension("http://fhir.de/StructureDefinition/gkv/besondere-personengruppe", besonderePersonengruppe);
 	    coverage.addExtension(besonderePersonengruppeEx);
@@ -135,7 +138,7 @@ public class KBVFHIRUtil {
 	    HumanName humanName = patient.addName();
 	
 	    humanName
-	            .setUse(NameUse.OFFICIAL)
+	            .setUse(OFFICIAL)
 	            .setPrefix(prefixList)
 	            .addGiven(person.getVorname());
 	    
@@ -156,11 +159,9 @@ public class KBVFHIRUtil {
 	            familyElement.addExtension(extension);
 	            nameParts.add(person.getNachname());
 	    }
-	    familyElement.setValue(nameParts.stream().collect(Collectors.joining(" ")));
-	
-	
+	    familyElement.setValue(String.join(" ", nameParts));
+
 	    String patientBirthDate = person.getGeburtsdatum();
-	
 	    try {
 	        Date birthdate = new SimpleDateFormat("yyyyMMdd")
 	        .parse(patientBirthDate);
@@ -196,7 +197,7 @@ public class KBVFHIRUtil {
 	    bundle.setId(UUID.randomUUID().toString());
 	
 	    // This will be set by the erezept workflow
-	    bundle.setType(BundleType.DOCUMENT);
+	    bundle.setType(DOCUMENT);
 	
 	    bundle.getIdentifier().setSystem("https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId");
 	
@@ -352,5 +353,4 @@ public class KBVFHIRUtil {
 	
 	    return composition;
 	}
-
 }

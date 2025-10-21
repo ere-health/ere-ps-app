@@ -12,7 +12,7 @@ import health.ere.ps.profile.TitusTestProfile;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
-import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
+import health.ere.ps.service.fhir.prescription.PrescriptionService;
 import health.ere.ps.service.idp.BearerTokenService;
 import health.ere.ps.service.idp.client.IdpClient;
 import health.ere.ps.service.pdf.DocumentService;
@@ -71,6 +71,8 @@ public class ERezeptWorkflowServiceTest {
     @Inject
     BearerTokenService bearerTokenService;
     @Inject
+    PrescriptionService prescriptionService;
+    @Inject
     CardCertificateReaderService cardCertificateReaderService;
     @Inject
     ConnectorCardsService connectorCardsService;
@@ -96,6 +98,10 @@ public class ERezeptWorkflowServiceTest {
 
         SSLUtilities.trustAllHostnames();
         SSLUtilities.trustAllHttpsCertificates();
+    }
+
+    public BundleWithAccessCodeOrThrowable createERezeptOnPrescriptionServer(Bundle bundle) throws ERezeptWorkflowException {
+        return eRezeptWorkflowService.createERezeptOnPrescriptionServer(bundle, null, null, null);
     }
 
     @Test
@@ -143,7 +149,7 @@ public class ERezeptWorkflowServiceTest {
                 //} catch(NoSuchElementException ex) {
                 //    ex.printStackTrace();
                 //} 
-                BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(bundle);
+                BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = createERezeptOnPrescriptionServer(bundle);
                 String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
                         .withZone(ZoneOffset.UTC)
                         .format(Instant.now());
@@ -222,7 +228,7 @@ public class ERezeptWorkflowServiceTest {
                 //} catch(NoSuchElementException ex) {
                 //    ex.printStackTrace();
                 //} 
-                BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(bundle);
+                BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = createERezeptOnPrescriptionServer(bundle);
                 String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
                         .withZone(ZoneOffset.UTC)
                         .format(Instant.now());
@@ -260,8 +266,8 @@ public class ERezeptWorkflowServiceTest {
     @Test
     @Disabled
     void testCreateERezeptOnPrescriptionServer() throws IOException, ERezeptWorkflowException, FOPException, TransformerException {
-        Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/examples_erezept/bundle_July_2.xml"));
-        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(bundle);
+        Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/bundle-samples/bundle_July_2.xml"));
+        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = createERezeptOnPrescriptionServer(bundle);
         DocumentService documentService = new DocumentService();
         documentService.init();
         ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
@@ -273,10 +279,12 @@ public class ERezeptWorkflowServiceTest {
 
     @Test
     @Disabled
-    void testCreateERezeptOnPrescriptionServerFromXMLBundle() throws IOException, ERezeptWorkflowException, FOPException, TransformerException {
-        Bundle[] bundles = XmlPrescriptionProcessor.parseFromString(Files.readString(Paths.get("/home/manuel/git/secret-test-print-samples/CGM-Turbomed/XML/Bundle1.xml")));
+    void testCreateERezeptOnPrescriptionServerFromXMLBundle() throws IOException, FOPException, TransformerException {
+        Bundle[] bundles = prescriptionService.parseFromString(Files.readString(Paths.get("/home/manuel/git/secret-test-print-samples/CGM-Turbomed/XML/Bundle1.xml")));
 
-        List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createMultipleERezeptsOnPrescriptionServer(Arrays.asList(bundles));
+        List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createMultipleERezeptsOnPrescriptionServer(
+            Arrays.asList(bundles), null, null, null
+        );
         DocumentService documentService = new DocumentService();
         documentService.init();
         ByteArrayOutputStream a = documentService.generateERezeptPdf(bundleWithAccessCodeOrThrowable);
@@ -290,7 +298,7 @@ public class ERezeptWorkflowServiceTest {
     @Disabled
     void testCreateERezeptOnPrescriptionServer2() throws IOException, ERezeptWorkflowException, FOPException, TransformerException {
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/281a985c-f25b-4aae-91a6-41ad744080b0.xml"));
-        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(bundle);
+        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = createERezeptOnPrescriptionServer(bundle);
         DocumentService documentService = new DocumentService();
         documentService.init();
         ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
@@ -304,7 +312,7 @@ public class ERezeptWorkflowServiceTest {
     @Disabled
     void testCreateERezeptOnPrescriptionServerX110479894() throws IOException, ERezeptWorkflowException, FOPException, TransformerException {
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/X110479894.xml"));
-        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(bundle);
+        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = createERezeptOnPrescriptionServer(bundle);
         DocumentService documentService = new DocumentService();
         documentService.init();
         ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
@@ -320,7 +328,7 @@ public class ERezeptWorkflowServiceTest {
     void testCreateERezeptOnPrescriptionServerX110493020() throws IOException, ERezeptWorkflowException, FOPException, TransformerException {
 
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/X110493020.xml"));
-        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(bundle);
+        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = createERezeptOnPrescriptionServer(bundle);
         DocumentService documentService = new DocumentService();
         documentService.init();
         ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
@@ -336,7 +344,7 @@ public class ERezeptWorkflowServiceTest {
     void testCreateERezeptOnPrescriptionServerX110433911() throws IOException, ERezeptWorkflowException, FOPException, TransformerException {
 
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/X110433911.xml"));
-        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(bundle);
+        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = createERezeptOnPrescriptionServer(bundle);
         DocumentService documentService = new DocumentService();
         documentService.init();
         ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
@@ -351,7 +359,7 @@ public class ERezeptWorkflowServiceTest {
     void testCreateERezeptOnPrescriptionServerX110452075() throws IOException, ERezeptWorkflowException, FOPException, TransformerException {
 
         Bundle bundle = iParser.parseResource(Bundle.class, getClass().getResourceAsStream("/simplifier_erezept/X110452075.xml"));
-        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(bundle);
+        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = createERezeptOnPrescriptionServer(bundle);
         DocumentService documentService = new DocumentService();
         documentService.init();
         ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
@@ -365,7 +373,7 @@ public class ERezeptWorkflowServiceTest {
     @Disabled
         // This is an integration test case that requires the manual usage of titus https://frontend.titus.ti-dienste.de/#/
     void testCreateERezeptTask() throws DataFormatException, IOException {
-        Task task = eRezeptWorkflowService.createERezeptTask();
+        Task task = eRezeptWorkflowService.createERezeptTask(true, null, "160");
         Files.write(Paths.get("target/titus-eRezeptWorkflowService-createERezeptTask.xml"), iParser.encodeResourceToString(task).getBytes());
         Files.write(Paths.get("target/titus-eRezeptWorkflowService-accessToken.txt"), ERezeptWorkflowService.getAccessCode(task).getBytes());
         Files.write(Paths.get("target/titus-eRezeptWorkflowService-taskId.txt"), task.getIdElement().getIdPart().getBytes());
@@ -394,7 +402,7 @@ public class ERezeptWorkflowServiceTest {
 
         Task task = iParser.parseResource(Task.class, new FileInputStream("target/titus-eRezeptWorkflowService-createERezeptTask.xml"));
         BundleWithAccessCodeOrThrowable bundleWithAccessCode = eRezeptWorkflowService.updateBundleWithTask(task, bundle);
-        SignResponse signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundleWithAccessCode.getBundle(), true);
+        SignResponse signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundleWithAccessCode.getBundle(), true, null, null, null);
         Files.write(Paths.get("target/titus-eRezeptWorkflowService-signBundleWithIdentifiers.dat"), signResponse.getSignatureObject().getBase64Signature().getValue());
     }
 
@@ -406,7 +414,7 @@ public class ERezeptWorkflowServiceTest {
 
         Task task = new Task();
         BundleWithAccessCodeOrThrowable bundleWithAccessCode = eRezeptWorkflowService.updateBundleWithTask(task, bundle);
-        SignResponse signResponse = eRezeptWorkflowService.signBundleWithIdentifiers(bundleWithAccessCode.getBundle());
+        eRezeptWorkflowService.signBundleWithIdentifiers(bundleWithAccessCode.getBundle());
     }
 
     @Test
@@ -416,7 +424,7 @@ public class ERezeptWorkflowServiceTest {
         Bundle bundle1 = new Bundle();
         Bundle bundle2 = new Bundle();
 
-        eRezeptWorkflowService.signBundleWithIdentifiers(Arrays.asList(bundle1, bundle2), false);
+        eRezeptWorkflowService.signBundleWithIdentifiers(Arrays.asList(bundle1, bundle2), false, null, null, null, true);
     }
 
     @Test
@@ -426,7 +434,8 @@ public class ERezeptWorkflowServiceTest {
         Task task = iParser.parseResource(Task.class, new FileInputStream("target/titus-eRezeptWorkflowService-createERezeptTask.xml"));
         byte[] signedBytes = Files.readAllBytes(Paths.get("target/titus-eRezeptWorkflowService-signBundleWithIdentifiers.dat"));
         String accessCode = new String(Files.readAllBytes(Paths.get("target/titus-eRezeptWorkflowService-accessToken.txt")));
-        eRezeptWorkflowService.updateERezeptTask(task, accessCode, signedBytes);
+        String taskId = task.getIdElement().getIdPart();
+        eRezeptWorkflowService.updateERezeptTask(taskId, accessCode, signedBytes, true, null, null, null);
     }
 
     @Test
@@ -461,5 +470,4 @@ public class ERezeptWorkflowServiceTest {
         String parameterBearerToken = bearerTokenService.requestBearerToken();
         assertTrue(eRezeptWorkflowService.isERezeptServiceReachable(null, parameterBearerToken));
     }
-
 }

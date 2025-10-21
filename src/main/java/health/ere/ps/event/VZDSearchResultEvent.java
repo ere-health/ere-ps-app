@@ -21,6 +21,7 @@ public class VZDSearchResultEvent extends AbstractEvent implements ReplyableEven
         this.replyTo = replyTo;
         this.replyToMessageId = replyToMessageId; 
     }
+
     public List<Map<String,Object>> getResults() {
         return this.results;
     }
@@ -38,5 +39,4 @@ public class VZDSearchResultEvent extends AbstractEvent implements ReplyableEven
     public Serializable getPayload() {
         return (Serializable) results;
     }
-
 }

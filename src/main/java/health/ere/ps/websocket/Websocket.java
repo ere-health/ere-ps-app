@@ -1,22 +1,25 @@
 package health.ere.ps.websocket;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.math.BigInteger;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
+import ca.uhn.fhir.context.FhirContext;
+import de.gematik.ws.conn.cardservice.wsdl.v8.FaultMessage;
+import de.gematik.ws.tel.error.v2.Error;
+import de.gematik.ws.tel.error.v2.Error.Trace;
+import health.ere.ps.config.AppConfig;
+import health.ere.ps.event.*;
+import health.ere.ps.event.erixa.ErixaEvent;
+import health.ere.ps.jsonb.BundleAdapter;
+import health.ere.ps.jsonb.ByteAdapter;
+import health.ere.ps.jsonb.DurationAdapter;
+import health.ere.ps.jsonb.ThrowableAdapter;
+import health.ere.ps.model.config.UserConfigurations;
+import health.ere.ps.model.websocket.OutgoingPayload;
+import health.ere.ps.service.config.UserConfigurationService;
+import health.ere.ps.service.fhir.FHIRService;
+import health.ere.ps.service.fhir.bundle.EreBundle;
+import health.ere.ps.service.fhir.prescription.PrescriptionService;
+import health.ere.ps.service.logging.EreLogger;
+import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
+import health.ere.ps.websocket.encoder.ResponseEventEncoder;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.enterprise.event.ObservesAsync;
@@ -34,61 +37,28 @@ import jakarta.websocket.OnMessage;
 import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 import jakarta.websocket.server.ServerEndpoint;
-
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.hl7.fhir.r4.model.Bundle;
-
-import ca.uhn.fhir.context.FhirContext;
-import de.gematik.ws.conn.cardservice.wsdl.v8.FaultMessage;
-import de.gematik.ws.tel.error.v2.Error;
-import de.gematik.ws.tel.error.v2.Error.Trace;
-import health.ere.ps.config.AppConfig;
-import health.ere.ps.event.AbortTasksEvent;
-import health.ere.ps.event.AbortTasksStatusEvent;
-import health.ere.ps.event.ActivateComfortSignatureEvent;
-import health.ere.ps.event.BundlesEvent;
-import health.ere.ps.event.ChangePinEvent;
-import health.ere.ps.event.ChangePinResponseEvent;
-import health.ere.ps.event.DeactivateComfortSignatureEvent;
-import health.ere.ps.event.ERezeptWithDocumentsEvent;
-import health.ere.ps.event.EreLogNotificationEvent;
-import health.ere.ps.event.GetCardsEvent;
-import health.ere.ps.event.GetCardsResponseEvent;
-import health.ere.ps.event.GetPinStatusEvent;
-import health.ere.ps.event.GetPinStatusResponseEvent;
-import health.ere.ps.event.GetSignatureModeEvent;
-import health.ere.ps.event.GetSignatureModeResponseEvent;
-import health.ere.ps.event.HTMLBundlesEvent;
-import health.ere.ps.event.PrefillBundleEvent;
-import health.ere.ps.event.ReadyToSignBundlesEvent;
-import health.ere.ps.event.RequestStatusEvent;
-import health.ere.ps.event.SaveSettingsEvent;
-import health.ere.ps.event.SaveSettingsResponseEvent;
-import health.ere.ps.event.SignAndUploadBundlesEvent;
-import health.ere.ps.event.StatusResponseEvent;
-import health.ere.ps.event.UnblockPinEvent;
-import health.ere.ps.event.UnblockPinResponseEvent;
-import health.ere.ps.event.VZDSearchEvent;
-import health.ere.ps.event.VZDSearchResultEvent;
-import health.ere.ps.event.VerifyPinEvent;
-import health.ere.ps.event.VerifyPinResponseEvent;
-import health.ere.ps.event.erixa.ErixaEvent;
-import health.ere.ps.jsonb.BundleAdapter;
-import health.ere.ps.jsonb.ByteAdapter;
-import health.ere.ps.jsonb.DurationAdapter;
-import health.ere.ps.jsonb.ThrowableAdapter;
-import health.ere.ps.model.config.UserConfigurations;
-import health.ere.ps.model.websocket.OutgoingPayload;
-import health.ere.ps.service.config.UserConfigurationService;
-import health.ere.ps.service.fhir.FHIRService;
-import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
-import health.ere.ps.service.fhir.bundle.EreBundle;
-import health.ere.ps.service.logging.EreLogger;
-import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
-import health.ere.ps.websocket.encoder.ResponseEventEncoder;
 import message.processor.incoming.IncomingBundleMessageProcessor;
 import message.processor.incoming.IncomingMessageProcessor;
 import message.processor.outgoing.OutgoingMessageProcessor;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.hl7.fhir.r4.model.Bundle;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @ServerEndpoint(
     value="/websocket",
@@ -149,6 +119,8 @@ public class Websocket {
     AppConfig appConfig;
     @Inject
     UserConfigurationService userConfigurationService;
+    @Inject
+    PrescriptionService prescriptionService;
 
     @ConfigProperty(name = "ere.websocket.remove-signature-from-message", defaultValue = "true")
     boolean removeSignatureFromMessage = true;
@@ -276,7 +248,7 @@ public class Websocket {
                         }
                     });
             } else if ("XMLBundle".equals(object.getString("type"))) {
-                Bundle[] bundles = XmlPrescriptionProcessor.parseFromString(object.getString("payload"));
+                Bundle[] bundles = prescriptionService.parseFromString(object.getString("payload"));
                 if(appConfig.getXmlBundleDirectProcess()) {
                     SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(bundles, object, senderSession, messageId);
                     signAndUploadBundlesEvent.fireAsync(event);   

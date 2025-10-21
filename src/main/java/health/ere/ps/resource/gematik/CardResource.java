@@ -32,8 +32,7 @@ public class CardResource {
 
     @POST
     @Path("/change-pin")
-    public ChangePinResponse changePin(ChangePinParameter parameterObject)
-            throws FaultMessage {
+    public ChangePinResponse changePin(ChangePinParameter parameterObject) throws FaultMessage {
         RuntimeConfig runtimeConfig = extractRuntimeConfigFromHeaders(httpServletRequest, userConfig);
         return connectorCardsService.changePin(parameterObject.cardHandle, parameterObject.pinType, runtimeConfig);
     }
@@ -54,8 +53,10 @@ public class CardResource {
 
     @GET
     @Path("/pin-status")
-    public GetPinStatusResponse getPinStatus(@QueryParam("cardHandle") String cardHandle, @QueryParam("pinType") String pinType)
-            throws FaultMessage {
+    public GetPinStatusResponse getPinStatus(
+        @QueryParam("cardHandle") String cardHandle,
+        @QueryParam("pinType") String pinType
+    ) throws FaultMessage {
         RuntimeConfig runtimeConfig = extractRuntimeConfigFromHeaders(httpServletRequest, userConfig);
         return connectorCardsService.getPinStatus(cardHandle, pinType, runtimeConfig);
     }
