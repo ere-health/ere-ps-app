@@ -226,8 +226,8 @@ public class DocumentService {
                 bt.setAccessCode(jo.getString("accessCode"));
             }
             String mimeType = jo.getString("mimeType", "application/json");
+            IParser parser = APPLICATION_XML.equals(mimeType) ? xmlParser : jsonParser;
             try {
-                IParser parser = APPLICATION_XML.equals(mimeType) ? xmlParser : jsonParser;
                 bt.setBundle(parser.parseResource(Bundle.class, jo.getJsonObject("bundle").toString()));
             } catch (Throwable t) {
                 log.log(Level.WARNING, "Could not extract taskId and/or medicationRequest Id from Bundle", t);

@@ -98,11 +98,13 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @ApplicationScoped
 public class ERezeptWorkflowService extends BearerTokenManageService {
 
+    private static final Logger log = Logger.getLogger(ERezeptWorkflowService.class.getName());
+
     static final String EREZEPT_ACCESS_CODE_SYSTEM = "https://gematik.de/fhir/NamingSystem/AccessCode";
     static final String EREZEPT_ACCESS_CODE_SYSTEM_GEM = "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_AccessCode";
     static final String EREZEPT_IDENTIFIER_SYSTEM = "https://gematik.de/fhir/NamingSystem/PrescriptionID";
     static final String EREZEPT_IDENTIFIER_SYSTEM_GEM = "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId";
-    private static final Logger log = Logger.getLogger(ERezeptWorkflowService.class.getName());
+
     private static final FhirContext fhirContext = FHIRService.getFhirContext();
 
     static {
@@ -479,7 +481,13 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
         bundle.setIdentifier(identifier);
 
         String accessCode = ERezeptWorkflowService.getAccessCode(task);
-        return new BundleWithAccessCodeOrThrowable(bundle, accessCode);
+        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = new BundleWithAccessCodeOrThrowable(accessCode);
+        try {
+            bundleWithAccessCodeOrThrowable.setBundle(bundle);
+        } catch (Throwable t) {
+            log.log(Level.WARNING, "Could not extract taskId and/or medicationRequest Id from Bundle", t);
+        }
+        return bundleWithAccessCodeOrThrowable;
     }
 
     static String getPrescriptionId(Task task) {

@@ -18,6 +18,10 @@ public class BundleWithAccessCodeOrThrowable {
     public BundleWithAccessCodeOrThrowable() {
     }
 
+    public BundleWithAccessCodeOrThrowable(String accessCode) {
+        this.accessCode = accessCode;
+    }
+
     public BundleWithAccessCodeOrThrowable(Bundle bundle, String accessCode) {
         setBundle(bundle);
         this.accessCode = accessCode;

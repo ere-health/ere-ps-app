@@ -25,7 +25,6 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.fop.apps.FOPException;
 import org.bouncycastle.crypto.CryptoException;
@@ -42,6 +41,8 @@ import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static health.ere.ps.resource.gematik.Extractors.extractRuntimeConfigFromHeaders;
@@ -51,6 +52,8 @@ import static jakarta.ws.rs.core.MediaType.TEXT_PLAIN;
 
 @Path("/workflow")
 public class ERezeptWorkflowResource {
+
+    private static final Logger log = Logger.getLogger(ERezeptWorkflowResource.class.getName());
 
     @Inject
     ERezeptWorkflowService eRezeptWorkflowService;
@@ -226,7 +229,13 @@ public class ERezeptWorkflowResource {
         byte[] signedBytes = Base64.getDecoder().decode(base64String);
         eRezeptWorkflowService.updateERezeptTask(taskId, accessCode, signedBytes, true, runtimeConfig, null, null);
 
-        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = new BundleWithAccessCodeOrThrowable(bundle, accessCode);
+        BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = new BundleWithAccessCodeOrThrowable(accessCode);
+        try {
+            bundleWithAccessCodeOrThrowable.setBundle(bundle);
+        } catch (Throwable t) {
+            log.log(Level.WARNING, "Could not extract taskId and/or medicationRequest Id from Bundle", t);
+        }
+
         List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowableList = List.of(bundleWithAccessCodeOrThrowable);
         ByteArrayOutputStream os = documentService.generateERezeptPdf(bundleWithAccessCodeOrThrowableList);
         return Response.ok().entity(os.toByteArray()).type("application/pdf").build();
