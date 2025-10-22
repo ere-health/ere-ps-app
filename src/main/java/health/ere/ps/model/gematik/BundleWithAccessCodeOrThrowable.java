@@ -1,16 +1,13 @@
 package health.ere.ps.model.gematik;
 
-import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.r4.model.MedicationRequest;
 
+import java.util.Optional;
+
 public class BundleWithAccessCodeOrThrowable {
 
-    private static Logger log = Logger.getLogger(BundleWithAccessCodeOrThrowable.class.getName());
     private Bundle bundle;
     private String accessCode;
     private String taskId;
@@ -19,6 +16,10 @@ public class BundleWithAccessCodeOrThrowable {
     private byte[] signedBundle;
 
     public BundleWithAccessCodeOrThrowable() {
+    }
+
+    public BundleWithAccessCodeOrThrowable(String accessCode) {
+        this.accessCode = accessCode;
     }
 
     public BundleWithAccessCodeOrThrowable(Bundle bundle, String accessCode) {
@@ -34,23 +35,17 @@ public class BundleWithAccessCodeOrThrowable {
         setTaskId(null);
         setMedicationRequestId(null);
         this.bundle = bundle;
-        if(bundle == null) {
-            log.warning("Setting bundle to null");
+        if (bundle == null) {
             return;
         }
-        try {
-            String prescriptionId = bundle.getIdentifier().getValue();
-            setTaskId(prescriptionId);
-            Optional<BundleEntryComponent> optionalMedicationRequest = bundle.getEntry().stream().filter(c -> {
-                return (c.getResource() instanceof MedicationRequest);
-            }).findAny();
-            if(optionalMedicationRequest.isPresent()) {
-                setMedicationRequestId(optionalMedicationRequest.get().getResource().getId());
-            }
-        } catch(Throwable t) {
-            log.log(Level.WARNING, "Could not extract taskId and/or medicationRequest Id from Bundle", t);
-        }
+        String prescriptionId = bundle.getIdentifier().getValue();
+        setTaskId(prescriptionId);
+        Optional<BundleEntryComponent> medicationRequestOpt = bundle.getEntry().stream()
+            .filter(c -> c.getResource() instanceof MedicationRequest)
+            .findAny();
+        medicationRequestOpt.ifPresent(beComponent -> setMedicationRequestId(beComponent.getResource().getId()));
     }
+
     public void setAccessCode(String accessCode) {
         this.accessCode = accessCode;
     }

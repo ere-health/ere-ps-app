@@ -37,7 +37,7 @@ public class StatusService {
 
     @Inject
     UserConfig userConfig;
-    
+
     @Inject
     AppConfig appConfig;
 
@@ -55,7 +55,7 @@ public class StatusService {
 
     @Inject
     CardCertificateReaderService cardCertificateReaderService;
-        
+
     @Inject
     ERezeptWorkflowService eRezeptWorkflowService;
 
@@ -68,12 +68,12 @@ public class StatusService {
 
     public void onRequestStatus(@ObservesAsync RequestStatusEvent requestStatusEvent) {
         try {
-            Status  status  = getStatus(requestStatusEvent.getRuntimeConfig());
+            Status status = getStatus(requestStatusEvent.getRuntimeConfig());
             Session session = requestStatusEvent.getReplyTo();
-            String  id      = requestStatusEvent.getId();
+            String id = requestStatusEvent.getId();
             // create status response event with the data
             statusResponseEvent.fireAsync(new StatusResponseEvent(status, session, id));
-        } catch(Exception e) {
+        } catch (Exception e) {
             log.log(Level.WARNING, "Could not get status", e);
             exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, requestStatusEvent.getReplyTo(), requestStatusEvent.getId()));
         }
@@ -91,13 +91,13 @@ public class StatusService {
         String clientCertificatePassword = configurations.getClientCertificatePassword();
 
         try {
-            if(clientCertificate == null && new File(appConfig.getCertAuthStoreFile().get()).exists()) {
+            if (clientCertificate == null && new File(appConfig.getCertAuthStoreFile().get()).exists()) {
                 clientCertificate = appConfig.getCertAuthStoreFile().get();
             }
-            if(clientCertificatePassword == null) {
+            if (clientCertificatePassword == null) {
                 clientCertificatePassword = appConfig.getCertAuthStoreFilePassword().get();
             }
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             log.info("Did not find client certificate in app config.");
         }
 
@@ -108,11 +108,11 @@ public class StatusService {
             parameter.setContext(connectorServicesProvider.getContextType(runtimeConfig));
             connectorServicesProvider.getEventServicePortType(runtimeConfig).getCards(parameter);
             status.setConnectorReachable(true, connectorBaseURL);
-        } catch(Exception ex) {
-            status.setConnectorReachable(false, connectorBaseURL+", "
-                                                +clientCertificate+":"+clientCertificatePassword+", "
-                                                +basicAuthUsername+":"+basicAuthPassword+", "+
-                                                secretsManagerService.getSslContext());
+        } catch (Exception ex) {
+            status.setConnectorReachable(false, connectorBaseURL + ", "
+                + clientCertificate + ":" + clientCertificatePassword + ", "
+                + basicAuthUsername + ":" + basicAuthPassword + ", " +
+                secretsManagerService.getSslContext());
         }
 
         // IdpReachable
@@ -121,7 +121,7 @@ public class StatusService {
             discoveryUrl = idpClient.getDiscoveryDocumentUrl();
             status.setIdpReachable(discoveryUrl != null, discoveryUrl);
         } catch (Exception e) {
-            status.setIdpReachable(false, discoveryUrl+" Exception: "+e.getMessage());
+            status.setIdpReachable(false, discoveryUrl + " Exception: " + e.getMessage());
         }
 
         String bearerToken = "";
@@ -129,37 +129,37 @@ public class StatusService {
             // IdpaccesstokenObtainable
             bearerToken = bearerTokenService.requestBearerToken(runtimeConfig);
             if (bearerToken != null && !bearerToken.isEmpty())
-                status.setIdpaccesstokenObtainable(true, "Bearer Token: "+bearerToken, bearerToken);
+                status.setIdpaccesstokenObtainable(true, "Bearer Token: " + bearerToken, bearerToken);
             else
-                status.setIdpaccesstokenObtainable(false,"");
-        } catch(Exception e) {
-            status.setIdpReachable(false, discoveryUrl+" Exception: "+e.getMessage());
+                status.setIdpaccesstokenObtainable(false, "");
+        } catch (Exception e) {
+            status.setIdpReachable(false, discoveryUrl + " Exception: " + e.getMessage());
         }
 
         // SmcbAvailable
         String smcbHandle = null;
         try {
             smcbHandle = connectorCardsService.getConnectorCardHandle(CardHandleType.SMC_B, runtimeConfig);
-            status.setSmcbAvailable(true, "Card Handle: "+smcbHandle);
+            status.setSmcbAvailable(true, "Card Handle: " + smcbHandle);
         } catch (Exception e) {
-            status.setSmcbAvailable(false, "Exception: "+e.getMessage()+" Cause: "+(e.getCause() != null ? e.getCause().getMessage() : ""));
+            status.setSmcbAvailable(false, "Exception: " + e.getMessage() + " Cause: " + (e.getCause() != null ? e.getCause().getMessage() : ""));
         }
 
         // CautReadable
         try {
             cardCertificateReaderService.doReadCardCertificate(smcbHandle, runtimeConfig);
             status.setCautReadable(true, "");
-        } catch(Exception e) {
-            status.setCautReadable(false, "Exception: "+e.getMessage()+" Cause: "+(e.getCause() != null ? e.getCause().getMessage() : ""));
+        } catch (Exception e) {
+            status.setCautReadable(false, "Exception: " + e.getMessage() + " Cause: " + (e.getCause() != null ? e.getCause().getMessage() : ""));
         }
 
         // EhbaAvailable
         String ehbaHandle = null;
         try {
             ehbaHandle = connectorCardsService.getConnectorCardHandle(CardHandleType.HBA, runtimeConfig);
-            status.setEhbaAvailable(true, "Card Handle: "+ehbaHandle);
+            status.setEhbaAvailable(true, "Card Handle: " + ehbaHandle);
         } catch (Exception e) {
-            status.setEhbaAvailable(false, "Exception: "+e.getMessage()+" Cause: "+(e.getCause() != null ? e.getCause().getMessage() : ""));
+            status.setEhbaAvailable(false, "Exception: " + e.getMessage() + " Cause: " + (e.getCause() != null ? e.getCause().getMessage() : ""));
         }
         // ComfortsignatureAvailable
         // Connector is PTV4+

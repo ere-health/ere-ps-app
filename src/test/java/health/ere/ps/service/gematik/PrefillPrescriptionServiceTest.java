@@ -1,26 +1,23 @@
 package health.ere.ps.service.gematik;
 
-import java.io.IOException;
-import java.security.cert.CertificateEncodingException;
-import java.util.logging.LogManager;
-
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.IParser;
+import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
+import health.ere.ps.profile.RUTestProfile;
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
 import jakarta.inject.Inject;
 import jakarta.xml.bind.JAXBException;
-import javax.naming.InvalidNameException;
-
 import org.bouncycastle.crypto.CryptoException;
 import org.hl7.fhir.r4.model.Bundle;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.parser.IParser;
-import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
-import health.ere.ps.config.UserConfig;
-import health.ere.ps.profile.RUTestProfile;
-import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.TestProfile;
+import javax.naming.InvalidNameException;
+import java.io.IOException;
+import java.security.cert.CertificateEncodingException;
+import java.util.logging.LogManager;
 
 @QuarkusTest
 @Disabled
@@ -28,16 +25,12 @@ import io.quarkus.test.junit.TestProfile;
 class PrefillPrescriptionServiceTest {
 
 	@Inject
-	UserConfig userConfig;
-	
-	@Inject
 	PrefillPrescriptionService prefillPrescriptionService;
 	
 	IParser iParser = FhirContext.forR4().newXmlParser();
 	
 	@BeforeAll
     public static void init() {
-
         try {
             // https://community.oracle.com/thread/1307033?start=0&tstart=0
             LogManager.getLogManager().readConfiguration(
@@ -55,10 +48,9 @@ class PrefillPrescriptionServiceTest {
     }
 	
 	@Test
-	void testGet() throws FaultMessage, de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage, JAXBException, de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage, CryptoException, IOException, InvalidNameException, CertificateEncodingException {
+	void testGet() throws Exception {
 		Bundle bundle = prefillPrescriptionService.get(null);
 		iParser.setPrettyPrint(true);
 		System.out.println(iParser.encodeResourceToString(bundle));
 	}
-
 }

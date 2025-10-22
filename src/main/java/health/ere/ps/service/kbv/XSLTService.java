@@ -1,20 +1,18 @@
 package health.ere.ps.service.kbv;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-
+import ca.uhn.fhir.context.FhirContext;
+import health.ere.ps.event.HTMLBundlesEvent;
+import health.ere.ps.event.ReadyToSignBundlesEvent;
+import health.ere.ps.service.fhir.FHIRService;
+import health.ere.ps.websocket.ExceptionWithReplyToException;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.enterprise.event.ObservesAsync;
 import jakarta.inject.Inject;
+import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.hl7.fhir.r4.model.Bundle;
+
 import javax.xml.XMLConstants;
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Result;
@@ -24,20 +22,21 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-
-import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.hl7.fhir.r4.model.Bundle;
-
-import ca.uhn.fhir.context.FhirContext;
-import health.ere.ps.event.HTMLBundlesEvent;
-import health.ere.ps.event.ReadyToSignBundlesEvent;
-import health.ere.ps.service.fhir.FHIRService;
-import health.ere.ps.websocket.ExceptionWithReplyToException;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.Collection;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class XSLTService {
 
-    private static Logger log = Logger.getLogger(XSLTService.class.getName());
+    private static final Logger log = Logger.getLogger(XSLTService.class.getName());
 
     private static final FhirContext fhirContext = FHIRService.getFhirContext();
 
@@ -51,7 +50,6 @@ public class XSLTService {
 
     @PostConstruct
     public void init() {
-
         try {
             // Step 4: Setup JAXP using identity transformer
             TransformerFactory factory = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
@@ -90,7 +88,6 @@ public class XSLTService {
         } catch (Exception e) {
             log.log(Level.SEVERE, "Could not init XSLTService", e);
         }
-
     }
 
     public String generateHtmlForBundle(Bundle bundle) throws IOException, TransformerException {
@@ -100,7 +97,7 @@ public class XSLTService {
 
     public String generateHtmlForString(String xmlString) throws IOException, TransformerException {
         File xml = Files.createTempFile("bundle-", ".xml").toFile();
-        Files.write(xml.toPath(), xmlString.getBytes(StandardCharsets.UTF_8));
+        Files.writeString(xml.toPath(), xmlString);
 
         // Step 2: Set up output stream.
         // Note: Using BufferedOutputStream for performance reasons (helpful with
@@ -121,13 +118,9 @@ public class XSLTService {
     }
 
     public void onReadyToSignBundlesEvent(@ObservesAsync ReadyToSignBundlesEvent readyToSignBundlesEvent) {
-
         log.info(String.format("Received %d bundles to show for signature ", readyToSignBundlesEvent.listOfListOfBundles.size()));
-        
-        List<String> htmlBundlesList;
-
         try {
-            htmlBundlesList = readyToSignBundlesEvent.listOfListOfBundles.stream().flatMap(l -> l.stream()).map(bundle -> {
+            List<String> htmlBundlesList = readyToSignBundlesEvent.listOfListOfBundles.stream().flatMap(Collection::stream).map(bundle -> {
                 try {
                     return generateHtmlForBundle(bundle);
                 } catch (Exception e) {

@@ -40,5 +40,4 @@ public class GetPinStatusResponse implements Serializable {
     public void setLeftTries(BigInteger leftTries) {
         this.leftTries = leftTries;
     }
-
 }

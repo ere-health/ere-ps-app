@@ -1,10 +1,10 @@
 package health.ere.ps.resource.gematik;
 
 public class UpdateERezept {
+
     String taskId;
     String accessCode;
     String signedBytes;
-
 
     public String getTaskId() {
         return this.taskId;

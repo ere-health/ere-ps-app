@@ -1,7 +1,24 @@
 package health.ere.ps.service.pdf;
 
-import static org.junit.jupiter.api.Assertions.fail;
+import ca.uhn.fhir.context.ConfigurationException;
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.DataFormatException;
+import health.ere.ps.event.BundlesWithAccessCodeEvent;
+import health.ere.ps.event.ERezeptWithDocumentsEvent;
+import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
+import health.ere.ps.profile.TitusTestProfile;
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
+import org.apache.fop.apps.FOPException;
+import org.hl7.fhir.r4.model.Bundle;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
+import javax.xml.transform.TransformerException;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -16,26 +33,7 @@ import java.util.Objects;
 import java.util.logging.LogManager;
 import java.util.stream.Collectors;
 
-import jakarta.enterprise.event.Event;
-import jakarta.inject.Inject;
-import javax.xml.transform.TransformerException;
-
-import org.apache.fop.apps.FOPException;
-import org.hl7.fhir.r4.model.Bundle;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
-import ca.uhn.fhir.context.ConfigurationException;
-import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.parser.DataFormatException;
-import health.ere.ps.event.BundlesWithAccessCodeEvent;
-import health.ere.ps.event.ERezeptWithDocumentsEvent;
-import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
-import health.ere.ps.profile.TitusTestProfile;
-import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.TestProfile;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @QuarkusTest
 @TestProfile(TitusTestProfile.class)
@@ -87,7 +85,7 @@ public class DocumentServiceTest {
         // GIVEN1
         int maxNumberOfMedicationsPerPrescription = 9;
         Event<ERezeptWithDocumentsEvent> mockedEvent = Mockito.mock(Event.class);
-        documentService.seteRezeptDocumentsEvent(mockedEvent);
+        documentService.setErezeptDocumentsEvent(mockedEvent);
 
         List<BundleWithAccessCodeOrThrowable> bundles = new ArrayList<>();
 

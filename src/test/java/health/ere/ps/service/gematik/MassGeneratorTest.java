@@ -1,5 +1,35 @@
 package health.ere.ps.service.gematik;
 
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
+import ca.uhn.fhir.parser.IParser;
+import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
+import health.ere.ps.config.AppConfig;
+import health.ere.ps.config.RuntimeConfig;
+import health.ere.ps.config.UserConfig;
+import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
+import health.ere.ps.profile.RUTestProfile;
+import health.ere.ps.service.connector.cards.ConnectorCardsService;
+import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
+import health.ere.ps.service.connector.endpoint.SSLUtilities;
+import health.ere.ps.service.idp.client.IdpClient;
+import health.ere.ps.service.pdf.DocumentService;
+import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
+import jakarta.inject.Inject;
+import org.hl7.fhir.r4.model.Address;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.CodeType;
+import org.hl7.fhir.r4.model.DateTimeType;
+import org.hl7.fhir.r4.model.Extension;
+import org.hl7.fhir.r4.model.MedicationRequest;
+import org.hl7.fhir.r4.model.Patient;
+import org.hl7.fhir.r4.model.StringType;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -29,37 +59,6 @@ import java.util.UUID;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
-import org.hl7.fhir.r4.model.Address;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.CodeType;
-import org.hl7.fhir.r4.model.DateTimeType;
-import org.hl7.fhir.r4.model.Extension;
-import org.hl7.fhir.r4.model.MedicationRequest;
-import org.hl7.fhir.r4.model.Patient;
-import org.hl7.fhir.r4.model.StringType;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-
-import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
-import ca.uhn.fhir.parser.IParser;
-import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
-import health.ere.ps.config.AppConfig;
-import health.ere.ps.config.RuntimeConfig;
-import health.ere.ps.config.UserConfig;
-import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
-import health.ere.ps.profile.RUTestProfile;
-import health.ere.ps.service.connector.cards.ConnectorCardsService;
-import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
-import health.ere.ps.service.connector.endpoint.SSLUtilities;
-import health.ere.ps.service.idp.client.IdpClient;
-import health.ere.ps.service.pdf.DocumentService;
-import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
-import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.TestProfile;
-import jakarta.inject.Inject;
 
 @QuarkusTest
 @Disabled
@@ -228,7 +227,9 @@ public class MassGeneratorTest {
                     if(bundles.size() == 30) {
 
                         try {
-                            bundleWithAccessCodeOrThrowables = eRezeptWorkflowService.createMultipleERezeptsOnPrescriptionServer(new ArrayList<Bundle>(bundles.values()), runtimeConfig);
+                            bundleWithAccessCodeOrThrowables = eRezeptWorkflowService.createMultipleERezeptsOnPrescriptionServer(
+                                new ArrayList<>(bundles.values()), runtimeConfig, null, null
+                            );
                             
                         } catch(Exception ex) {
                             bundleWithAccessCodeOrThrowables = Arrays.asList(new BundleWithAccessCodeOrThrowable(ex));

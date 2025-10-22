@@ -1,5 +1,36 @@
 package health.ere.ps.service.gematik;
 
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
+import ca.uhn.fhir.parser.IParser;
+import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
+import health.ere.ps.config.AppConfig;
+import health.ere.ps.config.RuntimeConfig;
+import health.ere.ps.config.UserConfig;
+import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
+import health.ere.ps.profile.RUTestProfile;
+import health.ere.ps.service.connector.cards.ConnectorCardsService;
+import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
+import health.ere.ps.service.connector.endpoint.SSLUtilities;
+import health.ere.ps.service.idp.client.IdpClient;
+import health.ere.ps.service.pdf.DocumentService;
+import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
+import jakarta.inject.Inject;
+import org.gradle.internal.impldep.com.google.common.collect.Lists;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Coverage;
+import org.hl7.fhir.r4.model.DateTimeType;
+import org.hl7.fhir.r4.model.Medication;
+import org.hl7.fhir.r4.model.MedicationRequest;
+import org.hl7.fhir.r4.model.Patient;
+import org.hl7.fhir.r4.model.Practitioner;
+import org.hl7.fhir.r4.model.Reference;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,38 +57,6 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-
-import org.gradle.internal.impldep.com.google.common.collect.Lists;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Coverage;
-import org.hl7.fhir.r4.model.DateTimeType;
-import org.hl7.fhir.r4.model.Medication;
-import org.hl7.fhir.r4.model.MedicationRequest;
-import org.hl7.fhir.r4.model.Patient;
-import org.hl7.fhir.r4.model.Practitioner;
-import org.hl7.fhir.r4.model.Reference;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-
-import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
-import ca.uhn.fhir.parser.IParser;
-import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
-import health.ere.ps.config.AppConfig;
-import health.ere.ps.config.RuntimeConfig;
-import health.ere.ps.config.UserConfig;
-import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
-import health.ere.ps.profile.RUTestProfile;
-import health.ere.ps.service.connector.cards.ConnectorCardsService;
-import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
-import health.ere.ps.service.connector.endpoint.SSLUtilities;
-import health.ere.ps.service.idp.client.IdpClient;
-import health.ere.ps.service.pdf.DocumentService;
-import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
-import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.TestProfile;
-import jakarta.inject.Inject;
 
 @QuarkusTest
 @Disabled
@@ -268,7 +267,9 @@ public class MassGenerator2Test {
                         //
                         //}
                     
-                        List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowables = eRezeptWorkflowService.createMultipleERezeptsOnPrescriptionServer(bundles, runtimeConfig);
+                        List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowables = eRezeptWorkflowService.createMultipleERezeptsOnPrescriptionServer(
+                            bundles, runtimeConfig, null, null
+                        );
                         String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
                                 .withZone(ZoneOffset.UTC)
                                 .format(Instant.now());
@@ -401,7 +402,9 @@ public class MassGenerator2Test {
                         //
                         //}
                     
-                        List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowables = eRezeptWorkflowService.createMultipleERezeptsOnPrescriptionServer(bundles, runtimeConfig);
+                        List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowables = eRezeptWorkflowService.createMultipleERezeptsOnPrescriptionServer(
+                            bundles, runtimeConfig, null, null
+                        );
                         String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
                                 .withZone(ZoneOffset.UTC)
                                 .format(Instant.now());

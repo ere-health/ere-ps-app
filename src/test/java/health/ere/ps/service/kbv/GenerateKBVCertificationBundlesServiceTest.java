@@ -1,24 +1,5 @@
 package health.ere.ps.service.kbv;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.xml.transform.TransformerException;
-
-import org.apache.fop.apps.FOPException;
-import org.apache.xml.security.c14n.CanonicalizationException;
-import org.apache.xml.security.c14n.InvalidCanonicalizerException;
-import org.apache.xml.security.parser.XMLParserException;
-import org.hl7.fhir.r4.model.Bundle;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import de.gematik.ws.conn.signatureservice.v7.SignResponse;
@@ -31,6 +12,23 @@ import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import jakarta.inject.Inject;
+import org.apache.fop.apps.FOPException;
+import org.apache.xml.security.c14n.CanonicalizationException;
+import org.apache.xml.security.c14n.InvalidCanonicalizerException;
+import org.apache.xml.security.parser.XMLParserException;
+import org.hl7.fhir.r4.model.Bundle;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+import javax.xml.transform.TransformerException;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @QuarkusTest
 @Disabled
@@ -82,13 +80,12 @@ public class GenerateKBVCertificationBundlesServiceTest {
         }
     }
 
-
     private void createPdf(String testCase, List<Bundle> list) throws IOException, FOPException, TransformerException {
         if(generateSignatureAndPdf){
             List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowables = new ArrayList<>();
             if(useTitus) {
                 eRezeptWorkflowService.requestNewAccessTokenIfNecessary();
-                bundleWithAccessCodeOrThrowables = eRezeptWorkflowService.createMultipleERezeptsOnPrescriptionServer(list);
+                bundleWithAccessCodeOrThrowables = eRezeptWorkflowService.createMultipleERezeptsOnPrescriptionServer(list, null, null, null);
             } else {
                 bundleWithAccessCodeOrThrowables = list.stream().map(bundle -> new BundleWithAccessCodeOrThrowable(bundle, "8279c66a752f64608387273209975457d806d0f66eeb8424f2e696de75b9acf5")).collect(Collectors.toList());
             }   

@@ -23,6 +23,8 @@ public class PrescriptionBundleValidatorTest {
     public void testKBV() throws Exception {
         assertValidBundle("./src/test/resources/examples-kbv-fhir-erp-v1-1-0/Beispiel_1.xml");
         assertValidBundle("./src/test/resources/simplifier_erezept/0428d416-149e-48a4-977c-394887b3d85c.xml");
+        assertValidBundle("./src/test/resources/evdga/EVDGA_Bundle.xml");
+        assertValidBundle("./src/test/resources/evdga/EVDGA_Bundle_BG_Arbeitsunfall.xml");
     }
 
     private void assertValidBundle(String fileName) throws Exception {
