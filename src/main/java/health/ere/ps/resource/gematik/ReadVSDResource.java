@@ -13,9 +13,12 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.Response;
 
 import static health.ere.ps.resource.gematik.Extractors.extractRuntimeConfigFromHeaders;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_XML;
+import static jakarta.ws.rs.core.Response.Status.CONFLICT;
+import static jakarta.ws.rs.core.Response.Status.OK;
 
 @RequestScoped
 @Path("/read-vsd")
@@ -32,23 +35,30 @@ public class ReadVSDResource {
 
     @GET
     @Produces(APPLICATION_XML)
-    public ReadVSDResponse readVsd(
+    public Response readVsd(
         @QueryParam("egkHandle") String egkHandle,
         @QueryParam("smcbHandle") String smcbHandle,
         @QueryParam("performOnlineCheck") String performOnlineCheck,
         @QueryParam("readOnlineReceipt") String readOnlineReceipt
-    ) throws FaultMessage, de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
+    ) {
         RuntimeConfig runtimeConfig = extractRuntimeConfigFromHeaders(httpServletRequest, userConfig);
         if (runtimeConfig == null) {
             runtimeConfig = new RuntimeConfig();
         }
         runtimeConfig.setSMCBHandle(smcbHandle);
-        return vsdService.readVSD(
-            runtimeConfig,
-            egkHandle,
-            smcbHandle,
-            Boolean.parseBoolean(performOnlineCheck),
-            Boolean.parseBoolean(readOnlineReceipt)
-        );
+        try {
+            ReadVSDResponse readVSDResponse = vsdService.readVSD(
+                runtimeConfig,
+                egkHandle,
+                smcbHandle,
+                Boolean.parseBoolean(performOnlineCheck),
+                Boolean.parseBoolean(readOnlineReceipt)
+            );
+            return Response.status(OK).entity(readVSDResponse).build();
+        } catch (FaultMessage e) {
+            return Response.status(CONFLICT).entity(e.getFaultInfo()).build();
+        } catch (de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage  e) {
+            return Response.status(CONFLICT).entity(e.getFaultInfo()).build();
+        }
     }
 }
