@@ -229,20 +229,21 @@
                                                     </xsl:for-each>
                                                 </fo:table-cell>
                                                 <fo:table-cell>
-                                                    <fo:block margin-left="5mm">
-                                                        <xsl:variable name="authoredOn" select="
-                                                        if (exists(/fhir:Bundle/fhir:meta/fhir:profile[contains(@value,'KBV_PR_ERP_Bundle')]))
-                                                        then (fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:authoredOn/@value)[1]
-                                                        else (fhir:bundle[1]/fhir:Bundle/fhir:entry/fhir:resource/fhir:DeviceRequest/fhir:authoredOn/@value)[1]
-                                                        " />
-                                                        <xsl:for-each select="tokenize($authoredOn, 'T')">
-                                                            <xsl:if test="position()=1">
-                                                                <xsl:call-template name="formatDate">
-                                                                    <xsl:with-param name="date" select="."/>
-                                                                </xsl:call-template>
-                                                            </xsl:if>
-                                                        </xsl:for-each>
-                                                    </fo:block>
+                                                <fo:block margin-left="5mm">
+                                                    <xsl:variable name="isErp"
+                                                                  select="exists(fhir:bundle[1]/fhir:Bundle/fhir:meta/fhir:profile[contains(@value, 'KBV_PR_ERP_Bundle')])"/>
+                                                    <xsl:variable name="authoredOn"
+                                                                  select="if ($isErp)
+                                                                          then (fhir:bundle[1]/fhir:Bundle//fhir:MedicationRequest/fhir:authoredOn/@value)[1]
+                                                                          else (fhir:bundle[1]/fhir:Bundle//fhir:DeviceRequest/fhir:authoredOn/@value)[1]"/>
+                                                    <xsl:for-each select="tokenize($authoredOn, 'T')">
+                                                        <xsl:if test="position()=1">
+                                                            <xsl:call-template name="formatDate">
+                                                                <xsl:with-param name="date" select="."/>
+                                                            </xsl:call-template>
+                                                        </xsl:if>
+                                                    </xsl:for-each>
+                                                </fo:block>
                                                 </fo:table-cell>
                                             </fo:table-row>
                                         </fo:table-body>
@@ -311,8 +312,10 @@
                                     </fo:table-cell>
                                     <fo:table-cell>
                                         <fo:block margin-top="5mm" margin-right="3mm" margin-left="1mm">
+                                            <xsl:variable name="isErp"
+                                                          select="exists(fhir:Bundle/fhir:meta/fhir:profile[contains(@value, 'KBV_PR_ERP_Bundle')])"/>
                                             <xsl:choose>
-                                            <xsl:when test="exists(/fhir:Bundle/fhir:meta/fhir:profile[contains(@value,'KBV_PR_ERP_Bundle')])">
+                                            <xsl:when test="$isErp">
                                                 <xsl:if test="fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:extension[@url='https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription']/fhir:extension[@url='Kennzeichen']/fhir:valueBoolean/@value = 'true' or string-length(fhir:Bundle/fhir:entry/fhir:resource/fhir:Medication/fhir:code/fhir:text/@value) &gt; 40 or string-length(fhir:Bundle/fhir:entry/fhir:resource/fhir:MedicationRequest/fhir:dosageInstruction/fhir:text/@value) &gt; 10">
                                                     <xsl:attribute name="font-size">10pt</xsl:attribute>
                                                 </xsl:if>
