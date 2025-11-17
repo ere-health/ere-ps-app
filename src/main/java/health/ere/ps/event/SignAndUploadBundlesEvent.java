@@ -1,23 +1,21 @@
 package health.ere.ps.event;
 
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.IParser;
+import health.ere.ps.service.fhir.FHIRService;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonString;
+import jakarta.json.JsonValue;
+import jakarta.websocket.Session;
+import org.hl7.fhir.r4.model.Bundle;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import jakarta.json.JsonArray;
-import jakarta.json.JsonObject;
-import jakarta.json.JsonString;
-import jakarta.json.JsonValue;
-import jakarta.websocket.Session;
-
-import health.ere.ps.service.fhir.FHIRService;
-import org.hl7.fhir.r4.model.Bundle;
-
-import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.parser.IParser;
 
 public class SignAndUploadBundlesEvent extends AbstractEvent {
 
@@ -78,7 +76,13 @@ public class SignAndUploadBundlesEvent extends AbstractEvent {
     }
 
     public SignAndUploadBundlesEvent(Bundle[] bundles, JsonObject jsonObject, Session senderSession, String id) {
-        parseRuntimeConfig(jsonObject); //todo: here the keys from above (flowtype etc) are ignored - refactor & include (probably own process json method?)
+        parseRuntimeConfig(jsonObject);
+
+        //todo: here some keys from above are ignored - refactor & include (probably own process json method?)
+        
+        if (jsonObject.containsKey("flowtype")) {
+            setFlowtype(jsonObject.getString("flowtype"));
+        }
         this.replyTo = senderSession;
         this.id = id;
         listOfListOfBundles.add(Arrays.asList(bundles));
