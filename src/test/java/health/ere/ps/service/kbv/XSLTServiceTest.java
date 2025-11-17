@@ -1,28 +1,29 @@
 package health.ere.ps.service.kbv;
 
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.IParser;
+import health.ere.ps.service.transformer.XslTransformerProvider;
+import org.hl7.fhir.r4.model.Bundle;
+import org.junit.jupiter.api.Test;
+
+import javax.xml.transform.TransformerException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.xml.transform.TransformerException;
-
-import org.hl7.fhir.r4.model.Bundle;
-import org.junit.jupiter.api.Test;
-
-import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.parser.IParser;
 
 public class XSLTServiceTest {
+    
     IParser parser = FhirContext.forR4().newXmlParser();
 
     @Test
     public void testGenerateHTMLForPF01() throws IOException, TransformerException {
         Bundle bundle = parser.parseResource(Bundle.class, getXmlString("src/test/resources/kbv-zip/PF01.xml"));
         XSLTService xsltService = new XSLTService();
-        xsltService.init();
+        XslTransformerProvider xslTransformerProvider = new XslTransformerProvider();
+        xslTransformerProvider.init();
+        xsltService.xmlTransformerProvider = xslTransformerProvider;
         String result = xsltService.generateHtmlForBundle(bundle);
 
         Files.write(Paths.get("src/test/resources/kbv-xslt/PF01.html"), result.getBytes());
@@ -34,8 +35,11 @@ public class XSLTServiceTest {
         bundles.add(parser.parseResource(Bundle.class, getXmlString("src/test/resources/kbv-zip/PF08_1.xml")));
         bundles.add(parser.parseResource(Bundle.class, getXmlString("src/test/resources/kbv-zip/PF08_2.xml")));
         bundles.add(parser.parseResource(Bundle.class, getXmlString("src/test/resources/kbv-zip/PF08_3.xml")));
+
         XSLTService xsltService = new XSLTService();
-        xsltService.init();
+        XslTransformerProvider xslTransformerProvider = new XslTransformerProvider();
+        xslTransformerProvider.init();
+        xsltService.xmlTransformerProvider = xslTransformerProvider;
         List<String> result = bundles.stream().map(bundle -> {
             try {
                 return xsltService.generateHtmlForBundle(bundle);
@@ -43,7 +47,7 @@ public class XSLTServiceTest {
                 e.printStackTrace();
                 return null;
             }
-        }).collect(Collectors.toList());
+        }).toList();
 
         Files.write(Paths.get("src/test/resources/kbv-xslt/PF08_1.html"), result.get(0).getBytes());
         Files.write(Paths.get("src/test/resources/kbv-xslt/PF08_2.html"), result.get(1).getBytes());
@@ -54,7 +58,9 @@ public class XSLTServiceTest {
     public void testGenerateHTMLForOtherPF() throws IOException, TransformerException {
         List<Integer> otherPF = List.of(2, 3, 4, 5, 7, 9, 10);
         XSLTService xsltService = new XSLTService();
-        xsltService.init();
+        XslTransformerProvider xslTransformerProvider = new XslTransformerProvider();
+        xslTransformerProvider.init();
+        xsltService.xmlTransformerProvider = xslTransformerProvider;
         for (Integer number : otherPF) {
             String filename = String.format("src/test/resources/kbv-zip/PF%02d.xml", number);
             System.out.println(filename);

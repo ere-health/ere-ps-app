@@ -50,6 +50,9 @@ import jakarta.websocket.Session;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.ClientRequestFilter;
+import jakarta.ws.rs.client.ClientResponseFilter;
+import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.Response;
 import jakarta.xml.ws.Holder;
@@ -70,6 +73,7 @@ import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -165,6 +169,33 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
 
     static Client initClientWithVAU(AppConfig appConfig, Event<Exception> exceptionEvent) {
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
+        clientBuilder.hostnameVerifier((hostname, session) -> true);
+        clientBuilder.register((ClientRequestFilter) ctx -> {
+            StringBuilder sb = new StringBuilder();
+            sb.append("---> ").append(ctx.getMethod()).append(" ").append(ctx.getUri()).append("\n");
+            for (var e : ctx.getStringHeaders().entrySet()) {
+                sb.append(e.getKey()).append(": ").append(String.join(",", e.getValue())).append("\n");
+            }
+            Object ent = ctx.getEntity();
+            if (ent instanceof String s) {
+                sb.append("\n").append(s).append("\n");
+            }
+            log.info(sb.toString());
+        });
+        clientBuilder.register((ClientResponseFilter) (req, resp) -> {
+            StringBuilder sb = new StringBuilder();
+            sb.append("<--- ").append(resp.getStatus()).append(" ").append(req.getUri()).append("\n");
+            MultivaluedMap<String,String> h = resp.getHeaders();
+            for (var e : h.entrySet()) {
+                sb.append(e.getKey()).append(": ").append(String.join(",", e.getValue())).append("\n");
+            }
+            try (InputStream in = resp.getEntityStream()) {
+                byte[] body = in.readAllBytes();
+                sb.append("\n").append(new String(body, UTF_8)).append("\n");
+                resp.setEntityStream(new ByteArrayInputStream(body));
+                log.info(sb.toString());
+            }
+        });
         if (appConfig.vauEnabled()) {
             try {
                 ((ResteasyClientBuilderImpl) clientBuilder).httpEngine(new VAUEngine(appConfig.getPrescriptionServiceURL()));

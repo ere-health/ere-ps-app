@@ -7,6 +7,7 @@ import health.ere.ps.event.ERezeptWithDocumentsEvent;
 import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.model.pdf.ERezeptDocument;
 import health.ere.ps.service.fhir.FHIRService;
+import health.ere.ps.service.transformer.XmlTransformerProvider;
 import health.ere.ps.websocket.ExceptionWithReplyToException;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -25,12 +26,10 @@ import org.apache.fop.configuration.DefaultConfigurationBuilder;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.hl7.fhir.r4.model.Bundle;
 
-import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.ByteArrayInputStream;
@@ -53,20 +52,21 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_XML;
 import static java.time.ZoneOffset.UTC;
-import static javax.xml.XMLConstants.ACCESS_EXTERNAL_DTD;
-import static javax.xml.XMLConstants.ACCESS_EXTERNAL_STYLESHEET;
+import static java.util.logging.Level.SEVERE;
+import static java.util.logging.Level.WARNING;
 import static org.apache.xmlgraphics.util.MimeConstants.MIME_PDF;
 
 @ApplicationScoped
 public class DocumentService {
 
     private static final Logger log = Logger.getLogger(DocumentService.class.getName());
+    
     private static final int MAX_NUMBER_OF_MEDICINES_PER_PRESCRIPTIONS = 9;
     private static final FhirContext fhirContext = FHIRService.getFhirContext();
 
@@ -75,8 +75,12 @@ public class DocumentService {
 
     @Inject
     Event<ERezeptWithDocumentsEvent> eRezeptDocumentsEvent;
+
     @Inject
     Event<Exception> exceptionEvent;
+
+    @Inject
+    XmlTransformerProvider xmlTransformerProvider;
 
     @ConfigProperty(name = "ere.document-service.write-pdf-file", defaultValue = "false")
     boolean writePdfFile;
@@ -90,10 +94,8 @@ public class DocumentService {
             FopFactoryBuilder fopFactoryBuilder = new FopFactoryBuilder(baseURI, new ClasspathResolverURIAdapter());
             initConfiguration(fopFactoryBuilder);
             fopFactory = fopFactoryBuilder.build();
-            // fopFactory.getFontManager().setResourceResolver(new LoggingResolver(fopFactory.getFontManager().getResourceResolver()));
-            // log.info(fopFactory.getFontManager().getResourceResolver().toString());
         } catch (Exception ex) {
-            log.log(Level.SEVERE, "FOP Factory not initializable", ex);
+            log.log(SEVERE, "FOP Factory cannot be initialized", ex);
             exceptionEvent.fireAsync(ex);
         }
     }
@@ -157,7 +159,7 @@ public class DocumentService {
                         continue;
                     }
                     File f = new File(folderWithJars + "/" + file.getName());
-                    if (file.isDirectory()) { // if its a directory, create it
+                    if (file.isDirectory()) { // if it's a directory, create it
                         f.mkdir();
                         continue;
                     }
@@ -225,12 +227,15 @@ public class DocumentService {
             if (jo.containsKey("accessCode")) {
                 bt.setAccessCode(jo.getString("accessCode"));
             }
-            String mimeType = jo.getString("mimeType", "application/json");
-            IParser parser = APPLICATION_XML.equals(mimeType) ? xmlParser : jsonParser;
+            String mimeType = jo.getString("mimeType", APPLICATION_JSON);
             try {
-                bt.setBundle(parser.parseResource(Bundle.class, jo.getJsonObject("bundle").toString()));
+                if (APPLICATION_XML.equals(mimeType)) {
+                    bt.setBundle(xmlParser.parseResource(Bundle.class, jo.getJsonString("bundle").getString()));
+                } else {
+                    bt.setBundle(jsonParser.parseResource(Bundle.class, jo.getJsonObject("bundle").toString()));
+                }
             } catch (Throwable t) {
-                log.log(Level.WARNING, "Could not extract taskId and/or medicationRequest Id from Bundle", t);
+                log.log(WARNING, "Could not extract taskId and/or medicationRequest Id from Bundle", t);
             }
         }
         return bt;
@@ -261,58 +266,25 @@ public class DocumentService {
     }
 
     private ByteArrayOutputStream generatePdfInOutputStream(File xml) throws FOPException, TransformerException, IOException {
-        // Step 2: Set up output stream.
+        // Step 1: Set up output stream.
         // Note: Using BufferedOutputStream for performance reasons (helpful with
         // FileOutputStreams).
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-        // Step 3: Construct fop with desired output format
+        // Step 2: Construct fop with desired output format
         Fop fop = fopFactory.newFop(MIME_PDF, out);
 
-        // Step 4: Setup JAXP using identity transformer | todo: shouldn't the factory go to the service init? and just create a transformer here? (like the fopFactory)
-        TransformerFactory factory = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
-        factory.setAttribute(ACCESS_EXTERNAL_DTD, "");
-        factory.setAttribute(ACCESS_EXTERNAL_STYLESHEET, "");
-
-        // with XSLT:
-        String xslPath = "/fop/ERezeptTemplate.xsl";
-
-        InputStream inputStream = getClass().getResourceAsStream(xslPath);
-        String systemId = this.getClass().getResource(xslPath).toExternalForm();
-        StreamSource xslt = new StreamSource(inputStream, systemId);
-        xslt.setPublicId(systemId);
-        factory.setErrorListener(new ErrorListener() {
-            private static final String MSG = "Error in XSLT:";
-
-            @Override
-            public void warning(TransformerException exception) {
-                log.warning(MSG + exception);
-
-            }
-
-            @Override
-            public void fatalError(TransformerException exception) {
-                log.severe(MSG + exception);
-
-            }
-
-            @Override
-            public void error(TransformerException exception) {
-                log.severe(MSG + exception);
-            }
-        });
-
-        Transformer transformer = factory.newTransformer(xslt);
+        Transformer transformer = xmlTransformerProvider.getTransformer("/fop/ERezeptTemplate.xsl");
         transformer.setParameter("bundleFileUrl", xml.toURI().toURL().toString());
 
-        // Step 5: Setup input and output for XSLT transformation
+        // Step 3: Setup input and output for XSLT transformation
         // Setup input stream
         Source src = new StreamSource(xml);
 
         // Resulting SAX events (the generated FO) must be piped through to FOP
         Result res = new SAXResult(fop.getDefaultHandler());
 
-        // Step 6: Start XSLT transformation and FOP processing
+        // Step 4: Start XSLT transformation and FOP processing
         transformer.transform(src, res);
 
         if (isWritePdfFile()) {
@@ -322,7 +294,7 @@ public class DocumentService {
                 log.info("Generating " + path.toAbsolutePath().toString());
                 Files.write(path, out.toByteArray());
             } catch (IOException e) {
-                log.log(Level.SEVERE, "Could not generate signature files", e);
+                log.log(SEVERE, "Could not generate signature files", e);
             }
         }
         return out;
