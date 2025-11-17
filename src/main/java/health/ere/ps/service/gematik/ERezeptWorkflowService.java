@@ -52,8 +52,8 @@ import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.ClientRequestFilter;
 import jakarta.ws.rs.client.ClientResponseFilter;
-import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
 import jakarta.xml.ws.Holder;
 import oasis.names.tc.dss._1_0.core.schema.Base64Data;
@@ -189,12 +189,11 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
             for (var e : h.entrySet()) {
                 sb.append(e.getKey()).append(": ").append(String.join(",", e.getValue())).append("\n");
             }
-            try (InputStream in = resp.getEntityStream()) {
-                byte[] body = in.readAllBytes();
-                sb.append("\n").append(new String(body, UTF_8)).append("\n");
-                resp.setEntityStream(new ByteArrayInputStream(body));
-                log.info(sb.toString());
-            }
+            InputStream in = resp.getEntityStream();
+            byte[] body = in.readAllBytes();
+            sb.append("\n").append(new String(body, UTF_8)).append("\n");
+            resp.setEntityStream(new ByteArrayInputStream(body));
+            log.info(sb.toString());
         });
         if (appConfig.vauEnabled()) {
             try {
