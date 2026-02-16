@@ -39,6 +39,7 @@ import health.ere.ps.model.gematik.BundleWithAccessCodeOrThrowable;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import health.ere.ps.service.fhir.FHIRService;
+import health.ere.ps.service.gematik.popp.PoppClient;
 import health.ere.ps.vau.VAUEngine;
 import health.ere.ps.websocket.ExceptionWithReplyToException;
 import jakarta.annotation.PostConstruct;
@@ -53,6 +54,7 @@ import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.ClientRequestFilter;
 import jakarta.ws.rs.client.ClientResponseFilter;
 import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
 import jakarta.xml.ws.Holder;
@@ -119,7 +121,8 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
     AppConfig appConfig;
     @Inject
     UserConfig userConfig;
-
+    @Inject
+    PoppClient poppClient;
     @Inject
     MultiConnectorServicesProvider connectorServicesProvider;
     @Inject
@@ -195,7 +198,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
             resp.setEntityStream(new ByteArrayInputStream(body));
             log.info(sb.toString());
         });
-        if (appConfig.vauEnabled()) {
+        if (appConfig.isEnableVau()) {
             try {
                 ((ResteasyClientBuilderImpl) clientBuilder).httpEngine(new VAUEngine(appConfig.getPrescriptionServiceURL()));
             } catch (Exception ex) {
@@ -461,15 +464,18 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
         parameters.addParameter(ePrescriptionParameter);
         String entity = fhirContext.newXmlParser().encodeResourceToString(parameters);
 
-        try (Response response = client.target(appConfig.getPrescriptionServiceURL())
+        Invocation.Builder builder = client.target(appConfig.getPrescriptionServiceURL())
             .path("/Task/" + taskId)
             .path("/$activate")
             .request()
             .header("User-Agent", appConfig.getUserAgent())
             .header("Authorization", "Bearer " + bearerToken.get(runtimeConfig))
-            .header("X-AccessCode", accessCode)
-            .post(Entity.entity(entity, "application/fhir+xml; charset=utf-8"))) {
-
+            .header("X-AccessCode", accessCode);
+        if (appConfig.isZetaEnabled()) {
+            String poppToken = poppClient.getToken(runtimeConfig);
+            builder = builder.header("X-Popp-Token", poppToken);
+        }
+        try (Response response = builder.post(Entity.entity(entity, "application/fhir+xml; charset=utf-8"))) {
             String taskString = new String(response.readEntity(InputStream.class).readAllBytes(), ISO_8859_1);
             log.fine("Response when trying to activate the task: " + taskString);
 
@@ -606,7 +612,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
                     signRequest.setRequestID(bundle.getId());
                 }
                 signRequest.setDocument(document);
-                signRequest.setIncludeRevocationInfo(appConfig.includeRevocationInfoEnabled());
+                signRequest.setIncludeRevocationInfo(appConfig.isIncludeRevocationInfo());
                 return signRequest;
             }).collect(Collectors.toList());
 
@@ -655,7 +661,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
                     contextType.setUserId(UUID.randomUUID().toString());
                 }
                 SignatureServicePortTypeV755 signatureServicePortTypeV755 = connectorServicesProvider.getSignatureServicePortTypeV755(runtimeConfig);
-                if (appConfig.enableBatchSign()) {
+                if (appConfig.isEnableBatchSign()) {
                     String jobNumber = signatureServicePortTypeV755.getJobNumber(contextType);
                     signResponsesV755 = signatureServicePortTypeV755.signDocument(
                         signatureServiceCardHandle,
@@ -700,7 +706,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
                 // PTV4, could be PTV3 as well, to be refactored in a future task
             } else {
                 SignatureServicePortTypeV740 signatureServicePortType = connectorServicesProvider.getSignatureServicePortType(runtimeConfig);
-                if (appConfig.enableBatchSign()) {
+                if (appConfig.isEnableBatchSign()) {
                     signResponses = signatureServicePortType.signDocument(
                         signatureServiceCardHandle,
                         contextType,
@@ -799,11 +805,15 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
         String parameterString = fhirContext.newXmlParser().encodeResourceToString(parameters);
         log.fine("Parameter String: " + parameterString);
 
-        try (Response response = client.target(appConfig.getPrescriptionServiceURL()).path("/Task/$create").request()
+        Invocation.Builder builder = client.target(appConfig.getPrescriptionServiceURL())
+            .path("/Task/$create").request()
             .header("User-Agent", appConfig.getUserAgent())
-            .header("Authorization", "Bearer " + bearerToken.get(runtimeConfig))
-            .post(Entity.entity(parameterString, "application/fhir+xml; charset=utf-8"))) {
-
+            .header("Authorization", "Bearer " + bearerToken.get(runtimeConfig));
+        if (appConfig.isZetaEnabled()) {
+            String poppToken = poppClient.getToken(runtimeConfig);
+            builder = builder.header("X-Popp-Token", poppToken);
+        }
+        try (Response response = builder.post(Entity.entity(parameterString, "application/fhir+xml; charset=utf-8"))) {
             String taskString = response.readEntity(String.class);
 
             // if this was the first try, try again, this will request a new bearer token
@@ -833,12 +843,17 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
     public void abortERezeptTask(RuntimeConfig runtimeConfig, String taskId, String accessCode) {
         requestNewAccessTokenIfNecessary(runtimeConfig, null, null);
         String url = appConfig.getPrescriptionServiceURL();
-        try (Response response = client.target(url).path("/Task").path("/" + taskId).path("/$abort")
+        Invocation.Builder builder = client.target(url)
+            .path("/Task").path("/" + taskId).path("/$abort")
             .request()
             .header("User-Agent", appConfig.getUserAgent())
             .header("Authorization", "Bearer " + bearerToken.get(runtimeConfig))
-            .header("X-AccessCode", accessCode)
-            .post(Entity.entity("", "application/fhir+xml; charset=utf-8"))) {
+            .header("X-AccessCode", accessCode);
+        if (appConfig.isZetaEnabled()) {
+            String poppToken = poppClient.getToken(runtimeConfig);
+            builder = builder.header("X-Popp-Token", poppToken);
+        }
+        try (Response response = builder.post(Entity.entity("", "application/fhir+xml; charset=utf-8"))) {
             String taskString = response.readEntity(String.class);
             // if it is not successful
             if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {

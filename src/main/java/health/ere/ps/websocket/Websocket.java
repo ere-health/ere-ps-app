@@ -123,10 +123,10 @@ public class Websocket {
     PrescriptionService prescriptionService;
 
     @ConfigProperty(name = "ere.websocket.remove-signature-from-message", defaultValue = "true")
-    boolean removeSignatureFromMessage = true;
+    boolean removeSignatureFromMessage;
 
     @ConfigProperty(name = "ere.websocket.erezeptdocuments.reply-to-all", defaultValue = "false")
-    boolean erezeptdocumentsReplyToAll = false;
+    boolean erezeptdocumentsReplyToAll;
 
     static JsonbConfig customConfig = new JsonbConfig()
             .setProperty(JsonbConfig.FORMATTING, true)
@@ -249,7 +249,7 @@ public class Websocket {
                     });
             } else if ("XMLBundle".equals(object.getString("type"))) {
                 Bundle[] bundles = prescriptionService.parseFromString(object.getString("payload"));
-                if(appConfig.getXmlBundleDirectProcess()) {
+                if(appConfig.isXmlBundleDirectProcess()) {
                     SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(bundles, object, senderSession, messageId);
                     signAndUploadBundlesEvent.fireAsync(event);   
                 }

@@ -6,6 +6,11 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import de.gematik.ws.conn.cardservice.v821.VerifyPin;
+import de.gematik.ws.conn.cardservice.wsdl.v8_2.CardServicePortType;
+import de.gematik.ws.conn.cardservicecommon.v2.PinResponseType;
+import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateServicePortType;
+import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -51,8 +56,7 @@ public class CardCertificateReaderService {
 
         byte[] connector_cert_auth = new byte[0];
 
-        ReadCardCertificateResponse readCardCertificateResponse =
-                doReadCardCertificate(cardHandle, runtimeConfig);
+        ReadCardCertificateResponse readCardCertificateResponse = doReadCardCertificate(cardHandle, runtimeConfig);
 
         Status status = readCardCertificateResponse.getStatus();
         if (status != null && status.getResult().equals(STATUS_OK)) {
@@ -92,8 +96,11 @@ public class CardCertificateReaderService {
      * @param cardHandle The handle of the card whose AUT certificate is to be read.
      * @return The read AUT certificate.
      */
-    public ReadCardCertificateResponse doReadCardCertificate(String cardHandle, RuntimeConfig runtimeConfig, CryptType crypt)
-            throws ConnectorCardCertificateReadException {
+    public ReadCardCertificateResponse doReadCardCertificate(
+        String cardHandle,
+        RuntimeConfig runtimeConfig,
+        CryptType crypt
+    ) throws ConnectorCardCertificateReadException {
 
         ReadCardCertificate.CertRefList certRefList = new ReadCardCertificate.CertRefList();
         certRefList.getCertRef().add(CertRefEnum.C_AUT);
@@ -101,10 +108,10 @@ public class CardCertificateReaderService {
         Holder<Status> statusHolder = new Holder<>();
         Holder<X509DataInfoListType> certHolder = new Holder<>();
 
+        ContextType contextType = connectorServicesProvider.getContextType(runtimeConfig);
         try {
-            
-            connectorServicesProvider.getCertificateServicePortType(runtimeConfig).readCardCertificate(cardHandle, connectorServicesProvider.getContextType(runtimeConfig), certRefList,
-                    crypt, statusHolder, certHolder);
+            CertificateServicePortType certificateService = connectorServicesProvider.getCertificateServicePortType(runtimeConfig);
+            certificateService.readCardCertificate(cardHandle, contextType, certRefList, crypt, statusHolder, certHolder);
         } catch (FaultMessage faultMessage) {
 
             // Datei nicht vorhanden (Secunet)
@@ -112,8 +119,11 @@ public class CardCertificateReaderService {
                     .anyMatch(t -> t.getCode().equals(BigInteger.valueOf(4087L)));
 
             // ECC-Zertifikate nicht vorhanden auf Karte: (KocoBox)
-            boolean code4258 = faultMessage.getFaultInfo().getTrace().stream()
-                    .anyMatch(t -> t.getCode().equals(BigInteger.valueOf(4258L)));
+            boolean code4258 = faultMessage
+                .getFaultInfo()
+                .getTrace()
+                .stream()
+                .anyMatch(t -> t.getCode().equals(BigInteger.valueOf(4258L)));
             if((code4087 || code4258)  && crypt.equals(CryptType.ECC)) {
                 return doReadCardCertificate(cardHandle, runtimeConfig, CryptType.RSA);
             }
@@ -123,13 +133,17 @@ public class CardCertificateReaderService {
                     .anyMatch(t -> t.getCode().equals(BigInteger.valueOf(4085L)));
 
             if (code4085) {
-                Holder<Status> status = new Holder<>();
-                Holder<PinResultEnum> pinResultEnum = new Holder<>();
-                Holder<BigInteger> error = new Holder<>();
+                PinResponseType pinResponse;
                 try {
-                    connectorServicesProvider.getCardServicePortType(runtimeConfig).verifyPin(connectorServicesProvider.getContextType(runtimeConfig), cardHandle, "PIN.SMC", status, pinResultEnum, error);
+                    CardServicePortType cardService = connectorServicesProvider.getCardServicePortType(runtimeConfig);
+                    VerifyPin verifyPin = new VerifyPin();
+                    verifyPin.setCardHandle(cardHandle);
+                    verifyPin.setContext(contextType);
+                    verifyPin.setPinTyp("PIN.SMC");
+
+                    pinResponse = cardService.verifyPin(verifyPin);
                     doReadCardCertificate(cardHandle, runtimeConfig);
-                } catch (de.gematik.ws.conn.cardservice.wsdl.v8.FaultMessage e) {
+                } catch (de.gematik.ws.conn.cardservice.wsdl.v8_2.FaultMessage e) {
                     throw new ConnectorCardCertificateReadException("Could not get certificate", faultMessage);
                 }
             } else {

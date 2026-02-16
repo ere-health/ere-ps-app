@@ -2,8 +2,8 @@ package health.ere.ps.service.connector.provider;
 
 import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureService;
 import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureServicePortType;
-import de.gematik.ws.conn.cardservice.wsdl.v8.CardService;
-import de.gematik.ws.conn.cardservice.wsdl.v8.CardServicePortType;
+import de.gematik.ws.conn.cardservice.wsdl.v8_2.CardService;
+import de.gematik.ws.conn.cardservice.wsdl.v8_2.CardServicePortType;
 import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateService;
 import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateServicePortType;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
@@ -26,6 +26,7 @@ import jakarta.inject.Inject;
 import jakarta.xml.ws.BindingProvider;
 
 import javax.net.ssl.SSLContext;
+import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -117,8 +118,8 @@ public abstract class AbstractConnectorServicesProvider {
     }
 
     private void initializeCardServicePortType() {
-        CardServicePortType cardService = new CardService(getClass().getResource("/CardService.wsdl"))
-            .getCardServicePort();
+        URL resource = getClass().getResource("/conn/CardService_v8_2_1.wsdl");
+        CardServicePortType cardService = new CardService(resource).getCardServicePort();
 
         BindingProvider bp = (BindingProvider) cardService;
         if (endpointDiscoveryService.getCardServiceEndpointAddress() != null) {
