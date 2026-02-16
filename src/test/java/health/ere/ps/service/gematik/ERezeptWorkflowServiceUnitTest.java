@@ -282,7 +282,7 @@ public class ERezeptWorkflowServiceUnitTest {
         
         eRezeptWorkflowServiceUnit.appConfig = mock(AppConfig.class);
         when(eRezeptWorkflowServiceUnit.appConfig.getPrescriptionServiceURL()).thenReturn("http://localhost:8080");
-        when(eRezeptWorkflowServiceUnit.appConfig.enableBatchSign()).thenReturn(true);
+        when(eRezeptWorkflowServiceUnit.appConfig.isEnableBatchSign()).thenReturn(true);
   
         eRezeptWorkflowServiceUnit.userConfig = new UserConfig();
 

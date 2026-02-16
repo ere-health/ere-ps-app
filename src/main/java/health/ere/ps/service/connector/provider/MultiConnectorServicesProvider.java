@@ -1,12 +1,7 @@
 package health.ere.ps.service.connector.provider;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Logger;
-
 import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureServicePortType;
-import de.gematik.ws.conn.cardservice.wsdl.v8.CardServicePortType;
+import de.gematik.ws.conn.cardservice.wsdl.v8_2.CardServicePortType;
 import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateServicePortType;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
@@ -20,6 +15,11 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Logger;
+
 @ApplicationScoped
 public class MultiConnectorServicesProvider {
     private final static Logger log = Logger.getLogger(MultiConnectorServicesProvider.class.getName());
@@ -30,11 +30,10 @@ public class MultiConnectorServicesProvider {
     @Inject
     Event<Exception> eventException;
 
-    Map<SimpleUserConfig, SingleConnectorServicesProvider> singleConnectorServicesProvider = Collections.synchronizedMap(new HashMap<SimpleUserConfig, SingleConnectorServicesProvider>());
+    Map<SimpleUserConfig, SingleConnectorServicesProvider> singleConnectorServicesProvider = Collections.synchronizedMap(new HashMap<>());
 
     public CardServicePortType getCardServicePortType(UserConfig userConfig) {
-        CardServicePortType cardServicePortType = getSingleConnectorServicesProvider(userConfig).getCardServicePortType();
-        return cardServicePortType;
+        return getSingleConnectorServicesProvider(userConfig).getCardServicePortType();
     }
 
     public AbstractConnectorServicesProvider getSingleConnectorServicesProvider(UserConfig userConfig) {
@@ -110,6 +109,6 @@ public class MultiConnectorServicesProvider {
     }
 
     public void clearAll() {
-    	singleConnectorServicesProvider = Collections.synchronizedMap(new HashMap<SimpleUserConfig, SingleConnectorServicesProvider>());
+    	singleConnectorServicesProvider = Collections.synchronizedMap(new HashMap<>());
     }
 }

@@ -2,7 +2,7 @@ package health.ere.ps.resource.gematik;
 
 import static health.ere.ps.resource.gematik.Extractors.extractRuntimeConfigFromHeaders;
 
-import de.gematik.ws.conn.cardservice.wsdl.v8.FaultMessage;
+import de.gematik.ws.conn.cardservice.wsdl.v8_2.FaultMessage;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.config.UserConfig;
 import health.ere.ps.model.gematik.ChangePinResponse;

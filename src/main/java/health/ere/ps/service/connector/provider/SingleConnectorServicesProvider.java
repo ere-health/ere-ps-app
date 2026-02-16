@@ -1,5 +1,16 @@
 package health.ere.ps.service.connector.provider;
 
+import health.ere.ps.config.AppConfig;
+import health.ere.ps.config.UserConfig;
+import health.ere.ps.service.common.security.SecretsManagerService;
+import health.ere.ps.service.connector.endpoint.EndpointDiscoveryService;
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.inject.spi.CDI;
+import lombok.Getter;
+
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.X509KeyManager;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -20,17 +31,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.PatternSyntaxException;
 
-import jakarta.enterprise.event.Event;
-import jakarta.enterprise.inject.spi.CDI;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.X509KeyManager;
-
-import health.ere.ps.config.AppConfig;
-import health.ere.ps.config.UserConfig;
-import health.ere.ps.service.common.security.SecretsManagerService;
-import health.ere.ps.service.connector.endpoint.EndpointDiscoveryService;
-
+@Getter
 public class SingleConnectorServicesProvider extends AbstractConnectorServicesProvider {
     private final static Logger log = Logger.getLogger(SingleConnectorServicesProvider.class.getName());
 
@@ -166,9 +167,5 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
             log.log(Level.WARNING, "Could not create KeyManager", e);
             return null;
         }
-    }
-
-    public UserConfig getUserConfig() {
-        return userConfig;
     }
 }
