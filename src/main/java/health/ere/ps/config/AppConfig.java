@@ -3,18 +3,17 @@ package health.ere.ps.config;
 import de.health.service.cetp.CETPServer;
 import de.health.service.config.api.ISubscriptionConfig;
 import jakarta.enterprise.context.ApplicationScoped;
+import lombok.Getter;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.logging.Logger;
 
+@Getter
 @ApplicationScoped
 public class AppConfig implements ISubscriptionConfig {
-
-    private static final Logger log = Logger.getLogger(AppConfig.class.getName());
 
     @ConfigProperty(name = "ere.workflow-service.prescription.server.url")
     String prescriptionServiceURL;
@@ -97,55 +96,61 @@ public class AppConfig implements ISubscriptionConfig {
     @ConfigProperty(name = "connector.cetp.port")
     Optional<Integer> cetpPort;
 
-    public String getPrescriptionServiceURL() {
-        return prescriptionServiceURL;
-    }
+    @ConfigProperty(name = "zeta.enabled", defaultValue = "false")
+    boolean zetaEnabled;
 
-    public String getVerifyHostname() {
-        return verifyHostname;
-    }
+    @ConfigProperty(name = "zeta.auth.server.url", defaultValue = "https://zeta-cd.westeurope.cloudapp.azure.com")
+    String zetaAuthServerUrl;
 
-    public String getIdpClientId() {
-        return idpClientId;
-    }
+    @ConfigProperty(name = "popp.server.url", defaultValue = "https://popp-server.com")
+    String poppServerUrl;
 
-    public String getIdpAuthRequestRedirectURL() {
-        return idpAuthRequestRedirectURL;
-    }
+    @ConfigProperty(name = "zeta.product.id", defaultValue = "ere-health-client")
+    String zetaProductId;
 
-    public List<Integer> getIdpInitializationRetriesMillis() {
-        String seconds = idpInitializationRetriesSeconds.orElse("5,10,50");
-        return Arrays.stream(seconds.split(",")).map(String::trim).map(s -> {
-            try {
-                return Integer.parseInt(s) * 1000;
-            } catch (Exception e) {
-                return null;
-            }
-        }).filter(Objects::nonNull).toList();
-    }
+    @ConfigProperty(name = "zeta.product.version", defaultValue = "0.0.1")
+    String zetaProductVersion;
+
+    @ConfigProperty(name = "zeta.client.name", defaultValue = "zetaClientName")
+    String zetaClientName;
+
+    @ConfigProperty(name = "zeta.assessment.name", defaultValue = "assessment.name")
+    String zetaAssessmentName;
+
+    @ConfigProperty(name = "zeta.assessment.client.id", defaultValue = "assessment.client.id")
+    String zetaAssessmentClientId;
+
+    @ConfigProperty(name = "zeta.assessment.manufacturer.id", defaultValue = "assessment.manufacturer.id")
+    String zetaAssessmentManufacturerId;
+
+    @ConfigProperty(name = "zeta.assessment.manufacturer.name", defaultValue = "assessment.manufacturer.name")
+    String zetaAssessmentManufacturerName;
+
+    @ConfigProperty(name = "zeta.assessment.owner.mail", defaultValue = "owner@mail.de")
+    String zetaAssessmentOwnerMail;
 
     public int getIdpInitializationPeriodMs() {
         return idpInitializationPeriodSeconds.orElse(180) * 1000;
     }
 
+    @Override
     public int getCetpSubscriptionsRenewalSafePeriodMs() {
         return cetpSubscriptionsRenewalSafePeriodSeconds.orElse(600) * 1000;
     }
 
+    @Override
     public int getCetpSubscriptionsMaintenanceRetryIntervalMs() {
         return subscriptionsMaintenanceRetryIntervalMs.orElse(5000);
     }
 
+    @Override
     public int getForceResubscribePeriodSeconds() {
         return forceResubscribePeriodSeconds.orElse(43200);
     }
 
-    public int getTrackBatch() {
-        return trackBatch.orElse(100);
-    }
-
-    public String getBillingCsvFolder() {
-        return csvFolder.orElse("billing");
+    @Override
+    public String getDefaultCardLinkServer() {
+        return cardLinkServer.orElse("wss://cardlink.service-health.de:8444/websocket/80276003650110006580-20230112");
     }
 
     @Override
@@ -158,65 +163,22 @@ public class AppConfig implements ISubscriptionConfig {
         return cetpPort.orElse(CETPServer.DEFAULT_PORT);
     }
 
-    public String getIdpAuthRequestURL() {
-        return idpAuthRequestURL;
+    public int getTrackBatch() {
+        return trackBatch.orElse(100);
     }
 
-    public String getIdpBaseURL() {
-        return idpBaseURL;
+    public String getBillingCsvFolder() {
+        return csvFolder.orElse("billing");
     }
 
-    public boolean vauEnabled() {
-        return enableVau;
-    }
-
-    public boolean enableBatchSign() {
-        return enableBatchSign;
-    }
-
-    public boolean triggerSmcbPinVerification() {
-        return triggerSmcbPinVerification;
-    }
-
-    public boolean includeRevocationInfoEnabled() {
-        return includeRevocationInfo;
-    }
-
-    public String getUserAgent() {
-        return userAgent;
-    }
-
-    public String getKonnectorHost() {
-        return konnectorHost;
-    }
-
-    public String getConnectorCrypt() {
-        return connectorCrypt;
-    }
-
-    public Optional<String> getCertAuthStoreFile() {
-        return certAuthStoreFile;
-    }
-
-    public Optional<String> getCertAuthStoreFilePassword() {
-        return certAuthStoreFilePassword;
-    }
-
-    public boolean isWriteSignatureFile() {
-        return this.writeSignatureFile;
-    }
-
-    public boolean getWriteSignatureFile() {
-        return this.writeSignatureFile;
-    }
-
-    public boolean getXmlBundleDirectProcess() {
-        return this.xmlBundleDirectProcess;
-    }
-
-    public String getDefaultCardLinkServer() {
-        return cardLinkServer.orElse(
-            "wss://cardlink.service-health.de:8444/websocket/80276003650110006580-20230112"
-        );
+    public List<Integer> getIdpInitializationRetriesMillis() {
+        String seconds = idpInitializationRetriesSeconds.orElse("5,10,50");
+        return Arrays.stream(seconds.split(",")).map(String::trim).map(s -> {
+            try {
+                return Integer.parseInt(s) * 1000;
+            } catch (Exception e) {
+                return null;
+            }
+        }).filter(Objects::nonNull).toList();
     }
 }

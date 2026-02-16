@@ -63,8 +63,8 @@ import health.ere.ps.model.config.UserConfigurations;
 import health.ere.ps.model.websocket.OutgoingPayload;
 import health.ere.ps.service.config.UserConfigurationService;
 import health.ere.ps.service.fhir.FHIRService;
-import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
 import health.ere.ps.service.fhir.bundle.EreBundle;
+import health.ere.ps.service.fhir.prescription.PrescriptionService;
 import health.ere.ps.service.logging.EreLogger;
 import health.ere.ps.validation.fhir.bundle.PrescriptionBundleValidator;
 import health.ere.ps.websocket.encoder.ResponseEventEncoder;
@@ -148,12 +148,14 @@ public class Websocket {
     AppConfig appConfig;
     @Inject
     UserConfigurationService userConfigurationService;
+    @Inject
+    PrescriptionService prescriptionService;
 
     @ConfigProperty(name = "ere.websocket.remove-signature-from-message", defaultValue = "true")
-    boolean removeSignatureFromMessage = true;
+    boolean removeSignatureFromMessage;
 
     @ConfigProperty(name = "ere.websocket.erezeptdocuments.reply-to-all", defaultValue = "false")
-    boolean erezeptdocumentsReplyToAll = false;
+    boolean erezeptdocumentsReplyToAll;
 
     static JsonbConfig customConfig = new JsonbConfig()
             .setProperty(JsonbConfig.FORMATTING, true)
@@ -272,8 +274,8 @@ public class Websocket {
                         }
                     });
             } else if ("XMLBundle".equals(object.getString("type"))) {
-                Bundle[] bundles = XmlPrescriptionProcessor.parseFromString(object.getString("payload"));
-                if(appConfig.getXmlBundleDirectProcess()) {
+                Bundle[] bundles = prescriptionService.parseFromString(object.getString("payload"));
+                if(appConfig.isXmlBundleDirectProcess()) {
                     SignAndUploadBundlesEvent event = new SignAndUploadBundlesEvent(bundles, object, senderSession, messageId);
                     signAndUploadBundlesEvent.fireAsync(event);   
                 }
@@ -539,8 +541,7 @@ public class Websocket {
 
     public void onERezeptDocuments(@ObservesAsync ERezeptWithDocumentsEvent eRezeptDocumentsEvent) {
         String jsonPayload = generateJson(eRezeptDocumentsEvent);
-        ereLog.debug("Sending prescription receipt payload to front-end: " +
-                jsonPayload);
+        ereLog.debug("Sending prescription receipt payload to front-end: " + jsonPayload);
 
                 Set<Session> localSessions = new HashSet<>();
         if(eRezeptDocumentsEvent.getReplyTo() != null && !erezeptdocumentsReplyToAll) {
@@ -576,11 +577,11 @@ public class Websocket {
 
         bundlesEvent.getBundles().forEach(bundle -> {
             if (bundle instanceof EreBundle) {
-                ereLog.debug("Filled bundle json template result shown below. Null value place" +
-                        " holders present.");
-                ereLog.debug("==============================================");
+                ereLog.info("Filled bundle json template.");
+                ereLog.trace("Result shown below. Null value place holders present.");
+                ereLog.trace("==============================================");
 
-                ereLog.debug(((EreBundle) bundle).encodeToJson());
+                ereLog.trace(((EreBundle) bundle).encodeToJson());
             }
         });
 

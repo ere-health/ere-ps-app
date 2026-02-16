@@ -1,7 +1,7 @@
 package health.ere.ps.service.connector.provider;
 
 import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureServicePortType;
-import de.gematik.ws.conn.cardservice.wsdl.v8.CardServicePortType;
+import de.gematik.ws.conn.cardservice.wsdl.v8_2.CardServicePortType;
 import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateServicePortType;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
@@ -10,6 +10,7 @@ import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
 import de.gematik.ws.conn.vsds.vsdservice.v5.VSDServicePortType;
 import de.health.service.config.api.UserRuntimeConfig;
 import health.ere.ps.config.SimpleUserConfig;
+import health.ere.ps.config.UserConfig;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
@@ -30,18 +31,22 @@ public class MultiConnectorServicesProvider {
     @Inject
     Event<Exception> eventException;
 
-    //Map<UserConfig, SingleConnectorServicesProvider> singleConnectorServicesProvider = new ConcurrentHashMap<>();
-    Map<SimpleUserConfig, SingleConnectorServicesProvider> singleConnectorServicesProvider = Collections.synchronizedMap(new HashMap<SimpleUserConfig, SingleConnectorServicesProvider>());
+    Map<SimpleUserConfig, SingleConnectorServicesProvider> singleConnectorServicesProvider = Collections.synchronizedMap(new HashMap<>());
+
+    public CardServicePortType getCardServicePortType(UserConfig userConfig) {
+        return getSingleConnectorServicesProvider(userConfig).getCardServicePortType();
+    }
 
     public AbstractConnectorServicesProvider getSingleConnectorServicesProvider(UserRuntimeConfig userConfig) {
         if (userConfig == null) {
             return defaultConnectorServicesProvider;
         } else {
-        	SimpleUserConfig simpleUserConfig = new SimpleUserConfig(userConfig);
-        	if(!singleConnectorServicesProvider.containsKey(simpleUserConfig)) {
-        		log.fine("This key is not present in the map and will be inserted: " + simpleUserConfig.toString());
-        		log.fine("The hashkey for it is: " + simpleUserConfig.hashCode());
-        		singleConnectorServicesProvider.put(simpleUserConfig, new SingleConnectorServicesProvider(userConfig, eventException));
+            SimpleUserConfig simpleUserConfig = new SimpleUserConfig(userConfig);
+            if (!singleConnectorServicesProvider.containsKey(simpleUserConfig)) {
+                log.fine("This key is not present in the map and will be inserted: " + simpleUserConfig);
+                log.fine("The hashkey for it is: " + simpleUserConfig.hashCode());
+                SingleConnectorServicesProvider servicesProvider = new SingleConnectorServicesProvider(userConfig, eventException);
+                singleConnectorServicesProvider.put(simpleUserConfig, servicesProvider);
             }
             return singleConnectorServicesProvider.get(simpleUserConfig);
         }
@@ -88,6 +93,6 @@ public class MultiConnectorServicesProvider {
     }
 
     public void clearAll() {
-    	singleConnectorServicesProvider = Collections.synchronizedMap(new HashMap<SimpleUserConfig, SingleConnectorServicesProvider>());
+        singleConnectorServicesProvider = Collections.synchronizedMap(new HashMap<>());
     }
 }

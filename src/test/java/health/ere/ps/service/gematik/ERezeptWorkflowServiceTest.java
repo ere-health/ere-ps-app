@@ -14,7 +14,7 @@ import health.ere.ps.profile.TitusTestProfile;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
 import health.ere.ps.service.connector.certificate.CardCertificateReaderService;
 import health.ere.ps.service.connector.endpoint.SSLUtilities;
-import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
+import health.ere.ps.service.fhir.prescription.PrescriptionService;
 import health.ere.ps.service.idp.BearerTokenService;
 import health.ere.ps.service.idp.client.IdpClient;
 import health.ere.ps.service.idp.client.IdpHttpClientService;
@@ -64,6 +64,8 @@ public class ERezeptWorkflowServiceTest {
     IdpClient idpClient;
     @Inject
     BearerTokenService bearerTokenService;
+    @Inject
+    PrescriptionService prescriptionService;
     @Inject
     CardCertificateReaderService cardCertificateReaderService;
     @Inject
@@ -307,7 +309,7 @@ public class ERezeptWorkflowServiceTest {
     @Test
     @Disabled
     void testCreateERezeptOnPrescriptionServerFromXMLBundle() throws IOException, ERezeptWorkflowException, FOPException, TransformerException {
-        Bundle[] bundles = XmlPrescriptionProcessor.parseFromString(Files.readString(Paths.get("/home/manuel/git/secret-test-print-samples/CGM-Turbomed/XML/Bundle1.xml")));
+        Bundle[] bundles = prescriptionService.parseFromString(Files.readString(Paths.get("/home/manuel/git/secret-test-print-samples/CGM-Turbomed/XML/Bundle1.xml")));
 
         List<BundleWithAccessCodeOrThrowable> bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createMultipleERezeptsOnPrescriptionServer(Arrays.asList(bundles));
         DocumentService documentService = new DocumentService();

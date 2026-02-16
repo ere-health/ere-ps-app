@@ -12,11 +12,11 @@ jobs:
       ERE_VALIDATOR_VALIDATE_SIGN_REQUEST_BUNDLES_ENABLED: false
     steps:
       - uses: actions/checkout@v4
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'adopt'
+          java-version: '21'
+          distribution: 'temurin'
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:
