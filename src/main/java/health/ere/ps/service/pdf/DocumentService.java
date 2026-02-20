@@ -271,7 +271,7 @@ public class DocumentService {
         // FileOutputStreams).
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-        // Step 2: Construct fop with desired output format
+        // Step 2: Construct fop with the desired output format
         Fop fop = fopFactory.newFop(MIME_PDF, out);
 
         Transformer transformer = xmlTransformerProvider.getTransformer("/fop/ERezeptTemplate.xsl");

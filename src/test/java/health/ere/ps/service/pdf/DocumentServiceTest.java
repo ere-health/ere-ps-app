@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -48,7 +49,6 @@ public class DocumentServiceTest {
     @Inject
     DocumentService documentService;
 
-
     @BeforeAll
     public static void prepareTestDirectoryAndBundles() throws IOException {
         if (!Path.of(TARGET_PATH).toFile().exists()) {
@@ -57,26 +57,24 @@ public class DocumentServiceTest {
 
         // GIVEN
         testBundles.add((Bundle) ctx.newXmlParser().parseResource(
-                DocumentServiceTest.class.getResourceAsStream("/examples_erezept/Erezept_template_1.xml")));
+            DocumentServiceTest.class.getResourceAsStream("/examples_erezept/Erezept_template_1.xml")));
         testBundles.add((Bundle) ctx.newXmlParser().parseResource(
-                DocumentServiceTest.class.getResourceAsStream("/examples_erezept/Erezept_template_2.xml")));
+            DocumentServiceTest.class.getResourceAsStream("/examples_erezept/Erezept_template_2.xml")));
         testBundles.add((Bundle) ctx.newXmlParser().parseResource(
-                DocumentServiceTest.class.getResourceAsStream("/examples_erezept/Erezept_template_3.xml")));
+            DocumentServiceTest.class.getResourceAsStream("/examples_erezept/Erezept_template_3.xml")));
         testBundles.add((Bundle) ctx.newXmlParser().parseResource(
-                DocumentServiceTest.class.getResourceAsStream("/examples_erezept/Erezept_template_4.xml")));
+            DocumentServiceTest.class.getResourceAsStream("/examples_erezept/Erezept_template_4.xml")));
         testBundles.add((Bundle) ctx.newXmlParser().parseResource(
-                DocumentServiceTest.class.getResourceAsStream("/examples_erezept/Erezept_template_5.xml")));
+            DocumentServiceTest.class.getResourceAsStream("/examples_erezept/Erezept_template_5.xml")));
         testBundles.add((Bundle) ctx.newXmlParser().parseResource(
-                DocumentServiceTest.class.getResourceAsStream("/examples_erezept/Beispiel_16.xml")));
+            DocumentServiceTest.class.getResourceAsStream("/examples_erezept/Beispiel_16.xml")));
         testBundles.add((Bundle) ctx.newXmlParser().parseResource(
-                DocumentServiceTest.class.getResourceAsStream("/examples_erezept/Beispiel_52.xml")));
-
+            DocumentServiceTest.class.getResourceAsStream("/examples_erezept/Beispiel_52.xml")));
 
         try {
             // https://community.oracle.com/thread/1307033?start=0&tstart=0
-            LogManager.getLogManager().readConfiguration(
-                DocumentServiceTest.class
-                            .getResourceAsStream("/logging.properties"));
+            InputStream inputStream = DocumentServiceTest.class.getResourceAsStream("/logging.properties");
+            LogManager.getLogManager().readConfiguration(inputStream);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -87,15 +85,15 @@ public class DocumentServiceTest {
         // GIVEN1
         int maxNumberOfMedicationsPerPrescription = 9;
         Event<ERezeptWithDocumentsEvent> mockedEvent = Mockito.mock(Event.class);
-        documentService.seteRezeptDocumentsEvent(mockedEvent);
+        documentService.setErezeptDocumentsEvent(mockedEvent);
 
         List<BundleWithAccessCodeOrThrowable> bundles = new ArrayList<>();
 
         for (int i = 0; i < maxNumberOfMedicationsPerPrescription; i++) {
             bundles.add(new BundleWithAccessCodeOrThrowable(
-                    (Bundle) ctx.newXmlParser().parseResource(
-                            DocumentServiceTest.class.getResourceAsStream("/examples_erezept/Erezept_template_1.xml")),
-                    "MOCK_CODE"));
+                (Bundle) ctx.newXmlParser().parseResource(
+                    DocumentServiceTest.class.getResourceAsStream("/examples_erezept/Erezept_template_1.xml")),
+                "MOCK_CODE"));
         }
 
         // WHEN1
@@ -107,9 +105,9 @@ public class DocumentServiceTest {
         // GIVEN2
         Mockito.reset(mockedEvent);
         bundles.add(new BundleWithAccessCodeOrThrowable(
-                (Bundle) ctx.newXmlParser().parseResource(
-                        DocumentServiceTest.class.getResourceAsStream("/examples_erezept/Erezept_template_1.xml")),
-                "MOCK_CODE"));
+            (Bundle) ctx.newXmlParser().parseResource(
+                DocumentServiceTest.class.getResourceAsStream("/examples_erezept/Erezept_template_1.xml")),
+            "MOCK_CODE"));
 
         // WHEN2
         documentService.onBundlesWithAccessCodes(new BundlesWithAccessCodeEvent(List.of(bundles)));
@@ -209,11 +207,11 @@ public class DocumentServiceTest {
     @Test
     @Disabled("Running the pdf generation tests takes a lot of time, run them manually")
     public void generateAllKBVPdf() throws IOException {
-        String dir = "./src/test/resources/examples-kbv-fhir-erp-v1-0-2"; //todo: write to src? in a test? shouldn't this be a .gitignore test-result like folder?
+        String dir = "./src/test/resources/examples-kbv-fhir-erp-v1-0-2"; // todo: write to src? in a test? shouldn't this be a .gitignore test-result like folder?
         String prefix = "1_0_2";
         generatePdfsForAllFilesInFolder(dir, prefix);
 
-        dir = "./src/test/resources/examples-kbv-fhir-erp-v1-1-0"; //todo: write to src? in a test? shouldn't this be a .gitignore test-result like folder?
+        dir = "./src/test/resources/examples-kbv-fhir-erp-v1-1-0"; // todo: write to src? in a test? shouldn't this be a .gitignore test-result like folder?
         prefix = "1_1_0";
         generatePdfsForAllFilesInFolder(dir, prefix);
     }
@@ -221,31 +219,31 @@ public class DocumentServiceTest {
     @Test
     @Disabled("Running the pdf generation tests takes a lot of time, run them manually")
     public void generatePdfsForTestingBundleFoldersViaHelperFunction() throws IOException {
-        String dir = "./src/test/resources/secret/bundles-v1-1-0"; //todo: write to src? in a test? shouldn't this be a .gitignore test-result like folder?
+        String dir = "./src/test/resources/secret/bundles-v1-1-0"; // todo: write to src? in a test? shouldn't this be a .gitignore test-result like folder?
         String prefix = "test_v1_1_0";
         generatePdfsForAllFilesInFolder(dir, prefix);
     }
 
     private void generatePdfsForAllFilesInFolder(String dir, String prefix) throws IOException {
         List<ByteArrayOutputStream> pdfStreams = Files.list(Paths.get(dir))
-                .filter((p) -> p.toFile().isFile())
-                .map((p) -> {
-                    try {
-                        if (p.getFileName().toString().endsWith(".xml")) {
-                            return new BundleWithAccessCodeOrThrowable((Bundle) ctx.newXmlParser().parseResource(new FileReader(p.toFile())), "ACCESS_CODE");
-                        } else if (p.getFileName().toString().endsWith(".json"))  {
-                            return new BundleWithAccessCodeOrThrowable((Bundle) ctx.newJsonParser().parseResource(new FileReader(p.toFile())), "ACCESS_CODE");
-                        } else {
-                            return null;
-                        }
-                    } catch (ConfigurationException | DataFormatException | FileNotFoundException e) {
-                        e.printStackTrace();
-                        fail("Couldn't parse: " + p.getFileName().toString());
+            .filter((p) -> p.toFile().isFile())
+            .map((p) -> {
+                try {
+                    if (p.getFileName().toString().endsWith(".xml")) {
+                        return new BundleWithAccessCodeOrThrowable((Bundle) ctx.newXmlParser().parseResource(new FileReader(p.toFile())), "ACCESS_CODE");
+                    } else if (p.getFileName().toString().endsWith(".json")) {
+                        return new BundleWithAccessCodeOrThrowable((Bundle) ctx.newJsonParser().parseResource(new FileReader(p.toFile())), "ACCESS_CODE");
+                    } else {
                         return null;
                     }
-                })
-                .filter(Objects::nonNull)
-                .map((b) -> {
+                } catch (ConfigurationException | DataFormatException | FileNotFoundException e) {
+                    e.printStackTrace();
+                    fail("Couldn't parse: " + p.getFileName().toString());
+                    return null;
+                }
+            })
+            .filter(Objects::nonNull)
+            .map((b) -> {
                 try {
                     return documentService.generateERezeptPdf(Arrays.asList(b));
                 } catch (FOPException | IOException | TransformerException e) {
@@ -254,8 +252,8 @@ public class DocumentServiceTest {
                     return null;
                 }
             }).collect(Collectors.toList());
-        for(int i = 0;i<pdfStreams.size();i++) {
-            Files.write(Paths.get(TARGET_PATH + prefix+ "_" +i + ".pdf"), pdfStreams.get(i).toByteArray());
+        for (int i = 0; i < pdfStreams.size(); i++) {
+            Files.write(Paths.get(TARGET_PATH + prefix + "_" + i + ".pdf"), pdfStreams.get(i).toByteArray());
         }
     }
 
