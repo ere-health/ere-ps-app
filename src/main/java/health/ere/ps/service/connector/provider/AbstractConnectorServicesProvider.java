@@ -15,6 +15,7 @@ import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServiceV740;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServiceV755;
 import de.gematik.ws.conn.vsds.vsdservice.v5.VSDService;
 import de.gematik.ws.conn.vsds.vsdservice.v5.VSDServicePortType;
+import de.health.service.cetp.config.KonnektorAuth;
 import de.health.service.config.api.IUserConfigurations;
 import de.health.service.config.api.UserRuntimeConfig;
 import health.ere.ps.config.interceptor.ProvidedConfig;
@@ -232,6 +233,7 @@ public abstract class AbstractConnectorServicesProvider {
         String basicAuthUsername = userConfigurations.getBasicAuthUsername();
         String basicAuthPassword = userConfigurations.getBasicAuthPassword();
 
+        // TODO userConfigurations.getKonnektorAuth() == BASIC
         if (basicAuthUsername != null && !basicAuthUsername.isEmpty()) {
             bindingProvider.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, basicAuthUsername);
             bindingProvider.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, basicAuthPassword);

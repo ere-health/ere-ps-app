@@ -18,7 +18,6 @@ import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -50,52 +49,54 @@ public class RegisterSMCBJob {
 
     List<CardlinkWebsocketClient> cardlinkWebsocketClients = new ArrayList<>();
 
-    // Make sure subscription manager calls onStart first, before RegisterSMCBJob at least!
+    // Make sure the subscription manager calls onStart first, before RegisterSMCBJob at least!
     void onStart(@Observes @Priority(5300) StartupEvent ev) {
         LOGGER_I18N.setLevel(Level.SEVERE);
         LOGGER_WS.setLevel(Level.WARNING);
-        
+
         log.info("RegisterSMCBJob init onStart");
         initWSClients();
     }
 
     void initWSClients() {
-        Collection<KonnektorConfig> konnektorConfigs = subscriptionManager.getKonnektorConfigs(null, null);
+        if (konnektorClient.isInitialized()) {
+            Collection<KonnektorConfig> konnektorConfigs = subscriptionManager.getKonnektorConfigs(null, null);
 
-        SubscriptionsMXBeanImpl subscriptionsMXBean = new SubscriptionsMXBeanImpl(konnektorConfigs.size());
-        registerMXBean(SubscriptionsMXBean.OBJECT_NAME, subscriptionsMXBean);
+            SubscriptionsMXBeanImpl subscriptionsMXBean = new SubscriptionsMXBeanImpl(konnektorConfigs.size());
+            registerMXBean(SubscriptionsMXBean.OBJECT_NAME, subscriptionsMXBean);
 
-        cardlinkWebsocketClients = new ArrayList<>();
-        konnektorConfigs.forEach(kc -> {
+            cardlinkWebsocketClients = new ArrayList<>();
+            konnektorConfigs.forEach(kc -> {
 
-            List<Card> cards;
-            try {
-                cards = konnektorClient.getCards(new RuntimeConfig(kc.getUserConfigurations()), CardType.SMC_B);
-            } catch (Exception e) {
-                log.log(Level.WARNING, "Could not read SMC-Bs", e);
-                cards=Arrays.asList(new Card());
-            }
-            for(Card card : cards) {
-                log.info("Creating Websockets for SMC-B: " + card.getCardHandle());
-                RuntimeConfig userRuntimeConfig = new RuntimeConfig(kc.getUserConfigurations());
-                userRuntimeConfig.setSMCBHandle(card.getCardHandle());
-                cardlinkWebsocketClients.add(
-                    new CardlinkWebsocketClient(
-                        kc.getCardlinkEndpoint(),
-                        new EreJwtConfigurator(
-                            userRuntimeConfig,
-                            konnektorClient,
-                            bearerTokenService,
-                            (e) -> {
-                                log.info("Reloading websocket clients due to exception");
-                                initWSClients();
-                            }
+                List<Card> cards;
+                try {
+                    cards = konnektorClient.getCards(new RuntimeConfig(kc.getUserConfigurations()), CardType.SMC_B);
+                } catch (Exception e) {
+                    log.log(Level.WARNING, "Could not read SMC-Bs", e);
+                    cards = List.of(new Card());
+                }
+                for (Card card : cards) {
+                    log.info("Creating Websockets for SMC-B: " + card.getCardHandle());
+                    RuntimeConfig userRuntimeConfig = new RuntimeConfig(kc.getUserConfigurations());
+                    userRuntimeConfig.setSMCBHandle(card.getCardHandle());
+                    cardlinkWebsocketClients.add(
+                        new CardlinkWebsocketClient(
+                            kc.getCardlinkEndpoint(),
+                            new EreJwtConfigurator(
+                                userRuntimeConfig,
+                                konnektorClient,
+                                bearerTokenService,
+                                (e) -> {
+                                    log.info("Reloading websocket clients due to exception");
+                                    initWSClients();
+                                }
+                            )
                         )
-                    )
-                );
-            }
+                    );
+                }
 
-        });
+            });
+        }
     }
 
     @Scheduled(
@@ -104,22 +105,24 @@ public class RegisterSMCBJob {
         concurrentExecution = Scheduled.ConcurrentExecution.SKIP
     )
     void registerSmcbMaintenance() {
-        String correlationId = UUID.randomUUID().toString();
-        log.fine(String.format("RegisterSMCBJob started with %s", correlationId));
-        // reload cardlink configs if necessary, or all 100 tries
-        if (cardlinkWebsocketClients.isEmpty() || counter % 100 == 99) {
-            initWSClients();
-        }
-        cardlinkWebsocketClients.forEach(client -> {
-            try {
-                client.connect();
-                client.sendJson(correlationId, null, "registerSMCB", Map.of());
-            } catch (Exception e) {
-                log.log(Level.SEVERE, "Error while sending registerSMCB", e);
-            } finally {
-                client.close();
+        if (konnektorClient.isInitialized()) {
+            String correlationId = UUID.randomUUID().toString();
+            log.fine(String.format("RegisterSMCBJob started with %s", correlationId));
+            // reload cardlink configs if necessary, or all 100 tries
+            if (cardlinkWebsocketClients.isEmpty() || counter % 100 == 99) {
+                initWSClients();
             }
-        });
-        counter++;
+            cardlinkWebsocketClients.forEach(client -> {
+                try {
+                    client.connect();
+                    client.sendJson(correlationId, null, "registerSMCB", Map.of());
+                } catch (Exception e) {
+                    log.log(Level.SEVERE, "Error while sending registerSMCB", e);
+                } finally {
+                    client.close();
+                }
+            });
+            counter++;
+        }
     }
 }

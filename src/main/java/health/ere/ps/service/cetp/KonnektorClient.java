@@ -10,9 +10,11 @@ import de.gematik.ws.conn.eventservice.v7.SubscriptionRenewal;
 import de.gematik.ws.conn.eventservice.v7.SubscriptionType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
+import de.health.service.cetp.CertificateInfo;
 import de.health.service.cetp.IKonnektorClient;
 import de.health.service.cetp.domain.CetpStatus;
 import de.health.service.cetp.domain.SubscriptionResult;
+import de.health.service.cetp.domain.cardterminal.EgkHandle;
 import de.health.service.cetp.domain.eventservice.Subscription;
 import de.health.service.cetp.domain.eventservice.card.Card;
 import de.health.service.cetp.domain.eventservice.card.CardType;
@@ -30,6 +32,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.xml.ws.Holder;
 import org.apache.commons.lang3.NotImplementedException;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.security.cert.X509Certificate;
@@ -43,28 +46,43 @@ public class KonnektorClient implements IKonnektorClient {
 
     private final Object emptyInput = new Object();
 
-    @Inject
-    MultiConnectorServicesProvider connectorServicesProvider;
+    private final MultiConnectorServicesProvider servicePortProvider;
+    private final SubscriptionResultMapper subscriptionResultMapper;
+    private final CardsResponseMapper cardsResponseMapper;
+    private final SubscriptionMapper subscriptionMapper;
+    private final CardTypeMapper cardTypeMapper;
+    private final StatusMapper statusMapper;
 
     @Inject
-    SubscriptionResultMapper subscriptionResultMapper;
+    public KonnektorClient(
+        MultiConnectorServicesProvider servicePortProvider,
+        SubscriptionResultMapper subscriptionResultMapper,
+        SubscriptionMapper subscriptionMapper,
+        CardsResponseMapper cardsResponseMapper,
+        CardTypeMapper cardTypeMapper,
+        StatusMapper statusMapper
+    ) {
+        this.servicePortProvider = servicePortProvider;
+        this.subscriptionResultMapper = subscriptionResultMapper;
+        this.subscriptionMapper = subscriptionMapper;
+        this.cardsResponseMapper = cardsResponseMapper;
+        this.cardTypeMapper = cardTypeMapper;
+        this.statusMapper = statusMapper;
+    }
 
-    @Inject
-    SubscriptionMapper subscriptionMapper;
+    @Override
+    public boolean isReady() {
+        return true;
+    }
 
-    @Inject
-    CardsResponseMapper cardsResponseMapper;
-    
-    @Inject
-    CardTypeMapper cardTypeMapper;
-
-    @Inject
-    StatusMapper statusMapper;
+    public boolean isInitialized() {
+        return servicePortProvider.isInitialized();
+    }
 
     @Override
     public List<Subscription> getSubscriptions(UserRuntimeConfig runtimeConfig) throws CetpFault {
-        ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
-        EventServicePortType eventService = connectorServicesProvider.getEventServicePortType(runtimeConfig);
+        ContextType context = servicePortProvider.getContextType(runtimeConfig);
+        EventServicePortType eventService = servicePortProvider.getEventServicePortType(runtimeConfig);
         GetSubscription getSubscriptionRequest = new GetSubscription();
         getSubscriptionRequest.setContext(context);
         getSubscriptionRequest.setMandantWide(false);
@@ -80,8 +98,8 @@ public class KonnektorClient implements IKonnektorClient {
 
     @Override
     public SubscriptionResult renewSubscription(UserRuntimeConfig runtimeConfig, String subscriptionId) throws CetpFault {
-        ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
-        EventServicePortType eventService = connectorServicesProvider.getEventServicePortType(runtimeConfig);
+        ContextType context = servicePortProvider.getContextType(runtimeConfig);
+        EventServicePortType eventService = servicePortProvider.getEventServicePortType(runtimeConfig);
 
         Holder<Status> statusHolder = new Holder<>();
         Holder<RenewSubscriptionsResponse.SubscribeRenewals> renewalHolder = new Holder<>();
@@ -97,9 +115,9 @@ public class KonnektorClient implements IKonnektorClient {
 
     @Override
     public SubscriptionResult subscribe(UserRuntimeConfig runtimeConfig, String cetpHost) throws CetpFault {
-        ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
+        ContextType context = servicePortProvider.getContextType(runtimeConfig);
 
-        EventServicePortType eventService = connectorServicesProvider.getEventServicePortType(runtimeConfig);
+        EventServicePortType eventService = servicePortProvider.getEventServicePortType(runtimeConfig);
         SubscriptionType subscriptionType = new SubscriptionType();
 
         subscriptionType.setEventTo(cetpHost);
@@ -122,8 +140,8 @@ public class KonnektorClient implements IKonnektorClient {
         String cetpHost,
         boolean forceCetp
     ) throws CetpFault {
-        ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
-        EventServicePortType eventService = connectorServicesProvider.getEventServicePortType(runtimeConfig);
+        ContextType context = servicePortProvider.getContextType(runtimeConfig);
+        EventServicePortType eventService = servicePortProvider.getEventServicePortType(runtimeConfig);
         try {
             if (forceCetp) {
                 return statusMapper.toDomain(eventService.unsubscribe(context, null, cetpHost));
@@ -142,8 +160,8 @@ public class KonnektorClient implements IKonnektorClient {
 
     @Override
     public List<Card> getCards(UserRuntimeConfig runtimeConfig, CardType cardType) throws CetpFault {
-        ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
-        EventServicePortType eventService = connectorServicesProvider.getEventServicePortType(runtimeConfig);
+        ContextType context = servicePortProvider.getContextType(runtimeConfig);
+        EventServicePortType eventService = servicePortProvider.getEventServicePortType(runtimeConfig);
         GetCards parameter = new GetCards();
         parameter.setContext(context);
         parameter.setCardType(cardTypeMapper.toSoap(cardType));
@@ -160,12 +178,12 @@ public class KonnektorClient implements IKonnektorClient {
         throw new NotImplementedException("Not implemented");
     }
 
-    public String getEgkHandle(UserRuntimeConfig userRuntimeConfig, String insurantId) throws CetpFault {
+    public EgkHandle getEgkHandle(UserRuntimeConfig userRuntimeConfig, String insurantId) throws CetpFault {
         throw new NotImplementedException("Not implemented");
     }
 
     @Override
-    public X509Certificate getSmcbX509Certificate(UserRuntimeConfig userRuntimeConfig, String smcbHandle) throws CetpFault {
+    public CertificateInfo getSmcbX509Certificate(UserRuntimeConfig userRuntimeConfig, String smcbHandle) throws CetpFault {
         throw new NotImplementedException("Not implemented");
     }
 
@@ -181,6 +199,21 @@ public class KonnektorClient implements IKonnektorClient {
 
     @Override
     public String getKvnr(UserRuntimeConfig userRuntimeConfig, String egkHandle) throws CetpFault {
+        throw new NotImplementedException("Not implemented");
+    }
+
+    @Override
+    public X509Certificate getHbaX509Certificate(UserRuntimeConfig userRuntimeConfig, String hbaHandle) {
+        throw new NotImplementedException("Not implemented");
+    }
+
+    @Override
+    public Pair<Boolean, String> ejectEgkCard(UserRuntimeConfig userRuntimeConfig, EgkHandle egkHandle, String timeout) {
+        throw new NotImplementedException("Not implemented");
+    }
+
+    @Override
+    public String requestEgkCard(UserRuntimeConfig userRuntimeConfig, EgkHandle egkHandle, String timeout) {
         throw new NotImplementedException("Not implemented");
     }
 }

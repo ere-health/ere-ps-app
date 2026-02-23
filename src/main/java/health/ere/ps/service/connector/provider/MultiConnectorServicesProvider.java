@@ -8,6 +8,8 @@ import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV740;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
 import de.gematik.ws.conn.vsds.vsdservice.v5.VSDServicePortType;
+import de.health.service.cetp.SubscriptionManager;
+import de.health.service.cetp.config.KonnektorConfig;
 import de.health.service.config.api.UserRuntimeConfig;
 import health.ere.ps.config.SimpleUserConfig;
 import health.ere.ps.config.UserConfig;
@@ -15,6 +17,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +27,9 @@ import java.util.logging.Logger;
 public class MultiConnectorServicesProvider {
 
     private static final Logger log = Logger.getLogger(MultiConnectorServicesProvider.class.getName());
+
+    @Inject
+    SubscriptionManager subscriptionManager;
 
     @Inject
     DefaultConnectorServicesProvider defaultConnectorServicesProvider;
@@ -50,6 +56,14 @@ public class MultiConnectorServicesProvider {
             }
             return singleConnectorServicesProvider.get(simpleUserConfig);
         }
+    }
+
+    public boolean isInitialized() {
+        Collection<KonnektorConfig> konnektorConfigs = subscriptionManager.getKonnektorConfigs(null, null);
+        Collection<SingleConnectorServicesProvider> providers = singleConnectorServicesProvider.values();
+        int configsSize = konnektorConfigs.size();
+        int providersSize = providers.size();
+        return configsSize == providersSize && providers.stream().allMatch(SingleConnectorServicesProvider::isInitialized);
     }
 
     public CardServicePortType getCardServicePortType(UserRuntimeConfig userConfig) {

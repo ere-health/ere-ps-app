@@ -31,22 +31,23 @@ import kotlin.coroutines.intrinsics.IntrinsicsKt;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @ApplicationScoped
-public class KonnektorClient implements ConnectorApi, IKonnektorClient {
+public class EgkClient implements ConnectorApi, IEgkClient {
 
-    private static final Logger log = Logger.getLogger(KonnektorClient.class.getName());
+    private static final Logger log = Logger.getLogger(EgkClient.class.getName());
 
     private final SmcbAuthenticatorService smcbAuthenticatorService;
     private final CardCertificateReaderService cardCertificateReaderService;
     private final MultiConnectorServicesProvider servicePortProvider;
 
-    private final ThreadLocal<RuntimeConfig> runtimeConfigThreaded = new ThreadLocal<>();
+    private final ConcurrentHashMap<String, RuntimeConfig> configMap = new ConcurrentHashMap<>();
 
     @Inject
-    public KonnektorClient(
+    public EgkClient(
         SmcbAuthenticatorService smcbAuthenticatorService,
         CardCertificateReaderService cardCertificateReaderService,
         MultiConnectorServicesProvider servicePortProvider
@@ -57,11 +58,11 @@ public class KonnektorClient implements ConnectorApi, IKonnektorClient {
     }
 
     public void registerRuntimeConfig(RuntimeConfig runtimeConfig) {
-        this.runtimeConfigThreaded.set(runtimeConfig);
+        configMap.putIfAbsent(Thread.currentThread().getName(), runtimeConfig);
     }
 
-    public void unregisterRuntimeConfig() {
-        this.runtimeConfigThreaded.remove();
+    public void unregisterRuntimeConfig(String threadName) {
+        configMap.remove(threadName);
     }
 
     @Override
@@ -74,7 +75,7 @@ public class KonnektorClient implements ConnectorApi, IKonnektorClient {
         @NotNull Continuation<? super ReadCardCertificateResponse> continuation
     ) {
         try {
-            RuntimeConfig runtimeConfig = runtimeConfigThreaded.get();
+            RuntimeConfig runtimeConfig = configMap.get(Thread.currentThread().getName());
             de.gematik.ws.conn.certificateservice.v6.ReadCardCertificateResponse readCardCertificateResponse;
             readCardCertificateResponse = cardCertificateReaderService.doReadCardCertificate(
                 runtimeConfig.getSMCBHandle(), runtimeConfig
@@ -98,7 +99,7 @@ public class KonnektorClient implements ConnectorApi, IKonnektorClient {
         @NotNull String base64Challenge,
         @NotNull Continuation<? super ExternalAuthenticateResponse> continuation
     ) {
-        RuntimeConfig runtimeConfig = runtimeConfigThreaded.get();
+        RuntimeConfig runtimeConfig = configMap.get(Thread.currentThread().getName());
         String smcbHandle = runtimeConfig.getSMCBHandle();
         byte[] sha265Hash = EncodingUtils.base64DecodeWithAbsentPadding(base64Challenge);
         try {
@@ -112,15 +113,13 @@ public class KonnektorClient implements ConnectorApi, IKonnektorClient {
             CoroutineInterop.resumeOk(continuation, resp);
         } catch (Throwable t) {
             CoroutineInterop.resumeErr(continuation, t);
-        } finally {
-            runtimeConfigThreaded.remove();
         }
         return IntrinsicsKt.getCOROUTINE_SUSPENDED();
     }
 
     @Override
     public String getConnectedEgkCard() {
-        RuntimeConfig runtimeConfig = runtimeConfigThreaded.get();
+        RuntimeConfig runtimeConfig = configMap.get(Thread.currentThread().getName());
         GetCards parameter = new GetCards();
         parameter.setContext(servicePortProvider.getContextType(runtimeConfig));
         parameter.setCardType(CardTypeType.EGK);
@@ -140,7 +139,7 @@ public class KonnektorClient implements ConnectorApi, IKonnektorClient {
 
     @Override
     public String startCardSession(String cardHandle) {
-        RuntimeConfig runtimeConfig = runtimeConfigThreaded.get();
+        RuntimeConfig runtimeConfig = configMap.get(Thread.currentThread().getName());
         CardServicePortType cardService = servicePortProvider.getCardServicePortType(runtimeConfig);
         StartCardSession startCardSession = new StartCardSession();
         startCardSession.setCardHandle(cardHandle);
@@ -157,7 +156,7 @@ public class KonnektorClient implements ConnectorApi, IKonnektorClient {
 
     @Override
     public void stopCardSession(String sessionId) {
-        RuntimeConfig runtimeConfig = runtimeConfigThreaded.get();
+        RuntimeConfig runtimeConfig = configMap.get(Thread.currentThread().getName());
         log.info("Stopping card session: %s".formatted(sessionId));
         StopCardSession stopCardSessionRequest = new StopCardSession();
         stopCardSessionRequest.setSessionId(sessionId);
@@ -171,7 +170,7 @@ public class KonnektorClient implements ConnectorApi, IKonnektorClient {
 
     @Override
     public List<String> secureSendApdu(String signedScenario) {
-        RuntimeConfig runtimeConfig = runtimeConfigThreaded.get();
+        RuntimeConfig runtimeConfig = configMap.get(Thread.currentThread().getName());
         SecureSendAPDU secureSendAPDU = new SecureSendAPDU();
         secureSendAPDU.setSignedScenario(signedScenario);
 

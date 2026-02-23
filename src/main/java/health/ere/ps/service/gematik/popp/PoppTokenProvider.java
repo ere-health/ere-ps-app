@@ -20,15 +20,15 @@ public class PoppTokenProvider {
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    private final IKonnektorClient konnektorClient;
+    private final IEgkClient egkClient;
 
-    public PoppTokenProvider(IKonnektorClient konnektorClient) {
-        this.konnektorClient = konnektorClient;
+    public PoppTokenProvider(IEgkClient egkClient) {
+        this.egkClient = egkClient;
     }
 
     private String start(WsClientExtension.WsSession session) throws JsonProcessingException {
-        String egkCard = konnektorClient.getConnectedEgkCard();
-        String sessionId = konnektorClient.startCardSession(egkCard);
+        String egkCard = egkClient.getConnectedEgkCard();
+        String sessionId = egkClient.startCardSession(egkCard);
 
         StartMessage startMessage = StartMessage.builder()
             .version("1.0")
@@ -49,14 +49,14 @@ public class PoppTokenProvider {
             switch (poppMessage) {
                 case final ConnectorScenarioMessage connectorScenarioMessage -> {
                     final var signedScenario = connectorScenarioMessage.getSignedScenario();
-                    final var responses = konnektorClient.secureSendApdu(signedScenario);
+                    final var responses = egkClient.secureSendApdu(signedScenario);
                     ScenarioResponseMessage responseMessage = new ScenarioResponseMessage(responses);
                     String textFrame = mapper.writeValueAsString(responseMessage);
                     log.info("SENT text frame:\n" + textFrame);
                     session.sendText(textFrame);
                 }
                 case final TokenMessage tokenMessage -> {
-                    konnektorClient.stopCardSession(sessionId);
+                    egkClient.stopCardSession(sessionId);
                     return tokenMessage.getToken();
                 }
                 case final ErrorMessage errorMessage -> {

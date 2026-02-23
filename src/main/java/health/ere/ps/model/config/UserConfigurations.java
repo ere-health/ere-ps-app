@@ -1,10 +1,12 @@
 package health.ere.ps.model.config;
 
+import de.health.service.cetp.config.KonnektorAuth;
 import de.health.service.config.api.IUserConfigurations;
 import jakarta.json.JsonObject;
 import jakarta.json.bind.annotation.JsonbNillable;
 import jakarta.json.bind.annotation.JsonbProperty;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.Data;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -17,6 +19,9 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static de.health.service.cetp.config.KonnektorAuth.CERTIFICATE;
+
+@Data
 public class UserConfigurations implements IUserConfigurations {
 
     private static final Logger log = Logger.getLogger(UserConfigurations.class.getName());
@@ -73,6 +78,10 @@ public class UserConfigurations implements IUserConfigurations {
     @JsonbNillable
     private String tvMode;
 
+    @JsonbProperty(value = "connector.default.auth")
+    @JsonbNillable
+    String auth;
+    
     @JsonbProperty(value = "connector.client-certificate")
     @JsonbNillable
     private String clientCertificate;
@@ -159,148 +168,13 @@ public class UserConfigurations implements IUserConfigurations {
         return properties;
     }
 
-    public String getErixaHotfolder() {
-        return erixaHotfolder;
-    }
-
-    public void setErixaHotfolder(String erixaHotfolder) {
-        this.erixaHotfolder = erixaHotfolder;
-    }
-
-    public String getErixaDrugstoreEmail() {
-        return erixaDrugstoreEmail;
-    }
-
-    public void setErixaDrugstoreEmail(String erixaDrugstoreEmail) {
-        this.erixaDrugstoreEmail = erixaDrugstoreEmail;
-    }
-
-    public String getErixaUserEmail() {
-        return erixaUserEmail;
-    }
-
-    public void setErixaUserEmail(String erixaUserEmail) {
-        this.erixaUserEmail = erixaUserEmail;
-    }
-
-    public String getErixaUserPassword() {
-        return erixaUserPassword;
-    }
-
-    public void setErixaUserPassword(String erixaUserPassword) {
-        this.erixaUserPassword = erixaUserPassword;
-    }
-
-    public String getMuster16TemplateProfile() {
-        return muster16TemplateProfile;
-    }
-
-    public void setMuster16TemplateProfile(String muster16TemplateProfile) {
-        this.muster16TemplateProfile = muster16TemplateProfile;
-    }
-
-    public String getConnectorBaseURL() {
-        return connectorBaseURL;
-    }
-
-    public void setConnectorBaseURL(String connectorBaseURL) {
-        this.connectorBaseURL = connectorBaseURL;
-    }
-
-    public String getMandantId() {
-        return mandantId;
-    }
-
-    public void setMandantId(String mandantId) {
-        this.mandantId = mandantId;
-    }
-
-    public String getWorkplaceId() {
-        return workplaceId;
-    }
-
-    public void setWorkplaceId(String workplaceId) {
-        this.workplaceId = workplaceId;
-    }
-
-    public String getClientSystemId() {
-        return clientSystemId;
-    }
-
-    public void setClientSystemId(String clientSystemId) {
-        this.clientSystemId = clientSystemId;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public String getTvMode() {
-        return tvMode;
-    }
-
-    public void setTvMode(String tvMode) {
-        this.tvMode = tvMode;
-    }
-
-    public String getClientCertificate() {
-        return this.clientCertificate;
-    }
-
-    public void setClientCertificate(String clientCertificate) {
-        this.clientCertificate = clientCertificate;
-    }
-
-    public String getClientCertificatePassword() {
-        return this.clientCertificatePassword;
-    }
-
-    public void setClientCertificatePassword(String clientCertificatePassword) {
-        this.clientCertificatePassword = clientCertificatePassword;
-    }
-
-    public String getBasicAuthUsername() {
-        return this.basicAuthUsername;
-    }
-
-    public void setBasicAuthUsername(String basicAuthUsername) {
-        this.basicAuthUsername = basicAuthUsername;
-    }
-
-    public String getBasicAuthPassword() {
-        return this.basicAuthPassword;
-    }
-
-    public void setBasicAuthPassword(String basicAuthPassword) {
-        this.basicAuthPassword = basicAuthPassword;
-    }
-
-    public String getVersion() {
-        return this.version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    public String getErixaApiKey() {
-        return this.erixaApiKey;
-    }
-
-    public void setErixaApiKey(String erixaApiKey) {
-        this.erixaApiKey = erixaApiKey;
-    }
-
-    public String getPruefnummer() {
-        return this.pruefnummer;
-    }
-
-    public void setPruefnummer(String pruefnummer) {
-        this.pruefnummer = pruefnummer;
+    @Override
+    public KonnektorAuth getKonnektorAuth() {
+        try {
+            return KonnektorAuth.from(getAuth());
+        } catch (Exception e) {
+            return CERTIFICATE;
+        }
     }
 
     @Override

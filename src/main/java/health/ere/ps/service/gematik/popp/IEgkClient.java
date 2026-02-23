@@ -2,7 +2,7 @@ package health.ere.ps.service.gematik.popp;
 
 import java.util.List;
 
-public interface IKonnektorClient {
+public interface IEgkClient {
 
     String getConnectedEgkCard();
 

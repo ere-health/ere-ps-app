@@ -35,6 +35,8 @@ import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static de.health.service.cetp.config.KonnektorAuth.BASIC;
+
 @ApplicationScoped
 public class SecretsManagerService implements ISecretsManager {
 
@@ -174,7 +176,7 @@ public class SecretsManagerService implements ISecretsManager {
     public KeyManagerFactory getKeyManagerFactory(KonnektorConfig config) {
         IUserConfigurations userConfigurations = config.getUserConfigurations();
         String clientCertificate = userConfigurations.getClientCertificate();
-        if (clientCertificate == null) {
+        if (userConfigurations.getKonnektorAuth() == BASIC || clientCertificate == null) {
             return keyManagerFactory;
         } else {
             byte[] clientCertificateBytes = getClientCertificateBytes(clientCertificate);

@@ -1,8 +1,8 @@
 package health.ere.ps.resource.status;
 
+import de.health.service.check.HealthChecker;
+import de.health.service.check.HealthInfo;
 import health.ere.ps.config.RuntimeConfig;
-import health.ere.ps.service.health.HealthChecker;
-import health.ere.ps.service.health.HealthInfo;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.GET;

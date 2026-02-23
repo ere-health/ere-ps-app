@@ -4,8 +4,10 @@ import de.gematik.zeta.sdk.BuildConfig;
 import de.gematik.zeta.sdk.StorageConfig;
 import de.gematik.zeta.sdk.TpmConfig;
 import de.gematik.zeta.sdk.WsClientExtension;
+import de.gematik.zeta.sdk.ZetaSdk;
 import de.gematik.zeta.sdk.ZetaSdkClient;
-import de.gematik.zeta.sdk.attestation.model.ClientSelfAssessment;
+import de.gematik.zeta.sdk.ZetaSdkClientExtension;
+import de.gematik.zeta.sdk.attestation.model.AttestationConfig;
 import de.gematik.zeta.sdk.attestation.model.PlatformProductId;
 import de.gematik.zeta.sdk.authentication.AuthConfig;
 import de.gematik.zeta.sdk.authentication.smcb.SmcbTokenProvider;
@@ -13,7 +15,6 @@ import de.gematik.zeta.sdk.network.http.client.ZetaHttpClientBuilder;
 import de.gematik.zeta.sdk.storage.InMemoryStorage;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.RuntimeConfig;
-import health.ere.ps.zeta.ZetaEreSdk;
 import io.ktor.client.plugins.logging.LogLevel;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -33,16 +34,16 @@ public class PoppClient {
     private static final Logger log = Logger.getLogger(PoppClient.class.getName());
 
     private final String poppServerUrl;
-    private final KonnektorClient konnektorClient;
+    private final EgkClient konnektorClient;
     private ZetaSdkClient sdkClient;
 
     @Inject
-    public PoppClient(AppConfig appConfig, KonnektorClient konnektorClient) {
+    public PoppClient(AppConfig appConfig, EgkClient konnektorClient) {
         this.konnektorClient = konnektorClient;
         this.poppServerUrl = appConfig.getPoppServerUrl();
 
         if (appConfig.isZetaEnabled()) {
-            sdkClient = ZetaEreSdk.INSTANCE.build(
+            sdkClient = ZetaSdk.INSTANCE.build(
                 appConfig.getZetaAuthServerUrl(),
                 new BuildConfig(
                     appConfig.getZetaProductId(),
@@ -58,17 +59,10 @@ public class PoppClient {
                         new SmcbTokenProvider(
                             new SmcbTokenProvider.ConnectorConfig("", "", "", "", "", ""),
                             konnektorClient
-                        )
+                        ),
+                        AttestationConfig.software()
                     ),
-                    new ClientSelfAssessment(
-                        appConfig.getZetaAssessmentName(),
-                        appConfig.getZetaAssessmentClientId(),
-                        appConfig.getZetaAssessmentManufacturerId(),
-                        appConfig.getZetaAssessmentManufacturerName(),
-                        appConfig.getZetaAssessmentOwnerMail(),
-                        0,
-                        new PlatformProductId.AppleProductId("apple", "macos", List.of("bundleX"))
-                    ),
+                    new PlatformProductId.AppleProductId("apple", "macos", List.of("bundleX")),
                     new ZetaHttpClientBuilder("").disableServerValidation(true).logging(LogLevel.ALL, System.out::println),
                     null,
                     null
@@ -108,7 +102,7 @@ public class PoppClient {
                             PoppTokenProvider poppTokenProvider = new PoppTokenProvider(konnektorClient);
                             tokenHolder.value = poppTokenProvider.acquireToken(session, host);
                         } catch (Exception e) {
-                            ZetaEreSdk.clear();
+                            ZetaSdkClientExtension.forget();
                             log.log(Level.SEVERE, "Get popp-token error", e);
                         } finally {
                             session.close();
@@ -119,7 +113,7 @@ public class PoppClient {
             }
             return tokenHolder.value;
         } finally {
-            konnektorClient.unregisterRuntimeConfig();
+            konnektorClient.unregisterRuntimeConfig(Thread.currentThread().getName());
         }
     }
 }

@@ -230,7 +230,7 @@
         <dependency>
             <groupId>de.servicehealth</groupId>
             <artifactId>lib-cetp</artifactId>
-            <version>2025-02-13</version>
+            <version>2026-02-16</version>
         </dependency>
         <dependency>
             <groupId>org.mapstruct</groupId>
@@ -359,7 +359,7 @@
         <dependency>
             <groupId>de.gematik.zeta</groupId>
             <artifactId>zeta-sdk-jvm</artifactId>
-            <version>0.2.12</version>
+            <version>0.3.1</version>
         </dependency>
 
         <dependency>

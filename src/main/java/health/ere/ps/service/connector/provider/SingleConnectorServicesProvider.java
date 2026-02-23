@@ -81,6 +81,10 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
         initializeServices();
     }
 
+    public boolean isInitialized() {
+        return this.endpointDiscoveryService.isInitialized();
+    }
+
     public static KeyManager getKeyFromKeyStoreUri(String keystoreUri, String keystorePassword) throws URISyntaxException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
         if (keystorePassword == null) {
             keystorePassword = "";
