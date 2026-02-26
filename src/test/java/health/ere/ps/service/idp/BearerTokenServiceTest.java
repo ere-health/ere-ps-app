@@ -41,7 +41,7 @@ class BearerTokenServiceTest {
     @Test
     void testParallelAccess() throws InterruptedException {
         var mockjwt = "this is a jwt";
-        var bearerTokenService = new BearerTokenService(null, null, null, null, null, pool, 5, 6) {
+        var bearerTokenService = new BearerTokenService(null, null, null, null, pool, 5, 6) {
             @Override
             String requestBearerToken(RuntimeConfig runtimeConfig) {
                 return mockjwt;
@@ -80,7 +80,7 @@ class BearerTokenServiceTest {
     @SuppressWarnings("unchecked")
     void testError() {
         Event<Exception> mockEvent = mock(Event.class);
-        var bearerTokenService = new BearerTokenService(null, null, null, null, mockEvent, pool, 4, 5) {
+        var bearerTokenService = new BearerTokenService(null, null, null, mockEvent, pool, 4, 5) {
             @Override
             String requestBearerToken(RuntimeConfig runtimeConfig) {
                 throw new RuntimeException("This Test is supposed to throw an exception");
@@ -111,7 +111,7 @@ class BearerTokenServiceTest {
         when(idpClient.login(any(), any())).thenReturn(idpTokenResult);
 
         var counter = new AtomicInteger();
-        var bearerTokenService = new BearerTokenService(null, idpClient, cardCertificateReaderService, connectorCardsService, mockEvent, pool, 60, 70) {
+        var bearerTokenService = new BearerTokenService(idpClient, cardCertificateReaderService, connectorCardsService, mockEvent, pool, 60, 70) {
             @Override
             void evictCacheEntryAt(RuntimeConfig runtimeConfig, ZonedDateTime targetTime) {
                 counter.incrementAndGet();

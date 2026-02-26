@@ -55,7 +55,7 @@ public class PharmacyResource {
         RuntimeConfig runtimeConfig = extractRuntimeConfigFromHeaders(httpServletRequest, userConfig);
         return subscriptionManager.manage(runtimeConfig, host, null, httpServletRequest.getServerName(), forceCetp, false);
     }
- 
+
     @GET
     @Path("Task")
     public Bundle task(@QueryParam("egkHandle") String egkHandle, @QueryParam("smcbHandle") String smcbHandle) throws FaultMessage, de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
@@ -67,8 +67,9 @@ public class PharmacyResource {
 
     @GET
     @Path("Accept")
-    public Bundle ePrescription(@QueryParam("token") String token) throws FaultMessage, de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
+    public Bundle ePrescription(@QueryParam("egkHandle") String egkHandle, @QueryParam("token") String token) {
         String correlationId = UUID.randomUUID().toString();
-        return pharmacyService.accept(correlationId, token, extractRuntimeConfigFromHeaders(httpServletRequest, userConfig));
+        RuntimeConfig runtimeConfig = extractRuntimeConfigFromHeaders(httpServletRequest, userConfig);
+        return pharmacyService.accept(correlationId, token, egkHandle, runtimeConfig);
     }
 }

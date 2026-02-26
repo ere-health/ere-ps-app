@@ -1,5 +1,7 @@
 package health.ere.ps.model.config;
 
+import de.health.service.cetp.beaninfo.BeanInfoHelper;
+import de.health.service.cetp.beaninfo.Synthetic;
 import de.health.service.cetp.config.KonnektorAuth;
 import de.health.service.config.api.IUserConfigurations;
 import jakarta.json.JsonObject;
@@ -8,18 +10,13 @@ import jakarta.json.bind.annotation.JsonbProperty;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Data;
 
-import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Method;
+import java.lang.reflect.Field;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static de.health.service.cetp.config.KonnektorAuth.CERTIFICATE;
 
 @Data
 public class UserConfigurations implements IUserConfigurations {
@@ -81,7 +78,7 @@ public class UserConfigurations implements IUserConfigurations {
     @JsonbProperty(value = "connector.default.auth")
     @JsonbNillable
     String auth;
-    
+
     @JsonbProperty(value = "connector.client-certificate")
     @JsonbNillable
     private String clientCertificate;
@@ -102,11 +99,11 @@ public class UserConfigurations implements IUserConfigurations {
     @JsonbNillable
     private String pruefnummer;
 
-    static BeanInfo beanInfo;
+    static BeanInfoHelper beanInfoHelper;
 
     static {
         try {
-            beanInfo = Introspector.getBeanInfo(UserConfigurations.class);
+            beanInfoHelper = new BeanInfoHelper(Introspector.getBeanInfo(UserConfigurations.class));
         } catch (IntrospectionException e) {
             log.log(Level.SEVERE, "Could not process user configurations", e);
         }
@@ -116,13 +113,15 @@ public class UserConfigurations implements IUserConfigurations {
     }
 
     public UserConfigurations(Properties properties) {
-        fillValues(properties::getProperty);
+        beanInfoHelper.fillValues(this, properties::getProperty);
     }
 
     public UserConfigurations(JsonObject jsonObject) {
-        fillValues((s) -> {
+        beanInfoHelper.fillValues(this, (s) -> {
             try {
-                return jsonObject.getString(UserConfigurations.class.getDeclaredField(s).getAnnotation(JsonbProperty.class).value(), null);
+                Field declaredField = UserConfigurations.class.getDeclaredField(s);
+                JsonbProperty annotation = declaredField.getAnnotation(JsonbProperty.class);
+                return jsonObject.getString(annotation.value(), null);
             } catch (NoSuchFieldException | SecurityException e) {
                 log.log(Level.SEVERE, "Could not read property", e);
                 return null;
@@ -134,47 +133,14 @@ public class UserConfigurations implements IUserConfigurations {
         updateWithRequest(httpServletRequest);
     }
 
-    private void fillValues(Function<String, Object> getValue) {
-        for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
-            try {
-                Method writeMethod = pd.getWriteMethod();
-                if (writeMethod != null) {
-                    writeMethod.invoke(this, getValue.apply(pd.getName()));
-                } else {
-                    if (!"class".equals(pd.getName())) {
-                        Method readMethod = pd.getReadMethod();
-                        if (readMethod != null && !readMethod.getDeclaringClass().isInterface()) {
-                            log.warning("No write method for: " + pd.getName());
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                log.log(Level.SEVERE, "Could not process user configurations", e);
-            }
-        }
+    @Override
+    @Synthetic
+    public KonnektorAuth getKonnektorAuth() {
+        return KonnektorAuth.from(getAuth());
     }
 
     public Properties properties() {
-        Properties properties = new Properties();
-        for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
-            try {
-                if (pd.getReadMethod().invoke(this) instanceof String str) {
-                    properties.setProperty(pd.getName(), str);
-                }
-            } catch (Exception e) {
-                log.log(Level.SEVERE, "Could not process user configurations", e);
-            }
-        }
-        return properties;
-    }
-
-    @Override
-    public KonnektorAuth getKonnektorAuth() {
-        try {
-            return KonnektorAuth.from(getAuth());
-        } catch (Exception e) {
-            return CERTIFICATE;
-        }
+        return beanInfoHelper.properties(this);
     }
 
     @Override
@@ -209,32 +175,32 @@ public class UserConfigurations implements IUserConfigurations {
     @Override
     public int hashCode() {
         return Objects.hash(basicAuthPassword, basicAuthUsername, clientCertificate, clientCertificatePassword,
-                clientSystemId, connectorBaseURL, erixaApiKey, erixaDrugstoreEmail, erixaHotfolder, erixaUserEmail,
-                erixaUserPassword, mandantId, muster16TemplateProfile, pruefnummer, tvMode, userId, version,
-                workplaceId);
+            clientSystemId, connectorBaseURL, erixaApiKey, erixaDrugstoreEmail, erixaHotfolder, erixaUserEmail,
+            erixaUserPassword, mandantId, muster16TemplateProfile, pruefnummer, tvMode, userId, version,
+            workplaceId);
     }
 
     @Override
     public String toString() {
         return "UserConfigurations{" +
-               "erixaHotfolder='" + erixaHotfolder + '\'' +
-               ", erixaDrugstoreEmail='" + erixaDrugstoreEmail + '\'' +
-               ", erixaUserEmail='" + erixaUserEmail + '\'' +
-               ", erixaUserPassword='" + erixaUserPassword + '\'' +
-               ", erixaApiKey='" + erixaApiKey + '\'' +
-               ", muster16TemplateProfile='" + muster16TemplateProfile + '\'' +
-               ", connectorBaseURL='" + connectorBaseURL + '\'' +
-               ", mandantId='" + mandantId + '\'' +
-               ", workplaceId='" + workplaceId + '\'' +
-               ", clientSystemId='" + clientSystemId + '\'' +
-               ", userId='" + userId + '\'' +
-               ", version='" + version + '\'' +
-               ", tvMode='" + tvMode + '\'' +
-               ", clientCertificate='" + clientCertificate + '\'' +
-               ", clientCertificatePassword='" + clientCertificatePassword + '\'' +
-               ", basicAuthUsername='" + basicAuthUsername + '\'' +
-               ", basicAuthPassword='" + basicAuthPassword + '\'' +
-               ", pruefnummer='" + pruefnummer + '\'' +
-               '}';
+            "erixaHotfolder='" + erixaHotfolder + '\'' +
+            ", erixaDrugstoreEmail='" + erixaDrugstoreEmail + '\'' +
+            ", erixaUserEmail='" + erixaUserEmail + '\'' +
+            ", erixaUserPassword='" + erixaUserPassword + '\'' +
+            ", erixaApiKey='" + erixaApiKey + '\'' +
+            ", muster16TemplateProfile='" + muster16TemplateProfile + '\'' +
+            ", connectorBaseURL='" + connectorBaseURL + '\'' +
+            ", mandantId='" + mandantId + '\'' +
+            ", workplaceId='" + workplaceId + '\'' +
+            ", clientSystemId='" + clientSystemId + '\'' +
+            ", userId='" + userId + '\'' +
+            ", version='" + version + '\'' +
+            ", tvMode='" + tvMode + '\'' +
+            ", clientCertificate='" + clientCertificate + '\'' +
+            ", clientCertificatePassword='" + clientCertificatePassword + '\'' +
+            ", basicAuthUsername='" + basicAuthUsername + '\'' +
+            ", basicAuthPassword='" + basicAuthPassword + '\'' +
+            ", pruefnummer='" + pruefnummer + '\'' +
+            '}';
     }
 }

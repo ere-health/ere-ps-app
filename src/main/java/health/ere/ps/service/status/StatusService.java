@@ -136,11 +136,10 @@ public class StatusService {
 
         futures.add(scheduledThreadPool.submit(() -> {
             // IdpReachable
-            String discoveryUrl = "Not given";
+            boolean reachable = idpClient.initialize();
+            String discoveryUrl = reachable ? appConfig.getDiscoveryDocumentUrl() : "Not given";
             try {
-                idpClient.initializeClient();
-                discoveryUrl = idpClient.getDiscoveryDocumentUrl();
-                status.setIdpReachable(true, discoveryUrl);
+                status.setIdpReachable(reachable, discoveryUrl);
             } catch (Throwable e) {
                 status.setIdpReachable(false, discoveryUrl + " Exception: " + e.getMessage());
             }

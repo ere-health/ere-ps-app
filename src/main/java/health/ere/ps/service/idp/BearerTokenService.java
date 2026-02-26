@@ -35,11 +35,9 @@ import java.util.logging.Logger;
 import static health.ere.ps.service.connector.cards.ConnectorCardsService.CardHandleType.SMC_B;
 
 @ApplicationScoped
-@Startup
 public class BearerTokenService {
     private static final Logger log = Logger.getLogger(BearerTokenService.class.getName());
 
-    private final AppConfig appConfig;
     private final IdpClient idpClient;
     private final CardCertificateReaderService cardCertificateReaderService;
     private final ConnectorCardsService connectorCardsService;
@@ -50,15 +48,15 @@ public class BearerTokenService {
     private ScheduledExecutorService emergencyExecutor;
 
     @Inject
-    public BearerTokenService(AppConfig appConfig,
-                              IdpClient idpClient,
-                              CardCertificateReaderService cardCertificateReaderService,
-                              ConnectorCardsService connectorCardsService,
-                              Event<Exception> exceptionEvent,
-                              ExecutorService managedExecutor,
-                              @ConfigProperty(name = "BearerTokenService.refreshDurationInSeconds", defaultValue = "240") int refreshDurationInSeconds,
-                              @ConfigProperty(name = "BearerTokenService.expireDurationInSeconds", defaultValue = "290") int expireDurationInSeconds) {
-        this.appConfig = appConfig;
+    public BearerTokenService(
+        IdpClient idpClient,
+        CardCertificateReaderService cardCertificateReaderService,
+        ConnectorCardsService connectorCardsService,
+        Event<Exception> exceptionEvent,
+        ExecutorService managedExecutor,
+        @ConfigProperty(name = "BearerTokenService.refreshDurationInSeconds", defaultValue = "240") int refreshDurationInSeconds,
+        @ConfigProperty(name = "BearerTokenService.expireDurationInSeconds", defaultValue = "290") int expireDurationInSeconds
+    ) {
         this.idpClient = idpClient;
         this.cardCertificateReaderService = cardCertificateReaderService;
         this.connectorCardsService = connectorCardsService;
@@ -68,37 +66,10 @@ public class BearerTokenService {
         if (refreshDurationInSeconds >= expireDurationInSeconds)
             throw new IllegalArgumentException("refreshDurationInSeconds must be less then expireDurationInSeconds");
         tokenCache = Caffeine.newBuilder()
-                .refreshAfterWrite(Duration.ofSeconds(refreshDurationInSeconds))
-                .expireAfterWrite(Duration.ofSeconds(expireDurationInSeconds))
-                .executor(managedExecutor)
-                .build(this::requestBearerToken);
-    }
-
-    @PostConstruct
-    public void init() {
-        Thread thread = new Thread(() -> {
-            List<Integer> retryMillis = appConfig.getIdpInitializationRetriesMillis();
-            int retryPeriodMs = appConfig.getIdpInitializationPeriodMs();
-            boolean initialized = Retrier.callAndRetry(retryMillis, retryPeriodMs, this::initializeIdp, bool -> bool);
-            if (!initialized) {
-                String msg = String.format("Failed to init IDP client within %d seconds", retryPeriodMs / 1000);
-                throw new RuntimeException(msg);
-            }
-        });
-        thread.setDaemon(true);
-        thread.start();
-    }
-
-    private boolean initializeIdp() {
-        String discoveryDocumentUrl = appConfig.getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
-        try {
-            idpClient.init(appConfig.getIdpClientId(), appConfig.getIdpAuthRequestRedirectURL(), discoveryDocumentUrl, true);
-            idpClient.initializeClient();
-            return true;
-        } catch (Exception e) {
-            log.log(Level.WARNING, "IDP client initialization error: ", e);
-            return false;
-        }
+            .refreshAfterWrite(Duration.ofSeconds(refreshDurationInSeconds))
+            .expireAfterWrite(Duration.ofSeconds(expireDurationInSeconds))
+            .executor(managedExecutor)
+            .build(this::requestBearerToken);
     }
 
     @VisibleForTesting
@@ -106,12 +77,12 @@ public class BearerTokenService {
         try {
             boolean smcbHandleValid = runtimeConfig != null && runtimeConfig.getSMCBHandle() != null;
             String cardHandle = smcbHandleValid
-                    ? runtimeConfig.getSMCBHandle()
-                    : connectorCardsService.getConnectorCardHandle(SMC_B, runtimeConfig);
+                ? runtimeConfig.getSMCBHandle()
+                : connectorCardsService.getConnectorCardHandle(SMC_B, runtimeConfig);
             log.fine(() -> "Request new bearer token for " + cardHandle);
 
             X509Certificate x509Certificate = cardCertificateReaderService.retrieveSmcbCardCertificate(
-                    cardHandle, runtimeConfig
+                cardHandle, runtimeConfig
             );
             IdpTokenResult idpTokenResult = idpClient.login(x509Certificate, runtimeConfig);
 
@@ -119,7 +90,7 @@ public class BearerTokenService {
             ZonedDateTime expiresAt = accessToken.getExpiresAt();
             ZonedDateTime refreshAt = ZonedDateTime.now().plusSeconds(refreshDurationInSeconds);
             if (expiresAt.isBefore(refreshAt)) {
-                //we expect a fix expiry duration of the jwt. This is a backup strategy if somebody changes the expiry but this is not supposed to happen
+                // we expect a fix expiry duration of the jwt. This is a backup strategy if somebody changes the expiry but this is not supposed to happen
                 log.severe(() -> "Bearer token expires before it is refreshed! Please change config 'BearerTokenService.refreshDurationInMinutes' to a value less then " + Duration.between(accessToken.getIssuedAt(), expiresAt));
                 evictCacheEntryAt(runtimeConfig, expiresAt.minusSeconds(10));
             }

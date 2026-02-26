@@ -444,7 +444,7 @@ public class ERezeptWorkflowService {
             .header("Authorization", "Bearer " + bearerTokenService.getBearerToken(runtimeConfig))
             .header("X-AccessCode", accessCode);
         if (appConfig.isZetaEnabled()) {
-            String poppToken = poppClient.getToken(runtimeConfig);
+            String poppToken = poppClient.getToken(runtimeConfig, null);
             builder = builder.header("X-Popp-Token", poppToken);
         }
         try (Response response = builder.post(Entity.entity(entity, "application/fhir+xml; charset=utf-8"))) {
@@ -811,7 +811,7 @@ public class ERezeptWorkflowService {
             .header("User-Agent", appConfig.getUserAgent())
             .header("Authorization", "Bearer " + bearerTokenService.getBearerToken(runtimeConfig));
         if (appConfig.isZetaEnabled()) {
-            String poppToken = poppClient.getToken(runtimeConfig);
+            String poppToken = poppClient.getToken(runtimeConfig, null);
             builder = builder.header("X-Popp-Token", poppToken);
         }
         try (Response response = builder.post(Entity.entity(parameterString, "application/fhir+xml; charset=utf-8"))) {
@@ -850,7 +850,7 @@ public class ERezeptWorkflowService {
             .header("Authorization", "Bearer " + bearerTokenService.getBearerToken(runtimeConfig))
             .header("X-AccessCode", accessCode);
         if (appConfig.isZetaEnabled()) {
-            String poppToken = poppClient.getToken(runtimeConfig);
+            String poppToken = poppClient.getToken(runtimeConfig, null);
             builder = builder.header("X-Popp-Token", poppToken);
         }
         try (Response response = builder.post(Entity.entity("", "application/fhir+xml; charset=utf-8"))) {

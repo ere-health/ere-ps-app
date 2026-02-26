@@ -21,7 +21,6 @@ import jakarta.inject.Inject;
 import kotlin.Unit;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,12 +33,12 @@ public class PoppClient {
     private static final Logger log = Logger.getLogger(PoppClient.class.getName());
 
     private final String poppServerUrl;
-    private final EgkClient konnektorClient;
+    private final EgkClient egkClient;
     private ZetaSdkClient sdkClient;
 
     @Inject
-    public PoppClient(AppConfig appConfig, EgkClient konnektorClient) {
-        this.konnektorClient = konnektorClient;
+    public PoppClient(AppConfig appConfig, EgkClient egkClient) {
+        this.egkClient = egkClient;
         this.poppServerUrl = appConfig.getPoppServerUrl();
 
         if (appConfig.isZetaEnabled()) {
@@ -58,7 +57,7 @@ public class PoppClient {
                         true,
                         new SmcbTokenProvider(
                             new SmcbTokenProvider.ConnectorConfig("", "", "", "", "", ""),
-                            konnektorClient
+                            egkClient
                         ),
                         AttestationConfig.software()
                     ),
@@ -74,23 +73,21 @@ public class PoppClient {
         public T value;
     }
 
-    private static String extractHost(String url) {
-        try {
-            return new URI(url).getHost();
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public String getToken(RuntimeConfig runtimeConfig) {
-        konnektorClient.registerRuntimeConfig(runtimeConfig);
+    public String getToken(RuntimeConfig runtimeConfig, String egkHandle) {
+        egkClient.registerRuntimeConfig(runtimeConfig);
         try {
             Holder<String> tokenHolder = new Holder<>();
             try {
-                Map<String, String> headers = new HashMap<>();
+                URI uri = new URI(poppServerUrl);
+                String hostPort = uri.getHost() + ":" + uri.getPort();
 
-                String wsUrl = poppServerUrl.replace("https://", "wss://").replace("http://", "ws://") + "/ws/";
-                String host = extractHost(poppServerUrl);
+                Map<String, String> headers = new HashMap<>();
+                headers.put("X-Forwarded-Proto", "https");
+                headers.put("X-Forwarded-Host", hostPort);
+
+                String wsUrl = poppServerUrl
+                    .replace("https://", "wss://")
+                    .replace("http://", "ws://") + "/ws/";
 
                 WsClientExtension.ws(sdkClient, wsUrl,
                     builder -> {
@@ -99,11 +96,12 @@ public class PoppClient {
                     },
                     headers, session -> {
                         try {
-                            PoppTokenProvider poppTokenProvider = new PoppTokenProvider(konnektorClient);
-                            tokenHolder.value = poppTokenProvider.acquireToken(session, host);
+                            PoppTokenProvider poppTokenProvider = new PoppTokenProvider(egkClient);
+                            String egkCardHandle = egkHandle != null ? egkHandle : egkClient.getConnectedEgkCard();
+                            tokenHolder.value = poppTokenProvider.acquireToken(session, egkCardHandle);
                         } catch (Exception e) {
                             ZetaSdkClientExtension.forget();
-                            log.log(Level.SEVERE, "Get popp-token error", e);
+                            log.log(Level.SEVERE, "Get popp-token websocket error", e);
                         } finally {
                             session.close();
                         }
@@ -113,7 +111,7 @@ public class PoppClient {
             }
             return tokenHolder.value;
         } finally {
-            konnektorClient.unregisterRuntimeConfig(Thread.currentThread().getName());
+            egkClient.unregisterRuntimeConfig(Thread.currentThread().getName());
         }
     }
 }

@@ -32,6 +32,7 @@ import health.ere.ps.jmx.TelematikMXBeanRegistry;
 import health.ere.ps.service.cetp.tracker.PrescriptionTracker;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import health.ere.ps.service.fhir.FHIRService;
+import health.ere.ps.service.gematik.popp.PoppClient;
 import health.ere.ps.service.idp.BearerTokenService;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -45,6 +46,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.ws.Holder;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.entity.ContentType;
@@ -102,7 +104,10 @@ import java.util.zip.GZIPInputStream;
 
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 
-/* Note: reading, writing and resending of failed rejects are done by one Thread (see scheduledExecutorService), no additional synchronization for retrying reject is need */
+/**
+ * Note: reading, writing and resending of failed rejects are done by one Thread (see scheduledExecutorService),
+ * no additional synchronization for retrying reject is needed
+ */
 @ApplicationScoped
 public class PharmacyService implements AutoCloseable {
 
@@ -120,12 +125,16 @@ public class PharmacyService implements AutoCloseable {
     AppConfig appConfig;
 
     @Inject
+    PoppClient poppClient;
+
+    @Inject
     IKonnektorClient konnektorClient;
 
     @Inject
     MultiConnectorServicesProvider connectorServicesProvider;
 
     @Inject
+    @Setter // for tests without cdi
     ReadEPrescriptionsMXBeanImpl readEPrescriptionsMXBean;
 
     @Inject
@@ -247,7 +256,11 @@ public class PharmacyService implements AutoCloseable {
             .header("Content-Type", "application/fhir+xml")
             .header("User-Agent", appConfig.getUserAgent())
             .header("Authorization", "Bearer " + bearerTokenService.getBearerToken(runtimeConfig));
-        
+
+        if (appConfig.isZetaEnabled()) {
+            String poppToken = poppClient.getToken(runtimeConfig, egkHandle);
+            builder = builder.header("X-Popp-Token", poppToken);
+        }
         try (Response response = builder.get()) {
             String event = getEvent(factory.newDocumentBuilder(), pruefungsnachweis.value);
             String bundleString = new String(response.readEntity(InputStream.class).readAllBytes(), getCharset(response));
@@ -302,7 +315,7 @@ public class PharmacyService implements AutoCloseable {
             ContextType contextType = connectorServicesProvider.getContextType(runtimeConfig);
             getCards.setContext(contextType);
             getCards.setCardType(CardTypeType.SMC_B);
-            GetCardsResponse getCardsRespone = eventService.getCards(getCards);
+            GetCardsResponse getCardsResponse = eventService.getCards(getCards);
 
             ReadCardCertificate.CertRefList certRefList = new ReadCardCertificate.CertRefList();
             certRefList.getCertRef().add(CertRefEnum.C_AUT);
@@ -310,13 +323,17 @@ public class PharmacyService implements AutoCloseable {
             Holder<Status> statusHolder = new Holder<>();
             Holder<X509DataInfoListType> certHolder = new Holder<>();
 
-            for (CardInfoType cif : getCardsRespone.getCards().getCard()) {
+            for (CardInfoType cif : getCardsResponse.getCards().getCard()) {
                 try {
-                    certificateServicePortType.readCardCertificate(cif.getCardHandle(), contextType, certRefList, CryptType.ECC, statusHolder, certHolder);
+                    certificateServicePortType.readCardCertificate(
+                        cif.getCardHandle(), contextType, certRefList, CryptType.ECC, statusHolder, certHolder
+                    );
                 } catch (de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage e) {
                     log.log(Level.WARNING, "Could not get ECC certificate", e);
                     try {
-                        certificateServicePortType.readCardCertificate(cif.getCardHandle(), contextType, certRefList, CryptType.RSA, statusHolder, certHolder);
+                        certificateServicePortType.readCardCertificate(
+                            cif.getCardHandle(), contextType, certRefList, CryptType.RSA, statusHolder, certHolder
+                        );
                     } catch (de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage e1) {
                         log.log(Level.WARNING, "Could not get RSA certificate", e);
                     }
@@ -324,7 +341,10 @@ public class PharmacyService implements AutoCloseable {
                 if (statusHolder.value != null && statusHolder.value.getResult().equals("OK")) {
                     // get telematik id from certificate
                     try {
-                        X509Certificate cert = (X509Certificate) CertificateFactory.getInstance("X509").generateCertificate(new ByteArrayInputStream(certHolder.value.getX509DataInfo().get(0).getX509Data().getX509Certificate()));
+                        CertificateFactory certificateFactory = CertificateFactory.getInstance("X509");
+                        byte[] x509Certificate = certHolder.value.getX509DataInfo().getFirst().getX509Data().getX509Certificate();
+                        ByteArrayInputStream inputStream = new ByteArrayInputStream(x509Certificate);
+                        X509Certificate cert = (X509Certificate) certificateFactory.generateCertificate(inputStream);
                         String extractedTelematikId = extractTelematikIdFromCertificate(cert);
                         if (extractedTelematikId != null) {
                             if (!runtimeConfigToTelematikIdToSmcbHandle.containsKey(runtimeConfig)) {
@@ -430,19 +450,17 @@ public class PharmacyService implements AutoCloseable {
         InputStream isPersoenlicheVersichertendaten = new GZIPInputStream(new ByteArrayInputStream(
             readVSDResult.persoenlicheVersichertendaten.value
         ));
-        UCPersoenlicheVersichertendatenXML patient = (UCPersoenlicheVersichertendatenXML) jaxbContext
+        return (UCPersoenlicheVersichertendatenXML) jaxbContext
             .createUnmarshaller()
             .unmarshal(isPersoenlicheVersichertendaten);
-        return patient;
     }
 
     private static UCAllgemeineVersicherungsdatenXML getAllgemeineVersicherungsdaten(ReadVSDResult readVSDResult)
         throws IOException, JAXBException {
         InputStream isPersoenlicheVersichertendaten = new GZIPInputStream(
             new ByteArrayInputStream(readVSDResult.allgemeineVersicherungsdaten.value));
-        UCAllgemeineVersicherungsdatenXML allgemeineVersicherungsdatenXML = (UCAllgemeineVersicherungsdatenXML) jaxbContext
+        return (UCAllgemeineVersicherungsdatenXML) jaxbContext
             .createUnmarshaller().unmarshal(isPersoenlicheVersichertendaten);
-        return allgemeineVersicherungsdatenXML;
     }
 
     public ReadVSDResult readVSD(
@@ -509,7 +527,7 @@ public class PharmacyService implements AutoCloseable {
         return readVSDResult;
     }
 
-    public class ReadVSDResult {
+    public static class ReadVSDResult {
         Holder<byte[]> persoenlicheVersichertendaten;
         Holder<byte[]> allgemeineVersicherungsdaten;
         Holder<byte[]> geschuetzteVersichertendaten;
@@ -533,14 +551,19 @@ public class PharmacyService implements AutoCloseable {
         return smcbHandle;
     }
 
-    public Bundle accept(String correlationId, String token, RuntimeConfig runtimeConfig) {
+    public Bundle accept(String correlationId, String token, String egkHandle, RuntimeConfig runtimeConfig) {
         String secret = "";
         byte[] data;
         Task task;
-        try (Response response = client.target(appConfig.getPrescriptionServiceURL() + token).request()
+        Invocation.Builder builder = client.target(appConfig.getPrescriptionServiceURL() + token).request()
             .header("Content-Type", "application/fhir+xml")
             .header("User-Agent", appConfig.getUserAgent())
-            .header("Authorization", "Bearer " + bearerTokenService.getBearerToken(runtimeConfig))
+            .header("Authorization", "Bearer " + bearerTokenService.getBearerToken(runtimeConfig));
+        if (appConfig.isZetaEnabled()) {
+            String poppToken = poppClient.getToken(runtimeConfig, egkHandle);
+            builder = builder.header("X-Popp-Token", poppToken);
+        }
+        try (Response response = builder
             .post(Entity.entity("", "application/fhir+xml"))) {
 
             String bundleString = new String(response.readEntity(InputStream.class).readAllBytes(), getCharset(response));
@@ -678,12 +701,5 @@ public class PharmacyService implements AutoCloseable {
             log.log(Level.SEVERE, "Retry reject failed for prescriptionId: " + prescriptionId + " secret: " + secret, t);
             return false;
         }
-    }
-
-    /**
-     * for tests without cdi
-     */
-    public void setReadEPrescriptionsMXBean(ReadEPrescriptionsMXBeanImpl readEPrescriptionsMXBean) {
-        this.readEPrescriptionsMXBean = readEPrescriptionsMXBean;
     }
 }

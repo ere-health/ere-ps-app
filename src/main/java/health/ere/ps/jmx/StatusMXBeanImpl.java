@@ -27,10 +27,6 @@ public class StatusMXBeanImpl implements StatusMXBean {
         this.subscriptionManager = subscriptionManager;
     }
 
-//    void onStart(@Observes StartupEvent ev) {
-//        PsMXBeanManager.registerMXBean(this);
-//    }
-
     public String getStatus() {
         var konnektorConfigs = subscriptionManager.getKonnektorConfigs(null, null);
         ObjectNode rootNode = OBJECT_MAPPER.createObjectNode();

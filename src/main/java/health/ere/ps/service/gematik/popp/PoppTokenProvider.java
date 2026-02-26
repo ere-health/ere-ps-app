@@ -26,24 +26,8 @@ public class PoppTokenProvider {
         this.egkClient = egkClient;
     }
 
-    private String start(WsClientExtension.WsSession session) throws JsonProcessingException {
-        String egkCard = egkClient.getConnectedEgkCard();
-        String sessionId = egkClient.startCardSession(egkCard);
-
-        StartMessage startMessage = StartMessage.builder()
-            .version("1.0")
-            .clientSessionId(sessionId)
-            .cardConnectionType(CONTACT_CONNECTOR)
-            .build();
-
-        session.sendText(mapper.writeValueAsString(startMessage));
-        return sessionId;
-    }
-
-    public String acquireToken(WsClientExtension.WsSession session, String host) throws JsonProcessingException {
-        // session.sendText(stompConnectFrame(host)); // host=powerwin
-
-        final var sessionId = start(session);
+    public String acquireToken(WsClientExtension.WsSession session, String egkHandle) throws JsonProcessingException {
+        final var sessionId = start(session, egkHandle);
         PoPPMessage poppMessage = receive(session);
         while (poppMessage != null) {
             switch (poppMessage) {
@@ -69,6 +53,19 @@ public class PoppTokenProvider {
             poppMessage = receive(session);
         }
         return null;
+    }
+
+    private String start(WsClientExtension.WsSession session, String egkHandle) throws JsonProcessingException {
+        String sessionId = egkClient.startCardSession(egkHandle);
+
+        StartMessage startMessage = StartMessage.builder()
+            .version("1.0")
+            .clientSessionId(sessionId)
+            .cardConnectionType(CONTACT_CONNECTOR)
+            .build();
+
+        session.sendText(mapper.writeValueAsString(startMessage));
+        return sessionId;
     }
 
     private PoPPMessage receive(WsClientExtension.WsSession session) throws JsonProcessingException {

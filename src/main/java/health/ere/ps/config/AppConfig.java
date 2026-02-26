@@ -2,6 +2,7 @@ package health.ere.ps.config;
 
 import de.health.service.cetp.CETPServer;
 import de.health.service.config.api.ISubscriptionConfig;
+import health.ere.ps.service.idp.client.IdpHttpClientService;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.Getter;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -129,6 +130,10 @@ public class AppConfig implements ISubscriptionConfig {
     @ConfigProperty(name = "zeta.assessment.owner.mail", defaultValue = "owner@mail.de")
     String zetaAssessmentOwnerMail;
 
+    public String getDiscoveryDocumentUrl() {
+        return getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
+    }
+
     public int getIdpInitializationPeriodMs() {
         return idpInitializationPeriodSeconds.orElse(180) * 1000;
     }
@@ -150,7 +155,7 @@ public class AppConfig implements ISubscriptionConfig {
 
     @Override
     public String getDefaultCardLinkServer() {
-        return cardLinkServer.orElse("wss://cardlink.service-health.de:8444/websocket/80276003650110006580-20230112");
+        return cardLinkServer.orElse("wss://cardlink.service-health.de:8444/websocket/80276883662000004801-20220128");
     }
 
     @Override

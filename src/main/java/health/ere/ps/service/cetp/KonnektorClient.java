@@ -27,6 +27,7 @@ import health.ere.ps.service.cetp.mapper.card.CardsResponseMapper;
 import health.ere.ps.service.cetp.mapper.status.StatusMapper;
 import health.ere.ps.service.cetp.mapper.subscription.SubscriptionMapper;
 import health.ere.ps.service.cetp.mapper.subscription.SubscriptionResultMapper;
+import health.ere.ps.service.connector.provider.KonnektorKey;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -37,6 +38,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.security.cert.X509Certificate;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static de.health.service.cetp.SubscriptionManager.FAILED;
@@ -75,8 +77,8 @@ public class KonnektorClient implements IKonnektorClient {
         return true;
     }
 
-    public boolean isInitialized() {
-        return servicePortProvider.isInitialized();
+    public boolean isInitialized(Set<KonnektorKey> keys) {
+        return servicePortProvider.isInitialized(keys);
     }
 
     @Override

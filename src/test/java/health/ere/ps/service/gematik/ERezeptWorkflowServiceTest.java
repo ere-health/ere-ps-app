@@ -23,7 +23,13 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import jakarta.inject.Inject;
 import org.apache.fop.apps.FOPException;
-import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.BooleanType;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.DateTimeType;
+import org.hl7.fhir.r4.model.Extension;
+import org.hl7.fhir.r4.model.Medication;
+import org.hl7.fhir.r4.model.MedicationRequest;
+import org.hl7.fhir.r4.model.Task;
 import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.jose4j.jwt.consumer.JwtConsumer;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
@@ -33,8 +39,16 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import javax.xml.transform.TransformerException;
-import java.io.*;
-import java.nio.file.*;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.nio.file.DirectoryIteratorException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -112,25 +126,13 @@ public class ERezeptWorkflowServiceTest {
     @Test
     @Disabled
     void testCreateERezeptMassCreate() throws Exception {
-
         discoveryDocumentUrl = appConfig.getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
-
-        idpClient.init(appConfig.getIdpClientId(), appConfig.getIdpAuthRequestRedirectURL(), discoveryDocumentUrl, true);
-        idpClient.initializeClient();
-
-        String cardHandle = connectorCardsService.getConnectorCardHandle(
-                ConnectorCardsService.CardHandleType.SMC_B);
-
+        String cardHandle = connectorCardsService.getConnectorCardHandle(ConnectorCardsService.CardHandleType.SMC_B);
         X509Certificate x509Certificate = cardCertificateReaderService.retrieveSmcbCardCertificate(cardHandle, null);
-
         IdpTokenResult idpTokenResult = idpClient.login(x509Certificate);
-
         log.info("Access Token: " + idpTokenResult.getAccessToken().getRawString());
-
         String testBearerToken = idpTokenResult.getAccessToken().getRawString();
-
         eRezeptWorkflowService.bearerTokenService.addBearerToken(null, testBearerToken);
-
         int i = 0;
         DocumentService documentService = new DocumentService();
         documentService.init();
@@ -179,14 +181,8 @@ public class ERezeptWorkflowServiceTest {
     @Test
     @Disabled
     void testCreateERezeptMassCreate2() throws Exception {
-
         discoveryDocumentUrl = appConfig.getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;
-
-        idpClient.init(appConfig.getIdpClientId(), appConfig.getIdpAuthRequestRedirectURL(), discoveryDocumentUrl, true);
-        idpClient.initializeClient();
-
-        String cardHandle = connectorCardsService.getConnectorCardHandle(
-                ConnectorCardsService.CardHandleType.SMC_B);
+        String cardHandle = connectorCardsService.getConnectorCardHandle(ConnectorCardsService.CardHandleType.SMC_B);
 
         X509Certificate x509Certificate = cardCertificateReaderService.retrieveSmcbCardCertificate(cardHandle, null);
 

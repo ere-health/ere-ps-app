@@ -47,11 +47,11 @@ class AuthenticatorClientTest {
         AuthenticatorClient authenticatorClient = new AuthenticatorClient();
 
         AuthorizationResponse authorizationResponse =
-                authenticatorClient.doAuthorizationRequest(AuthorizationRequest.builder()
+            authenticatorClient.doAuthorizationRequest(AuthorizationRequest.builder()
                 .clientId(appConfig.getIdpClientId())
                 .link(appConfig.getIdpAuthRequestURL())
                 .codeChallenge(ClientUtilities.generateCodeChallenge(
-                        ClientUtilities.generateCodeVerifier()))
+                    ClientUtilities.generateCodeVerifier()))
                 .codeChallengeMethod(CodeChallengeMethod.S256)
                 .redirectUri(appConfig.getIdpAuthRequestRedirectURL())
                 .state(RandomStringUtils.randomAlphanumeric(20))
@@ -59,42 +59,37 @@ class AuthenticatorClientTest {
                 .nonce(RandomStringUtils.randomAlphanumeric(20))
                 .build());
 
-        assertNotNull(authorizationResponse.getAuthenticationChallenge(),
-                "Auth Challenge Present");
-
-        assertNotNull(authorizationResponse.getAuthenticationChallenge().getUserConsent(),
-                "User Consent Present");
+        assertNotNull(authorizationResponse.getAuthenticationChallenge(), "Auth Challenge Present");
+        assertNotNull(authorizationResponse.getAuthenticationChallenge().getUserConsent(), "User Consent Present");
+        assertTrue(
+            MapUtils.isNotEmpty(authorizationResponse.getAuthenticationChallenge().getUserConsent().getRequestedClaims()),
+            "User consent requested claims map is present"
+        );
 
         assertTrue(
-                MapUtils.isNotEmpty(authorizationResponse.getAuthenticationChallenge()
-                        .getUserConsent().getRequestedClaims()),
-                "User consent requested claims map is present");
+            MapUtils.isNotEmpty(authorizationResponse.getAuthenticationChallenge()
+                .getUserConsent().getRequestedScopes()),
+            "User consent scopes map is present");
 
-        assertTrue(
-                MapUtils.isNotEmpty(authorizationResponse.getAuthenticationChallenge()
-                        .getUserConsent().getRequestedScopes()),
-                "User consent scopes map is present");
-
-        assertNotNull(authorizationResponse.getAuthenticationChallenge().getChallenge(),
-                "Challenge Response Present");
+        assertNotNull(authorizationResponse.getAuthenticationChallenge().getChallenge(), "Challenge Response Present");
 
         logger.info("User consent scopes: " +
-                authorizationResponse.getAuthenticationChallenge()
-                        .getUserConsent().getRequestedScopes());
+            authorizationResponse.getAuthenticationChallenge()
+                .getUserConsent().getRequestedScopes());
         logger.info("User consent claims: " +
-                authorizationResponse.getAuthenticationChallenge()
-                        .getUserConsent().getRequestedClaims());
+            authorizationResponse.getAuthenticationChallenge()
+                .getUserConsent().getRequestedClaims());
         logger.info("Auth challenge: " +
-                authorizationResponse.getAuthenticationChallenge()
-                        .getChallenge());
+            authorizationResponse.getAuthenticationChallenge()
+                .getChallenge());
     }
 
     @Test
     void test_Successful_Retrieval_Of_Discovery_Document_Using_Idp_Http_Client()
-            throws IdpClientException {
+        throws IdpClientException {
         IdpHttpClientService idpHttpClientService =
-                authenticatorClient.getIdpHttpClientInstanceByUrl(
-                        appConfig.getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI);
+            authenticatorClient.getIdpHttpClientInstanceByUrl(
+                appConfig.getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI);
 
         try (Response response = idpHttpClientService.doGenericGetRequest()) {
             String jsonString = response.readEntity(String.class);
@@ -102,7 +97,7 @@ class AuthenticatorClientTest {
 
             logger.info("Status = " + response.getStatus());
             response.getHeaders().entrySet().stream().forEach(
-                    (entry -> logger.info(entry.getKey() + " = " + entry.getValue())));
+                (entry -> logger.info(entry.getKey() + " = " + entry.getValue())));
             logger.info("Body = " + jsonWebToken.getPayloadDecoded());
 
             assertNotNull(jsonString);
@@ -110,11 +105,10 @@ class AuthenticatorClientTest {
     }
 
     @Test
-    void test_Successful_Retrieval_Of_Discovery_Document_Using_Auth_Client()
-            throws IdpClientException, IdpException, IdpJoseException {
-        DiscoveryDocumentResponse discoveryDocumentResponse =
-                authenticatorClient.retrieveDiscoveryDocument(
-                        appConfig.getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI);
+    void test_Successful_Retrieval_Of_Discovery_Document_Using_Auth_Client() throws Exception {
+        DiscoveryDocumentResponse discoveryDocumentResponse = authenticatorClient.retrieveDiscoveryDocument(
+            appConfig.getDiscoveryDocumentUrl()
+        );
 
         assertNotNull(discoveryDocumentResponse, "Discovery Document Present");
         assertNotNull(discoveryDocumentResponse.getIdpSig(), "Idp Signature Cert Present");
