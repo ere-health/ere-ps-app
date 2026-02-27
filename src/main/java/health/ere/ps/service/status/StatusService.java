@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+@SuppressWarnings("CdiInjectionPointsInspection")
 @ApplicationScoped
 public class StatusService {
 
@@ -136,9 +137,10 @@ public class StatusService {
 
         futures.add(managedExecutor.submit(() -> {
             // IdpReachable
-            boolean reachable = idpClient.initialize();
-            String discoveryUrl = reachable ? appConfig.getDiscoveryDocumentUrl() : "Not given";
+            String discoveryUrl = "Not given";
             try {
+                boolean reachable = idpClient.initialize();
+                discoveryUrl = appConfig.getDiscoveryDocumentUrl();
                 status.setIdpReachable(reachable, discoveryUrl);
             } catch (Throwable e) {
                 status.setIdpReachable(false, discoveryUrl + " Exception: " + e.getMessage());

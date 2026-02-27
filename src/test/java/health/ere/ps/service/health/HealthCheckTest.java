@@ -9,6 +9,7 @@ import de.health.service.check.HealthInfo;
 import health.ere.ps.profile.RUDevTestProfile;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import health.ere.ps.service.idp.BearerTokenService;
+import health.ere.ps.service.idp.client.IdpClient;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
@@ -54,6 +55,9 @@ import static org.mockito.Mockito.when;
 class HealthCheckTest {
 
     @Inject
+    IdpClient idpClient;
+
+    @Inject
     BearerTokenService bearerTokenService;
 
     @Inject
@@ -61,6 +65,10 @@ class HealthCheckTest {
 
     @BeforeEach
     void beforeEach() {
+        IdpClient idpClient = mock(IdpClient.class);
+        when(idpClient.initialize()).thenReturn(true);
+        QuarkusMock.installMockForType(idpClient, IdpClient.class);
+
         MultiConnectorServicesProvider connectorServicesProvider = mock(MultiConnectorServicesProvider.class);
         when(connectorServicesProvider.getContextType(any())).thenReturn(new ContextType());
         when(connectorServicesProvider.getEventServicePortType(any())).thenReturn(mock(EventServicePortType.class));
@@ -69,12 +77,12 @@ class HealthCheckTest {
         QuarkusMock.installMockForType(connectorServicesProvider, MultiConnectorServicesProvider.class);
 
         BearerTokenService mockTokenService = mock(BearerTokenService.class);
-
         QuarkusMock.installMockForType(mockTokenService, BearerTokenService.class);
     }
 
     @AfterEach
     void afterAll() {
+        QuarkusMock.installMockForType(idpClient, IdpClient.class);
         QuarkusMock.installMockForType(bearerTokenService, BearerTokenService.class);
         QuarkusMock.installMockForType(multiConnectorServicesProvider, MultiConnectorServicesProvider.class);
     }
@@ -91,7 +99,7 @@ class HealthCheckTest {
         Response response = given().header(new Header("X-eHBAHandle", "test")).config(config).when().get("/health");
         response.then().statusCode(200);
         HealthInfo healthInfo = response.getBody().as(HealthInfo.class);
-        assertThat(healthInfo.checks().size(), equalTo(4));
+        assertThat(healthInfo.checks().size(), equalTo(5));
         Optional<CheckInfo> cardLinkWebsocketCheckOpt = healthInfo.checks()
             .stream()
             .filter(check -> check.name().equals(CARDLINK_WEBSOCKET_CHECK))
