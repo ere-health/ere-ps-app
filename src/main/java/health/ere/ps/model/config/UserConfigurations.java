@@ -1,5 +1,6 @@
 package health.ere.ps.model.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.health.service.cetp.beaninfo.BeanInfoHelper;
 import de.health.service.cetp.beaninfo.Synthetic;
 import de.health.service.cetp.config.KonnektorAuth;
@@ -77,6 +78,7 @@ public class UserConfigurations implements IUserConfigurations {
 
     @JsonbProperty(value = "connector.default.auth")
     @JsonbNillable
+    @JsonIgnore
     String auth;
 
     @JsonbProperty(value = "connector.client-certificate")
@@ -135,7 +137,7 @@ public class UserConfigurations implements IUserConfigurations {
 
     @Override
     @Synthetic
-    public KonnektorAuth getKonnektorAuth() {
+    public KonnektorAuth konnektorAuth() {
         return KonnektorAuth.from(getAuth());
     }
 

@@ -10,6 +10,7 @@ import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.tel.error.v2.Error;
 import de.health.service.cetp.SubscriptionManager;
 import de.health.service.cetp.config.KonnektorConfig;
+import de.health.service.cetp.konnektorconfig.KonnektorsConfigs;
 import health.ere.ps.profile.RUDevTestProfile;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import io.quarkus.test.junit.QuarkusMock;
@@ -51,6 +52,9 @@ public class SubscriptionRenewalTest {
     private final String eventToHost = getHostFromNetworkInterfaces().orElse("127.0.0.1");
 
     @Inject
+    KonnektorsConfigs konnektorsConfigs;
+
+    @Inject
     SubscriptionManager subscriptionManager;
 
     @Inject
@@ -63,14 +67,13 @@ public class SubscriptionRenewalTest {
 
     @Test
     public void subscribeWasCalledForAbsentSubscriptions() throws Exception {
-        subscriptionManager.onStart(null);
         Status subscribeStatus = prepareStatus("Subscribed", null);
         Status renewalStatus = prepareStatus("Renewed", null);
         Status unsubscribeStatus = prepareStatus("Unsubscribed", null);
         int subscribedCount = 0;
         EventServicePortType eventService = setupRenewal(subscribedCount, 5000, subscribeStatus, renewalStatus, unsubscribeStatus);
 
-        KonnektorConfig kc = subscriptionManager.getKonnektorConfigs("192.168.178.42", null).stream().findFirst().get();
+        KonnektorConfig kc = konnektorsConfigs.filterConfigs("192.168.178.42", null).stream().findFirst().get();
         boolean result = subscriptionManager.renewSubscriptions(eventToHost, kc);
         assertTrue(result);
         verify(eventService).subscribe(any(), any(), any(), any(), any());
@@ -80,14 +83,13 @@ public class SubscriptionRenewalTest {
 
     @Test
     public void renewAndUnsubscribesWereCalledForExpiringSubscriptions() throws Exception {
-        subscriptionManager.onStart(null);
         Status subscribeStatus = prepareStatus("Subscribed", null);
         Status renewalStatus = prepareStatus("Renewed", null);
         Status unsubscribeStatus = prepareStatus("Unsubscribed", null);
         int subscribedCount = 2;
         EventServicePortType eventService = setupRenewal(subscribedCount, 5000, subscribeStatus, renewalStatus, unsubscribeStatus);
 
-        KonnektorConfig kc = subscriptionManager.getKonnektorConfigs("192.168.178.42", null).stream().findFirst().get();
+        KonnektorConfig kc = konnektorsConfigs.filterConfigs("192.168.178.42", null).stream().findFirst().get();
         boolean result = subscriptionManager.renewSubscriptions(eventToHost, kc);
         assertTrue(result);
         verify(eventService, never()).subscribe(any(), any(), any(), any(), any());
@@ -97,14 +99,13 @@ public class SubscriptionRenewalTest {
 
     @Test
     public void subscribeAndUnsubscribesWereCalledForExpiredSubscriptions() throws Exception {
-        subscriptionManager.onStart(null);
         Status subscribeStatus = prepareStatus("Subscribed", null);
         Status renewalStatus = prepareStatus("Renewed", null);
         Status unsubscribeStatus = prepareStatus("Unsubscribed", null);
         int subscribedCount = 2;
         EventServicePortType eventService = setupRenewal(subscribedCount, 0, subscribeStatus, renewalStatus, unsubscribeStatus);
 
-        KonnektorConfig kc = subscriptionManager.getKonnektorConfigs("192.168.178.42", null).stream().findFirst().get();
+        KonnektorConfig kc = konnektorsConfigs.filterConfigs("192.168.178.42", null).stream().findFirst().get();
         boolean result = subscriptionManager.renewSubscriptions(eventToHost, kc);
         assertTrue(result);
         verify(eventService).subscribe(any(), any(), any(), any(), any());
@@ -114,7 +115,6 @@ public class SubscriptionRenewalTest {
 
     @Test
     public void subscribeAndUnsubscribesFailedForExpiredSubscriptions() throws Exception {
-        subscriptionManager.onStart(null);
         Error error = new Error();
         error.setMessageID(UUID.randomUUID().toString());
         error.setTimestamp(DatatypeFactory.newInstance().newXMLGregorianCalendar("2024-06-30T14:30:00"));
@@ -131,7 +131,7 @@ public class SubscriptionRenewalTest {
         int subscribedCount = 2;
         EventServicePortType eventService = setupRenewal(subscribedCount, 0, subscribeStatus, renewalStatus, unsubscribeStatus);
 
-        KonnektorConfig kc = subscriptionManager.getKonnektorConfigs("192.168.178.42", null).stream().findFirst().get();
+        KonnektorConfig kc = konnektorsConfigs.filterConfigs("192.168.178.42", null).stream().findFirst().get();
         boolean result = subscriptionManager.renewSubscriptions(eventToHost, kc);
         assertFalse(result);
         verify(eventService).subscribe(any(), any(), any(), any(), any());
@@ -140,7 +140,7 @@ public class SubscriptionRenewalTest {
 
         TimeUnit.SECONDS.sleep(1);
 
-        // force subscribe
+        // force subscribes
         unsubscribeStatus = prepareStatus("Unsubscribed", null);
         eventService = setupRenewal(1, 60000, subscribeStatus, renewalStatus, unsubscribeStatus);
         result = subscriptionManager.renewSubscriptions(eventToHost, kc);

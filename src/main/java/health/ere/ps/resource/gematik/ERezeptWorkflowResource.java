@@ -118,7 +118,11 @@ public class ERezeptWorkflowResource {
     @POST
     @Path("update")
     public Response updateERezeptTask(UpdateERezept updateERezept) {
-        eRezeptWorkflowService.updateERezeptTask(updateERezept.getTaskId(), updateERezept.getAccessCode(), Base64.getDecoder().decode(updateERezept.getSignedBytes()), extractRuntimeConfigFromHeaders(httpServletRequest, userConfig));
+        String taskId = updateERezept.getTaskId();
+        String accessCode = updateERezept.getAccessCode();
+        byte[] bytes = Base64.getDecoder().decode(updateERezept.getSignedBytes());
+        RuntimeConfig runtimeConfig = extractRuntimeConfigFromHeaders(httpServletRequest, userConfig);
+        eRezeptWorkflowService.updateERezeptTask(taskId, accessCode, bytes, runtimeConfig);
         return Response.ok().build();
     }
 

@@ -5,7 +5,6 @@ import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
 import de.gematik.ws.tel.error.v2.Error;
-import de.health.service.cetp.SubscriptionManager;
 import de.health.service.cetp.konnektorconfig.FSConfigService;
 import health.ere.ps.profile.RUDevTestProfile;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
@@ -48,9 +47,6 @@ public class KonnektorFailedUnsubscriptionTest {
 
     public static final String TEMP_CONFIG = "temp-config";
     private static String uuid;
-
-    @Inject
-    SubscriptionManager subscriptionManager;
 
     @Inject
     MultiConnectorServicesProvider multiConnectorServicesProvider;
@@ -102,8 +98,6 @@ public class KonnektorFailedUnsubscriptionTest {
     public void subscriptionWasReloadedAndFileIsCreated() throws Exception {
         File config8585 = new File("config/konnektoren/8585");
         deleteFiles(config8585, file -> !file.getName().endsWith(FSConfigService.PROPERTIES_EXT));
-
-        subscriptionManager.onStart(null);
         subscribeSucceeded(config8585);
     }
 
@@ -112,7 +106,6 @@ public class KonnektorFailedUnsubscriptionTest {
         File config8585 = new File("config/konnektoren/8585");
         writeFile(config8585.getAbsolutePath() + "/" + UUID.randomUUID(), null);
 
-        subscriptionManager.onStart(null);
         subscribeFailed(config8585);
         subscribeSucceeded(config8585);
     }
@@ -126,7 +119,7 @@ public class KonnektorFailedUnsubscriptionTest {
         response.then().statusCode(200);
         List<String> responseBody = response.jsonPath().getList("$");
         assertThat(responseBody.size(), equalTo(1));
-        assertThat(responseBody.get(0), containsString("Subscribed"));
+        assertThat(responseBody.getFirst(), containsString("Subscribed"));
 
         File[] files = config8585.listFiles((dir, name) -> !name.endsWith(".properties"));
         assertThat(files.length, equalTo(1));
@@ -142,7 +135,7 @@ public class KonnektorFailedUnsubscriptionTest {
         response.then().statusCode(200);
         List<String> responseBody = response.jsonPath().getList("$");
         assertThat(responseBody.size(), equalTo(1));
-        assertThat(responseBody.get(0), equalTo("Syntaxfehler"));
+        assertThat(responseBody.getFirst(), equalTo("Syntaxfehler"));
 
         File[] files = config8585.listFiles((dir, name) -> !name.endsWith(".properties"));
         assertThat(files.length, equalTo(1));

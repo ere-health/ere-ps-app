@@ -26,9 +26,8 @@ import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_XML;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 
@@ -53,10 +52,7 @@ public class XmlPrescriptionResourceTest {
             anyString(),
             anyString(),
             AdditionalMatchers.aryEq(array),
-            anyBoolean(),
-            isNull(),
-            isNull(),
-            isNull()
+            any()
         );
         QuarkusMock.installMockForType(service, ERezeptWorkflowService.class);
 

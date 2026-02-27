@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static de.health.service.cetp.SubscriptionManager.FAILED;
+import static de.health.service.cetp.SubscriptionManager.FAILED_PREFIX;
 
 @ApplicationScoped
 public class KonnektorClient implements IKonnektorClient {
@@ -148,7 +148,7 @@ public class KonnektorClient implements IKonnektorClient {
             if (forceCetp) {
                 return statusMapper.toDomain(eventService.unsubscribe(context, null, cetpHost));
             } else {
-                if (subscriptionId == null || subscriptionId.startsWith(FAILED)) {
+                if (subscriptionId == null || subscriptionId.startsWith(FAILED_PREFIX)) {
                     CetpStatus status = new CetpStatus();
                     status.setResult("Previous subscription is not found");
                     return status;

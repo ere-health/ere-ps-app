@@ -2,6 +2,7 @@ package health.ere.ps.service.cetp.config;
 
 import de.health.service.cetp.config.KonnektorConfig;
 import de.health.service.cetp.konnektorconfig.FSConfigService;
+import de.health.service.cetp.konnektorconfig.KonnektorsConfigs;
 import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.UserConfig;
 import health.ere.ps.model.config.UserConfigurations;
@@ -31,6 +32,9 @@ public class KonnektorConfigTest {
 
     @Inject
     UserConfig userConfig;
+
+    @Inject
+    KonnektorsConfigs konnektorsConfigs;
 
     @Test
     void testGenerateKonnektorConfig() {
@@ -76,6 +80,6 @@ public class KonnektorConfigTest {
         doReturn(sameKonnektorConfigs).when(fsConfigService).readFromPath(any());
         fsConfigService.onStart(null);
 
-        assertEquals(sameKonnektorConfigs.size(), fsConfigService.configMap().size());
+        assertEquals(sameKonnektorConfigs.size(), konnektorsConfigs.get().size());
     }
 }

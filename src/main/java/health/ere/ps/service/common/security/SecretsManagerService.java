@@ -176,7 +176,7 @@ public class SecretsManagerService implements ISecretsManager {
     public KeyManagerFactory getKeyManagerFactory(KonnektorConfig config) {
         IUserConfigurations userConfigurations = config.getUserConfigurations();
         String clientCertificate = userConfigurations.getClientCertificate();
-        if (userConfigurations.getKonnektorAuth() == BASIC || clientCertificate == null) {
+        if (userConfigurations.konnektorAuth() == BASIC || clientCertificate == null) {
             return keyManagerFactory;
         } else {
             byte[] clientCertificateBytes = getClientCertificateBytes(clientCertificate);

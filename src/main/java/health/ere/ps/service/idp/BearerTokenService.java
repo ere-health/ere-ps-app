@@ -34,6 +34,7 @@ import java.util.logging.Logger;
 
 import static health.ere.ps.service.connector.cards.ConnectorCardsService.CardHandleType.SMC_B;
 
+@SuppressWarnings("CdiInjectionPointsInspection")
 @ApplicationScoped
 public class BearerTokenService {
     private static final Logger log = Logger.getLogger(BearerTokenService.class.getName());

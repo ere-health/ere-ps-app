@@ -1,10 +1,10 @@
 package health.ere.ps.service.cetp;
 
-import de.health.service.cetp.SubscriptionManager;
 import de.health.service.cetp.cardlink.CardlinkWebsocketClient;
 import de.health.service.cetp.config.KonnektorConfig;
 import de.health.service.cetp.domain.eventservice.card.Card;
 import de.health.service.cetp.domain.eventservice.card.CardType;
+import de.health.service.cetp.konnektorconfig.KonnektorsConfigs;
 import de.health.service.config.api.IUserConfigurations;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.jmx.SubscriptionsMXBean;
@@ -45,7 +45,7 @@ public class RegisterSMCBJob extends StartableService {
     BearerTokenService bearerTokenService;
 
     @Inject
-    SubscriptionManager subscriptionManager;
+    KonnektorsConfigs konnektorsConfigs;
 
     int counter = 0;
 
@@ -65,9 +65,8 @@ public class RegisterSMCBJob extends StartableService {
     }
 
     private Set<KonnektorKey> getKonnektorKeys() {
-        return subscriptionManager.getKonnektorConfigs(null, null).stream()
-            .map(kc -> {
-                IUserConfigurations userConfigurations = kc.getUserConfigurations();
+        return konnektorsConfigs.getConfigs().stream().map(config -> {
+                IUserConfigurations userConfigurations = config.getUserConfigurations();
                 String userId = userConfigurations.getUserId();
                 String mandantId = userConfigurations.getMandantId();
                 String workplaceId = userConfigurations.getWorkplaceId();
@@ -79,28 +78,27 @@ public class RegisterSMCBJob extends StartableService {
 
     void initWSClients() {
         if (konnektorClient.isInitialized(getKonnektorKeys())) {
-            Collection<KonnektorConfig> konnektorConfigs = subscriptionManager.getKonnektorConfigs(null, null);
+            Collection<KonnektorConfig> konnektorConfigs = konnektorsConfigs.getConfigs();
 
             SubscriptionsMXBeanImpl subscriptionsMXBean = new SubscriptionsMXBeanImpl(konnektorConfigs.size());
             registerMXBean(SubscriptionsMXBean.OBJECT_NAME, subscriptionsMXBean);
 
             cardlinkWebsocketClients = new ArrayList<>();
-            konnektorConfigs.forEach(kc -> {
-
+            konnektorConfigs.forEach(config -> {
                 List<Card> cards;
                 try {
-                    cards = konnektorClient.getCards(new RuntimeConfig(kc.getUserConfigurations()), CardType.SMC_B);
+                    cards = konnektorClient.getCards(new RuntimeConfig(config.getUserConfigurations()), CardType.SMC_B);
                 } catch (Exception e) {
                     log.log(Level.WARNING, "Could not read SMC-Bs", e);
                     cards = List.of(new Card());
                 }
                 for (Card card : cards) {
                     log.info("Creating Websockets for SMC-B: " + card.getCardHandle());
-                    RuntimeConfig userRuntimeConfig = new RuntimeConfig(kc.getUserConfigurations());
+                    RuntimeConfig userRuntimeConfig = new RuntimeConfig(config.getUserConfigurations());
                     userRuntimeConfig.setSMCBHandle(card.getCardHandle());
                     cardlinkWebsocketClients.add(
                         new CardlinkWebsocketClient(
-                            kc.getCardlinkEndpoint(),
+                            config.getCardlinkEndpoint(),
                             new EreJwtConfigurator(
                                 userRuntimeConfig,
                                 konnektorClient,
@@ -113,13 +111,13 @@ public class RegisterSMCBJob extends StartableService {
                         )
                     );
                 }
-
             });
         }
     }
 
     @Scheduled(
         every = "${cetp.register.smcb.maintenance.interval.sec:300s}",
+        delay = 30,
         delayUnit = TimeUnit.SECONDS,
         concurrentExecution = Scheduled.ConcurrentExecution.SKIP
     )

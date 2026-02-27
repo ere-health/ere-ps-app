@@ -1,5 +1,6 @@
 package health.ere.ps.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import de.health.service.config.api.IRuntimeConfig;
 import de.health.service.config.api.IUserConfigurations;
 import health.ere.ps.model.config.UserConfigurations;
@@ -16,10 +17,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Alternative
+@JsonIgnoreProperties({"iccsn", "auth", "konnektorAuth"})
 public class RuntimeConfig extends UserConfig implements IRuntimeConfig {
 
     private static final Logger log = Logger.getLogger(RuntimeConfig.class.getName());
-    
+
     protected String iccsn = null;
     protected String eHBAHandle = null;
     protected String SMCBHandle = null;
