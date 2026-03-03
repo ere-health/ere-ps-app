@@ -17,12 +17,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Alternative
-@JsonIgnoreProperties({"iccsn", "auth", "konnektorAuth"})
+@JsonIgnoreProperties({"auth", "konnektorAuth"})
 public class RuntimeConfig extends UserConfig implements IRuntimeConfig {
 
     private static final Logger log = Logger.getLogger(RuntimeConfig.class.getName());
 
-    protected String iccsn = null;
     protected String eHBAHandle = null;
     protected String SMCBHandle = null;
     protected boolean sendPreview = true;
@@ -131,16 +130,6 @@ public class RuntimeConfig extends UserConfig implements IRuntimeConfig {
 
     public void setEHBAHandle(String eHBAHandle) {
         this.eHBAHandle = eHBAHandle;
-    }
-
-    @Override
-    public String getIccsn() {
-        return iccsn;
-    }
-
-    @Override
-    public void setIccsn(String iccsn) {
-        this.iccsn = iccsn;
     }
 
     public String getSMCBHandle() {

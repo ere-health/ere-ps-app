@@ -2,7 +2,6 @@ package health.ere.ps.service.cetp;
 
 import de.health.service.cetp.config.KonnektorConfig;
 import de.health.service.cetp.domain.eventservice.card.Card;
-import de.health.service.cetp.konnektorconfig.KCUserConfigurations;
 import de.health.service.cetp.konnektorconfig.KonnektorsConfigs;
 import org.junit.jupiter.api.Test;
 
@@ -29,7 +28,7 @@ public class RegisterSMCBJobTest {
             new File("."),
             8585,
             new URI("wss://cardlink.service-health.de:8444/websocket/80276883662000004801-20220128"),
-            new KCUserConfigurations(new Properties())
+            new de.health.service.cetp.konnektorconfig.UserConfigurations(new Properties())
         );
 
         when(registerSMCBJob.konnektorsConfigs.getConfigs()).thenReturn(List.of(konnektorConfig));

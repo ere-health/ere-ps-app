@@ -1,6 +1,7 @@
 package health.ere.ps.service.common.security;
 
 import de.health.service.cetp.ISecretsManager;
+import de.health.service.cetp.config.KonnektorAuth;
 import de.health.service.cetp.config.KonnektorConfig;
 import de.health.service.config.api.IUserConfigurations;
 import health.ere.ps.config.AppConfig;
@@ -176,7 +177,7 @@ public class SecretsManagerService implements ISecretsManager {
     public KeyManagerFactory getKeyManagerFactory(KonnektorConfig config) {
         IUserConfigurations userConfigurations = config.getUserConfigurations();
         String clientCertificate = userConfigurations.getClientCertificate();
-        if (userConfigurations.konnektorAuth() == BASIC || clientCertificate == null) {
+        if (KonnektorAuth.from(userConfigurations.getAuth()) == BASIC || clientCertificate == null) {
             return keyManagerFactory;
         } else {
             byte[] clientCertificateBytes = getClientCertificateBytes(clientCertificate);

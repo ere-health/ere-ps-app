@@ -101,6 +101,9 @@ public class UserConfigurations implements IUserConfigurations {
     @JsonbNillable
     private String pruefnummer;
 
+    @JsonIgnore
+    private String iccsn;
+
     static BeanInfoHelper beanInfoHelper;
 
     static {
@@ -133,12 +136,6 @@ public class UserConfigurations implements IUserConfigurations {
 
     public UserConfigurations(HttpServletRequest httpServletRequest) {
         updateWithRequest(httpServletRequest);
-    }
-
-    @Override
-    @Synthetic
-    public KonnektorAuth konnektorAuth() {
-        return KonnektorAuth.from(getAuth());
     }
 
     public Properties properties() {
