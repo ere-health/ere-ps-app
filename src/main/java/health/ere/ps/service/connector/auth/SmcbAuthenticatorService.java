@@ -14,6 +14,7 @@ import java.util.Set;
 
 import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureServicePortType;
 import de.gematik.ws.conn.cardservice.v821.VerifyPin;
+import health.ere.ps.config.AppConfig;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bouncycastle.crypto.signers.StandardDSAEncoding;
 import org.bouncycastle.jce.ECNamedCurveTable;
@@ -51,6 +52,9 @@ public class SmcbAuthenticatorService {
 
     @Inject
     ConnectorCardsService connectorCardsService;
+
+    @Inject
+    AppConfig appConfig;
 
     public String signIdpChallenge(
         Pair<String, String> jwtPair,
@@ -247,7 +251,7 @@ public class SmcbAuthenticatorService {
                 t.getCode().equals(BigInteger.valueOf(4085L))
             );
 
-            if (code4085) {
+            if (code4085 && appConfig.isTriggerSmcbPinVerification()) {
                 try {
                     VerifyPin verifyPin = new VerifyPin();
                     verifyPin.setCardHandle(cardHandle);

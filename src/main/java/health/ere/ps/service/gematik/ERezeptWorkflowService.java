@@ -179,7 +179,7 @@ public class ERezeptWorkflowService {
             if (ent instanceof String s) {
                 sb.append("\n").append(s).append("\n");
             }
-            log.info(sb.toString());
+            log.fine(sb.toString());
         });
         clientBuilder.register((ClientResponseFilter) (req, resp) -> {
             StringBuilder sb = new StringBuilder();
@@ -192,7 +192,7 @@ public class ERezeptWorkflowService {
             byte[] body = in.readAllBytes();
             sb.append("\n").append(new String(body, UTF_8)).append("\n");
             resp.setEntityStream(new ByteArrayInputStream(body));
-            log.info(sb.toString());
+            log.fine(sb.toString());
         });
         if (appConfig.isEnableVau()) {
             try {
@@ -443,10 +443,6 @@ public class ERezeptWorkflowService {
             .header("User-Agent", appConfig.getUserAgent())
             .header("Authorization", "Bearer " + bearerTokenService.getBearerToken(runtimeConfig))
             .header("X-AccessCode", accessCode);
-        if (appConfig.isZetaEnabled()) {
-            String poppToken = poppClient.getToken(runtimeConfig, null);
-            builder = builder.header("X-Popp-Token", poppToken);
-        }
         try (Response response = builder.post(Entity.entity(entity, "application/fhir+xml; charset=utf-8"))) {
             String taskString = new String(response.readEntity(InputStream.class).readAllBytes(), ISO_8859_1);
             log.fine("Response when trying to activate the task: " + taskString);
