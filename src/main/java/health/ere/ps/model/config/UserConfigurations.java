@@ -76,11 +76,6 @@ public class UserConfigurations implements IUserConfigurations {
     @JsonbNillable
     private String tvMode;
 
-    @JsonbProperty(value = "connector.default.auth")
-    @JsonbNillable
-    @JsonIgnore
-    String auth;
-
     @JsonbProperty(value = "connector.client-certificate")
     @JsonbNillable
     private String clientCertificate;
@@ -101,6 +96,21 @@ public class UserConfigurations implements IUserConfigurations {
     @JsonbNillable
     private String pruefnummer;
 
+    /**
+     * Property is added to follow IUserConfigurations interface changes, it might be used once
+     * the BASIC authentication feature is implemented in the "cetp-implementation" branch
+     */
+    @JsonbProperty(value = "connector.auth")
+    @JsonbNillable
+    @JsonIgnore
+    private String auth;
+
+    /**
+     * Property is added to follow IUserConfigurations interface changes, it might be used once
+     * SMC-B cards should be filtered by different iccsn in the "cetp-implementation" branch
+     */
+    @JsonbProperty(value = "connector.iccsn")
+    @JsonbNillable
     @JsonIgnore
     private String iccsn;
 

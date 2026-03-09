@@ -92,8 +92,8 @@ public class ERezeptWorkflowServiceTest {
         try {
             // https://community.oracle.com/thread/1307033?start=0&tstart=0
             LogManager.getLogManager().readConfiguration(
-                    ERezeptWorkflowServiceTest.class
-                            .getResourceAsStream("/logging.properties"));
+                ERezeptWorkflowServiceTest.class
+                    .getResourceAsStream("/logging.properties"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -132,7 +132,7 @@ public class ERezeptWorkflowServiceTest {
         IdpTokenResult idpTokenResult = idpClient.login(x509Certificate);
         log.info("Access Token: " + idpTokenResult.getAccessToken().getRawString());
         String testBearerToken = idpTokenResult.getAccessToken().getRawString();
-        eRezeptWorkflowService.bearerTokenService.addBearerToken(null, testBearerToken);
+        eRezeptWorkflowService.addBearerToken(null, testBearerToken);
         int i = 0;
         DocumentService documentService = new DocumentService();
         documentService.init();
@@ -145,7 +145,7 @@ public class ERezeptWorkflowServiceTest {
                 } catch (NoSuchElementException ex) {
                     ex.printStackTrace();
                 }
-                //try {
+                // try {
                 //    Patient patient = ((Patient)bundle.getEntry().stream().filter(e -> e.getResource() instanceof Patient).findAny().get().getResource());
                 //    patient.getIdentifier().get(0).setValue("X110490897");
                 //} catch(NoSuchElementException ex) {
@@ -153,8 +153,8 @@ public class ERezeptWorkflowServiceTest {
                 //} 
                 BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(bundle);
                 String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
-                        .withZone(ZoneOffset.UTC)
-                        .format(Instant.now());
+                    .withZone(ZoneOffset.UTC)
+                    .format(Instant.now());
                 if (bundleWithAccessCodeOrThrowable.getThrowable() != null) {
                     StringWriter sw = new StringWriter();
                     PrintWriter pw = new PrintWriter(sw);
@@ -166,7 +166,7 @@ public class ERezeptWorkflowServiceTest {
                     log.info("Time: " + thisMoment);
                 }
                 i++;
-                //if (i == 1) {
+                // if (i == 1) {
                 //    break;
                 //}
             }
@@ -227,7 +227,7 @@ public class ERezeptWorkflowServiceTest {
                     ex.printStackTrace();
                 }
 
-                //try {
+                // try {
                 //    Patient patient = ((Patient)bundle.getEntry().stream().filter(e -> e.getResource() instanceof Patient).findAny().get().getResource());
                 //    patient.getIdentifier().get(0).setValue("X110490897");
                 //} catch(NoSuchElementException ex) {
@@ -235,8 +235,8 @@ public class ERezeptWorkflowServiceTest {
                 //} 
                 BundleWithAccessCodeOrThrowable bundleWithAccessCodeOrThrowable = eRezeptWorkflowService.createERezeptOnPrescriptionServer(bundle);
                 String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ssX")
-                        .withZone(ZoneOffset.UTC)
-                        .format(Instant.now());
+                    .withZone(ZoneOffset.UTC)
+                    .format(Instant.now());
                 if (bundleWithAccessCodeOrThrowable.getThrowable() != null) {
                     StringWriter sw = new StringWriter();
                     PrintWriter pw = new PrintWriter(sw);
@@ -248,7 +248,7 @@ public class ERezeptWorkflowServiceTest {
                     log.info("Time: " + thisMoment);
                 }
                 i++;
-                //if (i == 1) {
+                // if (i == 1) {
                 //    break;
                 //}
             }
@@ -275,11 +275,11 @@ public class ERezeptWorkflowServiceTest {
      */
     private static boolean isExpired(String bearerToken) {
         JwtConsumer consumer = new JwtConsumerBuilder()
-                .setDisableRequireSignature()
-                .setSkipSignatureVerification()
-                .setSkipDefaultAudienceValidation()
-                .setRequireExpirationTime()
-                .build();
+            .setDisableRequireSignature()
+            .setSkipSignatureVerification()
+            .setSkipDefaultAudienceValidation()
+            .setRequireExpirationTime()
+            .build();
         try {
             consumer.process(bearerToken);
             return false;
@@ -297,8 +297,8 @@ public class ERezeptWorkflowServiceTest {
         documentService.init();
         ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
         String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mmX")
-                .withZone(ZoneOffset.UTC)
-                .format(Instant.now());
+            .withZone(ZoneOffset.UTC)
+            .format(Instant.now());
         Files.write(Paths.get("target/E-Rezept-" + thisMoment + ".pdf"), a.toByteArray());
     }
 
@@ -312,8 +312,8 @@ public class ERezeptWorkflowServiceTest {
         documentService.init();
         ByteArrayOutputStream a = documentService.generateERezeptPdf(bundleWithAccessCodeOrThrowable);
         String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mmX")
-                .withZone(ZoneOffset.UTC)
-                .format(Instant.now());
+            .withZone(ZoneOffset.UTC)
+            .format(Instant.now());
         Files.write(Paths.get("target/E-Rezept-" + thisMoment + ".pdf"), a.toByteArray());
     }
 
@@ -326,8 +326,8 @@ public class ERezeptWorkflowServiceTest {
         documentService.init();
         ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
         String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmX")
-                .withZone(ZoneOffset.UTC)
-                .format(Instant.now());
+            .withZone(ZoneOffset.UTC)
+            .format(Instant.now());
         Files.write(Paths.get("target/E-Rezept-" + thisMoment + ".pdf"), a.toByteArray());
     }
 
@@ -340,8 +340,8 @@ public class ERezeptWorkflowServiceTest {
         documentService.init();
         ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
         String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmX")
-                .withZone(ZoneOffset.UTC)
-                .format(Instant.now());
+            .withZone(ZoneOffset.UTC)
+            .format(Instant.now());
         Files.write(Paths.get("target/E-Rezept-" + thisMoment + ".pdf"), a.toByteArray());
     }
 
@@ -356,8 +356,8 @@ public class ERezeptWorkflowServiceTest {
         documentService.init();
         ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
         String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmX")
-                .withZone(ZoneOffset.UTC)
-                .format(Instant.now());
+            .withZone(ZoneOffset.UTC)
+            .format(Instant.now());
         Files.write(Paths.get("target/E-Rezept-" + thisMoment + ".pdf"), a.toByteArray());
     }
 
@@ -372,8 +372,8 @@ public class ERezeptWorkflowServiceTest {
         documentService.init();
         ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
         String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmX")
-                .withZone(ZoneOffset.UTC)
-                .format(Instant.now());
+            .withZone(ZoneOffset.UTC)
+            .format(Instant.now());
         Files.write(Paths.get("target/E-Rezept-" + thisMoment + ".pdf"), a.toByteArray());
     }
 
@@ -387,8 +387,8 @@ public class ERezeptWorkflowServiceTest {
         documentService.init();
         ByteArrayOutputStream a = documentService.generateERezeptPdf(Arrays.asList(bundleWithAccessCodeOrThrowable));
         String thisMoment = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmX")
-                .withZone(ZoneOffset.UTC)
-                .format(Instant.now());
+            .withZone(ZoneOffset.UTC)
+            .format(Instant.now());
         Files.write(Paths.get("target/E-Rezept-" + thisMoment + ".pdf"), a.toByteArray());
     }
 

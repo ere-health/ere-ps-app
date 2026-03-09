@@ -155,7 +155,7 @@ public class AppConfig implements ISubscriptionConfig {
 
     @Override
     public String getDefaultCardLinkServer() {
-        return cardLinkServer.orElse("wss://cardlink.service-health.de:8444/websocket/80276883662000004801-20220128");
+        return cardLinkServer.orElse("wss://cardlink.service-health.de:8444/websocket/80276003650110006580-20230112");
     }
 
     @Override

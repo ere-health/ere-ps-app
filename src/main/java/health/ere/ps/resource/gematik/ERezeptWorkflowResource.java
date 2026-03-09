@@ -164,7 +164,7 @@ public class ERezeptWorkflowResource {
     @Path("idp-token")
     public String idpToken() {
         RuntimeConfig runtimeConfig = extractRuntimeConfigFromHeaders(httpServletRequest, userConfig);
-        return eRezeptWorkflowService.bearerTokenService.getBearerToken(runtimeConfig);
+        return eRezeptWorkflowService.getBearerToken(runtimeConfig);
     }
 
     @GET

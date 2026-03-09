@@ -48,7 +48,7 @@ public class MultiConnectorServicesProvider {
         return providers.stream().allMatch(SingleConnectorServicesProvider::isInitialized);
     }
 
-    public CardServicePortType getCardServicePortType(UserConfig userConfig) {
+    public CardServicePortType getCardServicePortType(UserRuntimeConfig userConfig) {
         return getSingleConnectorServicesProvider(userConfig).getCardServicePortType();
     }
 
