@@ -70,11 +70,10 @@ class ERezeptWorkflowResourceTest {
         ERezeptWorkflowResource eRezeptWorkflowResource = new ERezeptWorkflowResource();
         eRezeptWorkflowResource.httpServletRequest = mock(HttpServletRequest.class);
         when(eRezeptWorkflowResource.httpServletRequest.getHeaderNames()).thenReturn(Collections.enumeration(Collections.emptyList()));
-        eRezeptWorkflowResource.eRezeptWorkflowService = mock(ERezeptWorkflowService.class);
-
+        eRezeptWorkflowResource.eRezeptWorkflowService = new ERezeptWorkflowService();
         var tokenService = mock(BearerTokenService.class);
-        eRezeptWorkflowResource.eRezeptWorkflowService.setBearerTokenService(tokenService);
         when(tokenService.getBearerToken(any())).thenReturn("123456");
+        eRezeptWorkflowResource.eRezeptWorkflowService.setBearerTokenService(tokenService);
 
         String token = eRezeptWorkflowResource.idpToken();
 
