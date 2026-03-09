@@ -3,7 +3,6 @@ package health.ere.ps.service.cetp.config;
 import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
-import de.health.service.cetp.SubscriptionManager;
 import de.health.service.cetp.konnektorconfig.FSConfigService;
 import de.health.service.cetp.konnektorconfig.KonnektorConfigService;
 import health.ere.ps.profile.RUDevTestProfile;
@@ -57,9 +56,6 @@ public class KonnektorSubscriptionTest {
     private static String uuid;
 
     private final ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(4);
-
-    @Inject
-    SubscriptionManager subscriptionManager;
 
     @Inject
     KonnektorConfigService konnektorConfigService;
@@ -151,7 +147,6 @@ public class KonnektorSubscriptionTest {
         if (pair.getKey()) {
             if (konnektorConfigService instanceof FSConfigService fsConfigService) {
                 fsConfigService.setConfigFolder(pair.getValue());
-                subscriptionManager.onStart(null);
             }
             Response response = given()
                 .queryParam("host", "192.168.178.42")
@@ -173,7 +168,6 @@ public class KonnektorSubscriptionTest {
         if (pair.getKey()) {
             if (konnektorConfigService instanceof FSConfigService fsConfigService) {
                 fsConfigService.setConfigFolder(pair.getValue());
-                subscriptionManager.onStart(null);
             }
             String host = "192.168.178.52";
             Response response = given()
@@ -193,7 +187,6 @@ public class KonnektorSubscriptionTest {
 
     @Test
     public void defaultFolderConfigKonnektorSubscriptionReloaded() {
-        subscriptionManager.onStart(null);
         Response response = given()
             .queryParam("host", "192.168.178.42")
             .when()
@@ -207,7 +200,6 @@ public class KonnektorSubscriptionTest {
 
     @Test
     public void threeSubscriptionsReloaded() {
-        subscriptionManager.onStart(null);
         Response response = given()
             .when()
             .get("/pharmacy/Subscribe");
@@ -219,7 +211,6 @@ public class KonnektorSubscriptionTest {
 
     @Test
     public void subscriptionUnsubscribedByCetp() throws Exception {
-        subscriptionManager.onStart(null);
         Response response = given()
             .when()
             .get("/pharmacy/Unsubscribe?useCetp=true");

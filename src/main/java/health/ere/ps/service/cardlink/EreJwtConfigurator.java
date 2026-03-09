@@ -52,7 +52,7 @@ public class EreJwtConfigurator extends JwtConfigurator {
             headers.put("Authorization", List.of("Bearer " + bearerToken));
         } catch (Exception e) {
             log.log(Level.WARNING, "Could not get bearer token", e);
-            if(onException != null) {
+            if (onException != null) {
                 onException.accept(e);
             }
         }

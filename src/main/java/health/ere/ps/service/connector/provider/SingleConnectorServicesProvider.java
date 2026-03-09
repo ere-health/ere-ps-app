@@ -7,6 +7,7 @@ import health.ere.ps.service.common.security.SecretsManagerService;
 import health.ere.ps.service.connector.endpoint.EndpointDiscoveryService;
 import jakarta.enterprise.event.Event;
 import jakarta.enterprise.inject.spi.CDI;
+import lombok.Getter;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
@@ -31,7 +32,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.PatternSyntaxException;
 
+@Getter
 public class SingleConnectorServicesProvider extends AbstractConnectorServicesProvider {
+    
     private final static Logger log = Logger.getLogger(SingleConnectorServicesProvider.class.getName());
 
     UserRuntimeConfig userConfig;
@@ -54,7 +57,7 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
                 log.log(Level.SEVERE, "There was a problem when unpacking key from ClientCertificateKeyStore:", e);
                 exceptionEvent.fireAsync(e);
             }
-            // if non is given try to load the certificates from the AppConfig
+            // if non is given, try to load the certificates from the AppConfig
         } else {
             try {
                 AppConfig appConfig = CDI.current().select(AppConfig.class).get();
@@ -76,6 +79,10 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
         this.endpointDiscoveryService = new EndpointDiscoveryService(userConfig, this.secretsManagerService);
 
         initializeServices();
+    }
+
+    public boolean isInitialized() {
+        return this.endpointDiscoveryService.isInitialized();
     }
 
     public static KeyManager getKeyFromKeyStoreUri(String keystoreUri, String keystorePassword) throws URISyntaxException, KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
@@ -112,7 +119,7 @@ public class SingleConnectorServicesProvider extends AbstractConnectorServicesPr
                     // example: "file:src/test/resources/certs/keystore.p12?alias=key2"
                     keyAlias = parameterValue;
                 }
-            } catch (NullPointerException|PatternSyntaxException e){
+            } catch (NullPointerException | PatternSyntaxException e) {
                 // take the first key from KeyStore, whichever it is
                 // example: "file:src/test/resources/certs/keystore.p12"
             }

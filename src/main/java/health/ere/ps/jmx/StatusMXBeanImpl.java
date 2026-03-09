@@ -3,7 +3,7 @@ package health.ere.ps.jmx;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import de.health.service.cetp.SubscriptionManager;
+import de.health.service.cetp.konnektorconfig.KonnektorsConfigs;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.model.status.Status;
 import health.ere.ps.service.status.StatusService;
@@ -19,20 +19,19 @@ public class StatusMXBeanImpl implements StatusMXBean {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private final StatusService statusService;
-    private final SubscriptionManager subscriptionManager;
+    private final KonnektorsConfigs konnektorsConfigs;
 
     @Inject
-    public StatusMXBeanImpl(StatusService statusService, SubscriptionManager subscriptionManager) {
+    public StatusMXBeanImpl(
+        StatusService statusService,
+        KonnektorsConfigs konnektorsConfigs
+    ) {
         this.statusService = statusService;
-        this.subscriptionManager = subscriptionManager;
+        this.konnektorsConfigs = konnektorsConfigs;
     }
 
-//    void onStart(@Observes StartupEvent ev) {
-//        PsMXBeanManager.registerMXBean(this);
-//    }
-
     public String getStatus() {
-        var konnektorConfigs = subscriptionManager.getKonnektorConfigs(null, null);
+        var konnektorConfigs = konnektorsConfigs.getConfigs();
         ObjectNode rootNode = OBJECT_MAPPER.createObjectNode();
 
         for (var konnektorConfig : konnektorConfigs) {

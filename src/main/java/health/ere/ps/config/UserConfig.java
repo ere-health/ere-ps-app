@@ -2,7 +2,6 @@ package health.ere.ps.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import de.health.service.cetp.konnektorconfig.KCUserConfigurations;
 import de.health.service.config.api.IRuntimeConfig;
 import de.health.service.config.api.IUserConfigurations;
 import de.health.service.config.api.UserRuntimeConfig;
@@ -147,7 +146,7 @@ public class UserConfig implements UserRuntimeConfig {
     public void updateProperties(IUserConfigurations configurations) {
         if (configurations instanceof UserConfigurations) {
             this.userConfigurations = (UserConfigurations) configurations;
-        } else if (configurations instanceof KCUserConfigurations kcUserConfigurations) {
+        } else if (configurations instanceof de.health.service.cetp.konnektorconfig.UserConfigurations kcUserConfigurations) {
             this.userConfigurations = new UserConfigurations(kcUserConfigurations.properties());
         }
     }

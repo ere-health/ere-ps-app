@@ -59,7 +59,7 @@ class CardInsertedTest {
     void vsdmSensorDataWithEventIdIsSentOnCardInsertedEvent() throws Exception {
         PharmacyService pharmacyService = spy(createPharmacyService());
         Holder<byte[]> holder = prepareHolder(pharmacyService);
-        PharmacyService.ReadVSDResult readVSDResult = pharmacyService.new ReadVSDResult();
+        PharmacyService.ReadVSDResult readVSDResult = new PharmacyService.ReadVSDResult();
         readVSDResult.pruefungsnachweis = holder;
         doReturn(readVSDResult).when(pharmacyService).readVSD(any(), any(), any(), any());
 

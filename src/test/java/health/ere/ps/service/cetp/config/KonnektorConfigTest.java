@@ -76,6 +76,6 @@ public class KonnektorConfigTest {
         doReturn(sameKonnektorConfigs).when(fsConfigService).readFromPath(any());
         fsConfigService.onStart(null);
 
-        assertEquals(sameKonnektorConfigs.size(), fsConfigService.configMap().size());
+        assertEquals(sameKonnektorConfigs.size(), fsConfigService.konnektorConfigs().get().size());
     }
 }

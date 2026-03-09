@@ -2,8 +2,8 @@ package health.ere.ps.service.connector.provider;
 
 import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureService;
 import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureServicePortType;
-import de.gematik.ws.conn.cardservice.wsdl.v8.CardService;
-import de.gematik.ws.conn.cardservice.wsdl.v8.CardServicePortType;
+import de.gematik.ws.conn.cardservice.wsdl.v8_2.CardService;
+import de.gematik.ws.conn.cardservice.wsdl.v8_2.CardServicePortType;
 import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateService;
 import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateServicePortType;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
@@ -15,6 +15,7 @@ import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServiceV740;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServiceV755;
 import de.gematik.ws.conn.vsds.vsdservice.v5.VSDService;
 import de.gematik.ws.conn.vsds.vsdservice.v5.VSDServicePortType;
+import de.health.service.cetp.config.KonnektorAuth;
 import de.health.service.config.api.IUserConfigurations;
 import de.health.service.config.api.UserRuntimeConfig;
 import health.ere.ps.config.interceptor.ProvidedConfig;
@@ -25,17 +26,18 @@ import jakarta.inject.Inject;
 import jakarta.xml.ws.BindingProvider;
 
 import javax.net.ssl.SSLContext;
+import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public abstract class AbstractConnectorServicesProvider {
+
     private final static Logger log = Logger.getLogger(AbstractConnectorServicesProvider.class.getName());
- 
+
     @Inject
     EndpointDiscoveryService endpointDiscoveryService;
     @Inject
     SecretsManagerService secretsManagerService;
-
 
     private VSDServicePortType vSDServicePortType;
     private CardServicePortType cardServicePortType;
@@ -51,7 +53,7 @@ public abstract class AbstractConnectorServicesProvider {
     }
 
     public void initializeServices(boolean throwEndpointException) {
-        if(endpointDiscoveryService != null) {
+        if (endpointDiscoveryService != null) {
             try {
                 endpointDiscoveryService.obtainConfiguration(throwEndpointException);
                 initializeVSDServicePortType();
@@ -69,7 +71,7 @@ public abstract class AbstractConnectorServicesProvider {
                 authSignatureServicePortType = null;
                 signatureServicePortType = null;
                 signatureServicePortTypeV755 = null;
-                if(throwEndpointException) {
+                if (throwEndpointException) {
                     throw new RuntimeException(e);
                 } else {
                     log.log(Level.SEVERE, "Could not obtainConfiguration", e);
@@ -80,15 +82,15 @@ public abstract class AbstractConnectorServicesProvider {
             log.warning("endpointDiscoveryService is null");
         }
     }
-    
+
     private void initializeVSDServicePortType() {
-        VSDServicePortType vsdService = new VSDService(getClass().getResource("/vsds/VSDService.wsdl"))
-                .getVSDServicePort();
+        URL resource = getClass().getResource("/vsds/VSDService.wsdl");
+        VSDServicePortType vsdService = new VSDService(resource).getVSDServicePort();
 
         BindingProvider bp = (BindingProvider) vsdService;
-        if(endpointDiscoveryService.getVSDServiceEndpointAddress() != null) {
+        if (endpointDiscoveryService.getVSDServiceEndpointAddress() != null) {
             bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
-                    endpointDiscoveryService.getVSDServiceEndpointAddress());
+                endpointDiscoveryService.getVSDServiceEndpointAddress());
         } else {
             log.warning("VSDServiceEndpointAddress is null");
         }
@@ -98,13 +100,15 @@ public abstract class AbstractConnectorServicesProvider {
     }
 
     private void initializeCardServicePortType() {
-        CardServicePortType cardService = new CardService(getClass().getResource("/CardService.wsdl"))
-                .getCardServicePort();
+        URL resource = getClass().getResource("/conn/CardService_v8_2_1.wsdl");
+        CardServicePortType cardService = new CardService(resource).getCardServicePort();
 
         BindingProvider bp = (BindingProvider) cardService;
-        if(endpointDiscoveryService.getCardServiceEndpointAddress() != null) {
-            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
-                    endpointDiscoveryService.getCardServiceEndpointAddress());
+        if (endpointDiscoveryService.getCardServiceEndpointAddress() != null) {
+            bp.getRequestContext().put(
+                BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+                endpointDiscoveryService.getCardServiceEndpointAddress()
+            );
         } else {
             log.warning("CardServiceEndpointAddress is null");
         }
@@ -114,13 +118,15 @@ public abstract class AbstractConnectorServicesProvider {
     }
 
     private void initializeCertificateService() {
-        CertificateServicePortType service = new CertificateService(getClass()
-                .getResource("/CertificateService_v6_0_1.wsdl")).getCertificateServicePort();
+        URL resource = getClass().getResource("/CertificateService_v6_0_1.wsdl");
+        CertificateServicePortType service = new CertificateService(resource).getCertificateServicePort();
 
         BindingProvider bp = (BindingProvider) service;
-        if(endpointDiscoveryService.getCertificateServiceEndpointAddress() != null) {
-            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
-                endpointDiscoveryService.getCertificateServiceEndpointAddress());
+        if (endpointDiscoveryService.getCertificateServiceEndpointAddress() != null) {
+            bp.getRequestContext().put(
+                BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+                endpointDiscoveryService.getCertificateServiceEndpointAddress()
+            );
         } else {
             log.warning("CertificateServiceEndpointAddress is null");
         }
@@ -130,13 +136,15 @@ public abstract class AbstractConnectorServicesProvider {
     }
 
     private void initializeEventServicePortType() {
-        EventServicePortType service = new EventService(getClass().getResource("/EventService.wsdl"))
-                .getEventServicePort();
+        URL resource = getClass().getResource("/EventService.wsdl");
+        EventServicePortType service = new EventService(resource).getEventServicePort();
 
         BindingProvider bp = (BindingProvider) service;
-        if(endpointDiscoveryService.getEventServiceEndpointAddress() != null) {
-            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
-                    endpointDiscoveryService.getEventServiceEndpointAddress());
+        if (endpointDiscoveryService.getEventServiceEndpointAddress() != null) {
+            bp.getRequestContext().put(
+                BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+                endpointDiscoveryService.getEventServiceEndpointAddress()
+            );
         } else {
             log.warning("EventServiceEndpointAddress is null");
         }
@@ -146,12 +154,14 @@ public abstract class AbstractConnectorServicesProvider {
     }
 
     private void initializeAuthSignatureServicePortType() {
-        AuthSignatureServicePortType service = new AuthSignatureService(getClass().getResource(
-                "/AuthSignatureService_v7_4_1.wsdl")).getAuthSignatureServicePort();
+        URL resource = getClass().getResource("/AuthSignatureService_v7_4_1.wsdl");
+        AuthSignatureServicePortType service = new AuthSignatureService(resource).getAuthSignatureServicePort();
         BindingProvider bp = (BindingProvider) service;
-        if(endpointDiscoveryService.getAuthSignatureServiceEndpointAddress() != null) {
-            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
-                    endpointDiscoveryService.getAuthSignatureServiceEndpointAddress());
+        if (endpointDiscoveryService.getAuthSignatureServiceEndpointAddress() != null) {
+            bp.getRequestContext().put(
+                BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+                endpointDiscoveryService.getAuthSignatureServiceEndpointAddress()
+            );
         } else {
             log.warning("AuthSignatureServiceEndpointAddress is null");
         }
@@ -161,13 +171,15 @@ public abstract class AbstractConnectorServicesProvider {
     }
 
     private void initializeSignatureServicePortType() {
-        SignatureServicePortTypeV740 service = new SignatureServiceV740(getClass()
-                .getResource("/SignatureService.wsdl")).getSignatureServicePortV740();
+        URL resource = getClass().getResource("/SignatureService.wsdl");
+        SignatureServicePortTypeV740 service = new SignatureServiceV740(resource).getSignatureServicePortV740();
 
         BindingProvider bp = (BindingProvider) service;
-        if(endpointDiscoveryService.getSignatureServiceEndpointAddress() != null) {
-            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
-                endpointDiscoveryService.getSignatureServiceEndpointAddress());
+        if (endpointDiscoveryService.getSignatureServiceEndpointAddress() != null) {
+            bp.getRequestContext().put(
+                BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+                endpointDiscoveryService.getSignatureServiceEndpointAddress()
+            );
         } else {
             log.warning("SignatureServiceEndpointAddress is null");
         }
@@ -177,13 +189,15 @@ public abstract class AbstractConnectorServicesProvider {
     }
 
     private void initializeSignatureServicePortTypeV755() {
-        SignatureServicePortTypeV755 service = new SignatureServiceV755(getClass()
-                .getResource("/SignatureService_V7_5_5.wsdl")).getSignatureServicePortTypeV755();
+        URL resource = getClass().getResource("/SignatureService_V7_5_5.wsdl");
+        SignatureServicePortTypeV755 service = new SignatureServiceV755(resource).getSignatureServicePortTypeV755();
 
         BindingProvider bp = (BindingProvider) service;
-        if(endpointDiscoveryService.getSignatureServiceEndpointAddress() != null) {
-            bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
-                endpointDiscoveryService.getSignatureServiceEndpointAddress());
+        if (endpointDiscoveryService.getSignatureServiceEndpointAddress() != null) {
+            bp.getRequestContext().put(
+                BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+                endpointDiscoveryService.getSignatureServiceEndpointAddress()
+            );
         } else {
             log.warning("SignatureServiceEndpointAddress for V755 is null");
         }
@@ -204,18 +218,23 @@ public abstract class AbstractConnectorServicesProvider {
 
     private void configureBindingProvider(BindingProvider bindingProvider) {
         SSLContext sslContext = secretsManagerService.getSslContext();
-        if(sslContext != null) {
-            bindingProvider.getRequestContext().put("com.sun.xml.ws.transport.https.client.SSLSocketFactory",
-                    sslContext.getSocketFactory());
+        if (sslContext != null) {
+            bindingProvider.getRequestContext().put(
+                "com.sun.xml.ws.transport.https.client.SSLSocketFactory",
+                sslContext.getSocketFactory()
+            );
         }
-        bindingProvider.getRequestContext().put("com.sun.xml.ws.transport.https.client.hostname.verifier",
-                new SSLUtilities.FakeHostnameVerifier());
+        bindingProvider.getRequestContext().put(
+            "com.sun.xml.ws.transport.https.client.hostname.verifier",
+            new SSLUtilities.FakeHostnameVerifier()
+        );
 
         IUserConfigurations userConfigurations = getUserConfig().getUserConfigurations();
         String basicAuthUsername = userConfigurations.getBasicAuthUsername();
         String basicAuthPassword = userConfigurations.getBasicAuthPassword();
 
-        if(basicAuthUsername != null && !basicAuthUsername.equals("")) {
+        // TODO userConfigurations.getKonnektorAuth() == BASIC
+        if (basicAuthUsername != null && !basicAuthUsername.isEmpty()) {
             bindingProvider.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, basicAuthUsername);
             bindingProvider.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, basicAuthPassword);
         }

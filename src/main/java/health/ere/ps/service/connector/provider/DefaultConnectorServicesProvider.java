@@ -20,5 +20,4 @@ public class DefaultConnectorServicesProvider extends AbstractConnectorServicesP
     public UserRuntimeConfig getUserConfig() {
         return userConfig;
     }
-    
 }

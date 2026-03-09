@@ -1,0 +1,117 @@
+package health.ere.ps.service.gematik.popp;
+
+import de.gematik.zeta.sdk.BuildConfig;
+import de.gematik.zeta.sdk.StorageConfig;
+import de.gematik.zeta.sdk.TpmConfig;
+import de.gematik.zeta.sdk.WsClientExtension;
+import de.gematik.zeta.sdk.ZetaSdk;
+import de.gematik.zeta.sdk.ZetaSdkClient;
+import de.gematik.zeta.sdk.ZetaSdkClientExtension;
+import de.gematik.zeta.sdk.attestation.model.AttestationConfig;
+import de.gematik.zeta.sdk.attestation.model.PlatformProductId;
+import de.gematik.zeta.sdk.authentication.AuthConfig;
+import de.gematik.zeta.sdk.authentication.smcb.SmcbTokenProvider;
+import de.gematik.zeta.sdk.network.http.client.ZetaHttpClientBuilder;
+import de.gematik.zeta.sdk.storage.InMemoryStorage;
+import health.ere.ps.config.AppConfig;
+import health.ere.ps.config.RuntimeConfig;
+import io.ktor.client.plugins.logging.LogLevel;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import kotlin.Unit;
+
+import java.net.URI;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+@ApplicationScoped
+public class PoppClient {
+
+    private static final Logger log = Logger.getLogger(PoppClient.class.getName());
+
+    private final String poppServerUrl;
+    private final EgkClient egkClient;
+    private ZetaSdkClient sdkClient;
+
+    @Inject
+    public PoppClient(AppConfig appConfig, EgkClient egkClient) {
+        this.egkClient = egkClient;
+        this.poppServerUrl = appConfig.getPoppServerUrl();
+
+        if (appConfig.isZetaEnabled()) {
+            sdkClient = ZetaSdk.INSTANCE.build(
+                appConfig.getZetaAuthServerUrl(),
+                new BuildConfig(
+                    appConfig.getZetaProductId(),
+                    appConfig.getZetaProductVersion(),
+                    appConfig.getZetaClientName(),
+                    new StorageConfig(new InMemoryStorage(), ""),
+                    new TpmConfig() {
+                    },
+                    new AuthConfig(
+                        List.of("zero:audience"),
+                        30,
+                        true,
+                        new SmcbTokenProvider(
+                            new SmcbTokenProvider.ConnectorConfig("", "", "", "", "", ""),
+                            egkClient
+                        ),
+                        AttestationConfig.software()
+                    ),
+                    new PlatformProductId.AppleProductId("apple", "macos", List.of("bundleX")),
+                    new ZetaHttpClientBuilder("").disableServerValidation(true).logging(LogLevel.ALL, System.out::println),
+                    null,
+                    null
+                ));
+        }
+    }
+
+    static class Holder<T> {
+        public T value;
+    }
+
+    public String getToken(RuntimeConfig runtimeConfig, String egkHandle) {
+        egkClient.registerRuntimeConfig(runtimeConfig);
+        try {
+            Holder<String> tokenHolder = new Holder<>();
+            try {
+                URI uri = new URI(poppServerUrl);
+                String hostPort = uri.getHost() + ":" + uri.getPort();
+
+                Map<String, String> headers = new HashMap<>();
+                headers.put("X-Forwarded-Proto", "https");
+                headers.put("X-Forwarded-Host", hostPort);
+
+                String wsUrl = poppServerUrl
+                    .replace("https://", "wss://")
+                    .replace("http://", "ws://") + "/ws/";
+
+                WsClientExtension.ws(sdkClient, wsUrl,
+                    builder -> {
+                        builder.disableServerValidation(true);
+                        return Unit.INSTANCE;
+                    },
+                    headers, session -> {
+                        try {
+                            PoppTokenProvider poppTokenProvider = new PoppTokenProvider(egkClient);
+                            String egkCardHandle = egkHandle != null ? egkHandle : egkClient.getConnectedEgkCard();
+                            tokenHolder.value = poppTokenProvider.acquireToken(session, egkCardHandle);
+                        } catch (Exception e) {
+                            ZetaSdkClientExtension.forget();
+                            log.log(Level.SEVERE, "Get popp-token websocket error", e);
+                        } finally {
+                            session.close();
+                        }
+                    });
+            } catch (Exception e) {
+                log.log(Level.SEVERE, "Get popp-token error", e);
+            }
+            return tokenHolder.value;
+        } finally {
+            egkClient.unregisterRuntimeConfig(Thread.currentThread().getName());
+        }
+    }
+}

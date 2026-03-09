@@ -1,7 +1,7 @@
 package health.ere.ps.service.connector.provider;
 
 import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureServicePortType;
-import de.gematik.ws.conn.cardservice.wsdl.v8.CardServicePortType;
+import de.gematik.ws.conn.cardservice.wsdl.v8_2.CardServicePortType;
 import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateServicePortType;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
@@ -9,20 +9,18 @@ import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV740;
 import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
 import de.gematik.ws.conn.vsds.vsdservice.v5.VSDServicePortType;
 import de.health.service.config.api.UserRuntimeConfig;
-import health.ere.ps.config.SimpleUserConfig;
+import health.ere.ps.config.UserConfig;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.Map;
-import java.util.logging.Logger;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 @ApplicationScoped
 public class MultiConnectorServicesProvider {
-
-    private static final Logger log = Logger.getLogger(MultiConnectorServicesProvider.class.getName());
 
     @Inject
     DefaultConnectorServicesProvider defaultConnectorServicesProvider;
@@ -30,21 +28,24 @@ public class MultiConnectorServicesProvider {
     @Inject
     Event<Exception> eventException;
 
-    //Map<UserConfig, SingleConnectorServicesProvider> singleConnectorServicesProvider = new ConcurrentHashMap<>();
-    Map<SimpleUserConfig, SingleConnectorServicesProvider> singleConnectorServicesProvider = Collections.synchronizedMap(new HashMap<SimpleUserConfig, SingleConnectorServicesProvider>());
+    ConcurrentHashMap<KonnektorKey, SingleConnectorServicesProvider> portMap = new ConcurrentHashMap<>();
 
     public AbstractConnectorServicesProvider getSingleConnectorServicesProvider(UserRuntimeConfig userConfig) {
         if (userConfig == null) {
             return defaultConnectorServicesProvider;
         } else {
-        	SimpleUserConfig simpleUserConfig = new SimpleUserConfig(userConfig);
-        	if(!singleConnectorServicesProvider.containsKey(simpleUserConfig)) {
-        		log.fine("This key is not present in the map and will be inserted: " + simpleUserConfig.toString());
-        		log.fine("The hashkey for it is: " + simpleUserConfig.hashCode());
-        		singleConnectorServicesProvider.put(simpleUserConfig, new SingleConnectorServicesProvider(userConfig, eventException));
-            }
-            return singleConnectorServicesProvider.get(simpleUserConfig);
+            return portMap.computeIfAbsent(new KonnektorKey(userConfig), kk ->
+                new SingleConnectorServicesProvider(userConfig, eventException)
+            );
         }
+    }
+
+    public boolean isInitialized(Set<KonnektorKey> keys) {
+        Collection<SingleConnectorServicesProvider> providers = portMap.entrySet().stream()
+            .filter(e -> keys.isEmpty() || keys.contains(e.getKey()))
+            .map(Map.Entry::getValue)
+            .toList();
+        return providers.stream().allMatch(SingleConnectorServicesProvider::isInitialized);
     }
 
     public CardServicePortType getCardServicePortType(UserRuntimeConfig userConfig) {
@@ -80,6 +81,7 @@ public class MultiConnectorServicesProvider {
             return defaultConnectorServicesProvider.getContextType();
         }
         ContextType contextType = new ContextType();
+        // Use deprecated until default Konnektor config is still used
         contextType.setMandantId(userConfig.getMandantId());
         contextType.setClientSystemId(userConfig.getClientSystemId());
         contextType.setWorkplaceId(userConfig.getWorkplaceId());
@@ -88,6 +90,6 @@ public class MultiConnectorServicesProvider {
     }
 
     public void clearAll() {
-    	singleConnectorServicesProvider = Collections.synchronizedMap(new HashMap<SimpleUserConfig, SingleConnectorServicesProvider>());
+        portMap.clear();
     }
 }

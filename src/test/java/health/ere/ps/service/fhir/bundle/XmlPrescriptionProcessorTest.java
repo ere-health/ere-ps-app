@@ -6,13 +6,18 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import health.ere.ps.service.fhir.prescription.PrescriptionService;
+import jakarta.inject.Inject;
 import org.hl7.fhir.r4.model.Bundle;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import health.ere.ps.service.fhir.XmlPrescriptionProcessor;
+import health.ere.ps.service.fhir.prescription.XmlPrescriptionProcessor;
 
 public class XmlPrescriptionProcessorTest {
+
+    @Inject
+    PrescriptionService prescriptionService;
 
     @Test
     @Disabled("This test case needs unpublished data")
@@ -21,7 +26,7 @@ public class XmlPrescriptionProcessorTest {
         try {
             xmlBundle = new String(Files.readAllBytes(Paths.get("../secret-test-print-samples/CGM-Turbomed/XML/Kaiser_Bella_20210630113252.xml")));
             
-            Bundle[] bundle = XmlPrescriptionProcessor.parseFromString(xmlBundle);
+            Bundle[] bundle = prescriptionService.parseFromString(xmlBundle);
             assertEquals(3, bundle.length);
         } catch (IOException e) {
             e.printStackTrace();

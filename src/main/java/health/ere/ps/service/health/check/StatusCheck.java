@@ -1,5 +1,8 @@
 package health.ere.ps.service.health.check;
 
+import de.health.service.check.Check;
+import de.health.service.check.Status;
+import de.health.service.config.api.IRuntimeConfig;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.service.status.StatusService;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -24,9 +27,9 @@ public class StatusCheck implements Check {
     }
 
     @Override
-    public Status getStatus(RuntimeConfig runtimeConfig) {
+    public Status getStatus(IRuntimeConfig runtimeConfig) {
         try {
-            health.ere.ps.model.status.Status status = statusService.getStatus(runtimeConfig);
+            health.ere.ps.model.status.Status status = statusService.getStatus((RuntimeConfig) runtimeConfig);
             boolean ok = status.getCautReadable()
                 && status.getConnectorReachable()
                 && status.getComfortsignatureAvailable()
@@ -42,9 +45,9 @@ public class StatusCheck implements Check {
     }
 
     @Override
-    public Map<String, String> getData(RuntimeConfig runtimeConfig) {
-        health.ere.ps.model.status.Status status = statusService.getStatus(runtimeConfig);
-        Map<String, String> map = new HashMap<>();
+    public Map<String, Object> getData(IRuntimeConfig runtimeConfig) {
+        health.ere.ps.model.status.Status status = statusService.getStatus((RuntimeConfig) runtimeConfig);
+        Map<String, Object> map = new HashMap<>();
         map.put("cautReadable", String.valueOf(status.getCautReadable()));
         map.put("cautInformation", status.getCautInformation());
         map.put("comfortsignatureAvailable", String.valueOf(status.getComfortsignatureAvailable()));

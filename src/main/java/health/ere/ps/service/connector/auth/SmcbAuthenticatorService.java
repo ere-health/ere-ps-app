@@ -12,9 +12,13 @@ import java.util.Base64;
 import java.util.Optional;
 import java.util.Set;
 
+import de.gematik.ws.conn.authsignatureservice.wsdl.v7.AuthSignatureServicePortType;
+import de.gematik.ws.conn.cardservice.v821.VerifyPin;
+import health.ere.ps.config.AppConfig;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bouncycastle.crypto.signers.StandardDSAEncoding;
 import org.bouncycastle.jce.ECNamedCurveTable;
+import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwx.CompactSerializer;
 import org.jose4j.lang.JoseException;
@@ -25,13 +29,11 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import de.gematik.ws.conn.authsignatureservice.wsdl.v7.FaultMessage;
-import de.gematik.ws.conn.cardservicecommon.v2.PinResultEnum;
 import de.gematik.ws.conn.connectorcommon.v5.Status;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.signatureservice.v7.BinaryDocumentType;
 import de.gematik.ws.conn.signatureservice.v7.ExternalAuthenticate;
 import de.gematik.ws.conn.signatureservice.v7.ExternalAuthenticateResponse;
-import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.exception.connector.ConnectorCardsException;
 import health.ere.ps.service.connector.cards.ConnectorCardsService;
@@ -47,27 +49,30 @@ public class SmcbAuthenticatorService {
 
     @Inject
     MultiConnectorServicesProvider connectorServicesProvider;
-    
+
     @Inject
     ConnectorCardsService connectorCardsService;
 
     @Inject
     AppConfig appConfig;
 
-
-    public String signIdpChallenge(Pair<String, String> jwtPair, RuntimeConfig runtimeConfig, X509Certificate certificate) {
+    public String signIdpChallenge(
+        Pair<String, String> jwtPair,
+        RuntimeConfig runtimeConfig,
+        X509Certificate certificate
+    ) {
         JsonWebSignatureWithExternalAuthentication jws = new JsonWebSignatureWithExternalAuthentication(runtimeConfig);
         jws.setPayload(new String(Base64.getUrlDecoder().decode(jwtPair.getRight())));
 
         Optional.ofNullable(jwtPair.getLeft())
-                .map(b64Header -> new String(Base64.getUrlDecoder().decode(b64Header)))
-                .map(JsonParser::parseString)
-                .map(JsonElement::getAsJsonObject)
-                .map(JsonObject::entrySet)
-                .stream()
-                .flatMap(Set::stream)
-                .forEach(entry -> jws.setHeader(entry.getKey(),
-                        entry.getValue().getAsString()));
+            .map(b64Header -> new String(Base64.getUrlDecoder().decode(b64Header)))
+            .map(JsonParser::parseString)
+            .map(JsonElement::getAsJsonObject)
+            .map(JsonObject::entrySet)
+            .stream()
+            .flatMap(Set::stream)
+            .forEach(entry -> jws.setHeader(entry.getKey(),
+                entry.getValue().getAsString()));
         try {
             jws.setCertificateChainHeaderValue(certificate);
             return jws.getCompactSerialization();
@@ -110,9 +115,7 @@ public class SmcbAuthenticatorService {
                     throw new JoseException("Could not apply SHA-256 to signing bytes", e);
                 }
                 byte[] encodedhash = digest.digest(inputBytes);
-
                 byte[] signatureBytes;
-
                 try {
                     String smcbCardHandle = (this.runtimeConfig != null && this.runtimeConfig.getSMCBHandle() != null) ?
                         this.runtimeConfig.getSMCBHandle() : connectorCardsService.getConnectorCardHandle(
@@ -120,19 +123,23 @@ public class SmcbAuthenticatorService {
                     boolean isECC = this.getAlgorithmHeaderValue().equalsIgnoreCase("BP256R1");
 
                     signatureBytes = externalAuthenticateInternal(encodedhash,
-                            smcbCardHandle, isECC);
+                        smcbCardHandle, isECC);
                 } catch (ConnectorCardsException e) {
-                    throw new IllegalStateException("Cannot access the SMC-B card-handle info to " +
-                            "compute the json web token signature!", e);
+                    throw new IllegalStateException(
+                        "Cannot access the SMC-B card-handle info to compute the json web token signature!", e
+                    );
                 }
                 setSignature(signatureBytes);
             }
         }
-    
-        public byte[] externalAuthenticateInternal(byte[] sha265Hash, String smcbCardHandle, boolean isECC) throws JoseException {
+
+        public byte[] externalAuthenticateInternal(
+            byte[] sha265Hash,
+            String smcbCardHandle,
+            boolean isECC
+        ) throws JoseException {
             return externalAuthenticate(sha265Hash, smcbCardHandle, this.runtimeConfig, isECC);
         }
-        
 
         private byte[] getSigningInputBytes() throws JoseException {
         /*
@@ -149,8 +156,7 @@ public class SmcbAuthenticatorService {
         */
 
             if (!isRfc7797UnencodedPayload()) {
-                String signingInputString = CompactSerializer.serialize(getEncodedHeader(),
-                        getEncodedPayload());
+                String signingInputString = CompactSerializer.serialize(getEncodedHeader(), getEncodedPayload());
                 return StringUtil.getBytesAscii(signingInputString);
             } else {
                 try {
@@ -160,14 +166,18 @@ public class SmcbAuthenticatorService {
                     os.write(getUnverifiedPayloadBytes());
                     return os.toByteArray();
                 } catch (IOException e) {
-                    throw new JoseException("This should never happen from a ByteArrayOutputStream",
-                            e);
+                    throw new JoseException("This should never happen from a ByteArrayOutputStream", e);
                 }
             }
         }
     }
 
-    public byte[] externalAuthenticate(byte[] sha265Hash, String smcbCardHandle, RuntimeConfig runtimeConfig, boolean isECC) throws JoseException {
+    public byte[] externalAuthenticate(
+        byte[] sha265Hash,
+        String smcbCardHandle,
+        RuntimeConfig runtimeConfig,
+        boolean isECC
+    ) throws JoseException {
         ExternalAuthenticate.OptionalInputs optionalInputs = new ExternalAuthenticate.OptionalInputs();
 
         // optionalInputs.setSignatureSchemes("RSASSA-PSS");
@@ -184,39 +194,31 @@ public class SmcbAuthenticatorService {
         binaryDocumentType.setBase64Data(base64Data);
 
         ExternalAuthenticateResponse response;
-
         try {
-            // Titus Bug:  Client received SOAP Fault from server: No enum constant
+            // Titus Bug: Client received SOAP Fault from server: No enum constant
             // de.gematik.ti.signenc.authsignature.SignatureScheme.RSASSA-PSS Please see the
-            // server log to find more detail regarding exact cause of the failure.
-            response = doExternalAuthenticate(smcbCardHandle,
-                    runtimeConfig, optionalInputs,
-                    binaryDocumentType);
+            // server log to find more detail regarding the exact cause of the failure.
+            response = doExternalAuthenticate(smcbCardHandle, runtimeConfig, optionalInputs, binaryDocumentType);
         } catch (FaultMessage e) {
             throw new JoseException("Could not call externalAuthenticate", e);
         }
         byte[] value = response.getSignatureObject().getBase64Signature().getValue();
-
-        if(isECC) {
-            byte[] concatenated = convertDerECDSAtoConcated(value);
-            return concatenated;
-        } else {
-            return value;
-        }
+        return isECC ? convertDerECDSAtoConcatenated(value) : value;
     }
 
-    public static byte[] convertDerECDSAtoConcated(byte[] derSignature) throws JoseException {
+    public static byte[] convertDerECDSAtoConcatenated(byte[] derSignature) throws JoseException {
         try {
-            BigInteger[] signInt = StandardDSAEncoding.INSTANCE.decode(ECNamedCurveTable.getParameterSpec("brainpoolp256r1").getN(), derSignature);
+            ECNamedCurveParameterSpec brainpoolp256r1 = ECNamedCurveTable.getParameterSpec("brainpoolp256r1");
+            BigInteger[] signInt = StandardDSAEncoding.INSTANCE.decode(brainpoolp256r1.getN(), derSignature);
             ByteBuffer buffer = ByteBuffer.allocate(64);
             byte[] rArray = signInt[0].toByteArray();
-            if(rArray.length == 32) {
+            if (rArray.length == 32) {
                 buffer.put(rArray);
             } else {
                 buffer.put(Arrays.copyOfRange(rArray, 1, 33));
             }
             byte[] sArray = signInt[1].toByteArray();
-            if(sArray.length == 32) {
+            if (sArray.length == 32) {
                 buffer.put(sArray);
             } else {
                 buffer.put(Arrays.copyOfRange(sArray, 1, 33));
@@ -227,33 +229,40 @@ public class SmcbAuthenticatorService {
         }
     }
 
-
-    public ExternalAuthenticateResponse doExternalAuthenticate(String cardHandle, RuntimeConfig runtimeConfig,
-                                                               ExternalAuthenticate.OptionalInputs optionalInputs,
-                                                               BinaryDocumentType binaryDocumentType) throws FaultMessage {
-
+    public ExternalAuthenticateResponse doExternalAuthenticate(
+        String cardHandle,
+        RuntimeConfig runtimeConfig,
+        ExternalAuthenticate.OptionalInputs optionalInputs,
+        BinaryDocumentType binaryDocumentType
+    ) throws FaultMessage {
         ContextType contextType = connectorServicesProvider.getContextType(runtimeConfig);
         Holder<Status> statusHolder = new Holder<>();
         Holder<SignatureObject> signatureObjectHolder = new Holder<>();
         ExternalAuthenticateResponse response = new ExternalAuthenticateResponse();
 
+        AuthSignatureServicePortType authSignatureService = connectorServicesProvider.getAuthSignatureServicePortType(runtimeConfig);
         try {
-            connectorServicesProvider.getAuthSignatureServicePortType(runtimeConfig).externalAuthenticate(cardHandle, contextType, optionalInputs,
-                    binaryDocumentType, statusHolder, signatureObjectHolder);
+            authSignatureService.externalAuthenticate(
+                cardHandle, contextType, optionalInputs, binaryDocumentType, statusHolder, signatureObjectHolder
+            );
         } catch (FaultMessage faultMessage) {
             // Zugriffsbedingungen nicht erfüllt
             boolean code4085 = faultMessage.getFaultInfo().getTrace().stream().anyMatch(t ->
-                    t.getCode().equals(BigInteger.valueOf(4085L)));
+                t.getCode().equals(BigInteger.valueOf(4085L))
+            );
 
-            if (code4085 && appConfig.triggerSmcbPinVerification()) {
-                Holder<Status> status = new Holder<>();
-                Holder<PinResultEnum> pinResultEnum = new Holder<>();
-                Holder<BigInteger> error = new Holder<>();
+            if (code4085 && appConfig.isTriggerSmcbPinVerification()) {
                 try {
-                    connectorServicesProvider.getCardServicePortType(runtimeConfig).verifyPin(contextType, cardHandle, "PIN.SMC", status, pinResultEnum, error);
-                    connectorServicesProvider.getAuthSignatureServicePortType(runtimeConfig).externalAuthenticate(cardHandle, contextType, optionalInputs,
-                            binaryDocumentType, statusHolder, signatureObjectHolder);
-                } catch (de.gematik.ws.conn.cardservice.wsdl.v8.FaultMessage e) {
+                    VerifyPin verifyPin = new VerifyPin();
+                    verifyPin.setCardHandle(cardHandle);
+                    verifyPin.setContext(contextType);
+                    verifyPin.setPinTyp("PIN.SMC");
+
+                    connectorServicesProvider.getCardServicePortType(runtimeConfig).verifyPin(verifyPin);
+                    authSignatureService.externalAuthenticate(
+                        cardHandle, contextType, optionalInputs, binaryDocumentType, statusHolder, signatureObjectHolder
+                    );
+                } catch (de.gematik.ws.conn.cardservice.wsdl.v8_2.FaultMessage e) {
                     throw new RuntimeException("Could not verify pin", faultMessage);
                 }
             } else {

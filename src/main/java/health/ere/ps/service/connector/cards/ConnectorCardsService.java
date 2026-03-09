@@ -3,14 +3,17 @@ package health.ere.ps.service.connector.cards;
 import com.google.common.annotations.VisibleForTesting;
 import de.gematik.ws.conn.cardservice.v8.CardInfoType;
 import de.gematik.ws.conn.cardservice.v8.Cards;
-import de.gematik.ws.conn.cardservice.v8.PinStatusEnum;
-import de.gematik.ws.conn.cardservicecommon.v2.PinResultEnum;
-import de.gematik.ws.conn.connectorcommon.v5.Status;
+import de.gematik.ws.conn.cardservice.v821.ChangePin;
+import de.gematik.ws.conn.cardservice.v821.GetPinStatus;
+import de.gematik.ws.conn.cardservice.v821.UnblockPin;
+import de.gematik.ws.conn.cardservice.v821.VerifyPin;
+import de.gematik.ws.conn.cardservice.wsdl.v8_2.CardServicePortType;
+import de.gematik.ws.conn.cardservicecommon.v2.PinResponseType;
+import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.v7.GetCards;
 import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
 import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
 import health.ere.ps.config.RuntimeConfig;
-import health.ere.ps.config.UserConfig;
 import health.ere.ps.event.ChangePinEvent;
 import health.ere.ps.event.ChangePinResponseEvent;
 import health.ere.ps.event.GetPinStatusEvent;
@@ -30,24 +33,21 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.enterprise.event.ObservesAsync;
 import jakarta.inject.Inject;
-import jakarta.xml.ws.Holder;
+import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
 
-import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-
 @ApplicationScoped
 public class ConnectorCardsService {
-    private static final Logger log = Logger.getLogger(ConnectorCardsService.class.getName());
 
-    @Inject
-    UserConfig userConfig;
+    private static final Logger log = Logger.getLogger(ConnectorCardsService.class.getName());
 
     @Inject
     MultiConnectorServicesProvider connectorServicesProvider;
@@ -144,17 +144,24 @@ public class ConnectorCardsService {
 
     public void onChangePinEvent(@ObservesAsync ChangePinEvent changePinEvent) {
         try {
-            ChangePinResponse changePinResponse = changePin(changePinEvent.getCardHandle(), changePinEvent.getPinType(), changePinEvent.getRuntimeConfig());
+            ChangePinResponse changePinResponse = changePin(
+                changePinEvent.getCardHandle(),
+                changePinEvent.getPinType(),
+                changePinEvent.getRuntimeConfig()
+            );
             changePinResponseEvent.fireAsync(new ChangePinResponseEvent(changePinResponse, changePinEvent.getReplyTo(), changePinEvent.getId()));
         } catch (Exception e) {
             log.log(Level.WARNING, "Could not change pin for card", e);
             exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, changePinEvent.getReplyTo(), changePinEvent.getId()));
         }
     }
-    
+
     public void onVerifyPinEvent(@ObservesAsync VerifyPinEvent verifyPinEvent) {
         try {
-            VerifyPinResponse verifyPinResponse = verifyPin(verifyPinEvent.getCardHandle(), verifyPinEvent.getRuntimeConfig());
+            VerifyPinResponse verifyPinResponse = verifyPin(
+                verifyPinEvent.getCardHandle(),
+                verifyPinEvent.getRuntimeConfig()
+            );
             verifyPinResponseEvent.fireAsync(new VerifyPinResponseEvent(verifyPinResponse, verifyPinEvent.getReplyTo(), verifyPinEvent.getId()));
         } catch (Exception e) {
             log.log(Level.WARNING, "Could not verify pin for card", e);
@@ -164,7 +171,12 @@ public class ConnectorCardsService {
 
     public void onUnblockPinEvent(@ObservesAsync UnblockPinEvent unblockPinEvent) {
         try {
-            UnblockPinResponse unblockPinResponse = unblockPin(unblockPinEvent.getCardHandle(), unblockPinEvent.getPinType(), unblockPinEvent.getSetNewPin(), unblockPinEvent.getRuntimeConfig());
+            UnblockPinResponse unblockPinResponse = unblockPin(
+                unblockPinEvent.getCardHandle(),
+                unblockPinEvent.getPinType(),
+                unblockPinEvent.getSetNewPin(),
+                unblockPinEvent.getRuntimeConfig()
+            );
             unblockPinResponseEvent.fireAsync(new UnblockPinResponseEvent(unblockPinResponse, unblockPinEvent.getReplyTo(), unblockPinEvent.getId()));
         } catch (Exception e) {
             log.log(Level.WARNING, "Could not unblock pin for card", e);
@@ -174,58 +186,105 @@ public class ConnectorCardsService {
 
     public void onGetPinStatusEvent(@ObservesAsync GetPinStatusEvent getPinStatusEvent) {
         try {
-            GetPinStatusResponse getPinStatusResponse = getPinStatus(getPinStatusEvent.getCardHandle(), getPinStatusEvent.getPinType(), getPinStatusEvent.getRuntimeConfig());
+            GetPinStatusResponse getPinStatusResponse = getPinStatus(
+                getPinStatusEvent.getCardHandle(),
+                getPinStatusEvent.getPinType(),
+                getPinStatusEvent.getRuntimeConfig()
+            );
             getPinStatusResponseEvent.fireAsync(new GetPinStatusResponseEvent(getPinStatusResponse, getPinStatusEvent.getReplyTo(), getPinStatusEvent.getId()));
         } catch (Exception e) {
-            log.log(Level.WARNING, "Could not unblock pin for card", e);
+            log.log(Level.WARNING, "Could not get pin status for card", e);
             exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, getPinStatusEvent.getReplyTo(), getPinStatusEvent.getId()));
         }
     }
 
-    /** 
-     * @throws de.gematik.ws.conn.cardservice.wsdl.v8.FaultMessage
-     */
-    public ChangePinResponse changePin(String cardHandle, String pinType, RuntimeConfig runtimeConfig) throws de.gematik.ws.conn.cardservice.wsdl.v8.FaultMessage {
-        Holder<Status> status = new Holder<>();
-        Holder<PinResultEnum> pinResult = new Holder<>();
-        Holder<BigInteger> leftTries = new Holder<>();
-        connectorServicesProvider.getCardServicePortType(runtimeConfig).changePin(connectorServicesProvider.getContextType(runtimeConfig), cardHandle, pinType, status, pinResult, leftTries);
-        return new ChangePinResponse(status.value, pinResult.value, leftTries.value);
+    public ChangePinResponse changePin(
+        String cardHandle,
+        String pinType, RuntimeConfig runtimeConfig
+    ) throws de.gematik.ws.conn.cardservice.wsdl.v8_2.FaultMessage {
+        ContextType contextType = connectorServicesProvider.getContextType(runtimeConfig);
+        CardServicePortType cardService = connectorServicesProvider.getCardServicePortType(runtimeConfig);
+
+        ChangePin changePin = new ChangePin();
+        changePin.setCardHandle(cardHandle);
+        changePin.setContext(contextType);
+        changePin.setPinTyp(pinType);
+
+        PinResponseType pinResponse = cardService.changePin(changePin);
+        return new ChangePinResponse(
+            pinResponse.getStatus(),
+            pinResponse.getPinResult(),
+            pinResponse.getLeftTries()
+        );
     }
 
-    /** 
-     * @throws de.gematik.ws.conn.cardservice.wsdl.v8.FaultMessage
-     */
-    public VerifyPinResponse verifyPin(String cardHandle, RuntimeConfig runtimeConfig) throws de.gematik.ws.conn.cardservice.wsdl.v8.FaultMessage {
-    	Holder<Status> status = new Holder<>();
-        Holder<PinResultEnum> pinResultEnum = new Holder<>();
-        Holder<BigInteger> leftTries = new Holder<>();
-        connectorServicesProvider.getCardServicePortType(runtimeConfig).verifyPin(connectorServicesProvider.getContextType(runtimeConfig), cardHandle, "PIN.SMC", status, pinResultEnum, leftTries);
-        return new VerifyPinResponse(status.value, pinResultEnum.value, leftTries.value);
+    public VerifyPinResponse verifyPin(
+        String cardHandle,
+        RuntimeConfig runtimeConfig
+    ) throws de.gematik.ws.conn.cardservice.wsdl.v8_2.FaultMessage {
+        ContextType contextType = connectorServicesProvider.getContextType(runtimeConfig);
+        CardServicePortType cardService = connectorServicesProvider.getCardServicePortType(runtimeConfig);
+        VerifyPin verifyPin = new VerifyPin();
+        verifyPin.setCardHandle(cardHandle);
+        verifyPin.setContext(contextType);
+        verifyPin.setPinTyp("PIN.SMC");
+
+        PinResponseType pinResponse = cardService.verifyPin(verifyPin);
+        return new VerifyPinResponse(
+            pinResponse.getStatus(),
+            pinResponse.getPinResult(),
+            pinResponse.getLeftTries()
+        );
     }
 
-    /** 
-     * @throws de.gematik.ws.conn.cardservice.wsdl.v8.FaultMessage
-     */
-    public UnblockPinResponse unblockPin(String cardHandle, String pinType, Boolean setNewPin, RuntimeConfig runtimeConfig) throws de.gematik.ws.conn.cardservice.wsdl.v8.FaultMessage {
-    	Holder<Status> status = new Holder<>();
-        Holder<PinResultEnum> pinResultEnum = new Holder<>();
-        Holder<BigInteger> leftTries = new Holder<>();
-        connectorServicesProvider.getCardServicePortType(runtimeConfig).unblockPin(connectorServicesProvider.getContextType(runtimeConfig), cardHandle, pinType, setNewPin, status, pinResultEnum, leftTries);
-        return new UnblockPinResponse(status.value, pinResultEnum.value, leftTries.value);
+    public UnblockPinResponse unblockPin(
+        String cardHandle,
+        String pinType,
+        Boolean setNewPin,
+        RuntimeConfig runtimeConfig
+    ) throws de.gematik.ws.conn.cardservice.wsdl.v8_2.FaultMessage {
+        ContextType contextType = connectorServicesProvider.getContextType(runtimeConfig);
+        CardServicePortType cardService = connectorServicesProvider.getCardServicePortType(runtimeConfig);
+
+        UnblockPin unblockPin = new UnblockPin();
+        unblockPin.setCardHandle(cardHandle);
+        unblockPin.setContext(contextType);
+        unblockPin.setPinTyp(pinType);
+        unblockPin.setSetNewPin(setNewPin);
+
+        PinResponseType pinResponse = cardService.unblockPin(unblockPin);
+        return new UnblockPinResponse(
+            pinResponse.getStatus(),
+            pinResponse.getPinResult(),
+            pinResponse.getLeftTries()
+        );
     }
 
-    /** 
-     * @throws de.gematik.ws.conn.cardservice.wsdl.v8.FaultMessage
-     */
-    public GetPinStatusResponse getPinStatus(String cardHandle, String pinType, RuntimeConfig runtimeConfig) throws de.gematik.ws.conn.cardservice.wsdl.v8.FaultMessage {
-    	Holder<Status> status = new Holder<>();
-        Holder<PinStatusEnum> pinResultEnum = new Holder<>();
-        Holder<BigInteger> leftTries = new Holder<>();
-        connectorServicesProvider.getCardServicePortType(runtimeConfig).getPinStatus(connectorServicesProvider.getContextType(runtimeConfig), cardHandle, pinType, status, pinResultEnum, leftTries);
-        return new GetPinStatusResponse(status.value, pinResultEnum.value, leftTries.value);
+    public GetPinStatusResponse getPinStatus(
+        String cardHandle,
+        String pinType,
+        RuntimeConfig runtimeConfig
+    ) throws de.gematik.ws.conn.cardservice.wsdl.v8_2.FaultMessage {
+        ContextType contextType = connectorServicesProvider.getContextType(runtimeConfig);
+        if (contextType.getUserId() == null) {
+            contextType.setUserId(UUID.randomUUID().toString());
+        }
+        CardServicePortType cardService = connectorServicesProvider.getCardServicePortType(runtimeConfig);
+
+        GetPinStatus getPinStatus = new GetPinStatus();
+        getPinStatus.setCardHandle(cardHandle);
+        getPinStatus.setContext(contextType);
+        getPinStatus.setPinTyp(pinType);
+
+        de.gematik.ws.conn.cardservice.v821.GetPinStatusResponse pinStatusResponse = cardService.getPinStatus(getPinStatus);
+        return new GetPinStatusResponse(
+            pinStatusResponse.getStatus(),
+            pinStatusResponse.getPinStatus(),
+            pinStatusResponse.getLeftTries()
+        );
     }
 
+    @Getter
     public enum CardHandleType {
         EGK("EGK"),
         HBA_Q_SIG("HBA-qSig"),
@@ -243,10 +302,6 @@ public class ConnectorCardsService {
 
         CardHandleType(String cardHandleType) {
             this.cardHandleType = cardHandleType;
-        }
-
-        public String getCardHandleType() {
-            return cardHandleType;
         }
     }
 }

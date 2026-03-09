@@ -6,7 +6,7 @@
 
     <groupId>de.servicehealth</groupId>
     <artifactId>lib-cetp</artifactId>
-    <version>2025-02-13</version>
+    <version>2026-02-16</version>
 
     <name>lib-cetp</name>
 
@@ -53,7 +53,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.34</version>
+            <version>1.18.40</version>
             <scope>provided</scope>
         </dependency>
 

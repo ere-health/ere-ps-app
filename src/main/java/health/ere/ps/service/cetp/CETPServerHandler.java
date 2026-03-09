@@ -51,7 +51,7 @@ public class CETPServerHandler extends AbstractCETPEventHandler {
 
     @Override
     protected void processEvent(IUserConfigurations uc, Map<String, String> paramsMap) {
-        // Keep MDC names in sync with virtual-nfc-cardlink
+        // Keep MDC names in sync with the virtual-nfc-cardlink
         String correlationId = UUID.randomUUID().toString();
         MDC.put("requestCorrelationId", correlationId);
         MDC.put("iccsn", paramsMap.getOrDefault("ICCSN", "NoICCSNProvided"));
@@ -59,14 +59,16 @@ public class CETPServerHandler extends AbstractCETPEventHandler {
         MDC.put("slot", paramsMap.getOrDefault("SlotID", "NoSlotIDProvided"));
         log.fine("CARD/INSERTED event received with the following payload: %s".formatted(paramsMap));
 
-        if ("EGK".equalsIgnoreCase(paramsMap.get("CardType")) && paramsMap.containsKey("CardHandle") && paramsMap.containsKey("SlotID") && paramsMap.containsKey("CtID")) {
-            String cardHandle = paramsMap.get("CardHandle");
+        if ("EGK".equalsIgnoreCase(paramsMap.get("CardType"))
+            && paramsMap.containsKey("CardHandle")
+            && paramsMap.containsKey("SlotID")
+            && paramsMap.containsKey("CtID")) {
+            String egkHandle = paramsMap.get("CardHandle");
             Integer slotId = Integer.parseInt(paramsMap.get("SlotID"));
             String ctId = paramsMap.get("CtID");
             String iccsn = paramsMap.get("ICCSN");
             String kvnr = paramsMap.get("KVNR");
             Long endTime = System.currentTimeMillis();
-
 
             String paramsStr = paramsMap.entrySet().stream()
                 .filter(p -> !p.getKey().equals("CardHolderName"))
@@ -76,20 +78,20 @@ public class CETPServerHandler extends AbstractCETPEventHandler {
             try {
                 RuntimeConfig runtimeConfig = new RuntimeConfig(uc);
                 Pair<Bundle, String> pair = pharmacyService.getEPrescriptionsForCardHandle(
-                    correlationId, cardHandle, null, runtimeConfig, kvnr
+                    correlationId, egkHandle, null, runtimeConfig, kvnr
                 );
                 Bundle bundle = pair.getKey();
                 String eventId = pair.getValue();
                 String xml = parser.encodeToString(bundle);
                 cardlinkClient.sendJson(correlationId, iccsn, "eRezeptTokensFromAVS", Map.of("slotId", slotId, "ctId", ctId, "tokens", xml));
 
-                JsonArrayBuilder bundles = prepareBundles(correlationId, bundle, runtimeConfig);
+                JsonArrayBuilder bundles = prepareBundles(correlationId, egkHandle, bundle, runtimeConfig);
                 cardlinkClient.sendJson(correlationId, iccsn, "eRezeptBundlesFromAVS", Map.of("slotId", slotId, "ctId", ctId, "bundles", bundles));
 
                 cardlinkClient.sendJson(correlationId, iccsn, "vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "eventId", eventId));
 
                 trackerService.submit(ctId, uc.getMandantId(), uc.getWorkplaceId(), uc.getClientSystemId());
-            } catch (Exception e ) {
+            } catch (Exception e) {
                 log.log(Level.WARNING, String.format("[%s] Could not get prescription for Bundle", correlationId), e);
 
                 if (e instanceof de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage faultMessage) {
@@ -115,7 +117,12 @@ public class CETPServerHandler extends AbstractCETPEventHandler {
         }
     }
 
-    private JsonArrayBuilder prepareBundles(String correlationId, Bundle bundle, RuntimeConfig runtimeConfig) {
+    private JsonArrayBuilder prepareBundles(
+        String correlationId,
+        String egkHandle,
+        Bundle bundle,
+        RuntimeConfig runtimeConfig
+    ) {
         JsonArrayBuilder bundles = Json.createArrayBuilder();
         for (BundleEntryComponent entry : bundle.getEntry()) {
             if (entry.getResource() instanceof Task task) {
@@ -137,7 +144,7 @@ public class CETPServerHandler extends AbstractCETPEventHandler {
                 log.fine("TaskId: " + taskId + " AccessCode: " + accessCode);
                 String token = "/Task/" + taskId + "/$accept?ac=" + accessCode;
                 try {
-                    Bundle bundleEPrescription = pharmacyService.accept(correlationId, token, runtimeConfig);
+                    Bundle bundleEPrescription = pharmacyService.accept(correlationId, token, egkHandle, runtimeConfig);
                     bundles.add(parser.encodeToString(bundleEPrescription));
                 } catch (Exception e) {
                     bundles.add(String.format("[%s] Error for %s -> %s", correlationId, token, e.getMessage()));

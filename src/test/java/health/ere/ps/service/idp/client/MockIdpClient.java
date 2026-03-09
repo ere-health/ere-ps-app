@@ -1,26 +1,11 @@
 package health.ere.ps.service.idp.client;
 
-import org.apache.commons.codec.digest.DigestUtils;
-
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.crypto.spec.SecretKeySpec;
-
 import health.ere.ps.exception.idp.IdpJoseException;
 import health.ere.ps.exception.idp.crypto.IdpCryptoException;
 import health.ere.ps.model.idp.client.IdpConstants;
 import health.ere.ps.model.idp.client.IdpTokenResult;
 import health.ere.ps.model.idp.client.authentication.AuthenticationChallenge;
 import health.ere.ps.model.idp.client.authentication.AuthenticationChallengeBuilder;
-import health.ere.ps.service.idp.client.authentication.AuthenticationChallengeVerifier;
 import health.ere.ps.model.idp.client.authentication.AuthenticationResponse;
 import health.ere.ps.model.idp.client.authentication.AuthenticationResponseBuilder;
 import health.ere.ps.model.idp.client.authentication.AuthenticationTokenBuilder;
@@ -34,8 +19,22 @@ import health.ere.ps.model.idp.client.token.AccessTokenBuilder;
 import health.ere.ps.model.idp.client.token.IdpJwe;
 import health.ere.ps.model.idp.client.token.JsonWebToken;
 import health.ere.ps.model.idp.crypto.PkiIdentity;
+import health.ere.ps.service.idp.client.authentication.AuthenticationChallengeVerifier;
+import org.apache.commons.codec.digest.DigestUtils;
 
-public class MockIdpClient implements IIdpClient {
+import javax.crypto.spec.SecretKeySpec;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+public class MockIdpClient {
+    
     private PkiIdentity serverIdentity;
     private String clientId;
     private boolean produceTokensWithInvalidSignature;
@@ -95,7 +94,6 @@ public class MockIdpClient implements IIdpClient {
     public MockIdpClient() {
     }
 
-    @Override
     public IdpTokenResult login(final PkiIdentity clientIdentity)
             throws IdpJoseException, IdpCryptoException {
         assertThatMockIdClientIsInitialized();
@@ -152,8 +150,7 @@ public class MockIdpClient implements IIdpClient {
             .expiresAt(expiresAt));
     }
 
-    @Override
-    public IIdpClient initializeClient() throws IdpCryptoException {
+    public MockIdpClient initializeClient() throws IdpCryptoException {
         getServerIdentity().setKeyId(Optional.of("puk_idp_sig"));
         getServerIdentity().setUse(Optional.of("sig"));
         setJwtProcessor(new IdpJwtProcessor(getServerIdentity()));

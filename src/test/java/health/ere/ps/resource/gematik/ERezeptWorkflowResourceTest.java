@@ -42,8 +42,8 @@ class ERezeptWorkflowResourceTest {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 return Collections.enumeration(Arrays.asList("X-eHBAHandle", "X-SMCBHandle", "X-connectorBaseURL", "X-basicAuthUsername", "X-basicAuthPassword",
-                        "X-clientCertificate", "X-clientCertificatePassword", "X-clientSystemId", "X-mandantId", "X-tvMode", "X-userId", "X-version",
-                        "X-workplaceId"));
+                    "X-clientCertificate", "X-clientCertificatePassword", "X-clientSystemId", "X-mandantId", "X-tvMode", "X-userId", "X-version",
+                    "X-workplaceId"));
             }
 
         });
@@ -70,11 +70,10 @@ class ERezeptWorkflowResourceTest {
         ERezeptWorkflowResource eRezeptWorkflowResource = new ERezeptWorkflowResource();
         eRezeptWorkflowResource.httpServletRequest = mock(HttpServletRequest.class);
         when(eRezeptWorkflowResource.httpServletRequest.getHeaderNames()).thenReturn(Collections.enumeration(Collections.emptyList()));
-        eRezeptWorkflowResource.eRezeptWorkflowService = mock(ERezeptWorkflowService.class);
-
+        eRezeptWorkflowResource.eRezeptWorkflowService = new ERezeptWorkflowService();
         var tokenService = mock(BearerTokenService.class);
-        eRezeptWorkflowResource.eRezeptWorkflowService.bearerTokenService = tokenService;
         when(tokenService.getBearerToken(any())).thenReturn("123456");
+        eRezeptWorkflowResource.eRezeptWorkflowService.setBearerTokenService(tokenService);
 
         String token = eRezeptWorkflowResource.idpToken();
 

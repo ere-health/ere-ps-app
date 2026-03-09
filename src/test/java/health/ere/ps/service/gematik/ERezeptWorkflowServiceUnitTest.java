@@ -1,19 +1,30 @@
 package health.ere.ps.service.gematik;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
+import de.gematik.ws.conn.connectorcontext.v2.ContextType;
+import de.gematik.ws.conn.signatureservice.v7.SignResponse;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.FaultMessage;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV740;
+import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
+import health.ere.ps.config.AppConfig;
+import health.ere.ps.config.UserConfig;
+import health.ere.ps.event.ActivateComfortSignatureEvent;
+import health.ere.ps.event.BundlesWithAccessCodeEvent;
+import health.ere.ps.event.GetSignatureModeEvent;
+import health.ere.ps.event.GetSignatureModeResponseEvent;
+import health.ere.ps.event.SignAndUploadBundlesEvent;
+import health.ere.ps.service.connector.cards.ConnectorCardsService;
+import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
+import health.ere.ps.service.idp.BearerTokenService;
 import jakarta.enterprise.event.Event;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
-
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.Invocation;
+import jakarta.ws.rs.client.Invocation.Builder;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Response;
+import oasis.names.tc.dss._1_0.core.schema.Base64Signature;
+import oasis.names.tc.dss._1_0.core.schema.SignatureObject;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Identifier.IdentifierUse;
@@ -21,19 +32,30 @@ import org.hl7.fhir.r4.model.Task;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-import de.gematik.ws.conn.connectorcontext.v2.ContextType;
-import de.gematik.ws.conn.signatureservice.wsdl.v7.SignatureServicePortTypeV755;
-import health.ere.ps.event.ActivateComfortSignatureEvent;
-import health.ere.ps.event.GetSignatureModeEvent;
-import health.ere.ps.event.GetSignatureModeResponseEvent;
-import health.ere.ps.exception.gematik.ERezeptWorkflowException;
-import health.ere.ps.service.connector.cards.ConnectorCardsService;
-import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Consumer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@SuppressWarnings("unchecked")
 public class ERezeptWorkflowServiceUnitTest {
 
     @Test
-    void testActivateComfortSignatureUnit() throws ERezeptWorkflowException {
+    void testActivateComfortSignatureUnit() {
         ERezeptWorkflowService eRezeptWorkflowServiceUnit = mockERezeptWorkflowServiceUnit();
 
         Event<GetSignatureModeResponseEvent> getSignatureModeResponseEvent = (Event<GetSignatureModeResponseEvent>) mock(Event.class);
@@ -45,16 +67,19 @@ public class ERezeptWorkflowServiceUnitTest {
         verify(getSignatureModeResponseEvent).fireAsync(argumentCaptor.capture());
 
         GetSignatureModeResponseEvent thrownEvent = argumentCaptor.getValue();
-        
+
         assertNotNull(thrownEvent.getUserId());
         assertTrue(thrownEvent.getAnswertToActivateComfortSignature());
     }
 
     private ERezeptWorkflowService mockERezeptWorkflowServiceUnit() {
+        return mockERezeptWorkflowServiceUnit(null);
+    }
+
+    private ERezeptWorkflowService mockERezeptWorkflowServiceUnit(Consumer<SignatureServicePortTypeV740> signatureServicePortTypeV740Consumer) {
         ERezeptWorkflowService eRezeptWorkflowServiceUnit = new ERezeptWorkflowService();
-        
-        ConnectorCardsService connectorCardsService = mock(ConnectorCardsService.class);
-        eRezeptWorkflowServiceUnit.connectorCardsService = connectorCardsService;
+
+        eRezeptWorkflowServiceUnit.connectorCardsService = mock(ConnectorCardsService.class);
 
         MultiConnectorServicesProvider connectorServicesProvider = mock(MultiConnectorServicesProvider.class);
         eRezeptWorkflowServiceUnit.connectorServicesProvider = connectorServicesProvider;
@@ -63,6 +88,12 @@ public class ERezeptWorkflowServiceUnitTest {
 
         SignatureServicePortTypeV755 signatureServicePortTypeV755 = mock(SignatureServicePortTypeV755.class);
         when(connectorServicesProvider.getSignatureServicePortTypeV755(any())).thenReturn(signatureServicePortTypeV755);
+
+        SignatureServicePortTypeV740 signatureServicePortTypeV740 = mock(SignatureServicePortTypeV740.class);
+        when(connectorServicesProvider.getSignatureServicePortType(any())).thenReturn(signatureServicePortTypeV740);
+        if (signatureServicePortTypeV740Consumer != null) {
+            signatureServicePortTypeV740Consumer.accept(signatureServicePortTypeV740);
+        }
         return eRezeptWorkflowServiceUnit;
     }
 
@@ -73,15 +104,15 @@ public class ERezeptWorkflowServiceUnitTest {
         Event<GetSignatureModeResponseEvent> getSignatureModeResponseEvent = (Event<GetSignatureModeResponseEvent>) mock(Event.class);
         eRezeptWorkflowServiceUnit.getSignatureModeResponseEvent = getSignatureModeResponseEvent;
         ArgumentCaptor<GetSignatureModeResponseEvent> argumentCaptor = ArgumentCaptor.forClass(GetSignatureModeResponseEvent.class);
-        
+
         JsonObject jsonObject = Json.createObjectBuilder().add("runtimeConfig",
-        Json.createObjectBuilder().add("connector.user-id", "37c312a6-eb7f-11ee-8eea-6ba768ebd268")
+            Json.createObjectBuilder().add("connector.user-id", "37c312a6-eb7f-11ee-8eea-6ba768ebd268")
         ).build();
-        
+
         eRezeptWorkflowServiceUnit.onGetSignatureModeEvent(new GetSignatureModeEvent(jsonObject));
         verify(getSignatureModeResponseEvent).fireAsync(argumentCaptor.capture());
         GetSignatureModeResponseEvent thrownEvent = argumentCaptor.getValue();
-        
+
         assertNotNull(thrownEvent.getUserId());
         assertFalse(thrownEvent.getAnswertToActivateComfortSignature());
 
@@ -137,8 +168,8 @@ public class ERezeptWorkflowServiceUnitTest {
 
         Bundle bundle = new Bundle();
         ERezeptWorkflowService.updateBundleWithTask(task, bundle);
-        assertEquals(bundle.getIdentifier().getValue(), "PrescriptionId");
-        assertEquals(bundle.getIdentifier().getSystem(), ERezeptWorkflowService.EREZEPT_IDENTIFIER_SYSTEM);
+        assertEquals("PrescriptionId", bundle.getIdentifier().getValue());
+        assertEquals(ERezeptWorkflowService.EREZEPT_IDENTIFIER_SYSTEM, bundle.getIdentifier().getSystem());
     }
 
     @Test
@@ -152,9 +183,9 @@ public class ERezeptWorkflowServiceUnitTest {
 
         Bundle bundle = new Bundle();
         ERezeptWorkflowService.updateBundleWithTask(task, bundle);
-        assertEquals(bundle.getIdentifier().getValue(), "PrescriptionId");
+        assertEquals("PrescriptionId", bundle.getIdentifier().getValue());
         assertNull(bundle.getIdentifier().getUse());
-        assertEquals(bundle.getIdentifier().getSystem(), ERezeptWorkflowService.EREZEPT_IDENTIFIER_SYSTEM_GEM);
+        assertEquals(ERezeptWorkflowService.EREZEPT_IDENTIFIER_SYSTEM_GEM, bundle.getIdentifier().getSystem());
     }
 
     @Test
@@ -170,8 +201,76 @@ public class ERezeptWorkflowServiceUnitTest {
         bundle.getMeta().addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle|1.0.2");
 
         ERezeptWorkflowService.updateBundleWithTask(task, bundle);
-        assertEquals(bundle.getIdentifier().getValue(), "PrescriptionId");
+        assertEquals("PrescriptionId", bundle.getIdentifier().getValue());
         assertNull(bundle.getIdentifier().getUse());
-        assertEquals(bundle.getIdentifier().getSystem(), ERezeptWorkflowService.EREZEPT_IDENTIFIER_SYSTEM);
+        assertEquals(ERezeptWorkflowService.EREZEPT_IDENTIFIER_SYSTEM, bundle.getIdentifier().getSystem());
+    }
+
+    @Test
+    public void testOnSignAndUploadBundlesEvent() {
+        ERezeptWorkflowService eRezeptWorkflowServiceUnit = mockERezeptWorkflowServiceUnit(getSignatureConsumer());
+        mockClient(eRezeptWorkflowServiceUnit);
+
+        eRezeptWorkflowServiceUnit.appConfig = mock(AppConfig.class);
+        when(eRezeptWorkflowServiceUnit.appConfig.getPrescriptionServiceURL()).thenReturn("http://localhost:8080");
+
+        eRezeptWorkflowServiceUnit.userConfig = new UserConfig();
+        Event<BundlesWithAccessCodeEvent> bundlesWithAccessCodeEvent = (Event<BundlesWithAccessCodeEvent>) mock(Event.class);
+        eRezeptWorkflowServiceUnit.bundlesWithAccessCodeEvent = bundlesWithAccessCodeEvent;
+        eRezeptWorkflowServiceUnit.setBearerTokenService(mock(BearerTokenService.class));
+        ArgumentCaptor<BundlesWithAccessCodeEvent> argumentCaptor = ArgumentCaptor.forClass(BundlesWithAccessCodeEvent.class);
+
+        Bundle bundle = new Bundle();
+        Bundle bundle2 = new Bundle();
+
+        List<Bundle> bundles = Arrays.asList(bundle, bundle2);
+
+        eRezeptWorkflowServiceUnit.onSignAndUploadBundlesEvent(new SignAndUploadBundlesEvent(bundles));
+        verify(bundlesWithAccessCodeEvent).fireAsync(argumentCaptor.capture());
+        BundlesWithAccessCodeEvent thrownEvent = argumentCaptor.getValue();
+
+        assertEquals(2, thrownEvent.getBundleWithAccessCodeOrThrowable().getFirst().size());
+    }
+
+    private void mockClient(ERezeptWorkflowService eRezeptWorkflowServiceUnit) {
+        eRezeptWorkflowServiceUnit.client = mock(Client.class);
+        WebTarget target = mock(WebTarget.class);
+        when(target.path(anyString())).thenReturn(target);
+        Builder invocation = mock(Invocation.Builder.class);
+        when(invocation.header(anyString(), any())).thenReturn(invocation);
+        Response response = mock(Response.class);
+        when(response.readEntity(eq(String.class))).thenReturn("<Task></Task>");
+        when(response.readEntity(eq(InputStream.class))).thenReturn(new ByteArrayInputStream("<OperationOutcome></OperationOutcome>".getBytes()));
+        when(response.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
+        when(invocation.post(any())).thenReturn(response);
+
+        when(target.request()).thenReturn(invocation);
+        when(eRezeptWorkflowServiceUnit.client.target(anyString())).thenReturn(target);
+    }
+
+    private Consumer<SignatureServicePortTypeV740> getSignatureConsumer() {
+        return getSignatureConsumer(1);
+    }
+
+    private Consumer<SignatureServicePortTypeV740> getSignatureConsumer(int amount) {
+        return (signatureServicePortTypeV740) -> {
+            try {
+                List<SignResponse> signResponses = new ArrayList<>();
+                for (int i = 0; i < amount; i++) {
+                    SignResponse signResponse = new SignResponse();
+                    String requestID = String.valueOf(i + 1);
+                    signResponse.setRequestID(requestID);
+                    SignatureObject signatureObject = new SignatureObject();
+                    Base64Signature base64Data = new Base64Signature();
+                    base64Data.setValue(new byte[]{(byte) i});
+                    signatureObject.setBase64Signature(base64Data);
+                    signResponse.setSignatureObject(signatureObject);
+                    signResponses.add(signResponse);
+                }
+                when(signatureServicePortTypeV740.signDocument(any(), any(), any(), any(), any())).thenReturn(signResponses);
+            } catch (FaultMessage e) {
+                e.printStackTrace();
+            }
+        };
     }
 }

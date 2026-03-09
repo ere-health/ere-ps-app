@@ -10,6 +10,7 @@ import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.client.Invocation.Builder;
+import lombok.Getter;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -28,6 +29,7 @@ import java.util.logging.Logger;
 /**
  * This service automatically discovers the endpoints that are available at the connector.
  */
+@Getter
 @ApplicationScoped
 public class EndpointDiscoveryService {
     private static final Logger log = Logger.getLogger(EndpointDiscoveryService.class.getName());
@@ -59,6 +61,8 @@ public class EndpointDiscoveryService {
     private String eventServiceEndpointAddress;
     private String cardServiceEndpointAddress;
 
+    private boolean initialized;
+
     public EndpointDiscoveryService() {
 
     }
@@ -66,11 +70,6 @@ public class EndpointDiscoveryService {
     public EndpointDiscoveryService(UserRuntimeConfig userConfig, SecretsManagerService secretsManagerService) {
         this.userConfig = userConfig;
         this.secretsManagerService = secretsManagerService;
-    }
-
-
-    public void obtainConfiguration() throws IOException, ParserConfigurationException {
-        obtainConfiguration(false);
     }
 
     public void obtainConfiguration(boolean throwEndpointException) throws IOException, ParserConfigurationException {
@@ -95,10 +94,10 @@ public class EndpointDiscoveryService {
         String basicAuthUsername = userConfigurations.getBasicAuthUsername();
         String basicAuthPassword = userConfigurations.getBasicAuthPassword();
         if(basicAuthUsername != null && !basicAuthUsername.equals("")) {
-            builder.header("Authorization", "Basic "+Base64.getEncoder().encodeToString((basicAuthUsername+":"+basicAuthPassword).getBytes()));
+            String creds = basicAuthUsername + ":" + basicAuthPassword;
+            builder.header("Authorization", "Basic " + Base64.getEncoder().encodeToString(creds.getBytes()));
         }
-        Invocation invocation = builder
-                .buildGet();
+        Invocation invocation = builder.buildGet();
 
         try (InputStream inputStream = invocation.invoke(InputStream.class)) {
             Document document = DocumentBuilderFactory.newDefaultInstance()
@@ -163,6 +162,7 @@ public class EndpointDiscoveryService {
             }
         }
 
+        // TODO refactor
         if (authSignatureServiceEndpointAddress == null && fallbackAuthSignatureServiceEndpointAddress != null) {
             authSignatureServiceEndpointAddress = fallbackAuthSignatureServiceEndpointAddress.orElseThrow();
         }
@@ -181,6 +181,8 @@ public class EndpointDiscoveryService {
         if (vsdServiceEndpointAddress == null && fallbackVSDServiceEndpointAddress != null) {
         	vsdServiceEndpointAddress = fallbackVSDServiceEndpointAddress.orElseThrow();
         }
+
+        initialized = true;
     }
 
     private void extractAndSetConnectorVersion(Document document, boolean throwEndpointException) {
@@ -224,26 +226,6 @@ public class EndpointDiscoveryService {
             log.warning("Could not determine the version of the connector to use from connector.sds, " +
                     "using the one from the configuration:" + userConfig.getConnectorVersion());
         }
-    }
-
-    public String getAuthSignatureServiceEndpointAddress() {
-        return authSignatureServiceEndpointAddress;
-    }
-
-    public String getCardServiceEndpointAddress() {
-        return cardServiceEndpointAddress;
-    }
-
-    public String getSignatureServiceEndpointAddress() {
-        return signatureServiceEndpointAddress;
-    }
-
-    public String getCertificateServiceEndpointAddress() {
-        return certificateServiceEndpointAddress;
-    }
-
-    public String getEventServiceEndpointAddress() {
-        return eventServiceEndpointAddress;
     }
 
     private String getEndpoint(Node serviceNode) {

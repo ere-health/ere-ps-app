@@ -1,6 +1,8 @@
 package health.ere.ps.service.health.check;
 
-import health.ere.ps.config.RuntimeConfig;
+import de.health.service.check.Check;
+import de.health.service.check.Status;
+import de.health.service.config.api.IRuntimeConfig;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.net.URI;
@@ -24,12 +26,12 @@ public class CardlinkWebsocketCheck implements Check {
     }
 
     @Override
-    public Status getStatus(RuntimeConfig runtimeConfig) {
+    public Status getStatus(IRuntimeConfig runtimeConfig) {
         return wsConnections.values().stream().allMatch(Supplier::get) ? Status.Up200 : Status.Down503;
     }
 
     @Override
-    public Map<String, String> getData(RuntimeConfig runtimeConfig) {
+    public Map<String, Object> getData(IRuntimeConfig runtimeConfig) {
         return wsConnections.entrySet().stream().collect(
             Collectors.toMap(
                 e -> String.format("CardlinkWebsocket -> %s", e.getKey()),

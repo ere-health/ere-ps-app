@@ -247,8 +247,7 @@ public class AuthenticatorClient {
         return IdpJwe.createWithPayloadAndEncryptWithKey(claims.toJson(), idpEnc, "JSON");
     }
 
-    public DiscoveryDocumentResponse retrieveDiscoveryDocument(final String discoveryDocumentUrl)
-        throws IdpClientException, IdpException, IdpJoseException {
+    public DiscoveryDocumentResponse retrieveDiscoveryDocument(final String discoveryDocumentUrl) throws Exception {
         IdpHttpClientService idpHttpClientService = getIdpHttpClientInstanceByUrl(discoveryDocumentUrl);
         try (Response response = idpHttpClientService.doGenericGetRequest()) {
             checkResponseForErrorsAndThrowIfAny(response);

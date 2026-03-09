@@ -4,9 +4,12 @@ import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateServicePortType;
 import de.gematik.ws.conn.connectorcontext.v2.ContextType;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.health.service.cetp.CETPServer;
+import de.health.service.check.CheckInfo;
+import de.health.service.check.HealthInfo;
 import health.ere.ps.profile.RUDevTestProfile;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import health.ere.ps.service.idp.BearerTokenService;
+import health.ere.ps.service.idp.client.IdpClient;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
@@ -33,10 +36,10 @@ import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.util.Optional;
 
-import static health.ere.ps.service.health.check.Check.CARDLINK_WEBSOCKET_CHECK;
-import static health.ere.ps.service.health.check.Check.CETP_SERVER_CHECK;
-import static health.ere.ps.service.health.check.Check.GIT_CHECK;
-import static health.ere.ps.service.health.check.Check.STATUS_CHECK;
+import static de.health.service.check.Check.CARDLINK_WEBSOCKET_CHECK;
+import static de.health.service.check.Check.CETP_SERVER_CHECK;
+import static de.health.service.check.Check.GIT_CHECK;
+import static de.health.service.check.Check.STATUS_CHECK;
 import static io.restassured.RestAssured.given;
 import static org.apache.http.params.CoreConnectionPNames.CONNECTION_TIMEOUT;
 import static org.apache.http.params.CoreConnectionPNames.SO_TIMEOUT;
@@ -52,6 +55,9 @@ import static org.mockito.Mockito.when;
 class HealthCheckTest {
 
     @Inject
+    IdpClient idpClient;
+
+    @Inject
     BearerTokenService bearerTokenService;
 
     @Inject
@@ -59,6 +65,10 @@ class HealthCheckTest {
 
     @BeforeEach
     void beforeEach() {
+        IdpClient idpClient = mock(IdpClient.class);
+        when(idpClient.initialize()).thenReturn(true);
+        QuarkusMock.installMockForType(idpClient, IdpClient.class);
+
         MultiConnectorServicesProvider connectorServicesProvider = mock(MultiConnectorServicesProvider.class);
         when(connectorServicesProvider.getContextType(any())).thenReturn(new ContextType());
         when(connectorServicesProvider.getEventServicePortType(any())).thenReturn(mock(EventServicePortType.class));
@@ -67,12 +77,12 @@ class HealthCheckTest {
         QuarkusMock.installMockForType(connectorServicesProvider, MultiConnectorServicesProvider.class);
 
         BearerTokenService mockTokenService = mock(BearerTokenService.class);
-
         QuarkusMock.installMockForType(mockTokenService, BearerTokenService.class);
     }
 
     @AfterEach
     void afterAll() {
+        QuarkusMock.installMockForType(idpClient, IdpClient.class);
         QuarkusMock.installMockForType(bearerTokenService, BearerTokenService.class);
         QuarkusMock.installMockForType(multiConnectorServicesProvider, MultiConnectorServicesProvider.class);
     }
@@ -89,7 +99,7 @@ class HealthCheckTest {
         Response response = given().header(new Header("X-eHBAHandle", "test")).config(config).when().get("/health");
         response.then().statusCode(200);
         HealthInfo healthInfo = response.getBody().as(HealthInfo.class);
-        assertThat(healthInfo.checks().size(), equalTo(4));
+        assertThat(healthInfo.checks().size(), equalTo(5));
         Optional<CheckInfo> cardLinkWebsocketCheckOpt = healthInfo.checks()
             .stream()
             .filter(check -> check.name().equals(CARDLINK_WEBSOCKET_CHECK))

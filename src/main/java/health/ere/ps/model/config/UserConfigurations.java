@@ -1,22 +1,25 @@
 package health.ere.ps.model.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import de.health.service.cetp.beaninfo.BeanInfoHelper;
+import de.health.service.cetp.beaninfo.Synthetic;
+import de.health.service.cetp.config.KonnektorAuth;
 import de.health.service.config.api.IUserConfigurations;
 import jakarta.json.JsonObject;
 import jakarta.json.bind.annotation.JsonbNillable;
 import jakarta.json.bind.annotation.JsonbProperty;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.Data;
 
-import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Method;
+import java.lang.reflect.Field;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+@Data
 public class UserConfigurations implements IUserConfigurations {
 
     private static final Logger log = Logger.getLogger(UserConfigurations.class.getName());
@@ -93,11 +96,29 @@ public class UserConfigurations implements IUserConfigurations {
     @JsonbNillable
     private String pruefnummer;
 
-    static BeanInfo beanInfo;
+    /**
+     * Property is added to follow IUserConfigurations interface changes, it might be used once
+     * the BASIC authentication feature is implemented in the "cetp-implementation" branch
+     */
+    @JsonbProperty(value = "connector.auth")
+    @JsonbNillable
+    @JsonIgnore
+    private String auth;
+
+    /**
+     * Property is added to follow IUserConfigurations interface changes, it might be used once
+     * SMC-B cards should be filtered by different iccsn in the "cetp-implementation" branch
+     */
+    @JsonbProperty(value = "connector.iccsn")
+    @JsonbNillable
+    @JsonIgnore
+    private String iccsn;
+
+    static BeanInfoHelper beanInfoHelper;
 
     static {
         try {
-            beanInfo = Introspector.getBeanInfo(UserConfigurations.class);
+            beanInfoHelper = new BeanInfoHelper(Introspector.getBeanInfo(UserConfigurations.class));
         } catch (IntrospectionException e) {
             log.log(Level.SEVERE, "Could not process user configurations", e);
         }
@@ -107,13 +128,15 @@ public class UserConfigurations implements IUserConfigurations {
     }
 
     public UserConfigurations(Properties properties) {
-        fillValues(properties::getProperty);
+        beanInfoHelper.fillValues(this, properties::getProperty);
     }
 
     public UserConfigurations(JsonObject jsonObject) {
-        fillValues((s) -> {
+        beanInfoHelper.fillValues(this, (s) -> {
             try {
-                return jsonObject.getString(UserConfigurations.class.getDeclaredField(s).getAnnotation(JsonbProperty.class).value(), null);
+                Field declaredField = UserConfigurations.class.getDeclaredField(s);
+                JsonbProperty annotation = declaredField.getAnnotation(JsonbProperty.class);
+                return jsonObject.getString(annotation.value(), null);
             } catch (NoSuchFieldException | SecurityException e) {
                 log.log(Level.SEVERE, "Could not read property", e);
                 return null;
@@ -125,182 +148,8 @@ public class UserConfigurations implements IUserConfigurations {
         updateWithRequest(httpServletRequest);
     }
 
-    private void fillValues(Function<String, Object> getValue) {
-        for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
-            try {
-                Method writeMethod = pd.getWriteMethod();
-                if (writeMethod != null) {
-                    writeMethod.invoke(this, getValue.apply(pd.getName()));
-                } else {
-                    if (!"class".equals(pd.getName())) {
-                        Method readMethod = pd.getReadMethod();
-                        if (readMethod != null && !readMethod.getDeclaringClass().isInterface()) {
-                            log.warning("No write method for: " + pd.getName());
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                log.log(Level.SEVERE, "Could not process user configurations", e);
-            }
-        }
-    }
-
     public Properties properties() {
-        Properties properties = new Properties();
-        for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
-            try {
-                if (pd.getReadMethod().invoke(this) instanceof String str) {
-                    properties.setProperty(pd.getName(), str);
-                }
-            } catch (Exception e) {
-                log.log(Level.SEVERE, "Could not process user configurations", e);
-            }
-        }
-        return properties;
-    }
-
-    public String getErixaHotfolder() {
-        return erixaHotfolder;
-    }
-
-    public void setErixaHotfolder(String erixaHotfolder) {
-        this.erixaHotfolder = erixaHotfolder;
-    }
-
-    public String getErixaDrugstoreEmail() {
-        return erixaDrugstoreEmail;
-    }
-
-    public void setErixaDrugstoreEmail(String erixaDrugstoreEmail) {
-        this.erixaDrugstoreEmail = erixaDrugstoreEmail;
-    }
-
-    public String getErixaUserEmail() {
-        return erixaUserEmail;
-    }
-
-    public void setErixaUserEmail(String erixaUserEmail) {
-        this.erixaUserEmail = erixaUserEmail;
-    }
-
-    public String getErixaUserPassword() {
-        return erixaUserPassword;
-    }
-
-    public void setErixaUserPassword(String erixaUserPassword) {
-        this.erixaUserPassword = erixaUserPassword;
-    }
-
-    public String getMuster16TemplateProfile() {
-        return muster16TemplateProfile;
-    }
-
-    public void setMuster16TemplateProfile(String muster16TemplateProfile) {
-        this.muster16TemplateProfile = muster16TemplateProfile;
-    }
-
-    public String getConnectorBaseURL() {
-        return connectorBaseURL;
-    }
-
-    public void setConnectorBaseURL(String connectorBaseURL) {
-        this.connectorBaseURL = connectorBaseURL;
-    }
-
-    public String getMandantId() {
-        return mandantId;
-    }
-
-    public void setMandantId(String mandantId) {
-        this.mandantId = mandantId;
-    }
-
-    public String getWorkplaceId() {
-        return workplaceId;
-    }
-
-    public void setWorkplaceId(String workplaceId) {
-        this.workplaceId = workplaceId;
-    }
-
-    public String getClientSystemId() {
-        return clientSystemId;
-    }
-
-    public void setClientSystemId(String clientSystemId) {
-        this.clientSystemId = clientSystemId;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public String getTvMode() {
-        return tvMode;
-    }
-
-    public void setTvMode(String tvMode) {
-        this.tvMode = tvMode;
-    }
-
-    public String getClientCertificate() {
-        return this.clientCertificate;
-    }
-
-    public void setClientCertificate(String clientCertificate) {
-        this.clientCertificate = clientCertificate;
-    }
-
-    public String getClientCertificatePassword() {
-        return this.clientCertificatePassword;
-    }
-
-    public void setClientCertificatePassword(String clientCertificatePassword) {
-        this.clientCertificatePassword = clientCertificatePassword;
-    }
-
-    public String getBasicAuthUsername() {
-        return this.basicAuthUsername;
-    }
-
-    public void setBasicAuthUsername(String basicAuthUsername) {
-        this.basicAuthUsername = basicAuthUsername;
-    }
-
-    public String getBasicAuthPassword() {
-        return this.basicAuthPassword;
-    }
-
-    public void setBasicAuthPassword(String basicAuthPassword) {
-        this.basicAuthPassword = basicAuthPassword;
-    }
-
-    public String getVersion() {
-        return this.version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    public String getErixaApiKey() {
-        return this.erixaApiKey;
-    }
-
-    public void setErixaApiKey(String erixaApiKey) {
-        this.erixaApiKey = erixaApiKey;
-    }
-
-    public String getPruefnummer() {
-        return this.pruefnummer;
-    }
-
-    public void setPruefnummer(String pruefnummer) {
-        this.pruefnummer = pruefnummer;
+        return beanInfoHelper.properties(this);
     }
 
     @Override
@@ -335,32 +184,32 @@ public class UserConfigurations implements IUserConfigurations {
     @Override
     public int hashCode() {
         return Objects.hash(basicAuthPassword, basicAuthUsername, clientCertificate, clientCertificatePassword,
-                clientSystemId, connectorBaseURL, erixaApiKey, erixaDrugstoreEmail, erixaHotfolder, erixaUserEmail,
-                erixaUserPassword, mandantId, muster16TemplateProfile, pruefnummer, tvMode, userId, version,
-                workplaceId);
+            clientSystemId, connectorBaseURL, erixaApiKey, erixaDrugstoreEmail, erixaHotfolder, erixaUserEmail,
+            erixaUserPassword, mandantId, muster16TemplateProfile, pruefnummer, tvMode, userId, version,
+            workplaceId);
     }
 
     @Override
     public String toString() {
         return "UserConfigurations{" +
-               "erixaHotfolder='" + erixaHotfolder + '\'' +
-               ", erixaDrugstoreEmail='" + erixaDrugstoreEmail + '\'' +
-               ", erixaUserEmail='" + erixaUserEmail + '\'' +
-               ", erixaUserPassword='" + erixaUserPassword + '\'' +
-               ", erixaApiKey='" + erixaApiKey + '\'' +
-               ", muster16TemplateProfile='" + muster16TemplateProfile + '\'' +
-               ", connectorBaseURL='" + connectorBaseURL + '\'' +
-               ", mandantId='" + mandantId + '\'' +
-               ", workplaceId='" + workplaceId + '\'' +
-               ", clientSystemId='" + clientSystemId + '\'' +
-               ", userId='" + userId + '\'' +
-               ", version='" + version + '\'' +
-               ", tvMode='" + tvMode + '\'' +
-               ", clientCertificate='" + clientCertificate + '\'' +
-               ", clientCertificatePassword='" + clientCertificatePassword + '\'' +
-               ", basicAuthUsername='" + basicAuthUsername + '\'' +
-               ", basicAuthPassword='" + basicAuthPassword + '\'' +
-               ", pruefnummer='" + pruefnummer + '\'' +
-               '}';
+            "erixaHotfolder='" + erixaHotfolder + '\'' +
+            ", erixaDrugstoreEmail='" + erixaDrugstoreEmail + '\'' +
+            ", erixaUserEmail='" + erixaUserEmail + '\'' +
+            ", erixaUserPassword='" + erixaUserPassword + '\'' +
+            ", erixaApiKey='" + erixaApiKey + '\'' +
+            ", muster16TemplateProfile='" + muster16TemplateProfile + '\'' +
+            ", connectorBaseURL='" + connectorBaseURL + '\'' +
+            ", mandantId='" + mandantId + '\'' +
+            ", workplaceId='" + workplaceId + '\'' +
+            ", clientSystemId='" + clientSystemId + '\'' +
+            ", userId='" + userId + '\'' +
+            ", version='" + version + '\'' +
+            ", tvMode='" + tvMode + '\'' +
+            ", clientCertificate='" + clientCertificate + '\'' +
+            ", clientCertificatePassword='" + clientCertificatePassword + '\'' +
+            ", basicAuthUsername='" + basicAuthUsername + '\'' +
+            ", basicAuthPassword='" + basicAuthPassword + '\'' +
+            ", pruefnummer='" + pruefnummer + '\'' +
+            '}';
     }
 }

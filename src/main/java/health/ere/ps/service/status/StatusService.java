@@ -23,23 +23,24 @@ import jakarta.enterprise.event.ObservesAsync;
 import jakarta.inject.Inject;
 import jakarta.websocket.Session;
 import org.apache.commons.lang3.tuple.Pair;
+import org.eclipse.microprofile.context.ManagedExecutor;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+@SuppressWarnings("CdiInjectionPointsInspection")
 @ApplicationScoped
 public class StatusService {
 
     private static final Logger log = Logger.getLogger(StatusService.class.getName());
 
-    private final ExecutorService scheduledThreadPool = Executors.newFixedThreadPool(5);
+    @Inject
+    ManagedExecutor managedExecutor;
 
     @Inject
     MultiConnectorServicesProvider connectorServicesProvider;
@@ -115,7 +116,7 @@ public class StatusService {
         String basicAuthPassword = configurations.getBasicAuthPassword();
 
         List<Future<?>> futures = new ArrayList<>();
-        futures.add(scheduledThreadPool.submit(() -> {
+        futures.add(managedExecutor.submit(() -> {
             // ConnectorReachable
             Pair<String, String> pair = getClientCertificatePair(configurations);
             String clientCertificate = pair.getKey();
@@ -134,19 +135,19 @@ public class StatusService {
             }
         }));
 
-        futures.add(scheduledThreadPool.submit(() -> {
+        futures.add(managedExecutor.submit(() -> {
             // IdpReachable
             String discoveryUrl = "Not given";
             try {
-                idpClient.initializeClient();
-                discoveryUrl = idpClient.getDiscoveryDocumentUrl();
-                status.setIdpReachable(true, discoveryUrl);
+                boolean reachable = idpClient.initialize();
+                discoveryUrl = appConfig.getDiscoveryDocumentUrl();
+                status.setIdpReachable(reachable, discoveryUrl);
             } catch (Throwable e) {
                 status.setIdpReachable(false, discoveryUrl + " Exception: " + e.getMessage());
             }
         }));
 
-        futures.add(scheduledThreadPool.submit(() -> {
+        futures.add(managedExecutor.submit(() -> {
             String discoveryUrl = "Not given";
             try {
                 // IdpaccesstokenObtainable
@@ -163,7 +164,7 @@ public class StatusService {
             }
         }));
 
-        futures.add(scheduledThreadPool.submit(() -> {
+        futures.add(managedExecutor.submit(() -> {
             // SmcbAvailable
             String smcbHandle = null;
             try {
@@ -181,7 +182,7 @@ public class StatusService {
             }
         }));
 
-        futures.add(scheduledThreadPool.submit(() -> {
+        futures.add(managedExecutor.submit(() -> {
             // EhbaAvailable
             try {
                 String ehbaHandle = connectorCardsService.getConnectorCardHandle(CardHandleType.HBA, runtimeConfig, false);
@@ -191,7 +192,7 @@ public class StatusService {
             }
         }));
 
-        futures.add(scheduledThreadPool.submit(() -> {
+        futures.add(managedExecutor.submit(() -> {
             // ComfortsignatureAvailable
             // Connector is PTV4+
             // check if basic auth or ssl certificate is enabled

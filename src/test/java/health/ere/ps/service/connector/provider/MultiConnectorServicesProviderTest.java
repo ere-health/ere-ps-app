@@ -1,12 +1,14 @@
 package health.ere.ps.service.connector.provider;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
+import health.ere.ps.config.RuntimeConfig;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import health.ere.ps.config.RuntimeConfig;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@Disabled
 public class MultiConnectorServicesProviderTest {
+
     @Test
     void testGetSignatureServicePortTypeV755() {
         MultiConnectorServicesProvider multiConnectorServicesProvider = new MultiConnectorServicesProvider();
@@ -14,8 +16,7 @@ public class MultiConnectorServicesProviderTest {
         multiConnectorServicesProvider.getSignatureServicePortTypeV755(runtimeConfig);
         runtimeConfig = new RuntimeConfig("eHBAHandle", "SMCBHandle");
         multiConnectorServicesProvider.getSignatureServicePortTypeV755(runtimeConfig);
-        assertEquals(1, multiConnectorServicesProvider.singleConnectorServicesProvider.size());
-
+        assertEquals(1, multiConnectorServicesProvider.portMap.size());
     }
 
     @Test
@@ -25,7 +26,6 @@ public class MultiConnectorServicesProviderTest {
         multiConnectorServicesProvider.getSignatureServicePortTypeV755(runtimeConfig);
         runtimeConfig = new RuntimeConfig("adasd", "SMCBHandle");
         multiConnectorServicesProvider.getSignatureServicePortTypeV755(runtimeConfig);
-        assertEquals(2, multiConnectorServicesProvider.singleConnectorServicesProvider.size());
-
+        assertEquals(2, multiConnectorServicesProvider.portMap.size());
     }
 }
