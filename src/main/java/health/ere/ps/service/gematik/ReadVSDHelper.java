@@ -8,6 +8,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
@@ -29,7 +30,15 @@ public class ReadVSDHelper {
         }
     }
 
-    public static String asString(ReadVSDResponse readVSDResponse) {
+    public static ReadVSDResponse fromBase64String(String base64String) throws JAXBException {
+        return fromBytes(Base64.getDecoder().decode(base64String));
+    }
+
+    public static ReadVSDResponse fromBytes(byte[] bytes) throws JAXBException {
+        return (ReadVSDResponse) readVSDJaxbContext.createUnmarshaller().unmarshal(new ByteArrayInputStream(bytes));
+    }
+
+    public static String toString(ReadVSDResponse readVSDResponse) {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             readVSDJaxbContext.createMarshaller().marshal(readVSDResponse, outputStream);

@@ -2,7 +2,6 @@ package health.ere.ps.service.cetp;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
-import de.gematik.ws.conn.vsds.vsdservice.v5.ReadVSDResponse;
 import de.health.service.cetp.AbstractCETPEventHandler;
 import de.health.service.cetp.cardlink.CardlinkClient;
 import de.health.service.config.api.IUserConfigurations;
@@ -13,9 +12,6 @@ import health.ere.ps.service.gematik.PharmacyService;
 import health.ere.ps.service.gematik.PrescriptionContext;
 import jakarta.json.Json;
 import jakarta.json.JsonArrayBuilder;
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
-import org.apache.commons.lang3.tuple.Pair;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.r4.model.Identifier;

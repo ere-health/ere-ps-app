@@ -277,7 +277,7 @@ public class PharmacyService implements AutoCloseable {
             return new PrescriptionContext(
                 fhirContext.newXmlParser().parseResource(Bundle.class, bundleString),
                 event,
-                ReadVSDHelper.asString(readVSDResponse)
+                ReadVSDHelper.toString(readVSDResponse)
             );
         } catch (IOException | ParserConfigurationException | SAXException e) {
             generateRuntimeConfigToTelematikIdToSmcbHandle(runtimeConfig);
