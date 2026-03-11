@@ -18,8 +18,7 @@ import de.gematik.ws.conn.eventservice.v7.GetCards;
 import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
 import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
 import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
-import de.gematik.ws.conn.vsds.vsdservice.v5.VSDServicePortType;
-import de.gematik.ws.conn.vsds.vsdservice.v5.VSDStatusType;
+import de.gematik.ws.conn.vsds.vsdservice.v5.ReadVSDResponse;
 import de.gematik.ws.fa.vsdm.vsd.v5.UCAllgemeineVersicherungsdatenXML;
 import de.gematik.ws.fa.vsdm.vsd.v5.UCGeschuetzteVersichertendatenXML;
 import de.gematik.ws.fa.vsdm.vsd.v5.UCPersoenlicheVersichertendatenXML;
@@ -48,7 +47,6 @@ import jakarta.xml.bind.JAXBException;
 import jakarta.xml.ws.Holder;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.entity.ContentType;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1Primitive;
@@ -100,8 +98,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.zip.GZIPInputStream;
 
+import static health.ere.ps.service.gematik.ReadVSDHelper.ungzip;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 
 /**
@@ -126,6 +124,9 @@ public class PharmacyService implements AutoCloseable {
 
     @Inject
     PoppClient poppClient;
+
+    @Inject
+    VSDService vsdService;
 
     @Inject
     IKonnektorClient konnektorClient;
@@ -209,7 +210,7 @@ public class PharmacyService implements AutoCloseable {
         }
     }
 
-    public Pair<Bundle, String> getEPrescriptionsForCardHandle(
+    public PrescriptionContext getEPrescriptionsForCardHandle(
         String correlationId,
         String egkHandle,
         String smcbHandle,
@@ -222,22 +223,21 @@ public class PharmacyService implements AutoCloseable {
         return telematikId != null && !telematikId.isEmpty();
     }
 
-    public Pair<Bundle, String> getEPrescriptionsForCardHandle(
+    public PrescriptionContext getEPrescriptionsForCardHandle(
         String correlationId,
         String egkHandle,
         String smcbHandle,
         RuntimeConfig runtimeConfig,
         String kvnr
-    ) throws FaultMessage, de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
+    ) throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         if (runtimeConfig == null) {
             runtimeConfig = new RuntimeConfig();
         }
         runtimeConfig.setSMCBHandle(smcbHandle);
-        ReadVSDResult readVSD = readVSD(correlationId, egkHandle, smcbHandle, runtimeConfig);
-        Holder<byte[]> pruefungsnachweis = readVSD.pruefungsnachweis;
-        String pnw = Base64.getEncoder().encodeToString(pruefungsnachweis.value);
+        ReadVSDResponse readVSDResponse = readVSD(correlationId, egkHandle, smcbHandle, runtimeConfig);
+        String pnw = Base64.getEncoder().encodeToString(readVSDResponse.getPruefungsnachweis());
 
-        KVNRAndTelematikId kvnrAndTelematikId = extractKVNRAndTelematikId(readVSD);
+        KVNRAndTelematikId kvnrAndTelematikId = extractKVNRAndTelematikId(readVSDResponse);
         String telematikId = kvnrAndTelematikId.telematikId;
 
         if (valid(telematikId)) {
@@ -251,7 +251,7 @@ public class PharmacyService implements AutoCloseable {
 
         Invocation.Builder builder = client.target(appConfig.getPrescriptionServiceURL()).path("/Task")
             .queryParam("kvnr", kvnr != null ? kvnr : kvnrAndTelematikId.kvnr)
-            .queryParam("hcv", extractHCV(readVSD))
+            .queryParam("hcv", extractHCV(readVSDResponse))
             .queryParam("pnw", pnw).request()
             .header("Content-Type", "application/fhir+xml")
             .header("User-Agent", appConfig.getUserAgent())
@@ -262,7 +262,7 @@ public class PharmacyService implements AutoCloseable {
             builder = builder.header("X-Popp-Token", poppToken);
         }
         try (Response response = builder.get()) {
-            String event = getEvent(factory.newDocumentBuilder(), pruefungsnachweis.value);
+            String event = getEvent(factory.newDocumentBuilder(), readVSDResponse.getPruefungsnachweis());
             String bundleString = new String(response.readEntity(InputStream.class).readAllBytes(), getCharset(response));
 
             if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
@@ -274,7 +274,11 @@ public class PharmacyService implements AutoCloseable {
                 telematikMXBeanRegistry.countAccepted(telematikId);
                 prescriptionTracker.countSuccessfulPrescription(telematikId);
             }
-            return Pair.of(fhirContext.newXmlParser().parseResource(Bundle.class, bundleString), event);
+            return new PrescriptionContext(
+                fhirContext.newXmlParser().parseResource(Bundle.class, bundleString),
+                event,
+                ReadVSDHelper.toString(readVSDResponse)
+            );
         } catch (IOException | ParserConfigurationException | SAXException e) {
             generateRuntimeConfigToTelematikIdToSmcbHandle(runtimeConfig);
             log.log(Level.SEVERE, String.format("[%s] Could not read response from Fachdienst", correlationId), e);
@@ -385,13 +389,17 @@ public class PharmacyService implements AutoCloseable {
         return null;
     }
 
-
-    static synchronized String extractHCV(ReadVSDResult readVSDResult) {
+    static synchronized String extractHCV(ReadVSDResponse readVSDResponse) {
+        if (readVSDResponse.getAllgemeineVersicherungsdaten() == null) {
+            return "";
+        }
         try {
-            UCAllgemeineVersicherungsdatenXML allgemeineVersicherungsdatenXML = getAllgemeineVersicherungsdaten(readVSDResult);
+            UCAllgemeineVersicherungsdatenXML allgemeineVersicherungsdatenXML = getAllgemeineVersicherungsdaten(readVSDResponse);
             String vb = allgemeineVersicherungsdatenXML.getVersicherter().getVersicherungsschutz().getBeginn().replaceAll(" ", "");
-            UCPersoenlicheVersichertendatenXML patient = getPatient(readVSDResult);
-            String sas = patient.getVersicherter().getPerson().getStrassenAdresse().getStrasse() == null ? "" : patient.getVersicherter().getPerson().getStrassenAdresse().getStrasse().trim();
+            UCPersoenlicheVersichertendatenXML patient = getPatient(readVSDResponse);
+            String sas = patient.getVersicherter().getPerson().getStrassenAdresse().getStrasse() == null
+                ? ""
+                : patient.getVersicherter().getPerson().getStrassenAdresse().getStrasse().trim();
             return calculateHCV(vb, sas);
         } catch (IOException | NullPointerException | JAXBException | NoSuchAlgorithmException e) {
             String msg = "Could generate HCV message";
@@ -417,9 +425,9 @@ public class PharmacyService implements AutoCloseable {
         return Base64.getUrlEncoder().encodeToString(first5);
     }
 
-    static synchronized KVNRAndTelematikId extractKVNRAndTelematikId(ReadVSDResult readVSDResult) {
+    static synchronized KVNRAndTelematikId extractKVNRAndTelematikId(ReadVSDResponse readVSDResponse) {
         try {
-            UCPersoenlicheVersichertendatenXML patient = getPatient(readVSDResult);
+            UCPersoenlicheVersichertendatenXML patient = getPatient(readVSDResponse);
             if (patient == null) {
                 return new KVNRAndTelematikId("", "");
             }
@@ -443,42 +451,30 @@ public class PharmacyService implements AutoCloseable {
         }
     }
 
-    private static UCPersoenlicheVersichertendatenXML getPatient(ReadVSDResult readVSDResult) throws IOException, JAXBException {
-        if (readVSDResult.persoenlicheVersichertendaten == null || readVSDResult.persoenlicheVersichertendaten.value == null) {
+    private static UCPersoenlicheVersichertendatenXML getPatient(ReadVSDResponse readVSDResponse) throws IOException, JAXBException {
+        if (readVSDResponse.getPersoenlicheVersichertendaten() == null) {
             return null;
         }
-        InputStream isPersoenlicheVersichertendaten = new GZIPInputStream(new ByteArrayInputStream(
-            readVSDResult.persoenlicheVersichertendaten.value
-        ));
-        return (UCPersoenlicheVersichertendatenXML) jaxbContext
-            .createUnmarshaller()
-            .unmarshal(isPersoenlicheVersichertendaten);
+        return (UCPersoenlicheVersichertendatenXML) jaxbContext.createUnmarshaller()
+            .unmarshal(ungzip(readVSDResponse.getPersoenlicheVersichertendaten()));
     }
 
-    private static UCAllgemeineVersicherungsdatenXML getAllgemeineVersicherungsdaten(ReadVSDResult readVSDResult)
+    private static UCAllgemeineVersicherungsdatenXML getAllgemeineVersicherungsdaten(ReadVSDResponse readVSDResponse)
         throws IOException, JAXBException {
-        InputStream isPersoenlicheVersichertendaten = new GZIPInputStream(
-            new ByteArrayInputStream(readVSDResult.allgemeineVersicherungsdaten.value));
-        return (UCAllgemeineVersicherungsdatenXML) jaxbContext
-            .createUnmarshaller().unmarshal(isPersoenlicheVersichertendaten);
+        return (UCAllgemeineVersicherungsdatenXML) jaxbContext.createUnmarshaller()
+            .unmarshal(ungzip(readVSDResponse.getAllgemeineVersicherungsdaten()));
     }
 
-    public ReadVSDResult readVSD(
+    public ReadVSDResponse readVSD(
         String correlationId,
         String egkHandle,
         String smcbHandle,
         RuntimeConfig runtimeConfig
-    ) throws FaultMessage, de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
+    ) throws de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
         if ("".equals(context.getUserId()) || context.getUserId() == null) {
             context.setUserId(UUID.randomUUID().toString());
         }
-
-        Holder<byte[]> persoenlicheVersichertendaten = new Holder<>();
-        Holder<byte[]> allgemeineVersicherungsdaten = new Holder<>();
-        Holder<byte[]> geschuetzteVersichertendaten = new Holder<>();
-        Holder<VSDStatusType> vSD_Status = new Holder<>();
-        Holder<byte[]> pruefungsnachweis = new Holder<>();
 
         EventServicePortType eventService = connectorServicesProvider.getEventServicePortType(runtimeConfig);
         if (egkHandle == null) {
@@ -489,7 +485,6 @@ public class PharmacyService implements AutoCloseable {
             smcbHandle = setAndGetSMCBHandleForPharmacy(runtimeConfig, context, eventService);
         }
         log.fine(egkHandle + " " + smcbHandle);
-        VSDServicePortType vsdServicePortType = connectorServicesProvider.getVSDServicePortType(runtimeConfig);
         try {
             String listString;
             try {
@@ -505,40 +500,22 @@ public class PharmacyService implements AutoCloseable {
             log.fine(String.format(
                 "[%s] readVSD for cardHandle=%s, smcbHandle=%s, subscriptions: %s", correlationId, egkHandle, smcbHandle, listString
             ));
-            vsdServicePortType.readVSD(
-                egkHandle, smcbHandle, true, true, context,
-                persoenlicheVersichertendaten,
-                allgemeineVersicherungsdaten,
-                geschuetzteVersichertendaten,
-                vSD_Status,
-                pruefungsnachweis
-            );
+
+            ReadVSDResponse readVSDResponse = vsdService.read(egkHandle, smcbHandle, runtimeConfig, true, true);
             readEPrescriptionsMXBean.increaseVSDRead();
+            return readVSDResponse;
         } catch (Throwable t) {
             readEPrescriptionsMXBean.increaseVSDFailed();
-            throw t;
+            throw new RuntimeException(t);
         }
-        ReadVSDResult readVSDResult = new ReadVSDResult();
-        readVSDResult.persoenlicheVersichertendaten = persoenlicheVersichertendaten;
-        readVSDResult.allgemeineVersicherungsdaten = allgemeineVersicherungsdaten;
-        readVSDResult.geschuetzteVersichertendaten = geschuetzteVersichertendaten;
-        readVSDResult.vSD_Status = vSD_Status;
-        readVSDResult.pruefungsnachweis = pruefungsnachweis;
-        return readVSDResult;
-    }
-
-    public static class ReadVSDResult {
-        Holder<byte[]> persoenlicheVersichertendaten;
-        Holder<byte[]> allgemeineVersicherungsdaten;
-        Holder<byte[]> geschuetzteVersichertendaten;
-        Holder<VSDStatusType> vSD_Status;
-        Holder<byte[]> pruefungsnachweis;
     }
 
     private String getEvent(DocumentBuilder builder, byte[] pruefnachweisBytes) throws IOException, SAXException {
-        String decodedXMLFromPNW = new String(new GZIPInputStream(new ByteArrayInputStream(pruefnachweisBytes)).readAllBytes());
-        Document doc = builder.parse(new ByteArrayInputStream(decodedXMLFromPNW.getBytes()));
-        return doc.getElementsByTagName("E").item(0).getTextContent();
+        try (InputStream inputStream = ungzip(pruefnachweisBytes)) {
+            String decodedXMLFromPNW = new String(inputStream.readAllBytes());
+            Document doc = builder.parse(new ByteArrayInputStream(decodedXMLFromPNW.getBytes()));
+            return doc.getElementsByTagName("E").item(0).getTextContent();
+        }
     }
 
     public String setAndGetSMCBHandleForPharmacy(

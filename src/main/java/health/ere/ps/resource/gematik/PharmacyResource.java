@@ -5,6 +5,7 @@ import de.health.service.cetp.SubscriptionManager;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.config.UserConfig;
 import health.ere.ps.service.gematik.PharmacyService;
+import health.ere.ps.service.gematik.PrescriptionContext;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.GET;
@@ -61,8 +62,10 @@ public class PharmacyResource {
     public Bundle task(@QueryParam("egkHandle") String egkHandle, @QueryParam("smcbHandle") String smcbHandle) throws FaultMessage, de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage {
         RuntimeConfig runtimeConfig = extractRuntimeConfigFromHeaders(httpServletRequest, userConfig);
         String correlationId = UUID.randomUUID().toString();
-        Pair<Bundle, String> pair = pharmacyService.getEPrescriptionsForCardHandle(correlationId, egkHandle, smcbHandle, runtimeConfig);
-        return pair.getKey();
+        PrescriptionContext context = pharmacyService.getEPrescriptionsForCardHandle(
+            correlationId, egkHandle, smcbHandle, runtimeConfig
+        );
+        return context.bundle();
     }
 
     @GET

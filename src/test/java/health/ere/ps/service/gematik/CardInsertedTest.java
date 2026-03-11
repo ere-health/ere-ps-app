@@ -1,7 +1,8 @@
 package health.ere.ps.service.gematik;
 
 import de.gematik.ws.conn.eventservice.v7.Event;
-import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
+import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
+import de.gematik.ws.conn.vsds.vsdservice.v5.ReadVSDResponse;
 import de.gematik.ws.tel.error.v2.Error;
 import de.health.service.cetp.cardlink.CardlinkWebsocketClient;
 import de.health.service.cetp.domain.eventservice.event.DecodeResult;
@@ -21,8 +22,6 @@ import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
-import jakarta.xml.bind.DatatypeConverter;
-import jakarta.xml.ws.Holder;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -31,6 +30,9 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 
+import static health.ere.ps.service.gematik.ReadVSDHelper.fromBase64String;
+import static health.ere.ps.service.gematik.ReadVSDHelper.fromBytes;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -50,7 +52,7 @@ import static org.mockito.Mockito.when;
 @TestProfile(RUTestProfile.class)
 class CardInsertedTest {
 
-    private static final String READ_VSD_RESPONSE = "H4sIAAAAAAAA/w2M3QqCMBhAXyV8AL+5oj/mQNyKgk3ROaKbKLT8T1L8e/q8OReHwyG+XLlMPDQPwosnbcMykYmM1ViVdWsbadc1R4ChNT9J9eyywowTeD+hb+MKmnqAfukNSlRIMcJrtMN7tMW7zYHAoginmACnxL9TzZxJsGgtcmeWjGNPOZbIIyzzVGt2fo1zVvIrFEqq7BZZwVd7Z81+vSsmfzgVNoFlskDSP8uj5+izAAAA";
+    private static final String READ_VSD_RESPONSE = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9InllcyI/PjxSZWFkVlNEUmVzcG9uc2UgeG1sbnM9Imh0dHA6Ly93cy5nZW1hdGlrLmRlL2Nvbm4vdnNkcy9WU0RTZXJ2aWNlL3Y1LjIiPjxQZXJzb2VubGljaGVWZXJzaWNoZXJ0ZW5kYXRlbj5INHNJQUFBQUFBQUEvNDFTd1hMYU1CRDlGWS91ZURIVUtlbXNsV2toa3pBVG9GTlM0TVlvOWpiU1JKWTdra3pTZm5zUFhZZEFReWVIWENTOTU3ZjczdXdhTDU1cW0reklCOU80UW1ScFh5VGt5cVl5N3I0UTArV2lOeHJsNTcwc0YwbUl5bFhLTm80SzhZdUN1SkQ0ZmJ6OXlxVU5PV3RLVGF1dURkOCtFaXY1Mk14dWt2Rmt0bDFkZmx0T0YvTkM1T21nYzJCUEZ3cWhZL3o1Q2VBeHBQZFVxMmdlMG9yZ2g0SmRxT3J1Z0IzcmhjUlhmZjBKY3R2cFJHNnlySitQUG43SUJ3ai9mOFBuZUU3aUZkMjFQZ1pPMWRZeU84K3ovaUFiSXB6UXVHcThVelhKc2ZZbVJLTWNOM3loY0s1Sy9mejZRbTBrRys1VVo5TzcvY05PbWt5TmNGU3dXU2kxcFZKSE9lczhqZ2h2RGRmS2lVOFI5azljUnE5Q0lQZTU4c1EzSjI1Q3RHVGliNld0SE9TajRSbkNDWWNMSCtXVjh0MktFRHFBTjd3WmlldEd1OEFpcTNqODVIbUpKQ2NJYjlFSSs1SVhkN2tteTdOTkdIS3lBNG5YcWcydXJXdWVlb2J3Q2gwMS8yTERZZEp3dWkxNHh6OGkvd0w5V3dLRWhnSUFBQT09PC9QZXJzb2VubGljaGVWZXJzaWNoZXJ0ZW5kYXRlbj48QWxsZ2VtZWluZVZlcnNpY2hlcnVuZ3NkYXRlbj5INHNJQUFBQUFBQUEvODFTMzAvQ01CRCtWNWE5c3lzTE04eDBKUWpHRUFTTTZEUytMSFU3dG9YdFp0YUN4ci9lamhDekVZS3Z2clM1Nys3N2tWNzU2S3NzckQzV0txOG9zUHNPc3kya3VFcHlTZ043dGw3MWhrUFA3L1U5ZXlUNDh5UWFGMFdLSmVhRVljT0pNNngzbEtwRWFxVFh4YjFsMUVnRmRxYjF4elhBcDNMTXROVDUxa2tRTmhMMktpbWJBL2FlNDlyV1pMcUl3dHZIOVd5MURHeURHSGZCZjRVMTFxMnFzVkZ4dHRQZmd0OWdtaE1KbDdrRE5tQXVoeVBBNTVVeVFYUXRNVzNJblhLTFJFWkU5Sm52TWVaZitSek85cnVzUWlJbFdKc1hRVEU5WWJSN2ZDbExGRStvdEhVM0QzdnJrTU1CNGVQM0d1T01EcFAvTUI1Y3lBZW45ZGxsdk8yVTFOODViU3JWS1l4UFo1a2theTI4bHNnUmFuT2lZeHFqSHgzNEw2c0h3Zm9jbXB2RHBVazR0WVpPTU9oK0svajdMNHNmK2FkSElod0RBQUE9PC9BbGxnZW1laW5lVmVyc2ljaGVydW5nc2RhdGVuPjxHZXNjaHVldHp0ZVZlcnNpY2hlcnRlbmRhdGVuPkg0c0lBQUFBQUFBQS80VlAyMnJDUUJEOWxiRHZabUlob0RKWktTb1M4QUlORmZGRmxtVE1CcE9OWkNkcHlkZDNRd3NxTGZUbHpNeVp5NW1EODgrcTlEcHFiRkdiU0l6OVFIaGswam9yVEI2Sk9ObVBKcE53T2hxSFlpN3hmWEZlazAxMVM5d3pIWWFsVkZQRFpETGw0TGpkZU82YXNaSFF6TGNad0lmMWM2b1VGMWMvSTdnbzZHeFdEUUJkNkw4SWI3SGNuZytydHlUZTd5TGhHS2N1OGRUMlNwZXR5YTFseGEyVm1IekhBT0VuUS9oamlFcTZjdEU1TDl3b3lrbmlLelU5bCs1SE9VVzRGM2hTMnFqSDNqUGhaSDdmZ3YvTnl5K2x2RS9nVFFFQUFBPT08L0dlc2NodWV0enRlVmVyc2ljaGVydGVuZGF0ZW4+PFZTRF9TdGF0dXM+PFN0YXR1cz4wPC9TdGF0dXM+PFRpbWVzdGFtcD4yMDI0LTA0LTAyVDEyOjExOjU5LjAwMFo8L1RpbWVzdGFtcD48VmVyc2lvbj41LjIuMDwvVmVyc2lvbj48L1ZTRF9TdGF0dXM+PFBydWVmdW5nc25hY2h3ZWlzPkg0c0lBQUFBQUFBQS93Mk16UXFDUUJoRlgwWGNCdk01bzFMRU9JdDBvb0taTkg4S04yRnFtYWtJaW9wUDN5enVYWng3dU5TWG11dUpaOEp2NGZrcUhSMGpBeG02dHJSTk56aDZOWTc5SG1BZTBLZHNzL0g3UTBVSjd3eW1vV2loNzJhWWxLOHpHb1dNR01RMk1MR3dqVzNib3FBUTVZeFE0SXo2S2J0N2ZCRmViTWsxd0tMbXBsaHpGVzdLU0NacXUreU9kUkkvck5ROHVOdlhJc2ROZFNLQnlOTEd6YWZoTmpzVTFJa3F5ZjRoOSs0RnN3QUFBQT09PC9QcnVlZnVuZ3NuYWNod2Vpcz48L1JlYWRWU0RSZXNwb25zZT4=";
 
     @Inject
     EventMapper eventMapper;
@@ -58,16 +60,19 @@ class CardInsertedTest {
     @Test
     void vsdmSensorDataWithEventIdIsSentOnCardInsertedEvent() throws Exception {
         PharmacyService pharmacyService = spy(createPharmacyService());
-        Holder<byte[]> holder = prepareHolder(pharmacyService);
-        PharmacyService.ReadVSDResult readVSDResult = new PharmacyService.ReadVSDResult();
-        readVSDResult.pruefungsnachweis = holder;
-        doReturn(readVSDResult).when(pharmacyService).readVSD(any(), any(), any(), any());
+        initMocks(pharmacyService);
+        ReadVSDResponse readVSDResponse = fromBase64String(READ_VSD_RESPONSE);
+        doReturn(readVSDResponse).when(pharmacyService).readVSD(any(), any(), any(), any());
 
         TrackerService trackerService = mock(TrackerService.class);
         when(trackerService.submit(any(), any(), any(), any())).thenReturn(true);
 
         CardlinkWebsocketClient cardlinkWebsocketClient = mock(CardlinkWebsocketClient.class);
-        CETPServerHandler cetpServerHandler = new CETPServerHandler(trackerService, pharmacyService, cardlinkWebsocketClient);
+        AppConfig appConfig = mock(AppConfig.class);
+        when(appConfig.isVsdmResponseForCardlinkEnabled()).thenReturn(true);
+        CETPServerHandler cetpServerHandler = new CETPServerHandler(
+            appConfig, trackerService, pharmacyService, cardlinkWebsocketClient
+        );
         EmbeddedChannel channel = new EmbeddedChannel(cetpServerHandler);
 
         String slotIdValue = "3";
@@ -78,13 +83,14 @@ class CardInsertedTest {
 
         ArgumentCaptor<String> messageTypeCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<Map<String, Object>> mapCaptor = ArgumentCaptor.forClass(Map.class);
-        verify(cardlinkWebsocketClient, times(3)).sendJson(any(), any(), messageTypeCaptor.capture(), mapCaptor.capture());
+        verify(cardlinkWebsocketClient, times(4)).sendJson(any(), any(), messageTypeCaptor.capture(), mapCaptor.capture());
 
         List<String> capturedMessages = messageTypeCaptor.getAllValues();
 
         assertTrue(capturedMessages.get(0).contains("eRezeptTokensFromAVS"));
         assertTrue(capturedMessages.get(1).contains("eRezeptBundlesFromAVS"));
         assertTrue(capturedMessages.get(2).contains("vsdmSensorData"));
+        assertTrue(capturedMessages.get(3).contains("ReadVSDFromAVS"));
 
         verify(trackerService).submit(any(), any(), any(), any());
 
@@ -95,12 +101,20 @@ class CardInsertedTest {
         assertEquals(vsdmSensorData.get("ctId"), ctIdValue);
         assertEquals(vsdmSensorData.get("eventId"), "2");
         assertNotNull(vsdmSensorData.get("endTime"));
+
+        Map<String, Object> readVSDResponseData = maps.get(3);
+        String readVSDResponseString = (String) readVSDResponseData.get("ReadVSDResponse");
+        ReadVSDResponse sentReadVSDResponse = fromBytes(readVSDResponseString.getBytes());
+        assertArrayEquals(readVSDResponse.getAllgemeineVersicherungsdaten(), sentReadVSDResponse.getAllgemeineVersicherungsdaten());
+        assertArrayEquals(readVSDResponse.getPruefungsnachweis(), sentReadVSDResponse.getPruefungsnachweis());
+        assertArrayEquals(readVSDResponse.getPersoenlicheVersichertendaten(), sentReadVSDResponse.getPersoenlicheVersichertendaten());
+        assertArrayEquals(readVSDResponse.getGeschuetzteVersichertendaten(), sentReadVSDResponse.getGeschuetzteVersichertendaten());
     }
 
     @Test
     void vsdmSensorDataWithErrorIsSentOnCardInsertedEvent() throws Exception {
         PharmacyService pharmacyService = spy(createPharmacyService());
-        prepareHolder(pharmacyService);
+        initMocks(pharmacyService);
         Error faultInfo = new Error();
         Error.Trace trace = new Error.Trace();
         trace.setCode(BigInteger.TEN);
@@ -109,9 +123,13 @@ class CardInsertedTest {
 
         TrackerService trackerService = mock(TrackerService.class);
         when(trackerService.submit(any(), any(), any(), any())).thenReturn(true);
-        
+
         CardlinkWebsocketClient cardlinkWebsocketClient = mock(CardlinkWebsocketClient.class);
-        CETPServerHandler cetpServerHandler = new CETPServerHandler(trackerService, pharmacyService, cardlinkWebsocketClient);
+        AppConfig appConfig = mock(AppConfig.class);
+        when(appConfig.isVsdmResponseForCardlinkEnabled()).thenReturn(true);
+        CETPServerHandler cetpServerHandler = new CETPServerHandler(
+            appConfig, trackerService, pharmacyService, cardlinkWebsocketClient
+        );
         EmbeddedChannel channel = new EmbeddedChannel(cetpServerHandler);
 
         String slotIdValue = "3";
@@ -144,9 +162,7 @@ class CardInsertedTest {
         assertNotNull(receiveTasklistError.get("errormessage"));
     }
 
-    private Holder<byte[]> prepareHolder(PharmacyService pharmacyService) {
-        Holder<byte[]> holder = new Holder<>(DatatypeConverter.parseBase64Binary(READ_VSD_RESPONSE));
-
+    private void initMocks(PharmacyService pharmacyService) {
         pharmacyService.client = mock(Client.class);
         pharmacyService.appConfig = mock(AppConfig.class);
 
@@ -165,8 +181,6 @@ class CardInsertedTest {
 
         InputStream is = CardInsertedTest.class.getResourceAsStream("/gematik/Bundle-4fe2013d-ae94-441a-a1b1-78236ae65680.xml");
         when(response.readEntity(eq(InputStream.class))).thenReturn(is);
-
-        return holder;
     }
 
     private DecodeResult decode(String slotIdValue, String ctIdValue) {
@@ -196,7 +210,7 @@ class CardInsertedTest {
 
     private static PharmacyService createPharmacyService() {
         var pharmacyService = new PharmacyService();
-        pharmacyService.setReadEPrescriptionsMXBean(new ReadEPrescriptionsMXBeanImpl());    //normally done by CDI
+        pharmacyService.setReadEPrescriptionsMXBean(new ReadEPrescriptionsMXBeanImpl());    // normally done by CDI
         BearerTokenService tokenService = mock(BearerTokenService.class);
         pharmacyService.bearerTokenService = tokenService;
         when(tokenService.getBearerToken(any())).thenReturn("this_is_a_test_jwt_token");

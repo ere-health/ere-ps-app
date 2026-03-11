@@ -4,6 +4,7 @@ import de.health.service.cetp.CETPEventHandlerFactory;
 import de.health.service.cetp.IKonnektorClient;
 import de.health.service.cetp.cardlink.CardlinkWebsocketClient;
 import de.health.service.cetp.config.KonnektorConfig;
+import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.service.cardlink.EreJwtConfigurator;
 import health.ere.ps.service.cetp.tracker.TrackerService;
@@ -18,6 +19,7 @@ import jakarta.inject.Inject;
 @ApplicationScoped
 public class CETPServerHandlerFactory implements CETPEventHandlerFactory {
 
+    AppConfig appConfig;
     TrackerService trackerService;
     PharmacyService pharmacyService;
     IKonnektorClient konnektorClient;
@@ -27,6 +29,7 @@ public class CETPServerHandlerFactory implements CETPEventHandlerFactory {
 
     @Inject
     public CETPServerHandlerFactory(
+        AppConfig appConfig,
         TrackerService trackerService,
         PharmacyService pharmacyService,
         IKonnektorClient konnektorClient,
@@ -34,6 +37,7 @@ public class CETPServerHandlerFactory implements CETPEventHandlerFactory {
         SecretsManagerService secretsManagerService,
         CardlinkWebsocketCheck cardlinkWebsocketCheck
     ) {
+        this.appConfig = appConfig;
         this.trackerService = trackerService;
         this.konnektorClient = konnektorClient;
         this.pharmacyService = pharmacyService;
@@ -57,7 +61,7 @@ public class CETPServerHandlerFactory implements CETPEventHandlerFactory {
             cardlinkWebsocketClient.connected()
         );
         return new ChannelInboundHandler[] {
-            new CETPServerHandler(trackerService, pharmacyService, cardlinkWebsocketClient)
+            new CETPServerHandler(appConfig, trackerService, pharmacyService, cardlinkWebsocketClient)
         };
     }
 }
