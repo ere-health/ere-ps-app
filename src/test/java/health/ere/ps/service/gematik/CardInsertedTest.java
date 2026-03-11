@@ -2,6 +2,7 @@ package health.ere.ps.service.gematik;
 
 import de.gematik.ws.conn.eventservice.v7.Event;
 import de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage;
+import de.gematik.ws.conn.vsds.vsdservice.v5.ReadVSDResponse;
 import de.gematik.ws.tel.error.v2.Error;
 import de.health.service.cetp.cardlink.CardlinkWebsocketClient;
 import de.health.service.cetp.domain.eventservice.event.DecodeResult;
@@ -22,7 +23,6 @@ import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
 import jakarta.xml.bind.DatatypeConverter;
-import jakarta.xml.ws.Holder;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -50,7 +50,7 @@ import static org.mockito.Mockito.when;
 @TestProfile(RUTestProfile.class)
 class CardInsertedTest {
 
-    private static final String READ_VSD_RESPONSE = "H4sIAAAAAAAA/w2M3QqCMBhAXyV8AL+5oj/mQNyKgk3ROaKbKLT8T1L8e/q8OReHwyG+XLlMPDQPwosnbcMykYmM1ViVdWsbadc1R4ChNT9J9eyywowTeD+hb+MKmnqAfukNSlRIMcJrtMN7tMW7zYHAoginmACnxL9TzZxJsGgtcmeWjGNPOZbIIyzzVGt2fo1zVvIrFEqq7BZZwVd7Z81+vSsmfzgVNoFlskDSP8uj5+izAAAA";
+    private static final String READ_VSD_PRUEFUNGSNACHWEIS_RESPONSE = "H4sIAAAAAAAA/w2M3QqCMBhAXyV8AL+5oj/mQNyKgk3ROaKbKLT8T1L8e/q8OReHwyG+XLlMPDQPwosnbcMykYmM1ViVdWsbadc1R4ChNT9J9eyywowTeD+hb+MKmnqAfukNSlRIMcJrtMN7tMW7zYHAoginmACnxL9TzZxJsGgtcmeWjGNPOZbIIyzzVGt2fo1zVvIrFEqq7BZZwVd7Z81+vSsmfzgVNoFlskDSP8uj5+izAAAA";
 
     @Inject
     EventMapper eventMapper;
@@ -58,16 +58,20 @@ class CardInsertedTest {
     @Test
     void vsdmSensorDataWithEventIdIsSentOnCardInsertedEvent() throws Exception {
         PharmacyService pharmacyService = spy(createPharmacyService());
-        Holder<byte[]> holder = prepareHolder(pharmacyService);
-        PharmacyService.ReadVSDResult readVSDResult = new PharmacyService.ReadVSDResult();
-        readVSDResult.pruefungsnachweis = holder;
-        doReturn(readVSDResult).when(pharmacyService).readVSD(any(), any(), any(), any());
+        byte[] bytes = prepareHolder(pharmacyService);
+        ReadVSDResponse readVSDResponse = new ReadVSDResponse();
+        readVSDResponse.setPruefungsnachweis(bytes);
+        doReturn(readVSDResponse).when(pharmacyService).readVSD(any(), any(), any(), any());
 
         TrackerService trackerService = mock(TrackerService.class);
         when(trackerService.submit(any(), any(), any(), any())).thenReturn(true);
 
         CardlinkWebsocketClient cardlinkWebsocketClient = mock(CardlinkWebsocketClient.class);
-        CETPServerHandler cetpServerHandler = new CETPServerHandler(trackerService, pharmacyService, cardlinkWebsocketClient);
+        AppConfig appConfig = mock(AppConfig.class);
+        when(appConfig.isVsdmResponseForCardlinkEnabled()).thenReturn(true);
+        CETPServerHandler cetpServerHandler = new CETPServerHandler(
+            appConfig, trackerService, pharmacyService, cardlinkWebsocketClient
+        );
         EmbeddedChannel channel = new EmbeddedChannel(cetpServerHandler);
 
         String slotIdValue = "3";
@@ -78,13 +82,14 @@ class CardInsertedTest {
 
         ArgumentCaptor<String> messageTypeCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<Map<String, Object>> mapCaptor = ArgumentCaptor.forClass(Map.class);
-        verify(cardlinkWebsocketClient, times(3)).sendJson(any(), any(), messageTypeCaptor.capture(), mapCaptor.capture());
+        verify(cardlinkWebsocketClient, times(4)).sendJson(any(), any(), messageTypeCaptor.capture(), mapCaptor.capture());
 
         List<String> capturedMessages = messageTypeCaptor.getAllValues();
 
         assertTrue(capturedMessages.get(0).contains("eRezeptTokensFromAVS"));
         assertTrue(capturedMessages.get(1).contains("eRezeptBundlesFromAVS"));
         assertTrue(capturedMessages.get(2).contains("vsdmSensorData"));
+        assertTrue(capturedMessages.get(3).contains("ReadVSDFromAVS"));
 
         verify(trackerService).submit(any(), any(), any(), any());
 
@@ -109,9 +114,13 @@ class CardInsertedTest {
 
         TrackerService trackerService = mock(TrackerService.class);
         when(trackerService.submit(any(), any(), any(), any())).thenReturn(true);
-        
+
         CardlinkWebsocketClient cardlinkWebsocketClient = mock(CardlinkWebsocketClient.class);
-        CETPServerHandler cetpServerHandler = new CETPServerHandler(trackerService, pharmacyService, cardlinkWebsocketClient);
+        AppConfig appConfig = mock(AppConfig.class);
+        when(appConfig.isVsdmResponseForCardlinkEnabled()).thenReturn(true);
+        CETPServerHandler cetpServerHandler = new CETPServerHandler(
+            appConfig, trackerService, pharmacyService, cardlinkWebsocketClient
+        );
         EmbeddedChannel channel = new EmbeddedChannel(cetpServerHandler);
 
         String slotIdValue = "3";
@@ -144,8 +153,8 @@ class CardInsertedTest {
         assertNotNull(receiveTasklistError.get("errormessage"));
     }
 
-    private Holder<byte[]> prepareHolder(PharmacyService pharmacyService) {
-        Holder<byte[]> holder = new Holder<>(DatatypeConverter.parseBase64Binary(READ_VSD_RESPONSE));
+    private byte[] prepareHolder(PharmacyService pharmacyService) {
+        byte[] bytes = DatatypeConverter.parseBase64Binary(READ_VSD_PRUEFUNGSNACHWEIS_RESPONSE);
 
         pharmacyService.client = mock(Client.class);
         pharmacyService.appConfig = mock(AppConfig.class);
@@ -166,7 +175,7 @@ class CardInsertedTest {
         InputStream is = CardInsertedTest.class.getResourceAsStream("/gematik/Bundle-4fe2013d-ae94-441a-a1b1-78236ae65680.xml");
         when(response.readEntity(eq(InputStream.class))).thenReturn(is);
 
-        return holder;
+        return bytes;
     }
 
     private DecodeResult decode(String slotIdValue, String ctIdValue) {
@@ -196,7 +205,7 @@ class CardInsertedTest {
 
     private static PharmacyService createPharmacyService() {
         var pharmacyService = new PharmacyService();
-        pharmacyService.setReadEPrescriptionsMXBean(new ReadEPrescriptionsMXBeanImpl());    //normally done by CDI
+        pharmacyService.setReadEPrescriptionsMXBean(new ReadEPrescriptionsMXBeanImpl());    // normally done by CDI
         BearerTokenService tokenService = mock(BearerTokenService.class);
         pharmacyService.bearerTokenService = tokenService;
         when(tokenService.getBearerToken(any())).thenReturn("this_is_a_test_jwt_token");

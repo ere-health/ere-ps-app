@@ -1,28 +1,37 @@
 package health.ere.ps.service.gematik;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.zip.GZIPInputStream;
-
-import javax.naming.InvalidNameException;
-
+import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
+import de.gematik.ws.conn.cardservice.v8.CardInfoType;
+import de.gematik.ws.conn.cardservicecommon.v2.CardTypeType;
+import de.gematik.ws.conn.certificateservice.v6.CryptType;
+import de.gematik.ws.conn.certificateservice.v6.ReadCardCertificate;
+import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateServicePortType;
+import de.gematik.ws.conn.certificateservicecommon.v2.CertRefEnum;
+import de.gematik.ws.conn.certificateservicecommon.v2.X509DataInfoListType;
+import de.gematik.ws.conn.connectorcommon.v5.Status;
+import de.gematik.ws.conn.connectorcontext.v2.ContextType;
+import de.gematik.ws.conn.eventservice.v7.GetCards;
+import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
+import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
+import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
+import de.gematik.ws.conn.vsds.vsdservice.v5.ReadVSDResponse;
+import de.gematik.ws.fa.vsdm.vsd.v5.UCAllgemeineVersicherungsdatenXML;
+import de.gematik.ws.fa.vsdm.vsd.v5.UCGeschuetzteVersichertendatenXML;
+import de.gematik.ws.fa.vsdm.vsd.v5.UCPersoenlicheVersichertendatenXML;
+import health.ere.ps.config.RuntimeConfig;
+import health.ere.ps.event.BundlesEvent;
+import health.ere.ps.event.PrefillBundleEvent;
+import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
+import health.ere.ps.service.idp.crypto.CryptoLoader;
+import health.ere.ps.service.kbv.KBVFHIRUtil;
+import health.ere.ps.websocket.ExceptionWithReplyToException;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.event.ObservesAsync;
+import jakarta.inject.Inject;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.ws.Holder;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
@@ -54,41 +63,32 @@ import org.hl7.fhir.r4.model.Practitioner.PractitionerQualificationComponent;
 import org.hl7.fhir.r4.model.Quantity;
 import org.hl7.fhir.r4.model.StringType;
 
-import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
-import de.gematik.ws.conn.cardservice.v8.CardInfoType;
-import de.gematik.ws.conn.cardservicecommon.v2.CardTypeType;
-import de.gematik.ws.conn.certificateservice.v6.CryptType;
-import de.gematik.ws.conn.certificateservice.v6.ReadCardCertificate;
-import de.gematik.ws.conn.certificateservice.wsdl.v6.CertificateServicePortType;
-import de.gematik.ws.conn.certificateservicecommon.v2.CertRefEnum;
-import de.gematik.ws.conn.certificateservicecommon.v2.X509DataInfoListType;
-import de.gematik.ws.conn.connectorcommon.v5.Status;
-import de.gematik.ws.conn.connectorcontext.v2.ContextType;
-import de.gematik.ws.conn.eventservice.v7.GetCards;
-import de.gematik.ws.conn.eventservice.v7.GetCardsResponse;
-import de.gematik.ws.conn.eventservice.wsdl.v7.EventServicePortType;
-import de.gematik.ws.conn.eventservice.wsdl.v7.FaultMessage;
-import de.gematik.ws.conn.vsds.vsdservice.v5.VSDStatusType;
-import de.gematik.ws.fa.vsdm.vsd.v5.UCAllgemeineVersicherungsdatenXML;
-import de.gematik.ws.fa.vsdm.vsd.v5.UCGeschuetzteVersichertendatenXML;
-import de.gematik.ws.fa.vsdm.vsd.v5.UCPersoenlicheVersichertendatenXML;
-import health.ere.ps.config.RuntimeConfig;
-import health.ere.ps.event.BundlesEvent;
-import health.ere.ps.event.PrefillBundleEvent;
-import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
-import health.ere.ps.service.idp.crypto.CryptoLoader;
-import health.ere.ps.service.kbv.KBVFHIRUtil;
-import health.ere.ps.websocket.ExceptionWithReplyToException;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Event;
-import jakarta.enterprise.event.ObservesAsync;
-import jakarta.inject.Inject;
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
-import jakarta.xml.ws.Holder;
+import javax.naming.InvalidNameException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
+import java.util.zip.GZIPInputStream;
+
+import static health.ere.ps.service.gematik.ReadVSDHelper.ungzip;
 
 @ApplicationScoped
 public class PrefillPrescriptionService {
+
     private static final Logger log = Logger.getLogger(PrefillPrescriptionService.class.getName());
 
     private static final Pattern STREET_AND_NUMBER = Pattern.compile("(.*) ([^ ]*)$");
@@ -96,8 +96,11 @@ public class PrefillPrescriptionService {
 
     private static JAXBContext createJaxbContext() {
         try {
-            return JAXBContext.newInstance(UCPersoenlicheVersichertendatenXML.class,
-                    UCAllgemeineVersicherungsdatenXML.class, UCGeschuetzteVersichertendatenXML.class);
+            return JAXBContext.newInstance(
+                UCPersoenlicheVersichertendatenXML.class,
+                UCAllgemeineVersicherungsdatenXML.class,
+                UCGeschuetzteVersichertendatenXML.class
+            );
         } catch (JAXBException e) {
             log.log(Level.SEVERE, "Could not init jaxb context", e);
             return null;
@@ -106,6 +109,9 @@ public class PrefillPrescriptionService {
 
     @Inject
     MultiConnectorServicesProvider connectorServicesProvider;
+
+    @Inject
+    VSDService vsdService;
 
     @Inject
     Event<BundlesEvent> bundleEvent;
@@ -117,9 +123,9 @@ public class PrefillPrescriptionService {
     Optional<String> preferredSmcb;
 
     public Bundle get(RuntimeConfig runtimeConfig)
-            throws FaultMessage, de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage, JAXBException,
-            de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage, CryptoException, IOException,
-            InvalidNameException, CertificateEncodingException {
+        throws FaultMessage, de.gematik.ws.conn.vsds.vsdservice.v5.FaultMessage, JAXBException,
+        de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage, CryptoException, IOException,
+        InvalidNameException, CertificateEncodingException {
         // Get data from egk
         ContextType context = connectorServicesProvider.getContextType(runtimeConfig);
 
@@ -132,64 +138,50 @@ public class PrefillPrescriptionService {
         Patient patient = null;
         Coverage coverage = null;
         if (egkHandle != null) {
-            Holder<byte[]> persoenlicheVersichertendaten = new Holder<>();
-            Holder<byte[]> allgemeineVersicherungsdaten = new Holder<>();
-            Holder<byte[]> geschuetzteVersichertendaten = new Holder<>();
-            Holder<VSDStatusType> vSD_Status = new Holder<>();
-            Holder<byte[]> pruefungsnachweis = new Holder<>();
-            connectorServicesProvider.getVSDServicePortType(runtimeConfig).readVSD(egkHandle, smcbHandle, false, false,
-                    context, persoenlicheVersichertendaten, allgemeineVersicherungsdaten, geschuetzteVersichertendaten,
-                    vSD_Status, pruefungsnachweis);
+            ReadVSDResponse readVSDResponse = vsdService.read(egkHandle, smcbHandle, runtimeConfig, false, false);
 
-            InputStream isPersoenlicheVersichertendaten = new GZIPInputStream(
-                    new ByteArrayInputStream(persoenlicheVersichertendaten.value));
             UCPersoenlicheVersichertendatenXML schaumberg = (UCPersoenlicheVersichertendatenXML) jaxbContext
-                    .createUnmarshaller().unmarshal(isPersoenlicheVersichertendaten);
+                .createUnmarshaller().unmarshal(ungzip(readVSDResponse.getPersoenlicheVersichertendaten()));
+
             patient = KBVFHIRUtil.UCPersoenlicheVersichertendatenXML2Patient(schaumberg);
 
-            InputStream isAllgemeineVersicherungsdaten = new GZIPInputStream(
-                    new ByteArrayInputStream(allgemeineVersicherungsdaten.value));
             UCAllgemeineVersicherungsdatenXML versicherung = (UCAllgemeineVersicherungsdatenXML) jaxbContext
-                    .createUnmarshaller().unmarshal(isAllgemeineVersicherungsdaten);
-            InputStream isVersichungKennzeichen = new GZIPInputStream(
-                    new ByteArrayInputStream(geschuetzteVersichertendaten.value));
+                .createUnmarshaller().unmarshal(ungzip(readVSDResponse.getAllgemeineVersicherungsdaten()));
+
             UCGeschuetzteVersichertendatenXML versichungKennzeichen = (UCGeschuetzteVersichertendatenXML) jaxbContext
-                    .createUnmarshaller().unmarshal(isVersichungKennzeichen);
-            coverage = KBVFHIRUtil.UCAllgemeineVersicherungsdatenXML2Coverage(versicherung,
-                    patient.getIdElement().getIdPart(), versichungKennzeichen);
+                .createUnmarshaller().unmarshal(ungzip(readVSDResponse.getGeschuetzteVersichertendaten()));
+
+            coverage = KBVFHIRUtil.UCAllgemeineVersicherungsdatenXML2Coverage(
+                versicherung, patient.getIdElement().getIdPart(), versichungKennzeichen
+            );
         }
 
-        CertificateServicePortType certificateService = connectorServicesProvider
-                .getCertificateServicePortType(runtimeConfig);
-
+        CertificateServicePortType certificateService = connectorServicesProvider.getCertificateServicePortType(runtimeConfig);
         Practitioner practitioner = null;
-
         if (hbaHandle != null) {
             practitioner = hbaHandle2Practitioner(hbaHandle, runtimeConfig, certificateService, context);
         }
-
         Organization organization = null;
-
         if (smcbHandle != null) {
             organization = smcbHandle2Organization(smcbHandle, runtimeConfig, certificateService, context);
         }
-
         Medication medication = createMedicationResource();
+        MedicationRequest medicationRequest = createMedicationRequest(
+            medication.getIdElement().getIdPart(),
+            patient.getIdElement().getIdPart(),
+            practitioner.getIdElement().getIdPart(),
+            coverage.getIdElement().getIdPart()
+        );
 
-        MedicationRequest medicationRequest = createMedicationRequest(medication.getIdElement().getIdPart(),
-                patient.getIdElement().getIdPart(), practitioner.getIdElement().getIdPart(),
-                coverage.getIdElement().getIdPart());
-
-        Bundle bundle = KBVFHIRUtil.assembleBundle(practitioner, organization, patient, coverage, medication,
-                medicationRequest, null, null);
-
-        return bundle;
+        return KBVFHIRUtil.assembleBundle(
+            practitioner, organization, patient, coverage, medication, medicationRequest, null, null
+        );
     }
 
     private Organization smcbHandle2Organization(String hbaHandle, RuntimeConfig runtimeConfig,
                                                  CertificateServicePortType certificateService, ContextType context)
-            throws de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage, CryptoException,
-            CertificateEncodingException {
+        throws de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage, CryptoException,
+        CertificateEncodingException {
 
         CertRefEnum certRef = CertRefEnum.C_AUT;
 
@@ -221,7 +213,7 @@ public class PrefillPrescriptionService {
         Organization organization = new Organization();
 
         organization.setId(UUID.randomUUID().toString()).getMeta()
-                .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Organization|1.1.0");
+            .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Organization|1.1.0");
 
         Identifier identifier = organization.addIdentifier();
 
@@ -237,21 +229,21 @@ public class PrefillPrescriptionService {
         organization.addTelecom().setSystem(ContactPointSystem.PHONE).setValue(phone);
 
         organization.addAddress().setType(AddressType.BOTH).setCity(city).setPostalCode(postalCode)
-                .addLine(streetName + " " + houseNumber).setCountry("D");
+            .addLine(streetName + " " + houseNumber).setCountry("D");
 
-        StringType line = organization.getAddress().get(0).getLine().get(0);
+        StringType line = organization.getAddress().getFirst().getLine().getFirst();
         line.addExtension("http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName",
-                new StringType(streetName));
+            new StringType(streetName));
         line.addExtension("http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber",
-                new StringType(houseNumber));
+            new StringType(houseNumber));
 
         return organization;
     }
 
     private Practitioner hbaHandle2Practitioner(String hbaHandle, RuntimeConfig runtimeConfig,
                                                 CertificateServicePortType certificateService, ContextType context)
-            throws de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage, CryptoException, InvalidNameException,
-            CertificateEncodingException {
+        throws de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage, CryptoException, InvalidNameException,
+        CertificateEncodingException {
         CertRefEnum certRef = CertRefEnum.C_QES;
 
         X509Certificate x509Certificate = getCertificateFor(hbaHandle, certificateService, context, certRef);
@@ -266,12 +258,12 @@ public class PrefillPrescriptionService {
         Practitioner practitioner = new Practitioner();
 
         practitioner.setId(UUID.randomUUID().toString()).getMeta()
-                .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner|1.1.0");
+            .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner|1.1.0");
 
         Identifier identifier = practitioner.addIdentifier();
         CodeableConcept identifierCodeableConcept = identifier.getType();
         identifierCodeableConcept.addCoding().setSystem("http://terminology.hl7.org/CodeSystem/v2-0203")
-                .setCode("LANR");
+            .setCode("LANR");
 
         identifier.setSystem("https://fhir.kbv.de/NamingSystem/KBV_NS_Base_ANR");
         identifier.setValue(lanr);
@@ -280,7 +272,7 @@ public class PrefillPrescriptionService {
         if (namePrefix != null && !"".equals(namePrefix)) {
             StringType prefix = new StringType(namePrefix);
             Extension extension = new Extension("http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier",
-                    new CodeType("AC"));
+                new CodeType("AC"));
             prefix.addExtension(extension);
             prefixList.add(prefix);
         }
@@ -293,15 +285,15 @@ public class PrefillPrescriptionService {
         List<String> nameParts = new ArrayList<>();
 
         Extension extension = new Extension("http://hl7.org/fhir/StructureDefinition/humanname-own-name",
-                new StringType(lastName));
+            new StringType(lastName));
         familyElement.addExtension(extension);
         nameParts.add(lastName);
-        familyElement.setValue(nameParts.stream().collect(Collectors.joining(" ")));
+        familyElement.setValue(String.join(" ", nameParts));
 
         PractitionerQualificationComponent qualification = new PractitionerQualificationComponent();
         CodeableConcept qualificationCodeableConcept = new CodeableConcept();
         Coding practitionerQualificationCoding = new Coding(
-                "https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_Qualification_Type", "00", null);
+            "https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_Qualification_Type", "00", null);
         qualificationCodeableConcept.addCoding(practitionerQualificationCoding);
 
         qualification.setCode(qualificationCodeableConcept);
@@ -317,12 +309,12 @@ public class PrefillPrescriptionService {
 
     private String getRdnValue(X500Name x500name, ASN1ObjectIdentifier rdnType) {
         return IETFUtils.valueToString(Stream.of(x500name.getRDNs(rdnType)[0].getTypesAndValues())
-                .filter(tv -> tv.getType() == rdnType).findFirst().get().getValue());
+            .filter(tv -> tv.getType() == rdnType).findFirst().get().getValue());
     }
 
     private X509Certificate getCertificateFor(String hbaHandle, CertificateServicePortType certificateService,
                                               ContextType context, CertRefEnum certRef)
-            throws de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage, CryptoException {
+        throws de.gematik.ws.conn.certificateservice.wsdl.v6.FaultMessage, CryptoException {
         ReadCardCertificate.CertRefList certRefList = new ReadCardCertificate.CertRefList();
         certRefList.getCertRef().add(certRef);
 
@@ -334,14 +326,14 @@ public class PrefillPrescriptionService {
         certificateService.readCardCertificate(hbaHandle, context, certRefList, CryptType.ECC, statusHolder, certHolder);
 
         return CryptoLoader.getCertificateFromAsn1DERCertBytes(
-                certHolder.value.getX509DataInfo().get(0).getX509Data().getX509Certificate());
+            certHolder.value.getX509DataInfo().getFirst().getX509Data().getX509Certificate());
     }
 
     static String getFirstCardOfType(
-            EventServicePortType eventService,
-            CardTypeType type,
-            ContextType context,
-            String preferredName) throws FaultMessage {
+        EventServicePortType eventService,
+        CardTypeType type,
+        ContextType context,
+        String preferredName) throws FaultMessage {
         GetCards parameter = new GetCards();
         parameter.setContext(context);
         parameter.setCardType(type);
@@ -349,9 +341,9 @@ public class PrefillPrescriptionService {
         var cards = getCardsResponse.getCards().getCard();
         if (preferredName != null) {
             var handle = cards.stream()
-                    .filter(card -> card.getCardHolderName().equals(preferredName))
-                    .map(CardInfoType::getCardHandle)
-                    .findAny().orElse(null);
+                .filter(card -> card.getCardHolderName().equals(preferredName))
+                .map(CardInfoType::getCardHandle)
+                .findAny().orElse(null);
             if (handle != null) {
                 return handle;
             } else {
@@ -365,7 +357,7 @@ public class PrefillPrescriptionService {
         Medication medication = new Medication();
 
         medication.setId(UUID.randomUUID().toString()).getMeta()
-                .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.1.0");
+            .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.1.0");
 
         Coding medicationType = new Coding("http://snomed.info/sct", "763158003", "Medicinal product (product)");
         medicationType.setVersion("http://snomed.info/sct/900000000000207008/version/20220331");
@@ -374,26 +366,26 @@ public class PrefillPrescriptionService {
         medication.addExtension(medicationTypeEx);
 
         Coding medicationCategory = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Category", "00",
-                null);
+            null);
         Extension medicationCategoryEx = new Extension(
-                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Category", medicationCategory);
+            "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Category", medicationCategory);
         medication.addExtension(medicationCategoryEx);
 
         Extension medicationVaccine = new Extension(
-                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Vaccine", new BooleanType(false));
+            "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Vaccine", new BooleanType(false));
         medication.addExtension(medicationVaccine);
 
         String normgroesseString = "N1";
 
         Extension normgroesse = new Extension("http://fhir.de/StructureDefinition/normgroesse",
-                new CodeType(normgroesseString));
+            new CodeType(normgroesseString));
         medication.addExtension(normgroesse);
 
         medication.getCode().addCoding().setSystem("http://fhir.de/CodeSystem/ifa/pzn").setCode("");
         medication.getCode().setText("");
         String darreichungsform = "TAB";
         Coding formCoding = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM",
-                darreichungsform, "");
+            darreichungsform, "");
         medication.setForm(new CodeableConcept().addCoding(formCoding));
 
         return medication;
@@ -412,12 +404,12 @@ public class PrefillPrescriptionService {
 
         Coding valueCoding = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_StatusCoPayment", "0", null);
         Extension coPayment = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_StatusCoPayment",
-                valueCoding);
+            valueCoding);
         medicationRequest.addExtension(coPayment);
 
         // emergencyServiceFeeParam default false
         Extension emergencyServicesFee = new Extension(
-                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_EmergencyServicesFee", new BooleanType(false));
+            "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_EmergencyServicesFee", new BooleanType(false));
         medicationRequest.addExtension(emergencyServicesFee);
 
         Extension bvg = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_BVG", new BooleanType(false));
@@ -426,7 +418,7 @@ public class PrefillPrescriptionService {
         // <extension
         // url="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription">
         Extension multiplePrescription = new Extension(
-                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription");
+            "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription");
         // <extension url="Kennzeichen">
         // <valueBoolean value="true" />
         // </extension>
@@ -434,8 +426,8 @@ public class PrefillPrescriptionService {
         medicationRequest.addExtension(multiplePrescription);
 
         medicationRequest.setStatus(MedicationRequest.MedicationRequestStatus.ACTIVE)
-                .setIntent(MedicationRequest.MedicationRequestIntent.ORDER).getMedicationReference()
-                .setReference("Medication/" + medicationId);
+            .setIntent(MedicationRequest.MedicationRequestIntent.ORDER).getMedicationReference()
+            .setReference("Medication/" + medicationId);
 
         medicationRequest.getSubject().setReference("Patient/" + patientId);
 
@@ -446,8 +438,8 @@ public class PrefillPrescriptionService {
         medicationRequest.setNote(Arrays.asList(new Annotation().setText("")));
 
         medicationRequest.addDosageInstruction().setText("").addExtension()
-                .setUrl("https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_DosageFlag")
-                .setValue(new BooleanType(true));
+            .setUrl("https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_DosageFlag")
+            .setValue(new BooleanType(true));
 
         MedicationRequest.MedicationRequestDispenseRequestComponent dispenseRequest = new MedicationRequestDispenseRequestComponent();
         Quantity quantity = new Quantity();
@@ -469,7 +461,7 @@ public class PrefillPrescriptionService {
         } catch (Exception e) {
             log.log(Level.SEVERE, "Could not create bundles", e);
             exceptionEvent.fireAsync(new ExceptionWithReplyToException(e, prefillBundleEvent.getReplyTo(),
-                    prefillBundleEvent.getId()));
+                prefillBundleEvent.getId()));
         }
     }
 
@@ -483,54 +475,54 @@ public class PrefillPrescriptionService {
 
         CertificateServicePortType certificateService = connectorServicesProvider.getCertificateServicePortType(runtimeConfig);
 
-        Practitioner practitioner = null;
+        Practitioner practitioner;
         if (hbaHandle != null) {
             practitioner = hbaHandle2Practitioner(hbaHandle, runtimeConfig, certificateService, context);
         } else {
             throw new RuntimeException("No HBA found");
         }
-        practitioner.getIdentifier().get(0).setValue("999999999");
+        practitioner.getIdentifier().getFirst().setValue("999999999");
 
-        Organization organization = null;
+        Organization organization;
         if (smcbHandle != null) {
             organization = smcbHandle2Organization(smcbHandle, runtimeConfig, certificateService, context);
         } else {
             throw new RuntimeException("No SMC-B found");
         }
-        organization.getIdentifier().get(0).setValue("999999999");
-        organization.getTelecom().get(0).setValue("0123456789");
+        organization.getIdentifier().getFirst().setValue("999999999");
+        organization.getTelecom().getFirst().setValue("0123456789");
 
         Patient patient = new Patient();
         patient.setId(UUID.randomUUID().toString())
-                .getMeta()
-                .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.1.0");
+            .getMeta()
+            .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.1.0");
         Identifier identifier = patient.addIdentifier();
         CodeableConcept identifierCodeableConcept = identifier.getType();
         identifierCodeableConcept.addCoding()
-                .setSystem("http://fhir.de/CodeSystem/identifier-type-de-basis")
-                .setCode("GKV");
+            .setSystem("http://fhir.de/CodeSystem/identifier-type-de-basis")
+            .setCode("GKV");
         identifier.setSystem("http://fhir.de/sid/gkv/kvid-10")
-                .setValue("T555558879");
+            .setValue("T555558879");
         patient.addName()
-                .setUse(NameUse.OFFICIAL)
-                .addGiven("Max")
-                .setFamily("TK-Mustermann");
-        patient.getName().get(0).getFamilyElement().addExtension("http://hl7.org/fhir/StructureDefinition/humanname-own-name", new StringType("TK-Mustermann"));
+            .setUse(NameUse.OFFICIAL)
+            .addGiven("Max")
+            .setFamily("TK-Mustermann");
+        patient.getName().getFirst().getFamilyElement().addExtension("http://hl7.org/fhir/StructureDefinition/humanname-own-name", new StringType("TK-Mustermann"));
         Date birthdate = new SimpleDateFormat("yyyyMMdd").parse("19950101");
         patient.setBirthDate(birthdate);
         patient.addAddress()
-                .setType(AddressType.BOTH)
-                .setCountry("D")
-                .setCity("Hamburg")
-                .setPostalCode("22305")
-                .addLine("Bramfelder Str. 140");
-        patient.getAddress().get(0).getLine().get(0).addExtension("http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber", new StringType("140"));
-        patient.getAddress().get(0).getLine().get(0).addExtension("http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName", new StringType("Bramfelder Str."));
+            .setType(AddressType.BOTH)
+            .setCountry("D")
+            .setCity("Hamburg")
+            .setPostalCode("22305")
+            .addLine("Bramfelder Str. 140");
+        patient.getAddress().getFirst().getLine().getFirst().addExtension("http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber", new StringType("140"));
+        patient.getAddress().getFirst().getLine().getFirst().addExtension("http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName", new StringType("Bramfelder Str."));
 
         Coverage coverage = new Coverage();
         coverage.setId(UUID.randomUUID().toString())
-                .getMeta()
-                .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Coverage|1.1.0");
+            .getMeta()
+            .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Coverage|1.1.0");
         Coding besonderePersonengruppe = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_PERSONENGRUPPE", "00", null);
         Extension besonderePersonengruppeEx = new Extension("http://fhir.de/StructureDefinition/gkv/besondere-personengruppe", besonderePersonengruppe);
         coverage.addExtension(besonderePersonengruppeEx);
@@ -544,33 +536,34 @@ public class PrefillPrescriptionService {
         coverage.setType(new CodeableConcept().addCoding(new Coding("http://fhir.de/CodeSystem/versicherungsart-de-basis", "GKV", "")));
         coverage.getBeneficiary().setReference("Patient/" + patient.getId());
         coverage.addPayor()
-                .setDisplay("TK")
-                .getIdentifier()
-                .setSystem("http://fhir.de/sid/arge-ik/iknr")
-                .setValue("101575519");
+            .setDisplay("TK")
+            .getIdentifier()
+            .setSystem("http://fhir.de/sid/arge-ik/iknr")
+            .setValue("101575519");
 
         Medication medication = new Medication();
         medication.setId(UUID.randomUUID().toString())
-                .getMeta()
-                .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_FreeText|1.1.0");
+            .getMeta()
+            .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_FreeText|1.1.0");
         Coding medicationCategory = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Category", "00", null);
         Extension medicationCategoryEx = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Category", medicationCategory);
         medication.addExtension(medicationCategoryEx);
         medication.addExtension(new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Vaccine", new BooleanType(false)));
         medication.getCode()
-                .setText("Test")
-                .addCoding()
-                .setSystem("https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Type").setCode("freitext");
+            .setText("Test")
+            .addCoding()
+            .setSystem("https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Type").setCode("freitext");
 
         MedicationRequest medicationRequest = createMedicationRequest(
-                medication.getIdElement().getIdPart(),
-                patient.getIdElement().getIdPart(),
-                practitioner.getIdElement().getIdPart(),
-                coverage.getIdElement().getIdPart()
+            medication.getIdElement().getIdPart(),
+            patient.getIdElement().getIdPart(),
+            practitioner.getIdElement().getIdPart(),
+            coverage.getIdElement().getIdPart()
         );
-        medicationRequest.getDosageInstruction().get(0).setText("Zu Testzwecken");
+        medicationRequest.getDosageInstruction().getFirst().setText("Zu Testzwecken");
 
-        return KBVFHIRUtil.assembleBundle(practitioner, organization, patient, coverage, medication,
-                medicationRequest, null, null);
+        return KBVFHIRUtil.assembleBundle(
+            practitioner, organization, patient, coverage, medication, medicationRequest, null, null
+        );
     }
 }

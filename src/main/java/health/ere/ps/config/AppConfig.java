@@ -97,6 +97,9 @@ public class AppConfig implements ISubscriptionConfig {
     @ConfigProperty(name = "connector.cetp.port")
     Optional<Integer> cetpPort;
 
+    @ConfigProperty(name = "vsdm.response.for.cardlink.enabled", defaultValue = "false")
+    boolean vsdmResponseForCardlinkEnabled;
+
     @ConfigProperty(name = "zeta.enabled", defaultValue = "false")
     boolean zetaEnabled;
 

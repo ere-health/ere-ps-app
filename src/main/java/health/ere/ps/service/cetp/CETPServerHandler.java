@@ -2,14 +2,19 @@ package health.ere.ps.service.cetp;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
+import de.gematik.ws.conn.vsds.vsdservice.v5.ReadVSDResponse;
 import de.health.service.cetp.AbstractCETPEventHandler;
 import de.health.service.cetp.cardlink.CardlinkClient;
 import de.health.service.config.api.IUserConfigurations;
+import health.ere.ps.config.AppConfig;
 import health.ere.ps.config.RuntimeConfig;
 import health.ere.ps.service.cetp.tracker.TrackerService;
 import health.ere.ps.service.gematik.PharmacyService;
+import health.ere.ps.service.gematik.PrescriptionContext;
 import jakarta.json.Json;
 import jakarta.json.JsonArrayBuilder;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
@@ -29,17 +34,20 @@ public class CETPServerHandler extends AbstractCETPEventHandler {
 
     private static final Logger log = Logger.getLogger(CETPServerHandler.class.getName());
 
+    AppConfig appConfig;
     TrackerService trackerService;
     PharmacyService pharmacyService;
 
     IParser parser = FhirContext.forR4().newXmlParser();
 
     public CETPServerHandler(
+        AppConfig appConfig,
         TrackerService trackerService,
         PharmacyService pharmacyService,
         CardlinkClient cardlinkClient
     ) {
         super(cardlinkClient);
+        this.appConfig = appConfig;
         this.trackerService = trackerService;
         this.pharmacyService = pharmacyService;
     }
@@ -77,11 +85,13 @@ public class CETPServerHandler extends AbstractCETPEventHandler {
             log.fine(String.format("[%s] Card inserted: params: %s", correlationId, paramsStr));
             try {
                 RuntimeConfig runtimeConfig = new RuntimeConfig(uc);
-                Pair<Bundle, String> pair = pharmacyService.getEPrescriptionsForCardHandle(
+                PrescriptionContext context = pharmacyService.getEPrescriptionsForCardHandle(
                     correlationId, egkHandle, null, runtimeConfig, kvnr
                 );
-                Bundle bundle = pair.getKey();
-                String eventId = pair.getValue();
+                Bundle bundle = context.bundle();
+                String eventId = context.eventId();
+                String readVSDResponse = context.readVSDResponse();
+
                 String xml = parser.encodeToString(bundle);
                 cardlinkClient.sendJson(correlationId, iccsn, "eRezeptTokensFromAVS", Map.of("slotId", slotId, "ctId", ctId, "tokens", xml));
 
@@ -90,6 +100,9 @@ public class CETPServerHandler extends AbstractCETPEventHandler {
 
                 cardlinkClient.sendJson(correlationId, iccsn, "vsdmSensorData", Map.of("slotId", slotId, "ctId", ctId, "endTime", endTime, "eventId", eventId));
 
+                if (appConfig.isVsdmResponseForCardlinkEnabled()) {
+                    cardlinkClient.sendJson(correlationId, iccsn, "ReadVSDFromAVS", Map.of("slotId", slotId, "ctId", ctId, "ReadVSDResponse", readVSDResponse));
+                }
                 trackerService.submit(ctId, uc.getMandantId(), uc.getWorkplaceId(), uc.getClientSystemId());
             } catch (Exception e) {
                 log.log(Level.WARNING, String.format("[%s] Could not get prescription for Bundle", correlationId), e);
