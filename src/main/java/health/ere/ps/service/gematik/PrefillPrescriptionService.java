@@ -436,7 +436,7 @@ public class PrefillPrescriptionService {
 				"https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_EmergencyServicesFee", new BooleanType(false));
 		medicationRequest.addExtension(emergencyServicesFee);
 
-		Extension bvg = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_BVG", new BooleanType(false));
+		Extension bvg = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_SER", new BooleanType(false));
 		medicationRequest.addExtension(bvg);
 
 		// <extension
@@ -468,8 +468,9 @@ public class PrefillPrescriptionService {
 		MedicationRequest.MedicationRequestDispenseRequestComponent dispenseRequest = new MedicationRequestDispenseRequestComponent();
 		Quantity quantity = new Quantity();
 		quantity.setValue(1);
-		quantity.setSystem("http://unitsofmeasure.org");
-		quantity.setCode("{Package}");
+		// quantity.setSystem("http://unitsofmeasure.org");
+		// quantity.setCode("{Package}");
+		quantity.setUnit("Packung");
 		dispenseRequest.setQuantity(quantity);
 		medicationRequest.setDispenseRequest(dispenseRequest);
 		MedicationRequestSubstitutionComponent substitution = new MedicationRequestSubstitutionComponent();

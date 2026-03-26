@@ -120,10 +120,6 @@
             "valueBoolean": false
           },
           {
-            "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_BVG",
-            "valueBoolean": false
-          },
-          {
             "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription",
             "extension": [
               {

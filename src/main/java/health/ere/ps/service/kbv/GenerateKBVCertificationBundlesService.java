@@ -475,7 +475,7 @@ public class GenerateKBVCertificationBundlesService {
         Extension emergencyServicesFee = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_EmergencyServicesFee", new BooleanType(emergencyServiceFeeParam));
         medicationRequest.addExtension(emergencyServicesFee);
 
-        Extension bvg = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_BVG", new BooleanType(bvgFlag));
+        Extension bvg = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_SER", new BooleanType(bvgFlag));
         medicationRequest.addExtension(bvg);
         
         //         <extension url="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription">
@@ -566,8 +566,9 @@ public class GenerateKBVCertificationBundlesService {
         MedicationRequest.MedicationRequestDispenseRequestComponent dispenseRequest = new MedicationRequestDispenseRequestComponent();
         Quantity quantity = new Quantity();
         quantity.setValue(quantityNumber);
-        quantity.setSystem("http://unitsofmeasure.org");
-        quantity.setCode("{Package}");
+        // quantity.setSystem("http://unitsofmeasure.org");
+        // quantity.setCode("{Package}");
+        quantity.setUnit("Packung");
         dispenseRequest.setQuantity(quantity);
         medicationRequest.setDispenseRequest(dispenseRequest);
         MedicationRequestSubstitutionComponent substitution = new MedicationRequestSubstitutionComponent();
