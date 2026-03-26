@@ -180,7 +180,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
             if (ent instanceof String s) {
                 sb.append("\n").append(s).append("\n");
             }
-            log.info(sb.toString());
+            log.fine(sb.toString());
         });
         clientBuilder.register((ClientResponseFilter) (req, resp) -> {
             StringBuilder sb = new StringBuilder();
@@ -193,7 +193,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
             byte[] body = in.readAllBytes();
             sb.append("\n").append(new String(body, UTF_8)).append("\n");
             resp.setEntityStream(new ByteArrayInputStream(body));
-            log.info(sb.toString());
+            log.fine(sb.toString());
         });
         if (appConfig.vauEnabled()) {
             try {
