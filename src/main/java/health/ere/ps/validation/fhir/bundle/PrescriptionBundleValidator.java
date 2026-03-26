@@ -109,7 +109,7 @@ public class PrescriptionBundleValidator {
             singleBundleResults.add("valid", false);
         } else {
             singleBundleResults.add("valid", true);
-            log.info("Validation for the following incoming sign and upload bundle passed:\n" + singleBundle);
+            log.fine("Validation for the following incoming sign and upload bundle passed:\n" + singleBundle);
         }
         return singleBundleResults;
     }
