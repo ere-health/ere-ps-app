@@ -817,7 +817,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
                 responseBuilder.entity(taskString);
                 throw new WebApplicationException(responseBuilder.build());
             }
-            log.info("Task Response: " + taskString);
+            log.fine("Task Response: " + taskString);
             return fhirContext.newXmlParser().parseResource(Task.class, new StringReader(taskString));
         }
     }
@@ -847,7 +847,7 @@ public class ERezeptWorkflowService extends BearerTokenManageService {
                 throw new WebApplicationException(responseBuilder.build());
             }
 
-            log.info("Task $abort Response: " + taskString);
+            log.fine("Task $abort Response: " + taskString);
         }
     }
 
