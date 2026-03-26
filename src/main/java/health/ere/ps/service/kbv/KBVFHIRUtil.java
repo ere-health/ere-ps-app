@@ -49,7 +49,7 @@ public class KBVFHIRUtil {
 	
 	    coverage.setId(UUID.randomUUID().toString());
 	    coverage.getMeta()
-	            .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Coverage|1.1.0");
+	            .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Coverage|1.2");
 
 	    Coding besonderePersonengruppe = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_PERSONENGRUPPE", String.format("%02d", versichungKennzeichen.getBesonderePersonengruppe() != null ? versichungKennzeichen.getBesonderePersonengruppe() : 0), null);
 	    Extension besonderePersonengruppeEx = new Extension("http://fhir.de/StructureDefinition/gkv/besondere-personengruppe", besonderePersonengruppe);
@@ -115,14 +115,14 @@ public class KBVFHIRUtil {
 	
 	    patient.setId(UUID.randomUUID().toString());
 	    patient.getMeta()
-	            .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.1.0");
+	            .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.2");
 	
 	    Identifier identifier = patient.addIdentifier();
 	
 	    Coding typeDeBasis = identifier.getType()
 	            .addCoding();
 	    typeDeBasis.setSystem("http://fhir.de/CodeSystem/identifier-type-de-basis");
-	    typeDeBasis.setCode("GKV");
+	    typeDeBasis.setCode("KVZ10");
 	    identifier.getSystemElement().setValue("http://fhir.de/sid/gkv/kvid-10");
 	    identifier.setValue(versicherter.getVersichertenID());
 	    
@@ -264,7 +264,7 @@ public class KBVFHIRUtil {
 	    // and packaged for transmission.
 	    bundle.getMeta()
 	            .setLastUpdated(new Date())
-	            .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle|1.1.0");
+	            .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle|1.3");
 	
 	    bundle.setTimestamp(new Date());
 	    return bundle;
@@ -288,7 +288,7 @@ public class KBVFHIRUtil {
 	    composition.setId(UUID.randomUUID().toString());
 	
 	    composition.getMeta().addProfile(
-	            "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Composition|1.1.0");
+	            "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Composition|1.3");
 	
 	    Coding valueCoding = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_STATUSKENNZEICHEN", asvAusuebungRoleId != null ? "01" : "00", null); //todo add 04 Entlassmanagement, 07 TSS Kennzeichen, 10 nur Ersatzverordnungskennzeichen, 11 ASV+Ersatzverordnung, 14 Entlass+Ersatz, 17 TSS+Ersatz
 	    Extension legalBasis = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Legal_basis", valueCoding);

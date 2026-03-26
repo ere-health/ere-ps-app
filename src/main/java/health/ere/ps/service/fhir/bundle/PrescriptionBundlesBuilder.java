@@ -154,7 +154,7 @@ public class PrescriptionBundlesBuilder implements IBundlesBuilder {
         // and packaged for transmission.
         bundle.getMeta()
                 .setLastUpdated(new Date())
-                .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle|1.1.0");
+                .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle|1.3");
 
         bundle.setTimestamp(new Date());
 
@@ -178,14 +178,14 @@ public class PrescriptionBundlesBuilder implements IBundlesBuilder {
 
         patient.setId(UUID.randomUUID().toString());
         patient.getMeta()
-                .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.1.0");
+                .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.2");
 
         Identifier identifier = patient.addIdentifier();
 
         Coding typeDeBasis = identifier.getType()
                 .addCoding();
         typeDeBasis.setSystem("http://fhir.de/CodeSystem/identifier-type-de-basis");
-        typeDeBasis.setCode("GKV");
+        typeDeBasis.setCode("KVZ10");
         identifier.getSystemElement().setValue("http://fhir.de/sid/gkv/kvid-10");
         identifier.setValue(muster16PrescriptionForm.getPatientInsuranceId());
 
@@ -243,7 +243,7 @@ public class PrescriptionBundlesBuilder implements IBundlesBuilder {
 
         practitioner.setId(UUID.randomUUID().toString())
                 .getMeta()
-                .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner|1.1.0");
+                .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner|1.2");
 
         Identifier identifier = practitioner.addIdentifier();
         CodeableConcept identifierCodeableConcept = identifier.getType();
@@ -307,7 +307,7 @@ public class PrescriptionBundlesBuilder implements IBundlesBuilder {
         Organization organization = new Organization();
 
         organization.setId(UUID.randomUUID().toString()).getMeta().addProfile(
-                "https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Organization|1.1.0");
+                "https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Organization|1.2");
 
 
         Identifier identifier = organization.addIdentifier();
@@ -361,7 +361,7 @@ public class PrescriptionBundlesBuilder implements IBundlesBuilder {
 
         coverage.setId(UUID.randomUUID().toString());
         coverage.getMeta()
-                .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Coverage|1.1.0");
+                .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Coverage|1.2");
 
         Coding besonderePersonengruppe = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_PERSONENGRUPPE", "00", null);
         Extension besonderePersonengruppeEx = new Extension("http://fhir.de/StructureDefinition/gkv/besondere-personengruppe", besonderePersonengruppe);
@@ -410,9 +410,9 @@ public class PrescriptionBundlesBuilder implements IBundlesBuilder {
 
         medication.setId(UUID.randomUUID().toString())
                 .getMeta()
-                .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.1.0");
+                .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.3");
         Coding medicationType = new Coding("http://snomed.info/sct", "763158003", "Medicinal product (product)");
-        medicationType.setVersion("http://snomed.info/sct/900000000000207008/version/20220331");
+        medicationType.setVersion("http://snomed.info/sct/11000274103/version/20240515");
         CodeableConcept codeableConcept = new CodeableConcept(medicationType);
         Extension medicationTypeEx = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Medication_Type", codeableConcept);
         medication.addExtension(medicationTypeEx);
@@ -443,7 +443,7 @@ public class PrescriptionBundlesBuilder implements IBundlesBuilder {
         medicationRequest.setId(UUID.randomUUID().toString());
 
         medicationRequest.getMeta()
-                .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.1.0");
+                .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.3");
 
         Coding valueCoding = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_StatusCoPayment",
                 muster16PrescriptionForm.getWithPayment() ? "0" : "1", null);
@@ -512,7 +512,7 @@ public class PrescriptionBundlesBuilder implements IBundlesBuilder {
         composition.setId(UUID.randomUUID().toString());
 
         composition.getMeta().addProfile(
-                "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Composition|1.1.0");
+                "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Composition|1.3");
 
         Coding valueCoding = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_STATUSKENNZEICHEN", "04", null);
         Extension legalBasis = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Legal_basis", valueCoding);
