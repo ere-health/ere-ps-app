@@ -7,6 +7,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.cert.CertificateException;
+import java.util.Objects;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -91,6 +92,8 @@ public class VAUEngine extends ApacheHttpClient43Engine {
         }
 
         String accessCode = (String) newHeaders.getFirst("X-AccessCode");
+        String poppToken = (String) newHeaders.getFirst("X-PoPP-Token");
+
         String contentType = (newHeaders.getFirst("Content-Type") != null) ? newHeaders.getFirst("Content-Type").toString() : "application/octet-stream";
 
         newHeaders.putSingle("X-erp-user", "l"); //Leistungserbringer
@@ -109,6 +112,9 @@ public class VAUEngine extends ApacheHttpClient43Engine {
                 (accessCode != null ? "X-AccessCode: " + accessCode + "\r\n" : "") +
                 "User-Agent: " + userAgent + "\r\n" +
                 "Accept: application/fhir+xml; charset=utf-8\r\n";
+            if (!Objects.isNull(poppToken)) {
+                content += ("X-PoPP-Token: " + poppToken + "\r\n");
+            }
             log.fine(contentType);
             if(httpEntity != null) {
                     log.fine(httpEntity.toString());
