@@ -41,32 +41,11 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.Invocation;
+import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.ws.Holder;
-import lombok.Setter;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.entity.ContentType;
-import org.bouncycastle.asn1.ASN1InputStream;
-import org.bouncycastle.asn1.ASN1Primitive;
-import org.bouncycastle.asn1.DEROctetString;
-import org.bouncycastle.asn1.isismtt.ISISMTTObjectIdentifiers;
-import org.bouncycastle.asn1.isismtt.x509.AdmissionSyntax;
-import org.bouncycastle.cms.CMSProcessableByteArray;
-import org.bouncycastle.cms.CMSSignedData;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.hl7.fhir.r4.model.Binary;
-import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Task;
-import org.jetbrains.annotations.NotNull;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -98,13 +77,35 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.entity.ContentType;
+import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.ASN1Primitive;
+import org.bouncycastle.asn1.DEROctetString;
+import org.bouncycastle.asn1.isismtt.ISISMTTObjectIdentifiers;
+import org.bouncycastle.asn1.isismtt.x509.AdmissionSyntax;
+import org.bouncycastle.cms.CMSProcessableByteArray;
+import org.bouncycastle.cms.CMSSignedData;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.hl7.fhir.r4.model.Binary;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Task;
+import org.jboss.resteasy.client.jaxrs.internal.ClientInvocationBuilder;
+import org.jetbrains.annotations.NotNull;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 import static health.ere.ps.service.gematik.ReadVSDHelper.ungzip;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 
 /**
- * Note: reading, writing and resending of failed rejects are done by one Thread (see scheduledExecutorService),
- * no additional synchronization for retrying reject is needed
+ * Note: reading, writing and resending of failed rejects are done by one Thread (see scheduledExecutorService), no
+ * additional synchronization for retrying reject is needed
  */
 @ApplicationScoped
 public class PharmacyService implements AutoCloseable {
@@ -151,8 +152,7 @@ public class PharmacyService implements AutoCloseable {
     Optional<String> preferredSmcb;
 
     /**
-     * By default, should be the static file.
-     * A test case can change this to a temporary file.
+     * By default, should be the static file. A test case can change this to a temporary file.
      */
     Path failedRejectsFile = Paths.get(FAILED_REJECTS_FILE);
 
@@ -235,7 +235,6 @@ public class PharmacyService implements AutoCloseable {
         }
         runtimeConfig.setSMCBHandle(smcbHandle);
         ReadVSDResponse readVSDResponse = readVSD(correlationId, egkHandle, smcbHandle, runtimeConfig);
-        String pnw = Base64.getEncoder().encodeToString(readVSDResponse.getPruefungsnachweis());
 
         KVNRAndTelematikId kvnrAndTelematikId = extractKVNRAndTelematikId(readVSDResponse);
         String telematikId = kvnrAndTelematikId.telematikId;
@@ -249,20 +248,27 @@ public class PharmacyService implements AutoCloseable {
             }
         }
 
-        Invocation.Builder builder = client.target(appConfig.getPrescriptionServiceURL()).path("/Task")
-            .queryParam("kvnr", kvnr != null ? kvnr : kvnrAndTelematikId.kvnr)
-            .queryParam("hcv", extractHCV(readVSDResponse))
-            .queryParam("pnw", pnw).request()
-            .header("Content-Type", "application/fhir+xml")
-            .header("User-Agent", appConfig.getUserAgent())
-            .header("Authorization", "Bearer " + bearerTokenService.getBearerToken(runtimeConfig));
-
-        if (appConfig.isZetaEnabled()) {
-            String poppToken = poppClient.getToken(runtimeConfig, egkHandle);
-            builder = builder.header("X-Popp-Token", poppToken);
+        final WebTarget target = client.target(appConfig.getPrescriptionServiceURL()).path("/Task");
+        Invocation.Builder builder;
+        var pruefnachweisAsText = new String(readVSDResponse.getPruefungsnachweis());
+        var isPoppTokenInPruefnachweis = pruefnachweisAsText.startsWith("popp-token: ");
+        if (appConfig.isZetaEnabled() || isPoppTokenInPruefnachweis) {
+            var poppToken = isPoppTokenInPruefnachweis ? pruefnachweisAsText.substring(12)
+                : poppClient.getToken(runtimeConfig, egkHandle);
+            builder = target.request().header("X-PoPP-Token", poppToken);
+        } else {
+            String pnw = Base64.getEncoder().encodeToString(readVSDResponse.getPruefungsnachweis());
+            builder = target.queryParam("kvnr", kvnr != null ? kvnr : kvnrAndTelematikId.kvnr)
+                .queryParam("hcv", extractHCV(readVSDResponse))
+                .queryParam("pnw", pnw).request()
+                .header("Content-Type", "application/fhir+xml")
+                .header("User-Agent", appConfig.getUserAgent());
         }
+
+        builder.header("Authorization", "Bearer " + bearerTokenService.getBearerToken(runtimeConfig));
+
         try (Response response = builder.get()) {
-            String event = getEvent(factory.newDocumentBuilder(), readVSDResponse.getPruefungsnachweis());
+            String event = isPoppTokenInPruefnachweis ? "" : getEvent(factory.newDocumentBuilder(), readVSDResponse.getPruefungsnachweis());
             String bundleString = new String(response.readEntity(InputStream.class).readAllBytes(), getCharset(response));
 
             if (Response.Status.Family.familyOf(response.getStatus()) != Response.Status.Family.SUCCESSFUL) {
