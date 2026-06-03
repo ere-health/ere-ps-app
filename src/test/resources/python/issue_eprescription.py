@@ -299,7 +299,7 @@ def main() -> int:
 
     print(
         "\nVerify (use a pharmacy SMC-B, not the doctor's):\n"
-        '  curl "http://localhost:8080/pharmacy/Task?egkHandle=<EGK-HANDLE>&smcbHandle=<SMC-B-HANDLE>"'
+        "  curl http://localhost:8080/pharmacy/Task?egkHandle=<EGK-HANDLE>&smcbHandle=<SMC-B-HANDLE>"
     )
 
     return 0 if ok else 1
