@@ -39,10 +39,10 @@ import jakarta.ws.rs.core.Response;
 
 /**
  * Engine for RestEasy inspired by the Gematik implementation of VAU:
- * https://github.com/gematik/ref-ePA-vauchannel/blob/master/vauchannel-cxf/src/main/java/de/gematik/ti/vauchannel/cxf/AESInterceptor.java
+ * <a href="https://github.com/gematik/ref-ePA-vauchannel/blob/master/vauchannel-cxf/src/main/java/de/gematik/ti/vauchannel/cxf/AESInterceptor.java">...</a>
  * <p>
  * Certificate can be downloaded here:
- * https://fd.erezept-instanz1.titus.ti-dienste.de/VAUCertificate
+ * <a href="https://fd.erezept-instanz1.titus.ti-dienste.de/VAUCertificate">...</a>
  */
 public class VAUEngine extends ApacheHttpClient43Engine {
     private static final Logger log = Logger.getLogger(VAUEngine.class.getName());
@@ -52,7 +52,7 @@ public class VAUEngine extends ApacheHttpClient43Engine {
     ThreadLocal<String> requestidThreadLocal = new ThreadLocal<>();
     String userpseudonym = "0";
     private VAU vau;
-    private ThreadLocal<byte[]> aeskeyThreadLocal = new ThreadLocal<>();
+    private final ThreadLocal<byte[]> aeskeyThreadLocal = new ThreadLocal<>();
 
     public VAUEngine(String fachdienstUrl) {
         this.fachdienstUrl = fachdienstUrl;
@@ -60,7 +60,7 @@ public class VAUEngine extends ApacheHttpClient43Engine {
 
     /**
      * This function inits a Vau session described in the following document
-     * https://fachportal.gematik.de/fachportal-import/files/gemSpec_Krypt_V2.19.0.pdf
+     * <a href="https://fachportal.gematik.de/fachportal-import/files/gemSpec_Krypt_V2.19.0.pdf">...</a>
      * Chapter 6 Page 78
      */
     public void initVauSession() {
@@ -165,14 +165,12 @@ public class VAUEngine extends ApacheHttpClient43Engine {
 
     @Override
     public Response invoke(Invocation inv) {
-        Response response = null;
-        
         ClientInvocation request = (ClientInvocation) inv;
         if(request.getMethod().equals("GET")) {
             // enforce that build entity is called
             request.setEntityObject("");
         }
-        response = super.invoke(inv);
+        Response response = super.invoke(inv);
 
         byte[] transportedData;
         byte[] responseBytes = null;

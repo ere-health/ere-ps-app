@@ -36,7 +36,6 @@ import com.diffplug.common.base.Throwing;
 
 import health.ere.ps.exception.idp.IdpClientException;
 import health.ere.ps.exception.idp.IdpException;
-import health.ere.ps.exception.idp.IdpJoseException;
 import health.ere.ps.model.idp.client.AuthenticationRequest;
 import health.ere.ps.model.idp.client.AuthenticationResponse;
 import health.ere.ps.model.idp.client.AuthorizationRequest;
@@ -128,7 +127,7 @@ public class AuthenticatorClient {
                 .location(location)
                 /*.ssoToken(extractParameterValue(location, "ssotoken"))*/
                 .build();
-        } catch(WebApplicationException ex) {
+        } catch (WebApplicationException ex) {
             throw new IdpClientException("Unexpected Server-Response: " + ex.getResponse().getStatus() + " " + ex.getResponse().readEntity(String.class));
         }
     }
