@@ -26,30 +26,40 @@ import lombok.Getter;
 
 @Getter
 public enum CardConnectionType {
-  CONTACT_STANDARD("contact-standard"),
-  CONTACTLESS_STANDARD("contactless-standard"),
-  CONTACT_CONNECTOR("contact-connector"),
-  CONTACTLESS_CONNECTOR("contactless-connector"),
-  UNKNOWN("unknown");
+    CONTACT_STANDARD("contact-standard", true),
+    CONTACTLESS_STANDARD("contactless-standard", true),
+    CONTACT_CONNECTOR("contact-connector", false),
+    CONTACTLESS_CONNECTOR("contactless-connector", false),
+    CONTACT_CONNECTOR_VIA_STANDARD_TERMINAL("contact-connector-via-standard-terminal", true),
+    CONTACT_VIRTUAL("contact-virtual", false),
+    CONTACTLESS_VIRTUAL("contactless-virtual", false),
+    G3("g3", false),
+    UNKNOWN("unknown", false);
 
-  private final String connectionType;
+    private final String type;
+    private final boolean needsCardReader;
 
-  CardConnectionType(final String connectionType) {
-    this.connectionType = connectionType;
-  }
-
-  @JsonValue
-  public String getType() {
-    return connectionType;
-  }
-
-  @JsonCreator
-  public static CardConnectionType fromType(final String type) {
-    for (final CardConnectionType messageType : values()) {
-      if (messageType.connectionType.equals(type)) {
-        return messageType;
-      }
+    CardConnectionType(String type, boolean needsCardReader) {
+        this.type = type;
+        this.needsCardReader = needsCardReader;
     }
-    throw new IllegalArgumentException("Unknown card connection type: " + type);
-  }
+
+    @JsonValue
+    public String getType() {
+        return type;
+    }
+
+    public boolean requiresCardReader() {
+        return needsCardReader;
+    }
+
+    @JsonCreator
+    public static CardConnectionType fromType(String type) {
+        for (CardConnectionType t : values()) {
+            if (t.type.equalsIgnoreCase(type)) {
+                return t;
+            }
+        }
+        throw new IllegalArgumentException("Unknown card connection type: " + type);
+    }
 }

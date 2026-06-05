@@ -24,14 +24,14 @@ import lombok.Getter;
 
 @Getter
 public enum EnumSessionKeys {
-  PROCESS_STATE_KEY("PROCESS_STATE"),
-  POPP_CLIENT_INFORMATION_KEY("POPP_CLIENT_INFORMATION"),
-  CURRENT_SCENARIO_KEY("CURRENT_SCENARIO"),
-  STATE_OF_SCENARIO_KEY("STATE_OF_SCENARIO");
+    PROCESS_STATE_KEY("PROCESS_STATE"),
+    POPP_CLIENT_INFORMATION_KEY("POPP_CLIENT_INFORMATION"),
+    CURRENT_SCENARIO_KEY("CURRENT_SCENARIO"),
+    STATE_OF_SCENARIO_KEY("STATE_OF_SCENARIO");
 
-  private final String key;
+    private final String key;
 
-  EnumSessionKeys(final String key) {
-    this.key = key;
-  }
+    EnumSessionKeys(final String key) {
+        this.key = key;
+    }
 }

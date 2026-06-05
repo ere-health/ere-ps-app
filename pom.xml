@@ -359,7 +359,7 @@
         <dependency>
             <groupId>de.gematik.zeta</groupId>
             <artifactId>zeta-sdk-jvm</artifactId>
-            <version>0.3.1</version>
+            <version>1.0.1</version>
         </dependency>
 
         <dependency>

@@ -20,41 +20,42 @@
 
 package health.ere.ps.model.popp.messages;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.Serial;
-import java.io.Serializable;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 import static health.ere.ps.model.popp.enums.EnumPoPPMessageTypes.TOKEN_MESSAGE;
 
-/** Sent by the server to provide the client with a POPP token. */
+/** Sent by the server to provide the client with a PoPP token. */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public final class TokenMessage extends PoPPMessage implements Serializable {
 
-  @Serial private static final long serialVersionUID = 1L;
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-  /** POPP token as JWT compact serialization. */
-  @JsonProperty("token")
-  @NonNull
-  private final String token;
+    /** PoPP token as JWT compact serialization. */
+    @JsonProperty("token")
+    @NonNull
+    private final String token;
 
-  /** Prüfnachweis */
-  @JsonProperty("pn")
-  @NonNull
-  private String pn;
+    /** Prüfnachweis */
+    @JsonProperty("pn")
+    @NonNull
+    private String pn;
 
-  public TokenMessage(final String token, final String pn) {
-    this.token = token;
-    this.pn = pn;
-    this.type = TOKEN_MESSAGE;
-  }
+    public TokenMessage(final String token, final String pn) {
+        this.token = token;
+        this.pn = pn;
+        this.type = TOKEN_MESSAGE;
+    }
 }

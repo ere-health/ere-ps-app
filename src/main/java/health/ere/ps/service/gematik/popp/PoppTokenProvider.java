@@ -59,7 +59,7 @@ public class PoppTokenProvider {
         String sessionId = egkClient.startCardSession(egkHandle);
 
         StartMessage startMessage = StartMessage.builder()
-            .version("1.0")
+            .version("1.0.0")
             .clientSessionId(sessionId)
             .cardConnectionType(CONTACT_CONNECTOR)
             .build();

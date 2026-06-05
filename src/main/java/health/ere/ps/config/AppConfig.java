@@ -103,9 +103,6 @@ public class AppConfig implements ISubscriptionConfig {
     @ConfigProperty(name = "zeta.enabled", defaultValue = "false")
     boolean zetaEnabled;
 
-    @ConfigProperty(name = "zeta.auth.server.url", defaultValue = "https://zeta-cd.westeurope.cloudapp.azure.com")
-    String zetaAuthServerUrl;
-
     @ConfigProperty(name = "popp.server.url", defaultValue = "https://popp-server.com")
     String poppServerUrl;
 
@@ -117,21 +114,6 @@ public class AppConfig implements ISubscriptionConfig {
 
     @ConfigProperty(name = "zeta.client.name", defaultValue = "zetaClientName")
     String zetaClientName;
-
-    @ConfigProperty(name = "zeta.assessment.name", defaultValue = "assessment.name")
-    String zetaAssessmentName;
-
-    @ConfigProperty(name = "zeta.assessment.client.id", defaultValue = "assessment.client.id")
-    String zetaAssessmentClientId;
-
-    @ConfigProperty(name = "zeta.assessment.manufacturer.id", defaultValue = "assessment.manufacturer.id")
-    String zetaAssessmentManufacturerId;
-
-    @ConfigProperty(name = "zeta.assessment.manufacturer.name", defaultValue = "assessment.manufacturer.name")
-    String zetaAssessmentManufacturerName;
-
-    @ConfigProperty(name = "zeta.assessment.owner.mail", defaultValue = "owner@mail.de")
-    String zetaAssessmentOwnerMail;
 
     public String getDiscoveryDocumentUrl() {
         return getIdpBaseURL() + IdpHttpClientService.DISCOVERY_DOCUMENT_URI;

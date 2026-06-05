@@ -23,6 +23,7 @@ package health.ere.ps.model.popp.messages;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.io.Serial;
 import java.io.Serializable;
 
@@ -31,7 +32,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import org.jetbrains.annotations.NotNull;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -39,24 +39,25 @@ import org.jetbrains.annotations.NotNull;
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
 public final class ConnectorScenarioMessage extends PoPPMessage implements Serializable {
 
-  @Serial private static final long serialVersionUID = -5965692740221251032L;
+    @Serial
+    private static final long serialVersionUID = -5965692740221251032L;
 
-  /** Version of the scenario message. version = "1.0.0": actual value of "version". */
-  @JsonProperty("version")
-  @NonNull
-  private String version;
+    /** Version of the scenario message. version = "1.0.0": actual value of "version". */
+    @JsonProperty("version")
+    @NonNull
+    private String version;
 
-  /**
-   * JWT according to RFC 7519 with a StandardScenarioMessage as payload. The payload is signed by
-   * the PoPP-Service.
-   */
-  @NonNull
-  @JsonProperty("signedScenario")
-  private String signedScenario;
+    /**
+     * JWT according to RFC 7519 with a StandardScenarioMessage as payload. The payload is signed by
+     * the PoPP-Service.
+     */
+    @NonNull
+    @JsonProperty("signedScenario")
+    private String signedScenario;
 
-  public ConnectorScenarioMessage(final @NotNull String version, final @NotNull String signedScenario) {
-    this.version = version;
-    this.signedScenario = signedScenario;
-    this.type = EnumPoPPMessageTypes.CONNECTOR_SCENARIO_MESSAGE;
-  }
+    public ConnectorScenarioMessage(final String version, final String signedScenario) {
+        this.version = version;
+        this.signedScenario = signedScenario;
+        this.type = EnumPoPPMessageTypes.CONNECTOR_SCENARIO_MESSAGE;
+    }
 }

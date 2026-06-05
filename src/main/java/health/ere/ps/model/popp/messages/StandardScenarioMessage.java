@@ -46,58 +46,60 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public final class StandardScenarioMessage extends PoPPMessage implements Serializable {
 
-  @Serial private static final long serialVersionUID = 5254368164751960542L;
+    @Serial
+    private static final long serialVersionUID = 5254368164751960542L;
 
-  /** Version of the scenario message. version = "1.0.0": actual value of "version". */
-  @JsonProperty("version")
-  @NonNull
-  private String version;
+    /** Version of the scenario message. version = "1.0.0": actual value of "version". */
+    @JsonProperty("version")
+    @NonNull
+    private String version;
 
-  /**
-   * Session identifier for the scenario message. The value is taken from
-   * "StartMessage.clientSessionId".
-   */
-  @JsonProperty("clientSessionId")
-  @NonNull
-  private String clientSessionId;
+    /**
+     * Session identifier for the scenario message. The value is taken from
+     * "StartMessage.clientSessionId".
+     */
+    @JsonProperty("clientSessionId")
+    @NonNull
+    private String clientSessionId;
 
-  /**
-   * An integer in range [0, 32767] preventing replay attacks within a sequence of
-   * "ConnectorScenarioMessage" i.e., a group of more than one "ConnectorScenarioMessage" where all
-   * included "StandardScenarioMessage" share the same "clientSessionId". The first
-   * "StandardScenarioMessage" in a sequence has "sequenceCounter=0". In the next
-   * "StandardScenarioMessage" the "sequenceCounter" is incremented by one.
-   */
-  @JsonProperty("sequenceCounter")
-  private int sequenceCounter;
+    /**
+     * An integer in range [0, 32767] preventing replay attacks within a sequence of
+     * "ConnectorScenarioMessage" i.e., a group of more than one "ConnectorScenarioMessage" where all
+     * included "StandardScenarioMessage" share the same "clientSessionId". The first
+     * "StandardScenarioMessage" in a sequence has "sequenceCounter=0". In the next
+     * "StandardScenarioMessage" the "sequenceCounter" is incremented by one.
+     */
+    @JsonProperty("sequenceCounter")
+    private int sequenceCounter;
 
-  /**
-   * An integer in range [0, 32767] indicating the time span in milliseconds for the PoPP-Service
-   * between receiving a "ScenarioResultMessage" till the (expected) send time of the next
-   * "StandardScenarioMessage" or "ConnectorScenarioMessage". A Connector or client uses this
-   * information to detect a timeout. The special value "timeSpan=0" indicates that this is the last
-   * "StandardScenarioMessage" in a sequence.
-   */
-  @JsonProperty("timeSpan")
-  private int timeSpan;
+    /**
+     * An integer in range [0, 32767] indicating the time span in milliseconds for the PoPP-Service
+     * between receiving a "ScenarioResultMessage" till the (expected) send time of the next
+     * "StandardScenarioMessage" or "ConnectorScenarioMessage". A Connector or client uses this
+     * information to detect a timeout. Connector sequences rely on a value greater than 0 until the
+     * final message of the sequence. The special value "timeSpan=0" indicates that this is the last
+     * "StandardScenarioMessage" in a sequence.
+     */
+    @JsonProperty("timeSpan")
+    private int timeSpan;
 
-  /** List of steps in the scenario. */
-  @JsonProperty("steps")
-  @NonNull
-  private List<ScenarioStep> steps;
+    /** List of steps in the scenario. */
+    @JsonProperty("steps")
+    @NonNull
+    private List<ScenarioStep> steps;
 
-  @Builder
-  private StandardScenarioMessage(
-      final String version,
-      final String clientSessionId,
-      final int sequenceCounter,
-      final int timeSpan,
-      final List<ScenarioStep> steps) {
-    this.version = version;
-    this.clientSessionId = clientSessionId;
-    this.sequenceCounter = sequenceCounter;
-    this.timeSpan = timeSpan;
-    this.steps = steps;
-    this.type = EnumPoPPMessageTypes.STANDARD_SCENARIO_MESSAGE;
-  }
+    @Builder
+    private StandardScenarioMessage(
+        final String version,
+        final String clientSessionId,
+        final int sequenceCounter,
+        final int timeSpan,
+        final List<ScenarioStep> steps) {
+        this.version = version;
+        this.clientSessionId = clientSessionId;
+        this.sequenceCounter = sequenceCounter;
+        this.timeSpan = timeSpan;
+        this.steps = steps;
+        this.type = EnumPoPPMessageTypes.STANDARD_SCENARIO_MESSAGE;
+    }
 }
