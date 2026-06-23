@@ -1,0 +1,81 @@
+###
+# Prerequisite: ./mvnw package -DskipTests
+#
+# Usage:
+#   docker build -f src/main/docker/Dockerfile.alpine -t ere-ps-app:latest .
+#
+# Build ARGs:
+#   CERT_PASSWORD    - PKCS12 keystore password for server cert  (default: password)
+#
+# Runtime ENV:
+#   CN               - x509 Common Name for the generated client cert (required)
+#   CERT_PASSWORD    - PKCS12 keystore password for client cert  (default: password)
+#   CONNECTOR_HOST   - host for connector + cardlink             (default: localhost)
+#   CONNECTOR_PORT   - port to poll for connector.sds            (default: 8780)
+#   CONNECTOR_URL    - full connectorBaseURL override            (default: https://<CONNECTOR_HOST>:9443)
+#   CARDLINK_URL     - full cardlinkServerURL override           (default: ws://<CONNECTOR_HOST>:8780/...)
+#   MANDANT_ID       - mandantId                                 (default: Incentergy)
+#   CLIENT_SYSTEM_ID - clientSystemId                            (default: Incentergy)
+#   WORKPLACE_ID     - workplaceId                               (default: ere-ps-app)
+###
+
+# ── Stage 1: server cert generation ──────────────────────────────────────────
+# eclipse-temurin ships keytool — no package installation or network needed.
+FROM eclipse-temurin:21-jdk AS builder
+
+ARG CERT_PASSWORD=password
+
+# Placeholder so the logs directory can be copied into the runtime image
+RUN mkdir -p /logs && touch /logs/.keep
+
+# Generate self-signed server keystore for HTTPS (password must match quarkus.http.ssl.certificate.key-store-password)
+RUN keytool -genkeypair \
+      -alias server \
+      -keyalg RSA \
+      -keysize 2048 \
+      -sigalg SHA256withRSA \
+      -dname "CN=ere-ps-app" \
+      -validity 3650 \
+      -storetype JKS \
+      -keystore /server.keystore \
+      -storepass "${CERT_PASSWORD}" \
+      -keypass "${CERT_PASSWORD}"
+
+# ── Stage 2: Runtime ──────────────────────────────────────────────────────────
+FROM eclipse-temurin:21-jre-alpine
+
+RUN apk add --no-cache curl openssl && \
+    addgroup -S appgroup && adduser -S -u 65532 -G appgroup appuser
+
+WORKDIR /deployments
+
+# Four distinct layers: lib changes least, app code most — maximises cache reuse
+COPY target/quarkus-app/lib/     ./lib/
+COPY target/quarkus-app/*.jar    ./
+COPY target/quarkus-app/app/     ./app/
+COPY target/quarkus-app/quarkus/ ./quarkus/
+
+COPY --from=builder --chown=appuser:appgroup /logs/ ./logs/
+COPY --from=builder --chown=appuser:appgroup /server.keystore ./server.keystore
+
+COPY src/main/docker/entrypoint.alpine.sh /entrypoint.sh
+# Pre-create writable paths for entrypoint cert generation
+RUN chmod +x /entrypoint.sh && \
+    mkdir -p config/konnektoren/8586 && \
+    chown -R appuser:appgroup config/konnektoren && \
+    touch user.properties && \
+    chown appuser:appgroup user.properties
+
+EXPOSE 8080 8443 8586
+
+USER appuser
+
+ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
+CMD [ \
+  "java", \
+  "-Dquarkus.http.host=0.0.0.0", \
+  "-Djava.util.logging.manager=org.jboss.logmanager.LogManager", \
+  "-Dquarkus.http.ssl.certificate.key-store-file=server.keystore", \
+  "-Djava.net.preferIPv4Stack=true", \
+  "-jar", "quarkus-run.jar" \
+]
