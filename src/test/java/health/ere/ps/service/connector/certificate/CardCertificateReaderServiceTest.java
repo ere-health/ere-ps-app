@@ -25,7 +25,7 @@ import health.ere.ps.exception.connector.ConnectorCardCertificateReadException;
 import health.ere.ps.exception.connector.ConnectorCardsException;
 import health.ere.ps.service.connector.provider.MultiConnectorServicesProvider;
 import jakarta.xml.ws.Holder;
-import net.sourceforge.plantuml.utils.Log;
+import io.quarkus.logging.Log;
 
 class CardCertificateReaderServiceTest {
 
