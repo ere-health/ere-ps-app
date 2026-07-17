@@ -213,7 +213,7 @@ public class PrefillPrescriptionService {
         Organization organization = new Organization();
 
         organization.setId(UUID.randomUUID().toString()).getMeta()
-            .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Organization|1.1.0");
+            .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Organization|1.2");
 
         Identifier identifier = organization.addIdentifier();
 
@@ -258,7 +258,7 @@ public class PrefillPrescriptionService {
         Practitioner practitioner = new Practitioner();
 
         practitioner.setId(UUID.randomUUID().toString()).getMeta()
-            .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner|1.1.0");
+            .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner|1.2");
 
         Identifier identifier = practitioner.addIdentifier();
         CodeableConcept identifierCodeableConcept = identifier.getType();
@@ -357,10 +357,10 @@ public class PrefillPrescriptionService {
         Medication medication = new Medication();
 
         medication.setId(UUID.randomUUID().toString()).getMeta()
-            .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.1.0");
+            .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.3");
 
         Coding medicationType = new Coding("http://snomed.info/sct", "763158003", "Medicinal product (product)");
-        medicationType.setVersion("http://snomed.info/sct/900000000000207008/version/20220331");
+        medicationType.setVersion("http://snomed.info/sct/11000274103/version/20240515");
         CodeableConcept codeableConcept = new CodeableConcept(medicationType);
         Extension medicationTypeEx = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Medication_Type", codeableConcept);
         medication.addExtension(medicationTypeEx);
@@ -400,7 +400,7 @@ public class PrefillPrescriptionService {
 
         medicationRequest.setId(UUID.randomUUID().toString());
 
-        medicationRequest.getMeta().addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.1.0");
+        medicationRequest.getMeta().addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.3");
 
         Coding valueCoding = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_StatusCoPayment", "0", null);
         Extension coPayment = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_StatusCoPayment",
@@ -412,7 +412,7 @@ public class PrefillPrescriptionService {
             "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_EmergencyServicesFee", new BooleanType(false));
         medicationRequest.addExtension(emergencyServicesFee);
 
-        Extension bvg = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_BVG", new BooleanType(false));
+        Extension bvg = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_SER", new BooleanType(false));
         medicationRequest.addExtension(bvg);
 
         // <extension
@@ -444,8 +444,9 @@ public class PrefillPrescriptionService {
         MedicationRequest.MedicationRequestDispenseRequestComponent dispenseRequest = new MedicationRequestDispenseRequestComponent();
         Quantity quantity = new Quantity();
         quantity.setValue(1);
-        quantity.setSystem("http://unitsofmeasure.org");
-        quantity.setCode("{Package}");
+        // quantity.setSystem("http://unitsofmeasure.org");
+        // quantity.setCode("{Package}");
+        quantity.setUnit("Packung");
         dispenseRequest.setQuantity(quantity);
         medicationRequest.setDispenseRequest(dispenseRequest);
         MedicationRequestSubstitutionComponent substitution = new MedicationRequestSubstitutionComponent();
@@ -495,12 +496,12 @@ public class PrefillPrescriptionService {
         Patient patient = new Patient();
         patient.setId(UUID.randomUUID().toString())
             .getMeta()
-            .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.1.0");
+            .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.2");
         Identifier identifier = patient.addIdentifier();
         CodeableConcept identifierCodeableConcept = identifier.getType();
         identifierCodeableConcept.addCoding()
             .setSystem("http://fhir.de/CodeSystem/identifier-type-de-basis")
-            .setCode("GKV");
+            .setCode("KVZ10");
         identifier.setSystem("http://fhir.de/sid/gkv/kvid-10")
             .setValue("T555558879");
         patient.addName()
@@ -522,7 +523,7 @@ public class PrefillPrescriptionService {
         Coverage coverage = new Coverage();
         coverage.setId(UUID.randomUUID().toString())
             .getMeta()
-            .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Coverage|1.1.0");
+            .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Coverage|1.2");
         Coding besonderePersonengruppe = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_PERSONENGRUPPE", "00", null);
         Extension besonderePersonengruppeEx = new Extension("http://fhir.de/StructureDefinition/gkv/besondere-personengruppe", besonderePersonengruppe);
         coverage.addExtension(besonderePersonengruppeEx);
@@ -544,7 +545,7 @@ public class PrefillPrescriptionService {
         Medication medication = new Medication();
         medication.setId(UUID.randomUUID().toString())
             .getMeta()
-            .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_FreeText|1.1.0");
+            .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_FreeText|1.3");
         Coding medicationCategory = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Category", "00", null);
         Extension medicationCategoryEx = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Category", medicationCategory);
         medication.addExtension(medicationCategoryEx);

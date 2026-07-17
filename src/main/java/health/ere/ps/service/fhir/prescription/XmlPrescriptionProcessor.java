@@ -30,14 +30,14 @@ public abstract class XmlPrescriptionProcessor {
     protected abstract void adjustTypeEntries(Bundle bundle, Practitioner practitioner, Patient patient);
 
     public Bundle createFixedBundleFromString(String bundleXml) {
-        bundleXml = bundleXml.replaceAll("\\|1.0.1", "|1.1.0");
+        bundleXml = bundleXml.replaceAll("\\|1.0.1", "|1.3");
 
         Bundle bundle = fhirContext.newXmlParser().parseResource(Bundle.class, bundleXml);
         fixFullUrls(bundle);
         fixReferencesInComposition(bundle);
 
-        // Next issue ERROR - Bundle.entry[4].resource.ofType(Practitioner) - Practitioner.qualification: minimum required = 2, but only found 1 (from https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner|1.0.3)
-        // Next issue ERROR - Bundle.entry[4].resource.ofType(Practitioner) - Practitioner.qualification:Berufsbezeichnung: minimum required = 1, but only found 0 (from https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner|1.0.3)
+        // Next issue ERROR - Bundle.entry[4].resource.ofType(Practitioner) - Practitioner.qualification: minimum required = 2, but only found 1 (from https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner|1.2)
+        // Next issue ERROR - Bundle.entry[4].resource.ofType(Practitioner) - Practitioner.qualification:Berufsbezeichnung: minimum required = 1, but only found 0 (from https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner|1.2)
 
         Practitioner practitioner = getTypeFromBundle(Practitioner.class, bundle);
 
@@ -155,7 +155,7 @@ public abstract class XmlPrescriptionProcessor {
         composition.setId(UUID.randomUUID().toString());
 
         composition.getMeta().addProfile(
-            "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Composition|1.1.0");
+            "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Composition|1.3");
 
         Coding valueCoding = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_STATUSKENNZEICHEN", "04", null);
         Extension legalBasis = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Legal_basis", valueCoding);

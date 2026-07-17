@@ -37,7 +37,7 @@ public class MedicationPrescriptionProcessor extends XmlPrescriptionProcessor {
 
     @Override
     protected void adjustTypeEntries(Bundle bundle, Practitioner practitioner, Patient patient) {
-        // Next issue ERROR - Bundle.entry[1].resource.ofType(MedicationRequest).dispenseRequest - MedicationRequest.dispenseRequest.quantity: minimum required = 1, but only found 0 (from https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.1.0)
+        // Next issue ERROR - Bundle.entry[1].resource.ofType(MedicationRequest).dispenseRequest - MedicationRequest.dispenseRequest.quantity: minimum required = 1, but only found 0 (from https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.3)
 
         MedicationRequest medicationRequest = getTypeFromBundle(MedicationRequest.class, bundle);
         medicationRequest.getAuthoredOnElement().setPrecision(DAY);

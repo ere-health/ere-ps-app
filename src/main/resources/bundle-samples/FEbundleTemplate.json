@@ -120,10 +120,6 @@
             "valueBoolean": false
           },
           {
-            "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_BVG",
-            "valueBoolean": false
-          },
-          {
             "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription",
             "extension": [
               {
@@ -212,7 +208,7 @@
         "id": "$PATIENT_ID",
         "meta": {
           "profile": [
-            "https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.0.3"
+            "https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.2"
           ]
         },
         "identifier": [
@@ -221,7 +217,7 @@
               "coding": [
                 {
                   "system": "http://fhir.de/CodeSystem/identifier-type-de-basis",
-                  "code": "GKV"
+                  "code": "KVZ10"
                 }
               ]
             },
@@ -270,7 +266,7 @@
         "id": "$PRACTITIONER_ID",
         "meta": {
           "profile": [
-            "https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner|1.0.3"
+            "https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner|1.2"
           ]
         },
         "identifier": [
@@ -318,7 +314,7 @@
         "id": "$ORGANIZATION_ID",
         "meta": {
           "profile": [
-            "https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Organization|1.0.3"
+            "https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Organization|1.2"
           ]
         },
         "identifier": [
@@ -373,7 +369,7 @@
         "id": "$COVERAGE_ID",
         "meta": {
           "profile": [
-            "https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Coverage|1.0.3"
+            "https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Coverage|1.2"
           ]
         },
         "extension": [

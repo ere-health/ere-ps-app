@@ -263,7 +263,7 @@ public class GenerateKBVCertificationBundlesService {
 
         medication.setId(UUID.randomUUID().toString())
                 .getMeta()
-                .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Ingredient|1.1.0");
+                .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Ingredient|1.3");
 
 
         Coding medicationCategory = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Category", "00", null);
@@ -364,7 +364,7 @@ public class GenerateKBVCertificationBundlesService {
 
         medication.setId(UUID.randomUUID().toString())
                 .getMeta()
-                .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.1.0");
+                .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.3");
 
 
         Coding medicationCategory = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Category", "00", null);
@@ -412,7 +412,7 @@ public class GenerateKBVCertificationBundlesService {
 
         medication.setId(UUID.randomUUID().toString())
                 .getMeta()
-                .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_FreeText|1.1.0");
+                .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_FreeText|1.3");
 
 
         Coding medicationCategory = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Category", "00", null);
@@ -464,7 +464,7 @@ public class GenerateKBVCertificationBundlesService {
         medicationRequest.setId(UUID.randomUUID().toString());
 
         medicationRequest.getMeta()
-                .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.1.0");
+                .addProfile("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.3");
 
         Coding valueCoding = new Coding("https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_StatusCoPayment",
                 statusCoPayment, null);
@@ -475,7 +475,7 @@ public class GenerateKBVCertificationBundlesService {
         Extension emergencyServicesFee = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_EmergencyServicesFee", new BooleanType(emergencyServiceFeeParam));
         medicationRequest.addExtension(emergencyServicesFee);
 
-        Extension bvg = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_BVG", new BooleanType(bvgFlag));
+        Extension bvg = new Extension("https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_SER", new BooleanType(bvgFlag));
         medicationRequest.addExtension(bvg);
         
         //         <extension url="https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription">
@@ -566,8 +566,9 @@ public class GenerateKBVCertificationBundlesService {
         MedicationRequest.MedicationRequestDispenseRequestComponent dispenseRequest = new MedicationRequestDispenseRequestComponent();
         Quantity quantity = new Quantity();
         quantity.setValue(quantityNumber);
-        quantity.setSystem("http://unitsofmeasure.org");
-        quantity.setCode("{Package}");
+        // quantity.setSystem("http://unitsofmeasure.org");
+        // quantity.setCode("{Package}");
+        quantity.setUnit("Packung");
         dispenseRequest.setQuantity(quantity);
         medicationRequest.setDispenseRequest(dispenseRequest);
         MedicationRequestSubstitutionComponent substitution = new MedicationRequestSubstitutionComponent();
